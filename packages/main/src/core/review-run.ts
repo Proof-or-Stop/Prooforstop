@@ -9,6 +9,7 @@ import {
   currentStoryFilesHash,
 } from './evidence-freshness.js';
 import { verifyFinding, verifyReviewPass } from './finding-verify.js';
+import { REVIEW_RETENTION_PROTOCOL_METADATA_PATHS } from './lifecycle-registry.js';
 import type { Finding, ReviewPass, ReviewRun, ReviewRunWorkspaceBinding, StoryInfo } from './types.js';
 import type { StoryStore } from './store.js';
 import { buildScopeDiffPack } from './scope-diff-pack.js';
@@ -20,7 +21,6 @@ import {
   type ScopeBindingComparison,
 } from './review-scope-binding.js';
 import {
-  CLOSEOUT_WRITE_RECEIPTS_PATH,
   closeoutArtifactPolicyFor,
   evaluateMetadataOnlyReviewRetention,
   latestValidCloseoutReceipt,
@@ -673,14 +673,6 @@ function workspaceBindingHint(storyId: string, lane: string): string {
   return `→ Re-run lattice review_run_start '{"storyId":"${storyId}","agent":"${lane}"}' from the resolved signed workspace, then resubmit finding_add/review_pass_set with the new reviewRunId`;
 }
 
-const REVIEW_PROTOCOL_METADATA_PATHS = new Set([
-  'review-runs.json',
-  'review-passes.json',
-  'findings.json',
-  'process-events.jsonl',
-  CLOSEOUT_WRITE_RECEIPTS_PATH,
-]);
-
 function uncommittedPathsUnder(gitCwd: string, prefix: string): string[] {
   const commands = [
     ['diff', '--name-only', '--', prefix],
@@ -730,7 +722,7 @@ export function evaluateReviewRunMetadataRetention(
   const metadataPaths = changedFiles
     .filter((path) => path.startsWith(storyPrefix))
     .map((path) => path.slice(storyPrefix.length))
-    .filter((path) => !REVIEW_PROTOCOL_METADATA_PATHS.has(path));
+    .filter((path) => !REVIEW_RETENTION_PROTOCOL_METADATA_PATHS.has(path));
   const changedArtifacts = metadataPaths.map((artifactPath) => {
     const policy = closeoutArtifactPolicyFor(artifactPath);
     const metadataRoot = run.workspaceBinding?.metadataRoot ?? projectRoot;

@@ -38,6 +38,17 @@ import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../c
 import { currentScopeContextForStory, evaluateReviewRunMetadataRetention } from '../core/review-run.js';
 import type { ReviewRun } from '../core/types.js';
 import { resetConfigCache } from '../core/config.js';
+import { createProofStoryHandlers } from '../handlers/proofstory.js';
+import { createTestHandlers } from '../handlers/test.js';
+import { createTestStoryHandlers } from '../handlers/test-story.js';
+import { createDeliveryCheckHandlers } from '../handlers/delivery-check.js';
+import { createEvaluateHandlers } from '../handlers/evaluate.js';
+import { createSummaryHandlers } from '../handlers/summary.js';
+import { createDeliveryContextPackHandlers } from '../handlers/delivery-context-pack.js';
+import { createLiveSmokeTranscriptHandlers } from '../handlers/live-smoke-transcript.js';
+import { createDoneRequiredValidationHandlers } from '../handlers/done-required-validation.js';
+import { createVerifierHandlers } from '../handlers/verifier.js';
+import type { HandlerContext } from '../handlers/context.js';
 
 const storyId = 'B-closeout';
 const ledger = buildMilestoneLedger({
@@ -96,7 +107,6 @@ assert.deepEqual(
     'delivery-check.json',
     'eval-evidence.json',
     'summary.json',
-    'evidence/transcript-diff.md',
     'evidence/live-smoke-transcript.json',
   ],
 );
@@ -163,6 +173,12 @@ console.log('PASS composite scope digest: semantic scope facts bound');
 validateTrustedMilestoneLedger(ledger, storyId);
 validateTrustedSlicePlan(plan, ledger, storyId);
 validateTrustedParentLedgerRollup(rollup, ledger, plan, storyId);
+const { createdAt: _ledgerCreatedAt, ...ledgerWithoutCreatedAt } = ledger;
+const { updatedAt: _planUpdatedAt, ...planWithoutUpdatedAt } = plan;
+const { createdAt: _rollupCreatedAt, ...rollupWithoutCreatedAt } = rollup;
+assert.throws(() => validateTrustedMilestoneLedger(ledgerWithoutCreatedAt, storyId), /createdAt/);
+assert.throws(() => validateTrustedSlicePlan(planWithoutUpdatedAt, ledger, storyId), /updatedAt/);
+assert.throws(() => validateTrustedParentLedgerRollup(rollupWithoutCreatedAt, ledger, plan, storyId), /createdAt/);
 for (const [name, forged, validator] of [
   ['milestone-ledger.json', { ...ledger, ledgerHash: 'forged' }, () => validateTrustedMilestoneLedger({ ...ledger, ledgerHash: 'forged' }, storyId)],
   ['slice-plan.json', { ...plan, planHash: 'forged' }, () => validateTrustedSlicePlan({ ...plan, planHash: 'forged' }, ledger, storyId)],
@@ -190,6 +206,17 @@ assert.throws(
   () => validatePersistedDeliveryContextPack({ ...deliveryPack, claims: { ...deliveryPack.claims, authorityDone: true } }, storyId),
   /authority claims must all be false/,
 );
+for (const [label, mutation] of [
+  ['non-string changedFiles', { ...deliveryPack, diff: { ...deliveryPack.diff, changedFiles: [42] } }],
+  ['non-string testFiles', { ...deliveryPack, realMachineTests: { ...deliveryPack.realMachineTests, testFiles: [42] } }],
+  ['non-string evidenceCommands', { ...deliveryPack, realMachineTests: { ...deliveryPack.realMachineTests, evidenceCommands: [{}] } }],
+  ['invalid delivery ref', { ...deliveryPack, deliveryCheck: { ...deliveryPack.deliveryCheck, ref: 'forged' } }],
+  ['extra claim', { ...deliveryPack, claims: { ...deliveryPack.claims, forged: false } }],
+  ['invalid routing', { ...deliveryPack, candidateRouting: { artifactDigest: 'a', corpusDigest: 'b', candidateSpecSet: [42], ambiguitySignals: [] } }],
+  ['invalid validation', { ...deliveryPack, validation: { source: 'test-evidence.json', result: 'PASS', timestamp: 'not-time', headHash: null, materialHash: null, storyFilesHash: null } }],
+] as const) {
+  assert.throws(() => validatePersistedDeliveryContextPack(mutation, storyId), Error, label);
+}
 console.log('PASS trusted closeout artifacts: schema and embedded hashes verified');
 
 const retained = evaluateMetadataOnlyReviewRetention({
@@ -227,6 +254,8 @@ const repo = mkdtempSync(join(tmpdir(), 'closeout-retention-'));
 try {
   writeFileSync(join(repo, 'lattice.config.json'), JSON.stringify({
     scanRoot: '.', rootDir: 'src', storyDir: '.lattice/story/actives', testsDir: 'tests', fixturesDir: 'tests/fixtures', requirementsDir: 'docs/requirements', storyPrefix: 'B',
+    validate: { commands: [{ label: 'closeout smoke validate', command: 'node', args: ['-e', 'process.exit(0)'] }] },
+    doneRequiredCommands: [{ label: 'closeout smoke done required', command: 'node', args: ['-e', 'process.exit(0)'] }],
   }), 'utf8');
   mkdirSync(join(repo, 'src'), { recursive: true });
   writeFileSync(join(repo, 'src/app.ts'), 'export const stable = true;\n', 'utf8');
@@ -247,6 +276,8 @@ try {
   store.writeScopeContract(runtimeStoryId, runtimeContract);
   store.writeMilestoneLedger(runtimeStoryId, runtimeLedger);
   store.writeProofStorySlicePlan(runtimeStoryId, runtimePlan);
+  store.writeChecklist(runtimeStoryId, { items: [] });
+  mkdirSync(join(repo, 'tests/fixtures'), { recursive: true });
   git(repo, ['add', '.']);
   git(repo, ['commit', '-m', 'baseline']);
   git(repo, ['checkout', '-b', `story/${runtimeStoryId}`]);
@@ -259,13 +290,57 @@ try {
     reviewRound: 'round-1', startedAt: new Date().toISOString(), headHash: baselineHead, materialHash: baselineMaterial,
     storyFilesHash: baselineStoryFiles, promptHash: 'prompt', scopeBinding: runtimeBinding,
   } as ReviewRun;
-  store.writeProofStoryParentLedgerRollup(runtimeStoryId, { ...rollup, storyId: runtimeStoryId });
-  const commitHint = autoCommitStoryMetadata(repo, runtimeStoryId, 'parent_ledger_rollup_set', {
-    closeoutArtifactPaths: ['parent-ledger-rollup.json'],
+  const proofstoryHandlers = createProofStoryHandlers({ store, root: repo, scanRoot: repo } as HandlerContext);
+  const handlerResult = proofstoryHandlers.parent_ledger_rollup_set({
+    storyId: runtimeStoryId,
+    children: [{ storyId: 'B-child', milestoneIds: ['M1'], status: 'done', evidenceRefs: ['test:pass'] }],
   });
-  assert.match(commitHint, /metadata auto-committed/);
+  assert.match(handlerResult, /Parent ledger roll-up: configured/);
+  assert.match(handlerResult, /metadata auto-committed/);
+  const handlerCtx = { store, root: repo, scanRoot: repo } as HandlerContext;
+  const assertWriterReceipt = (artifactPath: string, writerCommand: string) => {
+    const receipt = latestValidCloseoutReceipt(
+      store.storyDirPath(runtimeStoryId), runtimeStoryId, artifactPath, { projectRoot: repo, metadataRoot: repo },
+    );
+    assert.equal(receipt?.writerCommand, writerCommand, `${writerCommand} must produce a causally valid ${artifactPath} receipt`);
+  };
+  assertWriterReceipt('parent-ledger-rollup.json', 'parent_ledger_rollup_set');
+
+  createTestHandlers(handlerCtx).test_add({ storyId: runtimeStoryId, command: 'true', output: 'pass', result: 'PASS' });
+  assertWriterReceipt('test-evidence.json', 'test_add');
+  await createTestStoryHandlers(handlerCtx).test_story({ storyId: runtimeStoryId });
+  assertWriterReceipt('test-evidence.json', 'test_story');
+  createEvaluateHandlers(handlerCtx).evaluate_save({ storyId: runtimeStoryId, result: JSON.stringify({ scores: { functionality: 5, usability: 5 }, pass: true }) });
+  assertWriterReceipt('eval-evidence.json', 'evaluate_save');
+  createSummaryHandlers(handlerCtx).summary_set({
+    storyId: runtimeStoryId,
+    changes: 'Implemented causal closeout receipts.',
+    usage: 'Run the canonical closeout commands.',
+    limitations: 'none',
+    pitfalls: 'Receipt causality must remain bound to Git history.',
+  });
+  assertWriterReceipt('summary.json', 'summary_set');
+  const deliveryHandlers = createDeliveryCheckHandlers(handlerCtx);
+  deliveryHandlers.delivery_check_set({
+    storyId: runtimeStoryId,
+    docsPromises: [{ docPath: 'README.md', promise: 'document behavior', status: 'unverified' }],
+    realMachineTests: [],
+    closingSelfCheck: { hasRealMachineTest: true, hasEdgeCaseCoverage: true, hasUnresolvedTodos: false, summary: 'Real handler integration exercised.' },
+  });
+  assertWriterReceipt('delivery-check.json', 'delivery_check_set');
+  deliveryHandlers.delivery_waiver_add({ storyId: runtimeStoryId, promiseId: 'README.md', waiverReason: 'Integration smoke intentionally exercises the waiver writer branch.' });
+  assertWriterReceipt('delivery-check.json', 'delivery_waiver_add');
+  createLiveSmokeTranscriptHandlers(handlerCtx).live_smoke_transcript({ storyId: runtimeStoryId, capture: 'node -e "process.stdout.write(\'ok\')"', write: true });
+  assertWriterReceipt('evidence/live-smoke-transcript.json', 'live_smoke_transcript');
+  createDeliveryContextPackHandlers(handlerCtx).delivery_context_pack({ storyId: runtimeStoryId, write: true });
+  assertWriterReceipt('evidence/delivery-context-pack.json', 'delivery_context_pack');
+  await createDoneRequiredValidationHandlers(handlerCtx).done_required_validate({ storyId: runtimeStoryId });
+  assertWriterReceipt('done-required-evidence.json', 'done_required_validate');
+  await createVerifierHandlers(handlerCtx).validate({ storyId: runtimeStoryId, json: true });
+  assertWriterReceipt('test-evidence.json', 'validate');
   const currentStory = store.readStory(runtimeStoryId);
-  assert.equal(evaluateReviewRunMetadataRetention(store, currentStory, run, repo, currentScopeContextForStory(store, runtimeStoryId, repo)).ok, true);
+  const retainedAfterHandlers = evaluateReviewRunMetadataRetention(store, currentStory, run, repo, currentScopeContextForStory(store, runtimeStoryId, repo));
+  assert.equal(retainedAfterHandlers.ok, true, retainedAfterHandlers.reasons.join('; '));
 
   git(repo, ['checkout', '-b', 'source-drift', baselineHead]);
   writeFileSync(join(repo, 'src/app.ts'), 'export const stable = false;\n', 'utf8');
@@ -288,6 +363,8 @@ try {
     headHash: parentReceipt.headHash,
     materialHash: 'coherent-looking-but-wrong',
     storyFilesHash: parentReceipt.storyFilesHash,
+    sequence: parentReceipt.sequence,
+    previousIntegrityHash: parentReceipt.previousIntegrityHash,
     timestamp: parentReceipt.timestamp,
   });
   assert.equal(verifyCloseoutWriteReceipt(incoherentReceipt, {
@@ -303,6 +380,19 @@ try {
   assert.equal(rejectedDirty.ok, false);
   assert(rejectedDirty.reasons.some((reason) => reason.includes('unknown-hand-written.json')), 'uncommitted metadata must fail closed');
   rmSync(store.storyFilePath(runtimeStoryId, 'unknown-hand-written.json'));
+
+  const summaryPath = store.storyFilePath(runtimeStoryId, 'summary.json');
+  writeFileSync(summaryPath, '{"value":"A"}\n', 'utf8');
+  autoCommitStoryMetadata(repo, runtimeStoryId, 'summary_set', { closeoutArtifactPaths: ['summary.json'] });
+  const summaryA = readFileSync(summaryPath);
+  writeFileSync(summaryPath, '{"value":"B"}\n', 'utf8');
+  autoCommitStoryMetadata(repo, runtimeStoryId, 'summary_set', { closeoutArtifactPaths: ['summary.json'] });
+  writeFileSync(summaryPath, summaryA);
+  git(repo, ['add', '.']);
+  git(repo, ['commit', '-m', 'manual replay old summary bytes']);
+  assert.equal(latestValidCloseoutReceipt(
+    store.storyDirPath(runtimeStoryId), runtimeStoryId, 'summary.json', { projectRoot: repo, metadataRoot: repo },
+  ), null, 'an old matching receipt must not survive a later manual revert to its bytes');
 
   mkdirSync(dirname(store.storyFilePath(runtimeStoryId, 'evidence/live-smoke-transcript.json')), { recursive: true });
   writeFileSync(store.storyFilePath(runtimeStoryId, 'evidence/live-smoke-transcript.json'), '{}\n', 'utf8');
@@ -327,6 +417,20 @@ try {
   const rejected = evaluateReviewRunMetadataRetention(store, currentStory, run, repo, currentScopeContextForStory(store, runtimeStoryId, repo));
   assert.equal(rejected.ok, false);
   assert(rejected.reasons.some((reason) => reason.includes('unknown-hand-written.json')));
+
+  const receiptLedgerPath = store.storyFilePath(runtimeStoryId, CLOSEOUT_WRITE_RECEIPTS_PATH);
+  const originalReceiptLedger = readFileSync(receiptLedgerPath, 'utf8');
+  const receiptLines = originalReceiptLedger.trimEnd().split('\n');
+  const testReceiptIndexes = receiptLines
+    .map((line, index) => ({ receipt: JSON.parse(line) as { artifactPath: string }, index }))
+    .filter(({ receipt }) => receipt.artifactPath === 'test-evidence.json')
+    .map(({ index }) => index);
+  assert(testReceiptIndexes.length >= 2);
+  [receiptLines[testReceiptIndexes[0]], receiptLines[testReceiptIndexes[1]]] = [receiptLines[testReceiptIndexes[1]], receiptLines[testReceiptIndexes[0]]];
+  writeFileSync(receiptLedgerPath, `${receiptLines.join('\n')}\n`, 'utf8');
+  assert.equal(latestValidCloseoutReceipt(store.storyDirPath(runtimeStoryId), runtimeStoryId, 'test-evidence.json'), null, 'reordered receipt chains must fail');
+  writeFileSync(receiptLedgerPath, originalReceiptLedger + originalReceiptLedger.split('\n').find((line) => line.includes('parent-ledger-rollup.json')) + '\n', 'utf8');
+  assert.equal(latestValidCloseoutReceipt(store.storyDirPath(runtimeStoryId), runtimeStoryId, 'parent-ledger-rollup.json'), null, 'copied receipts must fail');
 } finally {
   resetConfigCache();
   rmSync(repo, { recursive: true, force: true });

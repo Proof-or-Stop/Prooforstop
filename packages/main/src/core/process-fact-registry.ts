@@ -172,8 +172,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
   closeout_write_receipt: {
     name: 'closeout-write-receipts.jsonl',
     path: 'closeout-write-receipts.jsonl',
-    signed: true,
-    signature: 'signCloseoutWriteReceipt/verifyCloseoutWriteReceipt binds storyId, artifactPath, writerCommand, raw artifactDigest, timestamp, phase, headHash, materialHash, and storyFilesHash',
+    signed: false,
     producerCommand: 'core/auto-commit-metadata',
     consumerGate: 'REVIEW evidence metadata-only retention gate',
   },
@@ -1001,13 +1000,13 @@ export const PROCESS_FACT_ARTIFACTS = [
   },
   {
     name: 'artifact:closeout-write-receipts.jsonl',
-    kind: 'signed-artifact',
-    semantics: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'gate-evidence'],
+    kind: 'artifact',
+    semantics: ['artifact', 'schema-contract', 'freshness-policy', 'gate-evidence'],
     level: 'L4',
     producer: 'core/auto-commit-metadata',
     consumerGate: 'REVIEW evidence metadata-only retention gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.closeout_write_receipt,
-    rationale: 'Append-only review-protocol provenance for canonical closeout writes; it is not closeout evidence itself and cannot satisfy delivery/validation gates.',
+    rationale: 'Append-only integrity-chained causal co-commit provenance for closeout writes. It is not cryptographic writer authentication because no trusted key anchor exists, and it is not closeout evidence itself.',
   },
   {
     name: 'artifact:evidence/delivery-context-pack.json',

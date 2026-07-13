@@ -42,7 +42,7 @@ import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 
 const READINESS_TARGET = 'DONE' as const;
 const PACK_ARTIFACT = 'evidence/delivery-context-pack.json';
-const TRANSCRIPT_DIFF_REL = 'evidence/transcript-diff.md';
+const TRANSCRIPT_DIFF_REL = 'evidence/live-smoke-transcript.json';
 const DIFF_SUMMARY_MAX = 4000;
 
 interface DeliveryContextPackArgs {
@@ -67,7 +67,7 @@ interface DeliveryDocsPromise {
 }
 
 interface DeliveryRealMachineTests {
-  /** Whether evidence/transcript-diff.md exists in the story dir. */
+  /** Whether the canonical evidence/live-smoke-transcript.json exists. */
   transcriptDiff: boolean;
   /** Story-declared smoke/test files from checklist files.test. */
   testFiles: string[];
@@ -408,7 +408,7 @@ export function renderDeliveryContextPackReport(report: DeliveryContextPackRepor
   }
 
   lines.push('', 'Real-machine tests:');
-  lines.push(`  transcript-diff.md present: ${report.realMachineTests.transcriptDiff}`);
+  lines.push(`  live-smoke-transcript.json present: ${report.realMachineTests.transcriptDiff}`);
   lines.push(`  test files: ${report.realMachineTests.testFiles.length === 0 ? '(none declared)' : report.realMachineTests.testFiles.join(', ')}`);
   lines.push(`  evidence commands: ${report.realMachineTests.evidenceCommands.length === 0 ? '(none recorded)' : report.realMachineTests.evidenceCommands.join(' | ')}`);
   lines.push('', 'Candidate routing:');

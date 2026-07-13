@@ -49,6 +49,7 @@ import {
   appendCloseoutWriteReceipt,
   buildCloseoutWriteReceipt,
   rawArtifactDigest,
+  readCloseoutWriteReceipts,
 } from './closeout-trust.js';
 
 /**
@@ -92,6 +93,7 @@ function appendCanonicalReceiptsBeforeCommit(args: {
     const artifactPath = join(storyDir, policy.path);
     if (!existsSync(artifactPath)) continue;
     const bytes = readFileSync(artifactPath);
+    const previous = readCloseoutWriteReceipts(storyDir).filter((receipt) => receipt.artifactPath === policy.path).at(-1);
     appendCloseoutWriteReceipt(storyDir, buildCloseoutWriteReceipt({
       storyId: args.storyId,
       artifactPath: policy.path,
@@ -101,6 +103,8 @@ function appendCanonicalReceiptsBeforeCommit(args: {
       headHash,
       materialHash,
       storyFilesHash,
+      sequence: (previous?.sequence ?? 0) + 1,
+      previousIntegrityHash: previous?.integrityHash ?? null,
     }));
   }
 }

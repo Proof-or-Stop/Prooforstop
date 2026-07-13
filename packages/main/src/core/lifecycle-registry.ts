@@ -628,6 +628,21 @@ export const LATTICE_LIFECYCLE_ARTIFACT_FILENAMES: ReadonlySet<string> = new Set
   'spike.json',
 ]);
 
+/**
+ * Non-authoritative command-generated metadata that may be co-committed after a
+ * review run without claiming closeout evidence. REVIEW retention ignores only
+ * this closed registry; adding a path requires process-contract verification.
+ */
+export const REVIEW_RETENTION_PROTOCOL_METADATA_PATHS: ReadonlySet<string> = new Set([
+  'review-runs.json',
+  'review-passes.json',
+  'findings.json',
+  'process-events.jsonl',
+  'process-metrics.json',
+  'test-runs.json',
+  'closeout-write-receipts.jsonl',
+]);
+
 export const LATTICE_LIFECYCLE_ARTIFACT_RELATIVE_PATHS: ReadonlySet<string> = new Set([
   ...LIFECYCLE_ARTIFACTS.filter((artifact) => artifact.includes('/')),
 ]);

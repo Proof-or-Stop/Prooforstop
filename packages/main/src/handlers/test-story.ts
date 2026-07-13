@@ -11,6 +11,7 @@ import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
 import type { HandlerContext } from './context.js';
+import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { loadConfig } from '../core/config.js';
 import { reportHealthIssue } from '../core/health.js';
 import { loadTraceSnapshot } from '../tasks/trace-store.js';
@@ -227,6 +228,7 @@ export function createTestStoryHandlers(ctx: HandlerContext) {
       const allPassedS = fixtureResults.every(r => r.allPassed) && errors.length === 0;
       const __runEndIso = new Date().toISOString();
       const git = readGitIdentity(root);
+      let testEvidenceWritten = false;
       try {
         ctx.store.writeTestEvidence(storyId, {
           command: `lattice test_story '{"storyId":"${storyId}"}'`,
@@ -236,6 +238,7 @@ export function createTestStoryHandlers(ctx: HandlerContext) {
           git,
           environment: { node: process.version, os: `${process.platform} ${process.arch}` },
         });
+        testEvidenceWritten = true;
       } catch (e) {
         reportHealthIssue('persist:testEvidence', e as Error, {
           storyId,
@@ -244,7 +247,6 @@ export function createTestStoryHandlers(ctx: HandlerContext) {
           passedCases: passedCasesS,
         });
       }
-
       // B-1522: append to test-runs.json (append-only history for cumulative stats)
       try {
         ctx.store.appendTestRun(storyId, {
@@ -261,6 +263,11 @@ export function createTestStoryHandlers(ctx: HandlerContext) {
           storyId,
           command: 'test_story',
           result: allPassedS ? 'PASS' : 'FAIL',
+        });
+      }
+      if (testEvidenceWritten) {
+        autoCommitStoryMetadata(ctx.root, storyId, 'test_story', {
+          closeoutArtifactPaths: ['test-evidence.json'],
         });
       }
 

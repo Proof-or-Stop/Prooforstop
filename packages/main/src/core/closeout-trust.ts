@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { appendFileSync, existsSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 import {
   computeMilestoneLedgerHash,
   computeParentLedgerRollupHash,
@@ -41,7 +41,6 @@ export const CLOSEOUT_ARTIFACT_POLICIES = [
   { path: 'delivery-check.json', artifactClass: 'closeout-evidence', canonicalWriters: ['delivery_check_set', 'delivery_waiver_add'] },
   { path: 'eval-evidence.json', artifactClass: 'closeout-evidence', canonicalWriters: ['evaluate_save'] },
   { path: 'summary.json', artifactClass: 'closeout-evidence', canonicalWriters: ['summary_set'] },
-  { path: 'evidence/transcript-diff.md', artifactClass: 'closeout-evidence', canonicalWriters: ['live_smoke_transcript'] },
   { path: 'evidence/live-smoke-transcript.json', artifactClass: 'closeout-evidence', canonicalWriters: ['live_smoke_transcript'] },
 ] as const satisfies readonly CloseoutArtifactPolicy[];
 
@@ -93,6 +92,12 @@ function text(value: unknown, artifact: string, field: string): string {
   return value;
 }
 
+function isoTime(value: unknown, artifact: string, field: string): string {
+  const result = text(value, artifact, field);
+  if (Number.isNaN(Date.parse(result))) throw new Error(`${artifact}: ${field} must be ISO time`);
+  return result;
+}
+
 function array(value: unknown, artifact: string, field: string): unknown[] {
   if (!Array.isArray(value)) throw new Error(`${artifact}: ${field} must be an array`);
   return value;
@@ -112,6 +117,8 @@ export function validateTrustedMilestoneLedger(raw: unknown, expectedStoryId?: s
   const value = object(raw, artifact);
   exactKeys(value, artifact, ['schemaVersion', 'storyId', 'state', 'ledgerHash', 'milestones', 'createdAt', 'updatedAt', 'acceptedIntentBinding']);
   if (value.schemaVersion !== 'proofstory.milestone_ledger.v1') throw new Error(`${artifact}: invalid schemaVersion`);
+  isoTime(value.createdAt, artifact, 'createdAt');
+  isoTime(value.updatedAt, artifact, 'updatedAt');
   const storyId = text(value.storyId, artifact, 'storyId');
   if (expectedStoryId && storyId !== expectedStoryId) throw new Error(`${artifact}: storyId mismatch`);
   if (value.state !== 'candidate' && value.state !== 'confirmed') throw new Error(`${artifact}: invalid state`);
@@ -133,6 +140,15 @@ export function validateTrustedMilestoneLedger(raw: unknown, expectedStoryId?: s
     ids.add(id);
     for (const field of ['sourceRequirementId', 'claim', 'doneMeans'] as const) text(milestone[field], artifact, `milestones[${index}].${field}`);
     for (const field of ['requiredEvidence', 'checklistRefs', 'verificationIntentRefs'] as const) stringArray(milestone[field], artifact, `milestones[${index}].${field}`);
+    if (milestone.parentLedgerId !== undefined) text(milestone.parentLedgerId, artifact, `milestones[${index}].parentLedgerId`);
+    if (milestone.assignedStory !== undefined) text(milestone.assignedStory, artifact, `milestones[${index}].assignedStory`);
+    if (milestone.notApplicableDecision !== undefined) {
+      const decision = object(milestone.notApplicableDecision, artifact);
+      exactKeys(decision, artifact, ['reason', 'decidedBy', 'decidedAt']);
+      text(decision.reason, artifact, `milestones[${index}].notApplicableDecision.reason`);
+      text(decision.decidedBy, artifact, `milestones[${index}].notApplicableDecision.decidedBy`);
+      isoTime(decision.decidedAt, artifact, `milestones[${index}].notApplicableDecision.decidedAt`);
+    }
     if (!['planned', 'covered', 'done', 'not_applicable'].includes(String(milestone.status))) throw new Error(`${artifact}: invalid milestone status`);
   }
   const expected = computeMilestoneLedgerHash(milestones as MilestoneLedgerData['milestones']);
@@ -149,6 +165,8 @@ export function validateTrustedSlicePlan(
   const value = object(raw, artifact);
   exactKeys(value, artifact, ['schemaVersion', 'storyId', 'ledgerHash', 'slices', 'planHash', 'createdAt', 'updatedAt']);
   if (value.schemaVersion !== 'proofstory.slice_plan.v1') throw new Error(`${artifact}: invalid schemaVersion`);
+  isoTime(value.createdAt, artifact, 'createdAt');
+  isoTime(value.updatedAt, artifact, 'updatedAt');
   const storyId = text(value.storyId, artifact, 'storyId');
   if (expectedStoryId && storyId !== expectedStoryId) throw new Error(`${artifact}: storyId mismatch`);
   if (value.ledgerHash !== ledger.ledgerHash) throw new Error(`${artifact}: ledgerHash does not bind milestone-ledger.json`);
@@ -163,6 +181,7 @@ export function validateTrustedSlicePlan(
     if (sliceIds.has(id)) throw new Error(`${artifact}: duplicate slice id ${id}`);
     sliceIds.add(id);
     text(slice.reason, artifact, `slices[${index}].reason`);
+    if (slice.assignedStory !== undefined) text(slice.assignedStory, artifact, `slices[${index}].assignedStory`);
     const milestoneIds = stringArray(slice.milestoneIds, artifact, `slices[${index}].milestoneIds`);
     if (!milestoneIds.length) throw new Error(`${artifact}: slices[${index}].milestoneIds must not be empty`);
     for (const milestoneId of milestoneIds) {
@@ -188,6 +207,8 @@ export function validateTrustedParentLedgerRollup(
   const value = object(raw, artifact);
   exactKeys(value, artifact, ['schemaVersion', 'storyId', 'ledgerHash', 'slicePlanHash', 'children', 'rollupHash', 'createdAt', 'updatedAt']);
   if (value.schemaVersion !== 'proofstory.parent_ledger_rollup.v1') throw new Error(`${artifact}: invalid schemaVersion`);
+  isoTime(value.createdAt, artifact, 'createdAt');
+  isoTime(value.updatedAt, artifact, 'updatedAt');
   const storyId = text(value.storyId, artifact, 'storyId');
   if (expectedStoryId && storyId !== expectedStoryId) throw new Error(`${artifact}: storyId mismatch`);
   if (value.ledgerHash !== ledger.ledgerHash) throw new Error(`${artifact}: ledgerHash does not bind milestone-ledger.json`);
@@ -236,8 +257,8 @@ export interface PersistedDeliveryContextPack {
   diff: { changedFiles: string[]; summary: string };
   docsPromises: Array<{ source: 'plan.md' | 'userSees'; promise: string }>;
   realMachineTests: { transcriptDiff: boolean; testFiles: string[]; evidenceCommands: string[] };
-  candidateRouting: unknown;
-  validation: unknown;
+  candidateRouting: { artifactDigest: string; corpusDigest: string; candidateSpecSet: string[]; ambiguitySignals: string[] } | null;
+  validation: { source: 'test-evidence.json'; result: 'PASS' | 'FAIL'; timestamp: string; headHash: string | null; materialHash: string | null; storyFilesHash: string | null } | null;
   reviewRound: string | null;
   deliveryCheck: { status: string; ref: Record<string, unknown> | null };
   waiver: { status: 'surfaced' | 'none' };
@@ -253,12 +274,13 @@ export function validatePersistedDeliveryContextPack(raw: unknown, expectedStory
   if (expectedStoryId && storyId !== expectedStoryId) throw new Error(`${artifact}: storyId mismatch`);
   if (value.generatedFor !== 'delivery-review' || value.isSigner !== false) throw new Error(`${artifact}: invalid producer authority shape`);
   const claims = object(value.claims, artifact);
+  exactKeys(claims, artifact, ['authorityDone', 'fullAuthorityDone', 'productionDone']);
   if (claims.authorityDone !== false || claims.fullAuthorityDone !== false || claims.productionDone !== false) {
     throw new Error(`${artifact}: authority claims must all be false`);
   }
   const diff = object(value.diff, artifact);
   exactKeys(diff, artifact, ['changedFiles', 'summary']);
-  array(diff.changedFiles, artifact, 'diff.changedFiles');
+  stringArray(diff.changedFiles, artifact, 'diff.changedFiles');
   if (typeof diff.summary !== 'string') throw new Error(`${artifact}: diff.summary must be a string`);
   for (const [index, rawPromise] of array(value.docsPromises, artifact, 'docsPromises').entries()) {
     const promise = object(rawPromise, artifact);
@@ -269,12 +291,39 @@ export function validatePersistedDeliveryContextPack(raw: unknown, expectedStory
   const tests = object(value.realMachineTests, artifact);
   exactKeys(tests, artifact, ['transcriptDiff', 'testFiles', 'evidenceCommands']);
   if (typeof tests.transcriptDiff !== 'boolean') throw new Error(`${artifact}: realMachineTests.transcriptDiff must be boolean`);
-  array(tests.testFiles, artifact, 'realMachineTests.testFiles');
-  array(tests.evidenceCommands, artifact, 'realMachineTests.evidenceCommands');
-  if (value.reviewRound !== null && typeof value.reviewRound !== 'string') throw new Error(`${artifact}: reviewRound must be string or null`);
+  stringArray(tests.testFiles, artifact, 'realMachineTests.testFiles');
+  stringArray(tests.evidenceCommands, artifact, 'realMachineTests.evidenceCommands');
+  if (value.candidateRouting !== null) {
+    const routing = object(value.candidateRouting, artifact);
+    exactKeys(routing, artifact, ['artifactDigest', 'corpusDigest', 'candidateSpecSet', 'ambiguitySignals']);
+    text(routing.artifactDigest, artifact, 'candidateRouting.artifactDigest');
+    text(routing.corpusDigest, artifact, 'candidateRouting.corpusDigest');
+    stringArray(routing.candidateSpecSet, artifact, 'candidateRouting.candidateSpecSet');
+    stringArray(routing.ambiguitySignals, artifact, 'candidateRouting.ambiguitySignals');
+  }
+  if (value.validation !== null) {
+    const validation = object(value.validation, artifact);
+    exactKeys(validation, artifact, ['source', 'result', 'timestamp', 'headHash', 'materialHash', 'storyFilesHash']);
+    if (validation.source !== 'test-evidence.json') throw new Error(`${artifact}: validation.source is invalid`);
+    if (validation.result !== 'PASS' && validation.result !== 'FAIL') throw new Error(`${artifact}: validation.result is invalid`);
+    isoTime(validation.timestamp, artifact, 'validation.timestamp');
+    for (const field of ['headHash', 'materialHash', 'storyFilesHash'] as const) {
+      if (validation[field] !== null) text(validation[field], artifact, `validation.${field}`);
+    }
+  }
+  if (value.reviewRound !== null) text(value.reviewRound, artifact, 'reviewRound');
   const deliveryCheck = object(value.deliveryCheck, artifact);
   exactKeys(deliveryCheck, artifact, ['status', 'ref']);
   if (!['present', 'missing', 'stale', 'blocking', 'unknown'].includes(String(deliveryCheck.status))) throw new Error(`${artifact}: deliveryCheck.status is invalid`);
+  if (deliveryCheck.ref !== null) {
+    const ref = object(deliveryCheck.ref, artifact);
+    exactKeys(ref, artifact, ['source', 'checkedAt', 'headHash', 'materialHash', 'reviewRound', 'hash']);
+    if (ref.source !== 'delivery-check.json') throw new Error(`${artifact}: deliveryCheck.ref.source is invalid`);
+    isoTime(ref.checkedAt, artifact, 'deliveryCheck.ref.checkedAt');
+    for (const field of ['headHash', 'materialHash', 'reviewRound', 'hash'] as const) {
+      if (ref[field] !== null) text(ref[field], artifact, `deliveryCheck.ref.${field}`);
+    }
+  }
   const waiver = object(value.waiver, artifact);
   exactKeys(waiver, artifact, ['status']);
   if (waiver.status !== 'surfaced' && waiver.status !== 'none') throw new Error(`${artifact}: waiver.status is invalid`);
@@ -351,8 +400,8 @@ export function evaluateMetadataOnlyReviewRetention(input: MetadataOnlyReviewRet
 }
 
 export const CLOSEOUT_WRITE_RECEIPTS_PATH = 'closeout-write-receipts.jsonl';
-export const CLOSEOUT_WRITE_RECEIPT_SCHEMA = 'lattice.closeout_write_receipt.v1' as const;
-const CLOSEOUT_WRITE_RECEIPT_SALT = 'lattice-closeout-write-receipt-v1';
+export const CLOSEOUT_WRITE_RECEIPT_SCHEMA = 'lattice.closeout_write_receipt.v2' as const;
+const CLOSEOUT_WRITE_RECEIPT_DOMAIN = 'lattice-closeout-write-receipt-integrity-v2';
 
 export interface CloseoutWriteReceipt {
   schemaVersion: typeof CLOSEOUT_WRITE_RECEIPT_SCHEMA;
@@ -365,14 +414,16 @@ export interface CloseoutWriteReceipt {
   headHash: string;
   materialHash: string;
   storyFilesHash: string;
-  receiptHash: string;
+  sequence: number;
+  previousIntegrityHash: string | null;
+  integrityHash: string;
 }
 
-function receiptPayload(receipt: Omit<CloseoutWriteReceipt, 'receiptHash'>): unknown {
-  return { ...receipt, salt: CLOSEOUT_WRITE_RECEIPT_SALT };
+function receiptPayload(receipt: Omit<CloseoutWriteReceipt, 'integrityHash'>): unknown {
+  return { ...receipt, domain: CLOSEOUT_WRITE_RECEIPT_DOMAIN };
 }
 
-export function signCloseoutWriteReceipt(receipt: Omit<CloseoutWriteReceipt, 'receiptHash'>): string {
+export function computeCloseoutWriteReceiptIntegrity(receipt: Omit<CloseoutWriteReceipt, 'integrityHash'>): string {
   return digest(receiptPayload(receipt));
 }
 
@@ -380,7 +431,7 @@ export function rawArtifactDigest(bytes: string | Buffer): string {
   return createHash('sha256').update(bytes).digest('hex');
 }
 
-export function buildCloseoutWriteReceipt(input: Omit<CloseoutWriteReceipt, 'schemaVersion' | 'timestamp' | 'receiptHash'> & { timestamp?: string }): CloseoutWriteReceipt {
+export function buildCloseoutWriteReceipt(input: Omit<CloseoutWriteReceipt, 'schemaVersion' | 'timestamp' | 'integrityHash'> & { timestamp?: string }): CloseoutWriteReceipt {
   assertCanonicalCloseoutWrite(input.artifactPath, input.writerCommand);
   const unsigned = {
     schemaVersion: CLOSEOUT_WRITE_RECEIPT_SCHEMA,
@@ -393,11 +444,16 @@ export function buildCloseoutWriteReceipt(input: Omit<CloseoutWriteReceipt, 'sch
     headHash: input.headHash,
     materialHash: input.materialHash,
     storyFilesHash: input.storyFilesHash,
+    sequence: input.sequence,
+    previousIntegrityHash: input.previousIntegrityHash,
   };
-  for (const [field, value] of Object.entries(unsigned)) {
-    if (typeof value !== 'string' || !value.trim()) throw new Error(`closeout-write-receipts.jsonl: ${field} must be non-empty`);
+  for (const field of ['schemaVersion', 'storyId', 'artifactPath', 'writerCommand', 'artifactDigest', 'timestamp', 'phase', 'headHash', 'materialHash', 'storyFilesHash'] as const) {
+    if (typeof unsigned[field] !== 'string' || !unsigned[field].trim()) throw new Error(`closeout-write-receipts.jsonl: ${field} must be non-empty`);
   }
-  return { ...unsigned, receiptHash: signCloseoutWriteReceipt(unsigned) };
+  if (!Number.isInteger(unsigned.sequence) || unsigned.sequence < 1) throw new Error('closeout-write-receipts.jsonl: sequence must be a positive integer');
+  if (unsigned.sequence === 1 && unsigned.previousIntegrityHash !== null) throw new Error('closeout-write-receipts.jsonl: first receipt must not have a previousIntegrityHash');
+  if (unsigned.sequence > 1 && !unsigned.previousIntegrityHash?.trim()) throw new Error('closeout-write-receipts.jsonl: chained receipt requires previousIntegrityHash');
+  return { ...unsigned, integrityHash: computeCloseoutWriteReceiptIntegrity(unsigned) };
 }
 
 export function appendCloseoutWriteReceipt(storyDir: string, receipt: CloseoutWriteReceipt): void {
@@ -424,8 +480,8 @@ export function verifyCloseoutWriteReceipt(receipt: CloseoutWriteReceipt, expect
   if (receipt.storyId !== expected.storyId || receipt.artifactPath !== expected.artifactPath) return { ok: false, reason: 'receipt story/path mismatch' };
   try { assertCanonicalCloseoutWrite(receipt.artifactPath, receipt.writerCommand); }
   catch (error) { return { ok: false, reason: String((error as Error).message) }; }
-  const { receiptHash, ...unsigned } = receipt;
-  if (!receiptHash || receiptHash !== signCloseoutWriteReceipt(unsigned)) return { ok: false, reason: 'receipt integrity hash mismatch' };
+  const { integrityHash, ...unsigned } = receipt;
+  if (!integrityHash || integrityHash !== computeCloseoutWriteReceiptIntegrity(unsigned)) return { ok: false, reason: 'receipt integrity hash mismatch' };
   if (receipt.artifactDigest !== rawArtifactDigest(expected.artifactBytes)) return { ok: false, reason: 'receipt artifact digest mismatch' };
   for (const field of ['timestamp', 'phase', 'headHash', 'materialHash', 'storyFilesHash'] as const) {
     if (!receipt[field]?.trim()) return { ok: false, reason: `receipt ${field} missing` };
@@ -451,6 +507,32 @@ export function verifyCloseoutWriteReceipt(receipt: CloseoutWriteReceipt, expect
   return { ok: true };
 }
 
+function validReceiptChain(receipts: CloseoutWriteReceipt[], storyId: string, artifactPath: string): boolean {
+  let previous: CloseoutWriteReceipt | null = null;
+  for (const receipt of receipts.filter((item) => item.artifactPath === artifactPath)) {
+    if (receipt.storyId !== storyId) return false;
+    if (receipt.sequence !== (previous?.sequence ?? 0) + 1) return false;
+    if (receipt.previousIntegrityHash !== (previous?.integrityHash ?? null)) return false;
+    const { integrityHash, ...unsigned } = receipt;
+    if (integrityHash !== computeCloseoutWriteReceiptIntegrity(unsigned)) return false;
+    previous = receipt;
+  }
+  return previous !== null;
+}
+
+function causallyBoundToLatestArtifactCommit(receipt: CloseoutWriteReceipt, provenance: { projectRoot: string; metadataRoot?: string }, storyDir: string): boolean {
+  const artifactRel = relative(provenance.projectRoot, join(storyDir, receipt.artifactPath)).replace(/\\/g, '/');
+  const receiptRel = relative(provenance.projectRoot, join(storyDir, CLOSEOUT_WRITE_RECEIPTS_PATH)).replace(/\\/g, '/');
+  try {
+    const artifactCommit = execFileSync('git', ['log', '-1', '--format=%H', '--', artifactRel], { cwd: provenance.projectRoot, encoding: 'utf8' }).trim();
+    const introductionCommit = execFileSync('git', ['log', '-1', '-S', receipt.integrityHash, '--format=%H', '--', receiptRel], { cwd: provenance.projectRoot, encoding: 'utf8' }).trim();
+    const parent = execFileSync('git', ['rev-parse', `${artifactCommit}^`], { cwd: provenance.projectRoot, encoding: 'utf8' }).trim();
+    return Boolean(artifactCommit) && artifactCommit === introductionCommit && receipt.headHash === parent;
+  } catch {
+    return false;
+  }
+}
+
 export function latestValidCloseoutReceipt(
   storyDir: string,
   storyId: string,
@@ -460,13 +542,17 @@ export function latestValidCloseoutReceipt(
   const bytesPath = join(storyDir, artifactPath);
   if (!existsSync(bytesPath)) return null;
   const bytes = readFileSync(bytesPath);
-  const receipts = readCloseoutWriteReceipts(storyDir).filter((receipt) => receipt.artifactPath === artifactPath).reverse();
-  return receipts.find((receipt) => verifyCloseoutWriteReceipt(receipt, {
+  const allReceipts = readCloseoutWriteReceipts(storyDir);
+  if (!validReceiptChain(allReceipts, storyId, artifactPath)) return null;
+  const receipt = allReceipts.filter((item) => item.artifactPath === artifactPath).at(-1);
+  if (!receipt) return null;
+  if (provenance && !causallyBoundToLatestArtifactCommit(receipt, provenance, storyDir)) return null;
+  return verifyCloseoutWriteReceipt(receipt, {
     storyId,
     artifactPath,
     artifactBytes: bytes,
     ...provenance,
-  }).ok) ?? null;
+  }).ok ? receipt : null;
 }
 
 export function validateCurrentCloseoutArtifact(
