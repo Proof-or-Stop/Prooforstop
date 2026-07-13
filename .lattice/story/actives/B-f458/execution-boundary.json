@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-f458",
+  "allowedCommands": [
+    "git add",
+    "git commit",
+    "git diff",
+    "git log",
+    "git merge",
+    "git status",
+    "lattice *",
+    "node packages/main/dist/tasks/*",
+    "node scripts/*",
+    "npm --prefix packages/main run build",
+    "npm test"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "git",
+    "lattice",
+    "node",
+    "npm",
+    "rg"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/lifecycle-artifact-scope.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+    "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+    "docs/requirements/decisions/story-files-hash-material-drift.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src/**",
+    "packages/main/tests/**",
+    "scripts/**"
+  ],
+  "excludedCommands": [
+    "git clean -fd",
+    "git push",
+    "git reset --hard",
+    "git restore .",
+    "omx"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx/**",
+    "docs/story/**",
+    "packages/main/templates/agents/**",
+    "tests/fixtures/**"
+  ],
+  "confirmedBy": "main",
+  "confirmationNote": "M4.C1 code, tests, and related decision docs only; prompt bodies and OMX remain excluded.",
+  "createdAt": "2026-07-13T08:19:47.669Z",
+  "updatedAt": "2026-07-13T08:19:47.669Z",
+  "_hash": "4aa6dc3aa9a703a9340380e5080e30ebeb593f0ca5240f991251dad4b36eeb43"
+}

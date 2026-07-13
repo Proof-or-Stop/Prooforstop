@@ -10,7 +10,8 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User runs the M4.C1 contract verifier and sees `PASS closeout artifact classifications: closed set and canonical writer provenance verified`; adding an unknown trusted path or wrong writer makes the command exit non-zero with the exact path."
     },
     {
       "id": "CHK-002",
@@ -22,7 +23,8 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees `PASS composite scope digest: semantic scope facts bound`; changing acknowledgement content/provenance, milestone ledger, or slice plan changes the digest and blocks metadata-only review retention until signed re-attestation."
     },
     {
       "id": "CHK-003",
@@ -34,7 +36,8 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees `PASS trusted closeout artifacts: schema and embedded hashes verified`; a malformed ledger/plan/rollup/delivery-context artifact or forged embedded hash is rejected with a named artifact error."
     },
     {
       "id": "CHK-004",
@@ -46,7 +49,8 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User runs the TEST roll-up regression and sees `PASS canonical closeout write retained TEST`; the paired source/docs/scope mutations visibly route back to DEV/REVIEW."
     },
     {
       "id": "CHK-005",
@@ -58,7 +62,8 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User runs the M4.C1 regression suite and sees `PASS metadata-only review retention is fail-closed`; unknown paths, changed material/scope, missing provenance, malformed hashes, TEST acknowledgement, and new-round pass reuse are all rejected."
     }
   ]
 }
