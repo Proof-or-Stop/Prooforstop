@@ -8,8 +8,9 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from 'node:fs';
-import { dirname, join, relative } from 'node:path';
+import { existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 import { MAIN_TOOLS } from '../cli-engine.js';
@@ -62,15 +63,56 @@ const activeTextFiles = [
 const activeTextDirs = [
   '.lattice-codex',
   '.claude/agents',
-  'packages/main/src',
   'packages/main/templates/agents',
 ] as const;
 
 const EXECUTABLE_SOURCE_EXTENSIONS = ['.ts', '.tsx', '.mts', '.cts', '.js', '.jsx', '.mjs', '.cjs'] as const;
 const ACTIVE_SCAN_EXTENSIONS = ['.md', '.json', ...EXECUTABLE_SOURCE_EXTENSIONS] as const;
+const SHIPPED_EXECUTABLE_SOURCE_DIRS = [
+  'bin',
+  'packages/main/src',
+  'packages/lab/src',
+  'packages/utils/src',
+] as const;
+const SHIPPED_EXECUTABLE_ENTRYPOINTS = [
+  'bin/lattice.js',
+  'bin/bootstrap-runner.js',
+  'packages/main/src/cli.ts',
+  'packages/main/src/index.ts',
+  'packages/main/src/tasks/test-flow-e2e.ts',
+  'packages/lab/src/index.ts',
+  'packages/lab/src/register.ts',
+  'packages/utils/src/index.ts',
+  'packages/utils/src/register.ts',
+] as const;
+const SHIPPED_PACKAGE_MANIFESTS = [
+  'packages/main/package.json',
+  'packages/lab/package.json',
+  'packages/utils/package.json',
+] as const;
 
 function isExecutableSourceFile(file: string): boolean {
   return EXECUTABLE_SOURCE_EXTENSIONS.some(extension => file.endsWith(extension));
+}
+
+function collectPublishedTargets(value: unknown): string[] {
+  if (typeof value === 'string') return [value];
+  if (!value || typeof value !== 'object') return [];
+  return Object.values(value).flatMap(collectPublishedTargets);
+}
+
+function deriveSourceEntrypoint(manifestPath: string, publishedTarget: string): string | undefined {
+  const normalized = publishedTarget.replace(/^\.\//, '');
+  if (!normalized.startsWith('dist/') || !/\.js$/.test(normalized)) return undefined;
+  return join(dirname(manifestPath), normalized.replace(/^dist\//, 'src/').replace(/\.js$/, '.ts')).replace(/\\/g, '/');
+}
+
+function deriveShippedPackageEntrypoints(): string[] {
+  return SHIPPED_PACKAGE_MANIFESTS.flatMap(manifestPath => {
+    const manifest = JSON.parse(readRel(manifestPath)) as { bin?: unknown; exports?: unknown };
+    return [...collectPublishedTargets(manifest.bin), ...collectPublishedTargets(manifest.exports)]
+      .flatMap(target => deriveSourceEntrypoint(manifestPath, target) ?? []);
+  }).filter((entrypoint, index, all) => all.indexOf(entrypoint) === index).sort();
 }
 
 const retiredFutureBacklogPlanFiles = [
@@ -197,6 +239,12 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],
 ]);
 
+const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
+  ['packages/main/src/verifier/browser-client.ts', '48f529b542edbb79c796a5ef6ab51dad8e5e13cc2e3416e76f6bae74104d5527'],
+  ['packages/main/src/handlers/decision-doc-quorum.ts', '6025f602afdc354a31333b61b516cb29aa1b59387806d69e6981d5a9ed3969b7'],
+  ['packages/main/src/tasks/browser-client.ts', '4b92b436fb13a06cf2dfd2079c6b0dec787ef8807cd54f8b6db24c1002a0e61a'],
+]);
+
 const structuralLegacyFieldQuarantineFiles = new Set([
   'packages/main/src/cli/command-catalog.ts',
   'packages/main/src/core/autopilot.ts',
@@ -288,25 +336,38 @@ function readRel(path: string): string {
   return readFileSync(join(repoRoot, path), 'utf8');
 }
 
-function listFiles(dir: string, extensions: readonly string[], visitedDirectories = new Set<string>()): string[] {
-  const abs = join(repoRoot, dir);
-  if (!existsSync(abs)) return [];
-  const realDir = realpathSync(abs);
-  if (visitedDirectories.has(realDir)) return [];
-  visitedDirectories.add(realDir);
+function listFilesFromRoot(
+  scanRoot: string,
+  dir: string,
+  extensions: readonly string[],
+  visitedDirectories = new Set<string>(),
+): string[] {
+  const abs = resolve(scanRoot, dir);
+  const relDir = relative(scanRoot, abs).replace(/\\/g, '/');
+  if (relDir === '..' || relDir.startsWith('../') || !existsSync(abs)) return [];
+  const rootStat = lstatSync(abs);
+  if (rootStat.isSymbolicLink() || !rootStat.isDirectory()) return [];
+  const directoryKey = relDir || '.';
+  if (visitedDirectories.has(directoryKey)) return [];
+  visitedDirectories.add(directoryKey);
   const found: string[] = [];
-  for (const entry of readdirSync(abs)) {
+  for (const entry of readdirSync(abs).sort()) {
     const full = join(abs, entry);
-    const rel = relative(repoRoot, full);
+    const rel = relative(scanRoot, full).replace(/\\/g, '/');
     if (rel.split('/').includes('.omx')) continue;
-    const stat = statSync(full);
+    const stat = lstatSync(full);
+    if (stat.isSymbolicLink()) continue;
     if (stat.isDirectory()) {
-      found.push(...listFiles(rel, extensions, visitedDirectories));
+      found.push(...listFilesFromRoot(scanRoot, rel, extensions, visitedDirectories));
     } else if (extensions.some(ext => entry.endsWith(ext))) {
       found.push(rel);
     }
   }
   return found;
+}
+
+function listFiles(dir: string, extensions: readonly string[]): string[] {
+  return listFilesFromRoot(repoRoot, dir, extensions);
 }
 
 function lineIsQuarantined(file: string, line: string): boolean {
@@ -360,9 +421,14 @@ function canonicalAstFingerprint(file: string, text: string): string {
   return createHash('sha256').update(canonical).digest('hex');
 }
 
-function validatePinnedExecutableSourceFingerprint(file: string, text: string): Violation[] {
+function validatePinnedExecutableSourceFingerprint(
+  file: string,
+  text: string,
+  checkedPinnedPaths?: Map<string, number>,
+): Violation[] {
   const expected = PINNED_EXECUTABLE_SOURCE_FINGERPRINTS.get(file);
   if (!expected) return [];
+  if (checkedPinnedPaths) checkedPinnedPaths.set(file, (checkedPinnedPaths.get(file) ?? 0) + 1);
   const actual = canonicalAstFingerprint(file, text);
   return actual === expected ? [] : [{
     file,
@@ -630,10 +696,29 @@ function normalizeModulePath(path: string): string {
   return path;
 }
 
+function normalizeStaticModuleSpecifier(specifier: string): string | undefined {
+  const suffixIndex = specifier.search(/[?#]/);
+  const withoutSuffix = suffixIndex === -1 ? specifier : specifier.slice(0, suffixIndex);
+  try {
+    const decoded = decodeURIComponent(withoutSuffix);
+    return decoded.includes('\0') ? undefined : decoded;
+  } catch {
+    return undefined;
+  }
+}
+
+function resolvedStaticModulePath(file: string, specifier: string): string | undefined {
+  const normalizedSpecifier = normalizeStaticModuleSpecifier(specifier);
+  if (normalizedSpecifier === undefined || !normalizedSpecifier.startsWith('.')) return undefined;
+  return normalizeModulePath(join(dirname(file), normalizedSpecifier).replace(/\\/g, '/'));
+}
+
 function retiredModuleMatch(file: string, specifier: string): string | undefined {
-  if (/\bstory-authority-resolv(?:e|er)\b/.test(specifier)) return 'retired story resolver module';
-  if (!specifier.startsWith('.')) return undefined;
-  const target = normalizeModulePath(join(dirname(file), specifier).replace(/\\/g, '/'));
+  const normalizedSpecifier = normalizeStaticModuleSpecifier(specifier);
+  if (normalizedSpecifier === undefined) return 'malformed encoded static module specifier';
+  if (/\bstory-authority-resolv(?:e|er)\b/.test(normalizedSpecifier)) return 'retired story resolver module';
+  const target = resolvedStaticModulePath(file, normalizedSpecifier);
+  if (!target) return undefined;
   for (const retiredFile of retiredServerBackedModuleFiles) {
     if (target === normalizeModulePath(retiredFile)) return 'retired quarantined module specifier';
   }
@@ -641,8 +726,8 @@ function retiredModuleMatch(file: string, specifier: string): string | undefined
 }
 
 function moduleSpecifierResolvesTo(file: string, specifier: string, targetFile: string): boolean {
-  if (!specifier.startsWith('.')) return false;
-  const target = normalizeModulePath(join(dirname(file), specifier).replace(/\\/g, '/'));
+  const target = resolvedStaticModulePath(file, specifier);
+  if (!target) return false;
   return target === normalizeModulePath(targetFile);
 }
 
@@ -820,6 +905,22 @@ const knownBenignNonLiteralLoaderCalls = new Map<string, {
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', {
     calls: [{ anchor: 'run', argument: "join(MAIN_DIR, 'dist', 'handlers', 'decision-doc-promotion.js')" }],
   }],
+  ['bin/bootstrap-runner.js', {
+    calls: [
+      { anchor: 'runLocalBootstrap', argument: 'pathToFileURL(MAIN_DIST).href' },
+      { anchor: 'runLocalBootstrap', argument: 'pathToFileURL(UTILS_DIST).href' },
+      { anchor: 'runLocalBootstrap', argument: 'pathToFileURL(LAB_DIST).href' },
+      { anchor: 'runLocalBootstrap', argument: "pathToFileURL(join(repoRoot, 'packages', 'main', 'dist', 'core', 'zod.js')).href" },
+    ],
+  }],
+  ['bin/lattice-codex.js', {
+    calls: [{ anchor: 'main', argument: 'pathToFileURL(localLattice).href' }],
+  }],
+]);
+
+const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
+  ['bin/bootstrap-runner.js', '63b01812c1d328eac4a470c6c92f7b140fde24e19c225252cc33917eb0ae87ca'],
+  ['bin/lattice-codex.js', '9ad446b5d41be3ee62a7bde640289f55c4d1c5663a42b003f4abbd3a2ffaea57'],
 ]);
 
 function enclosingFunctionName(node: ts.Node): string | undefined {
@@ -833,7 +934,9 @@ function enclosingFunctionName(node: ts.Node): string | undefined {
 
 function isKnownBenignNonLiteralLoaderCall(file: string, call: ts.CallExpression, source: ts.SourceFile): boolean {
   const approved = knownBenignNonLiteralLoaderCalls.get(file);
-  if (!approved || canonicalAstFingerprint(file, source.text) !== PINNED_EXECUTABLE_SOURCE_FINGERPRINTS.get(file)) return false;
+  const expectedFingerprint = PINNED_EXECUTABLE_SOURCE_FINGERPRINTS.get(file)
+    ?? BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS.get(file);
+  if (!approved || !expectedFingerprint || canonicalAstFingerprint(file, source.text) !== expectedFingerprint) return false;
   const anchor = enclosingFunctionName(call);
   const argument = call.arguments[0]?.getText(source);
   return Boolean(anchor && argument && approved.calls.some(entry => (
@@ -868,6 +971,191 @@ function scanConcealedCompatibilityLoads(file: string, text: string): Violation[
   return violations;
 }
 
+const DYNAMIC_VM_EXECUTION_MEMBERS = new Set([
+  'runInThisContext',
+  'runInNewContext',
+  'runInContext',
+  'compileFunction',
+  'Script',
+  'SourceTextModule',
+  'SyntheticModule',
+]);
+
+function collectDynamicExecutionNames(source: ts.SourceFile): { direct: Set<string>; namespaces: Set<string> } {
+  const direct = new Set<string>();
+  const namespaces = new Set<string>();
+  const aliases: Array<{ name: string; initializer: ts.Expression }> = [];
+  for (const statement of source.statements) {
+    if (ts.isImportDeclaration(statement)
+      && ts.isStringLiteral(statement.moduleSpecifier)
+      && (statement.moduleSpecifier.text === 'node:vm' || statement.moduleSpecifier.text === 'vm')) {
+      const bindings = statement.importClause?.namedBindings;
+      if (bindings && ts.isNamespaceImport(bindings)) namespaces.add(bindings.name.text);
+      if (bindings && ts.isNamedImports(bindings)) {
+        for (const element of bindings.elements) {
+          const imported = (element.propertyName ?? element.name).text;
+          if (DYNAMIC_VM_EXECUTION_MEMBERS.has(imported)) direct.add(element.name.text);
+        }
+      }
+    }
+    if (ts.isVariableStatement(statement)) {
+      for (const declaration of statement.declarationList.declarations) {
+        if (ts.isIdentifier(declaration.name) && declaration.initializer) {
+          aliases.push({ name: declaration.name.text, initializer: declaration.initializer });
+        }
+        if (!declaration.initializer
+          || !ts.isCallExpression(declaration.initializer)
+          || !ts.isIdentifier(declaration.initializer.expression)
+          || declaration.initializer.expression.text !== 'require'
+          || declaration.initializer.arguments.length !== 1
+          || !ts.isStringLiteral(declaration.initializer.arguments[0])
+          || !['node:vm', 'vm'].includes(declaration.initializer.arguments[0].text)) continue;
+        if (ts.isIdentifier(declaration.name)) namespaces.add(declaration.name.text);
+        if (ts.isObjectBindingPattern(declaration.name)) {
+          for (const element of declaration.name.elements) {
+            const imported = element.propertyName && ts.isIdentifier(element.propertyName)
+              ? element.propertyName.text
+              : ts.isIdentifier(element.name) ? element.name.text : undefined;
+            if (imported && DYNAMIC_VM_EXECUTION_MEMBERS.has(imported) && ts.isIdentifier(element.name)) direct.add(element.name.text);
+          }
+        }
+      }
+    }
+  }
+  const isDangerousReference = (expression: ts.Expression): boolean => {
+    const current = unwrapExecutionExpression(expression);
+    if (ts.isIdentifier(current)) return current.text === 'eval' || current.text === 'Function' || direct.has(current.text);
+    if (ts.isBinaryExpression(current) && current.operatorToken.kind === ts.SyntaxKind.CommaToken) return isDangerousReference(current.right);
+    if (ts.isPropertyAccessExpression(current)) {
+      if (['bind', 'call', 'apply'].includes(current.name.text)) return isDangerousReference(current.expression);
+      if (current.name.text === 'eval' || current.name.text === 'Function' || current.name.text === 'constructor') return true;
+      return DYNAMIC_VM_EXECUTION_MEMBERS.has(current.name.text)
+        && ts.isIdentifier(unwrapExecutionExpression(current.expression))
+        && namespaces.has((unwrapExecutionExpression(current.expression) as ts.Identifier).text);
+    }
+    if (ts.isElementAccessExpression(current) && current.argumentExpression) {
+      const member = staticModuleText(current.argumentExpression);
+      return member === 'eval' || member === 'Function' || member === 'constructor'
+        || Boolean(member && DYNAMIC_VM_EXECUTION_MEMBERS.has(member));
+    }
+    if (ts.isCallExpression(current)
+      && ts.isPropertyAccessExpression(current.expression)
+      && current.expression.name.text === 'bind') return isDangerousReference(current.expression.expression);
+    return false;
+  };
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const alias of aliases) {
+      if (!direct.has(alias.name) && isDangerousReference(alias.initializer)) {
+        direct.add(alias.name);
+        changed = true;
+      }
+    }
+  }
+  return { direct, namespaces };
+}
+
+function unwrapExecutionExpression(expression: ts.Expression): ts.Expression {
+  let current = expression;
+  while (ts.isParenthesizedExpression(current)
+    || ts.isAsExpression(current)
+    || ts.isTypeAssertionExpression(current)
+    || ts.isNonNullExpression(current)) current = current.expression;
+  return current;
+}
+
+function dynamicExecutionKind(
+  expression: ts.Expression,
+  checker: ts.TypeChecker,
+  bindings: ReturnType<typeof collectDynamicExecutionNames>,
+): string | undefined {
+  const current = unwrapExecutionExpression(expression);
+  if (ts.isBinaryExpression(current) && current.operatorToken.kind === ts.SyntaxKind.CommaToken) {
+    return dynamicExecutionKind(current.right, checker, bindings);
+  }
+  if (ts.isIdentifier(current)) {
+    if ((current.text === 'eval' || current.text === 'Function') && isGlobalIdentifier(current, checker, current.text)) return current.text;
+    if (bindings.direct.has(current.text)) return `node:vm.${current.text}`;
+    return undefined;
+  }
+  if (ts.isPropertyAccessExpression(current)) {
+    if (['call', 'apply', 'bind'].includes(current.name.text)) return dynamicExecutionKind(current.expression, checker, bindings);
+    if (current.name.text === 'eval' || current.name.text === 'Function' || current.name.text === 'constructor') return current.name.text;
+    if (DYNAMIC_VM_EXECUTION_MEMBERS.has(current.name.text)) {
+      const target = unwrapExecutionExpression(current.expression);
+      if (ts.isIdentifier(target) && bindings.namespaces.has(target.text)) return `node:vm.${current.name.text}`;
+      if (ts.isCallExpression(target)
+        && ts.isIdentifier(target.expression)
+        && target.expression.text === 'require'
+        && target.arguments.length === 1
+        && ts.isStringLiteral(target.arguments[0])
+        && ['node:vm', 'vm'].includes(target.arguments[0].text)) return `node:vm.${current.name.text}`;
+    }
+  }
+  if (ts.isElementAccessExpression(current) && current.argumentExpression) {
+    const member = staticModuleText(current.argumentExpression);
+    if (member === 'eval' || member === 'Function' || member === 'constructor') return member;
+    if (member && DYNAMIC_VM_EXECUTION_MEMBERS.has(member)) return `dynamic-code-api.${member}`;
+  }
+  return undefined;
+}
+
+function staticDynamicExecutionPayloads(
+  args: readonly ts.Expression[],
+  checker: ts.TypeChecker,
+  constStrings: ReadonlyMap<ts.Symbol, string>,
+): string[] {
+  return args.flatMap(argument => {
+    const payload = staticModuleText(argument, checker, constStrings);
+    return payload === undefined ? [] : [payload];
+  });
+}
+
+function payloadReferencesLegacyCompatibility(payload: string): boolean {
+  try {
+    return decodeURIComponent(payload).includes('legacy-delivery-claims-compat');
+  } catch {
+    return payload.includes('legacy-delivery-claims-compat');
+  }
+}
+
+function scanDynamicCodeGeneration(file: string, text: string): Violation[] {
+  const exemptFingerprint = DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS.get(file);
+  if (exemptFingerprint && canonicalAstFingerprint(file, text) === exemptFingerprint) return [];
+  const source = parseSource(file, text);
+  const checker = typeCheckerFor(file, text);
+  const constStrings = collectConstStringValues(source, checker);
+  const bindings = collectDynamicExecutionNames(source);
+  const violations: Violation[] = [];
+  const inspect = (node: ts.CallExpression | ts.NewExpression): void => {
+    const kind = dynamicExecutionKind(node.expression, checker, bindings);
+    if (!kind) return;
+    const args = node.arguments ?? [];
+    const payloads = staticDynamicExecutionPayloads(args, checker, constStrings);
+    violations.push({
+      file,
+      line: lineNumberAt(text, node.getStart(source)),
+      label: 'unapproved dynamic code generation',
+      text: `${kind}${payloads.length > 0 ? ` static-payload=${JSON.stringify(payloads)}` : ''}`,
+    });
+    for (const payload of payloads.filter(payloadReferencesLegacyCompatibility)) {
+      violations.push({
+        file,
+        line: lineNumberAt(text, node.getStart(source)),
+        label: 'dynamic code generation compatibility payload',
+        text: payload,
+      });
+    }
+  };
+  const visit = (node: ts.Node): void => {
+    if (ts.isCallExpression(node) || ts.isNewExpression(node)) inspect(node);
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return violations;
+}
+
 function importedCompatSymbols(file: string, source: ts.SourceFile): string[] {
   const symbols: string[] = [];
   for (const statement of source.statements) {
@@ -884,8 +1172,8 @@ function importedCompatSymbols(file: string, source: ts.SourceFile): string[] {
   return symbols;
 }
 
-function scanLegacyDeliveryCompatibilityUsage(file: string, text: string): Violation[] {
-  const fingerprintViolations = validatePinnedExecutableSourceFingerprint(file, text);
+function scanLegacyDeliveryCompatibilityUsage(file: string, text: string, checkedPinnedPaths?: Map<string, number>): Violation[] {
+  const fingerprintViolations = validatePinnedExecutableSourceFingerprint(file, text, checkedPinnedPaths);
   if (file === LEGACY_DELIVERY_COMPAT_MODULE) return fingerprintViolations;
   const source = parseSource(file, text);
   const checker = typeCheckerFor(file, text);
@@ -980,8 +1268,8 @@ function scanLegacyDeliveryCompatibilityGraph(fileTexts: ReadonlyMap<string, str
     for (const [file, text] of fileTexts) {
       const normalizedFile = normalizeModulePath(file);
       for (const { specifier, index, kind } of extractImportSpecifiers(text, file)) {
-        if (!specifier.startsWith('.')) continue;
-        const target = normalizeModulePath(join(dirname(file), specifier).replace(/\\/g, '/'));
+        const target = resolvedStaticModulePath(file, specifier);
+        if (!target) continue;
         if (!exporters.has(target) || target === normalizeModulePath(LEGACY_DELIVERY_COMPAT_MODULE)) continue;
         violations.push({
           file,
@@ -1000,7 +1288,7 @@ function scanLegacyDeliveryCompatibilityGraph(fileTexts: ReadonlyMap<string, str
 }
 
 function shouldScanImports(file: string): boolean {
-  return file.startsWith('packages/main/src/')
+  return SHIPPED_EXECUTABLE_SOURCE_DIRS.some(dir => file.startsWith(`${dir}/`))
     && isExecutableSourceFile(file)
     && !file.includes('/dist/')
     && !fileIsExplicitLegacyQuarantine(file);
@@ -1086,6 +1374,108 @@ function assertImportSpecifierPositiveControls(): void {
     violations.some(v => v.text === './story-authority-resolver.js'),
     'import guard must catch the retired story-authority-resolver core module',
   );
+}
+
+function assertHermeticTraversalPositiveControls(): void {
+  const root = mkdtempSync(join(tmpdir(), 'retired-authority-traversal-'));
+  try {
+    const target = join(root, 'z-target');
+    mkdirSync(target);
+    writeFileSync(join(target, 'protected.ts'), 'export const protectedValue = true;\n');
+    symlinkSync('z-target', join(root, 'a-alias'));
+    symlinkSync('.', join(target, 'self-cycle'));
+    symlinkSync('..', join(target, 'back-edge'));
+    assert.deepEqual(
+      listFilesFromRoot(root, '.', EXECUTABLE_SOURCE_EXTENSIONS),
+      ['z-target/protected.ts'],
+      'alias-before-target and self/back-edge symlinks must be skipped while the canonical target is traversed exactly once',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertShippedExecutableRootPositiveControls(): void {
+  assert.deepEqual(
+    deriveShippedPackageEntrypoints(),
+    SHIPPED_EXECUTABLE_ENTRYPOINTS.filter(entrypoint => entrypoint.startsWith('packages/')).sort(),
+    'every package bin/exports target must derive to an explicitly pinned scanned source entrypoint',
+  );
+  for (const entrypoint of SHIPPED_EXECUTABLE_ENTRYPOINTS) {
+    assert.equal(existsSync(join(repoRoot, entrypoint)), true, `pinned shipped executable entrypoint must exist: ${entrypoint}`);
+    assert.equal(isExecutableSourceFile(entrypoint), true, `pinned shipped executable entrypoint must use a scanned extension: ${entrypoint}`);
+  }
+  for (const binEntrypoint of ['bin/lattice.js', 'bin/bootstrap-runner.js']) {
+    const directBypass = "import { createLegacyLocalOnlyDeliveryClaims } from '../packages/main/src/core/legacy-delivery-claims-compat.js';\ncreateLegacyLocalOnlyDeliveryClaims();\n";
+    assert.ok(
+      scanLegacyDeliveryCompatibilityUsage(binEntrypoint, directBypass)
+        .some(violation => violation.label === 'unapproved legacy delivery compatibility import'),
+      `direct bin entrypoint compatibility import must be caught: ${binEntrypoint}`,
+    );
+  }
+  for (const newFile of ['bin/new-cli-entrypoint.js', 'packages/lab/src/new-export.mts', 'packages/utils/src/new-register.cts']) {
+    assert.equal(shouldScanImports(newFile), true, `new shipped executable file must enter import scanning: ${newFile}`);
+    assert.ok(
+      scanDynamicCodeGeneration(newFile, "eval(\"import('./legacy-delivery-claims-compat.js')\")")
+        .some(violation => violation.label === 'dynamic code generation compatibility payload'),
+      `new shipped executable file must enter dynamic-code scanning: ${newFile}`,
+    );
+  }
+}
+
+function assertNormalizedSpecifierPositiveControls(): void {
+  const controlFile = 'packages/main/src/core/specifier-normalization-control.ts';
+  for (const [label, source] of [
+    ['query suffix', "import { createLegacyLocalOnlyDeliveryClaims } from './legacy-delivery-claims-compat.js?cache=1';"],
+    ['fragment suffix', "import { createLegacyLocalOnlyDeliveryClaims } from './legacy-delivery-claims-compat.js#runtime';"],
+    ['percent encoding', "import { createLegacyLocalOnlyDeliveryClaims } from './legacy%2Ddelivery%2Dclaims%2Dcompat.js';"],
+    ['CJS query and fragment', "require('./legacy-delivery-claims-compat.js?cache=1#runtime');"],
+  ] as const) {
+    assert.ok(
+      scanLegacyDeliveryCompatibilityUsage(controlFile, source)
+        .some(violation => violation.label === 'unapproved legacy delivery compatibility import'),
+      `${label} runtime-equivalent compatibility specifier must be caught`,
+    );
+  }
+  assert.ok(
+    scanImportSpecifiers(controlFile, "import './story%2Dauthority%2Dresolver.js?cache=1#runtime';")
+      .some(violation => violation.label === 'retired story resolver module'),
+    'percent-encoded query/fragment retired module specifier must be caught',
+  );
+  assert.ok(
+    scanImportSpecifiers(controlFile, "import './legacy%ZZdelivery.js';")
+      .some(violation => violation.label === 'malformed encoded static module specifier'),
+    'malformed percent-encoded static module specifier must fail closed',
+  );
+}
+
+function assertDynamicCodeGenerationPositiveControls(): void {
+  const controlFile = 'bin/dynamic-code-control.js';
+  const cases = [
+    ['direct eval', "eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")"],
+    ['indirect eval', "(0, eval)(`require('../packages/main/src/core/legacy-delivery-claims-compat.js')`)"],
+    ['aliased eval', "const indirect = eval; indirect(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")"],
+    ['Function call', "Function(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")()"],
+    ['new Function', "new Function(\"return require('../packages/main/src/core/legacy-delivery-claims-compat.js')\")"],
+    ['async constructor', "const AsyncFunction = (async () => {}).constructor; new AsyncFunction(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")"],
+    ['vm namespace', "import * as vm from 'node:vm'; vm.runInNewContext(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\")"],
+    ['vm named alias', "import { compileFunction as compile } from 'node:vm'; compile(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")"],
+    ['global property eval', "globalThis['eval'](\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")"],
+  ] as const;
+  for (const [label, source] of cases) {
+    const violations = scanDynamicCodeGeneration(controlFile, source);
+    assert.ok(violations.some(violation => violation.label === 'unapproved dynamic code generation'), `${label} must be banned`);
+    assert.ok(violations.some(violation => violation.label === 'dynamic code generation compatibility payload'), `${label} static payload must be inspected`);
+  }
+  for (const [file, fingerprint] of DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS) {
+    assert.equal(canonicalAstFingerprint(file, readRel(file)), fingerprint, `dynamic-code exemption fingerprint must be exact: ${file}`);
+    assert.deepEqual(scanDynamicCodeGeneration(file, readRel(file)), [], `exact dynamic-code exemption must remain accepted: ${file}`);
+    assert.ok(
+      scanDynamicCodeGeneration(file, `${readRel(file)}\nvoid 0;\n`)
+        .some(violation => violation.label === 'unapproved dynamic code generation'),
+      `any executable drift must invalidate the dynamic-code exemption: ${file}`,
+    );
+  }
 }
 
 function assertLegacyDeliveryCompatibilityPositiveControls(): void {
@@ -1443,6 +1833,10 @@ function assertGeneratedHelp(): Violation[] {
 const violations: Violation[] = [];
 assertPositiveControls();
 assertImportSpecifierPositiveControls();
+assertHermeticTraversalPositiveControls();
+assertShippedExecutableRootPositiveControls();
+assertNormalizedSpecifierPositiveControls();
+assertDynamicCodeGenerationPositiveControls();
 assertLegacyDeliveryCompatibilityPositiveControls();
 assertContract();
 violations.push(...assertCommandCatalog());
@@ -1450,8 +1844,11 @@ violations.push(...assertCommandCatalog());
 const activeFiles = [
   ...activeTextFiles,
   ...activeTextDirs.flatMap(dir => listFiles(dir, ACTIVE_SCAN_EXTENSIONS)),
+  ...SHIPPED_EXECUTABLE_SOURCE_DIRS.flatMap(dir => listFiles(dir, EXECUTABLE_SOURCE_EXTENSIONS)),
+  ...SHIPPED_EXECUTABLE_ENTRYPOINTS,
 ].filter((file, index, all) => all.indexOf(file) === index);
 const activeFileTexts = new Map<string, string>();
+const checkedPinnedPaths = new Map<string, number>();
 
 for (const file of activeFiles) {
   if (!existsSync(join(repoRoot, file))) continue;
@@ -1459,10 +1856,16 @@ for (const file of activeFiles) {
   activeFileTexts.set(file, text);
   // Pinned fingerprints are validated before compatibility-module early return
   // and before loader, vocabulary, import, or quarantine-specific scanning.
-  violations.push(...scanLegacyDeliveryCompatibilityUsage(file, text));
+  violations.push(...scanLegacyDeliveryCompatibilityUsage(file, text, checkedPinnedPaths));
+  if (isExecutableSourceFile(file)) violations.push(...scanDynamicCodeGeneration(file, text));
   violations.push(...scanText(file, text));
   violations.push(...scanImportSpecifiers(file, text));
 }
+assert.deepEqual(
+  [...checkedPinnedPaths.entries()].sort(([left], [right]) => left.localeCompare(right)),
+  [...PINNED_EXECUTABLE_SOURCE_FINGERPRINTS.keys()].sort().map(file => [file, 1]),
+  'all eight pinned canonical executable paths must be checked exactly once by the canonical scan',
+);
 violations.push(...scanLegacyDeliveryCompatibilityGraph(activeFileTexts));
 
 for (const file of retiredFutureBacklogPlanFiles) {
