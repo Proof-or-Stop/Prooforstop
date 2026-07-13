@@ -565,6 +565,13 @@ async function runStoryTransitionInner(
     // stops the actor; the orchestrator's finally owns that.
     let doneRenderedChecklist: string | undefined;
     if (args.phase === 'DONE') {
+      // A locally edited index.json must not gain privilege by claiming that
+      // REVIEW→TEST already ran. Re-run every REVIEW→TEST preflight fact at the
+      // actual DONE authorization boundary. The index event's local identity
+      // strings remain audit-only; review-loop, ProofStory completeness, CLI
+      // gates, signed reviewer evidence, scope/guard and validation evidence
+      // are independently consumed by their existing mechanical gates.
+      await runReviewToTestPreflightGate(ctx, args.storyId, actor);
       // B-6666 CHK-001: thread the SAME doneGitCwd resolved once above (no
       // re-resolve, preMortem #4) so the DONE-oracle git-status probe runs in
       // the real gitRoot on wrapper-root layouts instead of the bare ctx.root.

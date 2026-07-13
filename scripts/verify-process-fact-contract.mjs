@@ -782,10 +782,12 @@ function assertCloseoutTrustBoundary() {
   const machineText = read('packages/main/src/core/machine.ts');
   assert(machineText.includes('collectReviewerEvidenceState') && machineText.includes('[stale_closeout_review]'), 'TEST→DONE guard and failure renderer must consume closeout-aware reviewer evidence freshness');
   const reviewRunText = read('packages/main/src/core/review-run.ts');
-  for (const token of ['evaluateReviewRunMetadataRetention', 'evaluateMetadataOnlyReviewRetention', 'evaluatePersistedReviewToTestIndexTransition', 'changedFilesBetween', 'uncommittedPathsUnder', 'validateCurrentCloseoutArtifact', 'relative(gitRoot, storyDir)', "event.branch !== `story/${run.storyId}`", "reviewedStory.phase !== 'REVIEW'", "currentStory.phase !== 'TEST'"]) {
+  for (const token of ['evaluateReviewRunMetadataRetention', 'evaluateMetadataOnlyReviewRetention', 'evaluatePersistedReviewToTestIndexTransition', 'changedFilesBetween', 'uncommittedPathsUnder', 'validateCurrentCloseoutArtifact', 'relative(gitRoot, storyDir)', 'same-UID actor can freely mint them', "reviewedStory.phase !== 'REVIEW'", "currentStory.phase !== 'TEST'"]) {
     assert(reviewRunText.includes(token), `review-run metadata retention consumer missing ${token}`);
   }
-  assert(read('packages/main/src/handlers/transition-orchestrator.ts').includes("story.events.push(collectContext(args.phase, 'advance'))"), 'persisted REVIEW-to-TEST retention exception must remain tied to the production collectContext transition shape');
+  const transitionText = read('packages/main/src/handlers/transition-orchestrator.ts');
+  assert(transitionText.includes("story.events.push(collectContext(args.phase, 'advance'))"), 'persisted REVIEW-to-TEST retention exception must remain tied to the production collectContext transition shape');
+  assert(/if \(args\.phase === 'DONE'\)[\s\S]{0,800}runReviewToTestPreflightGate\(ctx, args\.storyId, actor\)/.test(transitionText), 'DONE must independently re-run REVIEW-to-TEST preflight facts so a manual index phase edit grants no privilege');
   assert(reviewRunText.includes('REVIEW_RETENTION_PROTOCOL_METADATA_PATHS') && !reviewRunText.includes("'process-metrics.json'"), 'review-run must consume the lifecycle registry instead of maintaining a local protocol ignore list');
   for (const [handlerPath, writerCommand, artifactPath] of [
     ['packages/main/src/handlers/proofstory.ts', 'parent_ledger_rollup_set', 'parent-ledger-rollup.json'],

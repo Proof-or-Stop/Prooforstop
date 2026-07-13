@@ -700,20 +700,14 @@ export function evaluatePersistedReviewToTestIndexTransition(
   currentStory: StoryInfo,
 ): { ok: boolean; reason?: string } {
   let reviewedStory: StoryInfo;
-  let currentBranch: string;
   try {
     reviewedStory = JSON.parse(execFileSync('git', ['show', `${run.headHash}:${indexGitPath}`], {
       cwd: gitCwd,
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
     })) as StoryInfo;
-    currentBranch = execFileSync('git', ['branch', '--show-current'], {
-      cwd: gitCwd,
-      encoding: 'utf8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
   } catch {
-    return { ok: false, reason: 'signed REVIEW index snapshot or current branch is unreadable' };
+    return { ok: false, reason: 'signed REVIEW index snapshot is unreadable' };
   }
   if (reviewedStory.storyId !== run.storyId || currentStory.storyId !== run.storyId) {
     return { ok: false, reason: 'index storyId does not match the signed review run' };
@@ -734,20 +728,19 @@ export function evaluatePersistedReviewToTestIndexTransition(
   if (Object.keys(event).some((key) => !allowedEventKeys.has(key))) {
     return { ok: false, reason: 'transition event contains fields not emitted by collectContext' };
   }
-  if (
-    event.phase !== 'TEST'
-    || event.action !== 'advance'
-    || !event.timestamp
-    || !Number.isFinite(Date.parse(event.timestamp))
-    || Date.parse(event.timestamp) < Date.parse(run.startedAt)
-    || !event.branch
-    || event.branch !== currentBranch
-    || event.branch !== `story/${run.storyId}`
-    || !event.user
-    || !event.sessionId
-    || !event.agent
-  ) {
-    return { ok: false, reason: 'transition event provenance is incomplete or inconsistent with the active story branch' };
+  if (event.phase !== 'TEST' || event.action !== 'advance') {
+    return { ok: false, reason: 'transition event is not exactly TEST/advance' };
+  }
+  // Local event identity/timing strings are audit context, not writer
+  // authentication: the same-UID actor can freely mint them and git user.name
+  // is legitimately absent in env-only commit setups.  They therefore cannot
+  // affect authorization.  Only reject malformed types when a field exists;
+  // the gate authority comes from the already-verified signed review
+  // run/pass/round plus the exact stable index delta above/below.
+  for (const key of ['timestamp', 'branch', 'user', 'sessionId', 'agent'] as const) {
+    if (event[key] !== undefined && typeof event[key] !== 'string') {
+      return { ok: false, reason: `transition event audit field ${key} is not a string` };
+    }
   }
   const { phase: _reviewedPhase, events: _reviewedEvents, ...reviewedStable } = reviewedStory;
   const { phase: _currentPhase, events: _currentEvents, ...currentStable } = currentStory;

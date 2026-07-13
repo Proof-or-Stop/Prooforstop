@@ -302,14 +302,17 @@ try {
     indexRun.headHash, indexRun.materialHash, indexRun.promptHash, indexRun.scopeBinding?.bindingHash, undefined, indexRun.storyFilesHash,
   );
   const transitioned = indexStore.readStory(indexStoryId);
+  git(indexRepo, ['config', '--unset', 'user.name']);
+  git(indexRepo, ['config', '--unset', 'user.email']);
+  assert.throws(() => git(indexRepo, ['config', '--local', 'user.name']), 'fixture must prove repository-local git user.name is absent');
   transitioned.phase = 'TEST';
   transitioned.events = [...(transitioned.events ?? []), {
     phase: 'TEST', action: 'advance', timestamp: '2026-07-13T11:01:00.000Z', branch: `story/${indexStoryId}`,
-    user: 'closeout-smoke', sessionId: 'test-session', agent: 'main',
+    sessionId: 'test-session', agent: 'main',
   }];
   indexStore.writeStory(indexStoryId, transitioned);
   git(indexRepo, ['add', '.']);
-  git(indexRepo, ['commit', '-m', 'persist canonical REVIEW to TEST transition']);
+  git(indexRepo, ['-c', 'user.name=env-only-identity', '-c', 'user.email=env@example.test', 'commit', '-m', 'persist canonical REVIEW to TEST transition without user audit field']);
   assert.equal(evaluatePersistedReviewToTestIndexTransition(
     indexRepo, `.lattice/story/actives/${indexStoryId}/index.json`, indexRun, transitioned,
   ).ok, true);
@@ -317,11 +320,38 @@ try {
     indexStore, transitioned, indexRun, indexRepo, currentScopeContextForStory(indexStore, indexStoryId, indexRepo),
   ).ok, true, 'canonical persisted REVIEW to TEST index delta must retain the fresh review snapshot');
 
+  const auditMutations = [
+    { user: 'same-uid-forged-user' },
+    { sessionId: 'same-uid-forged-session' },
+    { agent: 'same-uid-forged-agent' },
+    { timestamp: '1900-01-01T00:00:00.000Z' },
+    { branch: 'same-uid-forged-branch' },
+  ];
+  for (const mutation of auditMutations) {
+    const changedAudit = structuredClone(transitioned);
+    changedAudit.events = [...(changedAudit.events ?? [])];
+    changedAudit.events[changedAudit.events.length - 1] = {
+      ...changedAudit.events.at(-1)!,
+      ...mutation,
+    };
+    assert.equal(evaluatePersistedReviewToTestIndexTransition(
+      indexRepo, `.lattice/story/actives/${indexStoryId}/index.json`, indexRun, changedAudit,
+    ).ok, true, `${Object.keys(mutation)[0]} is same-UID-forgeable audit context and must not affect authorization`);
+    assert.equal(evaluateReviewRunMetadataRetention(
+      indexStore, changedAudit, indexRun, indexRepo, currentScopeContextForStory(indexStore, indexStoryId, indexRepo),
+    ).ok, true, `${Object.keys(mutation)[0]} audit mutation must not add or remove review-retention authority`);
+  }
+  const malformedAudit = structuredClone(transitioned) as any;
+  malformedAudit.events.at(-1).agent = 42;
+  assert.equal(evaluatePersistedReviewToTestIndexTransition(
+    indexRepo, `.lattice/story/actives/${indexStoryId}/index.json`, indexRun, malformedAudit,
+  ).ok, false, 'present audit fields still require structurally valid string types');
+
   const tampered = indexStore.readStory(indexStoryId);
   tampered.title = 'Tampered after review';
   indexStore.writeStory(indexStoryId, tampered);
   git(indexRepo, ['add', '.']);
-  git(indexRepo, ['commit', '-m', 'tamper index outside transition delta']);
+  git(indexRepo, ['-c', 'user.name=env-only-identity', '-c', 'user.email=env@example.test', 'commit', '-m', 'tamper index outside transition delta']);
   assert.equal(evaluatePersistedReviewToTestIndexTransition(
     indexRepo, `.lattice/story/actives/${indexStoryId}/index.json`, indexRun, tampered,
   ).ok, false);
