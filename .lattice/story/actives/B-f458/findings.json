@@ -2880,6 +2880,24 @@
       "resolvedAt": "2026-07-13T20:21:18.548Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f458:F-110",
+      "desc": "Exact-local callable classification ignores later writes to the callable symbol. isExactLocalSafeExecutionTarget returns true for a function declaration or variable initialized with an arrow/function without consulting assignment records. Therefore `let run = (value: string) => value; run = eval; run(\"1+1\")` (and reassigned function declarations) is suppressed as exact-safe before dynamicExecutionKind can consume the eval provenance already collected for the assignment. Exact callable safety must require an immutable/non-reassigned binding or allow dangerous binding provenance to override the shortcut.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T20:23:37.234Z",
+      "reviewRound": "2026-07-13T20:20:44.390Z",
+      "reviewRunId": "B-f458:RR-118",
+      "_hash": "fb8a2fb590b5fa460ff864324d23faac37cf9d15fbb720d3be7e8ca2f021fb69",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|exact-local-callable",
+      "signatureTagSource": "auto"
     }
   ]
 }
