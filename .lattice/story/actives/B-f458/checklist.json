@@ -93,7 +93,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-13T12:05:31.142Z",
+      "endTime": "2026-07-13T12:18:24.557Z",
       "userSees": "User sees `PASS composite scope digest: semantic scope facts bound`; changing acknowledgement content/provenance, milestone ledger, or slice plan changes the digest and blocks metadata-only review retention until signed re-attestation.",
       "verificationIntent": {
         "happy": [
@@ -140,33 +140,33 @@
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full suite passed at eaad32b53c including composite scope digest behavior.",
-          "headHash": "f535b0120c4dd9a290d1677a43487f9163ab6c45",
-          "materialHash": "4e1cd302c15f264c841eac0c26e1f5013b83153ce555b1a3abb254573089775c",
-          "storyFilesHash": "a22f46aac7120b7bb5959bf6e3c6847ad677463dad52cf542b086d4014eb28f4",
-          "timestamp": "2026-07-13T12:05:31.288Z"
+          "note": "Full suite passed at implementation commit aa86b4d950 after TypeChecker-bound compatibility guard hardening (CHK-002).",
+          "headHash": "02de6869769b9e791476e0c6302ecb227875bee5",
+          "materialHash": "42746a6160ea4b6b6347cbe0ad1fc26ba2fd428f015b24d346de108faab041f4",
+          "storyFilesHash": "f4b384bdf30976ba37e29c55a1969e786b149eaf478f7053abea10eef0ab61ec",
+          "timestamp": "2026-07-13T12:18:24.744Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
           "command": "npm run test:closeout-trust",
           "result": "pass",
-          "note": "Closeout trust smoke passed at eaad32b53c.",
-          "headHash": "f535b0120c4dd9a290d1677a43487f9163ab6c45",
-          "materialHash": "4e1cd302c15f264c841eac0c26e1f5013b83153ce555b1a3abb254573089775c",
-          "storyFilesHash": "a22f46aac7120b7bb5959bf6e3c6847ad677463dad52cf542b086d4014eb28f4",
-          "timestamp": "2026-07-13T12:05:31.423Z"
+          "note": "Closeout trust regression suite passed at aa86b4d950, including metadata/re-attestation boundaries (CHK-002).",
+          "headHash": "02de6869769b9e791476e0c6302ecb227875bee5",
+          "materialHash": "42746a6160ea4b6b6347cbe0ad1fc26ba2fd428f015b24d346de108faab041f4",
+          "storyFilesHash": "f4b384bdf30976ba37e29c55a1969e786b149eaf478f7053abea10eef0ab61ec",
+          "timestamp": "2026-07-13T12:18:24.949Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && npm run test:process-fact-contract",
           "result": "pass",
-          "note": "Graph taint independently catches metric-preserving exported wrappers and downstream consumers at eaad32b53c.",
-          "headHash": "f535b0120c4dd9a290d1677a43487f9163ab6c45",
-          "materialHash": "4e1cd302c15f264c841eac0c26e1f5013b83153ce555b1a3abb254573089775c",
-          "storyFilesHash": "a22f46aac7120b7bb5959bf6e3c6847ad677463dad52cf542b086d4014eb28f4",
-          "timestamp": "2026-07-13T12:05:31.760Z"
+          "note": "Adversarial guard controls passed at aa86b4d950: const-path flow, require/createRequire aliases, relocated exported objects, downstream property/destructure consumers, and shadowed same-name symbols (CHK-002).",
+          "headHash": "02de6869769b9e791476e0c6302ecb227875bee5",
+          "materialHash": "42746a6160ea4b6b6347cbe0ad1fc26ba2fd428f015b24d346de108faab041f4",
+          "storyFilesHash": "f4b384bdf30976ba37e29c55a1969e786b149eaf478f7053abea10eef0ab61ec",
+          "timestamp": "2026-07-13T12:18:25.125Z"
         }
       ]
     },
