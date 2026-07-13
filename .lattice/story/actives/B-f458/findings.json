@@ -535,6 +535,28 @@
       "resolvedAt": "2026-07-13T11:12:00.661Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f458:F-022",
+      "desc": "The shared delivery-claim schema creates a retired-vocabulary guard bypass instead of an explicit narrow compatibility quarantine. baseline-contracts.ts is excluded wholesale by legacyQuarantineFiles, while active closeout-trust.ts imports LOCAL_ONLY_DELIVERY_CLAIM_KEYS/CLAIMS (symbol names that contain none of the banned tokens) and consumes the hidden authorityDone/fullAuthorityDone/productionDone keys. The source scanner only regex-scans each active line and does not restrict imports of these exported constants, so any future active renderer/producer can spread LOCAL_ONLY_DELIVERY_CLAIMS and emit all retired fields while the guard still passes. This contradicts the retirement contract requirement that whitelisted legacy files be explicit and narrow. Keep the exact schema/validator in a narrowly named compatibility module or explicit structural quarantine, and make the vocabulary guard enforce an allowlisted importer/usage set (including a positive control for indirect constant spreading). The current exact false-value validator and producer copies are otherwise fail-closed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T11:25:58.846Z",
+      "reviewRound": "2026-07-13T11:23:40.844Z",
+      "reviewRunId": "B-f458:RR-031",
+      "_hash": "fd0546bfbd2e4be446c091088ee6db8b03270e8d18e53e0095cf5671a83a75b0",
+      "files": [
+        "packages/main/src/core/baseline-contracts.ts",
+        "packages/main/src/core/closeout-trust.ts",
+        "packages/main/src/handlers/delivery-context-pack.ts",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md"
+      ],
+      "signatureTag": "spec-boundary|ts|shared-delivery-claim",
+      "signatureTagSource": "auto"
     }
   ]
 }
