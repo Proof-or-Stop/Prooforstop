@@ -29,7 +29,7 @@
       "desc": "The delivery-context runtime validator accepts semantically invalid payloads that CHK-003 says must fail closed. validatePersistedDeliveryContextPack leaves candidateRouting and validation completely unchecked, does not exact-key or type-check claims, accepts non-string entries in diff.changedFiles/testFiles/evidenceCommands, and does not validate deliveryCheck.ref. A structurally plausible pack such as changedFiles:[42] with arbitrary candidateRouting/validation and extra claims fields is treated as trusted, while the smoke only tests authorityDone=true. Tighten the persisted schema to the producer contract and add adversarial cases.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T09:19:22.136Z",
@@ -42,7 +42,11 @@
         "packages/main/src/handlers/delivery-context-pack.ts"
       ],
       "signatureTag": "trusted-artifact-schema-gap",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 812a711565: delivery context now exact-validates claims, string arrays, candidate routing, validation evidence, review round, delivery ref, and waiver nested shapes. Adversarial malformed nested payload regressions pass.",
+      "resolvedAt": "2026-07-13T09:37:36.252Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-003",
