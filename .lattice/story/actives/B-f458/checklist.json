@@ -82,6 +82,19 @@
             "type": "logic"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/guard-session.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/done-prepare-validation-reuse.ts"
+        ],
+        "create": [
+          "packages/main/src/core/closeout-trust.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ]
       }
     },
     {
