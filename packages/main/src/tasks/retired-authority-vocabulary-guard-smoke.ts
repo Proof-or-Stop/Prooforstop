@@ -243,6 +243,7 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   ['packages/main/src/verifier/browser-client.ts', '48f529b542edbb79c796a5ef6ab51dad8e5e13cc2e3416e76f6bae74104d5527'],
   ['packages/main/src/handlers/decision-doc-quorum.ts', '6025f602afdc354a31333b61b516cb29aa1b59387806d69e6981d5a9ed3969b7'],
   ['packages/main/src/tasks/browser-client.ts', '4b92b436fb13a06cf2dfd2079c6b0dec787ef8807cd54f8b6db24c1002a0e61a'],
+  ['packages/main/src/handlers/fixture-executors.ts', 'acaa12e34e6e9b3304d176b9cbb65d9edfcdfa3ec9fc7db57a14d83411f026c7'],
 ]);
 
 const structuralLegacyFieldQuarantineFiles = new Set([
@@ -442,7 +443,13 @@ function typeCheckerFor(file: string, text: string): ts.TypeChecker {
   const cached = typeCheckerCache.get(file);
   if (cached?.text === text) return cached.checker;
   const source = parseSource(file, text);
-  const options: ts.CompilerOptions = { noResolve: true, target: ts.ScriptTarget.Latest, module: ts.ModuleKind.ESNext };
+  const options: ts.CompilerOptions = {
+    noResolve: true,
+    allowJs: true,
+    checkJs: true,
+    target: ts.ScriptTarget.Latest,
+    module: ts.ModuleKind.ESNext,
+  };
   const host: ts.CompilerHost = {
     getSourceFile: candidate => candidate === file ? source : undefined,
     getDefaultLibFileName: () => '',
@@ -528,8 +535,48 @@ function containingImportDeclaration(specifier: ts.ImportSpecifier): ts.ImportDe
     : undefined;
 }
 
+function bindingNameContains(name: ts.BindingName, expected: string): boolean {
+  if (ts.isIdentifier(name)) return name.text === expected;
+  return name.elements.some(element => ts.isBindingElement(element) && bindingNameContains(element.name, expected));
+}
+
+function lexicalScopeDeclaresName(scope: ts.Node, expected: string): boolean {
+  if (ts.isFunctionLike(scope)) {
+    if (scope.parameters.some(parameter => bindingNameContains(parameter.name, expected))) return true;
+    if ('name' in scope && scope.name && ts.isIdentifier(scope.name) && scope.name.text === expected) return true;
+  }
+  if (ts.isCatchClause(scope) && scope.variableDeclaration && bindingNameContains(scope.variableDeclaration.name, expected)) return true;
+  const statements = ts.isSourceFile(scope) || ts.isBlock(scope) || ts.isModuleBlock(scope) ? scope.statements : undefined;
+  if (!statements) return false;
+  return statements.some(statement => {
+    if (ts.isVariableStatement(statement)) {
+      return statement.declarationList.declarations.some(declaration => bindingNameContains(declaration.name, expected));
+    }
+    if ((ts.isFunctionDeclaration(statement) || ts.isClassDeclaration(statement)) && statement.name?.text === expected) return true;
+    if (ts.isImportDeclaration(statement)) {
+      const clause = statement.importClause;
+      if (clause?.name?.text === expected) return true;
+      const bindings = clause?.namedBindings;
+      if (bindings && ts.isNamespaceImport(bindings)) return bindings.name.text === expected;
+      if (bindings && ts.isNamedImports(bindings)) return bindings.elements.some(element => element.name.text === expected);
+    }
+    return false;
+  });
+}
+
+function hasLexicalShadow(node: ts.Identifier, expected: string): boolean {
+  let current: ts.Node | undefined = node.parent;
+  while (current) {
+    if (lexicalScopeDeclaresName(current, expected)) return true;
+    current = current.parent;
+  }
+  return false;
+}
+
 function isGlobalIdentifier(node: ts.Identifier, checker: ts.TypeChecker, name: string): boolean {
-  return node.text === name && checker.getSymbolAtLocation(node) === undefined;
+  if (node.text !== name) return false;
+  const symbol = checker.getSymbolAtLocation(node);
+  return (!symbol?.declarations || symbol.declarations.length === 0) && !hasLexicalShadow(node, name);
 }
 
 function isModuleRequireExpression(node: ts.Expression, checker: ts.TypeChecker): boolean {
@@ -981,79 +1028,245 @@ const DYNAMIC_VM_EXECUTION_MEMBERS = new Set([
   'SyntheticModule',
 ]);
 
-function collectDynamicExecutionNames(source: ts.SourceFile): { direct: Set<string>; namespaces: Set<string> } {
-  const direct = new Set<string>();
-  const namespaces = new Set<string>();
-  const aliases: Array<{ name: string; initializer: ts.Expression }> = [];
-  for (const statement of source.statements) {
-    if (ts.isImportDeclaration(statement)
-      && ts.isStringLiteral(statement.moduleSpecifier)
-      && (statement.moduleSpecifier.text === 'node:vm' || statement.moduleSpecifier.text === 'vm')) {
-      const bindings = statement.importClause?.namedBindings;
-      if (bindings && ts.isNamespaceImport(bindings)) namespaces.add(bindings.name.text);
-      if (bindings && ts.isNamedImports(bindings)) {
-        for (const element of bindings.elements) {
-          const imported = (element.propertyName ?? element.name).text;
-          if (DYNAMIC_VM_EXECUTION_MEMBERS.has(imported)) direct.add(element.name.text);
-        }
+interface DynamicExecutionBindings {
+  dangerousSymbols: Map<ts.Symbol, string>;
+  vmNamespaceSymbols: Set<ts.Symbol>;
+  asyncCallableSymbols: Set<ts.Symbol>;
+}
+
+interface DynamicAliasRecord {
+  target: ts.Symbol;
+  expression: ts.Expression;
+}
+
+interface DynamicDestructureRecord {
+  target: ts.Symbol;
+  property: string;
+  source: ts.Expression;
+}
+
+function identifierSymbol(identifier: ts.Identifier, checker: ts.TypeChecker): ts.Symbol | undefined {
+  return checker.getSymbolAtLocation(identifier);
+}
+
+function isGlobalObjectIdentifier(node: ts.Expression, checker: ts.TypeChecker): boolean {
+  const current = unwrapExecutionExpression(node);
+  return ts.isIdentifier(current)
+    && (current.text === 'globalThis' || current.text === 'window')
+    && isGlobalIdentifier(current, checker, current.text);
+}
+
+function isGlobalRequireCall(node: ts.Expression, checker: ts.TypeChecker): node is ts.CallExpression {
+  const current = unwrapExecutionExpression(node);
+  return ts.isCallExpression(current)
+    && ts.isIdentifier(current.expression)
+    && isGlobalIdentifier(current.expression, checker, 'require')
+    && current.arguments.length === 1
+    && ts.isStringLiteral(current.arguments[0])
+    && (current.arguments[0].text === 'node:vm' || current.arguments[0].text === 'vm');
+}
+
+function isAsyncCallableExpression(node: ts.Expression): boolean {
+  const current = unwrapExecutionExpression(node);
+  return (ts.isArrowFunction(current) || ts.isFunctionExpression(current))
+    && current.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.AsyncKeyword) === true;
+}
+
+function isAsyncPrototypeLookup(node: ts.Expression, checker: ts.TypeChecker): boolean {
+  const current = unwrapExecutionExpression(node);
+  if (!ts.isCallExpression(current)
+    || current.arguments.length !== 1
+    || !isAsyncCallableExpression(current.arguments[0])
+    || !ts.isPropertyAccessExpression(current.expression)
+    || current.expression.name.text !== 'getPrototypeOf') return false;
+  const objectExpression = unwrapExecutionExpression(current.expression.expression);
+  return ts.isIdentifier(objectExpression) && isGlobalIdentifier(objectExpression, checker, 'Object');
+}
+
+function dynamicReferenceKind(
+  expression: ts.Expression,
+  checker: ts.TypeChecker,
+  bindings: DynamicExecutionBindings,
+): string | undefined {
+  const current = unwrapExecutionExpression(expression);
+  if (ts.isBinaryExpression(current) && current.operatorToken.kind === ts.SyntaxKind.CommaToken) {
+    return dynamicReferenceKind(current.right, checker, bindings);
+  }
+  if (ts.isCallExpression(current)
+    && ts.isPropertyAccessExpression(current.expression)
+    && current.expression.name.text === 'bind') {
+    return dynamicReferenceKind(current.expression.expression, checker, bindings);
+  }
+  if (ts.isIdentifier(current)) {
+    const symbol = identifierSymbol(current, checker);
+    if (symbol) return bindings.dangerousSymbols.get(symbol);
+    if ((current.text === 'eval' || current.text === 'Function') && isGlobalIdentifier(current, checker, current.text)) return current.text;
+    return undefined;
+  }
+  if (ts.isPropertyAccessExpression(current) || ts.isElementAccessExpression(current)) {
+    const target = unwrapExecutionExpression(current.expression);
+    const member = ts.isPropertyAccessExpression(current)
+      ? current.name.text
+      : current.argumentExpression ? staticModuleText(current.argumentExpression) : undefined;
+    if (!member) return undefined;
+    if (['call', 'apply', 'bind'].includes(member)) return dynamicReferenceKind(target, checker, bindings);
+    if ((member === 'eval' || member === 'Function') && isGlobalObjectIdentifier(target, checker)) return member;
+    if (member === 'constructor') {
+      if (isAsyncCallableExpression(target) || isAsyncPrototypeLookup(target, checker)) return 'AsyncFunction.constructor';
+      if (ts.isIdentifier(target)) {
+        const targetSymbol = identifierSymbol(target, checker);
+        if (targetSymbol && bindings.asyncCallableSymbols.has(targetSymbol)) return 'AsyncFunction.constructor';
       }
+      const inherited = dynamicReferenceKind(target, checker, bindings);
+      if (inherited) return `${inherited}.constructor`;
+      return undefined;
     }
-    if (ts.isVariableStatement(statement)) {
-      for (const declaration of statement.declarationList.declarations) {
-        if (ts.isIdentifier(declaration.name) && declaration.initializer) {
-          aliases.push({ name: declaration.name.text, initializer: declaration.initializer });
-        }
-        if (!declaration.initializer
-          || !ts.isCallExpression(declaration.initializer)
-          || !ts.isIdentifier(declaration.initializer.expression)
-          || declaration.initializer.expression.text !== 'require'
-          || declaration.initializer.arguments.length !== 1
-          || !ts.isStringLiteral(declaration.initializer.arguments[0])
-          || !['node:vm', 'vm'].includes(declaration.initializer.arguments[0].text)) continue;
-        if (ts.isIdentifier(declaration.name)) namespaces.add(declaration.name.text);
-        if (ts.isObjectBindingPattern(declaration.name)) {
-          for (const element of declaration.name.elements) {
-            const imported = element.propertyName && ts.isIdentifier(element.propertyName)
-              ? element.propertyName.text
-              : ts.isIdentifier(element.name) ? element.name.text : undefined;
-            if (imported && DYNAMIC_VM_EXECUTION_MEMBERS.has(imported) && ts.isIdentifier(element.name)) direct.add(element.name.text);
-          }
-        }
+    if (DYNAMIC_VM_EXECUTION_MEMBERS.has(member)) {
+      if (isGlobalRequireCall(target, checker)) return `node:vm.${member}`;
+      if (ts.isIdentifier(target)) {
+        const targetSymbol = identifierSymbol(target, checker);
+        if (targetSymbol && bindings.vmNamespaceSymbols.has(targetSymbol)) return `node:vm.${member}`;
       }
     }
   }
-  const isDangerousReference = (expression: ts.Expression): boolean => {
-    const current = unwrapExecutionExpression(expression);
-    if (ts.isIdentifier(current)) return current.text === 'eval' || current.text === 'Function' || direct.has(current.text);
-    if (ts.isBinaryExpression(current) && current.operatorToken.kind === ts.SyntaxKind.CommaToken) return isDangerousReference(current.right);
-    if (ts.isPropertyAccessExpression(current)) {
-      if (['bind', 'call', 'apply'].includes(current.name.text)) return isDangerousReference(current.expression);
-      if (current.name.text === 'eval' || current.name.text === 'Function' || current.name.text === 'constructor') return true;
-      return DYNAMIC_VM_EXECUTION_MEMBERS.has(current.name.text)
-        && ts.isIdentifier(unwrapExecutionExpression(current.expression))
-        && namespaces.has((unwrapExecutionExpression(current.expression) as ts.Identifier).text);
-    }
-    if (ts.isElementAccessExpression(current) && current.argumentExpression) {
-      const member = staticModuleText(current.argumentExpression);
-      return member === 'eval' || member === 'Function' || member === 'constructor'
-        || Boolean(member && DYNAMIC_VM_EXECUTION_MEMBERS.has(member));
-    }
-    if (ts.isCallExpression(current)
-      && ts.isPropertyAccessExpression(current.expression)
-      && current.expression.name.text === 'bind') return isDangerousReference(current.expression.expression);
-    return false;
+  return undefined;
+}
+
+function vmNamespaceReference(
+  expression: ts.Expression,
+  checker: ts.TypeChecker,
+  bindings: DynamicExecutionBindings,
+): boolean {
+  const current = unwrapExecutionExpression(expression);
+  if (isGlobalRequireCall(current, checker)) return true;
+  if (!ts.isIdentifier(current)) return false;
+  const symbol = identifierSymbol(current, checker);
+  return Boolean(symbol && bindings.vmNamespaceSymbols.has(symbol));
+}
+
+function asyncCallableReference(
+  expression: ts.Expression,
+  checker: ts.TypeChecker,
+  bindings: DynamicExecutionBindings,
+): boolean {
+  const current = unwrapExecutionExpression(expression);
+  if (isAsyncCallableExpression(current)) return true;
+  if (!ts.isIdentifier(current)) return false;
+  const symbol = identifierSymbol(current, checker);
+  return Boolean(symbol && bindings.asyncCallableSymbols.has(symbol));
+}
+
+function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.TypeChecker): DynamicExecutionBindings {
+  const bindings: DynamicExecutionBindings = {
+    dangerousSymbols: new Map(),
+    vmNamespaceSymbols: new Set(),
+    asyncCallableSymbols: new Set(),
   };
+  const aliases: DynamicAliasRecord[] = [];
+  const destructures: DynamicDestructureRecord[] = [];
+  const addDestructure = (name: ts.BindingName | ts.Expression, property: string, sourceExpression: ts.Expression): void => {
+    if (!ts.isIdentifier(name)) return;
+    const symbol = identifierSymbol(name, checker);
+    if (symbol) destructures.push({ target: symbol, property, source: sourceExpression });
+  };
+  const collectBindingPattern = (pattern: ts.ObjectBindingPattern, sourceExpression: ts.Expression): void => {
+    for (const element of pattern.elements) {
+      const property = element.propertyName && (ts.isIdentifier(element.propertyName) || ts.isStringLiteral(element.propertyName))
+        ? element.propertyName.text
+        : ts.isIdentifier(element.name) ? element.name.text : undefined;
+      if (property) addDestructure(element.name, property, sourceExpression);
+    }
+  };
+  const collectAssignmentPattern = (pattern: ts.ObjectLiteralExpression, sourceExpression: ts.Expression): void => {
+    for (const property of pattern.properties) {
+      if (ts.isPropertyAssignment(property)) {
+        const name = (ts.isIdentifier(property.name) || ts.isStringLiteral(property.name)) ? property.name.text : undefined;
+        if (name) addDestructure(property.initializer, name, sourceExpression);
+      } else if (ts.isShorthandPropertyAssignment(property)) {
+        addDestructure(property.name, property.name.text, sourceExpression);
+      }
+    }
+  };
+  const visit = (node: ts.Node): void => {
+    if (ts.isImportDeclaration(node)
+      && ts.isStringLiteral(node.moduleSpecifier)
+      && (node.moduleSpecifier.text === 'node:vm' || node.moduleSpecifier.text === 'vm')) {
+      const imported = node.importClause?.namedBindings;
+      if (imported && ts.isNamespaceImport(imported)) {
+        const symbol = identifierSymbol(imported.name, checker);
+        if (symbol) bindings.vmNamespaceSymbols.add(symbol);
+      }
+      if (imported && ts.isNamedImports(imported)) {
+        for (const element of imported.elements) {
+          const importedName = (element.propertyName ?? element.name).text;
+          const symbol = identifierSymbol(element.name, checker);
+          if (symbol && DYNAMIC_VM_EXECUTION_MEMBERS.has(importedName)) bindings.dangerousSymbols.set(symbol, `node:vm.${importedName}`);
+        }
+      }
+    }
+    if (ts.isFunctionDeclaration(node) && node.name && node.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.AsyncKeyword)) {
+      const symbol = identifierSymbol(node.name, checker);
+      if (symbol) bindings.asyncCallableSymbols.add(symbol);
+    }
+    if (ts.isVariableDeclaration(node) && node.initializer) {
+      if (ts.isIdentifier(node.name)) {
+        const symbol = identifierSymbol(node.name, checker);
+        if (symbol) {
+          aliases.push({ target: symbol, expression: node.initializer });
+          if (isGlobalRequireCall(node.initializer, checker)) bindings.vmNamespaceSymbols.add(symbol);
+          if (isAsyncCallableExpression(node.initializer)) bindings.asyncCallableSymbols.add(symbol);
+        }
+      } else if (ts.isObjectBindingPattern(node.name)) {
+        collectBindingPattern(node.name, node.initializer);
+      }
+    }
+    if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
+      if (ts.isIdentifier(node.left)) {
+        const symbol = identifierSymbol(node.left, checker);
+        if (symbol) aliases.push({ target: symbol, expression: node.right });
+      } else if (ts.isObjectLiteralExpression(node.left)) {
+        collectAssignmentPattern(node.left, node.right);
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
   let changed = true;
   while (changed) {
     changed = false;
     for (const alias of aliases) {
-      if (!direct.has(alias.name) && isDangerousReference(alias.initializer)) {
-        direct.add(alias.name);
+      if (!bindings.vmNamespaceSymbols.has(alias.target) && vmNamespaceReference(alias.expression, checker, bindings)) {
+        bindings.vmNamespaceSymbols.add(alias.target);
+        changed = true;
+      }
+      if (!bindings.asyncCallableSymbols.has(alias.target) && asyncCallableReference(alias.expression, checker, bindings)) {
+        bindings.asyncCallableSymbols.add(alias.target);
+        changed = true;
+      }
+      if (!bindings.dangerousSymbols.has(alias.target)) {
+        const kind = dynamicReferenceKind(alias.expression, checker, bindings);
+        if (kind) {
+          bindings.dangerousSymbols.set(alias.target, kind);
+          changed = true;
+        }
+      }
+    }
+    for (const destructure of destructures) {
+      if (bindings.dangerousSymbols.has(destructure.target)) continue;
+      const fromGlobal = isGlobalObjectIdentifier(destructure.source, checker)
+        && (destructure.property === 'eval' || destructure.property === 'Function');
+      const fromVm = vmNamespaceReference(destructure.source, checker, bindings)
+        && DYNAMIC_VM_EXECUTION_MEMBERS.has(destructure.property);
+      if (fromGlobal || fromVm) {
+        bindings.dangerousSymbols.set(
+          destructure.target,
+          fromVm ? `node:vm.${destructure.property}` : destructure.property,
+        );
         changed = true;
       }
     }
   }
-  return { direct, namespaces };
+  return bindings;
 }
 
 function unwrapExecutionExpression(expression: ts.Expression): ts.Expression {
@@ -1068,37 +1281,9 @@ function unwrapExecutionExpression(expression: ts.Expression): ts.Expression {
 function dynamicExecutionKind(
   expression: ts.Expression,
   checker: ts.TypeChecker,
-  bindings: ReturnType<typeof collectDynamicExecutionNames>,
+  bindings: DynamicExecutionBindings,
 ): string | undefined {
-  const current = unwrapExecutionExpression(expression);
-  if (ts.isBinaryExpression(current) && current.operatorToken.kind === ts.SyntaxKind.CommaToken) {
-    return dynamicExecutionKind(current.right, checker, bindings);
-  }
-  if (ts.isIdentifier(current)) {
-    if ((current.text === 'eval' || current.text === 'Function') && isGlobalIdentifier(current, checker, current.text)) return current.text;
-    if (bindings.direct.has(current.text)) return `node:vm.${current.text}`;
-    return undefined;
-  }
-  if (ts.isPropertyAccessExpression(current)) {
-    if (['call', 'apply', 'bind'].includes(current.name.text)) return dynamicExecutionKind(current.expression, checker, bindings);
-    if (current.name.text === 'eval' || current.name.text === 'Function' || current.name.text === 'constructor') return current.name.text;
-    if (DYNAMIC_VM_EXECUTION_MEMBERS.has(current.name.text)) {
-      const target = unwrapExecutionExpression(current.expression);
-      if (ts.isIdentifier(target) && bindings.namespaces.has(target.text)) return `node:vm.${current.name.text}`;
-      if (ts.isCallExpression(target)
-        && ts.isIdentifier(target.expression)
-        && target.expression.text === 'require'
-        && target.arguments.length === 1
-        && ts.isStringLiteral(target.arguments[0])
-        && ['node:vm', 'vm'].includes(target.arguments[0].text)) return `node:vm.${current.name.text}`;
-    }
-  }
-  if (ts.isElementAccessExpression(current) && current.argumentExpression) {
-    const member = staticModuleText(current.argumentExpression);
-    if (member === 'eval' || member === 'Function' || member === 'constructor') return member;
-    if (member && DYNAMIC_VM_EXECUTION_MEMBERS.has(member)) return `dynamic-code-api.${member}`;
-  }
-  return undefined;
+  return dynamicReferenceKind(expression, checker, bindings);
 }
 
 function staticDynamicExecutionPayloads(
@@ -1126,11 +1311,14 @@ function scanDynamicCodeGeneration(file: string, text: string): Violation[] {
   const source = parseSource(file, text);
   const checker = typeCheckerFor(file, text);
   const constStrings = collectConstStringValues(source, checker);
-  const bindings = collectDynamicExecutionNames(source);
+  const bindings = collectDynamicExecutionBindings(source, checker);
   const violations: Violation[] = [];
   const inspect = (node: ts.CallExpression | ts.NewExpression): void => {
     const kind = dynamicExecutionKind(node.expression, checker, bindings);
     if (!kind) return;
+    if (ts.isCallExpression(node)
+      && ts.isPropertyAccessExpression(node.expression)
+      && node.expression.name.text === 'bind') return;
     const args = node.arguments ?? [];
     const payloads = staticDynamicExecutionPayloads(args, checker, constStrings);
     violations.push({
@@ -1451,6 +1639,11 @@ function assertNormalizedSpecifierPositiveControls(): void {
 
 function assertDynamicCodeGenerationPositiveControls(): void {
   const controlFile = 'bin/dynamic-code-control.js';
+  assert.equal(
+    DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS.size + BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS.size,
+    6,
+    'the fixture executor is the sixth exact whole-source executable exemption; no broad pattern exemptions are allowed',
+  );
   const cases = [
     ['direct eval', "eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")"],
     ['indirect eval', "(0, eval)(`require('../packages/main/src/core/legacy-delivery-claims-compat.js')`)"],
@@ -1461,11 +1654,29 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['vm namespace', "import * as vm from 'node:vm'; vm.runInNewContext(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\")"],
     ['vm named alias', "import { compileFunction as compile } from 'node:vm'; compile(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")"],
     ['global property eval', "globalThis['eval'](\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")"],
+    ['window eval property', "window.eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")"],
+    ['nested local eval alias', "function execute() { const indirect = eval; indirect(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['nested local vm require alias', "function execute() { const vm = require('node:vm'); vm.runInNewContext(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['nested local AsyncFunction derived constructor', "function execute() { const AsyncFunction = Object.getPrototypeOf(async function() {}).constructor; new AsyncFunction(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['nested bind alias chain', "function execute() { const first = eval; const second = first.bind(globalThis); second(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['nested global destructure alias', "function execute() { const { eval: indirect } = globalThis; indirect(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['nested vm destructure alias', "function execute() { const { runInContext: run } = require('node:vm'); run(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['nested reassignment alias', "function execute() { let indirect; indirect = eval; indirect(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
   ] as const;
   for (const [label, source] of cases) {
     const violations = scanDynamicCodeGeneration(controlFile, source);
     assert.ok(violations.some(violation => violation.label === 'unapproved dynamic code generation'), `${label} must be banned`);
     assert.ok(violations.some(violation => violation.label === 'dynamic code generation compatibility payload'), `${label} static payload must be inspected`);
+  }
+  for (const [label, source] of [
+    ['shadowed local eval', "function eval(value) { return value; } eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['shadowed local Function', "function Function(value) { return value; } new Function(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['shadowed globalThis property', "const globalThis = { eval(value) { return value; } }; globalThis.eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['shadowed window property', "const window = { eval(value) { return value; } }; window.eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['shadowed vm namespace', "const vm = { runInNewContext(value) { return value; } }; vm.runInNewContext(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['shadowed local require', "function execute(require) { const vm = require('node:vm'); vm.runInNewContext(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+  ] as const) {
+    assert.deepEqual(scanDynamicCodeGeneration(controlFile, source), [], `${label} must remain a declaration-identity negative control`);
   }
   for (const [file, fingerprint] of DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS) {
     assert.equal(canonicalAstFingerprint(file, readRel(file)), fingerprint, `dynamic-code exemption fingerprint must be exact: ${file}`);
