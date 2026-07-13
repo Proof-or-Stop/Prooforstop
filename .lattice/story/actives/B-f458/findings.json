@@ -1802,6 +1802,33 @@
       ],
       "signatureTag": "typed-finite-property-spread-provenance",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-073",
+      "desc": "The executable matrix does not actually satisfy the exact F-068/F-069 resolution claims. For F-069, the three new labels `nested any rest declaration fail closed`, `nested unknown rest assignment fail closed`, and `nested unknown rest parameter fail closed` all use nested OBJECT rest (`{ nested: { ...rest } }`) and then member access; none exercises nested ARRAY rest selection (`[... [run]]`) through declaration, assignment, or parameter walking. There is still no unknown-source nested-array-rest positive and no declaration/assignment/parameter safe indexed negative matrix, so the F-063 base.index path can regress while every new pin passes. For F-068, `complete local dangerous-name callables negative` covers only direct access; the three rest negatives cover only `eval`, and there are no destructured-call negatives for local callable `eval`, `Function`, `runInContext`, and `constructor` identities as the finding required. Add and process-pin exact any/unknown nested ARRAY rest declaration/assignment/parameter positives plus matched safe negatives, and direct/rest/destructured safe-name negatives across all four reserved spellings. Preserve the spread order, Record/index, empty-string, -0/NaN/Infinity, and six exact-exemption boundary controls.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-13T16:37:49.836Z",
+      "reviewRound": "2026-07-13T16:32:19.000Z",
+      "reviewRunId": "B-f458:RR-092",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete ad2bb68336 implementation diff and the full changed provenance/control/process-pin sections; unchanged portions of the two large files were triaged by name, and no decisions-document escalation was needed for this focused coverage rerun."
+      },
+      "_hash": "dd1c8b6be80aad49ddb7cc57e250e76d791d7afe20e2d7912709cc7016705f2e",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "resolved-finding-control-shape-mismatch",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
