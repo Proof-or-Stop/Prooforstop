@@ -2789,7 +2789,7 @@
       "desc": "The production AST candidate filter treats any nondangerously-named property call with statically safe arguments as skippable without checking the property value provenance. `const holder = { run: eval }; holder.run(\"1+1\")` has raw `eval` text but raw matching is now metrics-only; hasDynamicExecutionAstCandidate sees member `run` plus a safe literal argument, returns no candidate, and scanDynamicCodeGeneration exits before the binding graph that could identify `holder.run` as eval. This is a current non-exempt dynamic-code bypass and shows the prefilter remains semantically unsound despite the constructed-key controls.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T19:58:21.399Z",
@@ -2800,7 +2800,11 @@
         "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|production-candidate-filter",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 3115d67a5d: Safe-named property calls require exact local/trusted declaration provenance; holder values resolving to eval are blocked.",
+      "resolvedAt": "2026-07-13T20:21:16.389Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-107",
