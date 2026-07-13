@@ -2661,7 +2661,7 @@
       "desc": "The F091–F097 labels are present and process-pinned, and the positive/matching dynamic-import controls execute, but several newly added precision negatives pass vacuously because DYNAMIC_CODE_ANALYSIS_PREFILTER returns [] before type/provenance analysis. `inline conditional safe target negative` contains only local left/right calls; `deterministic final safe namespace reassignment negative`, `nested default namespace safe negative`, and `cyclic nested namespace safe negative` use static imports and safeRun names. None matches the raw prefilter, so scanDynamicCodeGeneration parses them and immediately returns [] without building bindings or exercising expressionKind, conditional alias overwrite precision, nested default projection, or cyclic namespace resolution. Exact process-label pins cannot distinguish this short-circuit from a real analyzed verdict. Add instrumentation/assertions that every provenance regression control reaches the intended analysis path (or force-analysis for the control program), and process-pin that execution contract; retain cheap prefilter coverage separately. This is complementary to F-098: F-098 proves the prefilter is semantically unsound for escaped dangerous code, while this finding proves current safety controls do not validate the repaired precision paths.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-13T19:04:43.196Z",
@@ -2681,7 +2681,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "prefilter-vacuous-negative-controls",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 8569fbd4fa: Critical safe negatives mechanically prove full-analysis reachability and process pins bind fullAnalysis, astCandidates and reachability metrics.",
+      "resolvedAt": "2026-07-13T19:28:38.189Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
