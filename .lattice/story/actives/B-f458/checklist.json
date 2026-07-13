@@ -10,7 +10,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-13T08:37:36.211Z",
-      "endTime": "2026-07-13T10:14:41.934Z",
+      "endTime": "2026-07-13T11:00:38.215Z",
       "userSees": "User runs the M4.C1 contract verifier and sees `PASS closeout artifact classifications: closed policy set verified`; adding an unknown trusted path or wrong writer makes the command exit non-zero with the exact path.",
       "verificationIntent": {
         "happy": [
@@ -51,38 +51,35 @@
         {
           "intentRef": "CHK-001:happy:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Final scope-bound evidence: closed artifacts, audit-only local telemetry, and process contract all pass.",
-          "headHash": "b79d0b9ee32f8c98a02572554f4b34fd029b07dc",
-          "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
-          "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
-          "timestamp": "2026-07-13T10:46:23.040Z"
+          "note": "Full suite passed after shared REVIEW/DONE reviewer verdict enforcement at commit 1baeb54a9d.",
+          "headHash": "1baeb54a9d7d1f2b96b8501225c66547ea92e0aa",
+          "materialHash": "ad073efd4fec3685844c9e84a54c397c7e7e61af70cd816e6dc1b3641f850116",
+          "storyFilesHash": "97b41175b50ecf541e1aa9b58bb531cfdcf96141ba381420e6792f93f469b126",
+          "timestamp": "2026-07-13T11:00:38.424Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
-          "file": "scripts/verify-process-fact-contract.mjs",
           "command": "npm test",
           "result": "pass",
-          "note": "Final scope-bound process contract pins DONE preflight recheck and narrow index semantics.",
-          "headHash": "b79d0b9ee32f8c98a02572554f4b34fd029b07dc",
-          "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
-          "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
-          "timestamp": "2026-07-13T10:46:23.174Z"
+          "note": "Full suite covers stale/missing lane and wrapper-root compatibility after shared verdict enforcement.",
+          "headHash": "1baeb54a9d7d1f2b96b8501225c66547ea92e0aa",
+          "materialHash": "ad073efd4fec3685844c9e84a54c397c7e7e61af70cd816e6dc1b3641f850116",
+          "storyFilesHash": "97b41175b50ecf541e1aa9b58bb531cfdcf96141ba381420e6792f93f469b126",
+          "timestamp": "2026-07-13T11:00:38.565Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Final scope-bound adversarial path/writer/same-UID cases fail closed.",
-          "headHash": "b79d0b9ee32f8c98a02572554f4b34fd029b07dc",
-          "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
-          "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
-          "timestamp": "2026-07-13T10:46:23.305Z"
+          "note": "Full suite covers manual TEST phase bypass attempts with no reviewer, missing lane, and open verified high finding.",
+          "headHash": "1baeb54a9d7d1f2b96b8501225c66547ea92e0aa",
+          "materialHash": "ad073efd4fec3685844c9e84a54c397c7e7e61af70cd816e6dc1b3641f850116",
+          "storyFilesHash": "97b41175b50ecf541e1aa9b58bb531cfdcf96141ba381420e6792f93f469b126",
+          "timestamp": "2026-07-13T11:00:38.707Z"
         }
       ]
     },
