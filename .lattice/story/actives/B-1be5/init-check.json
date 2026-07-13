@@ -1,0 +1,30 @@
+{
+  "storyId": "B-1be5",
+  "checkedAt": "2026-07-13T00:45:25.115Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "severity": "medium",
+      "desc": "CHK-001's ledger-provenance match predicate (\"provider + storyId + a reviewer-class agentType within a plausible window\") is underspecified against real code, and the story's own artifacts already disagree on the predicate: index.json says \"phase-appropriate agentType\" while checklist.json CHK-001 says \"reviewer-class agentType\" — these are not the same filter. Concretely: (1) provider-domain mismatch — HostVerdict.provider (packages/main/src/core/verdicts.ts:49) is a free string defaulting to 'claude'/'codex' (handlers/quorum-submit.ts:259,266), while host_run's ledger row carries TWO different provider-ish fields that are themselves mutually inconsistent: host.kind in {'codex',  \"claude-code\", 'antigravity'} (core/host-run.ts ledgerHostKind, line ~311) and provider.name in {'openai','anthropic','antigravity'} (hostProviderName, line ~322); a third domain, REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS, uses 'agy' not 'gemini'/'antigravity' (core/review-escalation.ts ~line 51). None of these three-plus domains line up 1:1 (claude vs claude-code; gemini vs antigravity vs agy), so \"matching provider\" needs an explicit normalization table that no checklist item currently specifies. (2) 'reviewer-class agentType' is a brand-new term (zero prior hits anywhere in packages/main/src or docs) with no existing enum/allow-list to ground it — the two real host_run-agentType values that exist today are 'cross-host-review:codex' (core/codex-review-leaf.ts:465) and lane reviewers' 'lattice-review-*' prefix, but the background itself says lane reviewers legitimately never call host_run, so it's unclear what host_run rows would ever satisfy 'reviewer-class' in practice. Because HostVerdict carries no reviewRunId/threadId (verdicts.ts:41-60), there is no cryptographic bind between a quorum verdict and a specific ledger row — matching is inherently heuristic (story+provider+time-window), so an imprecise predicate risks either everything staying permanently unbacked (bricking enforce mode for legitimate host_run-backed reviews) or matching too loosely on an unrelated host_run row for the same story/provider (silently defeating the very loophole — B-8038-class unmetered execution — this story exists to close). Recommend pinning down the exact field(s) and normalization table plus the reviewer-class derivation explicitly (ideally as a PLAN-phase decision) before DEV; CHK-005's planned end-to-end check against a REAL host_run-shaped row is a good partial safety net but should be called out as the mechanism that must catch this, not left implicit."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-13T00:41:33.278Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-13T00:45:25.115Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-001's ledger-provenance match predicate (\"provider + storyId + a reviewer-class agentType within a plausible window\") is underspecified against real code, and the story's own artifacts already disagree on the predicate: index.json says \"phase-appropriate agentType\" while checklist.json CHK-001 says \"reviewer-class agentType\" — these are not the same filter. Concretely: (1) provider-domain mismatch — HostVerdict.provider (packages/main/src/core/verdicts.ts:49) is a free string defaulting to 'claude'/'codex' (handlers/quorum-submit.ts:259,266), while host_run's ledger row carries TWO different provider-ish fields that are themselves mutually inconsistent: host.kind in {'codex',  \"claude-code\", 'antigravity'} (core/host-run.ts ledgerHostKind, line ~311) and provider.name in {'openai','anthropic','antigravity'} (hostProviderName, line ~322); a third domain, REVIEW_HOST_AVAILABILITY_CANONICAL_HOSTS, uses 'agy' not 'gemini'/'antigravity' (core/review-escalation.ts ~line 51). None of these three-plus domains line up 1:1 (claude vs claude-code; gemini vs antigravity vs agy), so \"matching provider\" needs an explicit normalization table that no checklist item currently specifies. (2) 'reviewer-class agentType' is a brand-new term (zero prior hits anywhere in packages/main/src or docs) with no existing enum/allow-list to ground it — the two real host_run-agentType values that exist today are 'cross-host-review:codex' (core/codex-review-leaf.ts:465) and lane reviewers' 'lattice-review-*' prefix, but the background itself says lane reviewers legitimately never call host_run, so it's unclear what host_run rows would ever satisfy 'reviewer-class' in practice. Because HostVerdict carries no reviewRunId/threadId (verdicts.ts:41-60), there is no cryptographic bind between a quorum verdict and a specific ledger row — matching is inherently heuristic (story+provider+time-window), so an imprecise predicate risks either everything staying permanently unbacked (bricking enforce mode for legitimate host_run-backed reviews) or matching too loosely on an unrelated host_run row for the same story/provider (silently defeating the very loophole — B-8038-class unmetered execution — this story exists to close). Recommend pinning down the exact field(s) and normalization table plus the reviewer-class derivation explicitly (ideally as a PLAN-phase decision) before DEV; CHK-005's planned end-to-end check against a REAL host_run-shaped row is a good partial safety net but should be called out as the mechanism that must catch this, not left implicit."
+        }
+      ]
+    }
+  ],
+  "_hash": "48d0c3972ac45018aa436b94b09201c729106f6e2c9d2683717d2e37387b4741"
+}

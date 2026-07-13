@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-7c05",
+  "checkedAt": "2026-07-11T23:11:46.960Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "f209637a635fa87fb3a36296f8d6f8a941074ee4019b12d056f85992f2697395",
+  "executionBoundaryHash": "6ed34f57d5f18923d83d3b025bce57d23ab41ad0e849ee6bd21c365fcfb44de9",
+  "freshnessHash": "f213b5fea524729096d0023ada589ca16cec7d930a6a3b8cb66c056f4a627a1d",
+  "effectiveExcludedKeywords": [
+    "Any gate or state-machine behavior change; gateEvidence semantics stay untouched",
+    "Changing per-command --help output",
+    "Changing the shape of explicit --json / --format=json machine-consumer outputs",
+    "Changing validate --full semantics (run-real-machine-tests) or overloading it",
+    "Changing what data is stored on disk (rendering-only changes)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any gate or state-machine behavior change; gateEvidence semantics stay untouched",
+      "source": "scopeBoundary.excluded",
+      "text": "Any gate or state-machine behavior change; gateEvidence semantics stay untouched",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing per-command --help output",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing per-command --help output",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing the shape of explicit --json / --format=json machine-consumer outputs",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing the shape of explicit --json / --format=json machine-consumer outputs",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing validate --full semantics (run-real-machine-tests) or overloading it",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing validate --full semantics (run-real-machine-tests) or overloading it",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing what data is stored on disk (rendering-only changes)",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing what data is stored on disk (rendering-only changes)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "d7b3277d2223207d63c12d2037c98b2770b367909f68a773ba0369bcf0eb836d"
+}

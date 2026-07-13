@@ -1055,11 +1055,10 @@ try {
     // Pre-fix the scan alone took >6s, so a generous end-to-end bound catches it.
     assert.ok(elapsedMs < 5000, `pathological-token DONE check stayed fast (took ${elapsedMs}ms; host-B finding 5)`);
   }
-  // Host-B round 2, finding 1: a whitespace-free backticked trigger token
-  // (`deferred`) is a code reference and strips BY REQUIREMENT (the original
-  // user request names backticked spans explicitly). In such sentences the
-  // claim is carried by the verb ("left to a follow-up"), which belongs to the
-  // follow-up vocabulary story. Pinned so any future change is deliberate.
+  // Host-B round 2, finding 1 (updated by B-6108): a whitespace-free
+  // backticked trigger token (`deferred`) still strips BY REQUIREMENT, but the
+  // claim verb ("left to a follow-up") now fires via the B-6108 shrinkage-verb
+  // vocabulary — exactly the follow-up the original B-2c03 pin deferred to.
   store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
     changes: 'Added label normalization.',
     limitations: 'The `deferred` work was left to a follow-up story.',
@@ -1067,8 +1066,8 @@ try {
   const backtickTriggerTokenDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
   assert.equal(
     backtickTriggerTokenDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
-    false,
-    'a whitespace-free backticked trigger token strips by requirement; verb recall is the vocabulary follow-up',
+    true,
+    'the backticked token still strips, and the follow-up handoff verb now carries the claim (B-6108)',
   );
   // Same connector class as F-003 for the multi-word triggers: hyphenated
   // "out-of-scope" / "not-covered" are common technical phrasings, survive the
@@ -1279,13 +1278,12 @@ try {
     false,
     'an anchor-qualified path token (partial-done-recovery.ts#L42) still strips (codex round 8)',
   );
-  // Delivery-review record: a trigger-stemmed FILE NAME with an unambiguous
-  // extension (deferred-query.sql) is stripped BY REQUIREMENT — it is
-  // shape-identical to partial-done-recovery.ts, the token class B-d6a0
-  // demands stay silent. The shrinkage meaning in such sentences is carried by
-  // the verb (skipped/removed), which the trigger vocabulary has never
-  // covered; verb-recall expansion is the follow-up vocabulary story. This
-  // case pins the designed direction so any future change is deliberate.
+  // Delivery-review record (updated by B-6108): the trigger-stemmed FILE NAME
+  // (deferred-query.sql) still strips BY REQUIREMENT — the B-d6a0 class stays
+  // silent as a token — but the passive claim verb ("was skipped") now fires
+  // via the B-6108 shrinkage-verb vocabulary, closing the exact gap this pin
+  // deferred to the follow-up story. The pure-strip direction (no claim verb)
+  // remains pinned by the routine-voice precision controls below.
   store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
     changes: 'The deferred-query.sql export was skipped for this delivery.',
     actualTranscript: 'The label normalizer output is unchanged.',
@@ -1294,8 +1292,8 @@ try {
   const triggerStemFileDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
   assert.equal(
     triggerStemFileDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
-    false,
-    'a trigger-stemmed file name with an unambiguous extension strips by requirement (B-d6a0 class); the verb belongs to the vocabulary follow-up',
+    true,
+    'the file name still strips, and the passive scope-cut verb now carries the claim (B-6108)',
   );
   // ...while the same sentence with an explicit trigger phrase still fires.
   store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
@@ -1321,6 +1319,102 @@ try {
     dotControlDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
     false,
     'non-trigger dotted identifiers (label.scope) and real file names still do not fire (F-008 control)',
+  );
+
+  // B-6108: vocabulary recall expansion — five classes verified out-of-scope
+  // during B-2c03 (see its plan.md host-B response record). Must-fire recall
+  // cases first, then must-not-fire precision controls.
+  const vocabularyRecallClaims = [
+    // Class 1: adverb insertion in multi-word triggers.
+    'The Windows install path is not yet covered by this delivery.',
+    'The error path is not fully covered by the new tests.',
+    'The admin flow is out of the current scope for this story.',
+    // Class 2: inflections.
+    'The requested import flow is only partially delivered in this story.',
+    'This delivery excludes the admin workflow for a follow-up story.',
+    'The team defers the migration tooling to the next release.',
+    // Class 3: shrinkage verbs (stripped-token sentences and handoffs).
+    'The deferred-query.sql export was skipped for this delivery.',
+    'The `deferred` work was left to a follow-up story.',
+    'The partial-config.json section was removed from this delivery.',
+    'Advanced filtering was descoped after the estimate review.',
+    'The audit trail feature was omitted from this release.',
+    'Localization polish was pushed to a follow-up task.',
+    // Class 4: quoted scope nouns (phrased without handoff verbs so the fix
+    // is pinned independently of the class-3 vocabulary).
+    'The remaining "cases" still need another pass.',
+    // Class 5: comma+plus Oxford lists (same independence phrasing).
+    'The remaining web, mobile, plus Safari cases still fail intermittently.',
+  ];
+  for (const claim of vocabularyRecallClaims) {
+    store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+      changes: 'Added label normalization.',
+      limitations: claim,
+    }));
+    const recallDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+    assert.equal(
+      recallDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+      true,
+      `vocabulary recall claim fires (B-6108): ${claim}`,
+    );
+  }
+  // Precision controls: routine change descriptions and clause coordination
+  // must stay quiet after the vocabulary additions.
+  const vocabularyPrecisionControls = [
+    // Bare change verbs are routine, not shrinkage.
+    'Removed dead code and dropped the unused cache layer.',
+    'Cut the release branch and cleaned up stale fixtures.',
+    // Active-voice skip is a routine narrative, unlike the passive claim form.
+    'We skipped the redundant rebuild step to speed up CI.',
+    // Removal with a non-delivery object is routine.
+    'The helper was removed from the util module during cleanup.',
+    // A lone ", plus" with no preceding comma list item is clause coordination.
+    'The remaining tests crash CI, plus coverage work continues in a follow-up.',
+    // Inflection stems must not match inside longer unrelated words.
+    'The exclusive preview mode and partiality metric shipped as planned.',
+    // "follow-up" alone (no handoff verb) is not a claim.
+    'The follow-up review confirmed the fix works as designed.',
+    // F-001: passive scope-cut verbs need a delivery-context qualifier —
+    // routine passive sentences about loops, CI, startup, and scheduling must
+    // stay quiet.
+    'The retry was skipped for this iteration of the loop.',
+    'This test was skipped due to a flaky CI runner.',
+    'The cache warmup was omitted to reduce startup time.',
+    'The decision was punted to next week.',
+  ];
+  for (const control of vocabularyPrecisionControls) {
+    store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+      changes: 'Added label normalization.',
+      limitations: control,
+    }));
+    const precisionDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+    assert.equal(
+      precisionDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+      false,
+      `vocabulary precision control stays quiet (B-6108): ${control}`,
+    );
+  }
+  // Interaction pins (CHK-004): a new verb next to a stripped file name fires
+  // via the verb; adverb windows stay bounded across sentence punctuation.
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'Support for https://example.com/deferred/setup.md was descoped this cycle.',
+  }));
+  const strippedTokenVerbDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    strippedTokenVerbDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    true,
+    'a shrinkage verb still fires when its subject token is stripped as a URL (B-6108 interaction)',
+  );
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    limitations: 'The install path is not documented. Yet covered scenarios all pass in CI.',
+  }));
+  const adverbWindowBoundaryDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.equal(
+    adverbWindowBoundaryDone.gaps.some((gap: any) => gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    false,
+    'the not...covered adverb window does not leak across a sentence boundary (B-6108 interaction)',
   );
 
   // B-f7b3 CHK-004: a CONFIRMED milestone ledger that is empty OR whose rows are

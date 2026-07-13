@@ -30,6 +30,7 @@ import {
 } from './core/lattice-brand.js';
 import { LATTICE_DIR } from './core/lattice-paths.js';
 import { renderChecklistDerivedLedger, CHECKLIST_DERIVED_HEADER } from './core/milestone-status.js';
+import { wantsFullOutput } from './cli/output-verbosity.js';
 import type { ChecklistData } from './core/types.js';
 import { withReentrantMainWriteLock } from './core/main-write-lock.js';
 import { MAIN_TOOLS } from './cli/command-catalog.js';
@@ -62,6 +63,7 @@ import {
 import { normalizeNestedSpaceAlias } from './cli/alias-normalizer.js';
 import { commitInitCheckMetadataAndMergeMain } from './cli/init-check-metadata-sync.js';
 import { dispatchRecoverEvidenceWithStructuredFailure } from './cli/recover-evidence-dispatch.js';
+import { dispatchUsageSweepAlertWithExit } from './handlers/usage-sweep.js';
 import {
   runStoryAdvanceInitCheckLifecycleDispatch,
   runStoryCreateLifecycleDispatch,
@@ -467,6 +469,16 @@ const STRICT_COMMAND_ARG_COMMANDS = new Set([
   'milestone_closeout',
 ]);
 
+// B-7c05 CHK-004: commands whose CLI stdout defaults to brief via an explicit
+// verbosity injection at the dispatch seam (flag > LATTICE_BRIEF_OUTPUT env >
+// brief default). The seam passes `brief:true`/`full:true` to the handler, so
+// IN-PROCESS handler callers (smokes, other handlers) keep today's full return
+// shape, and explicit machine JSON keeps the frozen full shape.
+const BRIEF_DEFAULT_CLI_COMMANDS = new Set([
+  'story_review',
+  'doctor',
+]);
+
 const MILESTONE_STATUS_APPEND_COMMANDS = new Set([
   'milestone_ledger_set',
   'milestone_ledger_add',
@@ -721,11 +733,18 @@ export async function runCli(opts?: {
   const gitReady = isGitRepository(root0);
 
   if (!cmd || cmd === 'help' || cmd === '--help') {
+    // B-7c05 CHK-003: help is BRIEF by default; --full (or LATTICE_BRIEF_OUTPUT=0)
+    // restores the current verbose catalog. --brief forces brief over the env hatch.
+    const helpFull = wantsFullOutput({
+      full: argv.includes('--full'),
+      brief: argv.includes('--brief'),
+    });
     printHelp({
       tools: TOOLS,
       activeStory,
       phaseTools: loadConfig(root0).phaseTools,
       ownerLeaseHelpBlock,
+      full: helpFull,
     });
     return;
   }
@@ -817,6 +836,16 @@ export async function runCli(opts?: {
   }
   parsed = v.data as Record<string, unknown>;
 
+  // B-7c05 CHK-004: resolve output verbosity ONCE at the CLI seam for the
+  // brief-by-default commands and pass it explicitly to the handler. Machine
+  // JSON (--json/--format=json) bypasses brief entirely (frozen full shape).
+  // Mutate in place: `parsed` and `v.data` are the SAME object here, and the
+  // final dispatch below hands `v.data` to the handler.
+  if (BRIEF_DEFAULT_CLI_COMMANDS.has(cmd) && !wantsMachineJson(parsed)) {
+    if (wantsFullOutput(parsed)) parsed.full = true;
+    else parsed.brief = true;
+  }
+
   // Execute
   const root = resolveRootForCommand(cmd, rootOverride);
   // Durable main-root fallback for post-command activity logging.
@@ -848,10 +877,19 @@ export async function runCli(opts?: {
     const storyId = storyIdFromArgs(parsed, activeStory, { command: cmd, projectRoot: root });
     if (!storyId) return output;
 
+    // B-7c05 CHK-001: the post-mutation ledger suffix is BRIEF by default. Per-call
+    // flags on a mutating command are stripped by that command's own schema, so the
+    // primary override here is LATTICE_BRIEF_OUTPUT=0 (env hatch); a mutating command
+    // that DOES expose --full/--brief in its schema is still honored via `parsed`.
+    const wantFull = wantsFullOutput(parsed);
+    // Force the resolved verbosity explicitly so the milestone handler renders the
+    // same shape we decided here (its own resolver would otherwise re-read env only).
+    const statusArgs = wantFull ? { storyId, full: true } : { storyId, brief: true };
+
     const renderFromHandlers = (sourceHandlers: Record<string, Function>): string | null => {
       const milestoneStatus = sourceHandlers.milestone_status;
       if (typeof milestoneStatus !== 'function') return null;
-      const rendered = milestoneStatus({ storyId });
+      const rendered = milestoneStatus(statusArgs);
       const milestoneOutput = typeof rendered === 'string' ? rendered : JSON.stringify(rendered, null, 2);
       return milestoneOutput.trim() ? milestoneOutput : null;
     };
@@ -891,7 +929,7 @@ export async function runCli(opts?: {
       try {
         phase = srcStore.readStory(storyId).phase;
       } catch (e) { ignoreMissingArtifact(e); }
-      return renderChecklistDerivedLedger(storyId, checklist, phase);
+      return renderChecklistDerivedLedger(storyId, checklist, phase, { brief: !wantFull });
     };
 
     // The DONE worktree-cleanup path may have already removed the story worktree,
@@ -1281,6 +1319,23 @@ export async function runCli(opts?: {
     if (!handler) { console.error(`handler not found: ${cmd}`); process.exit(1); }
     await run(async () => {
       return dispatchRecoverEvidenceWithStructuredFailure({
+        handler: handler as (args: Record<string, unknown>) => unknown | Promise<unknown>,
+        data: v.data as Record<string, unknown>,
+      });
+    });
+    return;
+  }
+
+  // B-623a: usage_sweep --alert — same print-then-throw shape as
+  // recover_evidence: the wrapper prints the full report FIRST, then throws
+  // when any session is over the burn thresholds so runCli's catch branch sets
+  // process.exitCode=1 (cron drives notifications off the exit code). Plain
+  // usage_sweep (no --alert) stays on the generic dispatch below, byte-identical.
+  if (cmd === 'usage_sweep' && (v.data as Record<string, unknown> | undefined)?.alert === true) {
+    const handler = handlers[cmd];
+    if (!handler) { console.error(`handler not found: ${cmd}`); process.exit(1); }
+    await run(async () => {
+      return dispatchUsageSweepAlertWithExit({
         handler: handler as (args: Record<string, unknown>) => unknown | Promise<unknown>,
         data: v.data as Record<string, unknown>,
       });

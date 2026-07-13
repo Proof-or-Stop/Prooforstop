@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-f646",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:f95fe08139918e4ba7eacdb719522ea046081a54f3004d9191daf8ac27c3d622",
+  "acceptanceBindings": [
+    {
+      "id": "AB-M6-ROUTING-PLAN",
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "The new decision document gives implementation teams complete schemas, ownership, milestones, tests, budgets, escalation rules, and honest delivery-state boundaries.",
+      "note": "Binds the single docs deliverable to all hybrid routing and quality requirements."
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "Docs-only ProofStory contract for the M6 routing execution plan.",
+  "createdAt": "2026-07-12T09:02:32.557Z",
+  "updatedAt": "2026-07-12T09:02:32.557Z"
+}

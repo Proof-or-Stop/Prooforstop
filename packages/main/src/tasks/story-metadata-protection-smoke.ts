@@ -56,6 +56,10 @@ import {
 } from '../core/story-metadata-protection.js';
 
 const STORY_DIR_REL = '.lattice/story/actives';
+// B-623a: keep this smoke hermetic and fast — doctor now runs an advisory host
+// burn scan over the real ~/.codex / ~/.claude stores by default; 0 disables it.
+process.env.LATTICE_BURN_ALERT_RECENT_HOURS = '0';
+
 const STORY_ID = 'B-test';
 const LEAF_REL = `${STORY_DIR_REL}/${STORY_ID}/index.json`;
 const NEGATION_ALLOWLIST = [
@@ -67,8 +71,8 @@ const NEGATION_ALLOWLIST = [
 ].join('\n');
 
 let passed = 0;
-function check(name: string, fn: () => void): void {
-  fn();
+async function check(name: string, fn: () => void | Promise<void>): Promise<void> {
+  await fn();
   passed++;
   console.log(`  ✓ ${name}`);
 }
@@ -175,7 +179,7 @@ console.log('story-metadata-protection smoke (B-854c CHK-004)');
 
 try {
   // ── 1. Predicate units (raw stubbed probes — bypass the happy path) ─────────
-  check('predicate: tracked leaf → safe (even if ignored)', () => {
+  await check('predicate: tracked leaf → safe (even if ignored)', async () => {
     const result = evaluateStoryMetadataProtection({
       metadataLeafPath: LEAF_REL,
       runner: stubRunner({ tracked: true, ignored: true }),
@@ -188,7 +192,7 @@ try {
   // B-02a6 CHK-003: the INIT-window case. An allowlisted/not-ignored but
   // UNCOMMITTED leaf is removed by a plain `git clean -fd` (untracked + not
   // ignored = exactly its target). The broadened predicate now flags it unsafe.
-  check('predicate: allowlisted-but-uncommitted (NOT ignored, untracked) → unsafe (INIT window)', () => {
+  await check('predicate: allowlisted-but-uncommitted (NOT ignored, untracked) → unsafe (INIT window)', async () => {
     const result = evaluateStoryMetadataProtection({
       metadataLeafPath: LEAF_REL,
       runner: stubRunner({ tracked: false, ignored: false }),
@@ -199,7 +203,7 @@ try {
     assert.match(renderStoryMetadataProtectionWarning(result.leafPath), /DATA-LOSS/);
   });
 
-  check('predicate: broad-ignore + untracked leaf → unsafe (flagged)', () => {
+  await check('predicate: broad-ignore + untracked leaf → unsafe (flagged)', async () => {
     const result = evaluateStoryMetadataProtection({
       metadataLeafPath: LEAF_REL,
       runner: stubRunner({ tracked: false, ignored: true }),
@@ -210,7 +214,7 @@ try {
     assert.match(renderStoryMetadataProtectionWarning(result.leafPath), /DATA-LOSS/);
   });
 
-  check('predicate: empty leaf path is rejected at the consumer (runtime re-validation)', () => {
+  await check('predicate: empty leaf path is rejected at the consumer (runtime re-validation)', async () => {
     assert.throws(
       () => evaluateStoryMetadataProtection({ metadataLeafPath: '   ', runner: stubRunner({ tracked: true, ignored: false }) }),
       /non-empty/,
@@ -225,7 +229,7 @@ try {
   //     untracked leaf, so "no warning" now requires the leaf to be genuinely
   //     committed onto HEAD — exactly the production invariant story_create
   //     establishes before dev_start runs.
-  check('bootstrap: non-ignoring .gitignore + committed leaf → tracked, no warning', () => {
+  await check('bootstrap: non-ignoring .gitignore + committed leaf → tracked, no warning', async () => {
     const root = join(base, 'boot-noignore');
     initGitRepo(root);
     writeFileSync(join(root, '.gitignore'), 'node_modules/\n');
@@ -245,7 +249,7 @@ try {
   });
 
   // (b) broad `.lattice/` ignore → bootstrap SUCCEEDS + warning present.
-  check('bootstrap: broad `.lattice/` ignore → succeeds (force-add) AND warning', () => {
+  await check('bootstrap: broad `.lattice/` ignore → succeeds (force-add) AND warning', async () => {
     const root = join(base, 'boot-broad');
     initGitRepo(root);
     writeFileSync(join(root, '.gitignore'), '.lattice/\n');
@@ -270,7 +274,7 @@ try {
   //     positive" now means a TRACKED leaf is not flagged — the allowlist alone
   //     (trackable but uncommitted) is itself the INIT-window unsafe state. The
   //     committed leaf here is the production invariant (CHK-002 safe-init).
-  check('bootstrap: negation allowlist + committed leaf → succeeds, no false-positive warning', () => {
+  await check('bootstrap: negation allowlist + committed leaf → succeeds, no false-positive warning', async () => {
     const root = join(base, 'boot-allowlist');
     initGitRepo(root);
     writeFileSync(join(root, '.gitignore'), `${NEGATION_ALLOWLIST}\n`);
@@ -292,7 +296,7 @@ try {
   //     i.e. the safe-init commit is missing) is removable by a plain
   //     `git clean -fd`. The broadened predicate must surface the loud warning at
   //     the bootstrap layer — this is the exact incident the broadening defends.
-  check('bootstrap: allowlist + UNcommitted leaf (INIT window) → DATA-LOSS warning', () => {
+  await check('bootstrap: allowlist + UNcommitted leaf (INIT window) → DATA-LOSS warning', async () => {
     const root = join(base, 'boot-allowlist-uncommitted');
     initGitRepo(root);
     writeFileSync(join(root, '.gitignore'), `${NEGATION_ALLOWLIST}\n`);
@@ -313,7 +317,7 @@ try {
   });
 
   // ── 3. Doctor (real handler) — flag, repair, idempotency, no false positive ─
-  check('doctor: broad-ignore-untracked fixture → unsafe + remediation + JSON unsafe', () => {
+  await check('doctor: broad-ignore-untracked fixture → unsafe + remediation + JSON unsafe', async () => {
     const root = join(base, 'doctor-unsafe');
     initGitRepo(root);
     writeFileSync(join(root, '.gitignore'), '.lattice/\n');
@@ -323,12 +327,12 @@ try {
     git(root, ['commit', '-m', 'base']);
     // leaf exists on disk but is ignored + never added → the data-loss state.
     const handlers = createDoctorHandlers({ store: new StoryStore(root), root, scanRoot: root });
-    const json = handlers.doctor({ format: 'json' }) as Record<string, any>;
+    const json = await handlers.doctor({ format: 'json' }) as Record<string, any>;
     const block = json.storyMetadataProtection;
     assert.equal(block.evaluated, true);
     assert.equal(block.unsafe, true, 'doctor JSON must flag the unsafe leaf');
     assert.equal(block.needsRepair, true);
-    const text = String(handlers.doctor({ format: 'text' }));
+    const text = String(await handlers.doctor({ format: 'text' }));
     assert.match(text, /✗ story metadata is NOT git-tracked \(uncommitted\) and is clean-prone/);
     assert.match(text, /ignored\+untracked → removed by `git clean -fdx`/);
     assert.match(text, /lattice doctor --repair/);
@@ -337,7 +341,7 @@ try {
   // B-02a6 CHK-003: doctor must surface the INIT-window case (allowlisted/NOT
   // ignored + UNCOMMITTED), not only the ignored case, and must NOT false-positive
   // a correctly committed (tracked) leaf.
-  check('doctor: allowlisted-but-uncommitted leaf (INIT window) → unsafe + INIT-window risk line; committed → safe', () => {
+  await check('doctor: allowlisted-but-uncommitted leaf (INIT window) → unsafe + INIT-window risk line; committed → safe', async () => {
     const root = join(base, 'doctor-init-window');
     initGitRepo(root);
     writeFileSync(join(root, '.gitignore'), `${NEGATION_ALLOWLIST}\n`);
@@ -349,7 +353,7 @@ try {
     git(root, ['commit', '-m', 'base']);
     const handlers = createDoctorHandlers({ store: new StoryStore(root), root, scanRoot: root });
 
-    const json = handlers.doctor({ format: 'json' }) as Record<string, any>;
+    const json = await handlers.doctor({ format: 'json' }) as Record<string, any>;
     const block = json.storyMetadataProtection;
     assert.equal(block.evaluated, true);
     assert.equal(block.unsafe, true, 'doctor must flag the allowlisted-but-uncommitted INIT-window leaf');
@@ -358,7 +362,7 @@ try {
     assert.ok(leaf, 'the INIT-window leaf must appear in unsafeLeaves');
     assert.equal(leaf.ignored, false, 'INIT-window leaf is allowlisted = NOT ignored');
     assert.equal(leaf.tracked, false, 'INIT-window leaf is uncommitted = untracked');
-    const text = String(handlers.doctor({ format: 'text' }));
+    const text = String(await handlers.doctor({ format: 'text' }));
     assert.match(text, /✗ story metadata is NOT git-tracked \(uncommitted\) and is clean-prone/);
     assert.match(
       text,
@@ -370,11 +374,11 @@ try {
     // correctly committed leaf).
     git(root, ['add', LEAF_REL]);
     git(root, ['commit', '-m', 'track story metadata']);
-    const after = handlers.doctor({ format: 'json' }) as Record<string, any>;
+    const after = await handlers.doctor({ format: 'json' }) as Record<string, any>;
     assert.equal(after.storyMetadataProtection.unsafe, false, 'a committed (tracked) leaf must NOT be flagged');
   });
 
-  check('doctor: --repair writes allowlist; leaf safe only AFTER commit; second --repair no-op', () => {
+  await check('doctor: --repair writes allowlist; leaf safe only AFTER commit; second --repair no-op', async () => {
     const root = join(base, 'doctor-repair');
     initGitRepo(root);
     writeFileSync(join(root, '.gitignore'), '.lattice/\n');
@@ -385,7 +389,7 @@ try {
     const handlers = createDoctorHandlers({ store: new StoryStore(root), root, scanRoot: root });
 
     // First --repair: installs the managed allowlist (changes .gitignore).
-    const repair1 = handlers.doctor({ format: 'json', repair: true }) as Record<string, any>;
+    const repair1 = await handlers.doctor({ format: 'json', repair: true }) as Record<string, any>;
     assert.equal(repair1.storyMetadataProtection.repairWrote, true, 'first --repair must install the allowlist');
     const gitignoreAfter = readFileSync(join(root, '.gitignore'), 'utf-8');
     assert.match(gitignoreAfter, /lattice runtime artifacts \(managed\)/, 'managed block markers present');
@@ -405,7 +409,7 @@ try {
     // metadata"): committing the now-trackable leaf makes it clean-proof.
     git(root, ['add', LEAF_REL]);
     git(root, ['commit', '-m', 'track story metadata']);
-    const afterCommit = handlers.doctor({ format: 'json' }) as Record<string, any>;
+    const afterCommit = await handlers.doctor({ format: 'json' }) as Record<string, any>;
     assert.equal(
       afterCommit.storyMetadataProtection.unsafe,
       false,
@@ -413,7 +417,7 @@ try {
     );
 
     // Second --repair: no-op (merge finds nothing missing).
-    const repair2 = handlers.doctor({ format: 'json', repair: true }) as Record<string, any>;
+    const repair2 = await handlers.doctor({ format: 'json', repair: true }) as Record<string, any>;
     assert.equal(repair2.storyMetadataProtection.repairWrote, false, 'second --repair must be a no-op');
     assert.equal(
       readFileSync(join(root, '.gitignore'), 'utf-8'),
@@ -426,7 +430,7 @@ try {
   // Before the fix repairStoryMetadataAllowlist ran the git probe in cwd=root
   // (the non-git wrapper) → `fatal: not a git repository` → wrote:false, the
   // protective allowlist was never installed on exactly the layout it protects.
-  check('doctor: WRAPPER-ROOT --repair installs allowlist (wrote:true, no fatal) → re-scan safe', () => {
+  await check('doctor: WRAPPER-ROOT --repair installs allowlist (wrote:true, no fatal) → re-scan safe', async () => {
     const { wrapper, repo } = buildWrapperRootFixture(join(base, 'doctor-repair-wrapper'));
     const handlers = createDoctorHandlers({ store: new StoryStore(wrapper), root: wrapper, scanRoot: wrapper });
 
@@ -440,7 +444,7 @@ try {
     };
     let repair1: Record<string, any>;
     try {
-      repair1 = handlers.doctor({ format: 'json', repair: true }) as Record<string, any>;
+      repair1 = await handlers.doctor({ format: 'json', repair: true }) as Record<string, any>;
     } finally {
       (process.stderr.write as any) = origErr;
     }
@@ -468,19 +472,19 @@ try {
     // Commit the now-trackable leaf in the gitRoot → clean-proof → safe.
     git(repo, ['add', LEAF_REL]);
     git(repo, ['commit', '-m', 'track story metadata']);
-    const afterCommit = handlers.doctor({ format: 'json' }) as Record<string, any>;
+    const afterCommit = await handlers.doctor({ format: 'json' }) as Record<string, any>;
     assert.equal(afterCommit.storyMetadataProtection.unsafe, false, 'wrapper-root: re-scan after committing the leaf must be safe');
   });
 
-  check('doctor: WRAPPER-ROOT second --repair is a no-op (wrote:false, .gitignore byte-identical)', () => {
+  await check('doctor: WRAPPER-ROOT second --repair is a no-op (wrote:false, .gitignore byte-identical)', async () => {
     const { wrapper, repo } = buildWrapperRootFixture(join(base, 'doctor-repair-wrapper-noop'));
     const handlers = createDoctorHandlers({ store: new StoryStore(wrapper), root: wrapper, scanRoot: wrapper });
 
-    const repair1 = handlers.doctor({ format: 'json', repair: true }) as Record<string, any>;
+    const repair1 = await handlers.doctor({ format: 'json', repair: true }) as Record<string, any>;
     assert.equal(repair1.storyMetadataProtection.repairWrote, true, 'first wrapper-root --repair installs the allowlist');
     const gitignoreAfter = readFileSync(join(repo, '.gitignore'), 'utf-8');
 
-    const repair2 = handlers.doctor({ format: 'json', repair: true }) as Record<string, any>;
+    const repair2 = await handlers.doctor({ format: 'json', repair: true }) as Record<string, any>;
     assert.equal(repair2.storyMetadataProtection.repairWrote, false, 'second wrapper-root --repair must be a no-op');
     assert.equal(repair2.storyMetadataProtection.repairError, null, 'second wrapper-root --repair must not error');
     assert.equal(
@@ -490,7 +494,7 @@ try {
     );
   });
 
-  check('doctor: safe project (negation allowlist) → no false positive', () => {
+  await check('doctor: safe project (negation allowlist) → no false positive', async () => {
     const root = join(base, 'doctor-safe');
     initGitRepo(root);
     writeFileSync(join(root, '.gitignore'), `${NEGATION_ALLOWLIST}\n`);
@@ -499,9 +503,9 @@ try {
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']); // leaf is tracked here
     const handlers = createDoctorHandlers({ store: new StoryStore(root), root, scanRoot: root });
-    const json = handlers.doctor({ format: 'json' }) as Record<string, any>;
+    const json = await handlers.doctor({ format: 'json' }) as Record<string, any>;
     assert.equal(json.storyMetadataProtection.unsafe, false, 'a tracked + allowlisted project must not be flagged');
-    const text = String(handlers.doctor({ format: 'text' }));
+    const text = String(await handlers.doctor({ format: 'text' }));
     assert.match(text, /✓ story metadata is tracked or protected/);
     assert.doesNotMatch(text, /✗ story metadata is NOT git-tracked/);
   });

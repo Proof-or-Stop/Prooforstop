@@ -67,6 +67,21 @@ const READ_ONLY_STATUS_UNSUPPORTED_FLAGS = {
   refresh: z.never().optional().describe('Not a flag; status commands refresh nothing. Passing --refresh is rejected by CLI validation.'),
 } satisfies Record<string, z.ZodType>;
 
+// B-7c05: brief-by-default output flags. --full restores the current verbose
+// shape; --brief forces brief over the LATTICE_BRIEF_OUTPUT=0 env hatch.
+// Rendering-only — no gate/state-machine change (validate deliberately excluded).
+const BRIEF_OUTPUT_FLAGS = {
+  full: z.boolean().optional().describe('Show the full (verbose) output instead of the brief default.'),
+  brief: z.boolean().optional().describe('Force the brief output even when LATTICE_BRIEF_OUTPUT=0 is set.'),
+} satisfies Record<string, z.ZodType>;
+
+// B-7c05: explicit machine-JSON opt-in (frozen full shape) for commands whose
+// default output is a JSON object and which did not previously expose it.
+const JSON_OUTPUT_FLAGS = {
+  format: z.enum(['text', 'json']).optional().describe('Output format; json returns the frozen full machine shape (default = brief).'),
+  json: z.boolean().optional().describe('Shortcut for --format=json (frozen full machine shape).'),
+} satisfies Record<string, z.ZodType>;
+
 const inlineJsonObjectSchema = z.union([z.string(), z.object({}).passthrough()]);
 
 const milestoneNotApplicableDecisionSchema = z.object({
@@ -123,6 +138,8 @@ const reviewerReadManifestSchema = z.object({
   filesReadFully: z.array(z.string()).describe('Relative files the reviewer read in full. Decisions-doc entries are mechanically compared to readLog; non-decision entries remain signed manifest evidence.'),
   filesTriagedByName: z.array(z.string()).describe('Relative files the reviewer only triaged by filename/title. Decisions-doc entries are mechanically compared to readLog; non-decision entries remain signed manifest evidence.'),
   scanEscalationReason: z.string().nullable().describe('Reason for full decisions-directory escalation, or null when no escalation occurred.'),
+  candidateSpecSetDigest: z.string().optional().describe('Current candidate-spec-set artifact digest consumed by this reviewer.'),
+  corpusDigest: z.string().optional().describe('Requirements corpus digest bound to the candidate set.'),
 }).describe('Required reviewer read evidence: {filesReadFully:string[], filesTriagedByName:string[], scanEscalationReason:string|null}. Runtime rejects duplicates, unsafe paths, and malformed values.');
 const reviewerReadTokenCountSchema = z.number().nonnegative().nullable();
 const reviewerReadEventSchema = z.object({
@@ -266,6 +283,8 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'story_list', description: 'List all Stories', schema: {
     phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','REVIEW','TEST','DONE','DISCARDED']).optional().describe('Filter by phase (mutually exclusive with active).'),
     active: z.boolean().optional().describe('List only non-terminal stories (exclude DONE/DISCARDED/IDEA). Added by B-89c7 CHK-016.'),
+    ...BRIEF_OUTPUT_FLAGS,
+    ...JSON_OUTPUT_FLAGS,
   }},
   { name: 'story_resolve', description: 'Resolve a story phase and authoritative cwd for planned steps. Alias: lattice story resolve', schema: {
     storyId: z.string().describe('Story ID to resolve'),
@@ -344,6 +363,8 @@ Behavior:
   // Review
   { name: 'story_review', description: 'Adversarially review checklist completeness', longHelp: STORY_REVIEW_LONG, schema: {
     storyId: z.string().describe('Story ID'),
+    ...BRIEF_OUTPUT_FLAGS,
+    ...JSON_OUTPUT_FLAGS,
   }},
   { name: 'story_review_dismiss', description: 'Dismiss a falsely reported riskSignal category (B-5010)', schema: {
     storyId: z.string().describe('Story ID'),
@@ -753,7 +774,11 @@ Behavior:
       reproTest: z.string().optional().describe('Reproduction test path.'),
     }).optional().describe('Debugging evidence chain; recommended when marking fixed.'),
   }},
-  { name: 'bug_list', description: 'View bug list; without storyId, show a global summary across all stories', schema: { storyId: z.string().optional().describe('Story ID; when omitted, list bugs for all stories.') }},
+  { name: 'bug_list', description: 'View bug list; without storyId, show a global summary across all stories', schema: {
+    storyId: z.string().optional().describe('Story ID; when omitted, list bugs for all stories.'),
+    ...BRIEF_OUTPUT_FLAGS,
+    ...JSON_OUTPUT_FLAGS,
+  }},
   { name: 'bug_analyze', description: 'Cross-story bug quality dashboard (markdown/json)', schema: {
     format: z.enum(['json','markdown']).optional().describe('Output format (default: json).'),
   }},
@@ -836,6 +861,7 @@ Behavior:
     storyId: z.string().describe('Story ID'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
     json: z.boolean().optional().describe('Shortcut for --format=json.'),
+    ...BRIEF_OUTPUT_FLAGS,
     authorityClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
     productionClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
     productionReadyClaim: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
@@ -1864,10 +1890,11 @@ Behavior:
   }},
 
   // Doctor (health issue inspection).
-  { name: 'doctor', description: 'View Proofbound health issues (silent-caught PERSIST fails); scan orphan worktrees', schema: {
+  { name: 'doctor', description: 'View Proofbound health issues (silent-caught PERSIST fails); scan orphan worktrees. Also runs the B-623a ADVISORY host burn scan: read-only stream over recently-active ~/.codex/sessions and ~/.claude/projects transcripts flagging long-thread token burn (env-tunable thresholds; LATTICE_BURN_ALERT_RECENT_HOURS=0 disables; never gates, no gate evidence, exit code unchanged)', schema: {
     format: z.enum(['text', 'json']).optional().describe('Output format (default: text).'),
     limit: z.number().optional().describe('Maximum number of entries to read (default: 1000).'),
     repair: z.boolean().optional().describe('Clean DONE/DISCARDED terminal worktree registrations, orphan directories, and prunable metadata.'),
+    ...BRIEF_OUTPUT_FLAGS,
   }},
   { name: 'done_recover', description: 'Recover a partial-DONE story (phase DONE but branch not yet merged into main)', schema: {
     storyId: z.string().describe('Story ID to recover.'),
@@ -1995,6 +2022,8 @@ Behavior:
   { name: 'finding_list', description: 'View story findings', schema: {
     storyId: z.string().describe('Story ID'),
     cluster: z.boolean().optional().describe('B-9d95 CHK-005: return cluster view { clusters, ungrouped } instead of flat findings.'),
+    ...BRIEF_OUTPUT_FLAGS,
+    ...JSON_OUTPUT_FLAGS,
   }},
   { name: 'finding_resolve', description: 'Mark finding as resolved', schema: {
     storyId: z.string().describe('Story ID'),
@@ -2866,11 +2895,38 @@ Behavior:
     json: z.boolean().optional().describe('Output the structured host_run result as JSON (exitCode is a field)'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},
+  { name: 'candidate_spec_route', description: 'Build deterministic Story keywords, optionally collect sanitized bounded Codex/Claude/agy semantic proposals through host_run, search the local requirements corpus, rank at most eight ordinary candidates, and persist a versioned candidate-spec-set artifact without embedding document bodies in a prompt.', schema: {
+    storyId: z.string().describe('Canonical Story id'),
+    hosts: z.boolean().optional().describe('Launch semantic proposal hosts; default true. Set false for deterministic local-only routing.'),
+    requestAgy: z.boolean().optional().describe('Request the conditional agy supplemental proposer even when primary hosts agree.'),
+    persist: z.boolean().optional().describe('Persist candidate-spec-set.json; default true.'),
+    fullScanReason: z.string().optional().describe('Structured reason for a tool-driven broad scan; never serializes corpus bodies.'),
+    json: z.boolean().optional().describe('Output the versioned candidate artifact as JSON.'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
+  { name: 'candidate_spec_rollout_check', description: 'Evaluate a shadow/warn/enforce candidate-routing promotion against two consecutive quality and cost windows. Read-only; rollback always means explicit tool-driven review with recorded escalation and never corpus prompt injection.', schema: {
+    from: z.enum(['shadow', 'warn', 'enforce']),
+    to: z.enum(['shadow', 'warn', 'enforce']),
+    windows: z.array(z.object({
+      id: z.string(),
+      criticalHighRecall: z.number(),
+      overallRecall: z.number(),
+      findingEquivalent: z.boolean(),
+      promptByteReduction: z.number(),
+      p95LatencyMs: z.number(),
+      readMismatchCount: z.number().int(),
+      unjustifiedFullScanCount: z.number().int(),
+    })),
+    maxP95LatencyMs: z.number().positive().optional(),
+    json: z.boolean().optional(),
+    format: z.enum(['text', 'json']).optional(),
+  }},
   { name: 'usage_sweep', description: 'Read-only NON-AUTHORITATIVE usage sweep: streams ~/.codex/sessions rollouts and ~/.claude/projects transcripts since a cutoff and reports per-session token totals, originator (desktop vs exec vs claude-code), cwd, first/last timestamps, and B-xxxx story mentions plus a per-story rollup and grand totals. Estimates only (attribution from host transcript stores, not billing truth); performs no ledger backfill and no gate/lifecycle changes, and writes nothing unless --out is explicitly passed. Alias: lattice usage sweep', schema: {
     since: z.string().describe('Cutoff: YYYY-MM-DD, ISO datetime, or <N>d shorthand (e.g. 7d). Files with mtime before the cutoff are skipped before reading'),
     codexSessionsDir: z.string().optional().describe('Override the codex sessions dir (default ~/.codex/sessions)'),
     claudeProjectsDir: z.string().optional().describe('Override the claude projects dir (default ~/.claude/projects)'),
     out: z.string().optional().describe('Write the JSON report to this path (must resolve INSIDE the project root); the only write this command performs'),
+    alert: z.boolean().optional().describe('B-623a advisory burn alert: evaluate the swept sessions against the env-tunable burn thresholds (LATTICE_BURN_ALERT_FILE_MB/INPUT_TOKENS/AGE_DAYS) and exit non-zero when any session exceeds them, after printing the full report — cron-friendly; performs no writes and never gates anything'),
     json: z.boolean().optional().describe('Emit the full report object as JSON (carries the same NON-AUTHORITATIVE ESTIMATE label)'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},

@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "proofstory.slice_plan.v1",
+  "storyId": "B-8038",
+  "ledgerHash": "sha256:afd091a64217d871a87dae4cbbf85651d19b058b5bb294d930d5402d3eea7389",
+  "slices": [
+    {
+      "id": "slice-foundation",
+      "milestoneIds": [
+        "M6A",
+        "M6B",
+        "M6C"
+      ],
+      "reason": "Build deterministic indexing, sanitized semantic enrichment, and bounded ranking as one testable producer foundation.",
+      "assignedStory": "B-8038"
+    },
+    {
+      "id": "slice-evidence-integration",
+      "milestoneIds": [
+        "M6D",
+        "M6E",
+        "M6F"
+      ],
+      "reason": "Bind producer output to mechanical read evidence and integrate it across PLAN, REVIEW, and delivery consumers.",
+      "assignedStory": "B-8038"
+    },
+    {
+      "id": "slice-rollout",
+      "milestoneIds": [
+        "M6G"
+      ],
+      "reason": "Enable staged policy and closeout token attribution only after foundation and consumers meet quality and cost thresholds.",
+      "assignedStory": "B-8038"
+    }
+  ],
+  "planHash": "sha256:7cedbd9bbd468c583dedfd680f9fcf313983eb6003eab552d30fa6aaf0a4bdd6",
+  "createdAt": "2026-07-12T10:09:46.403Z",
+  "updatedAt": "2026-07-12T10:18:22.861Z"
+}

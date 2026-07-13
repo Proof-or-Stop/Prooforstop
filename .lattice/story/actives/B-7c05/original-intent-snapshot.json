@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-7c05",
+  "sourceText": "In /Users/jek/Documents/Work/proofbound (Lattice story workflow required): reduce the context-fattening CLI outputs that agent loops re-pay on every subsequent model call. Forensic evidence (2026-07-12, rollout 019f46ea turn-40 analysis): in a 383-call agentic turn, single CLI outputs like lattice story_advance (~8.4k tokens of full milestone-ledger markdown table, printed 3x), lattice finding_list (~10.2k), and lattice help (~10.1k) each get cache-re-read by every later call — one 10k output early in a turn amplified to ~3.8M of ledger-visible volume. Proposal: (a) make story_advance / milestone_status-style giant tables print a compact summary by default (counts + next action) with --full for the whole table; (b) finding_list default to id/severity/status one-liners with --full for descriptions; (c) audit other >5k-token default outputs (rg for renderers building large markdown tables) and apply the same brief-by-default pattern; (d) keep JSON modes unchanged (machine consumers). Advisory: honor a LATTICE_BRIEF_OUTPUT=0 escape hatch. This is agent-loop context hygiene, not gate behavior — gateEvidence semantics untouched.",
+  "normalizedOutcome": "Bare (flag-less) invocations of the whale lattice CLI commands — milestone_status and the milestone suffix appended after mutating commands like story_advance, finding_list, help, and the >5k-token offenders found by audit (story_list, global bug_list) — print compact actionable summaries (counts + next action / one-liners) instead of multi-KB dumps, while --full restores the complete output, LATTICE_BRIEF_OUTPUT=0 restores full defaults globally, explicit --json/--format=json shapes are unchanged, and gate behavior/gateEvidence semantics are untouched.",
+  "acceptanceClaim": "On a story with a populated milestone ledger and findings, the bare default outputs of milestone_status, finding_list, help, story_list, and global bug_list each stay under their byte budgets (a fraction of the 0.3.185 baselines of 8.4k tokens / 10.2k tokens / 50KB / 365KB / 263KB respectively) while --full restores the complete legacy output, LATTICE_BRIEF_OUTPUT=0 restores full-by-default, and explicit --json output field sets are identical to pre-change — proven by a committed smoke test run.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:7e924ab3b4a827d355b7eb28dc73fe7db2426795fd169c24794cde3a7609fb53",
+  "createdAt": "2026-07-11T23:30:31.194Z",
+  "updatedAt": "2026-07-11T23:30:31.194Z"
+}

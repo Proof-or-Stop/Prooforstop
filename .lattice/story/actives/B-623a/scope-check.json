@@ -1,0 +1,189 @@
+{
+  "storyId": "B-623a",
+  "checkedAt": "2026-07-12T20:15:55.810Z",
+  "features": [
+    {
+      "feature": "lattice doctor gains a Host burn scan (advisory) section that flags host sessions exceeding thresholds",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "original-intent-snapshot.json / index.json / plan.md"
+    },
+    {
+      "feature": "usage_sweep gains an --alert opt-in mode that exits non-zero when a session is flagged, for cron-driven notification",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "original-intent-snapshot.json / plan.md CHK-004"
+    },
+    {
+      "feature": "New pure-core evaluator (evaluateBurnAlerts) over SweepSessionRow[] reusing existing core/usage-sweep.ts scanners, with 3 threshold reasons (file-size, input-tokens, session-age)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "original-intent-snapshot.json / plan.md CHK-001; checklist.json CHK-001 verificationIntent"
+    },
+    {
+      "feature": "Env-tunable thresholds with conservative defaults (100MB file / 100M input tokens / 7 days age / 48h recent-activity window)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "original-intent-snapshot.json / plan.md CHK-002"
+    },
+    {
+      "feature": "Warning must name the concrete session file, its cwd, and cumulative tokens (loud + actionable)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "background.md Conversational Texture / original-intent-snapshot.json / decision.json principles"
+    },
+    {
+      "feature": "Advisory-only boundary: no gate wiring, gateEvidence=false, plain doctor and plain usage_sweep exit codes unchanged; only explicit --alert exits non-zero",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decision.json principles / scope-boundary.json excluded / plan.md Non-goals"
+    },
+    {
+      "feature": "No usage-ledger reads or writes (usage-sweep independence contract stays intact) -- actively verified, not merely absent",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decision.json drivers / scope-boundary.json excluded / plan.md Non-goals"
+    },
+    {
+      "feature": "Zero writes to host session/transcript stores; no mutation of host sessions -- actively verified via zero-writes snapshot assertions",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decision.json principles / scope-boundary.json excluded / plan.md Non-goals"
+    },
+    {
+      "feature": "No notification delivery (mail/slack/etc.); cron owns notification, lattice only exits non-zero",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "explicit non-goal; opt-in exit-code is the sole mechanism, delivery is deliberately out of scope",
+      "source": "scope-boundary.json excluded / plan.md Non-goals"
+    },
+    {
+      "feature": "No standalone watcher/daemon process",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "explicit non-goal; decision.json evaluated and rejected a standalone watcher-daemon option (violates CLI-first shape, larger trust surface)",
+      "source": "decision.json options / scope-boundary.json excluded / plan.md Non-goals"
+    },
+    {
+      "feature": "No new config-file schema; thresholds stay env-only",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "explicit non-goal; CHK-002 resolver is env-record-based by design, no config file is introduced",
+      "source": "scope-boundary.json excluded / plan.md Non-goals"
+    },
+    {
+      "feature": "Reuse the existing core/usage-sweep.ts scanners (sweepCodexSessions/sweepClaudeProjects, stat + stream-read, zero writes) rather than building new scanning logic",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "background.md Solution Tradeoffs / decision.json chosen option / plan.md CHK-003 context"
+    },
+    {
+      "feature": "Fixture-driven burn-alert smoke test (OS-temp only, never real ~/.codex or ~/.claude) wired into the same validate/test entry points as usage-sweep-smoke",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md CHK-005; test:usage-sweep npm-script pattern and run-all-smokes.ts auto-discovery mechanism"
+    },
+    {
+      "feature": "Real-machine doctor + usage_sweep --alert run against the real stores recorded at TEST (read-only) as the acceptance-claim verification",
+      "covered_by": null,
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md Verification section; anchored by red-evidence.json RED-20260712195359 greenRelation (same literal doctor --format=json | grep hostBurnScan probe must go green)"
+    },
+    {
+      "feature": "Threshold semantics are strictly-greater (at-threshold does NOT flag; only just-over flags)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md CHK-001 design / checklist.json CHK-001 edge cases"
+    },
+    {
+      "feature": "Host-specific cumulative-token formula: Codex uses last cumulative total_token_usage.input (cache-inclusive); Claude uses summed input+cacheRead+cacheCreation",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md CHK-001 design; intent-collision.json IC-20260712195641 near-miss (b) explicitly clears the Claude cache-inclusive formula as the consistent cross-host analogue"
+    },
+    {
+      "feature": "doctor JSON output gains a hostBurnScan object (advisory:true, gateEvidence:false, thresholds, recentHours/scanWindow, findings)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md CHK-003 design"
+    },
+    {
+      "feature": "Empirical-addendum operator guidance (recommend LATTICE_BURN_ALERT_INPUT_TOKENS=50000000 on burn-prone machines); the frozen 100M default is NOT changed",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "advisory guidance recorded in plan.md only, not a coded deliverable; intent-collision.json explicitly rules this is advice-not-default so no drift from the frozen 100M default",
+      "source": "plan.md Empirical addendum / intent-collision.json notes"
+    },
+    {
+      "feature": "doctor's own CLI-surface disclosure (command-catalog.ts description + process-fact-levels.ts rationale) that it now reads external host transcript stores (~/.codex/sessions, ~/.claude/projects), matching the transparency precedent already set by usage_sweep's own catalog description and process-fact-levels rationale",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "REFRESH: checklist.json CHK-003 files.modify now includes packages/main/src/cli/command-catalog.ts and packages/main/src/core/process-fact-levels.ts (confirmed via git diff ccbfad7); independently corroborated by scope-boundary.json (INIT-frozen 2026-07-11, unchanged this round) allowed-list entry 'packages/main/src/cli/command-catalog.ts (usage_sweep alert flag; doctor description touch-up)' and understanding.json touchpoints listing both files. Caveat: CHK-003's context/reason prose and plan.md's CHK-003 design section were NOT updated to narrate this change, and no verificationIntent bullet asserts the disclosure text content itself (unlike the hermeticity fix, which added an explicit grep-verified adversarial check) -- coverage rests on file-scope assignment plus the frozen scope-boundary precedent rather than a content-level test, so this is weaker-but-adequate; recommend an explicit verificationIntent bullet for the disclosure text at TEST/DEV time as a robustness improvement, not a blocking gap"
+    },
+    {
+      "feature": "decision.json pre-mortem mitigation: existing doctor-invoking smokes (doctor-gitroot-probe-smoke.ts, story-metadata-protection-smoke.ts, storydir-inside-gitroot-suite.ts) must set LATTICE_BURN_ALERT_RECENT_HOURS=0 around their doctor() calls to stay hermetic/fast once doctor scans real host stores by default",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "REFRESH: checklist.json CHK-003 adversarial verificationIntent gained a new entry (confirmed via git diff ccbfad7): 'The three pre-existing doctor-invoking smokes ... explicitly set LATTICE_BURN_ALERT_RECENT_HOURS=0 around their doctor calls so they stay hermetic and fast ... grep-verified in each file and the suite still passes'; independently matches decision.json preMortem[1] scenario/mitigation verbatim. Cleanly and specifically resolved."
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-623a/background.md",
+      ".lattice/story/actives/B-623a/checklist.json",
+      ".lattice/story/actives/B-623a/decision.json",
+      ".lattice/story/actives/B-623a/execution-boundary.json",
+      ".lattice/story/actives/B-623a/index.json",
+      ".lattice/story/actives/B-623a/init-check.json",
+      ".lattice/story/actives/B-623a/intent-collision.json",
+      ".lattice/story/actives/B-623a/original-intent-snapshot.json",
+      ".lattice/story/actives/B-623a/plan.md",
+      ".lattice/story/actives/B-623a/proofstory.json",
+      ".lattice/story/actives/B-623a/red-evidence.json",
+      ".lattice/story/actives/B-623a/scope-boundary.json",
+      ".lattice/story/actives/B-623a/scope-check.json (prior round, commit ccbfad7)",
+      ".lattice/story/actives/B-623a/scope-contract.json",
+      ".lattice/story/actives/B-623a/scope-freeze-check.json",
+      ".lattice/story/actives/B-623a/understanding.json",
+      "packages/main/src/cli/command-catalog.ts (doctor + usage_sweep entries)",
+      "packages/main/src/core/process-fact-levels.ts (doctor + usage_sweep entries)"
+    ],
+    "filesTriagedByName": [
+      "docs/requirements/decisions/host-neutral-observability-console.md",
+      "docs/requirements/decisions/host-overflow.md",
+      "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+      "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+      "docs/requirements/decisions/usage-ledger-prototype-pollution-hardening.md"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 20,
+    "covered": 16,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "d296aced53b22e8e73c4493313a1405cd0ca74f972618be45cf235b051e28213",
+  "openQuestions": []
+}

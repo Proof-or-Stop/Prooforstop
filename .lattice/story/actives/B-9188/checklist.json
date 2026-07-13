@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Register milestone-closeout.json as an artifact fact in process-fact-registry.ts",
+      "context": "Add a PROCESS_FACT_ARTIFACT_BY_COMMAND ref (name/path milestone-closeout.json, signed:false, producerCommand story_advance DONE-time capture implemented in handlers/milestone-status.ts, written via store.writeMilestoneCloseout at store.ts ~706) plus a PROCESS_FACT_REGISTRY fact entry named artifact:milestone-closeout.json modeled on the adjacent artifact:milestone-ledger.json entry, with producer handlers/milestone-status and a consumer description naming the DONE-phase milestone_status / milestone_closeout frozen-snapshot read path (snapshot-only; never re-blocks DONE).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add milestone-closeout.json to requiredArtifactFacts in verify-process-fact-contract.mjs",
+      "context": "Insert { name: 'artifact:milestone-closeout.json', path: 'milestone-closeout.json', signed: false } into requiredArtifactFacts (scripts/verify-process-fact-contract.mjs ~line 171, next to the milestone-ledger.json line ~196), matching the neighboring assertion pattern. npm run test:process-fact-contract must pass with the registry entry present and fail if the CHK-001 registry entry is removed (non-vacuous check).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

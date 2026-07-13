@@ -82,6 +82,12 @@ export interface LatticeConfig {
   fixturesDir: string;
   storyDir: string;
   requirementsDir: string;
+  candidateSpecRouting?: {
+    mode?: 'shadow' | 'warn' | 'enforce';
+    candidateBudget?: number;
+    queryGroupBudget?: number;
+    rawHitsPerGroup?: number;
+  };
   storyPrefix: string;
   flows: LatticeFlowConfig;
   wrappersDir?: string;
@@ -257,6 +263,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'quantum_claim_*', // B-d1bf/B-3779: Quantum local read-only claim-admissibility diagnostics (M3 check, M4 benchmark, M5 report); no lifecycle evidence writes
     'host_*', // Proofbound CLI 0.3.6: host list/probe/install guidance; dry-run/read-only diagnostics only
     'host_runtime_*', // B-106b/B-d674: dispatch runtime readiness probes for fake/codex/claude-code/antigravity
+    'candidate_spec_rollout_check', // B-8038: read-only quality/cost promotion projection
     'usage_sweep', // B-70e9 M2: read-only NON-AUTHORITATIVE retro-attribution usage sweep over host transcript stores; streams ~/.codex + ~/.claude, no ledger backfill, no gate evidence, writes nothing unless --out is passed (inside project root)
     'lattice_config_doctor', // Proofbound CLI 0.3.6: CLI-first migration/config status; no Mac App dependency
     'lattice_config_repair', // B-526c: explicit confirmed gitRoot repair; command policy enforces mutating ownership semantics
@@ -306,6 +313,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'dev_start', // B-804c CHK-002: 显式 recovery 入口——卡在 INIT_CHECK 无 worktree 的 story 可手动重建
   ],
   PLAN: [
+    'candidate_spec_route', // B-8038: bounded PLAN candidate producer
     'dev_start', // B-804c CHK-002: 显式 recovery 入口——PLAN 阶段缺 worktree 也可重建
     'story_update', 'story_review', 'story_review_dismiss',
     'checklist_add', 'checklist_update', 'checklist_remove',
@@ -330,6 +338,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'spike_start', 'spike_result_set', 'spike_result', 'spike_discard', 'spike_promote',
   ],
   DEV: [
+    'candidate_spec_route', // B-8038: owner development and focused verification
     'dev_start', // B-804c CHK-002 / B-da89: explicit worktree recovery entry; reconcile config with command-policy + worktree handler 4-phase set (DEV still in the pre-REVIEW bootstrap window)
     'checklist_add', 'checklist_update', 'checklist_remove',
     'verification_intent_repair', // B-4e06: audited legacy intent backfill
@@ -349,6 +358,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'guard_session_start', // B-6bfd CHK-004: start scope-guard session during implementation
   ],
   REVIEW: [
+    'candidate_spec_route', // B-8038: current-diff rerouting for reviewer lanes
     'review_run_start',
     'finding_add', 'finding_list', 'finding_resolve', 'finding_dismiss',
     'review_pass_set',
@@ -369,6 +379,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'guard_session_start', // B-6bfd CHK-004: start scope-guard session during review
   ],
   TEST: [
+    'candidate_spec_route', // B-8038: end-to-end routing verification
     'finding_list', 'finding_cluster', // B-9d95 CHK-005: 聚簇视图在 TEST 也允许查询
     'validate', 'evaluate', 'evaluate_save',
     'verification_intent_repair', // B-4e06: audited legacy intent backfill
@@ -433,6 +444,12 @@ const DEFAULT_CONFIG: LatticeConfig = {
   fixturesDir: 'tests/fixtures',
   storyDir: LATTICE_STORY_DIR,
   requirementsDir: 'docs/requirements',
+  candidateSpecRouting: {
+    mode: 'shadow',
+    candidateBudget: 8,
+    queryGroupBudget: 10,
+    rawHitsPerGroup: 50,
+  },
   storyPrefix: 'B',
   flows: {
     defaults: {},

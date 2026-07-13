@@ -1,0 +1,52 @@
+{
+  "storyId": "B-f646",
+  "checkedAt": "2026-07-12T09:16:06.017Z",
+  "headHash": "6fbeb21363d14582ff590b63f1630ec48a9fa6f8",
+  "materialHash": "79d4f9af5acae51b71d0e15479e29598bbac6fe9132061a712d5e68044c15efc",
+  "storyFilesHash": "430e1a5f2c609fe5c6228418c4cf30ac70938173346d7b3b362b639dea952298",
+  "reviewRound": "2026-07-12T09:08:40.723Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "promise": "Deliver one canonical execution Markdown for hybrid deterministic plus multi-host keyword proposal and bounded local search routing.",
+      "status": "verified",
+      "verifiedBy": "git diff main...HEAD plus targeted content grep",
+      "evidence": "main...HEAD adds the 581-line canonical document; sections 1, 6-12 define deterministic CLI seeds, Codex CLI and Claude Code CLI proposals, optional agy, bounded local rg, deterministic ranking, candidateSpecSet, and escalation."
+    },
+    {
+      "docPath": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "promise": "Do not claim the future M6 routing implementation is already shipped.",
+      "status": "verified",
+      "verifiedBy": "exact status and shipped-versus-future inspection",
+      "evidence": "Line 3 states accepted execution plan; implementation not started, and section 5 separates B-f97c shipped stopgap from future CLI routing work."
+    },
+    {
+      "docPath": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "promise": "Preserve bounded, auditable quality and prevent requirements-corpus prompt reinjection.",
+      "status": "verified",
+      "verifiedBy": "quality floor, validation matrix, rollback, and DONE criteria inspection",
+      "evidence": "The plan caps default full reads at 8, requires 100% critical/high-risk recall and >=98% overall recall, fails closed on read mismatches, and states rollback never restores corpus prompt injection."
+    },
+    {
+      "docPath": "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "promise": "Apply a shared pre-egress secret boundary before any external host proposal call.",
+      "status": "verified",
+      "verifiedBy": "sections 8.2, 16, M6B and validation matrix inspection",
+      "evidence": "The revised plan sanitizes every host-bound field/artifact, omits or hashes sensitive provenance, skips hosts on uncertain classification, rejects unsafe proposals, and requires secret-leak fixtures."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "TEST evidence at 2026-07-12T09:15:08.372Z records lattice validate PASS with verificationCoverage 3/3 required intents covered and 0 missing. Independent delivery commands confirmed the document exists, required hybrid-routing/future-state/quality/secret-boundary anchors are present, no TODO/TBD/FIXME remains, and main...HEAD contains no packages/main/src or agent-template runtime changes."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "PASS: main...HEAD delivers the requested canonical execution Markdown and only planning/lifecycle metadata. TEST is PASS with 3/3 intent coverage. The document covers sparse/noisy/zero-hit, host outage/disagreement, cutoff ambiguity, fabricated reads, prompt injection, stale corpus, secret egress, and corpus-reinjection rollback. Implementation remains explicitly future work."
+  },
+  "_hash": "1a3dd2a3d55a6c264ad8254848e8e7c6f0855ec0b5cc4937d48179f475a3dd88"
+}

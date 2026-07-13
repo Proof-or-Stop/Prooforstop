@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-6108",
+  "allowedCommands": [
+    "git add",
+    "git commit",
+    "git diff",
+    "git status",
+    "lattice *",
+    "node --test",
+    "node packages/main/dist/tasks/milestone-done-gate-reconciliation-smoke.js",
+    "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm run build",
+    "npm run test:e2e"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "story_create",
+  "createdAt": "2026-07-11T22:30:37.785Z",
+  "updatedAt": "2026-07-11T22:30:37.785Z",
+  "_hash": "91a6e536b03aab519cf3c8a16babf2cc7369cdd7eae65079c38da48c8c45b472"
+}

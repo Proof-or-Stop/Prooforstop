@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Pure-core ledger-provenance evaluator over quorum verdict claims",
+      "context": "New packages/main/src/core/quorum-ledger-provenance.ts: given the quorum verdict rows a story claims (host/provider, round ids, submit timestamps) and the story's usage-ledger rows (injected, already-parsed; never reads the ledger file itself - the caller provides rows), classify each claimed host verdict as ledger-backed (a host_run final row exists with matching provider + storyId + a reviewer-class agentType within a plausible window) or unbacked, with a deterministic report shape {mode, checked, backed, unbacked[], reasons}. Pure core: no fs/env/Date.now; clock and rows injected.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Ledger row loader at the handler boundary",
+      "context": "Handler-side loader that reads the story-scoped usage-ledger rows (reusing the existing usage-ledger read utilities if present; read-only) and feeds the pure evaluator. Tolerates a missing/empty ledger (every verdict is then unbacked - which is exactly the signal), and never throws on a corrupt row (skips and counts parse errors).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "quorum_submit provenance surface (shadow/warn/enforce writer side)",
+      "context": "quorum_submit computes the provenance report before recording: shadow mode appends a diagnostics block to its output (report-only); warn mode prints a prominent warning naming each unbacked host verdict; enforce mode refuses the submit with a structured error listing unbacked verdicts and the host_run command shape that would back them. Mode read from lattice.config.json (e.g. quorumLedgerProvenance.mode, default shadow); the config knob and its default are documented in the command catalog entry.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Review-escalation consumer surface (status + DONE gate diagnostics)",
+      "context": "review_escalation_status (and the DONE-side escalation evaluation that consumes quorum evidence) includes the provenance report: shadow adds an advisory block, warn adds warning lines, enforce makes an unbacked quorum count as not satisfying the escalation requirement (with the same structured reasons). No change to lane reviewer pass evaluation - only the host-verdict evidence class.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Fixture-driven provenance smoke wired into the suite",
+      "context": "New packages/main/src/tasks/quorum-ledger-provenance-smoke.ts: OS-temp fixture story + synthetic ledger rows covering backed/unbacked/missing-ledger/corrupt-row/window-mismatch cases across all three modes (shadow report shape, warn output, enforce refusal), plus an end-to-end check that a REAL host_run-recorded row (fixture-injected in the same shape host_run writes) passes the enforce gate. Wired as test:quorum-ledger-provenance; auto-discovered by run-all-smokes.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

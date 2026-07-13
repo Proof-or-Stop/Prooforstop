@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-1be5",
+  "checkedAt": "2026-07-13T00:46:24.728Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "04def2e39399e7738b9d2cfe1d89f462cb5a473ed1107d42f52b56fd136106e0",
+  "executionBoundaryHash": "25269ba2d2ceb1ba48e732e6e4f03669cb75e9d0dd5f455d7e47b60f5cab16e4",
+  "freshnessHash": "232ff3f213925c521c09b7a9a074160595605d2c963743079d0b11e39150bbfc",
+  "effectiveExcludedKeywords": [
+    "No changes to autopilot_review_submit semantics beyond what the escalation consumer surface requires (its binding fields already exist)",
+    "No default-enforce: default mode is shadow; enforce is an explicit config opt-in",
+    "No gating of lane reviewer passes (in-session subagents legitimately have no host_run rows)",
+    "No host transcript store reads (transcripts are NON-AUTHORITATIVE; the ledger is the trust root)",
+    "No retroactive invalidation of existing DONE stories",
+    "No usage-ledger WRITES and no ledger schema changes (read-only consumption of B-70e9 rows)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "No changes to autopilot_review_submit semantics beyond what the escalation consumer surface requires (its binding fields already exist)",
+      "source": "scopeBoundary.excluded",
+      "text": "No changes to autopilot_review_submit semantics beyond what the escalation consumer surface requires (its binding fields already exist)",
+      "excluded": true
+    },
+    {
+      "keyword": "No default-enforce: default mode is shadow; enforce is an explicit config opt-in",
+      "source": "scopeBoundary.excluded",
+      "text": "No default-enforce: default mode is shadow; enforce is an explicit config opt-in",
+      "excluded": true
+    },
+    {
+      "keyword": "No gating of lane reviewer passes (in-session subagents legitimately have no host_run rows)",
+      "source": "scopeBoundary.excluded",
+      "text": "No gating of lane reviewer passes (in-session subagents legitimately have no host_run rows)",
+      "excluded": true
+    },
+    {
+      "keyword": "No host transcript store reads (transcripts are NON-AUTHORITATIVE; the ledger is the trust root)",
+      "source": "scopeBoundary.excluded",
+      "text": "No host transcript store reads (transcripts are NON-AUTHORITATIVE; the ledger is the trust root)",
+      "excluded": true
+    },
+    {
+      "keyword": "No retroactive invalidation of existing DONE stories",
+      "source": "scopeBoundary.excluded",
+      "text": "No retroactive invalidation of existing DONE stories",
+      "excluded": true
+    },
+    {
+      "keyword": "No usage-ledger WRITES and no ledger schema changes (read-only consumption of B-70e9 rows)",
+      "source": "scopeBoundary.excluded",
+      "text": "No usage-ledger WRITES and no ledger schema changes (read-only consumption of B-70e9 rows)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "db667438cb8d988bb917eac3f4d6241a558fd5fe586bb6aa4314bfb0799c88f4"
+}

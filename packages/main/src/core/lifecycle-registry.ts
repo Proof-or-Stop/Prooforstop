@@ -321,6 +321,7 @@ export const LIFECYCLE_ARTIFACTS = [
   'decision-doc-proposals.json',
   'scope-discard-digest.json',
   'scope-check.json',
+  'candidate-spec-set.json',
   'delivery-check.json',
   'review-runs.json',
   'findings.json',
@@ -379,20 +380,20 @@ export const LIFECYCLE_PHASE_ARTIFACTS = {
     consumes: ['init-check.json', 'scope-boundary.json', 'execution-boundary.json', 'scope-freeze-check.json', 'scope-extension-proposals.json', 'scope-discard-digest.json'],
   },
   PLAN: {
-    produces: ['review.json', 'scope-check.json', 'checklist.json', 'decision-doc-proposals.json'],
-    consumes: ['init-check.json', 'review.json', 'scope-check.json'],
+    produces: ['review.json', 'scope-check.json', 'candidate-spec-set.json', 'checklist.json', 'decision-doc-proposals.json'],
+    consumes: ['init-check.json', 'review.json', 'scope-check.json', 'candidate-spec-set.json'],
   },
   DEV: {
-    produces: ['checklist.json', 'decision-doc-proposals.json'],
-    consumes: ['review.json', 'scope-check.json', 'checklist.json'],
+    produces: ['checklist.json', 'candidate-spec-set.json', 'decision-doc-proposals.json'],
+    consumes: ['review.json', 'scope-check.json', 'candidate-spec-set.json', 'checklist.json'],
   },
   REVIEW: {
-    produces: ['review-runs.json', 'findings.json', 'review-passes.json', 'delivery-check.json', 'test-evidence.json'],
-    consumes: ['checklist.json', 'findings.json', 'review-passes.json', 'review-runs.json'],
+    produces: ['candidate-spec-set.json', 'review-runs.json', 'findings.json', 'review-passes.json', 'delivery-check.json', 'test-evidence.json'],
+    consumes: ['candidate-spec-set.json', 'checklist.json', 'findings.json', 'review-passes.json', 'review-runs.json'],
   },
   TEST: {
-    produces: ['test-evidence.json', 'delivery-check.json', 'eval-evidence.json', 'summary.json', 'done-required-evidence.json', 'evidence/transcript-diff.md', 'evidence/live-smoke-transcript.json'],
-    consumes: ['test-evidence.json', 'findings.json'],
+    produces: ['candidate-spec-set.json', 'test-evidence.json', 'delivery-check.json', 'eval-evidence.json', 'summary.json', 'done-required-evidence.json', 'evidence/transcript-diff.md', 'evidence/live-smoke-transcript.json'],
+    consumes: ['candidate-spec-set.json', 'test-evidence.json', 'findings.json'],
   },
   DONE: {
     produces: ['summary.json'],
@@ -609,6 +610,17 @@ export const LATTICE_LIFECYCLE_ARTIFACT_FILENAMES: ReadonlySet<string> = new Set
   'draft-check-fallback.json',
   'risk-dismiss.json',
   'exp.json',
+  // ProofStory intent-hardening artifacts (store.ts B-7287 block); B-12a1
+  'original-intent-snapshot.json',
+  'milestone-ledger.json',
+  'milestone-closeout.json',
+  'slice-plan.json',
+  'parent-ledger-rollup.json',
+  'proofstory.json',
+  'intent-collision.json',
+  'scope-shrinkage-decision.json',
+  'red-evidence.json',
+  'spike.json',
 ]);
 
 export const LATTICE_LIFECYCLE_ARTIFACT_RELATIVE_PATHS: ReadonlySet<string> = new Set([

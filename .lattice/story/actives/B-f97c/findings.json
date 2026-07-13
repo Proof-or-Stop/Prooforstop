@@ -1,0 +1,38 @@
+{
+  "findings": [
+    {
+      "id": "B-f97c:F-001",
+      "desc": "packages/main/src/tasks/story-review-corpus-budget-smoke.ts:80 CHK-002:edge:0 is recorded as passed, but the smoke constructs only a fully populated story and never removes/omits understanding, decision, grill, or optional arrays; the cited reviewer-scan-budget test also does not exercise sparse PLAN artifacts. This leaves a must verification intent without matching evidence and risks a regression where corpus removal breaks accepted sparse states. Severity: high.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-12T01:38:13.698Z",
+      "reviewRound": "2026-07-12T01:35:57.174Z",
+      "reviewRunId": "B-f97c:RR-003",
+      "_hash": "3e516a2a1a4ca327e0fcb8b24abe03ad9f1b480c43fcd5439434c241a3bb1034",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added a real sparse PLAN fixture that omits understanding, decision, grill, and verificationIntent arrays; it asserts a well-formed prompt, retained checklist and ProofStory diagnostics, expected advisories, and unchanged zero-blocker gate behavior. Focused smoke and regression tests pass.",
+      "resolvedAt": "2026-07-12T01:43:18.894Z"
+    },
+    {
+      "id": "B-f97c:F-002",
+      "desc": "packages/main/src/tasks/story-review-corpus-budget-smoke.ts:172 CHK-004:edge:0 claims available host usage is separated, but the test only prints that host usage is unavailable in the smoke and no story-scoped usage_sweep result is recorded. A read-only usage_sweep currently returns a NON-AUTHORITATIVE ESTIMATE for B-f97c (10 sessions, totalTokens 55,309,706, multiAttribution=true), so the required available usage total was omitted and the user-requested total task cost is not yet answered. Severity: high.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-12T01:38:22.151Z",
+      "reviewRound": "2026-07-12T01:35:57.174Z",
+      "reviewRunId": "B-f97c:RR-003",
+      "_hash": "35d8df3972463a5fbc25fbe85e03c7a0e329c0f394ea4622be7c4e71eff0cb21",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Captured the available read-only usage_sweep snapshot separately in CHK-004 verification evidence: 11 sessions and 58,342,389 totalTokens with multiAttribution=true, explicitly classified as a non-authoritative overlapping upper attribution rather than exact exclusive task cost. Deterministic smoke keeps byte/4 prompt estimates separate and does not hardcode the drifting sweep total into product behavior.",
+      "resolvedAt": "2026-07-12T01:43:19.861Z"
+    }
+  ]
+}

@@ -12,6 +12,7 @@
 
 import { execFileSync, execSync } from 'child_process';
 import { existsSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'fs';
+import { homedir } from 'os';
 import { basename, dirname, isAbsolute, join, relative, resolve } from 'path';
 import type { HandlerContext } from './context.js';
 import { readHealthIssues, summarizeHealthIssues, getHealthPath } from '../core/health.js';
@@ -46,13 +47,31 @@ import {
   evaluateStoryDirConfigInsideGitRoot,
   type StoryDirInsideGitRootResult,
 } from '../core/story-signed-workspace-resolution.js';
+import {
+  BURN_ALERT_ENV,
+  evaluateBurnAlerts,
+  renderHostBurnScan,
+  resolveBurnAlertThresholds,
+  type BurnAlertEvaluation,
+} from '../core/usage-burn-alert.js';
+import { sweepClaudeProjects, sweepCodexSessions } from '../core/usage-sweep.js';
+import { truncateOneLine } from '../cli/output-verbosity.js';
 
 export function createDoctorHandlers(ctx: HandlerContext) {
   const { root, store } = ctx;
 
   return {
-    doctor(args?: { format?: 'text' | 'json'; limit?: number; repair?: boolean }): string | object {
+    // B-623a x B-7c05 merge: async (host burn scan awaits the store sweeps) AND
+    // the brief/full render-only flags from main.
+    async doctor(args?: { format?: 'text' | 'json'; limit?: number; repair?: boolean; full?: boolean; brief?: boolean }): Promise<string | object> {
       const limit = args?.limit ?? 1000;
+      // B-7c05 CHK-004: RENDER-ONLY brief text mode, active ONLY on explicit
+      // brief:true (injected by the CLI seam for bare invocations after
+      // resolving flag > env > brief default). In-process callers and
+      // --format=json keep today's full shape. Brief trims exactly the two
+      // heavy sections (Recent issues detail, Validation scan detail) to
+      // one-liners/counts; every failing/warning section stays visible.
+      const brief = args?.brief === true && args?.format !== 'json';
       const issues = readHealthIssues(limit);
       const summary = summarizeHealthIssues(issues);
       const codex = runCodexAdapterChecks(root, {
@@ -110,6 +129,38 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       // resolved gitRoot, never throws, and a no-gitRoot condition is reported
       // separately (not as the violation).
       const storyDirGitRoot = evaluateStoryDirConfigInsideGitRoot({ metadataRoot: root });
+      // B-623a: advisory host burn scan — push-based long-thread burn detection.
+      // Reuses the read-only usage-sweep scanners over a bounded recent-activity
+      // window (LATTICE_BURN_ALERT_RECENT_HOURS; 0 disables, the hermeticity
+      // switch for fixture-driven smokes). Advisory-only: never gates, produces
+      // no gate evidence, and never changes doctor's exit code. Dir overrides
+      // (LATTICE_BURN_ALERT_CODEX_DIR/CLAUDE_DIR) exist for hermetic tests.
+      const burnThresholds = resolveBurnAlertThresholds(process.env);
+      const burnDisabled = burnThresholds.recentHours <= 0;
+      let hostBurnScan: BurnAlertEvaluation = {
+        advisory: true,
+        gateEvidence: false,
+        thresholds: burnThresholds,
+        scanned: 0,
+        findings: [],
+      };
+      if (!burnDisabled) {
+        const nowMs = Date.now();
+        const sinceMs = nowMs - burnThresholds.recentHours * 3_600_000;
+        const burnCodexDir = process.env[BURN_ALERT_ENV.codexDir] || join(homedir(), '.codex', 'sessions');
+        const burnClaudeDir = process.env[BURN_ALERT_ENV.claudeDir] || join(homedir(), '.claude', 'projects');
+        try {
+          const [codexRows, claudeRows] = await Promise.all([
+            sweepCodexSessions({ dir: burnCodexDir, sinceMs }),
+            sweepClaudeProjects({ dir: burnClaudeDir, sinceMs }),
+          ]);
+          hostBurnScan = evaluateBurnAlerts([...codexRows, ...claudeRows], { nowMs, thresholds: burnThresholds });
+        } catch {
+          // PROBE: the advisory scan must never break doctor; an unreadable
+          // store simply reports as zero scanned sessions.
+        }
+      }
+
       // B-854c CHK-003: scan active stories' metadata leaves for the
       // neither-tracked-nor-protected data-loss state (ClawCreek incident).
       let storyMetadataProtection = scanStoryMetadataProtection(root, store, gitProbeCwd);
@@ -186,6 +237,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
         return {
           runtimeMode: runtime.runtimeMode,
           healthPath: getHealthPath(),
+          hostBurnScan: { ...hostBurnScan, scanWindowHours: burnThresholds.recentHours, disabled: burnDisabled },
           ...summary,
           worktrees: {
             registered: orphanScan.registered,
@@ -281,6 +333,10 @@ export function createDoctorHandlers(ctx: HandlerContext) {
         lines.push('  ✓ agent prompts resolve from the global ~/.claude/agents single source');
       }
       lines.push('');
+      // B-623a: the burn scan renders near the top on purpose — a runaway host
+      // session should be the loudest thing on an otherwise healthy report.
+      for (const line of renderHostBurnScan(hostBurnScan, { disabled: burnDisabled })) lines.push(line);
+      lines.push('');
       lines.push(`lattice doctor — health issues`);
       lines.push(`  source: ${getHealthPath()}`);
       lines.push(`  total : ${summary.total} issues recorded`);
@@ -304,16 +360,27 @@ export function createDoctorHandlers(ctx: HandlerContext) {
         lines.push('');
 
         lines.push('Recent issues:');
-        for (const issue of summary.recent.slice(0, 20)) {
-          const ctxStr = Object.entries(issue.context)
-            .map(([k, v]) => `${k}=${typeof v === 'string' ? v : JSON.stringify(v)}`)
-            .join(' ');
-          lines.push(`  [${issue.timestamp}] ${issue.category}`);
-          lines.push(`    error: ${issue.error}`);
-          if (ctxStr) lines.push(`    context: ${ctxStr}`);
-        }
-        if (summary.recent.length > 20) {
-          lines.push(`  ... and ${summary.recent.length - 20} more (use --format=json for full list)`);
+        if (brief) {
+          // Brief: one truncated line per issue, capped at 10; the omitted count
+          // is always printed (non-silent filtering).
+          for (const issue of summary.recent.slice(0, 10)) {
+            lines.push(`  [${issue.timestamp}] ${issue.category}: ${truncateOneLine(issue.error, 120)}`);
+          }
+          if (summary.recent.length > 10) {
+            lines.push(`  ... and ${summary.recent.length - 10} more (use --full or --format=json for the full list)`);
+          }
+        } else {
+          for (const issue of summary.recent.slice(0, 20)) {
+            const ctxStr = Object.entries(issue.context)
+              .map(([k, v]) => `${k}=${typeof v === 'string' ? v : JSON.stringify(v)}`)
+              .join(' ');
+            lines.push(`  [${issue.timestamp}] ${issue.category}`);
+            lines.push(`    error: ${issue.error}`);
+            if (ctxStr) lines.push(`    context: ${ctxStr}`);
+          }
+          if (summary.recent.length > 20) {
+            lines.push(`  ... and ${summary.recent.length - 20} more (use --format=json for full list)`);
+          }
         }
         lines.push('');
         lines.push(`→ These issues are all non-fatal errors (caught by reportHealthIssue), but may indicate incomplete data/audit.`);
@@ -427,10 +494,29 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       lines.push('');
       lines.push(renderRuntimeEnvironmentReport(runtime));
       lines.push('');
-      lines.push(renderValidationScan(validation));
+      if (brief) {
+        // Brief: counts + warnings only (warnings are the actionable part);
+        // the per-command detail lives behind --full / --format=json.
+        lines.push('Validation scan:');
+        lines.push(`  active validate file: ${validation.validateFile ?? 'none'}`);
+        lines.push(`  configured commands: ${validation.configuredCommands.length}; discovered fallback labels: ${validation.discoveredFallbackLabels.length > 0 ? validation.discoveredFallbackLabels.join(', ') : 'none'}`);
+        lines.push(`  no-validator warning: ${validation.noValidatorWarning ? 'yes' : 'no'}`);
+        if (validation.warnings.length > 0) {
+          lines.push('  warnings:');
+          for (const warning of validation.warnings) lines.push(`  - ${truncateOneLine(warning, 160)}`);
+        } else {
+          lines.push('  warnings: none');
+        }
+      } else {
+        lines.push(renderValidationScan(validation));
+      }
       lines.push('');
       lines.push('Codex adapter scan:');
       lines.push(renderCodexAdapterChecks(codex).split('\n').map((line, index) => index === 0 ? `  ${line}` : `  ${line}`).join('\n'));
+      if (brief) {
+        lines.push('');
+        lines.push('→ Brief view. Full diagnostics: lattice doctor --full (or LATTICE_BRIEF_OUTPUT=0); --format=json keeps the full machine shape.');
+      }
 
       return lines.join('\n');
     },

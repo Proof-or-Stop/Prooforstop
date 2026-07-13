@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-3ddc",
+  "mode": "feature",
+  "allowed": [
+    "packages/main/src/core/host-run.ts: codex failure-line retention lane (turn.failed / terminal error), bounded last-one-wins 1MiB cap, plus recordFinalForHost codex unavailableReason turn_failed(<short digest of error.message>) with no_turn_completed_usage_event fallback",
+    "packages/main/src/tasks/host-run-usage-smoke.ts: pinned fixture for the exact observed B-3928 turn.failed line + updated turn.failed checks + fallback case",
+    "story-required docs/comment updates inside the two files above"
+  ],
+  "excluded": [
+    "No change to provider-reported semantics when turn.completed usage exists (usage never fabricated, never discarded)",
+    "No failure-reason enrichment for claude/agy hosts (codex-only per the request)",
+    "No persisting of full transcripts or codex session files (bounded retention only)",
+    "No usage-ledger schema/record changes (unavailableReason stays a free non-empty string)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User request 2026-07-12: extend the codex usage-line retainer/scanner path in packages/main/src/core/host-run.ts so turn.failed (and terminal error) events are also retained (bounded, last-one-wins, same 1MiB cap discipline) and recorded as a more specific honest unavailableReason, e.g. turn_failed(<short digest of error.message>), falling back to no_turn_completed_usage_event when neither event is present. Keep the honest-unavailable semantics (never fabricate usage). Add a pinned fixture for the turn.failed shape to packages/main/src/tasks/host-run-usage-smoke.ts.",
+  "createdAt": "2026-07-11T23:02:14.631Z",
+  "updatedAt": "2026-07-11T23:02:14.631Z",
+  "_hash": "46662cb48d9783073066094b737c92750ffcadebe3c399e20568df0ba5529211"
+}

@@ -1,0 +1,1483 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Pure-core burn-alert evaluator over usage-sweep session rows",
+      "context": "New packages/main/src/core/usage-burn-alert.ts: evaluate SweepSessionRow[] against injected thresholds (nowMs and thresholds passed in; no process.env or Date.now inside, matching the usage-sweep pure-core contract). Flags a session when transcript file size exceeds the byte threshold, cumulative input tokens exceed the token threshold (codex: last cumulative total_token_usage input; claude: summed input + cacheRead + cacheCreation), or the session is older than the age threshold while still recently active. Read-only: stat only, never writes.",
+      "status": "done",
+      "startTime": "2026-07-12T20:16:49.117Z",
+      "endTime": "2026-07-12T20:33:57.897Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "evaluateBurnAlerts flags a codex session whose file size exceeds the byte threshold (strictly greater), returning a finding with reason=file-size naming the session file and exceeded threshold",
+            "type": "logic"
+          },
+          {
+            "desc": "evaluateBurnAlerts flags a codex session whose last cumulative total_token_usage inputTokens exceeds the token threshold (strictly greater), returning reason=input-tokens",
+            "type": "logic"
+          },
+          {
+            "desc": "evaluateBurnAlerts flags a claude session whose summed (inputTokens + cacheReadInputTokens + cacheCreationInputTokens) exceeds the token threshold, returning reason=input-tokens",
+            "type": "logic"
+          },
+          {
+            "desc": "evaluateBurnAlerts flags a session whose firstTimestamp is older than ageDays while the session mtime falls inside the recent-activity scan window, returning reason=session-age",
+            "type": "logic"
+          },
+          {
+            "desc": "evaluateBurnAlerts returns an empty array for rows that are all below every threshold",
+            "type": "logic"
+          },
+          {
+            "desc": "A single session can trip multiple reasons simultaneously (e.g. file-size AND input-tokens); all triggered reasons appear in the finding",
+            "type": "logic"
+          },
+          {
+            "desc": "Findings are returned in a deterministic order (stable sort by session file or sessionId) regardless of input row order",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A session with usage exactly AT the threshold (not strictly greater) is NOT flagged; only strictly-greater trips the alert",
+            "type": "logic"
+          },
+          {
+            "desc": "A session with null usage (unknown) is never flagged for input-tokens, even when other thresholds are set",
+            "type": "logic"
+          },
+          {
+            "desc": "A session with null or unparseable firstTimestamp is never flagged for session-age",
+            "type": "logic"
+          },
+          {
+            "desc": "A codex session with inputTokens=0 and a claude session with all-zero usage fields are not flagged for input-tokens",
+            "type": "logic"
+          },
+          {
+            "desc": "fileSizeOf injection: when fileSizeOf is not provided the evaluator stats the file; when fileSizeOf IS provided it uses the injected function (test seam for OS-temp fixtures)",
+            "type": "logic"
+          },
+          {
+            "desc": "An empty rows array returns an empty findings array without error",
+            "type": "logic"
+          },
+          {
+            "desc": "A session whose firstTimestamp is within ageDays (recent session, not old) is never flagged for session-age even if the file is very large",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The module does NOT import Date.now or process.env anywhere; nowMs and thresholds are injected arguments -- verified by source grep showing zero Date.now/process.env references in the file",
+            "type": "logic"
+          },
+          {
+            "desc": "The module does NOT import from core/usage-ledger (independence contract inherited from usage-sweep); verified by source grep",
+            "type": "logic"
+          },
+          {
+            "desc": "evaluateBurnAlerts never writes to the filesystem: calling it with real session paths leaves those files byte-identical (zero-writes assertion on mtime+size snapshot before/after)",
+            "type": "logic"
+          },
+          {
+            "desc": "A session row whose file path does not exist on disk (stale/deleted transcript) does not throw; the file-size check gracefully skips or reports 0",
+            "type": "logic"
+          },
+          {
+            "desc": "Rows with NaN, Infinity, or negative token counts do not cause the evaluator to throw or produce corrupt findings",
+            "type": "logic"
+          }
+        ]
+      },
+      "userSees": "usage-burn-alert-smoke prints \"✓ evaluator: at-threshold not flagged; just-over flagged for file-size / input-tokens / session-age\" and the final \"✓ usage-burn-alert smoke passed\" summary line",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/usage-burn-alert.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: evaluator: at-threshold not flagged; just-over flagged; per-reason isolation.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: evaluator: at-threshold not flagged (input-tokens lane) + integration: swept fixtures flag HOT.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: evaluator: codex vs claude burn-token formula + doctor: claude cache-heavy session flagged.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: integration: HOT trips input-tokens + session-age (old firstTimestamp, recent mtime).",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:4",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: integration: OK session not flagged; evaluator boundary checks.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:5",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "F-002 fix: evaluator-level triple-reason assertion (old firstTimestamp + over-threshold usage + injected big file size) proves all tripped reasons appear in one finding; doctor-level counterpart asserts the same through the real handler.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:6",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: evaluator: deterministic ordering (burn tokens desc, sessionId asc, unknown-usage last).",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: evaluator: at-threshold not flagged for file-size/input-tokens/session-age.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: evaluator: null usage never flags input-tokens.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: evaluator: unparseable/missing firstTimestamp never flags session-age.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "F-003 fix: explicit zero-usage fixtures — codex codexUsage(0) and claude all-zero four-field usage — asserted to produce zero findings (input-tokens never flags at zero).",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:4",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: evaluator checks run with injected fileSizeOf; integration + doctor paths use the default statSync probe.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:5",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: renderers: clean evaluation over an empty rows array.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:6",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: evaluator: age == threshold not flagged; young session with big file flags file-size only.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: source contracts: core module code has no Date.now/process.env (comment-stripped grep).",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: source contracts: no usage-ledger import in core module import lines.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: zero writes: store dirs byte-identical across doctor burn scan and --alert sweep.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: evaluator: unreadable file (fileSizeOf null) never flags file-size and never throws.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:4",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: evaluator: NaN/Infinity/negative token counts never throw or corrupt findings.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Env-tunable threshold resolver with conservative defaults",
+      "context": "Resolver maps an env record to thresholds: LATTICE_BURN_ALERT_FILE_MB (default 100), LATTICE_BURN_ALERT_INPUT_TOKENS (default 100000000), LATTICE_BURN_ALERT_AGE_DAYS (default 7), LATTICE_BURN_ALERT_RECENT_HOURS (default 48, scan window; 0 disables the doctor burn scan). Pure function of the env record so it is testable; handlers pass process.env.",
+      "status": "done",
+      "startTime": "2026-07-12T20:16:50.082Z",
+      "endTime": "2026-07-12T20:33:59.272Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "resolveBurnAlertThresholds({}) returns the four defaults: fileSizeBytes=104857600 (100MB), inputTokens=100000000, ageDays=7, recentHours=48",
+            "type": "logic"
+          },
+          {
+            "desc": "resolveBurnAlertThresholds with LATTICE_BURN_ALERT_FILE_MB=50 returns fileSizeBytes=52428800 (50*1024*1024) while other defaults are unchanged",
+            "type": "logic"
+          },
+          {
+            "desc": "resolveBurnAlertThresholds with LATTICE_BURN_ALERT_INPUT_TOKENS=500000 returns inputTokens=500000 while other defaults are unchanged",
+            "type": "logic"
+          },
+          {
+            "desc": "resolveBurnAlertThresholds with LATTICE_BURN_ALERT_AGE_DAYS=14 returns ageDays=14 while other defaults are unchanged",
+            "type": "logic"
+          },
+          {
+            "desc": "resolveBurnAlertThresholds with LATTICE_BURN_ALERT_RECENT_HOURS=0 returns recentHours=0 (disables the doctor scan); verified the doctor scan is skipped downstream when recentHours=0",
+            "type": "logic"
+          },
+          {
+            "desc": "resolveBurnAlertThresholds with all four env vars set returns all four overridden values",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Garbage string env value (e.g. LATTICE_BURN_ALERT_FILE_MB=abc) falls back to the default for that field without throwing",
+            "type": "logic"
+          },
+          {
+            "desc": "Negative env value (e.g. LATTICE_BURN_ALERT_AGE_DAYS=-5) falls back to the default for that field without throwing",
+            "type": "logic"
+          },
+          {
+            "desc": "Zero value for FILE_MB/INPUT_TOKENS/AGE_DAYS falls back to default (zero is not a meaningful threshold); RECENT_HOURS=0 is the intentional disable sentinel and is kept",
+            "type": "logic"
+          },
+          {
+            "desc": "Floating-point env value (e.g. LATTICE_BURN_ALERT_FILE_MB=1.5) is handled: either truncated to integer or falls back to default, but never throws",
+            "type": "logic"
+          },
+          {
+            "desc": "Empty string env value falls back to default without throwing",
+            "type": "logic"
+          },
+          {
+            "desc": "Very large env value (e.g. LATTICE_BURN_ALERT_INPUT_TOKENS=999999999999999) is accepted without overflow or NaN",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "resolveBurnAlertThresholds is a pure function of the env record argument; it does NOT read process.env directly -- verified by source grep showing zero process.env references in core/usage-burn-alert.ts",
+            "type": "logic"
+          },
+          {
+            "desc": "Env record with prototype-pollution keys (__proto__, constructor) does not pollute the return value or throw",
+            "type": "logic"
+          },
+          {
+            "desc": "Calling resolveBurnAlertThresholds with an env record containing only unrelated keys (e.g. HOME, PATH) returns all four defaults unchanged",
+            "type": "logic"
+          }
+        ]
+      },
+      "userSees": "usage-burn-alert-smoke prints \"✓ resolver: defaults 100MB / 100M tokens / 7d / 48h; garbage, negative and empty env values fall back per-variable\"",
+      "files": {
+        "modify": [
+          "packages/main/src/core/usage-burn-alert.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: resolver: empty env yields the documented defaults (100MB/100M/7d/48h).",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: resolver extremes: FILE_MB=50 -> 52428800 bytes.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "F-001 fix: resolver check now asserts resolveBurnAlertThresholds({INPUT_TOKENS:500000}).inputTokens === 500000 applying alone (exact literal), alongside the pre-existing 50000000 override assertion.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: resolver: garbage fallback check pins AGE_DAYS=14 neighbor override applying alone.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:4",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: resolver: RECENT_HOURS=0 accepted + doctor: disabled line printed, no scan performed.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:5",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: resolver: each env variable overrides its threshold (all four set in one record).",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: resolver: garbage string falls back per-variable.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: resolver: negative value falls back per-variable.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: resolver: zero falls back for FILE_MB/INPUT_TOKENS/AGE_DAYS; RECENT_HOURS=0 is the disable sentinel.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: resolver: fractional MB supported (0.001 -> rounded bytes); never throws.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:4",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: resolver: empty/whitespace string falls back.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:5",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: resolver extremes: 999999999999999 accepted without overflow or NaN.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: source contracts: resolver reads only its env-record argument (no process.env in core code).",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: resolver extremes: prototype-pollution keys do not affect result or pollute Object.prototype.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: resolver extremes: unrelated-only env (HOME/PATH) returns all four defaults.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "lattice doctor host-burn advisory section",
+      "context": "doctor reuses sweepCodexSessions/sweepClaudeProjects (read-only) over the recent-activity window and prints a prominent advisory warning per flagged session naming the session file, cwd, and cumulative tokens, plus which thresholds tripped. Advisory-only: no gate, no gateEvidence, plain doctor exit code unchanged. JSON mode gets a hostBurnScan object. doctor() becomes async; existing smoke call sites updated.",
+      "status": "done",
+      "startTime": "2026-07-12T20:17:18.755Z",
+      "endTime": "2026-07-12T20:34:00.925Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "doctor text output includes a Host burn scan (advisory) section with a prominent warning per flagged session naming: the session file path, cwd, cumulative tokens, and which thresholds tripped",
+            "type": "logic"
+          },
+          {
+            "desc": "doctor text output Host burn scan section shows a clean pass line (no warnings) when no sessions exceed any threshold",
+            "type": "logic"
+          },
+          {
+            "desc": "doctor JSON output includes a hostBurnScan object with the flagged sessions array, thresholds used, and a scanWindow field",
+            "type": "logic"
+          },
+          {
+            "desc": "doctor() becomes async; all existing sync call sites (doctor-gitroot-probe-smoke.ts, story-metadata-protection-smoke.ts, storydir-inside-gitroot-suite.ts) are updated to await the result and still pass",
+            "type": "logic"
+          },
+          {
+            "desc": "doctor text output advisory: no gate, gateEvidence=false in the JSON object, plain doctor exit code is unchanged (still 0) even when sessions are flagged",
+            "type": "cli"
+          },
+          {
+            "desc": "doctor scans both codex and claude stores over the recent-activity window (recentHours from resolved thresholds) using sweepCodexSessions/sweepClaudeProjects",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When recentHours=0 (disabled via env), the Host burn scan section reports disabled and performs no scan (no sweepCodexSessions/sweepClaudeProjects calls)",
+            "type": "logic"
+          },
+          {
+            "desc": "When both store directories are missing/empty, the Host burn scan section reports clean (no warnings, zero sessions scanned) without throwing",
+            "type": "logic"
+          },
+          {
+            "desc": "doctor --format=json hostBurnScan.gateEvidence is always false (advisory-only contract); verify it is never true regardless of flagged session count",
+            "type": "logic"
+          },
+          {
+            "desc": "Multiple flagged sessions from different hosts (one codex, one claude) each get their own distinct warning line with host-specific token breakdown",
+            "type": "logic"
+          },
+          {
+            "desc": "A session that trips all three reasons (file-size + input-tokens + session-age) lists all three in its warning line",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "doctor plain exit code is 0 even with 10 flagged sessions (advisory-only means no exit-code change for doctor); verified by running the real CLI and checking process.exitCode",
+            "type": "cli"
+          },
+          {
+            "desc": "The doctor burn scan does NOT write any files: a before/after snapshot of the codex/claude store dirs shows zero modifications (inherits the usage-sweep read-only contract)",
+            "type": "logic"
+          },
+          {
+            "desc": "The doctor burn scan does NOT touch ownership-gate.ts or activity-policy.ts (no ownership/classification changes); verified by source grep of imports",
+            "type": "logic"
+          },
+          {
+            "desc": "doctor --repair with flagged burn sessions does NOT attempt to repair/delete/modify the flagged sessions (advisory-only; repair only applies to worktree/metadata issues)",
+            "type": "logic"
+          },
+          {
+            "desc": "The async migration does not break any existing doctor test: running the full validate suite (including doctor-gitroot-probe-smoke, story-metadata-protection-smoke, storydir-inside-gitroot-suite) passes with zero regressions",
+            "type": "cli"
+          },
+          {
+            "desc": "The three pre-existing doctor-invoking smokes (doctor-gitroot-probe-smoke.ts, story-metadata-protection-smoke.ts, storydir-inside-gitroot-suite.ts) explicitly set LATTICE_BURN_ALERT_RECENT_HOURS=0 around their doctor calls so they stay hermetic and fast (never scan the real multi-GB home stores) — grep-verified in each file and the suite still passes",
+            "type": "logic"
+          }
+        ]
+      },
+      "userSees": "lattice doctor prints a \"Host burn scan (advisory):\" section; a flagged session renders \"✗ BURN ALERT codex <session-id> ~<N> input tokens\" plus file/cwd/first-last-activity lines and the tripped thresholds; a clean scan renders \"✓ no host sessions over burn thresholds\"",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/doctor-gitroot-probe-smoke.ts",
+          "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: doctor: flagged store prints the prominent warning naming file/cwd/tokens/tripped thresholds.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: doctor: clean stores print the ✓ line.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: doctor: JSON hostBurnScan carries findings array, thresholds, and scanWindowHours.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/doctor.ts",
+          "command": "node packages/main/dist/tasks/doctor-gitroot-probe-smoke.js && node packages/main/dist/tasks/story-metadata-protection-smoke.js && node packages/main/dist/tasks/storydir-inside-gitroot-suite.js && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "doctor() is now async (Promise<string|object>); ALL pre-existing call sites migrated to await: the three named smokes plus validation-protocol-smoke.ts (4th call-site file surfaced by tsc, scope-acknowledged). The combined command runs all four migrated smokes; all pass post-migration.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:4",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: usage-burn-alert-smoke aggregate assertions.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:5",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: doctor: flagged fixture includes BOTH a codex rollout and a claude transcript finding (both stores swept over the window).",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: doctor: RECENT_HOURS=0 prints disabled and skips scanning (nonexistent dirs prove no store touch).",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: doctor: clean/empty stores report the ✓ line without throwing.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: doctor: JSON gateEvidence === false asserted on flagged AND disabled runs.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: doctor: codex-burn-A and claude-cache-heavy each get their own warning block.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:4",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "F-002 fix: new check runs the REAL doctor handler with FILE_MB=0.0001 so the HOT fixture trips file-size + input-tokens + session-age together; asserts the warning line AND hostBurnScan JSON list all three reasons.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: CLI: plain doctor exits 0 even with flagged sessions (real dist/cli.js run).",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: zero writes: doctor burn scan leaves store dirs byte-identical.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: source contracts: doctor imports no ownership-gate/activity-policy modules.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: zero writes: doctor --repair still advisory, flagged sessions untouched.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:4",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/doctor.ts",
+          "command": "node packages/main/dist/cli.js validate",
+          "result": "pass",
+          "note": "Full project validate suite (build + all smokes incl. the four doctor call-site smokes) run in the story worktree AFTER the async migration; passing run recorded as the validation transcript.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:5",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/doctor-gitroot-probe-smoke.ts",
+          "command": "grep -l \"LATTICE_BURN_ALERT_RECENT_HOURS = '0'\" packages/main/src/tasks/doctor-gitroot-probe-smoke.ts packages/main/src/tasks/story-metadata-protection-smoke.ts packages/main/src/tasks/storydir-inside-gitroot-suite.ts | wc -l",
+          "result": "pass",
+          "note": "All three pre-existing doctor-invoking smokes set LATTICE_BURN_ALERT_RECENT_HOURS='0' at module top (grep prints 3); validation-protocol-smoke.ts got the same line. Each smoke re-run passes and stays hermetic (never scans the real multi-GB home stores).",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "usage_sweep --alert exit-nonzero mode",
+      "context": "usage_sweep gains an --alert boolean: the report is computed and printed as today, alert evaluation runs over the swept rows, flagged sessions are listed, and the CLI exits non-zero when any alert fired (recover_evidence dispatch pattern: print result first, then throw) so a cron job can drive notifications. --alert performs zero writes and stays effectively readOnly for ownership/activity/hook classification.",
+      "status": "done",
+      "startTime": "2026-07-12T20:24:16.931Z",
+      "endTime": "2026-07-12T20:34:01.954Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "usage_sweep --alert with sessions exceeding thresholds prints the structured alert report (flagged sessions with reasons) to stdout, then exits non-zero (exitCode=1)",
+            "type": "cli"
+          },
+          {
+            "desc": "usage_sweep --alert with no sessions exceeding any threshold prints the report and exits zero (no alerts fired)",
+            "type": "cli"
+          },
+          {
+            "desc": "usage_sweep --alert prints the normal sweep report FIRST (human or JSON mode), then appends the alert evaluation section, matching the recover_evidence dispatch pattern (print result first, then throw so exitCode=1)",
+            "type": "cli"
+          },
+          {
+            "desc": "usage_sweep --alert --json returns a JSON object including both the sweep report fields and an alerts array with the flagged findings",
+            "type": "cli"
+          },
+          {
+            "desc": "Plain usage_sweep (without --alert) behavior is unchanged: no alert evaluation, exit code 0 regardless of session token counts",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "usage_sweep --alert with --since covering zero sessions (empty stores or all files older than cutoff) prints clean report and exits zero",
+            "type": "cli"
+          },
+          {
+            "desc": "usage_sweep --alert with custom threshold env vars (e.g. LATTICE_BURN_ALERT_INPUT_TOKENS=1) fires on sessions that would not trip defaults",
+            "type": "cli"
+          },
+          {
+            "desc": "usage_sweep --alert combined with --out still writes the report file (exclusive-create fence) AND prints+throws on alert; the --out write happens before the alert throw",
+            "type": "logic"
+          },
+          {
+            "desc": "usage_sweep --alert with --json outputs valid JSON even when alerts fire (the throw happens after the structured result is printed, not mid-JSON)",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "usage_sweep --alert performs zero writes to the codex/claude store directories: before/after mtime+size snapshot of fixture stores is identical",
+            "type": "logic"
+          },
+          {
+            "desc": "usage_sweep --alert does NOT modify ownership-gate.ts or activity-policy.ts classification; the command stays effectively readOnly for ownership/activity/hook classification -- verified by confirming isReadOnlyCommand returns true for usage_sweep",
+            "type": "logic"
+          },
+          {
+            "desc": "usage_sweep --alert does NOT change the shouldWriteActivityLog result for the usage_sweep command (inherits existing activity-policy classification)",
+            "type": "logic"
+          },
+          {
+            "desc": "usage_sweep (plain, no --alert) does NOT evaluate alerts or exit non-zero even when sessions have astronomical token counts; the --alert flag is the sole trigger",
+            "type": "cli"
+          },
+          {
+            "desc": "The --alert flag is registered in the command catalog schema so the CLI parser accepts it; an unregistered flag would cause a parse error before the handler runs",
+            "type": "logic"
+          }
+        ]
+      },
+      "userSees": "lattice usage_sweep --since=2d --alert prints the normal report plus a \"BURN ALERT\" section listing flagged sessions and exits non-zero; the same sweep without --alert (or with no session over thresholds) exits 0",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: CLI: --alert exits non-zero on flagged stores AND still prints the report.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: CLI: --alert on clean stores exits 0.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: handler/dispatcher: report rendered first, BURN ALERT trailer appended, throw only after printing.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:3",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: handler: --alert --json output carries report fields plus alert.findings.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:4",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: CLI: flagged stores WITHOUT --alert exit 0 (opt-in only).",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: handler: clean stores -> alertFired=false; CLI clean run exits 0.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: CLI/handler: LATTICE_BURN_ALERT_INPUT_TOKENS=1000 fires on fixtures that would not trip defaults.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: CLI: --alert --out writes the exclusive report file AND exits non-zero.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:3",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: CLI: --alert --json stdout parses as the full report JSON despite the non-zero exit.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: zero writes: --alert sweep leaves store dirs byte-identical.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: classification: resolveEffectiveOwnershipClass stays readOnly with {alert:true}; --out still escalates.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: classification: shouldWriteActivityLog({alert:true}) stays false by default.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:3",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: CLI: opt-out run on flagged stores exits 0 (alert is the sole switch).",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:4",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: CLI: real dist/cli.js accepted --alert (catalog schema registration; parse would fail otherwise).",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-005",
+      "title": "Fixture-driven burn-alert smoke wired into the validate suite",
+      "context": "New packages/main/src/tasks/usage-burn-alert-smoke.ts driven by OS temp fixtures (never real ~/.codex or ~/.claude): threshold boundary cases (at vs over), env resolver defaults and overrides, doctor section rendering (flagged and clean), --alert exit-code behavior via the real CLI, zero-writes assertion. Wired into the same validate/test entry points as usage-sweep-smoke.",
+      "status": "done",
+      "startTime": "2026-07-12T20:26:55.851Z",
+      "endTime": "2026-07-12T20:34:03.039Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The smoke test file packages/main/src/tasks/usage-burn-alert-smoke.ts exists and is wired into the validate suite entry point (same as usage-sweep-smoke)",
+            "type": "logic"
+          },
+          {
+            "desc": "All fixture data uses OS-temp directories (mkdtempSync); never reads from or writes to real ~/.codex or ~/.claude",
+            "type": "logic"
+          },
+          {
+            "desc": "Smoke covers threshold boundary cases: a session at exactly the threshold is NOT flagged, a session at threshold+1 IS flagged (strictly-greater for file-size, input-tokens, session-age)",
+            "type": "logic"
+          },
+          {
+            "desc": "Smoke covers env resolver: defaults returned when no env vars set, each override accepted individually, garbage/negative/empty values fall back to defaults",
+            "type": "logic"
+          },
+          {
+            "desc": "Smoke covers doctor rendering: flagged sessions produce a Host burn scan advisory section with session file + cwd + tokens + tripped thresholds; clean sessions produce a pass line",
+            "type": "logic"
+          },
+          {
+            "desc": "Smoke covers doctor disabled rendering: recentHours=0 produces a disabled notice, no scan performed",
+            "type": "logic"
+          },
+          {
+            "desc": "Smoke covers --alert exit codes: the real built CLI (execFileSync of dist/cli.js usage_sweep --alert) exits non-zero when alerts fire and exits zero when clean",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke covers zero-writes assertion: a before/after snapshot of the fixture store directories confirms no files were created, modified, or deleted by the sweep or alert evaluation",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke tests the read-only classification: isReadOnlyCommand for usage_sweep returns true, shouldWriteActivityLog returns the expected value, resolveEffectiveOwnershipClass stays unchanged (no ownership-gate or activity-policy regression)",
+            "type": "logic"
+          },
+          {
+            "desc": "Smoke tests a session with null usage (no token_count events in rollout) is never flagged for input-tokens",
+            "type": "logic"
+          },
+          {
+            "desc": "Smoke tests a session with an unparseable firstTimestamp is never flagged for session-age",
+            "type": "logic"
+          },
+          {
+            "desc": "Smoke tests the deterministic ordering: two sessions flagged in different input orders produce the same findings array",
+            "type": "logic"
+          },
+          {
+            "desc": "Smoke tests doctor JSON mode: hostBurnScan object has gateEvidence=false, flaggedSessions array, and thresholds",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke verifies the built CLI exists (dist/cli.js) before running end-to-end --alert tests; skips gracefully with a warning if not built rather than failing opaquely",
+            "type": "logic"
+          },
+          {
+            "desc": "Smoke explicitly asserts that the smoke file itself never imports from core/usage-ledger (independence contract)",
+            "type": "logic"
+          },
+          {
+            "desc": "Smoke verifies that running usage_sweep --alert on fixture stores with flagged sessions does NOT create any files in the OS-temp root (the sweep and alert paths are write-free)",
+            "type": "logic"
+          },
+          {
+            "desc": "Smoke verifies doctor exit code is 0 even when flagged sessions exist (advisory-only; no gate)",
+            "type": "cli"
+          },
+          {
+            "desc": "The smoke test cleans up all OS-temp fixture directories in a finally block, leaving no test residue",
+            "type": "logic"
+          }
+        ]
+      },
+      "userSees": "npm run test:usage-burn-alert prints per-check ✓ lines and a final \"✓ usage-burn-alert smoke passed (<N> checks)\" and exits 0; npm run test:all discovers the smoke automatically",
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "file": "package.json",
+          "command": "npm run test:usage-burn-alert",
+          "result": "pass",
+          "note": "test:usage-burn-alert wired in root package.json and packages/main/package.json (mirroring test:usage-sweep); run-all-smokes auto-discovers dist/tasks/*-smoke.js so npm run test:all picks it up without extra wiring.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: all fixtures under mkdtempSync OS-temp root; hermetic dir overrides for doctor.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: evaluator: at-threshold not flagged; just-over flagged.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: resolver: defaults + overrides + garbage fallback checks.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:4",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: doctor: flagged + clean rendering checks.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:5",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: doctor: RECENT_HOURS=0 disabled rendering check.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:6",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: CLI: --alert exit codes via execFileSync of dist/cli.js.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:7",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: zero writes: before/after snapshot assertion.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: classification: isReadOnlyCommand/shouldWriteActivityLog/resolveEffectiveOwnershipClass assertions.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: evaluator: null-usage session never flags input-tokens.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: evaluator: unparseable firstTimestamp never flags session-age.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: evaluator: deterministic ordering regardless of input order.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:4",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: doctor: JSON hostBurnScan gateEvidence=false, findings, thresholds, scanWindowHours.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: CLI checks skip gracefully with a console.warn when dist/cli.js is missing.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: source contracts: this smoke has no usage-ledger import line.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: CLI --alert fixture project: only the explicit --out report appears; zero-writes snapshot of stores.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:3",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: CLI: plain doctor exits 0 with flagged sessions.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:4",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "command": "node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "usage-burn-alert-smoke (20 checks, all passing post-commit in the story worktree) covers this intent via: rmSync(root,{recursive,force}) in the final .finally block; smoke run leaves no residue.",
+          "headHash": "0b48054094d48fb95dd992d1976b4a7b76f9ee5d",
+          "materialHash": "8a1616dbc7aedbf30b5f914b71b992642c3b1de4a222b6d4306a262a2a763f5a",
+          "storyFilesHash": "1346126d88416f68aa454cc3f48776e35bbd3dd6aaaf56737523eb74aa20addd",
+          "timestamp": "2026-07-13T00:15:49.619Z"
+        }
+      ]
+    }
+  ]
+}

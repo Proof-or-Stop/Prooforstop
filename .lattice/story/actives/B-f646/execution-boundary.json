@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-f646",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff*",
+    "git status*",
+    "lattice *",
+    "rg *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Bash",
+    "Glob",
+    "Grep",
+    "Read"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+    "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+    "docs/requirements/decisions/story-lifecycle.md"
+  ],
+  "excludedCommands": [
+    "git clean*",
+    "git push*",
+    "git reset*",
+    "git restore*"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".claude",
+    ".lattice-codex",
+    "packages/main/src",
+    "packages/main/templates"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "Docs-only execution plan; no runtime or prompt implementation.",
+  "createdAt": "2026-07-12T08:58:00.632Z",
+  "updatedAt": "2026-07-12T08:58:00.632Z",
+  "_hash": "2837c737fca43db1e137a53ede29ba523e85f29c382f27513835051000b2290c"
+}

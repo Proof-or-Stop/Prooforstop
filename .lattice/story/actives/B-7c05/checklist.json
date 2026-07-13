@@ -1,0 +1,839 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Milestone ledger brief by default",
+      "context": "milestone_status and the appendMilestoneStatusAfterMutation() suffix (cli-engine.ts) that rides on story_advance and other mutating commands print a compact summary by default: per-milestone one-line status, counts, and next action. The full 7-column markdown table (renderMilestoneStatusReport in packages/main/src/core/milestone-status.ts) is available behind an explicit full-output flag.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-12T01:34:11.989Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run lattice milestone_status for a story with populated milestones (no flags) -> output is a compact one-line-per-milestone summary (status, counts, next action) fitting under ~1k tokens; WHY: confirms brief default activates for milestone_status",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run lattice story_advance (or other mutating command that triggers appendMilestoneStatusAfterMutation) -> appended milestone suffix is the compact summary, not the full markdown table; WHY: confirms the mutation-suffix path also uses brief mode",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run lattice milestone_status --full (or equivalent full-output flag) -> output is the complete 7-column markdown table (renderMilestoneStatusReport); WHY: confirms full output is still accessible on demand",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run lattice milestone_status on a story with zero milestones -> output is empty/minimal and does not error; WHY: boundary: empty milestone set must not crash the brief renderer",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run lattice milestone_status on a story with >20 milestones -> brief output remains one-line-per-milestone without truncation loss of milestone identifiers; WHY: confirms scaling does not hide data",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The brief milestone output still contains enough information for an agent to determine next action (i.e. identifies which milestone is current and what phase/checklist items remain); WHY: brief must not degrade agent decision-making",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "validate --full semantics remain untouched (validate is not in the affected command set) — confirm milestone_status full-output flag name does not collide with validate --full; WHY: per story constraint, validate --full must keep its run-real-machine-tests meaning",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/brief-output-smoke.ts",
+          "command": "node packages/main/dist/tasks/brief-output-smoke.js",
+          "result": "pass",
+          "note": "brief-output-smoke builds a fixture story with a populated milestone ledger and asserts the bare milestone_status default is the compact per-milestone summary under the byte budget; run green 2026-07-12 on post-commit HEAD.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "milestone-status.test.mjs post-mutation blocks now assert the appended suffix: full 7-column table appears ONLY with LATTICE_BRIEF_OUTPUT=0 in env, proving the bare mutation suffix defaults to the compact summary (appendMilestoneStatusAfterMutation seam); brief-output-smoke also enforces the suffix budget.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js milestone_status --storyId=B-7c05 --full",
+          "result": "pass",
+          "note": "Literal run on this story: emits the complete 7-column markdown table (three '| Milestone |' header rows incl. checklist-derived + closeout sections), 1,122 bytes vs 669 brief.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js milestone_status --storyId=B-7c05",
+          "result": "pass",
+          "note": "This story has zero milestones (ledger missing): brief renderer emits 669 bytes with Ledger: missing, Progress 0/0/0, Risks and an explicit Next action line; exit 0, no error.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node bin/lattice.js milestone_status --storyId=B-7c05",
+          "result": "pass",
+          "note": "Brief output preserves agent-actionable state: Phase, Progress counts (done/in-progress/not-started), current milestone status line, and an explicit 'Next action:' line naming the exact command; verified in the live transcript (Next action present) and asserted by brief-output-smoke.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "bash -c 'test \"$(git diff HEAD~1 -- packages/main/src/handlers/verifier.ts | wc -l)\" -eq 0'",
+          "result": "pass",
+          "note": "validate is not in the brief-affected set: git diff HEAD~1 over packages/main/src/handlers/verifier.ts is empty (0 lines; file is in scope-contract explicitExcludes) and the validate schema in command-catalog is untouched, so milestone_status --full (declared per-command) cannot collide with validate --full run-real-machine-tests semantics.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/brief-output-smoke.ts",
+          "command": "node packages/main/dist/tasks/brief-output-smoke.js",
+          "result": "pass",
+          "note": "brief-output-smoke scaling story B-briefscale has 22 milestones; asserts brief milestone_status shows (22 total) and every id MS-01..MS-22 appears as a one-liner with no identifier hidden and no table.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "finding_list brief by default",
+      "context": "finding_list (packages/main/src/handlers/finding.ts finding_list) defaults to one-liners: id, severity/category, status, evidenceState, truncated title. Full descriptions available behind the full-output flag. Explicit --json/--format=json machine mode keeps the current full shape.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-12T01:34:12.583Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run lattice finding_list for a story with 3+ findings (no flags) -> output shows one-liner per finding: id, severity/category, status, evidenceState, truncated title; total output under ~2k tokens; WHY: confirms brief default for finding_list",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run lattice finding_list --full -> output shows full descriptions and all metadata fields for each finding; WHY: confirms full output accessible via explicit flag",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run lattice finding_list --json (or --format=json) -> output is the current full JSON shape unchanged: findings[] array with evidenceState field on each finding, plus attention.suspected array at top level; WHY: machine contract preservation per load-bearing context",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run lattice finding_list on a story with zero findings -> output is empty/minimal summary (e.g. No findings) without error; WHY: empty-set boundary",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Internal consumer can JSON.parse bare finding_list output and read findings[].evidenceState and attention.suspected — verify the brief TEXT mode does NOT accidentally alter the JSON mode skeleton; WHY: load-bearing contract: internal callers depend on those fields",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run lattice finding_list with LATTICE_BRIEF_OUTPUT=0 env var set (no --full flag) -> output is full (env var overrides brief default); then add explicit --brief flag -> brief wins over env var; WHY: per-call flag beats env which beats default",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Brief finding_list output still preserves finding id and evidenceState so an agent can decide whether to triage suspected vs verified findings; WHY: brief must not destroy decision-critical fields for agent-loop consumers",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/brief-output-smoke.ts",
+          "command": "node packages/main/dist/tasks/brief-output-smoke.js",
+          "result": "pass",
+          "note": "brief-output-smoke fixture has 3 findings; asserts bare finding_list keeps one entry per finding with id/severity/category/status/evidenceState + truncated title, drops heavy free-text, stays under budget, and sets _brief/_hint.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/brief-output-smoke.ts",
+          "command": "node packages/main/dist/tasks/brief-output-smoke.js",
+          "result": "pass",
+          "note": "brief-output-smoke asserts finding_list --full restores the full metadata incl. the description spot marker.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/brief-output-smoke.ts",
+          "command": "node packages/main/dist/tasks/brief-output-smoke.js",
+          "result": "pass",
+          "note": "brief-output-smoke asserts explicit --json finding_list key-set parity with brief env on/off: findings[].evidenceState per finding and top-level attention.suspected preserved in the unchanged full shape.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js finding_list '{\"storyId\":\"B-7c05\"}'",
+          "result": "pass",
+          "note": "Zero-findings boundary on this story: bare finding_list returns the minimal JSON skeleton with an empty findings array and attention partitions; JSON.parse succeeds, exit 0.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/evidence-state-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/evidence-state-gate-smoke.js",
+          "result": "pass",
+          "note": "evidence-state-gate-smoke JSON.parses BARE finding_list stdout and asserts attention.suspected is an array and evidenceState renders on every finding; green against the brief default, proving the skeleton contract holds.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/brief-output-smoke.ts",
+          "command": "node packages/main/dist/tasks/brief-output-smoke.js",
+          "result": "pass",
+          "note": "brief-output-smoke precedence assertions: LATTICE_BRIEF_OUTPUT=0 with no flags renders full; adding --brief with env=0 still renders brief (flag wins).",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/brief-output-smoke.ts",
+          "command": "node packages/main/dist/tasks/brief-output-smoke.js",
+          "result": "pass",
+          "note": "Brief finding_list keeps id, severity, category, status and evidenceState on every finding (smoke skeleton assertion), so suspected-vs-verified triage remains possible without --full.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "help brief by default",
+      "context": "lattice help (packages/main/src/cli/help-renderer.ts printHelp) defaults to a compact catalog: grouped command names with short truncated descriptions, pointing at lattice <command> --help for details. Current verbose catalog available behind the full-output flag. Per-command --help output unchanged.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-12T01:34:13.341Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run lattice help (no flags) -> output is a compact grouped catalog: command names with short one-line descriptions, ending with a pointer to lattice <command> --help; total output under ~3k tokens; WHY: confirms brief default for help",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run lattice help --full -> output is the current verbose help catalog with full parameter schemas and descriptions; WHY: confirms full output accessible on demand",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run lattice story_advance --help (any per-command help) -> output is unchanged from current behavior (not affected by brief mode); WHY: per story constraint, per-command --help output unchanged",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run lattice help when command list is empty or filtered to zero commands (e.g. in a phase with no allowed commands) -> output is graceful empty message; WHY: boundary: no commands should not crash",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "Run lattice help with a very long command registry (>100 commands) -> brief output still grouped and readable without truncation of command names; WHY: scaling boundary",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Brief help output still contains every registered command name (no commands silently dropped) so an agent can discover available commands; WHY: brief must not hide capabilities from agent-loop discovery",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The full-output flag for help does not collide with any existing help subcommand or flag semantics; WHY: no flag-name collision with existing help infrastructure",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/cli/help-renderer.ts",
+          "command": "bash -c 'test \"$(node bin/lattice.js help 2>/dev/null | wc -c)\" -lt 8500'",
+          "result": "pass",
+          "note": "Post-F-001 fix (commit 8a1c4f033b): bare help is 7,787 bytes (~1.9k tokens) — grouped command names only, every registered command listed, footer pointing at lattice <command> --help and lattice help --full. DECLARED DEVIATION from this bullet's literal wording ('with short one-line descriptions'): per REVIEW finding F-001 (high, lattice-review-concept), any description fitting the byte budget across ~320 commands degrades to a misleading ~10-char mid-word fragment, so descriptions are intentionally omitted; the intent is frozen post-PLAN so the deviation is recorded here and in plan.md CHK-003, with discovery completeness enforced by the adversarial:0 name-set assertion, subject to concept-reviewer re-verification.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "bash -c 'test \"$(LATTICE_BRIEF_OUTPUT=0 node bin/lattice.js help 2>/dev/null | wc -c)\" -eq \"$(node bin/lattice.js help --full 2>/dev/null | wc -c)\"'",
+          "result": "pass",
+          "note": "help --full emits the complete verbose catalog (45,481 bytes) byte-identical to the LATTICE_BRIEF_OUTPUT=0 output; probe compares the two byte counts for equality and passes.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/cli-surface-smoke.ts",
+          "command": "node packages/main/dist/tasks/cli-surface-smoke.js",
+          "result": "pass",
+          "note": "cli-surface-smoke asserts per-command --help output (story_advance --help branding, owner-lease section) unchanged; printToolHelp untouched by the brief mode.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/brief-output-smoke.ts",
+          "command": "node packages/main/dist/tasks/brief-output-smoke.js",
+          "result": "pass",
+          "note": "Post-F-001 fix: brief-output-smoke extracts every command name from help --full catalog rows and asserts each appears in brief help (name-set superset check, >100 commands live), so no command is silently dropped from discovery.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/cli-engine.ts",
+          "command": "node packages/main/dist/tasks/cli-surface-smoke.js",
+          "result": "pass",
+          "note": "The help --full/--brief flags are parsed at the help dispatch seam in cli-engine where no prior --full semantics existed; validate keeps its own --full untouched (diff over verifier.ts empty), and per-command --help flag handling is unchanged (cli-surface-smoke green).",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/brief-output-smoke.ts",
+          "command": "node packages/main/dist/tasks/brief-output-smoke.js",
+          "result": "pass",
+          "note": "Live registry in the smoke asserts >100 commands in the full catalog and name-set equality between full and brief, covering the very-long-registry boundary (323 registered commands on this repo).",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Audit remaining >5k-token default outputs",
+      "context": "Sweep other renderers/handlers whose default output exceeds ~5k tokens (~20KB) and apply the same brief-by-default pattern. Known from audit on 0.3.185: story_list default JSON dump 365KB, global bug_list 263KB, host_list 16KB borderline. Sweep method: rg for large markdown table builders and full-collection JSON returns in packages/main/src/handlers plus core renderers.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-12T01:34:13.980Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run lattice story_list (no flags) -> output shows one line per non-terminal (actionable) story, with per-phase counts covering ALL stories including omitted terminal ones, under ~5k tokens on a 50+ story fixture; WHY: confirms brief default for story_list (known 365KB offender) with non-silent filtering",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run lattice bug_list (no flags) -> output is a brief summary: one line per bug with id, severity, status; total output under ~5k tokens for a project with 100+ bugs; WHY: confirms brief default for bug_list (known 263KB offender)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run lattice story_list --full and lattice bug_list --full -> outputs are the current full JSON dumps; WHY: full output accessible on demand",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run lattice story_list --json -> output preserves _bugSummary field on each story object (internal consumers JSON.parse this); WHY: load-bearing contract: callers read _bugSummary from bare story_list output",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Sweep confirms no other handler/renderer produces default output exceeding ~5k tokens (~20KB) that was missed; WHY: completeness of the audit (story says sweep method = rg for large table builders and full-collection JSON returns)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "host_list (16KB borderline per audit) is either brought under brief-by-default or explicitly documented as acceptable; WHY: borderline case from the audit needs explicit resolution",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Brief story_list output still includes enough skeleton that JSON.parse(output)._bugSummary is accessible (the brief JSON shape preserves the _bugSummary key even if other fields are omitted); WHY: internal consumer contract — callers read _bugSummary from bare story_list",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Brief bug_list must not SILENTLY filter data: any omitted items must be represented by exact total/status counts and an explicit _hint naming the full flag, and --full must recover all omitted items; WHY: brief may filter to actionable subset only if non-silent and --full-recoverable",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js story_list",
+          "result": "pass",
+          "note": "Live repo (234 stories incl. 187 DONE + 16 DISCARDED): bare story_list is 11,454 bytes (~2.9k tokens) with one-liners for non-terminal stories only, _phases counts covering ALL stories (non-silent), _brief/_omittedTerminal/_hint set; brief-output-smoke asserts the same on its fixture.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js bug_list",
+          "result": "pass",
+          "note": "Bare global bug_list is 280 bytes on this repo: status counts cover all bugs, open bugs listed one-line each, _brief/_hint set; brief-output-smoke asserts one-liners + counts on its open/fixed fixture.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "command": "bash -c 'node bin/lattice.js story_list --full | wc -c && node bin/lattice.js bug_list --full | wc -c'",
+          "result": "pass",
+          "note": "story_list --full emits the current full dump (119,866 bytes) and bug_list --full the full list (1,787 bytes); both restore the pre-change shape.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:3",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-story-list-bug-summary.mjs",
+          "command": "node scripts/verify-story-list-bug-summary.mjs",
+          "result": "pass",
+          "note": "verify-story-list-bug-summary.mjs JSON.parses BARE story_list stdout and reads _bugSummary; green on the brief default (also fixed a pre-existing red: DISCARDED bug-stories no longer reported as unresolved).",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/brief-output-smoke.ts",
+          "command": "node packages/main/dist/tasks/brief-output-smoke.js",
+          "result": "pass",
+          "note": "Sweep completed with recorded method (wc -c over every read-only command on this repo + rg for table builders and full-collection JSON returns). Fixed in-story: story_list 119,866->11,454; bug_list 263KB-baseline->280; help 45,481->11,619; story_review 2,600,206->2,156; doctor 22,632->7,722; post-mutation milestone suffix. Audited under ~20KB threshold: checklist_get 19,502 (has slim), host_list 15,899, session_brief 6,479, status 1,421, recall 261, audit 496. Documented disposition: story_get 74,351 kept full-by-default because slim/fields is the sanctioned opt-in and CLAUDE.md requires full reads before evidence/mutations. brief-output-smoke enforces budgets on all fixed commands.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-story-list-bug-summary.mjs",
+          "command": "node scripts/verify-story-list-bug-summary.mjs",
+          "result": "pass",
+          "note": "Brief story_list JSON keeps the _bugSummary key accessible to JSON.parse consumers: verify-story-list-bug-summary.mjs green on bare brief output; live check confirmed _bugSummary is a string in the 11,454-byte brief object.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/brief-output-smoke.ts",
+          "command": "node packages/main/dist/tasks/brief-output-smoke.js",
+          "result": "pass",
+          "note": "Non-silent filtering: brief bug_list summary carries exact counts for every status covering all bugs, omitted (non-open) items are recoverable via --full (1,787-byte full list), and _hint names the flag; brief-output-smoke asserts counts+hint presence and --full recovery.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "docs_check",
+          "file": "docs/CLI.md",
+          "command": "bash -c 'rg -n \"host_list\" docs/CLI.md'",
+          "result": "pass",
+          "note": "docs/CLI.md now records the host_list disposition: ~16KB measured, under the ~20KB brief-by-default threshold, deliberately left as-is with a follow-up trigger if it grows past the threshold (F-004).",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-005",
+      "title": "Escape hatch, JSON contract, and regression coverage",
+      "context": "LATTICE_BRIEF_OUTPUT=0 environment variable restores full output as the default globally (per-call flag still wins). Explicit --json/--format=json outputs keep their current shape for machine consumers. Add a smoke test asserting brief defaults stay under a size budget, the full flag restores complete output, the env escape hatch works, and JSON opt-in shape is unchanged.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-12T01:34:14.578Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Set LATTICE_BRIEF_OUTPUT=0 env var and run any affected command (e.g. finding_list) without flags -> output is full (env hatch restores verbose default); WHY: confirms env escape hatch works",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Set LATTICE_BRIEF_OUTPUT=0 but also pass --brief flag -> output is brief (per-call flag wins over env); WHY: confirms precedence: flag > env > default",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run affected command with --json/--format=json -> JSON output shape is byte-for-byte identical to current production shape (same keys, same nesting); specifically: finding_list JSON has findings[].evidenceState and attention.suspected; story_list JSON has _bugSummary; WHY: machine contract regression test",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke test exists and passes: asserts brief defaults stay under a size budget (e.g. <5k tokens), full flag restores complete output, env escape hatch works, and JSON shape is unchanged; WHY: regression coverage as specified in checklist context",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "LATTICE_BRIEF_OUTPUT set to empty string or non-0 value (e.g. 1, true, yes) -> brief default remains active (only literal 0 disables); WHY: env var parsing boundary",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Existing internal callers (smoke tests, tasks) that shell out to affected commands or parse their stdout are audited and confirmed not broken by brief-mode default; WHY: initCheck issue flagged this — DEV must explicitly confirm no internal consumer parses brief text",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "validate --full is NOT affected by this change — running validate --full still means run-real-machine-tests, not show-full-output; WHY: story constraint: validate --full semantics must remain untouched",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A command that does NOT have brief mode implemented (e.g. validate, checklist_get) ignores the LATTICE_BRIEF_OUTPUT env and --brief flag gracefully (no crash, no behavior change); WHY: robustness — unaffected commands must not break if env var is globally set",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "The precedence chain (per-call flag > LATTICE_BRIEF_OUTPUT env > brief default) is tested in a single test case with all three layers active simultaneously; WHY: confirms the layered override logic is correctly implemented",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "bash -c 'test \"$(LATTICE_BRIEF_OUTPUT=0 node bin/lattice.js help 2>/dev/null | wc -c)\" -eq \"$(node bin/lattice.js help --full 2>/dev/null | wc -c)\"'",
+          "result": "pass",
+          "note": "Env hatch restores full on bare invocations: LATTICE_BRIEF_OUTPUT=0 help equals --full byte count (45,481) via the equality probe; brief-output-smoke asserts the same for finding_list bare invocation.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "manual_transcript",
+          "command": "bash -c 'test \"$(LATTICE_BRIEF_OUTPUT=0 node bin/lattice.js help --brief 2>/dev/null | wc -c)\" -lt 16000'",
+          "result": "pass",
+          "note": "Flag beats env: with LATTICE_BRIEF_OUTPUT=0 set, --brief still renders the 11,619-byte brief catalog (probe exits 0); smoke asserts the same on finding_list.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/brief-output-smoke.ts",
+          "command": "node packages/main/dist/tasks/brief-output-smoke.js",
+          "result": "pass",
+          "note": "Explicit JSON contract frozen: brief-output-smoke asserts --json/--format=json key sets are identical with brief config on vs off for finding_list, story_list, bug_list, story_review, doctor (incl. findings[].evidenceState, attention.suspected, _bugSummary).",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:3",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/brief-output-smoke.ts",
+          "command": "node packages/main/dist/tasks/brief-output-smoke.js",
+          "result": "pass",
+          "note": "The committed smoke exists (packages/main/src/tasks/brief-output-smoke.ts, registered as test:brief-output in package.json and auto-discovered by run-all-smokes) and passes: byte budgets, --full restoration markers, env hatch, flag-beats-env, JSON parity, skeleton contracts.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/brief-output-smoke.ts",
+          "command": "node packages/main/dist/tasks/brief-output-smoke.js",
+          "result": "pass",
+          "note": "brief-output-smoke asserts empty-string and non-0 values (1, true, yes) of LATTICE_BRIEF_OUTPUT keep the brief default: only the literal string 0 disables.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "manual_transcript",
+          "command": "bash -c 'node packages/main/dist/tasks/cli-surface-smoke.js && node packages/main/dist/tasks/evidence-state-gate-smoke.js && node packages/main/tests/milestone-status.test.mjs && node scripts/verify-story-list-bug-summary.mjs'",
+          "result": "pass",
+          "note": "Internal stdout consumers audited and run green in one chain against the brief defaults: cli-surface-smoke, evidence-state-gate-smoke, milestone-status.test.mjs, verify-story-list-bug-summary.mjs (chain exit 0); additionally worktree-repair-smoke, validation-protocol-smoke and the experience-layer GOLDEN smokes were run green during DEV (in-process callers keep the full shape by design of the CLI-seam brief injection).",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "bash -c 'test \"$(git diff HEAD~1 -- packages/main/src/handlers/verifier.ts | wc -l)\" -eq 0'",
+          "result": "pass",
+          "note": "validate untouched: git diff HEAD~1 over packages/main/src/handlers/verifier.ts is 0 lines, verifier.ts is in scope-contract explicitExcludes, validate has no brief flags in the catalog, so validate --full still means run-real-machine-tests.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/brief-output-smoke.ts",
+          "command": "node packages/main/dist/tasks/brief-output-smoke.js",
+          "result": "pass",
+          "note": "Single test case with all three layers active: brief-output-smoke sets LATTICE_BRIEF_OUTPUT=0 (env layer) on a brief-by-default command (default layer) and passes --brief (flag layer), asserting the flag wins; the equivalent live probe on help also exits 0.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/brief-output-smoke.ts",
+          "command": "node packages/main/dist/tasks/brief-output-smoke.js",
+          "result": "pass",
+          "note": "brief-output-smoke asserts checklist_get output is byte-identical bare vs --brief vs LATTICE_BRIEF_OUTPUT=1 (no crash, no behavior change) — commands without brief mode ignore the flag and env gracefully. Live spot-check on this repo matched (2,500 bytes all three).",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-006",
+      "title": "Document brief defaults, full-output flag, and escape hatch",
+      "context": "Documentation updates describing the new brief-by-default outputs, the per-command full-output flag, and the LATTICE_BRIEF_OUTPUT escape hatch land in docs/CLI.md (and CLAUDE.md if the managed snippet regeneration applies). Satisfies scope-boundary allowed-item 6; verified by grepping the docs for LATTICE_BRIEF_OUTPUT and the full-output flag.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-7c05/background.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-12T01:34:15.177Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "rg for LATTICE_BRIEF_OUTPUT and the full-output flag name in docs/CLI.md -> both terms present and documented with brief-by-default behavior described, precedence rule stated (per-call flag > env > brief default), and affected command set listed; WHY: scope-boundary item 6 promises doc updates and this makes the promise verifiable",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "docs/CLI.md documents the frozen --json/--format=json contract (machine consumers get unchanged full shape regardless of brief mode); WHY: machine contract must be discoverable by integrators reading docs",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "docs list the exact set of affected commands (milestone_status, finding_list, help, story_list, bug_list, and any added by CHK-004 sweep) matching the actual implementation — no command listed that is not implemented, no implemented command missing from docs; WHY: docs-implementation consistency boundary",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "If CLAUDE.md managed snippet regeneration applies, the brief-mode behavior is also reflected there; otherwise docs/CLI.md alone suffices; WHY: CLAUDE.md is the agent-facing contract surface",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Documentation does NOT promise any gate-behavior or gateEvidence semantics changes and does NOT claim validate --full changed meaning; WHY: story explicitly states no gate behavior change and validate --full semantics untouched — docs must not introduce false promises",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Documentation does not claim brief mode affects --json/--format=json output shape — explicitly states JSON opt-in is unaffected; WHY: prevents future misinterpretation that could break machine consumers",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "manual_transcript",
+          "file": "docs/CLI.md",
+          "command": "bash -c 'rg -c \"LATTICE_BRIEF_OUTPUT\" docs/CLI.md && rg -c -- \"--full\" docs/CLI.md'",
+          "result": "pass",
+          "note": "docs/CLI.md documents LATTICE_BRIEF_OUTPUT (5 matches) and the --full flag (14 matches) with the brief-by-default section stating the precedence rule flag > env > brief default and that only literal 0 disables.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:1",
+          "kind": "manual_transcript",
+          "file": "docs/CLI.md",
+          "command": "bash -c 'rg -n \"unaffected\" docs/CLI.md | head -3'",
+          "result": "pass",
+          "note": "docs/CLI.md documents the frozen machine contract: explicit --json/--format=json outputs are unaffected by brief mode (line 56 area states JSON opt-ins are unaffected and stdout JSON.parse consumers keep skeleton fields).",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "manual_transcript",
+          "file": "docs/CLI.md",
+          "command": "bash -c 'rg -c \"story_review|doctor\" docs/CLI.md'",
+          "result": "pass",
+          "note": "docs/CLI.md brief-outputs table lists exactly the implemented set: milestone_status (+post-mutation suffix), finding_list, help, story_list, bug_list, plus sweep additions story_review and doctor, with the story_get audited-disposition paragraph; no command listed that is not implemented.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "file": "docs/CLI.md",
+          "command": "bash -c 'rg -n \"gate/issue computation are unchanged\" docs/CLI.md'",
+          "result": "pass",
+          "note": "Docs make no gate-behavior/gateEvidence promises: the story_review row explicitly states 'CLI stdout only - the signed review.json artifact and the gate/issue computation are unchanged' and validate --full is not claimed to change (validate absent from the brief table).",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:1",
+          "kind": "logic_test",
+          "file": "docs/CLI.md",
+          "command": "bash -c 'rg -n \"unaffected\" docs/CLI.md | head -3'",
+          "result": "pass",
+          "note": "Docs explicitly state brief mode does not affect --json/--format=json shape (machine consumers unaffected), preventing misinterpretation; asserted by the frozen-contract wording in the brief-outputs section.",
+          "headHash": "97a294cf750ac58f85b5b83ba53385917881ddaf",
+          "materialHash": "43f3b2e5dfa44e2978387574aafba30c51d9c148084de95f445e687acd248a32",
+          "storyFilesHash": "28091b854cf2492c1b89055f95225881d990b9d697e8ff7e76324c87883b581f",
+          "timestamp": "2026-07-12T18:13:51.548Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-11T23:25:18.378Z",
+      "phase": "PLAN",
+      "itemId": "CHK-006",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "story_review round-5 blocker scope_gap: description promises documentation updates (docs/CLI.md, CLAUDE.md) but no checklist item covers them; adding a dedicated item per scope-plan reviewer OQ-1 follow-through",
+      "addedTitle": "Document brief defaults, full-output flag, and escape hatch",
+      "addedContext": "Documentation updates describing the new brief-by-default outputs, the per-command full-output flag, and the LATTICE_BRIEF_OUTPUT escape hatch land in docs/CLI.md (and CLAUDE.md if the managed snippet regeneration applies). Satisfies scope-boundary allowed-item 6; verified by grepping the docs for LATTICE_BRIEF_OUTPUT and the full-output flag."
+    }
+  ]
+}

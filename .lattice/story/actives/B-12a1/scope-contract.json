@@ -1,0 +1,17 @@
+{
+  "storyId": "B-12a1",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/lifecycle-registry.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/scope-contract-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Explicit contract for B-12a1: data-level registry addition in lifecycle-registry.ts (modify) + smoke assertions in scope-contract-smoke.ts (test). init_from_plan produced empty allowed sets, so paths are declared explicitly.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-12T21:31:29.940Z",
+  "updatedAt": "2026-07-12T21:31:47.447Z"
+}

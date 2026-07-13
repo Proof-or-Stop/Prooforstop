@@ -1,0 +1,444 @@
+{
+  "passes": [
+    {
+      "id": "B-623a:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. git diff main...HEAD --stat / --diff-filter=R confirms zero renames. Changes are purely additive: new core/usage-burn-alert.ts + new tasks/usage-burn-alert-smoke.ts, plus opt-in wiring (cli-engine.ts dispatchUsageSweepAlertWithExit branch, command-catalog.ts doctor/usage_sweep schema+description additions, process-fact-levels.ts rationale text appended not replaced-away, doctor.ts new hostBurnScan block, usage-sweep.ts new --alert branch). The only removed lines across the diff are mechanical: (1) doctor() sync->async signature change with all call sites updated to await handlers.doctor(...) in the 4 modified smoke/suite files, plus a hermetic LATTICE_BURN_ALERT_RECENT_HOURS=0 env guard added to each; (2) the doctor/usage_sweep process-fact-levels.ts and command-catalog.ts rationale/description strings were extended with B-623a advisory-scan text under the same command name, not a rename/deletion. Verified env vars named in command-catalog.ts descriptions (LATTICE_BURN_ALERT_FILE_MB/INPUT_TOKENS/AGE_DAYS/RECENT_HOURS/CODEX_DIR/CLAUDE_DIR) all exist in core/usage-burn-alert.ts BURN_ALERT_ENV -- no doc-promise-undelivered gap. No blocker.",
+      "createdAt": "2026-07-12T20:49:33.840Z",
+      "reviewRound": "2026-07-12T20:46:22.327Z",
+      "reviewRunId": "B-623a:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/doctor-gitroot-probe-smoke.ts",
+          "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-623a/checklist.json",
+          ".lattice/story/actives/B-623a/plan.md",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6ebb9a702cef276cfa7b9d520a309cf2caee6e80cfe91ed843ae1d2a5e4d482f"
+    },
+    {
+      "id": "B-623a:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed full diff main...HEAD for B-623a (push-based host burn detection): core/usage-burn-alert.ts pure-core evaluator+resolver, doctor.ts async migration+advisory section, usage-sweep.ts --alert print-then-throw, cli-engine.ts dispatch wiring, command-catalog.ts/process-fact-levels.ts docs, 5 touched smokes for the async doctor() migration, and the new 20-check usage-burn-alert-smoke.ts. Verified: no Date.now/process.env inside core (grep+read), zero writes (read sweep scanners + ran zero-writes smoke), advisory-only with gateEvidence=false and hostBurnScan/usage-burn-alert referenced nowhere outside doctor.ts/usage-sweep.ts/the smoke (grep), --alert leaves ownership-gate/activity-policy readOnly classification unchanged (read source, both keyed on --out not --alert), doctor() async call sites all await (grep), rebuilt package and ran usage-burn-alert-smoke (20/20 pass, 7.4s) plus the 4 touched smokes (doctor-gitroot-probe, story-metadata-protection, storydir-inside-gitroot, validation-protocol) standalone (all pass), and confirmed run-all-smokes.js auto-discovers the new smoke by filename pattern so it lands in npm run test:all without extra wiring. One non-blocking observation: the try/catch around the doctor.ts Promise.all burn-scan call is defensive-only and never actually exercised (sweepCodexSessions/sweepClaudeProjects already handle missing/unreadable dirs internally via collectFiles try/catch), consistent with this file's existing pervasive silent-catch convention -- not a blocker.",
+      "createdAt": "2026-07-12T20:56:28.232Z",
+      "reviewRound": "2026-07-12T20:46:22.327Z",
+      "reviewRunId": "B-623a:RR-001",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-623a/plan.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/cli/recover-evidence-dispatch.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/doctor-gitroot-probe-smoke.ts",
+          "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/smoke-manifest.json",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/tasks/run-all-smokes.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "473bc0fe54a76e43018aad7f0e39decaf0b621d6195aede50aefac4d0481465c"
+    },
+    {
+      "id": "B-623a:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-004 verified fixed: header-based block slicing replaces vacuous whole-text includes predicate; rebuilt + ran smoke 21/21 pass. F-001/F-002/F-003 already resolved prior rounds; no blocking gap remains.",
+      "createdAt": "2026-07-12T21:07:27.495Z",
+      "reviewRound": "2026-07-12T20:46:22.327Z",
+      "reviewRunId": "B-623a:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-623a/background.md",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/usage-sweep.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "393a456063cd17b4b25ce31b10bb5394ae23197bc7b017a24f051284fc3f4970"
+    },
+    {
+      "id": "B-623a:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Fresh round after finding-fix commits d3f491966e (F-001/F-002/F-003) + 874698a094 (F-004), all filed by lattice-review-test-coverage. git diff 60d2dcd..2ee7307 (predecessor concept pass head -> now) touches ONLY packages/main/src/tasks/usage-burn-alert-smoke.ts, purely additive (52 insertions, 0 deletions): a literal-value resolver assertion (F-001), a zero-usage no-flag assertion (F-002/F-003 duplicate coverage), and the triple-reason doctor-block check now sliced by codex-burn-A header block instead of grabbing the first tripped: line in the whole output (F-004). Zero renames/deletions story-wide (git diff main...HEAD --diff-filter=R/D both empty). Re-read core/usage-burn-alert.ts in full: pure evaluator (no Date.now/process.env), strictly-greater comparisons, null-usage/timestamp never flag, injectable fileSizeOf, deterministic sort, advisory=true/gateEvidence=false on every surface -- matches CHK-001/CHK-002 contract. Re-diffed doctor.ts, usage-sweep.ts, cli-engine.ts, command-catalog.ts, process-fact-levels.ts against main in full: additive-only wiring (hostBurnScan advisory block in doctor json/text, opt-in --alert on usage_sweep via print-then-throw dispatchUsageSweepAlertWithExit mirroring the recover_evidence pattern, catalog/rationale text extended not replaced). Verified the two prior story-review scope-gap blockers are addressed in the diff: catalog/process-fact-levels descriptions now disclose the external host-store reads, and all 4 pre-existing doctor-invoking smokes (doctor-gitroot-probe-smoke.ts, story-metadata-protection-smoke.ts, storydir-inside-gitroot-suite.ts, validation-protocol-smoke.ts) set LATTICE_BURN_ALERT_RECENT_HOURS=0 for hermeticity. All handlers.doctor() call sites across the repo correctly await the new async signature. Rebuilt (tsc clean) and ran usage-burn-alert-smoke.js directly: 21/21 checks pass. No concept blocker.",
+      "createdAt": "2026-07-12T21:19:22.135Z",
+      "reviewRound": "2026-07-12T21:14:21.850Z",
+      "reviewRunId": "B-623a:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/doctor-gitroot-probe-smoke.ts",
+          "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-623a/checklist.json",
+          ".lattice/story/actives/B-623a/findings.json",
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d24d743ff236b800877034c6640be7947285fb2187d9da4b608cea2cd2ff1006"
+    },
+    {
+      "id": "B-623a:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Fresh round after d3f491966e (F-001/F-002/F-003 fix) + 874698a094 (F-004 fix); only usage-burn-alert-smoke.ts + story metadata changed since predecessor RP-002 fully read/passed the rest. Reviewed the full delta diff for dead code / unnecessary as-any / empty-catch / I/O-shell-isolation / proof-metadata-review-coverage per the lattice-review-quality charter: no unused imports/vars introduced, the old hotLine selector was fully replaced (no dead leftover), no new as-any/empty-catch beyond pre-existing established patterns already reviewed, no bridge.ts pattern in this project, no proof/receipt/provider/run/job metadata touched. Rebuilt (tsc) and ran dist/tasks/usage-burn-alert-smoke.js directly: 21/21 pass. No CLAUDE.md/README changed in this delta (closing self-check: no promised-but-undelivered surface). No blocker found within this lane's charter.",
+      "createdAt": "2026-07-12T21:23:29.799Z",
+      "reviewRound": "2026-07-12T21:14:21.850Z",
+      "reviewRunId": "B-623a:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-623a/plan.md",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/usage-sweep.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7ea6a702fda7d4bc06a7a4a734ac8ace29fbab4e4f40b57b1498faa0f0bdddac"
+    },
+    {
+      "id": "B-623a:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Final convergence round after RP-004 went stale on commit 15f0263beb. Reviewed the delta (envNumber ceilings + BURN_ALERT_ENV_MAX export in usage-burn-alert.ts, clamp smoke assertions + codex-mega-M fixture in usage-burn-alert-smoke.ts) against the full module and CHK-001..CHK-005 concept. Purely additive: no exports, functions, or checklist scope removed. The clamp is a real fix (unclamped 1e308 env overflows sinceMs to -Infinity / fileBytes to Infinity) applied consistently at all 4 envNumber call sites, matches CHK-002s never-throw-on-typod-env contract, and doctor.ts recentHours<=0 disable check still covers the clamped-fallback path. 21/21 smoke passes locally. No blockers.",
+      "createdAt": "2026-07-12T21:32:36.620Z",
+      "reviewRound": "2026-07-12T21:28:55.311Z",
+      "reviewRunId": "B-623a:RR-009",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-623a/background.md",
+          ".lattice/story/actives/B-623a/plan.md",
+          "packages/main/src/core/usage-burn-alert.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/doctor-gitroot-probe-smoke.ts",
+          "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7590cb69006c4dd646cf1ff0bc2964fbc5e2c39340ed7804396704345d37d2a9"
+    },
+    {
+      "id": "B-623a:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "FINAL convergence round: reviewed delta commit 15f0263beb (envNumber opts.max ceiling + BURN_ALERT_ENV_MAX + smoke clamp/mega-fixture assertions) against usage-burn-alert.ts and usage-burn-alert-smoke.ts. Traced sinceMs overflow path in doctor.ts:139 back to the fix; verified all 4 envNumber call sites pass the required max; ran smoke suite 21/21 green. No dead code, no I/O added, type safety intact (max is now compiler-enforced, non-exported fn, no external bypass). No blocker.",
+      "createdAt": "2026-07-12T21:33:55.217Z",
+      "reviewRound": "2026-07-12T21:28:55.311Z",
+      "reviewRunId": "B-623a:RR-008",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/usage-sweep.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "52a340ce4402ccae18f7918401bee4b06ffe82ae4f1c415d767cabbbcbcd51d7"
+    },
+    {
+      "id": "B-623a:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "FINAL convergence round after RP-003 went stale on commit 15f0263beb. Reviewed the delta against CHK-001..CHK-005 test-coverage intent: (a) envNumber ceiling clamp (BURN_ALERT_ENV_MAX) is covered by new assertions in usage-burn-alert-smoke.ts resolver-extremes block (line ~632-655) that sit directly alongside and extend the pre-existing CHK-002:edge:5/adversarial:1-2 large-value/proto-pollution checks -- a reasonable extension of the garbage-fallback intent family; boundary is verified both ways (ceiling value 8760h accepted, astronomically-absurd 1e308 falls back to defaults for all 4 fields via one deepEqual), and none of CHK-002 existing verificationIntent literals (e.g. edge:5 999999999999999 INPUT_TOKENS) were invalidated since INPUT_TOKENS ceiling=MAX_SAFE_INTEGER is far above that literal. Traced doctor.ts:139 sinceMs = nowMs - recentHours*3600000 and confirmed the fix actually closes the reported hole (unclamped RECENT_HOURS=1e308 drove sinceMs to -Infinity, an unbounded full-store scan; now clamped to <=8760h). (b) codex-mega-M fixture (250M, young, sorts first by burn-desc) makes the F-004 header-based block-slicing selector load-bearing: verified the new assertions (json.hostBurnScan.findings[0].sessionId==='codex-mega-M', first tripped-line precedes the codex-burn-A header, first tripped line lacks session-age) would fail under a reverted first-tripped-line selector, closing the quality lane sort-order-coincidence heads-up. Checked all downstream count assertions touched by the new fixture (JSON >=2 flagged, flaggedCount >=1, alert.findings.length >=1) use >= not ===, so the extra fixture does not silently break CHK-003/CHK-004/CHK-005 assertions. Noted (non-blocking): prior resolvedReason line citations in findings.json (F-001/F-002/F-004) are now offset by the delta inserted lines (about +8, +21 after the second insertion point) -- expected prose drift from cryptographic (headHash/materialHash) evidence pinning, not a coverage gap, and does not misdescribe current behavior. Verified via direct run (owner-built dist, no npm run build invoked per instructions): node packages/main/dist/tasks/usage-burn-alert-smoke.js -> 21/21 pass. No blocker.",
+      "createdAt": "2026-07-12T21:38:13.682Z",
+      "reviewRound": "2026-07-12T21:28:55.311Z",
+      "reviewRunId": "B-623a:RR-010",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-623a/background.md",
+          ".lattice/story/actives/B-623a/plan.md",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/tasks/doctor-gitroot-probe-smoke.ts",
+          "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "packages/main/src/tasks/storydir-inside-gitroot-suite.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1b45d0af335a1e874e51d38ae346d9c484307e2403e961bd01db28bd8f2b32b7"
+    },
+    {
+      "id": "B-623a:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Post-merge convergence round after RP-006 went stale on merge commit 3734296235 (main 0.3.185->0.3.191 into story branch) + follow-up 33376b1653 (5th doctor call site). git diff main...HEAD --diff-filter=DR is EMPTY (zero deletions/renames story-wide) -- confirms no concept deletion/replacement. Delta since RP-006 (verified via git diff 15f0263beb HEAD, the commit RP-006/RP-007/RP-008 fully reviewed): core/usage-burn-alert.ts and usage-burn-alert-smoke.ts are BYTE-IDENTICAL (already fully reviewed, untouched by the merge). Only 3 files changed: (1) doctor.ts -- merge conflict resolution kept BOTH sides: async signature (B-623a host burn scan awaits sweepCodexSessions/sweepClaudeProjects) AND the B-7c05 brief/full flags plus both import groups; read the full file (1143 lines) end to end -- the brief-mode trimming (validation/codex-adapter sections) and the burn-scan block are structurally independent code paths that both render unconditionally in their own lane, no deletion of either concept, hostBurnScan present in both JSON and text output; (2) package.json + packages/main/package.json -- merge kept BOTH new test scripts (test:usage-burn-alert alongside main's test:brief-output), no script removed; (3) scripts/verify-runtime-fact-contract.mjs -- new commit awaits the now-async doctor() at its 2 call sites (the 5th pre-existing call site, a root .mjs script outside tsc coverage) and adds the same LATTICE_BURN_ALERT_RECENT_HOURS=0 hermeticity guard as the other 4 touched smokes; ran it directly (node scripts/verify-runtime-fact-contract.mjs) -- passes. Also re-verified all doctor() call sites repo-wide (grep) correctly await the async signature; re-ran the 4 other touched smokes (doctor-gitroot-probe, story-metadata-protection, storydir-inside-gitroot-suite, validation-protocol) plus usage-sweep-smoke -- all pass. Ran usage-burn-alert-smoke.js directly: 21/21 pass. No concept blocker.",
+      "createdAt": "2026-07-12T23:03:21.055Z",
+      "reviewRound": "2026-07-12T22:57:34.340Z",
+      "reviewRunId": "B-623a:RR-012",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/doctor.ts",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/doctor-gitroot-probe-smoke.ts",
+          "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5741f5936a23e74cfc75c96be32bc611216c32173940ebcefd9394d4fb372813"
+    },
+    {
+      "id": "B-623a:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "POST-MERGE round. Reviewed git diff main...HEAD code files. Merge-conflict resolution in doctor.ts correctly composes async B-623a burn scan with B-7c05 brief mode: brief trims only Recent-issues/Validation-scan sections; Host burn scan (advisory) section renders unconditionally regardless of brief (verified statically and via live CLI run from worktree dist). Both import groups intact, no unused imports. package.json + packages/main/package.json both retain test:brief-output and gained test:usage-burn-alert. verify-runtime-fact-contract.mjs: both doctor() calls awaited, RECENT_HOURS=0 set (hermetic), confirmed only 5th call-site outside src not already covered. All doctor() call-sites awaited; generic CLI dispatch already awaits thenables. No dead code, no unnecessary as any, no empty catches (documented advisory swallow). No I/O shell isolation issues (no bridge.ts). No proof/receipt/job/run metadata semantics touched. Ran regression suite from worktree dist (no rebuild): usage-burn-alert-smoke 21/21, brief-output-smoke pass, doctor-gitroot-probe-smoke pass, story-metadata-protection-smoke 14/14, storydir-inside-gitroot-suite 20/20, validation-protocol-smoke pass, verify-runtime-fact-contract.mjs pass. tsc --noEmit clean. No findings; prior F-001..F-004 remain resolved.",
+      "createdAt": "2026-07-12T23:05:18.567Z",
+      "reviewRound": "2026-07-12T22:57:34.340Z",
+      "reviewRunId": "B-623a:RR-011",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/tasks/doctor-gitroot-probe-smoke.ts",
+          "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c5f937568736840f09067f9694887bbd9001fc5ce2f65c9ec32e12b12a86b2b1"
+    },
+    {
+      "id": "B-623a:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "POST-MERGE test-coverage round after RP-008 went stale (commit bdac55ebb2 to HEAD e43c7f4f74 via merge be112bff73 plus 5th call-site fix 33376b1653). Confirmed via git diff bdac55ebb2..HEAD that core/usage-burn-alert.ts and tasks/usage-burn-alert-smoke.ts are BYTE-IDENTICAL to RP-008 fully-reviewed state (0 lines changed) -- CHK-001/002/005 verificationIntent coverage is untouched. usage-sweep.ts and the 3 other doctor-invoking smokes (doctor-gitroot-probe-smoke.ts, story-metadata-protection-smoke.ts, storydir-inside-gitroot-suite.ts) are also 0-line-diff unchanged; re-ran all 4 live from worktree dist and confirmed still green (5, 14, 20, and pass respectively). Delta is exactly 3 real files: doctor.ts (merge conflict resolution keeps BOTH B-623a async signature -- doctor() awaits sweepCodexSessions/sweepClaudeProjects -- AND B-7c05 brief/full flags in the same signature and body; verified structurally that renderHostBurnScan is emitted unconditionally before any brief/else branching, so brief mode never hides the burn-scan section), scripts/verify-runtime-fact-contract.mjs (both doctor() call sites now awaited plus LATTICE_BURN_ALERT_RECENT_HOURS=0 hermeticity guard, closing the 5th and last un-awaited doctor caller), and package.json plus packages/main/package.json (script-list merge keeps both test:usage-burn-alert and test:brief-output, nothing dropped). Ran the prescribed grep contract grep -rn dot-doctor-open-paren packages/main/src scripts, excluding await lines and createDoctorHandlers lines; zero matches, so no un-awaited doctor callers remain anywhere in src or scripts. Live-verified the brief times burn-scan interaction from the worktree own dist/cli.js (not the main-trunk global CLI, which is pre-merge and would falsely appear to be missing the feature; caught and avoided that render trap): doctor --brief and doctor --full both print an identical Host-burn-scan-advisory block, including real flagged sessions (e.g. the story motivating 019e40d0 rollout) when thresholds are lowered, and a disabled line when RECENT_HOURS=0; confirms the CHK-003 doctor section coverage still holds under the newly merged brief/full rendering paths, even though no new smoke assertion targets that specific interaction (out of B-623a scope; B-7c05 owns brief-mode testing, and the interaction is provably safe by construction since the burn-scan render call sits above the brief conditional). Re-ran node packages/main/dist/tasks/usage-burn-alert-smoke.js (21/21 pass), node scripts/verify-runtime-fact-contract.mjs (pass), npm run test:usage-burn-alert (pass), npm run test:brief-output (pass, confirms the merged sibling feature is not broken), and the full lattice validate suite (all green; done-required-evidence.json status=PASS; materialHash 44275d51a7... consistent across all 83 checklist evidence rows plus the 4 migrated-smoke rows). findings.json: F-001 through F-004 all resolved, zero open findings; no new coverage gap introduced by the merge. No blocker.",
+      "createdAt": "2026-07-12T23:11:18.073Z",
+      "reviewRound": "2026-07-12T22:57:34.340Z",
+      "reviewRunId": "B-623a:RR-013",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-623a/background.md",
+          ".lattice/story/actives/B-623a/plan.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/doctor-gitroot-probe-smoke.ts",
+          "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e35a33c45bcdc3c04288b5f9305e16256fbfa7b60650ffbef7a370f272a312e3"
+    },
+    {
+      "id": "B-623a:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "F-C convergence: reviewed commit 67f0ccc2b1 comparator rewrite in core/usage-burn-alert.ts (findings.sort) against CHK-001 deterministic-ordering contract. Verified null-last, negative-vs-unknown, and Infinity-tie semantics by hand-tracing all branches and by node-repro of the old vs new comparator; ran usage-burn-alert-smoke.js directly (21/21 pass, includes the new [inf-a,inf-b,neg,unknown] assertion). No blocker: fix is correct, no deletions/renames of exported concepts, renderers are order-agnostic per-finding, dist matches source.",
+      "createdAt": "2026-07-12T23:33:41.216Z",
+      "reviewRound": "2026-07-12T23:27:39.065Z",
+      "reviewRunId": "B-623a:RR-015",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-623a/background.md",
+          ".lattice/story/actives/B-623a/plan.md",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/doctor-gitroot-probe-smoke.ts",
+          "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1ecf459fef502afd9b277e37e262bd579a2eacc686273e28766f4c6f8a639f72"
+    },
+    {
+      "id": "B-623a:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-C convergence (test-coverage lane) after RP-011 went stale on 67f0ccc2b1. Delta is exactly the F-C fix: findings.sort comparator in core/usage-burn-alert.ts (null-last handling plus explicit at-less-than-bt / at-greater-than-bt comparisons replacing bt minus at subtraction) plus one new assertion block (edgeRows: [neg,unknown,inf-b,inf-a] expected to sort to [inf-a,inf-b,neg,unknown]) appended inside the existing checkAsync 'evaluator: codex vs claude burn-token formula plus deterministic ordering' block in usage-burn-alert-smoke.ts, which is the exact block CHK-001:happy:6 verificationEvidence targets (same file and command, unchanged). Verified genuineness by hand-tracing both comparator versions against the edgeRows fixture (fileSizeOf returns 5000, greater than T.fileBytes=1000, so all 4 rows enter findings via file-size regardless of usage value, isolating pure sort order): OLD comparator (at = a.burnInputTokens defaulted to -1 when null) treats null as -1, so comparing neg(-5) vs unknown(null defaulted to -1) ranks unknown above neg, giving old full order [inf-a,inf-b,unknown,neg], which fails assert.deepEqual against the pinned [inf-a,inf-b,neg,unknown]. The assertion is therefore a genuine regression pin for the null-vs-negative half of the fix. Also checked the Infinity-tie half: for the two equal codexUsage(Infinity) rows, the OLD code's equality guard (compares defaulted at and bt before subtracting) already short-circuits when both are Infinity, skipping the subtraction entirely and falling straight to the sessionId tiebreak, so OLD code already places inf-a before inf-b too. Algebraically, subtracting two IEEE-754 doubles can only produce NaN when the two operands are equal same-sign infinities, exactly the case the OLD equality guard filters out before the subtraction line runs, so the OLD comparator as written could never actually emit NaN for any input pair. The commit message's stated 'subtraction produced NaN for two Infinity values' mechanism does not hold for this fixture (a non-blocking rationale and code-comment nuance, not a coverage gap; the NEW explicit-comparison code is still correct and a reasonable hardening against a hypothetical future revert to bare subtraction). Net: the combined 4-element assertion is genuine (fails under old code) because of the neg-vs-unknown component; the Infinity component is inert as a discriminator for this specific fixture but harmless. Ran node packages/main/dist/tasks/usage-burn-alert-smoke.js directly (owner-built dist, no rebuild): 21 of 21 checks pass, including this one. Non-blocking observation: CHK-001:happy:6 verificationEvidence in checklist.json is still bound to headHash be112bff73723b7503b587556e9822b86993f73d and an older materialHash (timestamp 2026-07-12T22:51:18Z), which predates 67f0ccc2b1 (current HEAD 10696e59ce, this round's materialHash 75df9bb2...); its note text is verbatim unchanged from before the fix and does not literally mention the new null/negative/Infinity coverage, even though the command and file it cites still concretely and correctly cover the broader deterministic-ordering CHK-001:happy:6 intent. Per this story's own RP-008 precedent (line-citation and prose drift ruled non-blocking when the underlying command and file remain valid), this is evidence-freshness and prose drift for the story owner to clear via verification_evidence_refresh_stale before DONE, not a test-coverage gap. No other CHK-001 through CHK-005 verificationIntent touched by this delta. No blocker.",
+      "createdAt": "2026-07-12T23:38:58.022Z",
+      "reviewRound": "2026-07-12T23:27:39.065Z",
+      "reviewRunId": "B-623a:RR-016",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-623a/background.md",
+          ".lattice/story/actives/B-623a/findings.json",
+          ".lattice/story/actives/B-623a/plan.md",
+          ".lattice/story/actives/B-623a/review-passes.json",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/autopilot-verdicts/B-623a",
+          ".lattice/story/actives/B-623a/checklist.json",
+          ".lattice/story/actives/B-623a/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a10b08cc6a79e6f36488fef86b2ee737f0560474c5ceea94edba5e43c98ee2f3"
+    },
+    {
+      "id": "B-623a:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-005 resolution round (RP-013 went stale on commit 7869a82200). Delta is exactly the F-005 fix: burnInputTokens is now normalized (NaN->null) at finding CONSTRUCTION in evaluateBurnAlerts (core/usage-burn-alert.ts L205-206), before it ever reaches the sort comparator, plus a new permutation-exhaustive assertion block appended to the existing checkAsync(evaluator: codex vs claude burn-token formula + deterministic ordering) in usage-burn-alert-smoke.ts. Audited genuineness of the permutation assertion by hand-tracing the unchanged sort comparator (lines 234-249, untouched by this commit) against 3 rows (z-big=100, m-nan=NaN, a-small=1, all tripping file-size so all enter findings[]): under the OLD construction (burnInputTokens = raw burnInputTokensOf() result, so m-nan carries a literal NaN into the comparator), pairwise cmp(z-big,m-nan) and cmp(m-nan,a-small) both fall through the inconclusive at<bt/at>bt numeric branch to the sessionId tie-break (since NaN<bt and NaN>bt are always false), while cmp(z-big,a-small) resolves numerically -- producing a non-transitive relation (a-small < m-nan < z-big < a-small, a 3-cycle). I reproduced this standalone in Node (isolating just the comparator, both old and new construction) across the same 6 permutations the smoke uses: OLD construction yields exactly 3 distinct final orders (a-small,m-nan,z-big then z-big,a-small,m-nan then m-nan,z-big,a-small), matching F-005's repro claim verbatim, and the pinned expected order z-big,a-small,m-nan only coincidentally matches 2 of the 6 old permutations (index-orders 0,2,1 and 1,2,0) -- so the new assertion would genuinely fail on 4 of 6 permutations (0,1,2 / 1,0,2 / 2,0,1 / 2,1,0) under the old code. NEW construction (NaN normalized to null before the sort) collapses all 6 permutations to the single order z-big,a-small,m-nan, and the nan burnInputTokens===null assertion also only holds post-fix (old code left it as NaN, not null). Conclusion: the permutation assertion genuinely pins the fixed contract against CHK-001:happy:6 (deterministic order regardless of input row order) and CHK-001:adversarial:4 (NaN rows never corrupt findings) -- not a coincidental/weak pin. Also confirmed no overlap/conflict with the pre-existing 'evaluator: NaN / Infinity / negative token counts never throw or corrupt findings' check: that check's NaN row never trips a reason (fileSizeOf returns 0, no session-age), so it never reaches the sort and does not already cover the mixed-NaN-with-finite-values ordering case F-005 targets. Ran node packages/main/dist/tasks/usage-burn-alert-smoke.js directly (dist pre-built per instructions, not rebuilt): 21/21 pass, including the new 6-permutation x 2-assertion block. Verified dist/core/usage-burn-alert.js and dist/tasks/usage-burn-alert-smoke.js both contain the F-005 fix/assertions (grep), so dist is not stale. Owner note (non-blocking, carried forward from predecessor RP-013 precedent): CHK-001:happy:6 verificationEvidence in checklist.json is still bound to a pre-fix headHash (be112bff73723b7503b587556e9822b86993f73d); this is evidence-freshness drift for the owner to clear via evidence refresh before DONE, not a coverage gap -- the cited command/file still concretely covers the intent post-fix. No blocker. F-005 verified resolved.",
+      "createdAt": "2026-07-12T23:45:36.145Z",
+      "reviewRound": "2026-07-12T23:40:24.996Z",
+      "reviewRunId": "B-623a:RR-018",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-623a/background.md",
+          ".lattice/story/actives/B-623a/checklist.json",
+          ".lattice/story/actives/B-623a/findings.json",
+          ".lattice/story/actives/B-623a/review-passes.json",
+          "packages/main/src/core/usage-sweep.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dc137df1f6c44bd6df4b28e3116d1cb475c472ceffa73212dc4d8d1662cac7ee"
+    },
+    {
+      "id": "B-623a:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "F-005 resolution round: reviewed commit 7869a82200 (NaN burn value normalized to null at finding construction in evaluateBurnAlerts). Independently re-derived the finding's exact repro (rows z=100/m=NaN/a=1, all 6 permutations) against the built dist and confirmed the sort is now a valid total order (identical output every permutation; m-nan reports burnInputTokens=null). Confirmed burnInputTokensOf has a single call site so no path bypasses the normalization, confirmed ownNumber() in usage-sweep.ts truly zeroes non-finite values (mitigating-claim verified), confirmed dist matches source (mtimes + grep) and ran the full smoke: 21/21 pass. No blocker for CHK-001.",
+      "createdAt": "2026-07-12T23:46:31.949Z",
+      "reviewRound": "2026-07-12T23:40:24.996Z",
+      "reviewRunId": "B-623a:RR-019",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-623a/background.md",
+          ".lattice/story/actives/B-623a/plan.md",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/core/usage-burn-alert.js",
+          "packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "packages/main/src/core/usage-sweep.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b53bdcdf75d38cfce3981195afc0e80d122534b3e0840cd1f1331162b8b4bf91"
+    },
+    {
+      "id": "B-623a:RP-016",
+      "agent": "lattice-review-quality",
+      "note": "F-005 re-verified fixed: NaN burn value now normalized to null at construction in evaluateBurnAlerts, comparator never sees NaN, valid total order restored. Independently re-ran predecessor6-permutation repro against built dist plus pre-fix comparator simulation to confirm the repro is sound; built smoke suite 21/21 pass; lattice validate all green. No blocking gap remains.",
+      "createdAt": "2026-07-12T23:47:35.078Z",
+      "reviewRound": "2026-07-12T23:40:24.996Z",
+      "reviewRunId": "B-623a:RR-017",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-623a/background.md",
+          ".lattice/story/actives/B-623a/findings.json",
+          ".lattice/story/actives/B-623a/plan.md",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/usage-sweep.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dd304c9be70cf39c413b17045f7dab3d7553e4ba68fc61dfa138576766c5f376"
+    }
+  ]
+}

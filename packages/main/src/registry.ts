@@ -120,6 +120,7 @@ import { createQuorumSubmitHandlers } from './handlers/quorum-submit.js';
 import { createCrossHostReviewHandlers } from './handlers/cross-host-review.js';
 import { createHostRunHandlers } from './handlers/host-run.js';
 import { createUsageSweepHandlers } from './handlers/usage-sweep.js';
+import { createCandidateSpecRoutingHandlers } from './handlers/candidate-spec-routing.js';
 import { createBaselineHandlers } from './handlers/baseline.js';
 import { createBaselineSuiteHandlers } from './handlers/baseline-suite.js';
 import { nextStoryId } from './handlers/context.js';
@@ -383,6 +384,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createQuorumSubmitHandlers(ctx));
   registry.registerBatch(createCrossHostReviewHandlers(ctx));
   registry.registerBatch(createHostRunHandlers(ctx));
+  registry.registerBatch(createCandidateSpecRoutingHandlers(ctx));
   registry.registerBatch(createUsageSweepHandlers(ctx));
   registry.registerBatch(createBaselineHandlers(ctx));
   registry.registerBatch(createBaselineSuiteHandlers(ctx));

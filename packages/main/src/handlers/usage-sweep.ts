@@ -33,12 +33,26 @@ import {
   type SweepReport,
   type SweepSessionRow,
 } from '../core/usage-sweep.js';
+import {
+  evaluateBurnAlerts,
+  renderSweepAlertSection,
+  resolveBurnAlertThresholds,
+  type BurnAlertEvaluation,
+} from '../core/usage-burn-alert.js';
 
 export interface UsageSweepCommandArgs extends FormatArgs {
   since?: string;
   codexSessionsDir?: string;
   claudeProjectsDir?: string;
   out?: string;
+  /**
+   * B-623a: opt-in burn alert. The handler evaluates the swept rows against the
+   * env-tunable burn thresholds and returns a STRUCTURED UsageSweepAlertResult;
+   * it never throws or exits on fired alerts itself (the cli-engine dispatch
+   * wrapper prints the output first, then throws so cron sees a non-zero exit).
+   * Zero writes; the read-only classification is unchanged by this flag.
+   */
+  alert?: boolean;
 }
 
 export interface CreateUsageSweepHandlersOptions {
@@ -48,6 +62,20 @@ export interface CreateUsageSweepHandlersOptions {
 
 /** The JSON payload: the deterministic core report plus a caller-stamped generatedAt. */
 export type UsageSweepReport = SweepReport & { generatedAt: string };
+
+/**
+ * B-623a: the structured --alert result. `output` is exactly what the CLI
+ * prints (human text with the BURN ALERT trailer, or the JSON report carrying
+ * the advisory `alert` evaluation); `alertFired` is the machine-readable flag
+ * the dispatch wrapper keys the non-zero exit on.
+ */
+export interface UsageSweepAlertResult {
+  kind: 'usage_sweep_alert';
+  alertFired: boolean;
+  flaggedCount: number;
+  scanned: number;
+  output: string | (UsageSweepReport & { alert: BurnAlertEvaluation });
+}
 
 export const NON_AUTHORITATIVE_HEADER =
   'NON-AUTHORITATIVE ESTIMATE — attribution from host transcript stores; not billing truth; ' +
@@ -153,7 +181,7 @@ function renderHuman(report: UsageSweepReport): string {
 export function createUsageSweepHandlers(ctx: HandlerContext, options: CreateUsageSweepHandlersOptions = {}) {
   const now = options.now ?? (() => Date.now());
   return {
-    async usage_sweep(args: UsageSweepCommandArgs): Promise<UsageSweepReport | string> {
+    async usage_sweep(args: UsageSweepCommandArgs): Promise<UsageSweepReport | UsageSweepAlertResult | string> {
       const since = normalizeString(args.since);
       if (!since) throw new Error('usage_sweep: --since is required (YYYY-MM-DD, ISO datetime, or <N>d)');
       const { sinceMs, label } = parseSinceToMs(since, now());
@@ -182,8 +210,61 @@ export function createUsageSweepHandlers(ctx: HandlerContext, options: CreateUsa
         process.stderr.write(`usage_sweep: wrote report to ${absPath}\n`);
       }
 
+      // B-623a: opt-in burn alert. Evaluate the swept rows against the
+      // env-tunable thresholds and return the structured alert result. The
+      // recency window is the caller's --since (documented); the handler never
+      // throws on fired alerts — exit-code semantics live in the CLI wrapper.
+      if (args.alert === true) {
+        const evaluation = evaluateBurnAlerts(report.sessions, {
+          nowMs: now(),
+          thresholds: resolveBurnAlertThresholds(process.env),
+        });
+        const output: UsageSweepAlertResult['output'] = wantsJson(args)
+          ? { ...report, alert: evaluation }
+          : `${renderHuman(report)}\n\n${renderSweepAlertSection(evaluation).join('\n')}`;
+        return {
+          kind: 'usage_sweep_alert',
+          alertFired: evaluation.findings.length > 0,
+          flaggedCount: evaluation.findings.length,
+          scanned: evaluation.scanned,
+          output,
+        } satisfies UsageSweepAlertResult;
+      }
+
       if (wantsJson(args)) return report;
       return renderHuman(report);
     },
   };
+}
+
+type UsageSweepAlertHandler = (args: Record<string, unknown>) => unknown | Promise<unknown>;
+
+type StdoutLike = { write(chunk: string): unknown };
+
+function isUsageSweepAlertResult(result: unknown): result is UsageSweepAlertResult {
+  return Boolean(
+    result && typeof result === 'object' && (result as any).kind === 'usage_sweep_alert',
+  );
+}
+
+/**
+ * B-623a: cli-engine dispatch for `usage_sweep --alert`, mirroring the
+ * recover_evidence print-then-throw pattern: when the alert FIRED, print the
+ * full report to stdout FIRST (cron logs keep the details), then throw a
+ * one-line error so runCli sets process.exitCode=1. A clean run returns the
+ * output for the normal printer, keeping the handler pure for in-process tests.
+ */
+export async function dispatchUsageSweepAlertWithExit(args: {
+  handler: UsageSweepAlertHandler;
+  data: Record<string, unknown>;
+  stdout?: StdoutLike;
+}): Promise<unknown> {
+  const r = await args.handler(args.data);
+  if (!isUsageSweepAlertResult(r)) return r;
+  const rendered = typeof r.output === 'string' ? r.output : JSON.stringify(r.output, null, 2);
+  if (!r.alertFired) return rendered;
+  (args.stdout || process.stdout).write(`${rendered}\n`);
+  throw new Error(
+    `usage_sweep --alert: ${r.flaggedCount} session(s) over burn thresholds (${r.scanned} scanned) — advisory alert, exiting non-zero for cron`,
+  );
 }

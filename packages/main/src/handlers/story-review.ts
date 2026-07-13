@@ -25,13 +25,52 @@ import { evaluateDecompositionGate } from '../core/parallel-decomposition-gate.j
 import { resolveAuditConfig } from '../core/audit-config.js';
 import { safeReadScopeContract } from '../core/lattice-parallel-wave.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
-import { SCOPE_CHECK_SALT, signScopeCheck } from './scope-check.js';
-import { existsSync, readFileSync, readdirSync } from 'fs';
+import { verifyScopeCheckSignature } from './scope-check.js';
+import { existsSync } from 'fs';
 import { join } from 'path';
 import { createHash } from 'crypto';
 import { VERIFICATION_LANES, collectVerificationIntents, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
 import { surfaceExperienceHints } from '../core/experience-hint-surface.js';
 import { evaluateProofStoryDiagnostics, renderProofStoryDiagnosticReport } from '../core/proofstory.js';
+import { truncateOneLine } from '../cli/output-verbosity.js';
+
+// B-7c05 CHK-004: RENDER-ONLY brief projection of the story_review result.
+//
+// Applied ONLY when the caller passes an explicit `brief: true` (the CLI seam
+// injects it for bare CLI invocations after resolving flag > env > brief
+// default). In-process callers — including the GOLDEN experience-layer smokes
+// that assert `_reviewPrompt` byte-identity — keep today's full return shape.
+// Nothing here touches the issues/blocker computation or the signed
+// review.json artifact (written before this projection runs).
+//
+// Non-silent filtering: every issue/info row is KEPT (stdout consumers such as
+// verify-parallel-execution-policy.mjs read `issues[].type` from bare output);
+// only free-text messages are truncated and the multi-megabyte `_reviewPrompt`
+// is replaced by an explicit stub naming --full.
+function projectStoryReviewBrief(result: {
+  issues: Array<{ severity: 'blocker' | 'advisory'; message: string; [key: string]: unknown }>;
+  info?: Array<{ type: string; message: string }>;
+  _hint: string;
+  _reviewPrompt: string | undefined;
+  [key: string]: unknown;
+}): object {
+  const { issues, info, _hint, _reviewPrompt, ...rest } = result;
+  return {
+    ...rest,
+    _brief: true,
+    // Blockers keep a longer budget: their messages embed the exact recovery
+    // commands an agent needs to act.
+    issues: issues.map((issue) => ({
+      ...issue,
+      message: truncateOneLine(issue.message, issue.severity === 'blocker' ? 300 : 160),
+    })),
+    ...(info ? { info: info.map((entry) => ({ ...entry, message: truncateOneLine(entry.message, 160) })) } : {}),
+    _hint: `${_hint} — brief view: issue messages truncated and the PLAN review prompt omitted; use --full (or LATTICE_BRIEF_OUTPUT=0) for the complete output (explicit --json keeps the full machine shape).`,
+    _reviewPrompt: typeof _reviewPrompt === 'string'
+      ? `Brief view: full PLAN review prompt (${_reviewPrompt.length} chars) omitted. Run story_review with --full for the complete prompt.`
+      : _reviewPrompt,
+  };
+}
 
 function normalizeTouchpointPath(value: string): string {
   const trimmed = value
@@ -69,26 +108,12 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
   const { store } = ctx;
 
   return {
-    story_review(args: { storyId: string }): object {
+    story_review(args: { storyId: string; full?: boolean; brief?: boolean; json?: boolean; format?: 'text' | 'json' }): object {
       const story = store.readStory(args.storyId);
       assertCwdInWorktree(store, args.storyId);
       const cl = store.readChecklist(args.storyId);
 
-      // Read truth source
       const config = loadConfig(ctx.root);
-      const reqDir = join(ctx.root, config.requirementsDir);
-      const truthDocs: string[] = [];
-      if (existsSync(reqDir)) {
-        const scanDir = (dir: string) => {
-          for (const entry of readdirSync(dir, { withFileTypes: true })) {
-            if (entry.isDirectory()) { scanDir(join(dir, entry.name)); continue; }
-            if (entry.name.endsWith('.md')) {
-              truthDocs.push(readFileSync(join(dir, entry.name), 'utf-8'));
-            }
-          }
-        };
-        scanDir(reqDir);
-      }
 
       const issues: Array<{ type: string; severity: 'blocker' | 'advisory'; itemId?: string; message: string; legacyEvidenceWithoutIntent?: boolean; repairCommand?: string }> = [];
       const info: Array<{ type: string; message: string }> = [];
@@ -466,9 +491,8 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           message: `missing_scope_check: scope-check.json is missing PLAN gate evidence. Start a story-level PLAN scope reviewer with \`lattice dispatch --storyId=${args.storyId} --agentType=lattice-review-scope-plan\`; dispatch output is not gate evidence, and the lattice-review-scope-plan / scope-plan reviewer must finish by calling \`lattice scope_check_save\`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion.`,
         });
       } else if (scopeData) {
-        // Verify signature using shared signScopeCheck function
-        const expectedHash = signScopeCheck(args.storyId, scopeData.checkedAt, scopeData.summary.gaps, scopeData.summary.covered, scopeData.reviewRound || '');
-        if (!scopeData._hash || scopeData._hash !== expectedHash) {
+        // Verify both legacy and read-manifest-bound signatures without relying on cwd.
+        if (!verifyScopeCheckSignature(args.storyId, scopeData)) {
           issues.push({
             type: 'scope_check_tampered',
             severity: 'blocker',
@@ -574,7 +598,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         issues.push({
           type: 'review_advisory',
           severity: 'advisory',
-          message: 'The review found no blockers, but it is recommended to manually verify checklist completeness against the source-of-truth documents in _reviewPrompt',
+          message: 'The review found no blockers, but it is recommended to manually verify checklist completeness against the signed scope-check evidence and its referenced source documents',
         });
       }
 
@@ -660,26 +684,12 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         hintRoundKey,
       });
 
-      return {
-        storyId: args.storyId,
-        title: story.title,
-        planReviewRound,
-        // Legacy compatibility alias for story_review callers. This is the
-        // numeric PLAN review count, not the signed artifact ISO reviewRound.
-        reviewRound: planReviewRound,
-        summary: {
-          totalItems,
-          issueCount: issues.length,
-          blockerCount,
-        },
-        issues,
-        ...(info.length > 0 ? { info } : {}),
-        truthDocsCount: truthDocs.length,
-        _hint: blockerCount > 0
-          ? `Round ${reviewData.reviews.length} review found ${blockerCount} blockers, please fix and run story_review again`
-          : `✅ Round ${reviewData.reviews.length} review passed (${blockerCount} blocker, ${issues.length} advisory), can proceed to development`,
-        _reviewPrompt: (() => {
-          // Assemble the full review prompt: truth docs + checklist/intent + understanding + decision
+      // B-7c05: hoisted from the `_reviewPrompt` object-literal IIFE (body
+      // byte-identical) so the brief projection below can reference it.
+      const reviewPrompt = (() => {
+          // Assemble the structured PLAN review prompt. Requirements documents are
+          // deliberately not read or embedded here (B-f97c): scope reviewers discover
+          // and record relevant sources through signed scope-check evidence.
           // So the reviewer can not only review requirement coverage, but also review "whether the main agent truly understands the task" and "why this design was chosen"
           const understandingSection = understanding
             ? `\n---\nUnderstanding Snapshot:\n` +
@@ -718,9 +728,6 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
               : '';
             return `- ${i.id}: ${i.title}${i.context ? ` (${i.context})` : ''}${intentLines}`;
           }).join('\n')}`;
-          const truthSection = truthDocs.length > 0
-            ? `\n---\nTruth Source (${truthDocs.length} docs):\n${truthDocs.join('\n---\n')}`
-            : '';
           const proofStorySection = (() => {
             try {
               const report = evaluateProofStoryDiagnostics({
@@ -743,18 +750,18 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
               return `\n---\nProofStory Diagnostics (advisory only): unavailable (${(e as Error).message})`;
             }
           })();
-          // When there are no truth docs + no understanding + no decision + no
-          // grill + no rendered experience hints, ProofStory diagnostics still keep
+          // When there is no understanding, decision, grill, or rendered experience
+          // hint, ProofStory diagnostics still keep
           // the advisory prompt present because they are part of PLAN review.
           // renderedHintsSection alone keeps the advisory prompt present so the
           // hints are surfaced even in a bare PLAN. It is '' when no hints exist OR
           // when the A/B arm is OFF (B-06b3), so in both of those cases the prompt is
           // byte-unchanged from the prior no-hints behavior.
-          if (truthDocs.length === 0 && !understanding && !decision && !grill && renderedHintsSection === '' && proofStorySection === '') return undefined;
+          if (!understanding && !decision && !grill && renderedHintsSection === '' && proofStorySection === '') return undefined;
           return `Please review the PLAN-phase artifacts of the following story. Focus on:\n` +
             `  1. Whether understanding is genuine (whether unknowns contradict facts, whether touchpoints are real)\n` +
             `  2. Whether the decision choice is reasonable (why other options were not chosen, whether rationale echoes drivers)\n` +
-            `  3. Whether the checklist covers all scenarios in description + truth docs\n` +
+            `  3. Whether the checklist covers the story description and signed scope-check findings\n` +
             `  4. Whether preMortem lists real failure modes (not filler)\n` +
             `  5. Whether ProofStory diagnostics identify missing machine artifacts; do not treat prompt-only statements as gate evidence\n\n` +
             `---\nStory: ${story.title}\nDescription: ${story.description}\nPriority: ${story.priority}` +
@@ -765,9 +772,33 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
             // placed right after it. It is the A/B render-gated value (B-06b3): the
             // full section on the ON arm, '' on the OFF arm. ADVISORY-ONLY: never fed
             // to resolveReviewPromptHash.
-            understandingSection + decisionSection + grillSection + renderedHintsSection + proofStorySection + checklistSection + truthSection;
-        })(),
+            understandingSection + decisionSection + grillSection + renderedHintsSection + proofStorySection + checklistSection;
+        })();
+
+      const fullResult = {
+        storyId: args.storyId,
+        title: story.title,
+        planReviewRound,
+        // Legacy compatibility alias for story_review callers. This is the
+        // numeric PLAN review count, not the signed artifact ISO reviewRound.
+        reviewRound: planReviewRound,
+        summary: {
+          totalItems,
+          issueCount: issues.length,
+          blockerCount,
+        },
+        issues,
+        ...(info.length > 0 ? { info } : {}),
+        _hint: blockerCount > 0
+          ? `Round ${reviewData.reviews.length} review found ${blockerCount} blockers, please fix and run story_review again`
+          : `✅ Round ${reviewData.reviews.length} review passed (${blockerCount} blocker, ${issues.length} advisory), can proceed to development`,
+        _reviewPrompt: reviewPrompt,
       };
+      // B-7c05 CHK-004: brief ONLY on explicit brief:true (injected by the CLI
+      // seam for bare invocations). Default / --full / --json / in-process
+      // callers all get today's full shape.
+      if (args.brief !== true) return fullResult;
+      return projectStoryReviewBrief(fullResult);
     },
 
     /**

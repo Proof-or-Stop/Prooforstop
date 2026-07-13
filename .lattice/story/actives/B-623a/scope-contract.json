@@ -1,0 +1,81 @@
+{
+  "storyId": "B-623a",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/usage-burn-alert.ts",
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/src/tasks/doctor-gitroot-probe-smoke.ts",
+    "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+    "packages/main/src/tasks/storydir-inside-gitroot-suite.ts",
+    "packages/main/src/tasks/validation-protocol-smoke.ts",
+    "packages/main/src/handlers/usage-sweep.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "package.json",
+    "packages/main/package.json",
+    ".lattice/story/actives/B-623a/proofstory.json",
+    ".lattice/story/actives/B-623a/red-evidence.json",
+    ".lattice/story/actives/B-623a/intent-collision.json",
+    ".lattice/story/actives/B-623a/original-intent-snapshot.json",
+    "scripts/verify-runtime-fact-contract.mjs"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/usage-burn-alert.ts",
+    "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+    ".lattice/story/actives/B-623a/proofstory.json",
+    ".lattice/story/actives/B-623a/red-evidence.json",
+    ".lattice/story/actives/B-623a/intent-collision.json",
+    ".lattice/story/actives/B-623a/original-intent-snapshot.json"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Fifth pre-existing doctor() call site (root-level .mjs contract script outside tsc coverage), surfaced by the DONE-required root npm test: mechanical await of the now-async doctor + the same RECENT_HOURS=0 hermeticity guard; contract verifies green. Same class as the four TypeScript smoke call sites already in the contract.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "(1) validation-protocol-smoke.ts: forced by the CHK-003 doctor async migration — tsc surfaced a 4th pre-existing doctor() call-site file missed by the PLAN grep; changes are mechanical awaits plus the same LATTICE_BURN_ALERT_RECENT_HOURS=0 hermeticity line the three declared smoke files got; smoke re-run passes. (2)(3) proofstory.json / red-evidence.json: story lifecycle metadata written by proofstory_contract_set and red_evidence_create during the PLAN high-assurance intent gate; not material code.",
+      "timestamp": "2026-07-12T20:33:11.613Z",
+      "paths": [
+        "packages/main/src/tasks/validation-protocol-smoke.ts",
+        ".lattice/story/actives/B-623a/proofstory.json",
+        ".lattice/story/actives/B-623a/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validation-protocol-smoke.ts",
+        ".lattice/story/actives/B-623a/proofstory.json",
+        ".lattice/story/actives/B-623a/red-evidence.json"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "68de516675c39eca04cae72c71acbe549b343615",
+      "materialHash": "4e6b8ec53b5e42e0e25e32c84fc04d65bed50cdd96145d5c07ee9fea1345e937"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Re-acknowledge at current material (post CHK commits 68de5166+036142fc). (1) validation-protocol-smoke.ts: 4th pre-existing doctor() call-site file surfaced by tsc during the CHK-003 async migration; mechanical awaits + RECENT_HOURS=0 hermeticity line; smoke passes. (2)(3) proofstory.json / red-evidence.json: PLAN high-assurance intent-gate lifecycle metadata (proofstory_contract_set / red_evidence_create); not material code.",
+      "timestamp": "2026-07-12T20:45:10.312Z",
+      "paths": [
+        "packages/main/src/tasks/validation-protocol-smoke.ts",
+        ".lattice/story/actives/B-623a/proofstory.json",
+        ".lattice/story/actives/B-623a/red-evidence.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validation-protocol-smoke.ts",
+        ".lattice/story/actives/B-623a/proofstory.json",
+        ".lattice/story/actives/B-623a/red-evidence.json"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "f43769c2b5b3c5322f06b5aa49bec383f08d9915",
+      "materialHash": "aae550581e935467a6ee67164f4da7b33f74857dd7e1e82b4a755214fe95fa57"
+    }
+  ],
+  "createdAt": "2026-07-12T19:51:53.136Z",
+  "updatedAt": "2026-07-12T22:57:33.452Z"
+}

@@ -1,0 +1,55 @@
+{
+  "storyId": "B-6108",
+  "changes": "The claimsShrinkage trigger construction in evaluateDoneIntentEquivalence (packages/main/src/core/proofstory.ts) gained five recall classes verified during B-2c03: bounded two-token adverb windows inside the multi-word triggers (with sentence-safe connectors), inflection forms on the existing stems (`partially`, `excludes`, `defers` families), a precision-bound verb set (passive `skipped`/`omitted`/`punted` forms tied to a delivery-context qualifier, bare `descoped`, follow-up handoffs, and qualifier-bound `removed`/`dropped`/`cut` forms), optional quote characters at the chain scope-noun position, and `plus` in the Oxford-list alternation. The intent-hardening smoke gained fourteen recall claims, eleven precision controls, and two interaction pins; the two B-2c03 pins that had explicitly parked verb recall for this follow-up flipped to must-fire with updated comments. One review finding (F-001, from the quality lane) hardened the passive verb branch with the shared qualifier fragment after it fired on routine passives; two independent Antigravity host-B rounds returned PASS.",
+  "usage": "No new commands. Once this vocabulary is the installed CLI, DONE summaries that describe a reduced delivery through natural phrasings - adverb-separated multi-word triggers, inflected stems, qualifier-bound verbs, quoted scope nouns, or comma-plus lists - are caught by done_intent_equivalence_check and require a user-confirmed scope decision, while routine change descriptions (bare change verbs, active voice, non-delivery objects) stay quiet. Run node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js to exercise all cases.",
+  "expectedOutcome": "The fourteen verified recall sentences fire unconfirmed_single_outcome_shrinkage; the eleven precision controls and every B-2c03 pinned case behave unchanged; the vocabulary and per-class rationale are documented in the story plan.",
+  "actualTranscript": "Pre-change RED: the first recall claim failed its assertion at baseline 92474ac118 with all precision controls verified quiet at the same baseline (bound in red-evidence.json). Post-change at final head: proofstory-intent-hardening smoke prints ProofStory intent hardening smoke passed with all recall claims, precision controls, interaction pins, and B-2c03 cases green; milestone-done-gate-reconciliation smoke OK; milestone-status tests pass; packages/main e2e ALL PASS; lattice validate reports 45/45 configured commands passing. An Antigravity host-B reviewer independently probed 47 must-fire and 27 must-not-fire sentences plus regex-quality audits across two rounds, both PASS.",
+  "outcomeDiff": "Delivered exactly the requested five classes plus one review-driven hardening: the passive verb branch is qualifier-bound after quality finding F-001 showed it firing on routine passives (flaky CI runner, loop iterations, schedule punts). No requested behavior was dropped.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The vocabulary stays a curated lexical heuristic: verb additions beyond this set, typography beyond straight/curly quotes, and novel constructions belong to a future follow-up per the inherited convergence statement. The adverb windows accept at most two intervening tokens - longer insertions are future-follow-up scope. The gate evaluating THIS summary runs the pre-expansion installed CLI, so this summary phrases the new vocabulary in backticks where needed - the additions activate for other stories once merged and rebuilt. Two pre-existing repo-level notes carried over from B-2c03: control-arm-retrieval-gate.test.mjs fails identically on unmodified main, and the root full test suite can exceed done_prepare's 240s phase deadline on this machine (standalone lattice validate covers the same commands and passes).",
+  "pitfalls": "Adding a bare verb to the shrinkage-verb set without passive/qualifier/handoff binding revives the F-001 false-positive class - every future verb needs its own routine-voice must-not-fire sweep. The alternation is built from shared fragments (windowConnector, deliveryQualifier, nounQuote); editing one fragment changes several branches, so run the full smoke in BOTH directions after any change. The two flipped B-2c03 pins are now must-fire: reverting the verb vocabulary would break them by design.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 184218
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 2799
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 615259
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 645174
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 3367453
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 74978
+    }
+  },
+  "totalDurationMs": 4890641,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-11T23:52:08.427Z",
+  "updatedAt": "2026-07-11T23:52:08.427Z"
+}

@@ -1,0 +1,254 @@
+{
+  "passes": [
+    {
+      "id": "B-7c05:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review: all 38 must-priority intents across 6 checklist items have valid, concretely-bound verificationEvidence (29 manual_transcript + 9 logic_test, all result=pass, spot-checked live against current HEAD). No must-priority gaps. Filed 3 low/advisory findings (F-003,F-004,F-005) for should-priority intent gaps (host_list disposition, milestone/help scaling boundaries, two graceful-ignore/empty-list cases) that do not block this coverage pass per reviewer rule 1/2 (must-only gate).",
+      "createdAt": "2026-07-12T01:41:43.887Z",
+      "reviewRound": "2026-07-12T01:35:24.882Z",
+      "reviewRunId": "B-7c05:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/CLI.md",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/tasks/brief-output-smoke.ts",
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "scripts/verify-story-list-bug-summary.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "08ae2bbaa91a99008442b8f8ac5369e086134550f0cd3e91d688f454d16d259c"
+    },
+    {
+      "id": "B-7c05:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-2 re-review: independently re-verified all 6 round-1 test-coverage evidence refreshes (CHK-001:edge:1, CHK-003:edge:1, CHK-003:happy:0, CHK-003:adversarial:0, CHK-004:edge:1, CHK-005:adversarial:1) against commit 8a1c4f033b by re-running brief-output-smoke.ts/cli-surface-smoke.ts/evidence-state-gate-smoke.ts/milestone-status.test.mjs/verify-story-list-bug-summary.mjs (all green) plus live spot-checks (help brief 7854B/0 ellipsis fragments/all >100 command names present; host_list docs+bytes match; checklist_get byte-identical bare vs --brief vs env). F-003/F-004/F-005 confirmed genuinely resolved with real, working coverage, not just evidence-note claims. CHK-003:edge:0 reasoned-uncovered disposition independently confirmed in code: DEFAULT_PHASE_TOOLS wildcard baseline commands make an empty help registry unreachable in any phase/config. Noted but not duplicated: CHK-003:happy:0 and CHK-004:edge:1 evidence notes claim a plan.md declaration that git diff HEAD -- plan.md shows was never written; already captured by open concept-lane finding B-7c05:F-006 (evidence-integrity framing), not a test-coverage gap since the underlying smoke assertions themselves are real and passing on current HEAD. No new test-coverage blocker found this round.",
+      "createdAt": "2026-07-12T17:31:39.934Z",
+      "reviewRound": "2026-07-12T17:08:48.514Z",
+      "reviewRunId": "B-7c05:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7c05/background.md",
+          ".lattice/story/actives/B-7c05/plan.md",
+          "docs/CLI.md",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/brief-output-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/output-verbosity.ts",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/handlers/bug.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/tasks/cli-surface-smoke.ts",
+          "packages/main/src/tasks/evidence-state-gate-smoke.ts",
+          "packages/main/tests/milestone-status.test.mjs",
+          "scripts/verify-story-list-bug-summary.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "655607a1c62a0d063d6a7ff65ea2b3d9c6a6350013a29835e09337efcbf09308"
+    },
+    {
+      "id": "B-7c05:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round-3 concept residue re-check on frozen HEAD 48048da8 / code commit bde95c7473. Verified F-006 and F-011 resolutions: (1) BRIEF_DESC_MAX/briefCommandDescription truncated-description concept has zero live residue repo-wide outside historical finding-record text and the frozen plan.md/checklist.json (both explicitly superseded via summary_set limitations, matching F-006 durable-declaration fix); GlobalHelpOptions.full JSDoc now reads names-only and matches docs/CLI.md and shipped behavior. (2) test-evidence.json CHK-003:adversarial:0 note was regenerated in the quality-round fix commit and no longer references BRIEF_DESC_MAX. (3) F-007/F-009/F-010 dead-code/duplication cleanups verified with zero residue (wantsBriefOutput, FULL_OUTPUT_FLAG, toBriefBug severity cast all gone; oneLineCell single implementation in core/milestone-status.ts, cli/output-verbosity.ts delegates). tsc --noEmit clean. No concept deletion/replacement in this round left any residue; no blocking findings.",
+      "createdAt": "2026-07-12T17:37:08.714Z",
+      "reviewRound": "2026-07-12T17:08:48.514Z",
+      "reviewRunId": "B-7c05:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7c05/findings.json",
+          ".lattice/story/actives/B-7c05/summary.json",
+          "docs/CLI.md",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/cli/output-verbosity.ts",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/handlers/bug.ts",
+          "packages/main/src/handlers/story-query.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7c05/checklist.json",
+          ".lattice/story/actives/B-7c05/plan.md",
+          ".lattice/story/actives/B-7c05/test-evidence.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8ba88f866ac5f414898f181c9e6ffdc80854e6c2d697b3fcc9972f1eb4c0d431"
+    },
+    {
+      "id": "B-7c05:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round-3 verified F-007..F-010 fixed against git show 3fabbf5f82/bde95c7473: dead exports gone, bg marker restored+live-verified (35/36), phantom severity branch removed, truncateOneLine delegates to exported core oneLineCell with no core->cli import. tsc clean, both smokes green.",
+      "createdAt": "2026-07-12T17:39:58.494Z",
+      "reviewRound": "2026-07-12T17:08:48.514Z",
+      "reviewRunId": "B-7c05:RR-008",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/cli/output-verbosity.ts",
+          "packages/main/src/handlers/bug.ts",
+          "packages/main/src/handlers/story-query.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7c05/findings.json",
+          ".lattice/story/actives/B-7c05/test-evidence.json",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/tasks/brief-output-smoke.ts",
+          "packages/main/src/tasks/cli-surface-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "758212ce091cc30fb2a5a7902e6b51dc62f5ad06ec14b0c192afd2b7ad786d6b"
+    },
+    {
+      "id": "B-7c05:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Re-bind round only (post round-3 PASS RP-003); code unchanged. Confirmed only lattice metadata commits landed after code commit bde95c7473 (9 commits: de785f6572..99dd7a0ee5). Re-ran main..HEAD commit-by-commit non-.lattice file scan: only ac83c67, 8a1c4f0, 3fabbf5, bde95c7 touch code, same set round-3 reviewed. git diff main...HEAD --stat -- :!.lattice reproduces the identical 16-file feature diff already assessed as brief-by-default CLI outputs with no concept deletion/replacement en masse. Spot-ran node packages/main/dist/tasks/cli-surface-smoke.js -> cli surface smoke passed. No concept deletion/replacement this round; concept residue check completed, no blocker.",
+      "createdAt": "2026-07-12T17:42:52.049Z",
+      "reviewRound": "2026-07-12T17:41:11.882Z",
+      "reviewRunId": "B-7c05:RR-011",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/cli/output-verbosity.ts",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/handlers/bug.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/brief-output-smoke.ts",
+          "packages/main/src/tasks/cli-surface-smoke.ts",
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "scanEscalationReason": "Re-bind round: material verified identical to round-3-reviewed code (commits 3fabbf5f82 + bde95c7473); no full re-read performed, only diff/commit-set equivalence re-verification against round-3 findings."
+      },
+      "_hash": "f975e099f2711f016b41651551646e4219145f1ab92549789a5841f9fa8c7de6"
+    },
+    {
+      "id": "B-7c05:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Re-bind round (round-4, RR-009): code unchanged since round-3 PASS RP-004/RR-008 (commits 3fabbf5f82+bde95c7473). Verified via git log that every commit after bde95c7473 is a lattice metadata-only commit, working tree has zero code diff, and node packages/main/dist/tasks/brief-output-smoke.js passes. Full quality review already performed and passed at RP-004 against these same commits; no re-review of code content required since scope is identical, credentials only being re-bound.",
+      "createdAt": "2026-07-12T17:43:05.602Z",
+      "reviewRound": "2026-07-12T17:41:11.882Z",
+      "reviewRunId": "B-7c05:RR-009",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/dist/tasks/brief-output-smoke.js"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7c05/review-passes.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "126516fa1a2ea75342b9da178dc906cb7bbbc3b4eb2279f4e1c7596df678566e"
+    },
+    {
+      "id": "B-7c05:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-bound round after post-pass code commits (3fabbf5f82: bg marker in brief story_list smoke assertion + dead-code removal + oneLineCell dedupe; bde95c7473: comment/JSDoc-only fixes for F-001/F-006, verified no logic change). All 6 checklist items (CHK-001..CHK-006) still have every must-priority verificationIntent covered by non-fail verificationEvidence; the two should-priority gaps (CHK-003:edge:0, CHK-006:edge:1) remain advisory-only. F-001..F-011 all resolved/verified via finding_list, attention.suspected empty. Re-ran node packages/main/dist/tasks/brief-output-smoke.js: pass (dist newer than src, includes new F-008 bg-marker assertion). Spot-checked CHK-003:happy:0 evidence command (help byte budget, now 7854 bytes, well under 16000/8500 thresholds) still passes. No coverage regression; no finding filed.",
+      "createdAt": "2026-07-12T17:44:29.784Z",
+      "reviewRound": "2026-07-12T17:41:11.882Z",
+      "reviewRunId": "B-7c05:RR-010",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7c05/checklist.json",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/tasks/brief-output-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7c05/test-evidence.json",
+          "packages/main/src/cli/output-verbosity.ts",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/handlers/bug.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3a762d236cd4665e83c725c1b534720c59d1c368cca2913bf9424ea0a413ddd3"
+    },
+    {
+      "id": "B-7c05:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Post-merge re-binding: reviewed 97a294cf75 story-review.ts merge resolution (hoisted reviewPrompt/brief projection over main B-f97c no-truth-docs assembly, truthDocsCount removed) and brief-output-smoke.ts witness swap (truth-doc marker -> PLAN prompt header). No dead refs (rg truthDocs|truthSection clean except an intentional negative assertion), no as-any/empty-catch introduced, tsc -p packages/main --noEmit clean, node dist/tasks/brief-output-smoke.js passed. No blockers.",
+      "createdAt": "2026-07-12T18:34:12.463Z",
+      "reviewRound": "2026-07-12T18:30:44.632Z",
+      "reviewRunId": "B-7c05:RR-013",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/brief-output-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/story-review-corpus-budget-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ad0292daeca2e670925721190298f839899faefa8c0244b64e44fc10fec83011"
+    },
+    {
+      "id": "B-7c05:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Post-merge re-verification (merge 97a294cf75). Diffed merge result vs both parents for handlers/story-review.ts and tasks/brief-output-smoke.ts: merge correctly took main's B-f97c truthDocs/truthSection deletion while preserving B-7c05's hoisted reviewPrompt + brief projection. grep for truthDocs|truthSection repo-wide: zero live-code residue (only an intentional negative regression assertion + pre-existing untouched B-f97c/legacy-experiment artifacts outside this diff). tsc build clean; brief-output-smoke, cli-surface-smoke, story-review-corpus-budget-smoke, story-review-ergonomics-smoke all pass. No blocker.",
+      "createdAt": "2026-07-12T18:35:14.994Z",
+      "reviewRound": "2026-07-12T18:30:44.632Z",
+      "reviewRunId": "B-7c05:RR-012",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/brief-output-smoke.ts",
+          "packages/main/src/tasks/story-review-corpus-budget-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-f97c/index.json",
+          ".lattice/story/actives/B-f97c/summary.json",
+          "experiments/reports/story-review-output-after-production-v1.json",
+          "packages/main/src/tasks/cli-surface-smoke.ts",
+          "packages/main/src/tasks/story-review-ergonomics-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ec73e820ab0814571de4e8d4476cbad66074790acbb4c9a34005beb46c33b1d1"
+    },
+    {
+      "id": "B-7c05:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Post-merge re-bind (merge 97a294cf75 / mains B-f97c removed requirements-doc embedding from story_review prompts) confirmed sound: brief-output-smoke.ts full-output witness for story_review is now the PLAN prompt header regex /Please review the PLAN-phase artifacts/ (assert at line 408) instead of FULL_ONLY_MARKER-in-truth-doc; FULL_ONLY_MARKER remains valid and unchanged for the unrelated finding_list heavy-description check (lines 285-295). Re-ran node packages/main/dist/tasks/brief-output-smoke.js: pass. Spot-checked CHK-003:happy:0 probe (help byte budget <16000): pass. finding_list shows all 11 findings (F-001..F-011) resolved, attention.suspected empty. Full validate run (post RR-014 start) shows status=pass, allPass=true, verificationCoverage total=44 covered=42 missingRequired=0; the 2 uncovered entries (CHK-003:edge:0, CHK-006:edge:1) are should-priority advisory gaps, pre-existing and unrelated to the merge. No coverage regression; no finding filed.",
+      "createdAt": "2026-07-12T18:39:10.457Z",
+      "reviewRound": "2026-07-12T18:30:44.632Z",
+      "reviewRunId": "B-7c05:RR-014",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7c05/checklist.json",
+          ".lattice/story/actives/B-7c05/findings.json",
+          "packages/main/src/tasks/brief-output-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7c05/delivery-check.json",
+          ".lattice/story/actives/B-7c05/index.json",
+          ".lattice/story/actives/B-7c05/review-passes.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f8df0163f98406928ad972fe71859bf844bb1d5faa813ca4480ed2531fa35884"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-8038",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff*",
+    "git log*",
+    "git status*",
+    "lattice *",
+    "node packages/main/*",
+    "node scripts/*",
+    "npm --prefix packages/main *",
+    "npm test",
+    "rg *"
+  ],
+  "allowedTools": [
+    "Antigravity CLI",
+    "apply_patch",
+    "Bash",
+    "Claude Code CLI",
+    "Codex CLI",
+    "Glob",
+    "Grep",
+    "Read"
+  ],
+  "allowedPaths": [
+    ".claude",
+    ".lattice-codex",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/requirements",
+    "lattice.config.json",
+    "package-lock.json",
+    "package.json",
+    "packages/main/prompts",
+    "packages/main/scripts",
+    "packages/main/src",
+    "packages/main/tests",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git clean -fd*",
+    "git push*",
+    "git reset --hard*",
+    "omx*"
+  ],
+  "excludedTools": [
+    "OMX"
+  ],
+  "excludedPaths": [
+    ".lattice/story/actives/B-3928",
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Implement only M6A-M6G from B-f646. Story metadata and fixtures must be changed only through Lattice commands. Preserve B-3928 baseline artifacts and never restore requirements corpus prompt injection.",
+  "createdAt": "2026-07-12T10:08:26.359Z",
+  "updatedAt": "2026-07-12T10:08:26.359Z",
+  "_hash": "544375d691d6f74391dcc2e534c1d2d5c2e7b6acee7647cd33257d1ebf7985ed"
+}

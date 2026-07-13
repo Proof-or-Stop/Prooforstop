@@ -1,0 +1,75 @@
+{
+  "principles": [
+    "Prompt producers must not inject unbounded historical corpora into routine agent calls.",
+    "Removing an advisory content channel must not weaken signed lifecycle gates.",
+    "Regression evidence must measure the user-visible cost boundary."
+  ],
+  "drivers": [
+    "Immediate prevention of multi-megabyte prompt expansion",
+    "Minimal code surface for a safe urgent fix",
+    "Compatibility with current structured story_review consumers"
+  ],
+  "options": [
+    {
+      "name": "A: Delete corpus loading and concatenation now",
+      "pros": [
+        "Eliminates the unbounded producer channel immediately",
+        "Small reviewable diff",
+        "Preserves structured PLAN prompt content"
+      ],
+      "cons": [
+        "Does not deliver the future CLI candidateSpecSet router"
+      ]
+    },
+    {
+      "name": "B: Keep reads and truncate the assembled prompt",
+      "pros": [
+        "Small superficial change"
+      ],
+      "cons": [
+        "Silently drops documents by traversal order",
+        "Retains unnecessary filesystem and memory cost",
+        "Cannot provide sound coverage semantics"
+      ]
+    },
+    {
+      "name": "C: Implement full M6 candidate routing in this Story",
+      "pros": [
+        "Could provide richer targeted spec context"
+      ],
+      "cons": [
+        "Expands an urgent deletion into a large routing and process-fact change",
+        "Raises regression and ownership risk"
+      ]
+    }
+  ],
+  "chosen": "A: Delete corpus loading and concatenation now",
+  "rationale": "A directly removes the measured 2.5 MB producer-side cause while preserving the existing signed scope-check gate. B is unsound and C is intentionally deferred to the established M6 program.",
+  "preMortem": [
+    {
+      "scenario": "A leftover import or alternate code path still reads the corpus",
+      "trigger": "Only truthDocs.join is deleted while recursive traversal remains",
+      "consequence": "story_review still pays filesystem and memory cost",
+      "mitigation": "Static regression asserts no recursive requirements read/truthDocs channel and runtime test uses a large sentinel document"
+    },
+    {
+      "scenario": "Removing Truth Source accidentally removes structured PLAN content",
+      "trigger": "Prompt assembly is edited too broadly",
+      "consequence": "Reviewers lose understanding, decision, checklist, or verificationIntent context",
+      "mitigation": "Runtime regression asserts each preserved structured section and sentinel values remain"
+    },
+    {
+      "scenario": "A compatibility consumer expects truthDocsCount",
+      "trigger": "Field is removed without checking structured-output tests",
+      "consequence": "Downstream smoke or scripts fail",
+      "mitigation": "Inspect current consumers and preserve a truthful compatibility value only if necessary"
+    },
+    {
+      "scenario": "Token claim is exaggerated or not reproducible",
+      "trigger": "Only byte sizes or historical estimates are reported",
+      "consequence": "User cannot audit the savings claim",
+      "mitigation": "Record deterministic pre/post bytes and label token conversion as an estimate; separately report available host usage facts"
+    }
+  ],
+  "timestamp": "2026-07-12T01:26:21.846Z"
+}

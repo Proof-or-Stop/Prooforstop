@@ -46,6 +46,10 @@ import { StoryStore } from '../core/store.js';
 import { createDoctorHandlers, resolveDoctorGitCwd } from '../handlers/doctor.js';
 import { evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
 
+// B-623a: keep this smoke hermetic and fast — doctor now runs an advisory host
+// burn scan over the real ~/.codex / ~/.claude stores by default; 0 disables it.
+process.env.LATTICE_BURN_ALERT_RECENT_HOURS = '0';
+
 const FATAL_RE = /fatal: not a git repository/i;
 
 function git(cwd: string, args: string[]): string {
@@ -99,7 +103,7 @@ function writeStoryIndex(root: string, storyDirRel: string, storyId: string, pha
  * execSync discovery calls — not from the returned string — so we must capture
  * the live stdout/stderr streams, not just the handler return value.
  */
-function runDoctorCapture(root: string): { text: string; ret: string } {
+async function runDoctorCapture(root: string): Promise<{ text: string; ret: string }> {
   const chunks: string[] = [];
   const origOut = process.stdout.write.bind(process.stdout);
   const origErr = process.stderr.write.bind(process.stderr);
@@ -112,7 +116,7 @@ function runDoctorCapture(root: string): { text: string; ret: string } {
   let ret = '';
   try {
     const handlers = createDoctorHandlers({ store: new StoryStore(root), root, scanRoot: root });
-    const out = handlers.doctor({ format: 'text' });
+    const out = await handlers.doctor({ format: 'text' });
     ret = typeof out === 'string' ? out : JSON.stringify(out);
   } finally {
     (process.stdout.write as any) = origOut;
@@ -210,7 +214,7 @@ try {
   // The pre-fix symptom: two leading `fatal: not a git repository` lines from
   // the unpiped execSync discovery calls running in the non-git wrapper.
   {
-    const { text } = runDoctorCapture(wrapper);
+    const { text } = await runDoctorCapture(wrapper);
     assert.ok(
       !FATAL_RE.test(text),
       `wrapper-root: doctor() must NOT print "fatal: not a git repository" anywhere.\n--- captured ---\n${text}\n----------------`,
@@ -222,7 +226,7 @@ try {
 
   // ── 3. END-TO-END — PLAIN-REPO doctor() unchanged (no fatal, report ok) ──────
   {
-    const { text } = runDoctorCapture(plain);
+    const { text } = await runDoctorCapture(plain);
     assert.ok(
       !FATAL_RE.test(text),
       `plain-repo: doctor() must NOT print "fatal: not a git repository".\n--- captured ---\n${text}\n----------------`,

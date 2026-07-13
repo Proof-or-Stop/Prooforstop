@@ -1,0 +1,23 @@
+{
+  "task": "Write a canonical M6 execution plan for deterministic plus multi-host keyword generation, local bounded document search, auditable candidate ranking, and quality-preserving escalation.",
+  "outcome": "The user can open one Markdown document and see an implementation-ready sequence with schemas, ownership, milestones, tests, rollout thresholds, token budgets, quality gates, and explicit future-state labels.",
+  "facts": [
+    "B-f97c deleted story_review full-corpus embedding and reduced the measured prompt path by 99.91%.",
+    "The existing prompt consolidation plan defines candidateSpecSet and M6 but does not give this hybrid keyword-routing design its own implementation document.",
+    "Codex CLI and Claude Code CLI are primary independent hosts; Antigravity CLI is a fallback or supplemental semantic proposer.",
+    "Model-proposed keywords alone can miss legacy terms and cannot be gate evidence.",
+    "Local filename enumeration, bounded rg results, ranking reasons, readManifest, and scanEscalationReason can make routing auditable."
+  ],
+  "constraints": [
+    "Create exactly one canonical decision document.",
+    "Do not change runtime code or prompt templates.",
+    "Preserve signed scope-check ownership and full-scan escalation for ambiguity/high-risk cases.",
+    "Clearly distinguish shipped B-f97c behavior from future M6 work.",
+    "Specify measurable recall, token, latency, and evidence acceptance criteria."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
+  ],
+  "timestamp": "2026-07-12T08:59:22.093Z"
+}
