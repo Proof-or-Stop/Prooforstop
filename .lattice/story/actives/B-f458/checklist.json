@@ -10,7 +10,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-13T08:37:36.211Z",
-      "endTime": "2026-07-13T11:42:15.447Z",
+      "endTime": "2026-07-13T11:53:53.552Z",
       "userSees": "User runs the M4.C1 contract verifier and sees `PASS closeout artifact classifications: closed policy set verified`; adding an unknown trusted path or wrong writer makes the command exit non-zero with the exact path.",
       "verificationIntent": {
         "happy": [
@@ -53,33 +53,33 @@
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full suite passed at d9f301399f, including the closed classification and compatibility guard contracts.",
-          "headHash": "d9f301399f69a9284d14cb4ada93ef7dc59014c5",
-          "materialHash": "90f15839206772318007d79565d77df2790fb2399747a67c697139728b75140e",
-          "storyFilesHash": "ece10afc0df39a2ec04b025872be19ec512b30a00d91b9ad58cfed333007ccf8",
-          "timestamp": "2026-07-13T11:42:15.713Z"
+          "note": "Full suite passed at 932387b7a9 with the AST-enforced closed compatibility boundary.",
+          "headHash": "932387b7a9e78b6986c839782b4ff28dddec6b9e",
+          "materialHash": "81a56fd7ef5fb7410e9e53b484d76c581ba6d919947a55ac5367806a3a43292d",
+          "storyFilesHash": "5f21567f7ebe6e0b7137ce5bcecb6ce6b03f379e956ece1ce56818a4bf0b7cbb",
+          "timestamp": "2026-07-13T11:53:53.757Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
-          "note": "Guard passed at d9f301399f with exact approved-symbol and occurrence boundaries.",
-          "headHash": "d9f301399f69a9284d14cb4ada93ef7dc59014c5",
-          "materialHash": "90f15839206772318007d79565d77df2790fb2399747a67c697139728b75140e",
-          "storyFilesHash": "ece10afc0df39a2ec04b025872be19ec512b30a00d91b9ad58cfed333007ccf8",
-          "timestamp": "2026-07-13T11:42:15.894Z"
+          "note": "AST guard passed at 932387b7a9 for exact approved bindings and decoded identifiers.",
+          "headHash": "932387b7a9e78b6986c839782b4ff28dddec6b9e",
+          "materialHash": "81a56fd7ef5fb7410e9e53b484d76c581ba6d919947a55ac5367806a3a43292d",
+          "storyFilesHash": "5f21567f7ebe6e0b7137ce5bcecb6ce6b03f379e956ece1ce56818a4bf0b7cbb",
+          "timestamp": "2026-07-13T11:53:53.889Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
           "command": "npm run test:process-fact-contract",
           "result": "pass",
-          "note": "Process contract passed at d9f301399f and pins two-hop, alias/export, and symbol-escape enforcement.",
-          "headHash": "d9f301399f69a9284d14cb4ada93ef7dc59014c5",
-          "materialHash": "90f15839206772318007d79565d77df2790fb2399747a67c697139728b75140e",
-          "storyFilesHash": "ece10afc0df39a2ec04b025872be19ec512b30a00d91b9ad58cfed333007ccf8",
-          "timestamp": "2026-07-13T11:42:16.086Z"
+          "note": "Process contract pins AST parsing, template imports, and Unicode wrapper attacks at 932387b7a9.",
+          "headHash": "932387b7a9e78b6986c839782b4ff28dddec6b9e",
+          "materialHash": "81a56fd7ef5fb7410e9e53b484d76c581ba6d919947a55ac5367806a3a43292d",
+          "storyFilesHash": "5f21567f7ebe6e0b7137ce5bcecb6ce6b03f379e956ece1ce56818a4bf0b7cbb",
+          "timestamp": "2026-07-13T11:53:54.020Z"
         }
       ]
     },
