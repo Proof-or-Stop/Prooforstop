@@ -1042,6 +1042,26 @@
       ],
       "signatureTag": "dynamic-code-local-alias-scope",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-044",
+      "desc": "The closed compatibility boundary can be bypassed through Node package import maps. resolvedStaticModulePath rejects every non-relative specifier, and deriveShippedPackageEntrypoints reads only bin/exports, not package.json#imports. I temporarily added packages/main/package.json imports {\"#quality-review-compat\":\"./dist/core/legacy-delivery-claims-compat.js\"} and a new scanned packages/main/src/core module that statically imports createLegacyLocalOnlyDeliveryClaims from that alias and invokes it. The retired-authority guard printed PASS; npm --prefix packages/main run build succeeded; importing the emitted module returned the false authority claims object. Because the load is a static non-relative import, neither concealed-loader nor dynamic-code fail-closed logic sees it. Resolve package imports/self-reference aliases to their source targets (or reject active executable imports using package aliases unless pinned), include imports in the manifest-derived entry/edge contract, and add an end-to-end #imports positive control.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T13:34:57.872Z",
+      "reviewRound": "2026-07-13T13:30:59.880Z",
+      "reviewRunId": "B-f458:RR-059",
+      "_hash": "a50a679e318360f15f692ae2bc78d2484206312a2326c1dc037df6ccae041441",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/package.json",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "package-import-map-compatibility-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
