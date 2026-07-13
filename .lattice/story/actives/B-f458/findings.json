@@ -2409,7 +2409,7 @@
       "desc": "Danger-wins and dynamic namespace provenance are applied only while building aliases; direct wrapped call targets still bypass. dynamicReferenceKind handles identifiers, comma-right, bind, and property chains rooted in bindings.provenanceBySymbol, while boundExpressionProvenance only descends identifiers/comma/member access. It does not evaluate ConditionalExpression, AwaitExpression, or ImportKeyword. Therefore `(flag ? eval : safeRun)(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")`, `(await import('./dynamic-code-esm-bridge.js')).evalRun(payload)`, and `(await import('./namespace-barrel.js')).bridge.vmRun(payload)` never consume mergeAlternativeProvenance or namespace provenance and are missed. Existing conditional/logical and dynamic/deep namespace controls first assign/import into a symbol, hiding this expression-level boundary. Make dynamicExecutionKind consume cycle-safe provenanceForExpression for arbitrary call/new targets while retaining exact comma-right and safe local identity precision; pin inline conditional/logical, direct await-import member, and nested inline namespace dangerous/safe cases.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T18:31:36.325Z",
@@ -2429,7 +2429,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "inline-call-target-provenance-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 151eac3ea1: Arbitrary wrapped call targets now consume expression provenance for conditional, logical, awaited import and inline nested namespace forms with danger-wins.",
+      "resolvedAt": "2026-07-13T18:56:26.510Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-093",
