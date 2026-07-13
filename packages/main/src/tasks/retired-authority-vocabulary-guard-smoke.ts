@@ -115,6 +115,126 @@ function deriveShippedPackageEntrypoints(): string[] {
   }).filter((entrypoint, index, all) => all.indexOf(entrypoint) === index).sort();
 }
 
+type PackageAliasKind = 'imports' | 'self-export';
+
+interface PackageAliasEdge {
+  manifestPath: string;
+  packageDir: string;
+  packageName: string;
+  kind: PackageAliasKind;
+  specifierPattern: string;
+  targetPattern: string;
+  conditionPath: string;
+}
+
+interface PackageAliasManifestRecord {
+  path: string;
+  manifest: { name?: unknown; imports?: unknown; exports?: unknown };
+}
+
+function collectConditionalTargets(value: unknown, conditionPath = 'default'): Array<{ target: string; conditionPath: string }> {
+  if (typeof value === 'string') return [{ target: value, conditionPath }];
+  if (Array.isArray(value)) return value.flatMap((entry, index) => collectConditionalTargets(entry, `${conditionPath}[${index}]`));
+  if (!value || typeof value !== 'object') return [];
+  return Object.entries(value).sort(([left], [right]) => left.localeCompare(right))
+    .flatMap(([condition, target]) => collectConditionalTargets(target, `${conditionPath}.${condition}`));
+}
+
+function buildPackageAliasEdgeInventory(records: readonly PackageAliasManifestRecord[]): PackageAliasEdge[] {
+  const edges: PackageAliasEdge[] = [];
+  for (const record of records) {
+    if (typeof record.manifest.name !== 'string' || record.manifest.name.length === 0) continue;
+    const packageName = record.manifest.name;
+    const packageDir = dirname(record.path).replace(/\\/g, '/');
+    if (record.manifest.imports && typeof record.manifest.imports === 'object' && !Array.isArray(record.manifest.imports)) {
+      for (const [specifierPattern, targetValue] of Object.entries(record.manifest.imports)) {
+        for (const target of collectConditionalTargets(targetValue)) {
+          edges.push({ manifestPath: record.path, packageDir, packageName, kind: 'imports', specifierPattern, targetPattern: target.target, conditionPath: target.conditionPath });
+        }
+      }
+    }
+    const exportEntries = record.manifest.exports && typeof record.manifest.exports === 'object' && !Array.isArray(record.manifest.exports)
+      && Object.keys(record.manifest.exports).some(key => key === '.' || key.startsWith('./'))
+      ? Object.entries(record.manifest.exports)
+      : [['.', record.manifest.exports] as [string, unknown]];
+    for (const [exportKey, targetValue] of exportEntries) {
+      const specifierPattern = exportKey === '.' ? packageName : `${packageName}${exportKey.slice(1)}`;
+      for (const target of collectConditionalTargets(targetValue)) {
+        edges.push({ manifestPath: record.path, packageDir, packageName, kind: 'self-export', specifierPattern, targetPattern: target.target, conditionPath: target.conditionPath });
+      }
+    }
+  }
+  return edges.sort((left, right) => JSON.stringify(left).localeCompare(JSON.stringify(right)));
+}
+
+const PACKAGE_ALIAS_MANIFEST_RECORDS: PackageAliasManifestRecord[] = SHIPPED_PACKAGE_MANIFESTS.map(path => ({
+  path,
+  manifest: JSON.parse(readRel(path)) as PackageAliasManifestRecord['manifest'],
+}));
+const PACKAGE_ALIAS_EDGE_INVENTORY = buildPackageAliasEdgeInventory(PACKAGE_ALIAS_MANIFEST_RECORDS);
+const PACKAGE_ALIAS_EDGE_INVENTORY_ALGORITHM = 'package-imports-self-exports-edge-inventory-sha256-v1';
+const PINNED_PACKAGE_ALIAS_EDGE_INVENTORY_HASH = 'b188998274384ced74b3854db09d331d6040ee8cc2c7897d0f966860f7a3eae4';
+
+function packageAliasEdgeInventoryHash(records: readonly PackageAliasManifestRecord[], edges: readonly PackageAliasEdge[]): string {
+  const manifestSurfaces = records.map(record => ({
+    path: record.path,
+    name: record.manifest.name ?? null,
+    imports: record.manifest.imports ?? null,
+    exports: record.manifest.exports ?? null,
+  }));
+  return createHash('sha256').update(JSON.stringify({ manifestSurfaces, edges })).digest('hex');
+}
+
+function aliasPatternCapture(pattern: string, specifier: string): string | undefined {
+  const star = pattern.indexOf('*');
+  if (star === -1) return pattern === specifier ? '' : undefined;
+  if (pattern.indexOf('*', star + 1) !== -1) return undefined;
+  const prefix = pattern.slice(0, star);
+  const suffix = pattern.slice(star + 1);
+  return specifier.startsWith(prefix) && specifier.endsWith(suffix)
+    ? specifier.slice(prefix.length, specifier.length - suffix.length)
+    : undefined;
+}
+
+function packageSourceTarget(edge: PackageAliasEdge, capture: string): string | undefined {
+  if (!edge.targetPattern.startsWith('./')) return undefined;
+  const substituted = edge.targetPattern.replace('*', capture).replace(/^\.\//, '');
+  const sourceRelative = substituted.startsWith('dist/')
+    ? substituted.replace(/^dist\//, 'src/').replace(/\.js$/, '.ts')
+    : substituted;
+  return normalizeModulePath(join(edge.packageDir, sourceRelative).replace(/\\/g, '/'));
+}
+
+interface StaticModuleResolution {
+  targets: string[];
+  error?: string;
+}
+
+function resolvePackageAlias(
+  file: string,
+  specifier: string,
+  edges: readonly PackageAliasEdge[] = PACKAGE_ALIAS_EDGE_INVENTORY,
+): StaticModuleResolution {
+  const owners = [...new Map(edges.map(edge => [edge.manifestPath, edge])).values()]
+    .filter(edge => file.startsWith(`${edge.packageDir}/`))
+    .sort((left, right) => right.packageDir.length - left.packageDir.length);
+  const owner = owners[0];
+  const kind: PackageAliasKind | undefined = specifier.startsWith('#')
+    ? 'imports'
+    : owner && (specifier === owner.packageName || specifier.startsWith(`${owner.packageName}/`)) ? 'self-export' : undefined;
+  if (!kind) return { targets: [] };
+  if (!owner) return { targets: [], error: `package alias ${specifier} has no owning package manifest` };
+  const candidates = edges.filter(edge => edge.manifestPath === owner.manifestPath && edge.kind === kind)
+    .flatMap(edge => {
+      const capture = aliasPatternCapture(edge.specifierPattern, specifier);
+      if (capture === undefined) return [];
+      const target = packageSourceTarget(edge, capture);
+      return target ? [target] : [];
+    });
+  if (candidates.length === 0) return { targets: [], error: `package alias ${specifier} has no supported source target` };
+  return { targets: [...new Set(candidates)].sort() };
+}
+
 const retiredFutureBacklogPlanFiles = [
   'docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md',
   'docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md',
@@ -744,7 +864,10 @@ function normalizeModulePath(path: string): string {
 }
 
 function normalizeStaticModuleSpecifier(specifier: string): string | undefined {
-  const suffixIndex = specifier.search(/[?#]/);
+  const queryIndex = specifier.indexOf('?');
+  const fragmentIndex = specifier.indexOf('#', specifier.startsWith('#') ? 1 : 0);
+  const suffixIndexes = [queryIndex, fragmentIndex].filter(index => index >= 0);
+  const suffixIndex = suffixIndexes.length > 0 ? Math.min(...suffixIndexes) : -1;
   const withoutSuffix = suffixIndex === -1 ? specifier : specifier.slice(0, suffixIndex);
   try {
     const decoded = decodeURIComponent(withoutSuffix);
@@ -754,28 +877,39 @@ function normalizeStaticModuleSpecifier(specifier: string): string | undefined {
   }
 }
 
-function resolvedStaticModulePath(file: string, specifier: string): string | undefined {
+function resolvedStaticModulePaths(
+  file: string,
+  specifier: string,
+  aliasEdges: readonly PackageAliasEdge[] = PACKAGE_ALIAS_EDGE_INVENTORY,
+): StaticModuleResolution {
   const normalizedSpecifier = normalizeStaticModuleSpecifier(specifier);
-  if (normalizedSpecifier === undefined || !normalizedSpecifier.startsWith('.')) return undefined;
-  return normalizeModulePath(join(dirname(file), normalizedSpecifier).replace(/\\/g, '/'));
+  if (normalizedSpecifier === undefined) return { targets: [], error: `malformed encoded static module specifier: ${specifier}` };
+  if (normalizedSpecifier.startsWith('.')) {
+    return { targets: [normalizeModulePath(join(dirname(file), normalizedSpecifier).replace(/\\/g, '/'))] };
+  }
+  return resolvePackageAlias(file, normalizedSpecifier, aliasEdges);
 }
 
 function retiredModuleMatch(file: string, specifier: string): string | undefined {
   const normalizedSpecifier = normalizeStaticModuleSpecifier(specifier);
   if (normalizedSpecifier === undefined) return 'malformed encoded static module specifier';
   if (/\bstory-authority-resolv(?:e|er)\b/.test(normalizedSpecifier)) return 'retired story resolver module';
-  const target = resolvedStaticModulePath(file, normalizedSpecifier);
-  if (!target) return undefined;
+  const resolution = resolvedStaticModulePaths(file, normalizedSpecifier);
+  if (resolution.error) return 'unresolved package import/self-reference alias';
   for (const retiredFile of retiredServerBackedModuleFiles) {
-    if (target === normalizeModulePath(retiredFile)) return 'retired quarantined module specifier';
+    if (resolution.targets.includes(normalizeModulePath(retiredFile))) return 'retired quarantined module specifier';
   }
   return undefined;
 }
 
-function moduleSpecifierResolvesTo(file: string, specifier: string, targetFile: string): boolean {
-  const target = resolvedStaticModulePath(file, specifier);
-  if (!target) return false;
-  return target === normalizeModulePath(targetFile);
+function moduleSpecifierResolvesTo(
+  file: string,
+  specifier: string,
+  targetFile: string,
+  aliasEdges: readonly PackageAliasEdge[] = PACKAGE_ALIAS_EDGE_INVENTORY,
+): boolean {
+  const resolution = resolvedStaticModulePaths(file, specifier, aliasEdges);
+  return resolution.targets.includes(normalizeModulePath(targetFile));
 }
 
 interface CompatibilityImportBinding {
@@ -784,12 +918,16 @@ interface CompatibilityImportBinding {
   declaration: ts.ImportSpecifier;
 }
 
-function compatibilityImportBindings(file: string, source: ts.SourceFile): Map<string, CompatibilityImportBinding> {
+function compatibilityImportBindings(
+  file: string,
+  source: ts.SourceFile,
+  aliasEdges: readonly PackageAliasEdge[] = PACKAGE_ALIAS_EDGE_INVENTORY,
+): Map<string, CompatibilityImportBinding> {
   const bindings = new Map<string, CompatibilityImportBinding>();
   for (const statement of source.statements) {
     if (!ts.isImportDeclaration(statement)
       || !ts.isStringLiteral(statement.moduleSpecifier)
-      || !moduleSpecifierResolvesTo(file, statement.moduleSpecifier.text, LEGACY_DELIVERY_COMPAT_MODULE)) continue;
+      || !moduleSpecifierResolvesTo(file, statement.moduleSpecifier.text, LEGACY_DELIVERY_COMPAT_MODULE, aliasEdges)) continue;
     const namedBindings = statement.importClause?.namedBindings;
     if (!namedBindings || !ts.isNamedImports(namedBindings)) continue;
     for (const element of namedBindings.elements) {
@@ -924,8 +1062,9 @@ function disallowedCompatibilityValueReferences(
   approved: NonNullable<ReturnType<typeof approvedLegacyDeliveryCompatUsages.get>>,
   file: string,
   checker: ts.TypeChecker,
+  aliasEdges: readonly PackageAliasEdge[] = PACKAGE_ALIAS_EDGE_INVENTORY,
 ): ts.Identifier[] {
-  const bindings = compatibilityImportBindings(file, source);
+  const bindings = compatibilityImportBindings(file, source, aliasEdges);
   const disallowed: ts.Identifier[] = [];
   for (const symbol of Object.keys(approved.calls)) {
     const binding = bindings.get(symbol);
@@ -1031,7 +1170,7 @@ const DYNAMIC_VM_EXECUTION_MEMBERS = new Set([
 interface DynamicExecutionBindings {
   dangerousSymbols: Map<ts.Symbol, string>;
   vmNamespaceSymbols: Set<ts.Symbol>;
-  asyncCallableSymbols: Set<ts.Symbol>;
+  functionCallableSymbols: Map<ts.Symbol, string>;
 }
 
 interface DynamicAliasRecord {
@@ -1066,21 +1205,35 @@ function isGlobalRequireCall(node: ts.Expression, checker: ts.TypeChecker): node
     && (current.arguments[0].text === 'node:vm' || current.arguments[0].text === 'vm');
 }
 
-function isAsyncCallableExpression(node: ts.Expression): boolean {
+function functionExpressionConstructorKind(node: ts.Expression): string | undefined {
   const current = unwrapExecutionExpression(node);
-  return (ts.isArrowFunction(current) || ts.isFunctionExpression(current))
-    && current.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.AsyncKeyword) === true;
+  if (!ts.isArrowFunction(current) && !ts.isFunctionExpression(current)) return undefined;
+  const isAsync = current.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.AsyncKeyword) === true;
+  const isGenerator = ts.isFunctionExpression(current) && Boolean(current.asteriskToken);
+  if (isAsync && isGenerator) return 'AsyncGeneratorFunction';
+  if (isGenerator) return 'GeneratorFunction';
+  if (isAsync) return 'AsyncFunction';
+  return 'Function';
 }
 
-function isAsyncPrototypeLookup(node: ts.Expression, checker: ts.TypeChecker): boolean {
+function functionDeclarationConstructorKind(node: ts.FunctionDeclaration): string {
+  const isAsync = node.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.AsyncKeyword) === true;
+  const isGenerator = Boolean(node.asteriskToken);
+  if (isAsync && isGenerator) return 'AsyncGeneratorFunction';
+  if (isGenerator) return 'GeneratorFunction';
+  if (isAsync) return 'AsyncFunction';
+  return 'Function';
+}
+
+function functionPrototypeLookupKind(node: ts.Expression, checker: ts.TypeChecker): string | undefined {
   const current = unwrapExecutionExpression(node);
   if (!ts.isCallExpression(current)
     || current.arguments.length !== 1
-    || !isAsyncCallableExpression(current.arguments[0])
     || !ts.isPropertyAccessExpression(current.expression)
-    || current.expression.name.text !== 'getPrototypeOf') return false;
+    || current.expression.name.text !== 'getPrototypeOf') return undefined;
   const objectExpression = unwrapExecutionExpression(current.expression.expression);
-  return ts.isIdentifier(objectExpression) && isGlobalIdentifier(objectExpression, checker, 'Object');
+  if (!ts.isIdentifier(objectExpression) || !isGlobalIdentifier(objectExpression, checker, 'Object')) return undefined;
+  return functionExpressionConstructorKind(current.arguments[0]);
 }
 
 function dynamicReferenceKind(
@@ -1112,10 +1265,12 @@ function dynamicReferenceKind(
     if (['call', 'apply', 'bind'].includes(member)) return dynamicReferenceKind(target, checker, bindings);
     if ((member === 'eval' || member === 'Function') && isGlobalObjectIdentifier(target, checker)) return member;
     if (member === 'constructor') {
-      if (isAsyncCallableExpression(target) || isAsyncPrototypeLookup(target, checker)) return 'AsyncFunction.constructor';
+      const directKind = functionExpressionConstructorKind(target) ?? functionPrototypeLookupKind(target, checker);
+      if (directKind) return `${directKind}.constructor`;
       if (ts.isIdentifier(target)) {
         const targetSymbol = identifierSymbol(target, checker);
-        if (targetSymbol && bindings.asyncCallableSymbols.has(targetSymbol)) return 'AsyncFunction.constructor';
+        const callableKind = targetSymbol ? bindings.functionCallableSymbols.get(targetSymbol) : undefined;
+        if (callableKind) return `${callableKind}.constructor`;
       }
       const inherited = dynamicReferenceKind(target, checker, bindings);
       if (inherited) return `${inherited}.constructor`;
@@ -1144,26 +1299,32 @@ function vmNamespaceReference(
   return Boolean(symbol && bindings.vmNamespaceSymbols.has(symbol));
 }
 
-function asyncCallableReference(
+function functionCallableReference(
   expression: ts.Expression,
   checker: ts.TypeChecker,
   bindings: DynamicExecutionBindings,
-): boolean {
+): string | undefined {
   const current = unwrapExecutionExpression(expression);
-  if (isAsyncCallableExpression(current)) return true;
-  if (!ts.isIdentifier(current)) return false;
+  const directKind = functionExpressionConstructorKind(current);
+  if (directKind) return directKind;
+  if (!ts.isIdentifier(current)) return undefined;
   const symbol = identifierSymbol(current, checker);
-  return Boolean(symbol && bindings.asyncCallableSymbols.has(symbol));
+  return symbol ? bindings.functionCallableSymbols.get(symbol) : undefined;
 }
 
 function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.TypeChecker): DynamicExecutionBindings {
   const bindings: DynamicExecutionBindings = {
     dangerousSymbols: new Map(),
     vmNamespaceSymbols: new Set(),
-    asyncCallableSymbols: new Set(),
+    functionCallableSymbols: new Map(),
   };
   const aliases: DynamicAliasRecord[] = [];
   const destructures: DynamicDestructureRecord[] = [];
+  const addAlias = (name: ts.BindingName | ts.Expression, expression: ts.Expression): void => {
+    if (!ts.isIdentifier(name)) return;
+    const symbol = identifierSymbol(name, checker);
+    if (symbol) aliases.push({ target: symbol, expression });
+  };
   const addDestructure = (name: ts.BindingName | ts.Expression, property: string, sourceExpression: ts.Expression): void => {
     if (!ts.isIdentifier(name)) return;
     const symbol = identifierSymbol(name, checker);
@@ -1175,6 +1336,14 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
         ? element.propertyName.text
         : ts.isIdentifier(element.name) ? element.name.text : undefined;
       if (property) addDestructure(element.name, property, sourceExpression);
+    }
+  };
+  const collectBindingDefaults = (pattern: ts.BindingName): void => {
+    if (ts.isIdentifier(pattern)) return;
+    for (const element of pattern.elements) {
+      if (!ts.isBindingElement(element)) continue;
+      if (element.initializer) addAlias(element.name, element.initializer);
+      collectBindingDefaults(element.name);
     }
   };
   const collectAssignmentPattern = (pattern: ts.ObjectLiteralExpression, sourceExpression: ts.Expression): void => {
@@ -1192,6 +1361,10 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
       && ts.isStringLiteral(node.moduleSpecifier)
       && (node.moduleSpecifier.text === 'node:vm' || node.moduleSpecifier.text === 'vm')) {
       const imported = node.importClause?.namedBindings;
+      if (node.importClause?.name) {
+        const symbol = identifierSymbol(node.importClause.name, checker);
+        if (symbol) bindings.vmNamespaceSymbols.add(symbol);
+      }
       if (imported && ts.isNamespaceImport(imported)) {
         const symbol = identifierSymbol(imported.name, checker);
         if (symbol) bindings.vmNamespaceSymbols.add(symbol);
@@ -1204,9 +1377,14 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
         }
       }
     }
-    if (ts.isFunctionDeclaration(node) && node.name && node.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.AsyncKeyword)) {
+    if (ts.isFunctionDeclaration(node) && node.name) {
       const symbol = identifierSymbol(node.name, checker);
-      if (symbol) bindings.asyncCallableSymbols.add(symbol);
+      if (symbol) bindings.functionCallableSymbols.set(symbol, functionDeclarationConstructorKind(node));
+    }
+    if (ts.isParameter(node) && node.initializer) {
+      if (ts.isIdentifier(node.name)) addAlias(node.name, node.initializer);
+      if (ts.isObjectBindingPattern(node.name)) collectBindingPattern(node.name, node.initializer);
+      collectBindingDefaults(node.name);
     }
     if (ts.isVariableDeclaration(node) && node.initializer) {
       if (ts.isIdentifier(node.name)) {
@@ -1214,11 +1392,13 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
         if (symbol) {
           aliases.push({ target: symbol, expression: node.initializer });
           if (isGlobalRequireCall(node.initializer, checker)) bindings.vmNamespaceSymbols.add(symbol);
-          if (isAsyncCallableExpression(node.initializer)) bindings.asyncCallableSymbols.add(symbol);
+          const callableKind = functionExpressionConstructorKind(node.initializer);
+          if (callableKind) bindings.functionCallableSymbols.set(symbol, callableKind);
         }
       } else if (ts.isObjectBindingPattern(node.name)) {
         collectBindingPattern(node.name, node.initializer);
       }
+      collectBindingDefaults(node.name);
     }
     if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
       if (ts.isIdentifier(node.left)) {
@@ -1239,9 +1419,10 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
         bindings.vmNamespaceSymbols.add(alias.target);
         changed = true;
       }
-      if (!bindings.asyncCallableSymbols.has(alias.target) && asyncCallableReference(alias.expression, checker, bindings)) {
-        bindings.asyncCallableSymbols.add(alias.target);
-        changed = true;
+      if (!bindings.functionCallableSymbols.has(alias.target)) {
+        const callableKind = functionCallableReference(alias.expression, checker, bindings);
+        if (callableKind) bindings.functionCallableSymbols.set(alias.target, callableKind);
+        if (callableKind) changed = true;
       }
       if (!bindings.dangerousSymbols.has(alias.target)) {
         const kind = dynamicReferenceKind(alias.expression, checker, bindings);
@@ -1344,12 +1525,16 @@ function scanDynamicCodeGeneration(file: string, text: string): Violation[] {
   return violations;
 }
 
-function importedCompatSymbols(file: string, source: ts.SourceFile): string[] {
+function importedCompatSymbols(
+  file: string,
+  source: ts.SourceFile,
+  aliasEdges: readonly PackageAliasEdge[] = PACKAGE_ALIAS_EDGE_INVENTORY,
+): string[] {
   const symbols: string[] = [];
   for (const statement of source.statements) {
     if (!ts.isImportDeclaration(statement)
       || !ts.isStringLiteral(statement.moduleSpecifier)
-      || !moduleSpecifierResolvesTo(file, statement.moduleSpecifier.text, LEGACY_DELIVERY_COMPAT_MODULE)) continue;
+      || !moduleSpecifierResolvesTo(file, statement.moduleSpecifier.text, LEGACY_DELIVERY_COMPAT_MODULE, aliasEdges)) continue;
     const bindings = statement.importClause?.namedBindings;
     if (!bindings || !ts.isNamedImports(bindings)) continue;
     for (const element of bindings.elements) {
@@ -1360,14 +1545,19 @@ function importedCompatSymbols(file: string, source: ts.SourceFile): string[] {
   return symbols;
 }
 
-function scanLegacyDeliveryCompatibilityUsage(file: string, text: string, checkedPinnedPaths?: Map<string, number>): Violation[] {
+function scanLegacyDeliveryCompatibilityUsage(
+  file: string,
+  text: string,
+  checkedPinnedPaths?: Map<string, number>,
+  aliasEdges: readonly PackageAliasEdge[] = PACKAGE_ALIAS_EDGE_INVENTORY,
+): Violation[] {
   const fingerprintViolations = validatePinnedExecutableSourceFingerprint(file, text, checkedPinnedPaths);
   if (file === LEGACY_DELIVERY_COMPAT_MODULE) return fingerprintViolations;
   const source = parseSource(file, text);
   const checker = typeCheckerFor(file, text);
   const concealedLoadViolations = scanConcealedCompatibilityLoads(file, text);
   const compatImports = extractImportSpecifiers(text, file)
-    .filter(({ specifier }) => moduleSpecifierResolvesTo(file, specifier, LEGACY_DELIVERY_COMPAT_MODULE));
+    .filter(({ specifier }) => moduleSpecifierResolvesTo(file, specifier, LEGACY_DELIVERY_COMPAT_MODULE, aliasEdges));
   const approved = approvedLegacyDeliveryCompatUsages.get(file);
   const violations: Violation[] = [...fingerprintViolations, ...concealedLoadViolations];
   if (compatImports.length === 0) return violations;
@@ -1380,8 +1570,8 @@ function scanLegacyDeliveryCompatibilityUsage(file: string, text: string, checke
     }))];
   }
 
-  const compatBindings = compatibilityImportBindings(file, source);
-  const actualSymbols = [...new Set(importedCompatSymbols(file, source))].sort();
+  const compatBindings = compatibilityImportBindings(file, source, aliasEdges);
+  const actualSymbols = [...new Set(importedCompatSymbols(file, source, aliasEdges))].sort();
   const expectedSymbols = [...approved.symbols].sort();
   if (compatImports.length !== 1 || JSON.stringify(actualSymbols) !== JSON.stringify(expectedSymbols)) {
     violations.push({
@@ -1411,7 +1601,7 @@ function scanLegacyDeliveryCompatibilityUsage(file: string, text: string, checke
       violations.push({ file, line: 1, label: 'legacy delivery compatibility symbol escape', text: `${symbol}: expected ${expectedCount} local occurrence(s), got ${actualCount}` });
     }
   }
-  for (const reference of disallowedCompatibilityValueReferences(source, approved, file, checker)) {
+  for (const reference of disallowedCompatibilityValueReferences(source, approved, file, checker, aliasEdges)) {
     violations.push({
       file,
       line: lineNumberAt(text, reference.getStart(source)),
@@ -1456,18 +1646,18 @@ function scanLegacyDeliveryCompatibilityGraph(fileTexts: ReadonlyMap<string, str
     for (const [file, text] of fileTexts) {
       const normalizedFile = normalizeModulePath(file);
       for (const { specifier, index, kind } of extractImportSpecifiers(text, file)) {
-        const target = resolvedStaticModulePath(file, specifier);
-        if (!target) continue;
-        if (!exporters.has(target) || target === normalizeModulePath(LEGACY_DELIVERY_COMPAT_MODULE)) continue;
-        violations.push({
-          file,
-          line: lineNumberAt(text, index),
-          label: 'transitive legacy delivery compatibility import',
-          text: `${specifier} via ${target}`,
-        });
-        if (kind === 'export' && !exporters.has(normalizedFile)) {
-          exporters.add(normalizedFile);
-          changed = true;
+        for (const target of resolvedStaticModulePaths(file, specifier).targets) {
+          if (!exporters.has(target) || target === normalizeModulePath(LEGACY_DELIVERY_COMPAT_MODULE)) continue;
+          violations.push({
+            file,
+            line: lineNumberAt(text, index),
+            label: 'transitive legacy delivery compatibility import',
+            text: `${specifier} via ${target}`,
+          });
+          if (kind === 'export' && !exporters.has(normalizedFile)) {
+            exporters.add(normalizedFile);
+            changed = true;
+          }
         }
       }
     }
@@ -1584,6 +1774,57 @@ function assertHermeticTraversalPositiveControls(): void {
 }
 
 function assertShippedExecutableRootPositiveControls(): void {
+  const actualAliasInventoryHash = packageAliasEdgeInventoryHash(PACKAGE_ALIAS_MANIFEST_RECORDS, PACKAGE_ALIAS_EDGE_INVENTORY);
+  assert.equal(
+    actualAliasInventoryHash,
+    PINNED_PACKAGE_ALIAS_EDGE_INVENTORY_HASH,
+    `${PACKAGE_ALIAS_EDGE_INVENTORY_ALGORITHM}: package imports/self-exports edge inventory drift requires explicit review`,
+  );
+  for (const edge of PACKAGE_ALIAS_EDGE_INVENTORY.filter(edge => !edge.targetPattern.includes('*'))) {
+    const target = packageSourceTarget(edge, '');
+    assert.ok(target && EXECUTABLE_SOURCE_EXTENSIONS.some(extension => existsSync(join(repoRoot, `${target}${extension}`))), `package alias edge must resolve to a source target: ${edge.specifierPattern}`);
+  }
+  const hermeticRecords: PackageAliasManifestRecord[] = [{
+    path: 'packages/main/package.json',
+    manifest: {
+      name: '@lattice/core',
+      imports: {
+        '#compat': { node: './src/core/legacy-delivery-claims-compat.ts', default: './src/core/legacy-delivery-claims-compat.ts' },
+        '#compat/*': './src/core/*.ts',
+      },
+      exports: { './compat': './src/core/legacy-delivery-claims-compat.ts' },
+    },
+  }];
+  const hermeticEdges = buildPackageAliasEdgeInventory(hermeticRecords);
+  const aliasControlFile = 'packages/main/src/package-alias-control.ts';
+  for (const [label, specifier] of [
+    ['package imports alias', '#compat'],
+    ['conditional wildcard package imports alias', '#compat/legacy-delivery-claims-compat'],
+    ['package self-reference alias', '@lattice/core/compat'],
+  ] as const) {
+    assert.ok(
+      resolvePackageAlias(aliasControlFile, specifier, hermeticEdges).targets.includes(normalizeModulePath(LEGACY_DELIVERY_COMPAT_MODULE)),
+      `${label} must resolve through the manifest edge inventory`,
+    );
+    const source = `import { createLegacyLocalOnlyDeliveryClaims } from '${specifier}';\ncreateLegacyLocalOnlyDeliveryClaims();\n`;
+    assert.ok(
+      scanLegacyDeliveryCompatibilityUsage(aliasControlFile, source, undefined, hermeticEdges)
+        .some(violation => violation.label === 'unapproved legacy delivery compatibility import'),
+      `${label} must resolve end-to-end to the protected source target`,
+    );
+  }
+  const mutatedRecords = structuredClone(hermeticRecords);
+  (mutatedRecords[0].manifest.imports as Record<string, unknown>)['#new-bypass'] = './src/core/legacy-delivery-claims-compat.ts';
+  assert.notEqual(
+    packageAliasEdgeInventoryHash(hermeticRecords, hermeticEdges),
+    packageAliasEdgeInventoryHash(mutatedRecords, buildPackageAliasEdgeInventory(mutatedRecords)),
+    'changing package imports must change the pinned manifest-derived edge inventory fingerprint',
+  );
+  assert.ok(
+    scanImportSpecifiers(aliasControlFile, "import '#unregistered-bypass';")
+      .some(violation => violation.label === 'unresolved package import/self-reference alias'),
+    'unknown package imports alias must fail closed',
+  );
   assert.deepEqual(
     deriveShippedPackageEntrypoints(),
     SHIPPED_EXECUTABLE_ENTRYPOINTS.filter(entrypoint => entrypoint.startsWith('packages/')).sort(),
@@ -1662,6 +1903,17 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['nested global destructure alias', "function execute() { const { eval: indirect } = globalThis; indirect(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
     ['nested vm destructure alias', "function execute() { const { runInContext: run } = require('node:vm'); run(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
     ['nested reassignment alias', "function execute() { let indirect; indirect = eval; indirect(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['eval parameter default', "function execute(indirect = eval) { indirect(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['vm parameter default', "function execute(vm = require('node:vm')) { vm.runInContext(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['AsyncFunction parameter default', "function execute(Build = Object.getPrototypeOf(async function() {}).constructor) { new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['object destructure parameter default', "function execute({ eval: indirect } = globalThis) { indirect(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['array destructure parameter default', "function execute([indirect = eval] = []) { indirect(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['rest-fed array destructure default', "function execute(...args) { const [indirect = eval] = args; indirect(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['ordinary function expression constructor', "const Build = (function() {}).constructor; new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['ordinary function declaration constructor alias', "function factory() {} const alias = factory; const Build = alias.constructor; new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['generator function constructor', "const Build = (function*() {}).constructor; new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['async generator function constructor', "const Build = (async function*() {}).constructor; new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['node vm default import', "import vm from 'node:vm'; vm.runInNewContext(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
   ] as const;
   for (const [label, source] of cases) {
     const violations = scanDynamicCodeGeneration(controlFile, source);
@@ -1675,6 +1927,10 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['shadowed window property', "const window = { eval(value) { return value; } }; window.eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['shadowed vm namespace', "const vm = { runInNewContext(value) { return value; } }; vm.runInNewContext(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['shadowed local require', "function execute(require) { const vm = require('node:vm'); vm.runInNewContext(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['shadowed eval parameter default', "function execute(eval = value => value) { eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['shadowed vm parameter default', "function execute(vm = { runInContext(value) { return value; } }) { vm.runInContext(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['shadowed Function parameter default', "function execute(Function = class LocalBuilder {}) { new Function(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['ordinary object constructor', "const object = { constructor(value) { return value; } }; object.constructor(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
   ] as const) {
     assert.deepEqual(scanDynamicCodeGeneration(controlFile, source), [], `${label} must remain a declaration-identity negative control`);
   }
