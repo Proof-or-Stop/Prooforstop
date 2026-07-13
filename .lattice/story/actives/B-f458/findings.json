@@ -1926,6 +1926,33 @@
       ],
       "signatureTag": "non-vm-require-provenance-exemption",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-077",
+      "desc": "The F-070/F-072/F-073 executable matrix is still incomplete despite all current labels executing and being process-pinned. F-070 has only six mixed cells: `any` covers declaration while `unknown` covers assignment/parameter for each object/array shape; the latter expressions are `source as any`, so checker provenance at the binding source is also any. There are no any assignment/parameter controls or unknown declaration controls, so the claimed any/unknown × object/array × declaration/assignment/parameter boundary is not exercised. F-073 repeats the same gap for true nested ARRAY rest: only any declaration plus unknown-as-any assignment/parameter exist, not both source categories across all three walker entry forms. F-072 has finite typed spread direct/destructured dangerous positives but only a direct safe negative, while unique-symbol spread has direct dangerous/safe access only and no destructured dangerous or safe control. Add and process-pin the missing Cartesian known-key and nested-array-rest cells, plus finite and unique-symbol destructured safe/dangerous symmetry. The current runner does execute every listed positive/negative (guard PASS), so this is missing executable coverage rather than dead labels; retain the now-complete eval/Function/runInContext/constructor direct/rest/destructured safe-name matrix and spread order/enumerability controls.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-13T17:06:10.960Z",
+      "reviewRound": "2026-07-13T16:57:55.492Z",
+      "reviewRunId": "B-f458:RR-095",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete 1e9684f531 implementation diff, the full changed provenance/control/process-pin sections, and executable runner assertions; unchanged portions of the two large files were triaged by name, with no decisions-document escalation needed."
+      },
+      "_hash": "bfd996010513bea25a65e10fe6621838231ddc7d2b51088887fac06656b2fe7d",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "provenance-control-cartesian-gap",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
