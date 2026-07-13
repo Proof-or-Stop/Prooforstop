@@ -2192,7 +2192,7 @@
       "desc": "The F-082 dynamic-import repair is bypassed by the pre-existing `await Promise.all([import(...)])` special case. Before the generic ImportKeyword/export-graph branch runs, provenanceForExpression recognizes an all-import array and returns each tuple slot as `{ completeMembers:false }` while marking the outer tuple complete (lines 1973-1993). It never resolves the imported module symbol and does not mark the slot unknown. Thus `const [bridge] = await Promise.all([import('./dynamic-code-esm-bridge.js')]); bridge.evalRun(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")`, member, and nested destructuring variants lose all eval/Function/vm identity and evade the guard. The new controls cover direct await import and an aliased promise, but no Promise.all projection. Build Promise.all tuple members by invoking the same import provenance for every element (and merge/fail closed for mixed or unresolved arrays), with dangerous and safe direct/destructured controls plus process pins.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T18:06:55.747Z",
@@ -2212,7 +2212,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "promise-all-import-provenance-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by a34d89024d: Promise.all and awaited dynamic-import arrays propagate per-slot module provenance before tuple completeness.",
+      "resolvedAt": "2026-07-13T18:26:25.839Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-086",
