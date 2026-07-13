@@ -749,6 +749,25 @@
       "resolvedAt": "2026-07-13T12:19:21.080Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f458:F-031",
+      "desc": "The new call anchors and export taint still miss assignment/property-write flows, so F-029/F-030 containment is bypassable without changing binding counts or approved anchors. In delivery-context-pack.ts, add `export const leakBox: any = {};` and replace the approved nested-function initializer with `claims: (leakBox.payload = { claims: createLegacyLocalOnlyDeliveryClaims() }, leakBox.payload.claims)`. The compatibility call remains a zero-arg `claims` PropertyAssignment under the exact approved anchor `function:createDeliveryContextPackHandlers>function:deliveryContextPack`; the AST probe reports bindingReferenceCount=3, the exact two expected call anchors, and disallowed=[]. `directlyExportsCompatibilityBinding` only propagates through VariableDeclaration/FunctionDeclaration bodies (lines 805-840); leakBox’s exported declaration initializer is `{}`, while the tainted value arrives through a later BinaryExpression assignment, so leakBox is never marked tainted and downstream property/destructuring consumers have no graph edge. Track assignment/property-write flows (including exported mutable/container symbols) or forbid any compatibility call whose result is not the exact canonical return-object node, and add same-anchor exported-container mutation controls.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T12:21:35.060Z",
+      "reviewRound": "2026-07-13T12:19:02.442Z",
+      "reviewRunId": "B-f458:RR-047",
+      "_hash": "c8f458d411769cc3d9e16b84cb08999a0e5389cc8abf59c792066126e17904f2",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/src/handlers/delivery-context-pack.ts"
+      ],
+      "signatureTag": "adversarial|ts|call-anchors-export",
+      "signatureTagSource": "auto"
     }
   ]
 }
