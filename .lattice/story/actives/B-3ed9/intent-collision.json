@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-3ed9",
+  "id": "IC-2",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Same accepted interpretation as IC round 1: a bounded two-deliverable chore — (1) add grill.json, clusters.json, scope-extension-decisions.json to LATTICE_LIFECYCLE_ARTIFACT_FILENAMES and remove the stale singular cluster.json entry (verified: no writer, no on-disk instance); (2) extend scope-contract-smoke.ts per the B-12a1 pattern. Re-confirmation recorded after milestone_ledger_set added verificationIntentRefs, to bind candidate ledger sha256:4ec26b845cec9ee2253d172d783ffada523e836b386fd4dd697f4302e5ef41dc.",
+  "acceptedInterpretationHash": "sha256:59eac8725bbe45ab85145bf3597e31595e4ec214e631f99c25ec98e41328ce22",
+  "notes": "Re-confirmation after ledger update per ordering rule: intent_collision_set pass must be recorded after milestone_ledger_set for the confirmedLedgerHash to bind.",
+  "ledgerHashBeforeDecision": "sha256:4ec26b845cec9ee2253d172d783ffada523e836b386fd4dd697f4302e5ef41dc",
+  "confirmedLedgerHash": "sha256:4ec26b845cec9ee2253d172d783ffada523e836b386fd4dd697f4302e5ef41dc",
+  "createdAt": "2026-07-13T08:25:34.886Z",
+  "updatedAt": "2026-07-13T08:28:00.673Z"
+}

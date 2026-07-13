@@ -1,0 +1,22 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-07-13T08:28:32.906Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when Add grill.json, clusters.json, scope-extension-decisions.json to LATTICE_LIFECYCLE_ARTIFACT_FILENAMES and remove the stale cluster.json entry + Extend scope-contract-smoke.ts to cover the three new filenames and the removed stale entry are performed simultaneously?)"
+        },
+        {
+          "type": "missing_understanding",
+          "severity": "advisory",
+          "message": "understanding snapshot not filled. Recommend calling understanding_set before breaking down checklist to record the 6 fields task/outcome/facts/constraints/unknowns/touchpoints, avoiding expensive late fixes for misunderstandings"
+        }
+      ],
+      "_hash": "4974259ae1b40b59bda72f0254903263d8d649eeca108fcb1e66bf443d52d3df"
+    }
+  ]
+}

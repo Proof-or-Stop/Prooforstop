@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-3ed9",
+  "checkedAt": "2026-07-13T08:23:22.411Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "d6a66b5ef8f98ece50e5aa31df7aa1fe4168044aaa941d96cb4755982d8f996d",
+  "executionBoundaryHash": "1bfc0ca0fcf528847e1ca7db37cc07cb19e6da6da5b39d316a17e36e3482f3bf",
+  "freshnessHash": "2642ef317c65695081e1d5d7213084082c34df2c357d663709084d35630e41c2",
+  "effectiveExcludedKeywords": [
+    "No changes to gate/policy behavior or scope-contract handlers",
+    "No changes to other registries (e.g. process-fact registry — covered by parallel story B-9188)",
+    "No changes to scope classifier logic or path-normalization code in lifecycle-registry.ts beyond the filename set entries",
+    "No changes to store.ts or any writer code"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "No changes to gate/policy behavior or scope-contract handlers",
+      "source": "scopeBoundary.excluded",
+      "text": "No changes to gate/policy behavior or scope-contract handlers",
+      "excluded": true
+    },
+    {
+      "keyword": "No changes to other registries (e.g. process-fact registry — covered by parallel story B-9188)",
+      "source": "scopeBoundary.excluded",
+      "text": "No changes to other registries (e.g. process-fact registry — covered by parallel story B-9188)",
+      "excluded": true
+    },
+    {
+      "keyword": "No changes to scope classifier logic or path-normalization code in lifecycle-registry.ts beyond the filename set entries",
+      "source": "scopeBoundary.excluded",
+      "text": "No changes to scope classifier logic or path-normalization code in lifecycle-registry.ts beyond the filename set entries",
+      "excluded": true
+    },
+    {
+      "keyword": "No changes to store.ts or any writer code",
+      "source": "scopeBoundary.excluded",
+      "text": "No changes to store.ts or any writer code",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "80f3a8013b87ce49b979fabd6b7f5dfe3f0d48ce1eed828e93eb06d3d7bf564c"
+}
