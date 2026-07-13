@@ -157,7 +157,7 @@
       "desc": "The v2 chain closes historical replay/copy/reorder, but still does not prove the current write came from a canonical handler. Every receipt field and integrityHash is publicly computable. Reproduced in a fresh git repo without calling summary_set or autoCommitStoryMetadata: manually write summary.json plus a sequence=1 receipt claiming writerCommand=summary_set, set headHash/materialHash/storyFilesHash to the parent, commit both together, and latestValidCloseoutReceipt accepts it (accepted=true, writer=summary_set). This violates CHK-001 canonical writer provenance and CHK-004 adversarial manual/wrong-writer rejection. Add an authority boundary the manual writer cannot mint (or narrow the claim/threat model and intents); include this exact counterfeit-current-receipt negative in the smoke.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-13T09:40:03.943Z",
@@ -170,7 +170,11 @@
         "packages/main/src/tasks/closeout-trust-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|chain-closes-historical",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 065b7dde13: closeout receipts are now signed by a per-story/per-review-round Ed25519 key whose public identity is bound into the exact ReviewRun; manual co-commit forgery, wrong-key signing, signer rotation replay, and old-key replay are rejected by regression coverage.",
+      "resolvedAt": "2026-07-13T09:56:14.216Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-008",
