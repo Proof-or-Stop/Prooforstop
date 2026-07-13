@@ -96,7 +96,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-13T09:16:54.176Z",
+      "endTime": "2026-07-13T10:15:09.807Z",
       "userSees": "User sees `PASS composite scope digest: semantic scope facts bound`; changing acknowledgement content/provenance, milestone ledger, or slice plan changes the digest and blocks metadata-only review retention until signed re-attestation.",
       "verificationIntent": {
         "happy": [
@@ -142,37 +142,37 @@
           "intentRef": "CHK-002:happy:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/closeout-trust-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && npm run test:closeout-trust && npm run test:process-fact-contract && npm run test:runtime-fact-contract",
           "result": "pass",
-          "note": "Composite digest deterministically binds acknowledgements, ledger state/binding, and slice plan.",
-          "headHash": "065b7dde13c6f5aa1874245cf3d7b12ad516b164",
-          "materialHash": "f64678a73cd3f3477178dc1aa08b4ae60ef7cd0c77232b71fa255069f425f116",
-          "storyFilesHash": "70f020519d23cfc20d922515f44605831638d8cbc58535a48a6e4fc19cb41dee",
-          "timestamp": "2026-07-13T09:54:44.604Z"
+          "note": "Composite digest deterministically binds normalized scope acknowledgements, ledger state/binding, and slice plan; identical semantic inputs reproduce it.",
+          "headHash": "3ebdd2abb303fd3673946a7dff534a5cb7b3d575",
+          "materialHash": "d189ecd2427dfff56d4fef54beda2206d5da20301a5fff3a254d6227ede2ca14",
+          "storyFilesHash": "4de5ef436f8d8e55aaad46748510eba7965cbcce87753c5eae4e3a58d8fb4356",
+          "timestamp": "2026-07-13T10:15:09.975Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/closeout-trust-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && npm run test:closeout-trust && npm run test:process-fact-contract && npm run test:runtime-fact-contract",
           "result": "pass",
-          "note": "Mutating any semantic input changes the digest and invalidates retention.",
-          "headHash": "065b7dde13c6f5aa1874245cf3d7b12ad516b164",
-          "materialHash": "f64678a73cd3f3477178dc1aa08b4ae60ef7cd0c77232b71fa255069f425f116",
-          "storyFilesHash": "70f020519d23cfc20d922515f44605831638d8cbc58535a48a6e4fc19cb41dee",
-          "timestamp": "2026-07-13T09:54:44.604Z"
+          "note": "Independent acknowledgement content/provenance, ledger, plan, and scope mutations change the composite digest and require fresh signed review.",
+          "headHash": "3ebdd2abb303fd3673946a7dff534a5cb7b3d575",
+          "materialHash": "d189ecd2427dfff56d4fef54beda2206d5da20301a5fff3a254d6227ede2ca14",
+          "storyFilesHash": "4de5ef436f8d8e55aaad46748510eba7965cbcce87753c5eae4e3a58d8fb4356",
+          "timestamp": "2026-07-13T10:15:10.135Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/closeout-trust-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && npm run test:closeout-trust && npm run test:process-fact-contract && npm run test:runtime-fact-contract",
           "result": "pass",
-          "note": "Canonical serialization and recomputation reject embedded-digest and replay spoofing.",
-          "headHash": "065b7dde13c6f5aa1874245cf3d7b12ad516b164",
-          "materialHash": "f64678a73cd3f3477178dc1aa08b4ae60ef7cd0c77232b71fa255069f425f116",
-          "storyFilesHash": "70f020519d23cfc20d922515f44605831638d8cbc58535a48a6e4fc19cb41dee",
-          "timestamp": "2026-07-13T09:54:44.604Z"
+          "note": "Canonical serialization and recomputation reject key reordering, embedded-digest rewrite, provenance replay, and unbound ledger/plan substitution.",
+          "headHash": "3ebdd2abb303fd3673946a7dff534a5cb7b3d575",
+          "materialHash": "d189ecd2427dfff56d4fef54beda2206d5da20301a5fff3a254d6227ede2ca14",
+          "storyFilesHash": "4de5ef436f8d8e55aaad46748510eba7965cbcce87753c5eae4e3a58d8fb4356",
+          "timestamp": "2026-07-13T10:15:10.285Z"
         }
       ]
     },
