@@ -86,7 +86,39 @@
       "context": "When frozen, hard-block mutating lifecycle/advance commands with a rejection that names the tripped counters and points at the authoritative next action (existing done_prepare --dryRun / proofstory gate-check). Clear only via a new resume/ack command that refuses under autopilot / non-interactive mode. Reuse the non-owner rejection gate pattern in core/story-owner-lease.ts + command-policy ownershipClass; do not weaken the single legitimate forceTakeover.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "A frozen story blocks story_advance with \"CONVERGENCE BREAKER: story <id> is FROZEN\" naming the tripped counters; story_resume --ack --reason clears it interactively; under LATTICE_AUTOPILOT=1 story_resume is refused with \"requires an interactive human session\".",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A frozen story rejects story_advance with a message naming the tripped counters and the authoritative next action",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "story_resume --ack --reason=... in an interactive session clears the freeze and the next advance proceeds",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "story_resume under a simulated autopilot/non-interactive env is refused so a looping agent cannot self-ack",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
