@@ -282,7 +282,7 @@
       "desc": "The new Ed25519 key does not authenticate that a write came from a canonical command against the stated same-workspace manual-writer adversary. The private key is a predictable local runtime file readable by the same OS user that can hand-edit story metadata, and loadReviewRoundReceiptSigner plus signCloseoutWriteReceipt are directly usable by that process. In a real wrapper fixture I loaded the exact review-round private key, manually wrote summary.json, built a receipt claiming writerCommand=summary_set with the current HEAD/hashes, appended it, and committed both; latestValidCloseoutReceipt accepted it. The regression only uses an independently generated attacker key, so it misses this capability-reuse attack. Mode 0600 separates OS users but cannot distinguish the canonical CLI from manual code running as the project user (and load does not reject a key file whose mode has become permissive). Either use a signer capability isolated from arbitrary project-user reads, or narrow the claim/threat model; add a same-key manual co-commit regression.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T09:58:33.952Z",
@@ -297,7 +297,11 @@
         "packages/main/src/tasks/closeout-trust-smoke.ts"
       ],
       "signatureTag": "receipt-signer-capability-reuse",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by c7fc14674c and f10e43b8ee: mode-0600 same-UID key storage was removed from the authority model and runtime registry. Local receipts are explicitly audit-only; exact same-UID artifact plus coherent receipt forgery is accepted only as causal telemetry and rejected by gate-authoritative lookup, requiring fresh review.",
+      "resolvedAt": "2026-07-13T10:17:18.491Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
