@@ -399,6 +399,9 @@ const DYNAMIC_PROVENANCE_REACHABILITY_LABELS = new Set([
   'computed bind local safe negative',
   'spread direct local safe negative',
   'spread rest mixed local safe negative',
+  'full vector spread call local safe negative',
+  'full vector spread apply local safe negative',
+  'computed full vector spread bind local safe negative',
 ]);
 const DYNAMIC_CODE_UNAPPROVED_ONLY_LABELS = new Set([
   'namespace safe named reexport eval benign fail closed',
@@ -2894,11 +2897,12 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
   };
   type LocalCallableDeclaration = ts.FunctionDeclaration | ts.FunctionExpression | ts.ArrowFunction | ts.MethodDeclaration;
   type InvocationMember = 'call' | 'apply' | 'bind';
-  const normalizedInvocationCallee = (expression: ts.Expression): {
+  interface NormalizedInvocation {
     target: ts.Expression;
     member?: InvocationMember;
     unknownComputed: boolean;
-  } => {
+  }
+  const normalizedInvocationCallee = (expression: ts.Expression): NormalizedInvocation => {
     const current = unwrapExecutionExpression(expression);
     if (!ts.isPropertyAccessExpression(current) && !ts.isElementAccessExpression(current)) {
       return { target: expression, unknownComputed: false };
@@ -2991,6 +2995,51 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
     const exact = exactSpreadValues(provenance);
     return exact ? { prefix: exact } : { prefix: [], unknownTail: spreadTailValue(provenance) };
   };
+  const argumentVectorValueAt = (vector: ArgumentVector, index: number): DynamicProvenance | undefined => (
+    mergeArgumentValue(vector.prefix[index], vector.unknownTail)
+  );
+  const dropArgumentVectorPrefix = (vector: ArgumentVector, count: number): ArgumentVector => ({
+    prefix: vector.prefix.slice(count),
+    unknownTail: vector.unknownTail,
+  });
+  const projectInvocationArguments = (
+    full: ArgumentVector,
+    normalized: NormalizedInvocation,
+  ): { direct: ArgumentVector; applied: ArgumentVector } => {
+    if (normalized.member === 'apply') {
+      return {
+        direct: { prefix: [] },
+        applied: vectorFromApplied(argumentVectorValueAt(full, 1)),
+      };
+    }
+    if (normalized.member === 'call' || normalized.member === 'bind') {
+      return { direct: dropArgumentVectorPrefix(full, 1), applied: { prefix: [] } };
+    }
+    if (normalized.unknownComputed) {
+      return {
+        direct: dropArgumentVectorPrefix(full, 1),
+        applied: vectorFromApplied(argumentVectorValueAt(full, 1)),
+      };
+    }
+    return { direct: full, applied: { prefix: [] } };
+  };
+  const concatenateArgumentVectors = (prior: ArgumentVector, added: ArgumentVector): ArgumentVector => {
+    if (!prior.unknownTail) {
+      return {
+        prefix: [...prior.prefix, ...added.prefix],
+        unknownTail: added.unknownTail,
+      };
+    }
+    const uncertainValues = [prior.unknownTail, ...added.prefix, added.unknownTail]
+      .filter((value): value is DynamicProvenance => Boolean(value));
+    return {
+      prefix: prior.prefix,
+      unknownTail: uncertainValues.reduce<DynamicProvenance | undefined>(
+        (merged, value) => mergeArgumentValue(merged, value),
+        undefined,
+      ),
+    };
+  };
   const boundArgumentProvenance = (expression: ts.Expression, seen = new Set<ts.Symbol>()): ArgumentVector => {
     const current = unwrapExecutionExpression(expression);
     const symbol = expressionSymbol(current, checker);
@@ -3005,10 +3054,9 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
         const normalized = normalizedInvocationCallee(initializer.expression);
         if (normalized.member === 'bind') {
           const prior = boundArgumentProvenance(normalized.target, nextSeen);
-          const added = flattenCallArguments(initializer.arguments.slice(1));
-          return prior.unknownTail
-            ? { prefix: prior.prefix, unknownTail: mergeArgumentValue(prior.unknownTail, packedArgumentProvenance(added.prefix)) }
-            : { prefix: [...prior.prefix, ...added.prefix], unknownTail: added.unknownTail };
+          const full = flattenCallArguments(initializer.arguments);
+          const added = projectInvocationArguments(full, normalized).direct;
+          return concatenateArgumentVectors(prior, added);
         }
       }
     }
@@ -3034,21 +3082,15 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
     const normalized = normalizedInvocationCallee(call.expression);
     const { target } = normalized;
     const bound = boundArgumentProvenance(target);
-    const direct = normalized.member === 'call' || normalized.member === 'bind' || normalized.unknownComputed
-      ? flattenCallArguments(args.slice(1))
-      : normalized.member === 'apply'
-        ? { prefix: [] }
-        : flattenCallArguments(args);
-    const applied = normalized.member === 'apply' || normalized.unknownComputed
-      ? vectorFromApplied(args[1] ? provenanceForExpression(args[1]) : undefined)
-      : { prefix: [] };
-    const vectorValueAt = (vector: ArgumentVector, index: number): DynamicProvenance | undefined => (
-      mergeArgumentValue(vector.prefix[index], vector.unknownTail)
-    );
+    const full = flattenCallArguments(args);
+    const { direct, applied } = projectInvocationArguments(full, normalized);
     const suppliedAt = (index: number): DynamicProvenance | undefined => {
       if (index < bound.prefix.length) return bound.prefix[index];
       const remaining = index - bound.prefix.length;
-      const supplied = mergeArgumentValue(vectorValueAt(direct, remaining), vectorValueAt(applied, remaining));
+      const supplied = mergeArgumentValue(
+        argumentVectorValueAt(direct, remaining),
+        argumentVectorValueAt(applied, remaining),
+      );
       return mergeArgumentValue(bound.unknownTail, supplied);
     };
     const vectorRestAt = (vector: ArgumentVector, index: number): DynamicProvenance => {
@@ -4293,6 +4335,12 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['spread unknown array eval fail closed', "declare const args: Array<typeof eval>; function execute(run: (value: string) => unknown) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } execute(...args);"],
     ['spread call eval fail closed', "function execute(run: (value: string) => unknown) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } execute.call(null, ...[eval]);"],
     ['spread prebound bind eval fail closed', "function execute(prefix: string, run: (value: string) => unknown) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } const bound = execute.bind(null, 'prefix', ...[eval]); bound();"],
+    ['full vector spread call eval fail closed', "function execute(run: (value: string) => unknown) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } execute.call(...[null, eval]);"],
+    ['full vector spread apply eval fail closed', "function execute(run: (value: string) => unknown) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } execute.apply(...[null, [eval]]);"],
+    ['computed full vector spread bind eval fail closed', "const key = 'bind'; function execute(run: (value: string) => unknown) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } const bound = execute[key](...[null, eval]); bound();"],
+    ['full vector spread invocation danger wins', "function execute(run: (value: string) => unknown) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } const localSafe = (value: string) => value; execute.call(...[null, localSafe]); execute[`apply`](...[null, [eval]]);"],
+    ['chained bind safe then eval unknown spread fail closed', "const localSafe = (value: string) => value; declare const leading: Array<typeof localSafe>; declare const trailing: Array<typeof eval>; function execute(run: (value: string) => unknown) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } const first = execute.bind(null, ...leading); const second = first.bind(null, ...trailing); second();"],
+    ['chained bind eval then safe unknown spread fail closed', "const localSafe = (value: string) => value; declare const leading: Array<typeof eval>; declare const trailing: Array<typeof localSafe>; function execute(run: (value: string) => unknown) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } const first = execute.bind(null, ...leading); const second = first.bind(null, ...trailing); second();"],
     ['spread default override eval fail closed', "const localSafe = (value: string) => value; function execute(run = localSafe) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } execute(...[eval]);"],
     ['spread rest mixed danger wins', "declare const index: number; function execute(...runs: Array<(value: string) => unknown>) { runs[index](\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } const localSafe = (value: string) => value; execute(...[localSafe, eval]);"],
     ['rest parameter index eval fail closed', "function execute(...runs: Array<(value: string) => unknown>) { runs[0](\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } execute(eval);"],
@@ -4484,6 +4532,9 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['computed bind local safe negative', "const key = `bind`; function execute(run: (value: string) => unknown) { run('safe'); } const bound = execute[key](null, (value: string) => value); bound();"],
     ['spread direct local safe negative', "function execute(run: (value: string) => unknown) { run('safe'); } execute(...[(value: string) => value]);"],
     ['spread rest mixed local safe negative', "declare const index: number; function execute(...runs: Array<(value: string) => unknown>) { runs[index]('safe'); } const first = (value: string) => value; const second = (value: string) => value; execute(...[first, second]);"],
+    ['full vector spread call local safe negative', "function execute(run: (value: string) => unknown) { run('safe'); } execute.call(...[null, (value: string) => value]);"],
+    ['full vector spread apply local safe negative', "function execute(run: (value: string) => unknown) { run('safe'); } execute.apply(...[null, [(value: string) => value]]);"],
+    ['computed full vector spread bind local safe negative', "const key = `bind`; function execute(run: (value: string) => unknown) { run('safe'); } const bound = execute[key](...[null, (value: string) => value]); bound();"],
   ] as const;
   const controlSources = [...cases, ...negativeCases].map(([label, source], index) => ({
     label,
