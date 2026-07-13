@@ -963,7 +963,7 @@
       "desc": "Module resolution matching still treats specifiers as plain filesystem strings and misses valid Node ESM URL variants. An unapproved `.mts` source can execute `await import(\"./legacy-delivery-claims-compat.js?quality\")` (or a percent-encoded path/fragment). The mechanical runtime probe loaded the real dist compatibility module with `?quality-review`, but staticModuleText returns the query-bearing literal, normalizeModulePath does not strip URL search/hash or decode URL path segments, and moduleSpecifierResolvesTo therefore returns false. Because the argument is static, scanConcealedCompatibilityLoads also does not reject it; the graph sees a distinct target. Normalize relative ESM specifiers with URL semantics before target comparison (including query/fragment and percent encoding), while rejecting encoded separators/invalid URLs; add direct/dynamic query, fragment, and percent-encoding controls across mts/ts.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T13:18:48.721Z",
@@ -974,7 +974,11 @@
         "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|module-resolution-matching",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 1095a076ab: ESM/CJS specifiers are percent-decoded and query/fragment stripped before resolution; malformed encoding fails closed; runtime-equivalent query, fragment, and encoded controls reject.",
+      "resolvedAt": "2026-07-13T13:31:24.789Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-041",
