@@ -2625,6 +2625,24 @@
       ],
       "signatureTag": "adversarial|ts|conditional-alias-merging",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f458:F-100",
+      "desc": "Async transform provenance remains unsound: provenanceForExpression only preserves the source promise for an exact identity `.then(module => module)` and otherwise does not model the callback return. A callback can manufacture a dynamic generator from a safe import, e.g. `const run = await import(\"./dynamic-code-esm-safe.js\").then(() => eval); run(\"import(../packages/main/src/core/legacy-delivery-claims-compat.js)\")`, without the guard proving the returned eval identity. Promise.any/allSettled are likewise outside the Promise all/race branch. This is a current retired-authority guard bypass, not merely missing test coverage. Callback/collection result provenance must be modeled or fail closed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T19:01:07.983Z",
+      "reviewRound": "2026-07-13T18:55:49.140Z",
+      "reviewRunId": "B-f458:RR-108",
+      "_hash": "f1247e582fc4bc4b45d99c6fcdd06fb0492507f0560a308a79185b5c5ad408c9",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|async-transform-provenance",
+      "signatureTagSource": "auto"
     }
   ]
 }
