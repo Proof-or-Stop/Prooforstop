@@ -70,8 +70,26 @@
       "phase": "DEV",
       "headHash": "c874f10f3be43f1cd0b08fceff801f886794f1c2",
       "materialHash": "08217fb0c9f09b6fea9d32ea443b2a10d9702d59ab5e12886d5de9be4230517e"
+    },
+    {
+      "actor": "main",
+      "reason": "Delivery acceptance exposed a verified delivery_check_set false-PASS framework gap; gap_log is the required audited archival path.",
+      "timestamp": "2026-07-13T03:36:10.649Z",
+      "paths": [
+        ".lattice/story/actives/B-META-framework-audit/findings.json",
+        ".lattice/story/actives/B-META-framework-audit/index.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-META-framework-audit/findings.json",
+        ".lattice/story/actives/B-META-framework-audit/index.json"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "3302eb81534d7648dcd2182978843d8cd19340b3",
+      "materialHash": "6e3651459facd23cc93c67e06942dc54714a0b4bbf485672c5052ad4d6f131aa"
     }
   ],
   "createdAt": "2026-07-10T03:37:45.345Z",
-  "updatedAt": "2026-07-10T09:04:46.181Z"
+  "updatedAt": "2026-07-13T03:36:10.649Z"
 }
