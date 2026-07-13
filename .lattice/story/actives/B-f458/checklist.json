@@ -326,11 +326,11 @@
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Canonical persisted REVIEW-to-TEST transition without user audit field retains signed fresh review and reaches DONE.",
-          "headHash": "f8d531395b9ccf81e6c9b443764a91b48919d245",
+          "note": "Final scope-bound persisted canonical transition and actor DONE path pass.",
+          "headHash": "4a09554c46baf838845525a93d2bde4958842782",
           "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
           "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
-          "timestamp": "2026-07-13T10:45:30.909Z"
+          "timestamp": "2026-07-13T10:46:26.584Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -338,11 +338,11 @@
           "file": "packages/main/src/handlers/transition-orchestrator.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "DONE independently reruns review-loop, ProofStory completeness, and CLI preflight; existing scope/guard/validate gates remain.",
-          "headHash": "f8d531395b9ccf81e6c9b443764a91b48919d245",
+          "note": "Final scope-bound DONE independently reruns REVIEW-to-TEST preflight facts.",
+          "headHash": "4a09554c46baf838845525a93d2bde4958842782",
           "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
           "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
-          "timestamp": "2026-07-13T10:45:31.045Z"
+          "timestamp": "2026-07-13T10:46:26.726Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -350,11 +350,11 @@
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Manual phase/event identity edits gain no privilege because local strings are audit-only and skipped gates rerun at DONE.",
-          "headHash": "f8d531395b9ccf81e6c9b443764a91b48919d245",
+          "note": "Final scope-bound manual phase/identity edits gain no privilege and post-closeout writes block.",
+          "headHash": "4a09554c46baf838845525a93d2bde4958842782",
           "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
           "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
-          "timestamp": "2026-07-13T10:45:31.175Z"
+          "timestamp": "2026-07-13T10:46:26.862Z"
         }
       ]
     },
