@@ -326,23 +326,23 @@
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Persisted REVIEW snapshot followed by canonical TEST index commit retains review; actual TEST FINISH reaches DONE when no post-review closeout changed.",
-          "headHash": "817d09f98f41bfb6441b7bd07c0b29ae9af852a8",
-          "materialHash": "f0c2ac8f72d4e7e4ad1ea4a5ad93dee3b74b0719bbcc6a9873891e076082c76a",
-          "storyFilesHash": "ca890b72f160b1bd6dd014aa3defef7782852d7a6f289ee43fee5184997d2680",
-          "timestamp": "2026-07-13T10:36:15.690Z"
+          "note": "Canonical persisted REVIEW-to-TEST transition without user audit field retains signed fresh review and reaches DONE.",
+          "headHash": "f8d531395b9ccf81e6c9b443764a91b48919d245",
+          "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
+          "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
+          "timestamp": "2026-07-13T10:45:30.909Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "file": "packages/main/src/handlers/transition-orchestrator.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Validator accepts only REVIEW-to-TEST, unchanged round/stable fields, reviewed event prefix, and one collectContext-shaped event on story branch.",
-          "headHash": "817d09f98f41bfb6441b7bd07c0b29ae9af852a8",
-          "materialHash": "f0c2ac8f72d4e7e4ad1ea4a5ad93dee3b74b0719bbcc6a9873891e076082c76a",
-          "storyFilesHash": "ca890b72f160b1bd6dd014aa3defef7782852d7a6f289ee43fee5184997d2680",
-          "timestamp": "2026-07-13T10:36:15.819Z"
+          "note": "DONE independently reruns review-loop, ProofStory completeness, and CLI preflight; existing scope/guard/validate gates remain.",
+          "headHash": "f8d531395b9ccf81e6c9b443764a91b48919d245",
+          "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
+          "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
+          "timestamp": "2026-07-13T10:45:31.045Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -350,11 +350,11 @@
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Extra title/event/round/branch mutations and post-review closeout artifacts still block DONE; same-UID receipts do not bypass.",
-          "headHash": "817d09f98f41bfb6441b7bd07c0b29ae9af852a8",
-          "materialHash": "f0c2ac8f72d4e7e4ad1ea4a5ad93dee3b74b0719bbcc6a9873891e076082c76a",
-          "storyFilesHash": "ca890b72f160b1bd6dd014aa3defef7782852d7a6f289ee43fee5184997d2680",
-          "timestamp": "2026-07-13T10:36:15.950Z"
+          "note": "Manual phase/event identity edits gain no privilege because local strings are audit-only and skipped gates rerun at DONE.",
+          "headHash": "f8d531395b9ccf81e6c9b443764a91b48919d245",
+          "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
+          "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
+          "timestamp": "2026-07-13T10:45:31.175Z"
         }
       ]
     },
