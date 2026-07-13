@@ -12,7 +12,7 @@ import { existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSyn
 import { builtinModules } from 'node:module';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import ts from 'typescript';
 import { MAIN_TOOLS } from '../cli-engine.js';
 import { NESTED_SPACE_ALIASES } from '../cli/alias-normalizer.js';
@@ -535,6 +535,8 @@ const typeProgramInstrumentation = {
   languageServiceBuilds: 0,
   languageServiceProgramRequests: 0,
   distinctLanguageServicePrograms: new Set<ts.Program>(),
+  dynamicBindingBuilds: 0,
+  dynamicBindingCacheHits: 0,
 };
 
 function parseSource(file: string, text: string): ts.SourceFile {
@@ -748,6 +750,8 @@ function assertTypeProgramInstrumentation(): void {
   assert.ok(syntheticTypeFiles.size <= 32, `synthetic LanguageService roots must remain bounded at 32, got ${syntheticTypeFiles.size}`);
   assert.ok(typeProgramInstrumentation.languageServiceProgramRequests <= 320, `synthetic LanguageService Program requests must remain bounded at 320, got ${typeProgramInstrumentation.languageServiceProgramRequests}`);
   assert.ok(typeProgramInstrumentation.distinctLanguageServicePrograms.size <= 128, `distinct LanguageService Program identities across controlled version changes must remain bounded at 128, got ${typeProgramInstrumentation.distinctLanguageServicePrograms.size}`);
+  assert.ok(typeProgramInstrumentation.dynamicBindingCacheHits >= 2, `dynamic binding cache must be exercised by repeated scans, got ${typeProgramInstrumentation.dynamicBindingCacheHits} hit(s)`);
+  assert.ok(typeProgramInstrumentation.dynamicBindingBuilds <= 800, `dynamic binding graph builds must remain bounded at 800, got ${typeProgramInstrumentation.dynamicBindingBuilds}`);
 }
 
 function staticModuleText(
@@ -847,14 +851,20 @@ function collectLoaderBindings(source: ts.SourceFile, checker: ts.TypeChecker): 
   loaderSymbols: Set<ts.Symbol>;
   createRequireSymbols: Set<ts.Symbol>;
   moduleNamespaceSymbols: Set<ts.Symbol>;
+  moduleObjectSymbols: Set<ts.Symbol>;
 } {
   const loaderSymbols = new Set<ts.Symbol>();
   const createRequireSymbols = new Set<ts.Symbol>();
   const moduleNamespaceSymbols = new Set<ts.Symbol>();
+  const moduleObjectSymbols = new Set<ts.Symbol>();
   const valueDeclarations: Array<{ symbol: ts.Symbol; initializer: ts.Expression }> = [];
+  const objectBindings: Array<{ name: ts.ObjectBindingPattern; initializer: ts.Expression }> = [];
+  const importCandidates: ts.Symbol[] = [];
   const calls: ts.CallExpression[] = [];
   const visit = (node: ts.Node): void => {
     if (ts.isImportSpecifier(node)) {
+      const candidate = checker.getSymbolAtLocation(node.name);
+      if (candidate) importCandidates.push(candidate);
       const imported = (node.propertyName ?? node.name).text;
       const declaration = containingImportDeclaration(node);
       const moduleName = declaration && ts.isStringLiteral(declaration.moduleSpecifier)
@@ -876,6 +886,9 @@ function collectLoaderBindings(source: ts.SourceFile, checker: ts.TypeChecker): 
     if ((ts.isVariableDeclaration(node) || ts.isParameter(node)) && ts.isIdentifier(node.name) && node.initializer) {
       const symbol = checker.getSymbolAtLocation(node.name);
       if (symbol) valueDeclarations.push({ symbol, initializer: node.initializer });
+    }
+    if (ts.isVariableDeclaration(node) && ts.isObjectBindingPattern(node.name) && node.initializer) {
+      objectBindings.push({ name: node.name, initializer: node.initializer });
     }
     if (ts.isVariableDeclaration(node)
       && ts.isObjectBindingPattern(node.name)
@@ -902,6 +915,40 @@ function collectLoaderBindings(source: ts.SourceFile, checker: ts.TypeChecker): 
   const resolvesTo = (node: ts.Identifier, symbols: ReadonlySet<ts.Symbol>): boolean => {
     const symbol = checker.getSymbolAtLocation(node);
     return Boolean(symbol && symbols.has(symbol));
+  };
+  const symbolResolvesToCreateRequire = (input: ts.Symbol, seen = new Set<ts.Symbol>()): boolean => {
+    if (seen.has(input)) return false;
+    seen.add(input);
+    if (createRequireSymbols.has(input)) return true;
+    if (input.getName() === 'createRequire'
+      && (input.getDeclarations() ?? []).some(declaration => declaration.getSourceFile().isDeclarationFile
+        && declaration.getSourceFile().fileName.includes('@types/node/module'))) return true;
+    if ((input.flags & ts.SymbolFlags.Alias) !== 0) {
+      const target = checker.getAliasedSymbol(input);
+      if (target !== input && symbolResolvesToCreateRequire(target, seen)) return true;
+    }
+    return (input.getDeclarations() ?? []).some(declaration => {
+      if (!ts.isImportSpecifier(declaration)) return false;
+      const imported = (declaration.propertyName ?? declaration.name).text;
+      const importDeclaration = containingImportDeclaration(declaration);
+      return imported === 'createRequire'
+        && Boolean(importDeclaration && ts.isStringLiteral(importDeclaration.moduleSpecifier)
+          && (importDeclaration.moduleSpecifier.text === 'node:module' || importDeclaration.moduleSpecifier.text === 'module'));
+    });
+  };
+  for (const candidate of importCandidates) if (symbolResolvesToCreateRequire(candidate)) createRequireSymbols.add(candidate);
+  const isNodeModuleObject = (node: ts.Expression): boolean => {
+    const current = unwrapExecutionExpression(node);
+    if (ts.isIdentifier(current)) {
+      const symbol = checker.getSymbolAtLocation(current);
+      return Boolean(symbol && moduleObjectSymbols.has(symbol));
+    }
+    return ts.isCallExpression(current)
+      && ts.isIdentifier(current.expression)
+      && isGlobalIdentifier(current.expression, checker, 'require')
+      && current.arguments.length === 1
+      && (staticPropertyKeyExpression(current.arguments[0], checker) === 'node:module'
+        || staticPropertyKeyExpression(current.arguments[0], checker) === 'module');
   };
   const isCreateRequireFactory = (node: ts.Expression): boolean => {
     if (ts.isIdentifier(node)) return resolvesTo(node, createRequireSymbols);
@@ -943,9 +990,15 @@ function collectLoaderBindings(source: ts.SourceFile, checker: ts.TypeChecker): 
     changed = false;
     for (const declaration of valueDeclarations) {
       const initializer = declaration.initializer;
+      if (!moduleObjectSymbols.has(declaration.symbol) && isNodeModuleObject(initializer)) {
+        moduleObjectSymbols.add(declaration.symbol);
+        changed = true;
+      }
       if (!createRequireSymbols.has(declaration.symbol)
-        && ts.isIdentifier(initializer)
-        && resolvesTo(initializer, createRequireSymbols)) {
+        && ((ts.isIdentifier(initializer) && resolvesTo(initializer, createRequireSymbols))
+          || (ts.isPropertyAccessExpression(initializer)
+            && initializer.name.text === 'createRequire'
+            && isNodeModuleObject(initializer.expression)))) {
         createRequireSymbols.add(declaration.symbol);
         changed = true;
       }
@@ -962,6 +1015,20 @@ function collectLoaderBindings(source: ts.SourceFile, checker: ts.TypeChecker): 
         changed = true;
       }
     }
+    for (const binding of objectBindings) {
+      if (!isNodeModuleObject(binding.initializer)) continue;
+      for (const element of binding.name.elements) {
+        const imported = element.propertyName && ts.isIdentifier(element.propertyName)
+          ? element.propertyName.text
+          : ts.isIdentifier(element.name) ? element.name.text : undefined;
+        if (imported !== 'createRequire' || !ts.isIdentifier(element.name)) continue;
+        const symbol = checker.getSymbolAtLocation(element.name);
+        if (symbol && !createRequireSymbols.has(symbol)) {
+          createRequireSymbols.add(symbol);
+          changed = true;
+        }
+      }
+    }
     for (const call of calls) {
       for (const target of functionTargets(call.expression)) {
         target.parameters.forEach((parameter, index) => {
@@ -975,7 +1042,7 @@ function collectLoaderBindings(source: ts.SourceFile, checker: ts.TypeChecker): 
       }
     }
   }
-  return { loaderSymbols, createRequireSymbols, moduleNamespaceSymbols };
+  return { loaderSymbols, createRequireSymbols, moduleNamespaceSymbols, moduleObjectSymbols };
 }
 
 function isCollectedLoaderExpression(
@@ -1363,6 +1430,7 @@ interface DynamicExecutionBindings {
   safeMemberOverrides: Map<ts.Symbol, Set<string>>;
   indexKinds: Map<ts.Symbol, string>;
   indexDomains: Map<ts.Symbol, DynamicIndexDomain>;
+  provenanceBySymbol: Map<ts.Symbol, DynamicProvenance>;
 }
 
 type DynamicIndexDomain = 'string' | 'number' | 'both' | 'symbol' | 'all';
@@ -1576,6 +1644,34 @@ function staticallyCallableKind(
   return typeHasCallableSignature(current, checker) ? 'Function' : undefined;
 }
 
+function boundExpressionProvenance(
+  expression: ts.Expression,
+  checker: ts.TypeChecker,
+  bindings: DynamicExecutionBindings,
+  seen = new Set<ts.Node>(),
+): DynamicProvenance | undefined {
+  const current = unwrapExecutionExpression(expression);
+  if (seen.has(current)) return undefined;
+  seen.add(current);
+  if (ts.isIdentifier(current)) {
+    const symbol = identifierSymbol(current, checker);
+    return symbol ? bindings.provenanceBySymbol.get(symbol) : undefined;
+  }
+  if (ts.isBinaryExpression(current) && current.operatorToken.kind === ts.SyntaxKind.CommaToken) {
+    return boundExpressionProvenance(current.right, checker, bindings, seen);
+  }
+  if (!ts.isPropertyAccessExpression(current) && !ts.isElementAccessExpression(current)) return undefined;
+  const base = boundExpressionProvenance(current.expression, checker, bindings, seen);
+  if (!base) return undefined;
+  const key = ts.isPropertyAccessExpression(current)
+    ? current.name.text
+    : current.argumentExpression ? staticPropertyKeyExpression(current.argumentExpression, checker) : undefined;
+  if (key === undefined) return base.index ?? (base.unknownMemberAccess ? { kind: 'unresolved-nested-member', unknown: true } : undefined);
+  return base.members?.get(key)
+    ?? base.index
+    ?? (base.unknownMemberAccess ? { kind: `unresolved-nested-member.${key}`, unknown: true } : undefined);
+}
+
 function dynamicReferenceKind(
   expression: ts.Expression,
   checker: ts.TypeChecker,
@@ -1611,6 +1707,16 @@ function dynamicReferenceKind(
         if (targetKind?.startsWith('unresolved-')) return `${targetKind}.computed`;
       }
       return undefined;
+    }
+    const projected = boundExpressionProvenance(current, checker, bindings);
+    if (projected) {
+      const projectedKind = projected.kind
+        ?? (projected.symbol ? bindings.dangerousSymbols.get(projected.symbol) : undefined)
+        ?? (projected.expression && projected.expression !== current
+          ? dynamicReferenceKind(projected.expression, checker, bindings)
+          : undefined);
+      if (projectedKind) return projectedKind;
+      if (projected.unknown || projected.unknownMemberAccess) return `unresolved-nested-member.${member}`;
     }
     if (['call', 'apply', 'bind'].includes(member)) return dynamicReferenceKind(target, checker, bindings);
     if (ts.isIdentifier(target)) {
@@ -1670,7 +1776,16 @@ function functionCallableReference(
   return staticallyCallableKind(expression, checker, bindings);
 }
 
+const dynamicBindingsCache = new WeakMap<ts.Program, WeakMap<ts.SourceFile, DynamicExecutionBindings>>();
+
 function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.TypeChecker, program?: ts.Program): DynamicExecutionBindings {
+  const programCache = program ? dynamicBindingsCache.get(program) : undefined;
+  const cached = programCache?.get(source);
+  if (cached) {
+    typeProgramInstrumentation.dynamicBindingCacheHits += 1;
+    return cached;
+  }
+  typeProgramInstrumentation.dynamicBindingBuilds += 1;
   const bindings: DynamicExecutionBindings = {
     dangerousSymbols: new Map(),
     vmNamespaceSymbols: new Set(),
@@ -1681,6 +1796,7 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
     safeMemberOverrides: new Map(),
     indexKinds: new Map(),
     indexDomains: new Map(),
+    provenanceBySymbol: new Map(),
   };
   const loaderBindings = collectLoaderBindings(source, checker);
   const aliases: DynamicAliasRecord[] = [];
@@ -1885,6 +2001,17 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
     }
     return false;
   };
+  const importedNodeHelperExpression = (expression: ts.Expression, helper: string, modules: ReadonlySet<string>): boolean => {
+    const current = unwrapExecutionExpression(expression);
+    if (ts.isIdentifier(current)) return importedNodeHelper(current, helper, modules);
+    if (!ts.isPropertyAccessExpression(current) || current.name.text !== helper || !ts.isIdentifier(current.expression)) return false;
+    const symbol = checker.getSymbolAtLocation(current.expression);
+    return (symbol?.getDeclarations() ?? []).some(declaration => ts.isNamespaceImport(declaration)
+      && ts.isImportClause(declaration.parent)
+      && ts.isImportDeclaration(declaration.parent.parent)
+      && ts.isStringLiteral(declaration.parent.parent.moduleSpecifier)
+      && modules.has(declaration.parent.parent.moduleSpecifier.text));
+  };
   const staticRuntimeModulePath = (expression: ts.Expression, seen = new Set<ts.Symbol>()): string | undefined => {
     const current = unwrapExecutionExpression(expression);
     const literal = staticPropertyKeyExpression(current, checker);
@@ -1896,11 +2023,9 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
       && ts.isMetaProperty(current.expression)) return source.fileName;
     if (ts.isPropertyAccessExpression(current) && current.name.text === 'href'
       && ts.isCallExpression(current.expression)
-      && ts.isIdentifier(current.expression.expression)
-      && importedNodeHelper(current.expression.expression, 'pathToFileURL', new Set(['url', 'node:url']))) {
-      return current.expression.arguments[0]
-        ? staticRuntimeModulePath(current.expression.arguments[0], seen)
-        : undefined;
+      && importedNodeHelperExpression(current.expression.expression, 'pathToFileURL', new Set(['url', 'node:url']))) {
+      const value = current.expression.arguments[0] ? staticRuntimeModulePath(current.expression.arguments[0], seen) : undefined;
+      return value === undefined ? undefined : pathToFileURL(value).href;
     }
     if (ts.isIdentifier(current)) {
       const symbol = checker.getSymbolAtLocation(current);
@@ -1914,31 +2039,66 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
       }
       return undefined;
     }
-    if (!ts.isCallExpression(current) || !ts.isIdentifier(current.expression)) return undefined;
-    if (importedNodeHelper(current.expression, 'fileURLToPath', new Set(['url', 'node:url']))
-      && current.arguments[0]) return staticRuntimeModulePath(current.arguments[0], seen);
-    if (importedNodeHelper(current.expression, 'dirname', new Set(['path', 'node:path']))
+    if (ts.isNewExpression(current)
+      && ts.isIdentifier(current.expression)
+      && isGlobalIdentifier(current.expression, checker, 'URL')
+      && current.arguments?.[0]) {
+      const relativeValue = staticRuntimeModulePath(current.arguments[0], seen);
+      const baseValue = current.arguments[1] ? staticRuntimeModulePath(current.arguments[1], seen) : undefined;
+      if (relativeValue === undefined || baseValue === undefined) return undefined;
+      try {
+        const baseUrl = baseValue.startsWith('file:') ? baseValue : pathToFileURL(baseValue).href;
+        return new URL(relativeValue, baseUrl).href;
+      } catch {
+        return undefined;
+      }
+    }
+    if (!ts.isCallExpression(current)) return undefined;
+    if (importedNodeHelperExpression(current.expression, 'pathToFileURL', new Set(['url', 'node:url']))
+      && current.arguments[0]) {
+      const value = staticRuntimeModulePath(current.arguments[0], seen);
+      return value === undefined ? undefined : pathToFileURL(value).href;
+    }
+    if (importedNodeHelperExpression(current.expression, 'fileURLToPath', new Set(['url', 'node:url']))
+      && current.arguments[0]) {
+      const value = staticRuntimeModulePath(current.arguments[0], seen);
+      if (value === undefined) return undefined;
+      try {
+        return value.startsWith('file:') ? fileURLToPath(value) : value;
+      } catch {
+        return undefined;
+      }
+    }
+    if (importedNodeHelperExpression(current.expression, 'dirname', new Set(['path', 'node:path']))
       && current.arguments[0]) {
       const value = staticRuntimeModulePath(current.arguments[0], seen);
       if (value !== undefined) return dirname(value);
       if (current.arguments[0].getText(source).includes('process.argv[1]')) return dirname(source.fileName);
       return undefined;
     }
-    if (importedNodeHelper(current.expression, 'join', new Set(['path', 'node:path']))) {
+    if (importedNodeHelperExpression(current.expression, 'join', new Set(['path', 'node:path']))) {
       const parts = current.arguments.map(argument => staticRuntimeModulePath(argument, seen));
       return parts.some(part => part === undefined) ? undefined : join(...parts as string[]);
     }
     return undefined;
   };
   const sourceFileForRuntimeModulePath = (runtimePath: string): ts.SourceFile | undefined => {
-    if (!program || !runtimePath.startsWith('/')) return undefined;
-    const candidates = new Set([runtimePath]);
-    if (runtimePath.includes('/dist/')) {
-      const sourcePath = runtimePath.replace('/dist/', '/src/').replace(/\.js$/, '.ts');
+    if (!program) return undefined;
+    let localPath = runtimePath;
+    try {
+      if (localPath.startsWith('file:')) localPath = fileURLToPath(localPath);
+    } catch {
+      return undefined;
+    }
+    localPath = localPath.replace(/[?#].*$/, '');
+    if (!localPath.startsWith('/')) return undefined;
+    const candidates = new Set([localPath]);
+    if (localPath.includes('/dist/')) {
+      const sourcePath = localPath.replace('/dist/', '/src/').replace(/\.js$/, '.ts');
       candidates.add(sourcePath);
       if (sourcePath.endsWith('/src/index.ts')) candidates.add(sourcePath);
     }
-    if (runtimePath.endsWith('.js')) candidates.add(runtimePath.replace(/\.js$/, '.ts'));
+    if (localPath.endsWith('.js')) candidates.add(localPath.replace(/\.js$/, '.ts'));
     for (const candidate of candidates) {
       const found = program.getSourceFile(candidate);
       if (found) return found;
@@ -1960,11 +2120,13 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
         provenanceForExpression(current.whenFalse, new Set(seen)),
       );
     }
+    if (ts.isBinaryExpression(current) && current.operatorToken.kind === ts.SyntaxKind.CommaToken) {
+      return provenanceForExpression(current.right, new Set(seen));
+    }
     if (ts.isBinaryExpression(current)
       && (current.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken
         || current.operatorToken.kind === ts.SyntaxKind.BarBarToken
-        || current.operatorToken.kind === ts.SyntaxKind.QuestionQuestionToken
-        || current.operatorToken.kind === ts.SyntaxKind.CommaToken)) {
+        || current.operatorToken.kind === ts.SyntaxKind.QuestionQuestionToken)) {
       return mergeAlternativeProvenance(
         provenanceForExpression(current.left, new Set(seen)),
         provenanceForExpression(current.right, new Set(seen)),
@@ -1978,11 +2140,10 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
       && isGlobalIdentifier(current.expression.expression.expression, checker, 'Promise')
       && current.expression.arguments.length === 1
       && ts.isArrayLiteralExpression(current.expression.arguments[0])
-      && current.expression.arguments[0].elements.every(element => ts.isCallExpression(element)
-        && element.expression.kind === ts.SyntaxKind.ImportKeyword)) {
+      ) {
       const members = new Map<string, DynamicProvenance>();
-      current.expression.arguments[0].elements.forEach((_, index) => {
-        members.set(String(index), { completeMembers: false });
+      current.expression.arguments[0].elements.forEach((element, index) => {
+        if (!ts.isOmittedExpression(element)) members.set(String(index), provenanceForExpression(element, new Set(seen)));
       });
       return {
         expression: current,
@@ -2105,7 +2266,9 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
           }
         } else if (ts.isShorthandPropertyAssignment(property)) {
           const valueSymbol = checker.getShorthandAssignmentValueSymbol(property);
-          const value = provenanceForExpression(property.name, new Set(seen));
+          const value = valueSymbol && (valueSymbol.flags & ts.SymbolFlags.Alias) !== 0
+            ? provenanceForExportSymbol(valueSymbol)
+            : provenanceForExpression(property.name, new Set(seen));
           const declarations = valueSymbol?.getDeclarations() ?? [];
           const globalValue = declarations.length > 0 && declarations.every(declaration => declaration.getSourceFile().isDeclarationFile);
           members.set(property.name.text, {
@@ -2633,6 +2796,7 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
     changed = false;
     for (const alias of aliases) {
       const provenance = resolveProvenance(alias.provenance);
+      bindings.provenanceBySymbol.set(alias.target, provenance);
       const expression = provenance.expression;
       symbolProvenance.set(alias.target, aliasSourceCounts.get(alias.target) === 1
         ? provenance
@@ -2681,6 +2845,10 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
           changed = true;
         }
       }
+      if (loaderBindings.createRequireSymbols.has(alias.target) || loaderBindings.loaderSymbols.has(alias.target)) {
+        bindings.dangerousSymbols.delete(alias.target);
+        continue;
+      }
       if (!bindings.dangerousSymbols.has(alias.target)) {
         const kind = provenanceKind(provenance);
         if (kind) {
@@ -2689,6 +2857,11 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
         }
       }
     }
+  }
+  if (program) {
+    const targetCache = programCache ?? new WeakMap<ts.SourceFile, DynamicExecutionBindings>();
+    targetCache.set(source, bindings);
+    if (!programCache) dynamicBindingsCache.set(program, targetCache);
   }
   return bindings;
 }
@@ -3309,6 +3482,32 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['esm conditional export danger wins', "import run from './dynamic-code-esm-conditional.js'; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['esm logical export danger wins', "import { run } from './dynamic-code-esm-logical.js'; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['esm cyclic export graph danger wins', "import { evalRun } from './dynamic-code-esm-cycle-a.js'; evalRun(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['promise all namespace eval bridge fail closed', "const [bridge] = await Promise.all([import('./dynamic-code-esm-bridge.js')]); bridge.evalRun(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['promise all destructured Function bridge fail closed', "const [{ functionRun: Build }] = await Promise.all([import('./dynamic-code-esm-bridge.js')]); new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['promise all nested vm bridge fail closed', "const [{ vmRun: run }] = await Promise.all([import('./dynamic-code-esm-bridge.js')]); run(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['esm reexported createRequire bridge fail closed', "import { makeRequire } from './dynamic-code-create-require-barrel.js'; const rq = makeRequire(import.meta.url); const run = rq('./dynamic-code-eval-bridge.cjs'); run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['esm export star createRequire bridge fail closed', "import { makeRequire } from './dynamic-code-create-require-export-star.js'; const rq = makeRequire(import.meta.url); const { runInContext: run } = rq('./dynamic-code-eval-bridge.cjs'); run(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['cjs property createRequire bridge fail closed', "const makeRequire = require('node:module').createRequire; const rq = makeRequire(__filename); const run = rq('./dynamic-code-eval-bridge.cjs'); run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['cjs two step createRequire bridge fail closed', "const mod = require('node:module'); const { createRequire: makeRequire } = mod; const rq = makeRequire(__filename); const bridge = rq('./dynamic-code-eval-bridge.cjs'); new bridge.Function(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['new URL eval bridge fail closed', "const bridge = await import(new URL('./dynamic-code-esm-bridge.js', import.meta.url)); bridge.evalRun(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['pathToFileURL object Function bridge fail closed', "import { dirname, join } from 'node:path'; import { fileURLToPath, pathToFileURL } from 'node:url'; const target = join(dirname(fileURLToPath(import.meta.url)), 'dynamic-code-esm-bridge.js'); const { functionRun: Build } = await import(pathToFileURL(target)); new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['namespace file URL vm bridge fail closed', "import * as path from 'node:path'; import * as url from 'node:url'; const target = path.join(path.dirname(url.fileURLToPath(import.meta.url)), 'dynamic-code-esm-bridge.js'); const bridge = await import(url.pathToFileURL(target).href); bridge.vmRun(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['file URL query eval bridge fail closed', "const target = new URL('./dynamic-code-esm-bridge.js?mode=guard#eval', import.meta.url); const bridge = await import(target); bridge.evalRun(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['comma safe left dangerous right fail closed', "const safeRun = (value: string) => value; const run = (safeRun, eval); run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['comma imported safe left dangerous right fail closed', "import { safeRun } from './dynamic-code-esm-safe.js'; import { evalRun } from './dynamic-code-esm-bridge.js'; const run = (safeRun, evalRun); run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['nested static namespace eval bridge fail closed', "import * as barrel from './dynamic-code-esm-namespace-reexport.js'; barrel.bridge.evalRun(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['nested dynamic namespace vm bridge fail closed', "const barrel = await import('./dynamic-code-esm-namespace-reexport.js'); barrel.bridge.vmRun(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['nested default namespace Function bridge fail closed', "import holder from './dynamic-code-esm-nested-default.js'; new holder.bridge.functionRun(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['bound module require member bridge fail closed', "const rq = module.require.bind(module); const bridge = rq('./dynamic-code-eval-bridge.cjs'); new bridge.Function(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['bound module require destructured bridge fail closed', "const rq = module.require.bind(module); const { runInContext: run } = rq('./dynamic-code-eval-bridge.cjs'); run(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['arrow parameter loader member bridge fail closed', "const execute = (rq: NodeRequire) => { const bridge = rq('./dynamic-code-eval-bridge.cjs'); new bridge.Function(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }; execute(require);"],
+    ['arrow parameter loader destructured bridge fail closed', "const execute = (rq: NodeRequire) => { const { runInContext: run } = rq('./dynamic-code-eval-bridge.cjs'); run(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }; execute(require);"],
+    ['function expression parameter loader member bridge fail closed', "const execute = function (rq: NodeRequire) { const bridge = rq('./dynamic-code-eval-bridge.cjs'); new bridge.Function(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }; execute(require);"],
+    ['function expression parameter loader destructured bridge fail closed', "const execute = function (rq: NodeRequire) { const { runInContext: run } = rq('./dynamic-code-eval-bridge.cjs'); run(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }; execute(require);"],
+    ['method parameter loader member bridge fail closed', "const holder = { execute(rq: NodeRequire) { const bridge = rq('./dynamic-code-eval-bridge.cjs'); new bridge.Function(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } }; holder.execute(require);"],
+    ['method parameter loader destructured bridge fail closed', "const holder = { execute(rq: NodeRequire) { const { runInContext: run } = rq('./dynamic-code-eval-bridge.cjs'); run(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } }; holder.execute(require);"],
+    ['aliased parameter loader member bridge fail closed', "function execute(rq: NodeRequire) { const bridge = rq('./dynamic-code-eval-bridge.cjs'); new bridge.Function(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } const alias = execute; alias(require);"],
+    ['aliased parameter loader destructured bridge fail closed', "function execute(rq: NodeRequire) { const { runInContext: run } = rq('./dynamic-code-eval-bridge.cjs'); run(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } const alias = execute; alias(require);"],
     ['static computed eval declaration provenance', "const { ['eval']: run } = globalThis; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['static computed eval assignment provenance', "let run; ({ [`eval`]: run } = globalThis); run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['const computed eval parameter provenance', "const first = 'eval'; const key = first; function execute({ [key]: run } = globalThis) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
@@ -3414,12 +3613,22 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['passed parameter loader typed safe negative', "function execute(rq: NodeRequire) { const bridge = rq('./dynamic-code-safe-bridge.cjs') as { value: number }; void bridge.value; } execute(require);"],
     ['bound require typed safe negative', "const rq = require.bind(module); const bridge = rq('./dynamic-code-safe-bridge.cjs') as { run(value: string): string }; bridge.run('safe');"],
     ['bound module require typed safe negative', "const rq = module.require.bind(module); const bridge = rq('./dynamic-code-safe-bridge.cjs') as { run(value: string): string }; bridge.run('safe');"],
+    ['bound module require direct typed safe negative', "const rq = module.require.bind(module); const run = rq('./dynamic-code-safe-bridge.cjs') as (value: string) => string; run('safe');"],
+    ['bound module require destructured typed safe negative', "const rq = module.require.bind(module); const { run } = rq('./dynamic-code-safe-bridge.cjs') as { run(value: string): string }; run('safe');"],
     ['namespace createRequire typed safe negative', "import * as mod from 'node:module'; const rq = mod.createRequire(import.meta.url); const bridge = rq('./dynamic-code-safe-bridge.cjs') as { run(value: string): string }; bridge.run('safe');"],
     ['cjs destructured createRequire typed safe negative', "const { createRequire } = require('node:module'); const rq = createRequire(__filename); const bridge = rq('./dynamic-code-safe-bridge.cjs') as { run(value: string): string }; bridge.run('safe');"],
     ['arrow parameter loader typed safe negative', "const execute = (rq: NodeRequire) => { const bridge = rq('./dynamic-code-safe-bridge.cjs') as { value: number }; void bridge.value; }; execute(require);"],
+    ['arrow parameter loader direct typed safe negative', "const execute = (rq: NodeRequire) => { const run = rq('./dynamic-code-safe-bridge.cjs') as (value: string) => string; run('safe'); }; execute(require);"],
+    ['arrow parameter loader destructured typed safe negative', "const execute = (rq: NodeRequire) => { const { run } = rq('./dynamic-code-safe-bridge.cjs') as { run(value: string): string }; run('safe'); }; execute(require);"],
     ['function expression parameter loader typed safe negative', "const execute = function (rq: NodeRequire) { const bridge = rq('./dynamic-code-safe-bridge.cjs') as { value: number }; void bridge.value; }; execute(require);"],
+    ['function expression parameter loader direct typed safe negative', "const execute = function (rq: NodeRequire) { const run = rq('./dynamic-code-safe-bridge.cjs') as (value: string) => string; run('safe'); }; execute(require);"],
+    ['function expression parameter loader destructured typed safe negative', "const execute = function (rq: NodeRequire) { const { run } = rq('./dynamic-code-safe-bridge.cjs') as { run(value: string): string }; run('safe'); }; execute(require);"],
     ['method parameter loader typed safe negative', "const holder = { execute(rq: NodeRequire) { const bridge = rq('./dynamic-code-safe-bridge.cjs') as { value: number }; void bridge.value; } }; holder.execute(require);"],
+    ['method parameter loader direct typed safe negative', "const holder = { execute(rq: NodeRequire) { const run = rq('./dynamic-code-safe-bridge.cjs') as (value: string) => string; run('safe'); } }; holder.execute(require);"],
+    ['method parameter loader destructured typed safe negative', "const holder = { execute(rq: NodeRequire) { const { run } = rq('./dynamic-code-safe-bridge.cjs') as { run(value: string): string }; run('safe'); } }; holder.execute(require);"],
     ['aliased callable parameter loader typed safe negative', "function execute(rq: NodeRequire) { const bridge = rq('./dynamic-code-safe-bridge.cjs') as { value: number }; void bridge.value; } const alias = execute; alias(require);"],
+    ['aliased parameter loader direct typed safe negative', "function execute(rq: NodeRequire) { const run = rq('./dynamic-code-safe-bridge.cjs') as (value: string) => string; run('safe'); } const alias = execute; alias(require);"],
+    ['aliased parameter loader destructured typed safe negative', "function execute(rq: NodeRequire) { const { run } = rq('./dynamic-code-safe-bridge.cjs') as { run(value: string): string }; run('safe'); } const alias = execute; alias(require);"],
     ['esm named local callback safe negative', "import { safeRun } from './dynamic-code-esm-safe.js'; safeRun('safe');"],
     ['esm default local callback safe negative', "import safeRun from './dynamic-code-esm-safe.js'; safeRun('safe');"],
     ['esm namespace local callback safe negative', "import * as bridge from './dynamic-code-esm-safe.js'; bridge.safeRun('safe');"],
@@ -3432,6 +3641,19 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['esm reserved names namespace local safe negative', "import * as local from './dynamic-code-esm-reserved-safe.js'; local.eval('safe'); local.runInContext('safe'); local.constructor('safe');"],
     ['esm reserved names default local safe negative', "import run from './dynamic-code-esm-reserved-safe.js'; run('safe');"],
     ['esm reserved names reexport local safe negative', "import { eval as run, Function as LocalBuilder } from './dynamic-code-esm-reserved-reexport.js'; run('safe'); new LocalBuilder('safe');"],
+    ['promise all namespace local callback safe negative', "const [bridge] = await Promise.all([import('./dynamic-code-esm-safe.js')]); bridge.safeRun('safe');"],
+    ['promise all destructured local callback safe negative', "const [{ safeRun }] = await Promise.all([import('./dynamic-code-esm-safe.js')]); safeRun('safe');"],
+    ['esm reexported createRequire typed safe negative', "import { makeRequire } from './dynamic-code-create-require-barrel.js'; const rq = makeRequire(import.meta.url); const bridge = rq('./dynamic-code-safe-bridge.cjs') as { run(value: string): string }; bridge.run('safe');"],
+    ['cjs property createRequire typed safe negative', "const makeRequire = require('node:module').createRequire; const rq = makeRequire(__filename); const bridge = rq('./dynamic-code-safe-bridge.cjs') as { value: number }; void bridge.value;"],
+    ['cjs two step createRequire typed safe negative', "const mod = require('node:module'); const { createRequire: makeRequire } = mod; const rq = makeRequire(__filename); const bridge = rq('./dynamic-code-safe-bridge.cjs') as { run(value: string): string }; bridge.run('safe');"],
+    ['new URL local callback safe negative', "const bridge = await import(new URL('./dynamic-code-esm-safe.js', import.meta.url)); bridge.safeRun('safe');"],
+    ['pathToFileURL object local callback safe negative', "import { dirname, join } from 'node:path'; import { fileURLToPath, pathToFileURL } from 'node:url'; const target = join(dirname(fileURLToPath(import.meta.url)), 'dynamic-code-esm-safe.js'); const bridge = await import(pathToFileURL(target)); bridge.safeRun('safe');"],
+    ['namespace file URL local callback safe negative', "import * as path from 'node:path'; import * as url from 'node:url'; const target = path.join(path.dirname(url.fileURLToPath(import.meta.url)), 'dynamic-code-esm-safe.js'); const bridge = await import(url.pathToFileURL(target).href); bridge.safeRun('safe');"],
+    ['file URL query local callback safe negative', "const target = new URL('./dynamic-code-esm-safe.js?mode=guard#safe', import.meta.url); const bridge = await import(target); bridge.safeRun('safe');"],
+    ['comma dangerous left safe right negative', "const safeRun = (value: string) => value; const run = (eval, safeRun); run('safe');"],
+    ['comma imported dangerous left safe right negative', "import { safeRun } from './dynamic-code-esm-safe.js'; import { evalRun } from './dynamic-code-esm-bridge.js'; const run = (evalRun, safeRun); run('safe');"],
+    ['nested static namespace local callback safe negative', "import * as barrel from './dynamic-code-esm-safe-namespace-reexport.js'; barrel.bridge.safeRun('safe');"],
+    ['nested dynamic namespace local callback safe negative', "const barrel = await import('./dynamic-code-esm-safe-namespace-reexport.js'); barrel.bridge.safeRun('safe');"],
     ['nested rest declaration local safe negative', "const { nested: { ...rest } } = { nested: { eval: (value: string) => value } }; rest.eval('safe');"],
     ['nested rest assignment local safe negative', "let rest; ({ nested: { ...rest } } = { nested: { eval: (value: string) => value } }); rest.eval('safe');"],
     ['nested rest parameter local safe negative', "function execute({ nested: { ...rest } } = { nested: { eval: (value: string) => value } }) { rest.eval('safe'); }"],
@@ -3499,6 +3721,11 @@ function assertDynamicCodeGenerationPositiveControls(): void {
       source: "export function eval(value: string) { return value; } export class Function { constructor(_value: string) {} } export function runInContext(value: string) { return value; } export function constructor(value: string) { return value; } export default eval;\n",
     },
     { file: 'bin/dynamic-code-esm-reserved-reexport.ts', source: "export { eval, Function, runInContext, constructor } from './dynamic-code-esm-reserved-safe.js';\n" },
+    { file: 'bin/dynamic-code-create-require-source.ts', source: "export { createRequire as makeRequire } from 'node:module';\n" },
+    { file: 'bin/dynamic-code-create-require-barrel.ts', source: "export { makeRequire } from './dynamic-code-create-require-source.js';\n" },
+    { file: 'bin/dynamic-code-create-require-export-star.ts', source: "export * from './dynamic-code-create-require-barrel.js';\n" },
+    { file: 'bin/dynamic-code-esm-nested-default.ts', source: "import * as bridge from './dynamic-code-esm-bridge.js'; export default { bridge };\n" },
+    { file: 'bin/dynamic-code-esm-safe-namespace-reexport.ts', source: "export * as bridge from './dynamic-code-esm-safe.js';\n" },
   ] as const;
   const controlProgram = createProjectTypeProgram(new Map([
     ...controlSources.map(control => [control.file, control.source] as const),
@@ -3523,6 +3750,13 @@ function assertDynamicCodeGenerationPositiveControls(): void {
   }
   for (const control of controlSources.slice(cases.length)) {
     assert.deepEqual(scanDynamicCodeGeneration(control.file, control.source, controlProgram), [], `${control.label} must remain a declaration-identity negative control`);
+  }
+  for (const control of controlSources.slice(0, 2)) {
+    assert.ok(
+      scanDynamicCodeGeneration(control.file, control.source, controlProgram)
+        .some(violation => violation.label === 'unapproved dynamic code generation'),
+      `${control.label} cached binding graph must preserve its verdict`,
+    );
   }
   assert.ok(
     scanDynamicCodeGeneration(unresolvedControl.file, unresolvedControl.source, controlProgram)
