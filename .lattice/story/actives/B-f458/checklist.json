@@ -265,7 +265,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-13T11:10:53.025Z",
+      "endTime": "2026-07-13T11:22:30.034Z",
       "userSees": "User runs the TEST roll-up regression and sees `PASS local closeout requires fresh review before TEST retention`; same-UID forged receipts and paired source/docs/scope mutations fail closed, while a fresh post-closeout review can continue TEST.",
       "verificationIntent": {
         "happy": [
@@ -316,33 +316,33 @@
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full suite passed after currentReviewRound fail-closed lifecycle enforcement at commit 709f4e5e00.",
-          "headHash": "f4ae776fbdeb3d043d6b9fede8802f94ca2374be",
-          "materialHash": "075bc5ed48d985faf25af6a6dd50b3440c40c67c0c8585d94785d5009d275fc6",
-          "storyFilesHash": "9f7af86507ff8c225518570e69493b758d5ea5be8341a73c9e896b37dd6a61ac",
-          "timestamp": "2026-07-13T11:10:53.165Z"
+          "note": "Full suite passed after canonical local-only delivery claims schema fix at commit f24029a313.",
+          "headHash": "6a20a1bfcc0e244ede1fd7f6b7989e4cbd97d997",
+          "materialHash": "506f5cb69448a0c4b08d3cf529d3816cb842380b1a1d699ff19f3774d05fabc4",
+          "storyFilesHash": "8c925217af7b0db4a3e0a978a92e65bcd3850e75a5d1dacd444bafc71a894456",
+          "timestamp": "2026-07-13T11:22:30.197Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "logic_test",
-          "command": "npm test",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
-          "note": "Full suite covers missing round, missing reviewRunId, unknown run, and wrapper-root signed validation.",
-          "headHash": "f4ae776fbdeb3d043d6b9fede8802f94ca2374be",
-          "materialHash": "075bc5ed48d985faf25af6a6dd50b3440c40c67c0c8585d94785d5009d275fc6",
-          "storyFilesHash": "9f7af86507ff8c225518570e69493b758d5ea5be8341a73c9e896b37dd6a61ac",
-          "timestamp": "2026-07-13T11:10:53.299Z"
+          "note": "Retired vocabulary guard passes with no new allowlist and exact canonical claim keys retained.",
+          "headHash": "6a20a1bfcc0e244ede1fd7f6b7989e4cbd97d997",
+          "materialHash": "506f5cb69448a0c4b08d3cf529d3816cb842380b1a1d699ff19f3774d05fabc4",
+          "storyFilesHash": "8c925217af7b0db4a3e0a978a92e65bcd3850e75a5d1dacd444bafc71a894456",
+          "timestamp": "2026-07-13T11:22:30.365Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "logic_test",
-          "command": "npm test",
+          "command": "npm run test:closeout-trust",
           "result": "pass",
-          "note": "Real FINISH attacks prove unsigned or tampered pass-shaped records cannot exploit missing-round legacy compatibility.",
-          "headHash": "f4ae776fbdeb3d043d6b9fede8802f94ca2374be",
-          "materialHash": "075bc5ed48d985faf25af6a6dd50b3440c40c67c0c8585d94785d5009d275fc6",
-          "storyFilesHash": "9f7af86507ff8c225518570e69493b758d5ea5be8341a73c9e896b37dd6a61ac",
-          "timestamp": "2026-07-13T11:10:53.432Z"
+          "note": "Adversarial true-value and extra-key delivery claim mutations remain rejected by the shared exact schema.",
+          "headHash": "6a20a1bfcc0e244ede1fd7f6b7989e4cbd97d997",
+          "materialHash": "506f5cb69448a0c4b08d3cf529d3816cb842380b1a1d699ff19f3774d05fabc4",
+          "storyFilesHash": "8c925217af7b0db4a3e0a978a92e65bcd3850e75a5d1dacd444bafc71a894456",
+          "timestamp": "2026-07-13T11:22:30.756Z"
         }
       ]
     },
