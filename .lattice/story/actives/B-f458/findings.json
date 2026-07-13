@@ -1539,6 +1539,33 @@
       ],
       "signatureTag": "nested-rest-index-provenance",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-064",
+      "desc": "Static empty-string ElementAccess is conflated with an unresolved computed key. staticPropertyKeyExpression correctly returns `\"\"`, but dynamicReferenceKind immediately tests `if (!member)` before memberKinds/knownMembers, so the exact dangerous member is never consulted. `const source = { \"\": eval }; source[\"\"](\"import(… )\")` evades the dynamic-code guard even though provenanceForExpression/memberKinds contain the empty-string member. Compare explicitly with `member === undefined`, and add positive/negative empty-string access controls (including aliases/rest) to preserve known-member precision.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T15:58:17.900Z",
+      "reviewRound": "2026-07-13T15:56:37.277Z",
+      "reviewRunId": "B-f458:RR-083",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete change diff and focused ElementAccess/property-key/control sections; unrelated unchanged portions were name-triaged."
+      },
+      "_hash": "4c49ccdbc3c365cdd8dac58a190dde90994f242e3720b90de5dbb636a560a721",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "empty-property-key-truthiness",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
