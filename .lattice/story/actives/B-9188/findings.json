@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-9188:F-001",
+      "desc": "process-fact-registry.ts:262-268 the new PROCESS_FACT_ARTIFACT_BY_COMMAND entry is keyed milestone_closeout_capture, which is NOT a real registered command/process-fact name (it appears nowhere in process-fact-levels.ts, command-catalog.ts, or command-policy.ts). Every one of the ~60 pre-existing keys in this map (including the neighboring milestone_ledger_set/milestone_ledger_add entries) equals its own producerCommand AND matches a real PROCESS_FACT_LEVELS entry name, so COMMAND_PROCESS_FACTS wires it automatically via artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND[entry.name] (process-fact-registry.ts:805; mirrored in scripts/verify-process-fact-contract.mjs:2017). Because the new key matches neither story_advance (already claimed by the index.json artifact at line 169) nor the real read-only command name milestone_closeout (process-fact-levels.ts:141), this artifact is unreachable from either commands own registry entry: getProcessFactRegistryEntry(story_advance)?.artifact stays index.json and getProcessFactRegistryEntry(milestone_closeout)?.artifact stays undefined, unlike the parity pattern asserted for delivery_check_set in tasks/delivery-check-freshness-smoke.ts:543-550. It only works today because PROCESS_FACT_ARTIFACTS artifact:milestone-closeout.json (line 979) dot-references the map directly, bypassing the by-name lookup, and the docs-drift script never cross-checks map keys against real command names, so the gap is silent. The codebase already has an established naming convention for exactly this situation (a sub-behavior of an existing command, not itself invocable): the runtime: prefix, e.g. runtime:declared_artifact_committed_check (process-fact-levels.ts:379, same owner handlers/story-advance), which this new entry does not use, so milestone_closeout_capture reads as if it were a real CLI command when it is not. Recommend renaming the key to runtime:milestone_closeout_capture (matching the established synthetic-key convention) or documenting why this entry intentionally breaks the key===producerCommand invariant.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T08:47:19.553Z",
+      "reviewRound": "2026-07-13T08:41:09.870Z",
+      "reviewRunId": "B-9188:RR-002",
+      "_hash": "3bd2e5faf72e0518f8eff44bf489394916b0947ab90779743cb176e7f4064039",
+      "files": [
+        "packages/main/src/core/process-fact-registry.ts"
+      ],
+      "signatureTag": "missing|ts|process-fact-registry",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
