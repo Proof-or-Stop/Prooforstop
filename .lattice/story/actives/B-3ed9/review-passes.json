@@ -1,0 +1,32 @@
+{
+  "passes": [
+    {
+      "id": "B-3ed9:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Diff removes stale singular cluster.json entry from LATTICE_LIFECYCLE_ARTIFACT_FILENAMES and adds grill.json/clusters.json/scope-extension-decisions.json; grepped whole repo (excluding node_modules/dist/.git) for cluster.json literal - only hits are this story own metadata explaining the removal and the intentional negative-test assertion in scope-contract-smoke.ts verifying the removed name now fails closed. No duplicate registry or other code path still treats singular cluster.json as valid; the three added filenames are confirmed pre-existing live writers in store.ts/grill.ts/scope-anti-expansion.ts. No concept residue; no blocker.",
+      "createdAt": "2026-07-13T08:38:12.144Z",
+      "reviewRound": "2026-07-13T08:36:34.554Z",
+      "reviewRunId": "B-3ed9:RR-001",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3ed9/background.md",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-12a1/delivery-check.json",
+          ".lattice/story/actives/B-3ed9/checklist.json",
+          ".lattice/story/actives/B-3ed9/milestone-ledger.json",
+          ".lattice/story/actives/B-3ed9/proofstory.json",
+          ".lattice/story/actives/B-3ed9/scope-boundary.json",
+          "packages/main/src/core/scope-anti-expansion.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/grill.ts",
+          "packages/main/src/handlers/stray-file-cleanup.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "db9ec9e01fcc97eb1f9ca3426dc0d1873f17605d7ad7d94396989af182495680"
+    }
+  ]
+}
