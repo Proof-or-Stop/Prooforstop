@@ -250,6 +250,28 @@
         "scanEscalationReason": null
       },
       "_hash": "92bc3f77b9089d4ecc533f6edb7eff6dfdd32f36286df397ec474663aaca089e"
+    },
+    {
+      "id": "B-f458:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "PASS: local-only delivery claims are centralized in baseline-contracts with one exact key set, canonical all-false object, and exact validator. The producer and closeout trust validator reuse that contract; extra keys and true values are rejected. No retired-vocabulary guard/allowlist changes or key obfuscation were introduced, and closeout trust semantics remain fail-closed. Build, retired authority vocabulary guard, closeout-trust smoke, and process-fact contract pass.",
+      "createdAt": "2026-07-13T11:25:26.186Z",
+      "reviewRound": "2026-07-13T11:23:40.844Z",
+      "reviewRunId": "B-f458:RR-029",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/baseline-contracts.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/handlers/delivery-context-pack.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7828e985ee457b83d89482c262e5daff5b10753dceb057d5b59191d856090315"
     }
   ]
 }
