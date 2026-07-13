@@ -104,6 +104,29 @@
       ],
       "signatureTag": "missing|ts|trusted-artifact-runtime",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f458:F-006",
+      "desc": "The closed writer-provenance table names writers that cannot produce the receipts required by the real retention gate. test-evidence.json lists test_add/test_story, but those handlers write the artifact without autoCommitStoryMetadata(closeoutArtifactPaths), so their declared canonical output is always rejected as missing/stale receipt. More critically, evidence/transcript-diff.md is assigned to live_smoke_transcript, but that command only writes evidence/live-smoke-transcript.json; the TEST lifecycle hint still instructs users to hand-write transcript-diff.md. Following that normal closeout instruction therefore invalidates review retention, and the verifier only checks that writer command names exist, not that they attest the listed path. Align the closed policy with real writer choke points (or add explicit CLI writers/receipts), preserve intentional legacy compatibility, and add an end-to-end regression for every declared path/writer pair.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T09:20:20.799Z",
+      "reviewRound": "2026-07-13T09:17:07.451Z",
+      "reviewRunId": "B-f458:RR-001",
+      "_hash": "9172db3b2c406a79eccb50ff6ba156f37c6253ac430c32c932a2768dcc3bb1cc",
+      "files": [
+        "packages/main/src/core/closeout-trust.ts",
+        "packages/main/src/handlers/test.ts",
+        "packages/main/src/handlers/test-story.ts",
+        "packages/main/src/handlers/live-smoke-transcript.ts",
+        "packages/main/src/handlers/transition-effects.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "spec-boundary|ts|closed-writer-provenance",
+      "signatureTagSource": "auto"
     }
   ]
 }
