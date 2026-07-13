@@ -2595,7 +2595,7 @@
       "desc": "The new DYNAMIC_CODE_ANALYSIS_PREFILTER is not semantics-preserving: it tests raw source text and returns [] before type/AST analysis for parse-clean files, but TypeScript decodes JavaScript unicode/hex escapes in string/property literals. Verified minimal source: const run = globalThis['\\\\u0065val']; run(\"\\\\x69mport('../packages/main/src/core/legacy-delivery-claims-compat.js')\");. The exact prefilter returns false while createSourceFile reports zero parse diagnostics and exposes decoded literals \"eval\" and \"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\". Thus scanDynamicCodeGeneration skips a real global eval compatibility payload that the existing staticPropertyKeyExpression/staticModuleText logic would detect, producing a false negative. The same class applies to safe-named re-exports plus escaped payload tokens. Replace the raw regex early-return with a sound cheap AST candidate check (or conservatively analyze computed/call/string escape cases), and add positive controls for escaped API/property and escaped compatibility payload spellings plus safe negatives. Independent checks otherwise passed: build; test:process-fact-contract; fresh guard PASS builds=646 cacheHits=2, real 51.15s.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T19:00:19.082Z",
@@ -2606,7 +2606,11 @@
         "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
       ],
       "signatureTag": "raw-prefilter-escaped-token-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 8569fbd4fa: Raw prefilter is only a hint; escaped decoded targets and payloads reach sound AST and type provenance analysis.",
+      "resolvedAt": "2026-07-13T19:28:35.491Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-099",
