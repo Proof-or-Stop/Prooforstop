@@ -200,6 +200,30 @@
         "scanEscalationReason": null
       },
       "_hash": "bbe24fa8882e44896be526772c0983c6cef34b23e82f8e379a216f7a0edbf0aa"
+    },
+    {
+      "id": "B-f458:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage re-review PASS at story material 9f7af86. Real XState FINISH attacks now fail closed for missing currentReviewRound with unsigned legacy-shaped pass, tampered current-round pass, missing reviewRunId, and unknown review run; the complete current signed run/pass set still reaches DONE. Wrapper-root DONE fixture now binds round-1, incremental-context missing-round behavior is fail-closed, and build plus closeout, wrapper-root escalation, incremental, process-fact, and runtime-fact suites all exit 0. All 15 verification intents pass and bind the current storyFilesHash.",
+      "createdAt": "2026-07-13T11:13:20.543Z",
+      "reviewRound": "2026-07-13T11:11:32.543Z",
+      "reviewRunId": "B-f458:RR-027",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/closeout-trust-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "45635adacc408510fbfdbe24206d7d0d682a6ef27a88d3cb4bdbcef59ee34c62"
     }
   ]
 }
