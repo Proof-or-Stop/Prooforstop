@@ -516,7 +516,7 @@
       "desc": "DONE reviewer verdict fails open when a TEST story lacks currentReviewRound, and the updated wrapper-root fixture does not exercise signed reviewer validation. The DONE fixture creates doneStory without currentReviewRound, while validateEvidenceRunBinding returns null immediately when currentReviewRound is absent; collectReviewerEvidenceState then classifies lattice-review-* passes as valid without checking evidence signature, reviewRunId, run signature, lane, round, workspace binding, or freshness. A same-UID edit can therefore set phase=TEST, omit currentReviewRound, and insert pass-shaped reviewer records for opt-in lanes to satisfy evaluateReviewVerdict. Set currentReviewRound on the actual doneStory fixture and make missing currentReviewRound fail closed for reviewer-required REVIEW/TEST/DONE stories, with an unsigned/tampered-pass regression.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-13T11:03:38.998Z",
@@ -530,7 +530,11 @@
         "packages/main/src/tasks/closeout-trust-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|reviewer-verdict-fails",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 709f4e5e00: wrapper-root DONE fixture now sets currentReviewRound and truly exercises signed pass/run binding. Added adversarial missing-round, unsigned/tampered pass, missing reviewRunId, and unknown run regressions; all fail closed with guard/reason parity.",
+      "resolvedAt": "2026-07-13T11:12:00.661Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
