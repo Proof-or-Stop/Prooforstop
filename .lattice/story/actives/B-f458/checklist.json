@@ -180,7 +180,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-13T11:32:16.284Z",
+      "endTime": "2026-07-13T11:42:18.047Z",
       "userSees": "User sees `PASS trusted closeout artifacts: schema and embedded hashes verified`; a malformed ledger/plan/rollup/delivery-context artifact or forged embedded hash is rejected with a named artifact error.",
       "verificationIntent": {
         "happy": [
@@ -225,33 +225,33 @@
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full suite passed after narrow legacy delivery compatibility quarantine at commit 398ed6e6b5.",
-          "headHash": "6bedb26be5f9825235a891eb3a95f262f07a3ba6",
-          "materialHash": "949f484ddebf989d9864095fd63b493a60406fdb9549301821ec4d09b6664f26",
-          "storyFilesHash": "30e73f2c05308009fc402ffe593470a57490f9a2ecdd44d5e0baaa7893eaf108",
-          "timestamp": "2026-07-13T11:32:16.426Z"
+          "note": "Full suite passed at d9f301399f, including trusted persisted-schema validation.",
+          "headHash": "2a47db6e701333721e787047aca774196f0e0297",
+          "materialHash": "90f15839206772318007d79565d77df2790fb2399747a67c697139728b75140e",
+          "storyFilesHash": "ece10afc0df39a2ec04b025872be19ec512b30a00d91b9ad58cfed333007ccf8",
+          "timestamp": "2026-07-13T11:42:18.208Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "command": "npm run test:closeout-trust",
           "result": "pass",
-          "note": "Guard enforces exact approved compatibility importers, symbols, call counts, direct usages, and forbids constructor spreading.",
-          "headHash": "6bedb26be5f9825235a891eb3a95f262f07a3ba6",
-          "materialHash": "949f484ddebf989d9864095fd63b493a60406fdb9549301821ec4d09b6664f26",
-          "storyFilesHash": "30e73f2c05308009fc402ffe593470a57490f9a2ecdd44d5e0baaa7893eaf108",
-          "timestamp": "2026-07-13T11:32:16.561Z"
+          "note": "Closeout artifact schema and embedded-hash checks passed at d9f301399f.",
+          "headHash": "2a47db6e701333721e787047aca774196f0e0297",
+          "materialHash": "90f15839206772318007d79565d77df2790fb2399747a67c697139728b75140e",
+          "storyFilesHash": "ece10afc0df39a2ec04b025872be19ec512b30a00d91b9ad58cfed333007ccf8",
+          "timestamp": "2026-07-13T11:42:18.424Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
-          "command": "npm run test:closeout-trust",
+          "command": "npm run test:process-fact-contract",
           "result": "pass",
-          "note": "Positive controls catch unapproved import+spread+call and direct retired tokens; exact false values and extra-key rejection remain covered.",
-          "headHash": "6bedb26be5f9825235a891eb3a95f262f07a3ba6",
-          "materialHash": "949f484ddebf989d9864095fd63b493a60406fdb9549301821ec4d09b6664f26",
-          "storyFilesHash": "30e73f2c05308009fc402ffe593470a57490f9a2ecdd44d5e0baaa7893eaf108",
-          "timestamp": "2026-07-13T11:32:16.696Z"
+          "note": "Process fact contract passed at d9f301399f and retains the narrow legacy compatibility boundary.",
+          "headHash": "2a47db6e701333721e787047aca774196f0e0297",
+          "materialHash": "90f15839206772318007d79565d77df2790fb2399747a67c697139728b75140e",
+          "storyFilesHash": "ece10afc0df39a2ec04b025872be19ec512b30a00d91b9ad58cfed333007ccf8",
+          "timestamp": "2026-07-13T11:42:18.580Z"
         }
       ]
     },
