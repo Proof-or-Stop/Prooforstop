@@ -85,6 +85,25 @@
       ],
       "signatureTag": "missing|ts|intent-evidence-overstates",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f458:F-005",
+      "desc": "Trusted artifact runtime schemas accept missing required timestamps and semantically invalid delivery-context fields. Repro after the story build: calling validateTrustedMilestoneLedger with createdAt removed, validateTrustedSlicePlan with updatedAt removed, and validateTrustedParentLedgerRollup with createdAt removed all return successfully; validatePersistedDeliveryContextPack also accepts changedFiles:[42], testFiles:[42], evidenceCommands:[{}], and deliveryCheck.ref as a string. This contradicts CHK-003 edge/adversarial and means malformed persisted payloads can cross the new trust boundary. Require/validate createdAt+updatedAt (including ISO shape), validate optional typed fields/semantic relationships, require string arrays for delivery paths/commands, validate ref null/object and exact claims shape, and add negative regressions.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T09:20:12.985Z",
+      "reviewRound": "2026-07-13T09:17:07.451Z",
+      "reviewRunId": "B-f458:RR-001",
+      "_hash": "1ea1f20707d7283f86d604d3b42bc5c89a4541093fad8ec32e85198ae57fcf94",
+      "files": [
+        "packages/main/src/core/closeout-trust.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|trusted-artifact-runtime",
+      "signatureTagSource": "auto"
     }
   ]
 }
