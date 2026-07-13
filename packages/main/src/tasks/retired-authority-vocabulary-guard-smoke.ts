@@ -367,6 +367,17 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   ['packages/main/src/handlers/fixture-executors.ts', 'acaa12e34e6e9b3304d176b9cbb65d9edfcdfa3ec9fc7db57a14d83411f026c7'],
 ]);
 const DYNAMIC_CODE_ANALYSIS_PREFILTER = /(?:\beval\w*|\bFunction\b|\bconstructor\b|\brunIn(?:Context|NewContext|ThisContext)\b|\bcompileFunction\b|\bSourceTextModule\b|\bSyntheticModule\b|\brequire\s*(?:\(|\.|\b)|\bimport\s*\()/;
+const DYNAMIC_PROVENANCE_REACHABILITY_LABELS = new Set([
+  'inline conditional safe target negative',
+  'deterministic final safe namespace reassignment negative',
+  'nested default namespace safe negative',
+  'cyclic nested namespace safe negative',
+  'escaped local property safe negative',
+  'logical conditional then final safe namespace negative',
+  'then returned local callback safe negative',
+  'finally returned eval ignored safe negative',
+  'promise allSettled value safe negative',
+]);
 
 const structuralLegacyFieldQuarantineFiles = new Set([
   'packages/main/src/cli/command-catalog.ts',
@@ -538,6 +549,11 @@ const typeProgramInstrumentation = {
   distinctLanguageServicePrograms: new Set<ts.Program>(),
   dynamicBindingBuilds: 0,
   dynamicBindingCacheHits: 0,
+  dynamicFullAnalysisScans: 0,
+  dynamicAstCandidateScans: 0,
+  dynamicPrefilterSkips: 0,
+  dynamicReachabilityAssertions: 0,
+  dynamicFullAnalysisByFile: new Map<string, number>(),
 };
 
 function parseSource(file: string, text: string): ts.SourceFile {
@@ -753,6 +769,9 @@ function assertTypeProgramInstrumentation(): void {
   assert.ok(typeProgramInstrumentation.distinctLanguageServicePrograms.size <= 128, `distinct LanguageService Program identities across controlled version changes must remain bounded at 128, got ${typeProgramInstrumentation.distinctLanguageServicePrograms.size}`);
   assert.ok(typeProgramInstrumentation.dynamicBindingCacheHits >= 2, `dynamic binding cache must be exercised by repeated scans, got ${typeProgramInstrumentation.dynamicBindingCacheHits} hit(s)`);
   assert.ok(typeProgramInstrumentation.dynamicBindingBuilds <= 800, `dynamic binding graph builds must remain bounded at 800, got ${typeProgramInstrumentation.dynamicBindingBuilds}`);
+  assert.ok(typeProgramInstrumentation.dynamicAstCandidateScans >= 1, 'decoded AST candidates missed by the raw token hint must reach full analysis');
+  assert.ok(typeProgramInstrumentation.dynamicPrefilterSkips >= 1, 'call-free sources must retain the cheap AST skip path');
+  assert.equal(typeProgramInstrumentation.dynamicReachabilityAssertions, DYNAMIC_PROVENANCE_REACHABILITY_LABELS.size, 'critical safe provenance reachability count must remain exact');
 }
 
 function staticModuleText(
@@ -1992,6 +2011,7 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
   };
   let provenanceForExportSymbol: (input: ts.Symbol, seen?: Set<ts.Symbol>) => DynamicProvenance;
   let namespaceForModuleSymbol: (moduleSymbol: ts.Symbol, seen?: Set<ts.Symbol>) => DynamicProvenance;
+  const callbackParameterProvenance = new Map<ts.Symbol, DynamicProvenance>();
   const importedNodeHelper = (identifier: ts.Identifier, helper: string, modules: ReadonlySet<string>): boolean => {
     const symbol = checker.getSymbolAtLocation(identifier);
     for (const declaration of symbol?.getDeclarations() ?? []) {
@@ -2122,6 +2142,10 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
     };
     if (seen.has(current)) return base;
     seen.add(current);
+    if (ts.isIdentifier(current)) {
+      const callbackInput = checker.getSymbolAtLocation(current);
+      if (callbackInput && callbackParameterProvenance.has(callbackInput)) return callbackParameterProvenance.get(callbackInput)!;
+    }
     if (ts.isConditionalExpression(current)) {
       return mergeAlternativeProvenance(
         provenanceForExpression(current.whenTrue, new Set(seen)),
@@ -2143,7 +2167,10 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
     if (ts.isAwaitExpression(current)
       && ts.isCallExpression(current.expression)
       && ts.isPropertyAccessExpression(current.expression.expression)
-      && (current.expression.expression.name.text === 'all' || current.expression.expression.name.text === 'race')
+      && (current.expression.expression.name.text === 'all'
+        || current.expression.expression.name.text === 'race'
+        || current.expression.expression.name.text === 'any'
+        || current.expression.expression.name.text === 'allSettled')
       && ts.isIdentifier(current.expression.expression.expression)
       && isGlobalIdentifier(current.expression.expression.expression, checker, 'Promise')
       && current.expression.arguments.length === 1
@@ -2163,7 +2190,28 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
         element: collection.element ? awaitedSlot(collection.element) : undefined,
         index: collection.index ? awaitedSlot(collection.index) : undefined,
       };
-      if (current.expression.expression.name.text === 'all') return { ...awaitedCollection, expression: current };
+      const promiseMethod = current.expression.expression.name.text;
+      if (promiseMethod === 'all') return { ...awaitedCollection, expression: current };
+      if (promiseMethod === 'allSettled') {
+        const settledSlot = (value: DynamicProvenance): DynamicProvenance => ({
+          members: new Map([
+            ['status', { completeMembers: true }],
+            ['value', value],
+            ['reason', { unknown: true, unknownMemberAccess: true }],
+          ]),
+          ownEnumerableMembers: new Set(['status', 'value', 'reason']),
+          completeMembers: true,
+        });
+        return {
+          ...awaitedCollection,
+          expression: current,
+          members: awaitedCollection.members
+            ? new Map([...awaitedCollection.members].map(([key, value]) => [key, settledSlot(value)]))
+            : undefined,
+          element: awaitedCollection.element ? settledSlot(awaitedCollection.element) : undefined,
+          index: awaitedCollection.index ? settledSlot(awaitedCollection.index) : undefined,
+        };
+      }
       const candidates = [...(awaitedCollection.members?.values() ?? [])];
       const raced = candidates.reduce<DynamicProvenance | undefined>(
         (merged, candidate) => merged ? mergeAlternativeProvenance(merged, candidate) : candidate,
@@ -2179,6 +2227,13 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
           && (unwrapExecutionExpression(awaitedInitializer) as ts.CallExpression).expression.kind === ts.SyntaxKind.ImportKeyword)) {
         return provenanceForExpression(awaitedInitializer ?? awaited, new Set(seen));
       }
+      if (ts.isCallExpression(awaited)
+        && ts.isPropertyAccessExpression(awaited.expression)
+        && (awaited.expression.name.text === 'then'
+          || awaited.expression.name.text === 'catch'
+          || awaited.expression.name.text === 'finally')) {
+        return provenanceForExpression(awaited, new Set(seen));
+      }
       const awaitedSymbol = expressionSymbol(awaited, checker);
       if (awaitedSymbol && (awaitedSymbol.getDeclarations() ?? []).some(declaration => !declaration.getSourceFile().isDeclarationFile)) {
         return { expression: awaited, symbol: awaitedSymbol, type: checker.getTypeAtLocation(current) };
@@ -2186,13 +2241,43 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
     }
     if (ts.isCallExpression(current)
       && ts.isPropertyAccessExpression(current.expression)
-      && current.expression.name.text === 'then') {
+      && (current.expression.name.text === 'then'
+        || current.expression.name.text === 'catch'
+        || current.expression.name.text === 'finally')) {
       const promised = provenanceForExpression(current.expression.expression, new Set(seen));
+      const promiseMethod = current.expression.name.text;
       const callback = current.arguments[0];
-      if ((callback && (ts.isArrowFunction(callback) || ts.isFunctionExpression(callback)))
-        && callback.parameters.length === 1 && ts.isIdentifier(callback.parameters[0].name)
-        && ts.isIdentifier(callback.body) && callback.body.text === callback.parameters[0].name.text) return promised;
-      return { ...promised, unknown: promised.unknown, unknownMemberAccess: promised.unknownMemberAccess };
+      if (promiseMethod === 'finally' || !callback) return promised;
+      if (!ts.isArrowFunction(callback) && !ts.isFunctionExpression(callback)) {
+        return promiseMethod === 'catch'
+          ? mergeAlternativeProvenance(promised, { expression: callback, unknown: true, unknownMemberAccess: true })
+          : { expression: callback, unknown: true, unknownMemberAccess: true };
+      }
+      const parameter = callback.parameters[0]?.name;
+      const parameterSymbol = parameter && ts.isIdentifier(parameter) ? checker.getSymbolAtLocation(parameter) : undefined;
+      const priorParameter = parameterSymbol ? callbackParameterProvenance.get(parameterSymbol) : undefined;
+      if (parameterSymbol) callbackParameterProvenance.set(
+        parameterSymbol,
+        promiseMethod === 'catch' ? { unknown: true, unknownMemberAccess: true } : promised,
+      );
+      const returnedExpressions: ts.Expression[] = [];
+      if (ts.isBlock(callback.body)) {
+        const collectReturns = (node: ts.Node): void => {
+          if (node !== callback.body && ts.isFunctionLike(node)) return;
+          if (ts.isReturnStatement(node) && node.expression) returnedExpressions.push(node.expression);
+          ts.forEachChild(node, collectReturns);
+        };
+        collectReturns(callback.body);
+      } else returnedExpressions.push(callback.body);
+      const callbackResult = returnedExpressions.reduce<DynamicProvenance | undefined>((merged, returned) => {
+        const candidate = provenanceForExpression(returned, new Set(seen));
+        return merged ? mergeAlternativeProvenance(merged, candidate) : candidate;
+      }, undefined) ?? { unknown: true, unknownMemberAccess: true };
+      if (parameterSymbol) {
+        if (priorParameter) callbackParameterProvenance.set(parameterSymbol, priorParameter);
+        else callbackParameterProvenance.delete(parameterSymbol);
+      }
+      return promiseMethod === 'catch' ? mergeAlternativeProvenance(promised, callbackResult) : callbackResult;
     }
     if (ts.isCallExpression(current) && current.expression.kind === ts.SyntaxKind.ImportKeyword) {
       const specifier = current.arguments[0] ? staticRuntimeModulePath(current.arguments[0]) : undefined;
@@ -2666,12 +2751,23 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
     }
   };
   const conditionallyExecuted = (node: ts.Node): boolean => {
+    if (ts.isBinaryExpression(node)
+      && (node.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandEqualsToken
+        || node.operatorToken.kind === ts.SyntaxKind.BarBarEqualsToken
+        || node.operatorToken.kind === ts.SyntaxKind.QuestionQuestionEqualsToken)) return true;
+    let child: ts.Node = node;
     let current: ts.Node | undefined = node.parent;
     while (current && current !== source && !ts.isFunctionLike(current)) {
       if (ts.isIfStatement(current) || ts.isConditionalExpression(current)
         || ts.isForStatement(current) || ts.isForInStatement(current) || ts.isForOfStatement(current)
         || ts.isWhileStatement(current) || ts.isDoStatement(current) || ts.isSwitchStatement(current)
         || ts.isTryStatement(current)) return true;
+      if (ts.isBinaryExpression(current)
+        && current.right === child
+        && (current.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken
+          || current.operatorToken.kind === ts.SyntaxKind.BarBarToken
+          || current.operatorToken.kind === ts.SyntaxKind.QuestionQuestionToken)) return true;
+      child = current;
       current = current.parent;
     }
     return false;
@@ -2731,6 +2827,12 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
     }
     if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
       walkPattern(node.left, provenanceForExpression(node.right), conditionallyExecuted(node));
+    }
+    if (ts.isBinaryExpression(node)
+      && (node.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandEqualsToken
+        || node.operatorToken.kind === ts.SyntaxKind.BarBarEqualsToken
+        || node.operatorToken.kind === ts.SyntaxKind.QuestionQuestionEqualsToken)) {
+      walkPattern(node.left, provenanceForExpression(node.right), true);
     }
     ts.forEachChild(node, visit);
   };
@@ -2961,13 +3063,74 @@ function payloadReferencesLegacyCompatibility(payload: string): boolean {
   }
 }
 
-function scanDynamicCodeGeneration(file: string, text: string, program?: ts.Program): Violation[] {
+function hasDynamicExecutionAstCandidate(source: ts.SourceFile): boolean {
+  let candidate = false;
+  const escapedRuntimeToken = /\\(?:u\{[0-9a-f]+\}|u[0-9a-f]{4}|x[0-9a-f]{2})/i;
+  const decodedCandidate = /(?:eval|Function|constructor|runIn(?:Context|NewContext|ThisContext)|compileFunction|SourceTextModule|SyntheticModule|legacy-delivery-claims-compat|\b(?:import|require)\s*\()/;
+  const visit = (node: ts.Node): void => {
+    if (candidate) return;
+    if (ts.isCallExpression(node) || ts.isNewExpression(node)) {
+      if (escapedRuntimeToken.test(node.expression.getText(source))
+        || (node.arguments ?? []).some(argument => escapedRuntimeToken.test(argument.getText(source)))) {
+        candidate = true;
+        return;
+      }
+      const target = unwrapExecutionExpression(node.expression);
+      const targetName = ts.isIdentifier(target)
+        ? target.text
+        : ts.isPropertyAccessExpression(target)
+          ? target.name.text
+          : ts.isElementAccessExpression(target) && target.argumentExpression
+            ? (ts.isStringLiteralLike(target.argumentExpression) || ts.isNoSubstitutionTemplateLiteral(target.argumentExpression)
+              ? target.argumentExpression.text
+              : undefined)
+            : undefined;
+      if (targetName && decodedCandidate.test(targetName)) {
+        candidate = true;
+        return;
+      }
+      for (const argument of node.arguments ?? []) {
+        if ((ts.isStringLiteralLike(argument) || ts.isNoSubstitutionTemplateLiteral(argument))
+          && decodedCandidate.test(argument.text)) {
+          candidate = true;
+          return;
+        }
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return candidate;
+}
+
+interface DynamicCodeScanOptions {
+  forceFullAnalysis?: boolean;
+  testOnlyAllowRawSkip?: boolean;
+}
+
+function scanDynamicCodeGeneration(
+  file: string,
+  text: string,
+  program?: ts.Program,
+  options: DynamicCodeScanOptions = {},
+): Violation[] {
   const exemptFingerprint = DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS.get(file);
   if (exemptFingerprint && canonicalAstFingerprint(file, text) === exemptFingerprint) return [];
   if (!DYNAMIC_CODE_ANALYSIS_PREFILTER.test(text)) {
     const parsed = parseSource(file, text);
-    if (((parsed as ts.SourceFile & { parseDiagnostics?: readonly ts.Diagnostic[] }).parseDiagnostics?.length ?? 0) === 0) return [];
+    const parseClean = ((parsed as ts.SourceFile & { parseDiagnostics?: readonly ts.Diagnostic[] }).parseDiagnostics?.length ?? 0) === 0;
+    const astCandidate = parseClean && hasDynamicExecutionAstCandidate(parsed);
+    if (parseClean && !options.forceFullAnalysis && (!astCandidate || options.testOnlyAllowRawSkip)) {
+      typeProgramInstrumentation.dynamicPrefilterSkips += 1;
+      return [];
+    }
+    if (astCandidate) typeProgramInstrumentation.dynamicAstCandidateScans += 1;
   }
+  typeProgramInstrumentation.dynamicFullAnalysisScans += 1;
+  typeProgramInstrumentation.dynamicFullAnalysisByFile.set(
+    file,
+    (typeProgramInstrumentation.dynamicFullAnalysisByFile.get(file) ?? 0) + 1,
+  );
   const analysis = typeAnalysisFor(file, text, program);
   const { source, checker } = analysis;
   const constStrings = collectConstStringValues(source, checker);
@@ -3374,6 +3537,8 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['vm namespace', "import * as vm from 'node:vm'; vm.runInNewContext(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\")"],
     ['vm named alias', "import { compileFunction as compile } from 'node:vm'; compile(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")"],
     ['global property eval', "globalThis['eval'](\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")"],
+    ['unicode escaped global property eval and payload', "const run = globalThis['\\u0065val']; run(\"\\x69mport('../packages/main/src/core/legacy-delivery-claims-compat.js')\")"],
+    ['hex escaped global Function and payload', "const Build = globalThis['\\x46unction']; new Build(\"\\x72eturn import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")"],
     ['window eval property', "window.eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")"],
     ['nested local eval alias', "function execute() { const indirect = eval; indirect(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
     ['nested local vm require alias', "function execute() { const vm = require('node:vm'); vm.runInNewContext(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
@@ -3578,6 +3743,13 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['promise all spread vm fail closed', "const pending = [import('./dynamic-code-esm-bridge.js')]; const [bridge] = await Promise.all([...pending]); bridge.vmRun(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['promise race eval fail closed', "const bridge = await Promise.race([import('./dynamic-code-esm-safe.js'), import('./dynamic-code-esm-bridge.js')]); bridge.evalRun(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['dynamic import then identity fail closed', "const bridge = await import('./dynamic-code-esm-bridge.js').then(module => module); bridge.evalRun(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['then returned eval fail closed', "const run = await import('./dynamic-code-esm-safe.js').then(() => eval); run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['then block returned Function fail closed', "const Build = await import('./dynamic-code-esm-safe.js').then(() => { return Function; }); new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['catch returned eval fail closed', "const run = await import('./dynamic-code-esm-safe.js').catch(() => eval); run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['promise any danger second fail closed', "const bridge = await Promise.any([import('./dynamic-code-esm-safe.js'), import('./dynamic-code-esm-bridge.js')]); bridge.evalRun(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['promise any unresolved fail closed', "declare const unresolved: Promise<any>; const run = await Promise.any([import('./dynamic-code-esm-safe.js'), unresolved]); run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['promise allSettled value fail closed', "const [{ value: bridge }] = await Promise.allSettled([import('./dynamic-code-esm-bridge.js')]); bridge.evalRun(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['promise allSettled reason fail closed', "const [{ reason: run }] = await Promise.allSettled([import('./dynamic-code-esm-safe.js')]); run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['dynamic import assignment before await fail closed', "let pending; pending = import('./dynamic-code-esm-bridge.js'); const bridge = await pending; bridge.vmRun(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['inline conditional eval target fail closed', "declare const flag: boolean; const safeRun = (value: string) => value; (flag ? eval : safeRun)(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['inline logical Function target fail closed', "declare const flag: boolean; const safeRun = (value: string) => value; new (flag && Function || safeRun)(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
@@ -3588,6 +3760,12 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['conditional nested namespace reassignment danger first', "import * as dangerous from './dynamic-code-esm-namespace-reexport.js'; import * as safe from './dynamic-code-esm-safe-namespace-reexport.js'; declare const flag: boolean; let barrel = dangerous; if (flag) barrel = safe; barrel.bridge.evalRun(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['conditional nested namespace reassignment danger last', "import * as dangerous from './dynamic-code-esm-namespace-reexport.js'; import * as safe from './dynamic-code-esm-safe-namespace-reexport.js'; declare const flag: boolean; let barrel = safe; if (flag) barrel = dangerous; barrel.bridge.evalRun(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['cyclic nested namespace eval fail closed', "import * as barrel from './dynamic-code-esm-nested-cycle-a.js'; barrel.bridge.evalRun(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['logical and namespace reassignment fail closed', "import * as dangerous from './dynamic-code-esm-namespace-reexport.js'; import * as safe from './dynamic-code-esm-safe-namespace-reexport.js'; declare const flag: boolean; let barrel = dangerous; flag && (barrel = safe); barrel.bridge.evalRun(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['logical or namespace reassignment fail closed', "import * as dangerous from './dynamic-code-esm-namespace-reexport.js'; import * as safe from './dynamic-code-esm-safe-namespace-reexport.js'; declare const flag: boolean; let barrel = dangerous; flag || (barrel = safe); barrel.bridge.evalRun(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['logical nullish namespace reassignment fail closed', "import * as dangerous from './dynamic-code-esm-namespace-reexport.js'; import * as safe from './dynamic-code-esm-safe-namespace-reexport.js'; declare const flag: boolean | null; let barrel = dangerous; flag ?? (barrel = safe); barrel.bridge.evalRun(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['logical and assignment namespace fail closed', "import * as dangerous from './dynamic-code-esm-namespace-reexport.js'; import * as safe from './dynamic-code-esm-safe-namespace-reexport.js'; let barrel = dangerous; barrel &&= safe; barrel.bridge.evalRun(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['logical or assignment namespace fail closed', "import * as dangerous from './dynamic-code-esm-namespace-reexport.js'; import * as safe from './dynamic-code-esm-safe-namespace-reexport.js'; let barrel = dangerous; barrel ||= safe; barrel.bridge.evalRun(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['logical nullish assignment namespace fail closed', "import * as dangerous from './dynamic-code-esm-namespace-reexport.js'; import * as safe from './dynamic-code-esm-safe-namespace-reexport.js'; let barrel = dangerous; barrel ??= safe; barrel.bridge.evalRun(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['static computed eval declaration provenance', "const { ['eval']: run } = globalThis; run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['static computed eval assignment provenance', "let run; ({ [`eval`]: run } = globalThis); run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['const computed eval parameter provenance', "const first = 'eval'; const key = first; function execute({ [key]: run } = globalThis) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
@@ -3738,6 +3916,11 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['promise all spread safe negative', "const pending = [import('./dynamic-code-esm-safe.js')]; const [bridge] = await Promise.all([...pending]); bridge.safeRun('safe');"],
     ['promise race safe negative', "const bridge = await Promise.race([import('./dynamic-code-esm-safe.js')]); bridge.safeRun('safe');"],
     ['dynamic import then identity safe negative', "const bridge = await import('./dynamic-code-esm-safe.js').then(module => module); bridge.safeRun('safe');"],
+    ['then returned local callback safe negative', "const run = await import('./dynamic-code-esm-safe.js').then(() => (value: string) => value); run('safe');"],
+    ['catch returned local callback safe negative', "const run = await Promise.reject('x').catch(() => (value: string) => value); run('safe');"],
+    ['finally returned eval ignored safe negative', "const bridge = await import('./dynamic-code-esm-safe.js').finally(() => eval); bridge.safeRun('safe');"],
+    ['promise any safe negative', "const bridge = await Promise.any([import('./dynamic-code-esm-safe.js'), import('./dynamic-code-esm-safe.js')]); bridge.safeRun('safe');"],
+    ['promise allSettled value safe negative', "const [{ value: bridge }] = await Promise.allSettled([import('./dynamic-code-esm-safe.js')]); bridge.safeRun('safe');"],
     ['inline conditional safe target negative', "declare const flag: boolean; const left = (value: string) => value; const right = (value: string) => value; (flag ? left : right)('safe');"],
     ['inline await import safe member negative', "(await import('./dynamic-code-esm-safe.js')).safeRun('safe');"],
     ['inline nested await import safe member negative', "(await import('./dynamic-code-esm-safe-namespace-reexport.js')).bridge.safeRun('safe');"],
@@ -3746,6 +3929,8 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['deterministic final safe namespace reassignment negative', "import * as dangerous from './dynamic-code-esm-namespace-reexport.js'; import * as safe from './dynamic-code-esm-safe-namespace-reexport.js'; let barrel = dangerous; barrel = safe; barrel.bridge.safeRun('safe');"],
     ['nested default namespace safe negative', "import holder from './dynamic-code-esm-safe-nested-default.js'; holder.bridge.safeRun('safe');"],
     ['cyclic nested namespace safe negative', "import * as barrel from './dynamic-code-esm-safe-nested-cycle-a.js'; barrel.bridge.safeRun('safe');"],
+    ['escaped local property safe negative', "const holder = { eval: (value: string) => value }; holder['\\u0065val']('safe');"],
+    ['logical conditional then final safe namespace negative', "import * as dangerous from './dynamic-code-esm-namespace-reexport.js'; import * as safe from './dynamic-code-esm-safe-namespace-reexport.js'; declare const flag: boolean; let barrel = safe; flag && (barrel = dangerous); barrel = safe; barrel.bridge.safeRun('safe');"],
     ['bound global require direct safe negative', "const rq = require.bind(module); const run = rq('./dynamic-code-safe-bridge.cjs') as (value: string) => string; run('safe');"],
     ['bound global require destructured safe negative', "const rq = require.bind(module); const { run } = rq('./dynamic-code-safe-bridge.cjs') as { run(value: string): string }; run('safe');"],
     ['namespace createRequire direct safe negative', "import * as mod from 'node:module'; const rq = mod.createRequire(import.meta.url); const run = rq('./dynamic-code-safe-bridge.cjs') as (value: string) => string; run('safe');"],
@@ -3852,8 +4037,27 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     assert.ok(violations.some(violation => violation.label === 'dynamic code generation compatibility payload'), `${label} static payload must be inspected`);
   }
   for (const control of controlSources.slice(cases.length)) {
-    assert.deepEqual(scanDynamicCodeGeneration(control.file, control.source, controlProgram), [], `${control.label} must remain a declaration-identity negative control`);
+    const before = typeProgramInstrumentation.dynamicFullAnalysisByFile.get(control.file) ?? 0;
+    const criticalReachability = DYNAMIC_PROVENANCE_REACHABILITY_LABELS.has(control.label);
+    assert.deepEqual(
+      scanDynamicCodeGeneration(control.file, control.source, controlProgram, {
+        forceFullAnalysis: criticalReachability,
+        testOnlyAllowRawSkip: !criticalReachability,
+      }),
+      [],
+      `${control.label} must remain a declaration-identity negative control`,
+    );
+    if (criticalReachability) {
+      const reached = (typeProgramInstrumentation.dynamicFullAnalysisByFile.get(control.file) ?? 0) - before;
+      assert.equal(reached, 1, `${control.label} must reach full type/provenance analysis`);
+      typeProgramInstrumentation.dynamicReachabilityAssertions += 1;
+    }
   }
+  assert.equal(
+    typeProgramInstrumentation.dynamicReachabilityAssertions,
+    DYNAMIC_PROVENANCE_REACHABILITY_LABELS.size,
+    'every critical safe provenance control must prove full-analysis reachability',
+  );
   for (const control of controlSources.slice(0, 2)) {
     assert.ok(
       scanDynamicCodeGeneration(control.file, control.source, controlProgram)
@@ -4289,4 +4493,4 @@ if (violations.length > 0) {
   throw new Error(`retired authority vocabulary guard found ${violations.length} violation(s):\n${rendered}`);
 }
 
-process.stdout.write(`retired authority vocabulary guard PASS builds=${typeProgramInstrumentation.dynamicBindingBuilds} cacheHits=${typeProgramInstrumentation.dynamicBindingCacheHits}\n`);
+process.stdout.write(`retired authority vocabulary guard PASS builds=${typeProgramInstrumentation.dynamicBindingBuilds} cacheHits=${typeProgramInstrumentation.dynamicBindingCacheHits} fullAnalysis=${typeProgramInstrumentation.dynamicFullAnalysisScans} astCandidates=${typeProgramInstrumentation.dynamicAstCandidateScans} reachability=${typeProgramInstrumentation.dynamicReachabilityAssertions}\n`);
