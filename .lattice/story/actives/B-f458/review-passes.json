@@ -48,6 +48,27 @@
         "scanEscalationReason": null
       },
       "_hash": "9e46f1e82141c88d7ac3820a099c79ad22e5c021d8de7f7183ed1fbf04c0faf7"
+    },
+    {
+      "id": "B-f458:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final XState coverage PASS: build and closeout/process/runtime contracts exit 0. closeout-trust-smoke starts a real TEST actor, proves stale post-closeout reviewer evidence blocks FINISH in TEST with [stale_closeout_review], then records a fresh run/pass and proves FINISH reaches DONE. Receipt registry is L1 unsigned audit-only with no consumerGate or gate-evidence semantics. All 15 intent evidence records pass and bind current storyFilesHash c5dc793.",
+      "createdAt": "2026-07-13T10:29:03.685Z",
+      "reviewRound": "2026-07-13T10:27:30.896Z",
+      "reviewRunId": "B-f458:RR-015",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "60b5a6db74014f91e6dfc9bbf8e3c8882064d130d7f07d9d55982c3c2d06cdc9"
     }
   ]
 }
