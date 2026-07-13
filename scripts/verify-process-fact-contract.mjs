@@ -784,7 +784,11 @@ function assertCloseoutTrustBoundary() {
     'concatenated dynamic import',
     'interpolated dynamic import',
     'two-argument dynamic import',
-    'unrelated unresolved dynamic imports must not be classified as legacy delivery compatibility access',
+    'knownBenignNonLiteralLoaderCalls',
+    'unapproved non-literal dynamic module load',
+    'non-literal dynamic imports outside the finite benign call-site allowlist must fail closed',
+    'the exact registered cli-engine non-literal loader call site must remain allowed',
+    'a known benign loader expression relocated to another function must fail closed',
     'typeCheckerFor',
     'identifierResolvesToBinding',
     'collectConstStringValues',
@@ -795,7 +799,14 @@ function assertCloseoutTrustBoundary() {
     'relocated approved-shaped claims call must fail its canonical declaration anchor',
     'downstream destructuring of relocated claims object must be caught',
     'shadowed same-name identifiers must not count as references to the compatibility import binding',
-    'an unrelated unresolved variable named compatPluginPath must not be classified from identifier spelling',
+    'non-literal loader rejection must be structural and independent of compat-looking identifier spelling',
+    'approvedCompatibilityCallShape',
+    'assignment to an exported container inside an approved claims property must break the exact canonical parent chain',
+    'assignment/comma wrappers around the compatibility constructor must be rejected as noncanonical binding use',
+    'namespace createRequire import',
+    'wrapper parameter dynamic import',
+    'object property dynamic import',
+    'destructured path dynamic import',
   ]) {
     assert(retiredVocabularyGuardText.includes(token), `retired vocabulary guard must enforce narrow compatibility usage: ${token}`);
   }
