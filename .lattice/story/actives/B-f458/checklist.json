@@ -356,7 +356,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-13T11:32:18.421Z",
+      "endTime": "2026-07-13T11:42:20.359Z",
       "userSees": "User runs the M4.C1 regression suite and sees `PASS metadata-only review retention is fail-closed`; unknown paths, changed material/scope, missing provenance, malformed hashes, same-UID forged receipts, TEST acknowledgement, and stale review reuse are all rejected, while a fresh post-closeout review succeeds.",
       "verificationIntent": {
         "happy": [
@@ -408,33 +408,33 @@
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full suite passed after narrow legacy delivery compatibility quarantine at commit 398ed6e6b5.",
-          "headHash": "7bca7c0491f6f8bed631654af5c80b21786cc1d8",
-          "materialHash": "949f484ddebf989d9864095fd63b493a60406fdb9549301821ec4d09b6664f26",
-          "storyFilesHash": "30e73f2c05308009fc402ffe593470a57490f9a2ecdd44d5e0baaa7893eaf108",
-          "timestamp": "2026-07-13T11:32:18.561Z"
+          "note": "Full suite passed at d9f301399f, including metadata-only review-retention regressions.",
+          "headHash": "2f4e93c8ce97509aa28f8d8a92fc416612bb2a1d",
+          "materialHash": "90f15839206772318007d79565d77df2790fb2399747a67c697139728b75140e",
+          "storyFilesHash": "ece10afc0df39a2ec04b025872be19ec512b30a00d91b9ad58cfed333007ccf8",
+          "timestamp": "2026-07-13T11:42:20.507Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "command": "npm run test:closeout-trust",
           "result": "pass",
-          "note": "Guard enforces exact approved compatibility importers, symbols, call counts, direct usages, and forbids constructor spreading.",
-          "headHash": "7bca7c0491f6f8bed631654af5c80b21786cc1d8",
-          "materialHash": "949f484ddebf989d9864095fd63b493a60406fdb9549301821ec4d09b6664f26",
-          "storyFilesHash": "30e73f2c05308009fc402ffe593470a57490f9a2ecdd44d5e0baaa7893eaf108",
-          "timestamp": "2026-07-13T11:32:18.700Z"
+          "note": "Fail-closed metadata-only review retention smoke passed at d9f301399f.",
+          "headHash": "2f4e93c8ce97509aa28f8d8a92fc416612bb2a1d",
+          "materialHash": "90f15839206772318007d79565d77df2790fb2399747a67c697139728b75140e",
+          "storyFilesHash": "ece10afc0df39a2ec04b025872be19ec512b30a00d91b9ad58cfed333007ccf8",
+          "timestamp": "2026-07-13T11:42:20.644Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
           "kind": "logic_test",
-          "command": "npm run test:closeout-trust",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
-          "note": "Positive controls catch unapproved import+spread+call and direct retired tokens; exact false values and extra-key rejection remain covered.",
-          "headHash": "7bca7c0491f6f8bed631654af5c80b21786cc1d8",
-          "materialHash": "949f484ddebf989d9864095fd63b493a60406fdb9549301821ec4d09b6664f26",
-          "storyFilesHash": "30e73f2c05308009fc402ffe593470a57490f9a2ecdd44d5e0baaa7893eaf108",
-          "timestamp": "2026-07-13T11:32:18.849Z"
+          "note": "True two-hop and approved-importer escape positive controls passed at d9f301399f.",
+          "headHash": "2f4e93c8ce97509aa28f8d8a92fc416612bb2a1d",
+          "materialHash": "90f15839206772318007d79565d77df2790fb2399747a67c697139728b75140e",
+          "storyFilesHash": "ece10afc0df39a2ec04b025872be19ec512b30a00d91b9ad58cfed333007ccf8",
+          "timestamp": "2026-07-13T11:42:20.781Z"
         }
       ]
     }
