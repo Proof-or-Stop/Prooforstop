@@ -142,37 +142,37 @@
           "intentRef": "CHK-002:happy:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
-          "command": "npm --prefix packages/main run build && npm run test:closeout-trust && npm run test:process-fact-contract && npm run test:runtime-fact-contract",
+          "command": "npm test",
           "result": "pass",
-          "note": "Composite digest deterministically binds normalized scope acknowledgements, ledger state/binding, and slice plan; identical semantic inputs reproduce it.",
-          "headHash": "3ebdd2abb303fd3673946a7dff534a5cb7b3d575",
-          "materialHash": "d189ecd2427dfff56d4fef54beda2206d5da20301a5fff3a254d6227ede2ca14",
-          "storyFilesHash": "4de5ef436f8d8e55aaad46748510eba7965cbcce87753c5eae4e3a58d8fb4356",
-          "timestamp": "2026-07-13T10:15:09.975Z"
+          "note": "Full suite confirms deterministic composite scope binding and fresh post-closeout review acceptance.",
+          "headHash": "ef525429dc63a854f8cd9061ccdd6664bce551f6",
+          "materialHash": "92eefbdb41b59a1d8296c3bf1aaf71d666f8f2f4895e3ec08e64ab5bd5d6b16e",
+          "storyFilesHash": "c5dc7934120519a46c14380cafb19bfe084d3e04f7117d02108160f105082015",
+          "timestamp": "2026-07-13T10:26:35.981Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
-          "command": "npm --prefix packages/main run build && npm run test:closeout-trust && npm run test:process-fact-contract && npm run test:runtime-fact-contract",
+          "command": "npm test",
           "result": "pass",
-          "note": "Independent acknowledgement content/provenance, ledger, plan, and scope mutations change the composite digest and require fresh signed review.",
-          "headHash": "3ebdd2abb303fd3673946a7dff534a5cb7b3d575",
-          "materialHash": "d189ecd2427dfff56d4fef54beda2206d5da20301a5fff3a254d6227ede2ca14",
-          "storyFilesHash": "4de5ef436f8d8e55aaad46748510eba7965cbcce87753c5eae4e3a58d8fb4356",
-          "timestamp": "2026-07-13T10:15:10.135Z"
+          "note": "Independent semantic scope changes invalidate retention and surface through the real DONE freshness consumer.",
+          "headHash": "ef525429dc63a854f8cd9061ccdd6664bce551f6",
+          "materialHash": "92eefbdb41b59a1d8296c3bf1aaf71d666f8f2f4895e3ec08e64ab5bd5d6b16e",
+          "storyFilesHash": "c5dc7934120519a46c14380cafb19bfe084d3e04f7117d02108160f105082015",
+          "timestamp": "2026-07-13T10:26:36.130Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
-          "command": "npm --prefix packages/main run build && npm run test:closeout-trust && npm run test:process-fact-contract && npm run test:runtime-fact-contract",
+          "command": "npm test",
           "result": "pass",
-          "note": "Canonical serialization and recomputation reject key reordering, embedded-digest rewrite, provenance replay, and unbound ledger/plan substitution.",
-          "headHash": "3ebdd2abb303fd3673946a7dff534a5cb7b3d575",
-          "materialHash": "d189ecd2427dfff56d4fef54beda2206d5da20301a5fff3a254d6227ede2ca14",
-          "storyFilesHash": "4de5ef436f8d8e55aaad46748510eba7965cbcce87753c5eae4e3a58d8fb4356",
-          "timestamp": "2026-07-13T10:15:10.285Z"
+          "note": "Canonical recomputation rejects replay/substitution while protocol-only REVIEW-to-TEST metadata does not create false drift.",
+          "headHash": "ef525429dc63a854f8cd9061ccdd6664bce551f6",
+          "materialHash": "92eefbdb41b59a1d8296c3bf1aaf71d666f8f2f4895e3ec08e64ab5bd5d6b16e",
+          "storyFilesHash": "c5dc7934120519a46c14380cafb19bfe084d3e04f7117d02108160f105082015",
+          "timestamp": "2026-07-13T10:26:36.286Z"
         }
       ]
     },
