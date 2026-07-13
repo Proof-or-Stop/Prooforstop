@@ -45,7 +45,40 @@
       "context": "Persist per-story breaker state (tripped reasons + counter snapshot + auto-recovery budget) under .lattice/story/actives/<id>/, registered in core/runtime-artifact-registry.ts with a matching .gitignore glob so it is never tracked (follow the story-owner-lease.ts F-008 dirty-write-prevention pattern). First trip -> auto-recover once (re-baseline the window, no human). Re-trip with budget exhausted -> frozen.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "After a first trip the breaker-state file shows autoRecoveriesSpent=1 and the story still advances; after a re-trip it shows frozen=true. git status never lists breaker-state.json.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          ".gitignore"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "First pathological trip writes state, spends the one-shot budget (autoRecoveriesSpent=1), and the advance proceeds",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A re-trip after the budget is spent flips frozen=true instead of auto-recovering again",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "breaker-state.json is gitignored: a DONE-style merge with the file present is not blocked by the dirty-tree/F-008 check",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
