@@ -130,7 +130,7 @@
       "desc": "The closed writer-provenance table names writers that cannot produce the receipts required by the real retention gate. test-evidence.json lists test_add/test_story, but those handlers write the artifact without autoCommitStoryMetadata(closeoutArtifactPaths), so their declared canonical output is always rejected as missing/stale receipt. More critically, evidence/transcript-diff.md is assigned to live_smoke_transcript, but that command only writes evidence/live-smoke-transcript.json; the TEST lifecycle hint still instructs users to hand-write transcript-diff.md. Following that normal closeout instruction therefore invalidates review retention, and the verifier only checks that writer command names exist, not that they attest the listed path. Align the closed policy with real writer choke points (or add explicit CLI writers/receipts), preserve intentional legacy compatibility, and add an end-to-end regression for every declared path/writer pair.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T09:20:20.799Z",
@@ -146,7 +146,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "spec-boundary|ts|closed-writer-provenance",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 812a711565. test_add and test_story now attest test evidence; test_story commits after final metadata write; phantom transcript-diff policy is removed; TEST UX directs canonical live smoke JSON with an explicit capture command. Every policy writer pair runs in smoke.",
+      "resolvedAt": "2026-07-13T09:38:13.305Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
