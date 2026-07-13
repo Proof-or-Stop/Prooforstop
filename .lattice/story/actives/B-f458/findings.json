@@ -2186,6 +2186,33 @@
       "resolvedAt": "2026-07-13T18:04:38.971Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f458:F-085",
+      "desc": "The F-082 dynamic-import repair is bypassed by the pre-existing `await Promise.all([import(...)])` special case. Before the generic ImportKeyword/export-graph branch runs, provenanceForExpression recognizes an all-import array and returns each tuple slot as `{ completeMembers:false }` while marking the outer tuple complete (lines 1973-1993). It never resolves the imported module symbol and does not mark the slot unknown. Thus `const [bridge] = await Promise.all([import('./dynamic-code-esm-bridge.js')]); bridge.evalRun(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")`, member, and nested destructuring variants lose all eval/Function/vm identity and evade the guard. The new controls cover direct await import and an aliased promise, but no Promise.all projection. Build Promise.all tuple members by invoking the same import provenance for every element (and merge/fail closed for mixed or unresolved arrays), with dangerous and safe direct/destructured controls plus process pins.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T18:06:55.747Z",
+      "reviewRound": "2026-07-13T18:02:19.413Z",
+      "reviewRunId": "B-f458:RR-102",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete cdb718114f diff and focused loader identity, dynamic/static URL resolution, import/export graph, cycles, alternative merging, identity precision, controls, and process-contract sections; unrelated unchanged portions were name-triaged."
+      },
+      "_hash": "6c936bf12fc8d1f770e762bf9f6a8daa12f5ef658eff59135c7a8e2712eb88da",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "promise-all-import-provenance-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
