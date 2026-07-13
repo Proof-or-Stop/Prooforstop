@@ -37,8 +37,8 @@
       "title": "Extend scope-contract-smoke.ts to cover the three new filenames and the removed stale entry",
       "context": "Follow the B-12a1 proofStoryArtifacts block in packages/main/src/tasks/scope-contract-smoke.ts (per-row assertions before aggregate status, per B-12a1 F-001): assert scope.lifecycle_artifact pass rows for .lattice/story/actives/B-scope/{grill.json,clusters.json,scope-extension-decisions.json} under the enforce waveContract, and assert that singular cluster.json (now unregistered) fails closed as rule=out_of_scope.",
       "userSees": "Running the scope contract smoke prints 'scope contract smoke passed'",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-13T08:30:32.322Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
