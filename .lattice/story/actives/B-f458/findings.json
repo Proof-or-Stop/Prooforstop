@@ -1487,7 +1487,7 @@
       "desc": "Element-access calls bypass the new member/type provenance whenever the access key is not a literal. dynamicReferenceKind derives `member` with staticModuleText(current.argumentExpression) and immediately returns undefined when that fails, before consulting bindings.memberKinds, the target DynamicProvenance.element/unknownMemberAccess, or checker type fallback. Consequently provenance already preserved by rest handling is lost at the invocation site: `declare const values: Array<typeof eval>; const [...rest] = values; const i = 0; rest[i](\"import('./legacy-delivery-claims-compat.js')\")` is not reported, and similarly `const { Math, ...rest } = globalThis; const key = 'eval'; rest[key](\"import('./legacy-delivery-claims-compat.js')\")` evades because the identifier key is not resolved in this path. Resolve constant identifier keys with checker/constStrings and, for genuinely dynamic indexes, classify element/index/unknown-member provenance (or fail closed when the target carries dangerous/unknown member provenance). Add positive controls for const-identifier and dynamic numeric/string indexes plus benign noncallable negatives.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T15:43:25.757Z",
@@ -1507,7 +1507,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "nonliteral-member-provenance-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 67af589ec3: nonliteral ElementAccess consults exact known members, preserved dangerous member/index provenance, checker index types and unresolved rest state before return; rest[i]/rest[key] and safe Record negatives are covered.",
+      "resolvedAt": "2026-07-13T15:57:00.847Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
