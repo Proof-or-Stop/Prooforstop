@@ -93,7 +93,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-13T13:30:13.717Z",
+      "endTime": "2026-07-13T13:46:46.612Z",
       "userSees": "User sees `PASS composite scope digest: semantic scope facts bound`; changing acknowledgement content/provenance, milestone ledger, or slice plan changes the digest and blocks metadata-only review retention until signed re-attestation.",
       "verificationIntent": {
         "happy": [
@@ -140,33 +140,33 @@
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full repository suite passed for 1095a076ab after F-038/F-039/F-040/F-041 scan-entry-root hardening (CHK-002).",
-          "headHash": "7af9e0665071c52a37679c1a2860238f7d378982",
-          "materialHash": "78cf224a6dcafc4143ad992160825477d7310701f9fd39d00230320fdf8049e6",
-          "storyFilesHash": "731f0e696320c2d2c869183c57d32776ca7b8e24ed9e69c0e7eb501a9c5620bc",
-          "timestamp": "2026-07-13T13:30:13.900Z"
+          "note": "Full repository suite passed for f454260efc after F-042/F-043 all-scope symbol-identity dynamic alias hardening (CHK-002).",
+          "headHash": "7c79d398b6f67d81e3e9871143e9cfda86dcdfe4",
+          "materialHash": "3c2d13b861a11c9dfc878a0b77bed1f193ebbbbf1b9368da09b39a98d6640d62",
+          "storyFilesHash": "0a7d258bacee19de2973f12f07df1bda06e7a993c88a949f66f742ba655ce9e9",
+          "timestamp": "2026-07-13T13:46:46.761Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/brief-output-smoke.js",
           "result": "pass",
-          "note": "Closeout/runtime contracts and bounded brief output passed for 1095a076ab (CHK-002).",
-          "headHash": "7af9e0665071c52a37679c1a2860238f7d378982",
-          "materialHash": "78cf224a6dcafc4143ad992160825477d7310701f9fd39d00230320fdf8049e6",
-          "storyFilesHash": "731f0e696320c2d2c869183c57d32776ca7b8e24ed9e69c0e7eb501a9c5620bc",
-          "timestamp": "2026-07-13T13:30:14.044Z"
+          "note": "Closeout/runtime contracts and bounded brief output passed for f454260efc (CHK-002).",
+          "headHash": "7c79d398b6f67d81e3e9871143e9cfda86dcdfe4",
+          "materialHash": "3c2d13b861a11c9dfc878a0b77bed1f193ebbbbf1b9368da09b39a98d6640d62",
+          "storyFilesHash": "0a7d258bacee19de2973f12f07df1bda06e7a993c88a949f66f742ba655ce9e9",
+          "timestamp": "2026-07-13T13:46:46.897Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node scripts/verify-process-fact-contract.mjs && node packages/main/dist/tasks/usage-burn-alert-smoke.js",
           "result": "pass",
-          "note": "Hermetic symlink traversal, exact-once 8-path fingerprints, shipped bin/exports roots, encoded specifiers, dynamic-code generation bans/static payload inspection, exact exemptions, process contract, and burn controls passed for 1095a076ab (CHK-002).",
-          "headHash": "7af9e0665071c52a37679c1a2860238f7d378982",
-          "materialHash": "78cf224a6dcafc4143ad992160825477d7310701f9fd39d00230320fdf8049e6",
-          "storyFilesHash": "731f0e696320c2d2c869183c57d32776ca7b8e24ed9e69c0e7eb501a9c5620bc",
-          "timestamp": "2026-07-13T13:30:14.187Z"
+          "note": "Recursive TypeChecker declaration-identity tracking caught nested eval/vm/AsyncFunction, bind/destructure/reassignment chains while preserving shadow negatives; the fixture executor sixth exact exemption, process contract, and burn controls passed for f454260efc (CHK-002).",
+          "headHash": "7c79d398b6f67d81e3e9871143e9cfda86dcdfe4",
+          "materialHash": "3c2d13b861a11c9dfc878a0b77bed1f193ebbbbf1b9368da09b39a98d6640d62",
+          "storyFilesHash": "0a7d258bacee19de2973f12f07df1bda06e7a993c88a949f66f742ba655ce9e9",
+          "timestamp": "2026-07-13T13:46:47.032Z"
         }
       ]
     },
