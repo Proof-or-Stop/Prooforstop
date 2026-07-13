@@ -369,26 +369,26 @@
       "status": "done",
       "startTime": null,
       "endTime": "2026-07-13T09:16:56.643Z",
-      "userSees": "User runs the M4.C1 regression suite and sees `PASS metadata-only review retention is fail-closed`; unknown paths, changed material/scope, missing provenance, malformed hashes, TEST acknowledgement, and new-round pass reuse are all rejected.",
+      "userSees": "User runs the M4.C1 regression suite and sees `PASS metadata-only review retention is fail-closed`; unknown paths, changed material/scope, missing provenance, malformed hashes, same-UID forged receipts, TEST acknowledgement, and stale review reuse are all rejected, while a fresh post-closeout review succeeds.",
       "verificationIntent": {
         "happy": [
           {
             "id": "CHK-005:happy:0",
-            "desc": "Metadata-only review retention succeeds only when all four conditions hold together: every changed path is a registered closeout-evidence path, product/material diff is unchanged, the composite scope-defining digest is unchanged, and canonical provenance plus schema/recomputed-hash validation passes.",
+            "desc": "Metadata-only review acceptance succeeds only for a fresh review snapshot taken after the closeout artifacts exist, with every changed path registered, product/material diff and composite scope digest unchanged, and all persisted schemas/recomputed hashes valid; local causal receipts alone never retain an earlier review.",
             "type": "logic"
           }
         ],
         "edge": [
           {
             "id": "CHK-005:edge:0",
-            "desc": "The regression suite independently negates each retention condition—unknown path, changed product/material file, changed scope fact/digest, and missing or invalid provenance/schema/hash—and every case fails closed; scope_contract_acknowledge remains rejected in TEST.",
+            "desc": "The regression suite independently negates each condition—unknown path, changed product/material file, changed scope fact/digest, missing or invalid schema/hash, stale pre-closeout review, and TEST scope_contract_acknowledge—and every case fails closed.",
             "type": "logic"
           }
         ],
         "adversarial": [
           {
             "id": "CHK-005:adversarial:0",
-            "desc": "A pass from an earlier review round is never inherited by a new round, even when HEAD, storyFilesHash, or closeout metadata appear unchanged; replayed/stale pass IDs and combined metadata mutations cannot satisfy current-round review assurance.",
+            "desc": "A pass from an earlier review round or pre-closeout snapshot is never inherited, and a same-UID actor cannot make locally minted causal receipts authoritative even when artifact bytes, HEAD, storyFilesHash, command name, or chain fields appear coherent.",
             "type": "logic"
           }
         ]
