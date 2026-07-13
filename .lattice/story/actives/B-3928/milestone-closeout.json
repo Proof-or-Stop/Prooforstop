@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-3928",
+  "phase": "TEST",
+  "generatedAt": "2026-07-13T03:46:13.512Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "910cd2695854a4a02e51e482e1322da36287623207f460c165a79fb633b664f3",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:42a9d6eabd6e2e0d1d5e085436838ca79794e3a2aa3d358281aae461e8825c78"
+    },
+    "groups": {
+      "completed": [
+        "M0.1",
+        "M0.2",
+        "M0.3",
+        "M0.4",
+        "M0.6"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "50f3ec283939e492b80ead366aa4d5468428d107",
+    "materialHash": "6e3651459facd23cc93c67e06942dc54714a0b4bbf485672c5052ad4d6f131aa",
+    "storyFilesHash": "3666b71e069275654c223b557d98a7e32742e8a97cdece8dc05a22c895c620e1"
+  },
+  "rows": [
+    {
+      "milestone": "M0.1",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Record the exact 16 Proof-or-Stop prompt filenames and current template hashes.",
+      "acceptance": "A reproducible baseline artifact lists all 16 prompt roles, source filenames, and current template hashes, and a verification command proves the count and hashes match the registry/source.",
+      "evidence": [
+        "CHK-001:happy:0 [pass/logic_test] node scripts/verify-proof-or-stop-prompt-baseline.mjs file=docs/requirements/baselines/proof-or-stop-prompt-baseline.json note=Current latest-main baseline records exactly 16 registry roles with source file, relPath, bytes, lines, templateHash, agent_prompt output hash, and registry material hash; normal verification passed.",
+        "CHK-001:edge:0 [pass/logic_test] node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-baseline-drift file=scripts/verify-proof-or-stop-prompt-baseline.mjs note=Nine negative mutations prove registry material/template hash drift plus missing, extra, renamed, and declared-count role drift are rejected.",
+        "CHK-001:adversarial:0 [pass/logic_test] node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-baseline-drift file=scripts/verify-proof-or-stop-prompt-baseline.mjs note=The drift harness mutates recomputed registry snapshots rather than trusting the authored matrix, and rejects role identity/count and template/hash tampering."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M0.2",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Capture current lattice agent_prompt output for every role as comparison artifacts.",
+      "acceptance": "All 16 roles have stored agent_prompt output comparison metadata and a reproducible command that can compare output for later prompt migrations.",
+      "evidence": [
+        "CHK-002:happy:0 [pass/manual_transcript] node scripts/verify-proof-or-stop-prompt-baseline.mjs file=docs/requirements/baselines/proof-or-stop-prompt-baseline.json note=All 16 registry roles produced agent_prompt stdout matching the built template, with sha256, byte count, and line count locked in the baseline.",
+        "CHK-002:edge:0 [pass/logic_test] node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-baseline-drift file=scripts/verify-proof-or-stop-prompt-baseline.mjs note=Focused negative mutations prove agent_prompt stdout sha256 and byte drift are rejected.",
+        "CHK-002:adversarial:0 [pass/logic_test] node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-baseline-drift file=scripts/verify-proof-or-stop-prompt-baseline.mjs note=Focused negative mutations prove renamed/missing/extra role-output ownership and role-count/identity drift fail closed."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M0.3",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Produce the role-overlap matrix for all 16 prompts.",
+      "acceptance": "A matrix records each prompt phase, commands, direct file access, output artifact, current status, overlap category, and owner boundary.",
+      "evidence": [
+        "CHK-003:happy:0 [pass/docs_check] node scripts/verify-proof-or-stop-prompt-baseline.mjs file=docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md note=All 16 matrix rows contain every required field; all human-authored semantics are explicitly reviewer-audited under the uniform Commands inclusion/exclusion contract.",
+        "CHK-003:edge:0 [pass/logic_test] node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-role-matrix-snapshot-drift file=scripts/verify-proof-or-stop-prompt-baseline.mjs note=Negative matrix mutations prove changed field, generated Markdown parity, removed role, role-count mismatch, and missing-row drift are rejected.",
+        "CHK-003:adversarial:0 [pass/docs_check] node scripts/verify-proof-or-stop-prompt-baseline.mjs file=docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md note=Matrix explicitly identifies active, conditional, optional, compatibility, legacy, fold-candidate, and retired-cli-only roles, with exact current/target replacement naming and overlap boundaries."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M0.4",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Add a regression check for legacy verification vocabulary in active non-legacy prompts.",
+      "acceptance": "A mechanical check fails when an active non-legacy prompt uses legacy verification vocabulary without an explicit baseline classification, and the check passes on the current baseline.",
+      "evidence": [
+        "CHK-004:happy:0 [pass/logic_test] node scripts/verify-proof-or-stop-prompt-baseline.mjs file=docs/requirements/baselines/proof-or-stop-prompt-baseline.json note=Legacy scanner records current testIntent, TEST_CASE, and TEST_CASE_REVIEW occurrences with role status, classification, and explicit-context policy result.",
+        "CHK-004:edge:0 [pass/logic_test] node scripts/verify-proof-or-stop-prompt-baseline.mjs file=scripts/verify-proof-or-stop-prompt-baseline.mjs note=Full verifier proves any prompt-body change must match the independent 16-role approval manifest before baseline refresh, then audits live legacy occurrences against the closed status/negative/context diagnostics; unsafe additions cannot self-authorize.",
+        "CHK-004:adversarial:0 [pass/logic_test] node scripts/verify-proof-or-stop-prompt-baseline.mjs file=scripts/verify-proof-or-stop-prompt-baseline.mjs note=Full verifier executes the manifest mutation suite plus 26 unsafe and 4 registered-safe legacy diagnostics, including case/spelling variants, boundary-spanning pronoun actions, unknown statuses, and exact context tampering."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M0.6",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Add a regression check for direct story-file write instructions in prompts.",
+      "acceptance": "A mechanical check flags prompt instructions requiring direct writes under docs/story unless they are explicitly baseline-classified for remediation, and the check passes on the current baseline.",
+      "evidence": [
+        "CHK-005:happy:0 [pass/logic_test] node scripts/verify-proof-or-stop-prompt-baseline.mjs file=docs/requirements/baselines/proof-or-stop-prompt-baseline.json note=Current docs/story references are classified and the normal verifier confirms exactly one explicit grandfathered current INIT write; unapproved and unclassified actionable writes block collection and refresh.",
+        "CHK-005:edge:0 [pass/logic_test] node scripts/verify-proof-or-stop-prompt-baseline.mjs file=scripts/verify-proof-or-stop-prompt-baseline.mjs note=Full verifier executes the independent approval-manifest suite, proving direct-story body mutations and baseline-refresh self-authorization are rejected before diagnostic collection; unregistered writes cannot be blessed by rewriting the baseline.",
+        "CHK-005:adversarial:0 [pass/logic_test] node scripts/verify-proof-or-stop-prompt-baseline.mjs file=scripts/verify-proof-or-stop-prompt-baseline.mjs note=Full verifier combines manifest authorization with 44 classifier and 14 scanner diagnostics, covering safe reminders, exact registrations, path aliases, mixed case, boundary-spanning actions, and the one exact INIT write."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}
