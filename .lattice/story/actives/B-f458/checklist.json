@@ -131,6 +131,19 @@
             "type": "logic"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/delivery-context-pack.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "packages/main/src/tasks/delivery-context-pack-smoke.ts"
+        ]
       }
     },
     {
