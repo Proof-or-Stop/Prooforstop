@@ -2213,6 +2213,33 @@
       ],
       "signatureTag": "promise-all-import-provenance-bypass",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-086",
+      "desc": "Loader identity still does not cross the ESM/CJS value forms that the new export graph otherwise supports. collectLoaderBindings seeds createRequireSymbols only from a direct named import from node:module, a direct namespace import, or direct object destructuring of global `require('node:module')`; its fixpoint propagates only identifier aliases (lines 851-978). A local barrel `export { createRequire as makeRequire } from 'node:module'` followed by `import { makeRequire } from './barrel.js'; const rq = makeRequire(import.meta.url)` is not recognized as a factory. Neither are `const mod = require('node:module'); const { createRequire } = mod` and `const makeRequire = require('node:module').createRequire`. The resulting NodeRequire call returns checker Any without module-load uncertainty, so a local eval/Function/vm bridge again evades. This is a concrete split between the loader graph and export/value provenance despite the unification claim. Resolve factory identity through aliased/re-exported symbols and member/destructuring provenance (while retaining global-symbol checks), and add dangerous/safe controls for named/export-star re-exports and two-step CJS extraction.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T18:07:07.047Z",
+      "reviewRound": "2026-07-13T18:02:19.413Z",
+      "reviewRunId": "B-f458:RR-102",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete cdb718114f diff and focused loader identity, dynamic/static URL resolution, import/export graph, cycles, alternative merging, identity precision, controls, and process-contract sections; unrelated unchanged portions were name-triaged."
+      },
+      "_hash": "dffd90012dbb74e8d96c7661a10ac3efd83f4c914a52d2a4bf7e267970cf6f65",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "loader-factory-export-graph-gap",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
