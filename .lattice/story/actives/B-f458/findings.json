@@ -2533,7 +2533,7 @@
       "desc": "The new graph-cache instrumentation fails its own focused guard on the current tree. After a clean package build, `/usr/bin/time -p node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js` exits 1 at assertTypeProgramInstrumentation: `dynamic binding graph builds must remain bounded at 800, got 1090` (63.29s elapsed). The cache is keyed by Program and SourceFile and helps repeated scans of the same pair, but the guard constructs/scans enough distinct program/source pairs that the hard bound is already violated; the added two cache-hit controls do not demonstrate effective whole-run reuse. This makes the canonical guard and any full npm test chain fail before process-contract/full-suite execution. Reduce graph rebuild cardinality or set a justified inventory-derived bound with regressions proving cache correctness across unchanged/changed programs; retain exact verdict equivalence on cache hits.",
       "severity": "high",
       "category": "happy",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T18:33:41.739Z",
@@ -2553,7 +2553,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "dynamic-binding-cache-bound-failure",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 151eac3ea1: Fresh clean build plus two independent focused guard runs now exit zero; prior false pass evidence is superseded by measured 646-build runs.",
+      "resolvedAt": "2026-07-13T18:56:30.042Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-097",
