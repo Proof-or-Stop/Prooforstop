@@ -2037,7 +2037,7 @@
       "desc": "Dynamic provenance still does not cross an ES-module import boundary for direct calls. collectDynamicExecutionBindings is built per SourceFile and seeds imports only for node:vm members; dynamicReferenceKind on an imported Identifier uses the local alias symbol but never resolves or classifies the exported initializer. Therefore a local bridge `export const run = eval` followed by `import { run } from './eval-bridge.js'; run(\"import('./legacy-delivery-claims-compat.js')\")` is missed: the bridge contains no invocation, and the consumer contains no global eval identity. Default-export and namespace-member forms have the same gap. The project-wide Program/type resolution added for imported callable `.constructor` does not help ordinary direct calls because callable type alone is intentionally not treated as dynamic identity. Propagate dangerous exported identity through named/default/namespace imports (or build a conservative cross-file provenance graph), retaining safe imported callback negatives. Add hermetic two-file controls for named/default/namespace eval, Function, and vm re-exports plus safe local function exports.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T17:27:33.461Z",
@@ -2057,7 +2057,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "imported-dynamic-identity-provenance",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 439ba331bf: local and unknown ESM export graph propagates dangerous identity across named, default and namespace imports with matching safe callback controls.",
+      "resolvedAt": "2026-07-13T17:39:33.903Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
