@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-3928",
+  "records": [
+    {
+      "id": "RED-20260710032651",
+      "trigger": "M0 prompt baseline verifier does not exist before implementation",
+      "acceptanceTargetRef": "B-3928:acceptance",
+      "baselineHeadHash": "14bfe24816f05dbcb5a57e826d736b55cfd1882f",
+      "baselineMaterialHash": "5b90689e101b32963f8901e8631d8ab6d75ce59422f29f45c737d8b6e24dbc44",
+      "observedFailure": "Running node scripts/verify-proof-or-stop-prompt-baseline.mjs fails before implementation because the script file is missing with MODULE_NOT_FOUND.",
+      "failingCommand": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+      "expectedGreenCommand": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+      "greenRelation": {
+        "targetRef": "B-3928:acceptance",
+        "relation": "same_acceptance",
+        "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs"
+      },
+      "note": "Red evidence binds the pre-implementation failure for the exact focused verifier that M0 will add and later mark green.",
+      "createdAt": "2026-07-10T03:26:51.978Z"
+    },
+    {
+      "id": "RED-20260710032731",
+      "trigger": "M0 prompt baseline verifier does not exist before implementation",
+      "acceptanceTargetRef": "ACCEPT-M0",
+      "baselineHeadHash": "14bfe24816f05dbcb5a57e826d736b55cfd1882f",
+      "baselineMaterialHash": "5b90689e101b32963f8901e8631d8ab6d75ce59422f29f45c737d8b6e24dbc44",
+      "observedFailure": "Running node scripts/verify-proof-or-stop-prompt-baseline.mjs fails before implementation because the script file is missing with MODULE_NOT_FOUND.",
+      "failingCommand": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+      "expectedGreenCommand": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+      "greenRelation": {
+        "targetRef": "ACCEPT-M0",
+        "relation": "same_acceptance",
+        "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+        "greenHeadHash": "post-implementation-green-head",
+        "greenMaterialHash": "post-implementation-green-material"
+      },
+      "note": "Valid target-bound red evidence for the ProofStory DEV gate; the actual green proof will be supplied later as verificationEvidence after implementation.",
+      "createdAt": "2026-07-10T03:27:31.454Z"
+    }
+  ],
+  "createdAt": "2026-07-10T03:26:51.978Z",
+  "updatedAt": "2026-07-10T03:27:31.454Z"
+}

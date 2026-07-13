@@ -1,0 +1,598 @@
+{
+  "passes": [
+    {
+      "id": "B-3928:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: CHK-001 through CHK-005 each have happy/edge/adversarial verificationEvidence rows tied to the required command chain. Read-only evidence_plan reports all 15 intent refs fresh, with 0 missing, 0 rerun, and 0 refresh-only rows; evidence_refresh dry run reports 0 candidates. The verifier/build/test chain covers registry role hashes, agent_prompt outputs, overlap matrix rows, legacy vocabulary classification, and direct docs/story reference classification.",
+      "createdAt": "2026-07-10T03:40:50.342Z",
+      "reviewRound": "2026-07-10T03:38:27.147Z",
+      "reviewRunId": "B-3928:RR-001",
+      "_hash": "38f564053a3c8b49620013c1d229303aadb0e1f84d33f40d0ac2e24cd6cc6a77"
+    },
+    {
+      "id": "B-3928:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept review PASS. Checked M0 baseline lock against proof-or-stop prompt consolidation plan: branch only adds baseline/verifier/package script plus Lattice metadata; no prompt templates, host mirrors, prompt registry, reviewer lane, finding/pass, quorum, or init-gate runtime files changed. Baseline and overlap matrix retain current lattice/product/test role IDs, record template and agent_prompt hashes for 16 roles, classify legacy testIntent/TEST_CASE residue, and mark retired/conditional/legacy/compatibility statuses for channel, concept, test-intent/test-case-reviewer, product-reviewer, evaluators, and implementation-reviewer. Focused verifier passes with npm run test:proof-or-stop-prompt-baseline.",
+      "createdAt": "2026-07-10T03:41:13.270Z",
+      "reviewRound": "2026-07-10T03:38:27.147Z",
+      "reviewRunId": "B-3928:RR-002",
+      "_hash": "2a76511315007f599fff21abed02872e2642eb3eab50bd70d3da04d675d61b59"
+    },
+    {
+      "id": "B-3928:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "PASS docs baseline review. Checked docs/requirements/baselines/proof-or-stop-prompt-baseline.json and docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md against B-3928:F-002 focus: every one of the 16 roleMatrix entries has a non-empty directFileAccess field, the markdown matrix includes a Direct file access column populated for all roles, directStoryFileReferences classifies 24 docs/story references, and the single direct-write finding is explicitly grandfathered. Also ran node scripts/verify-proof-or-stop-prompt-baseline.mjs, which passed registry hashes, agent_prompt hashes, overlap matrix parity, legacy vocabulary classification, and direct story-file classification.",
+      "createdAt": "2026-07-10T03:49:58.317Z",
+      "reviewRound": "2026-07-10T03:45:55.285Z",
+      "reviewRunId": "B-3928:RR-007",
+      "_hash": "04571dbae2835113ebb0a682bb336bca6bd772538376e889d7222b8295f9ab50"
+    },
+    {
+      "id": "B-3928:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "PASS concept: M0 baseline lockfile matches the execution plan scope. Evidence: proof-or-stop-prompt-baseline.json records expectedRoleCount=16, registry.agentCount=16, 16 registry roles, 16 agent_prompt outputs, and 16 roleMatrix rows; overlap matrix covers status, phase, purpose, commands, directFileAccess, outputs, capabilities, overlap category, and notes for all 16 roles; F-001 is fixed by verifier field-by-field roleMatrix comparison plus regenerated Markdown comparison; F-002 is fixed by directFileAccess in ROLE_MATRIX_FIELDS, JSON roleMatrix rows, and Markdown column; node scripts/verify-proof-or-stop-prompt-baseline.mjs and npm run test:proof-or-stop-prompt-baseline both PASS; git diff shows no prompt template/source changes, only baseline docs, verifier script, and package test wiring.",
+      "createdAt": "2026-07-10T03:50:19.559Z",
+      "reviewRound": "2026-07-10T03:45:55.285Z",
+      "reviewRunId": "B-3928:RR-005",
+      "_hash": "35bb4aacfe5edb51e02bdc6c13bbaaddbce7ae6635291a62f3b70d7c537a648e"
+    },
+    {
+      "id": "B-3928:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS test-coverage: checklist_get shows CHK-001..CHK-005 each have 3 verificationIntent refs and 3 passing verificationEvidence entries, covering all 15 refs with no failing/waived evidence. Re-ran node scripts/verify-proof-or-stop-prompt-baseline.mjs and npm run test:proof-or-stop-prompt-baseline; both passed and emitted the five expected PASS lines for 16-role registry hashes, agent_prompt output hashes, overlap matrix, legacy vocabulary findings, and direct story-file findings. Evidence timestamps are refreshed at 2026-07-10T03:47:45.104Z with storyFilesHash 74644226b4e7a36b5c2f0ee1fce9c6be8d664f56f6d8eae891dc67b2dd085518; d3a39cb is the evidence head and b49c458 is the subsequent verification_evidence_refresh_stale metadata commit.",
+      "createdAt": "2026-07-10T03:50:20.833Z",
+      "reviewRound": "2026-07-10T03:45:55.285Z",
+      "reviewRunId": "B-3928:RR-006",
+      "_hash": "8750c5430f27531d6ac8b1a499753d9b40ab6b4b5d93780bf31bc31914f063e2"
+    },
+    {
+      "id": "B-3928:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Quality review PASS. Inspected scripts/verify-proof-or-stop-prompt-baseline.mjs and package integration. The verifier asserts built registry/CLI presence, exact registry materialHash and per-role template metadata, exact raw agent_prompt sha256/bytes/lines for 16 roles, full roleMatrix field presence and equality for all expected fields including directFileAccess, regenerated Markdown equality for docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md with mismatch line/hash diagnostics, and classified legacy/direct-story-file findings. Rechecked B-3928:F-001: verifyMatrix now compares each roleMatrix field and rendered matrix Markdown, so the reported drift hole is fixed. Evidence commands: npm run test:proof-or-stop-prompt-baseline PASS; node scripts/verify-proof-or-stop-prompt-baseline.mjs PASS.",
+      "createdAt": "2026-07-10T03:50:36.834Z",
+      "reviewRound": "2026-07-10T03:45:55.285Z",
+      "reviewRunId": "B-3928:RR-008",
+      "_hash": "fdd0853f9a242afe670eda614749e0d84e5fd12d0d77c1260504ee115577578f"
+    },
+    {
+      "id": "B-3928:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed at committed HEAD 4526cd0c5b: 15 verificationIntent entries have 15 intent-mapped passing evidence records, must-gap count 0, waiver count 0. Rebuilt packages/main and reran the baseline verifier plus explicit probes: direct story-file classifier PASS (9 cases); unsupported lattice-review-behavior scope_check_save matrix claim PASS (rejected during refreshed-baseline collection and verification); npm test:proof-or-stop-prompt-baseline PASS. M9.4/M9.10 are testable without weakening gates: the positive fixture is limited to canonical parent_ledger_rollup_set closeout metadata with unchanged product/material scope binding and composite scope digest, while source/test/docs/semantic-scope mutations remain negative controls requiring DEV/REVIEW and fresh evidence.",
+      "createdAt": "2026-07-11T15:16:01.985Z",
+      "reviewRound": "2026-07-10T09:21:14.756Z",
+      "reviewRunId": "B-3928:RR-015",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/templates/agents/lattice-review-behavior.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "0154ef8650fcb6ec232fa823b9b4be7d91c4b1accd58e389c777533864ec868c"
+      },
+      "readDiagnostics": [],
+      "_hash": "464095c3e9ff4489f7faf5ca8c0de3af3edf62dff3e3f0bcadbef5e3c8314026"
+    },
+    {
+      "id": "B-3928:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "PASS at committed HEAD: reviewed main...HEAD for conceptual correctness, role ownership, lifecycle boundaries, and Closeout Evidence Ordering. Verified command-policy phases, REVIEW round renewal, lifecycle-registry omissions plus existing scope-contract classification, process-fact writers for ledger/slice/roll-up, digestScopeContract acknowledgement exclusion, and story-metadata hash exclusion. Roll-up remains owner-gated, the delivery prompt does not call its setter, and M7.6 is future enforcement. The document explicitly says the current bug is unresolved and the composite scope-defining digest/re-attestation is planned M4.C1 behavior, not shipped behavior. Repo scans found no live stale 26-story, TEST-only sample-flow, or old scope-contract classification claim; all cited CLI commands exist. Concurrent HEAD movement after RR-014 changed only canonical review metadata; reviewed document and source tree remained unchanged. No conceptual blocker.",
+      "createdAt": "2026-07-11T15:21:32.595Z",
+      "reviewRound": "2026-07-10T09:21:14.756Z",
+      "reviewRunId": "B-3928:RR-014",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/guard-session.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-scope-binding.ts",
+          "packages/main/src/handlers/delivery-context-pack.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/templates/agents/lattice-review-delivery.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "e8f8ee1faebe69ded01cae22ff2a3e424cfbf38c422ac607a08521fda030d3cd"
+      },
+      "readDiagnostics": [],
+      "_hash": "df02fc16bf195bf5cb7237dc9f79abe2afce882830465fc9f4bb58bc4a49ee89"
+    },
+    {
+      "id": "B-3928:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Extracted 126 raw diff symbols and compared 8 relevant changed documentation sections/rows against current main source and canonical prompts. F-011 and F-013 corrections are factual, the 11-heading and 27-story counts reconcile, behavior/delivery git diff ownership matches, and all non-writing baseline probes pass with no remaining docs blocker.",
+      "createdAt": "2026-07-11T15:58:10.607Z",
+      "reviewRound": "2026-07-11T15:51:16.046Z",
+      "reviewRunId": "B-3928:RR-021",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "packages/main/templates/agents/lattice-review-docs.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/guard-session.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/delivery-context-pack.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/templates/agents/lattice-review-behavior.md",
+          "packages/main/templates/agents/lattice-review-delivery.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "0154ef8650fcb6ec232fa823b9b4be7d91c4b1accd58e389c777533864ec868c"
+      },
+      "readDiagnostics": [],
+      "_hash": "dcf4f2ec55a5aeebabc0464511054b7d11685d7546f31de00a374c8f7d2d289a"
+    },
+    {
+      "id": "B-3928:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: audited all 15 verificationIntent-to-evidence bindings with 0 gaps and 0 waivers; focused commands exercised duplicate agent_prompt ownership, a real unknown-role CLI failure, legacy spelling/case plus mixed/negated and attach/persist cases, unless/unknown second actions, and multiline against/across story targets; no blocker.",
+      "createdAt": "2026-07-11T20:14:57.610Z",
+      "reviewRound": "2026-07-11T20:10:05.981Z",
+      "reviewRunId": "B-3928:RR-029",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "package.json",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0d1946275298b4f527154b9b9dd3f7d37940738d2e631463b155246bafc81bb0"
+    },
+    {
+      "id": "B-3928:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: audited all 15 intent-to-evidence bindings and commit 467dc4bb; F-029 through F-035 are command-exercised with classification plus collection/refresh outcomes (37 classifier/10 scanner, 24 rejected/4 allowed), including unknown statuses, exact registrations, appended actions, colon/bullet/path-first context, Output, inverted negatives, imperative local markers, and positive controls; 0 gaps, 0 waivers, no blocker.",
+      "createdAt": "2026-07-11T20:43:03.682Z",
+      "reviewRound": "2026-07-11T20:38:32.745Z",
+      "reviewRunId": "B-3928:RR-033",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e2af8631c7ec6e5b25e9b47fce9aa60770e207575de6b992b85864104cb09efc"
+    },
+    {
+      "id": "B-3928:RP-012",
+      "agent": "lattice-review-docs",
+      "note": "Round 9 docs re-review: extracted 192 changed declaration names and compared 8 bounded load-bearing documentation sections against the v6 baseline and verifier. F-035 exact examples now reject; M0.4, generated claims/output, 7-status taxonomy, 3 exemptions, 2 exact live contexts, 12 exact story references, 1 INIT write, 16 roles, 11 milestones, and 27 stories agree. Machine claims remain limited to structural snapshots, hashes, parity, and closed policy checks; role semantics remain reviewer-audited. No blocker found.",
+      "createdAt": "2026-07-11T20:43:56.318Z",
+      "reviewRound": "2026-07-11T20:38:32.745Z",
+      "reviewRunId": "B-3928:RR-030",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "ee795e8acde6845ab86c003be5788400334383c97efbc07cc9791f85ab6d2dcc"
+    },
+    {
+      "id": "B-3928:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: audited all 15 intent-to-evidence bindings and the full-verifier authority path; --probe-prompt-policy-manifest exercises 8 structural, 4 audit, 2 synthetic collector, 12 direct-body, 8 legacy-body, and baseline-refresh self-authorization rejections; CHK-004/CHK-005 edge/adversarial evidence invokes the full verifier, which also runs 44/14 direct diagnostics and 26 unsafe/4 registered-safe legacy controls; 0 gaps, 0 waivers, no blocker.",
+      "createdAt": "2026-07-11T21:14:26.600Z",
+      "reviewRound": "2026-07-11T21:10:21.282Z",
+      "reviewRunId": "B-3928:RR-035",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d5cb41d640dc06e6543fac8e1f57ea1c492b7ac82aa25f6a27721802954176eb"
+    },
+    {
+      "id": "B-3928:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "Round 10 targeted re-review of d6bc395a found no blocker. F-038/F-039/F-040/F-041/F-043 recurrences and nearby adversarial variants all fail the independent exact-role/full-body approval manifest before direct or legacy collection, baseline refresh, or write; manifest/audit mutation tests do not derive expected and actual values from the same mutable projection.",
+      "createdAt": "2026-07-11T21:16:35.524Z",
+      "reviewRound": "2026-07-11T21:10:21.282Z",
+      "reviewRunId": "B-3928:RR-037",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "package.json",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "0154ef8650fcb6ec232fa823b9b4be7d91c4b1accd58e389c777533864ec868c"
+      },
+      "readDiagnostics": [],
+      "_hash": "1622a5c7fdd49b27e29e4a4647aa6f9a14b72a879cb7d199f442db61904b0bb9"
+    },
+    {
+      "id": "B-3928:RP-015",
+      "agent": "lattice-review-docs",
+      "note": "Round 10 docs review clean: extracted 229 changed symbols and compared 52 symbol-referenced Markdown sections plus the full schema-v7 baseline and verifier. M0.4/M0.6, the matrix Audit Boundary, generated terminal/probe output, and evidence policy notes consistently make the 16-role complete-prompt SHA-256 manifest the primary boundary and occurrence scanners diagnostic-only. Exact checks confirmed 16 role/hash parity, 12 registered story references, one exact INIT write, reviewer-audited semantic fields, 11 milestones, 27 stories (26+1), and corrected F-042/F-043 wording; no universal semantic machine-proof claim found.",
+      "createdAt": "2026-07-11T21:17:23.476Z",
+      "reviewRound": "2026-07-11T21:10:21.282Z",
+      "reviewRunId": "B-3928:RR-036",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4446d048b87d74a73315ec79b2ec3c8ba146bae9cf0ffa0b6bd235807a170233"
+    },
+    {
+      "id": "B-3928:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "Round 10 targeted concept re-review of d6bc395a found no blocker. Independently extracted the frozen 16-role manifest from verifier source and matched every literal SHA-256 to the complete package template bytes and exact agent_prompt body without consulting the baseline. Manifest probes rejected stale hash, changed body with self-updated hash, hash-only change, role add/remove/rename/duplicate, both direct and legacy collector mutations, and baseline-refresh self-authorization. Exact F-036 repeated-separator, dot-segment, mixed-case, and shell-continuation recurrences remain diagnostically unsafe and manifest-rejected; F-037 unregistered read-only reference remains unclassified-actionable and manifest-rejected. buildCurrentBaseline asserts the manifest, both collectors assert independently, and writeBaselineFiles reaches writes only through collectCurrentBaseline/buildCurrentBaseline. Empty, unknown, and typo role statuses were independently rejected before baseline construction. M0.4/M0.6 and terminal output now distinguish manifest-enforced mechanical facts from diagnostic scanners and reviewer-audited matrix semantics, resolving the F-042 overclaim shape.",
+      "createdAt": "2026-07-11T21:18:09.284Z",
+      "reviewRound": "2026-07-11T21:10:21.282Z",
+      "reviewRunId": "B-3928:RR-034",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/templates/agents/lattice-review-channel.md",
+          "packages/main/templates/agents/lattice-review-docs.md",
+          "packages/main/templates/agents/lattice-review-story-init.md",
+          "packages/main/templates/agents/lattice-review-test-coverage.md",
+          "packages/main/templates/agents/product-reviewer.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "71f5c3d767cdd9dbe3106a40d7c4c49590da610d00191689be9eaef471ad326d"
+    },
+    {
+      "id": "B-3928:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Incremental concept review passed: the delivery-role matrix now consistently describes the fresh-context input boundary and independent derivation defined by the prompt across verifier defaults, JSON baseline, and Markdown matrix; no stale validation or docs-review consumption concept remains in the changed scope, and the prompt baseline verifier passes.",
+      "createdAt": "2026-07-13T02:47:29.205Z",
+      "reviewRound": "2026-07-13T02:45:15.808Z",
+      "reviewRunId": "B-3928:RR-039",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "packages/main/templates/agents/lattice-review-delivery.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9a0d2070bdc31815837c3e81d89500537bfe9a87ec1959783cda6dc50b5daadb"
+    },
+    {
+      "id": "B-3928:RP-018",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: Re-reviewed all 15 verificationIntent entries across CHK-001..005 against their current verificationEvidence. Coverage is one-to-one; evidence is bound to storyFilesHash 6d331255, matching the current signed review run. Independently reran the baseline verifier plus baseline-drift and role-matrix snapshot probes; all passed, including 16-role registry/output locks, 10 mechanical drift mutations, matrix field/Markdown/count/missing-row rejection, legacy occurrence diagnostics, and direct story-write diagnostics. The incremental delivery-row fix remains covered by the matrix snapshot verifier and does not create a missing intent.",
+      "createdAt": "2026-07-13T02:47:39.998Z",
+      "reviewRound": "2026-07-13T02:45:15.808Z",
+      "reviewRunId": "B-3928:RR-040",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8bb0dacf0d11cbd67a7ee6c357d53c8c3f98a53bcf66c35e51ad3405ab236cb5"
+    },
+    {
+      "id": "B-3928:RP-019",
+      "agent": "lattice-review-quality",
+      "note": "Incremental quality review of the three scope-changed files found no blocker. The delivery-role matrix now matches the actual fresh-context prompt contract: inputs are storyId plus git diff/repository reads, and it explicitly excludes prior docs-review, reviewer-result, and test-evidence consumption. JSON, generated Markdown, and verifier defaults remain semantically aligned. Both baseline verification and the role-matrix drift probe passed; worktree remained clean.",
+      "createdAt": "2026-07-13T02:47:42.675Z",
+      "reviewRound": "2026-07-13T02:45:15.808Z",
+      "reviewRunId": "B-3928:RR-038",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "packages/main/templates/agents/lattice-review-delivery.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "0154ef8650fcb6ec232fa823b9b4be7d91c4b1accd58e389c777533864ec868c"
+      },
+      "readDiagnostics": [],
+      "_hash": "bf04805585b7a03c0f68af22e6501ad0e6ef92331c2acd9b8202a44f94d0699a"
+    },
+    {
+      "id": "B-3928:RP-020",
+      "agent": "lattice-review-docs",
+      "note": "Incremental docs review checked the scope-changed delivery-role baseline fields against the mirrored delivery reviewer prompt and verifier defaults. The JSON and Markdown describe the same fresh-context input fence, the prompt explicitly excludes prior reviewer results and test-evidence.json, the Codex/Claude mirrors match, and node scripts/verify-proof-or-stop-prompt-baseline.mjs passes; no documentation drift or unsupported promise found.",
+      "createdAt": "2026-07-13T02:50:51.693Z",
+      "reviewRound": "2026-07-13T02:45:15.808Z",
+      "reviewRunId": "B-3928:RR-041",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "f54336e059b3f2381996508a36d7c8b9acebb038c7b6dc1585fe29b025711805"
+    },
+    {
+      "id": "B-3928:RP-021",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS after main merge: all 15 verificationIntent entries across CHK-001..005 still have one-to-one verificationEvidence, now uniformly rebound to storyFilesHash 71d83d44, matching the current signed review run. Inspected merged root package.json test-chain resolution: 33 npm-run references resolve to defined scripts with zero missing targets; test:proof-or-stop-prompt-baseline remains third in the root test chain and the newly merged test:brief-output target also resolves. Independently ran npm run test:proof-or-stop-prompt-baseline at version 0.3.192; all registry, agent_prompt, mutation, matrix, legacy-vocabulary, and direct-story-write checks passed.",
+      "createdAt": "2026-07-13T03:29:11.984Z",
+      "reviewRound": "2026-07-13T03:28:15.343Z",
+      "reviewRunId": "B-3928:RR-044",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "package-lock.json",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b722f7d58787f13cb9dc121f137c925ea1781beca46bd90d0113096420468577"
+    },
+    {
+      "id": "B-3928:RP-022",
+      "agent": "lattice-review-concept",
+      "note": "Post-main-merge concept review passed. The package.json conflict resolution preserves the complete main-side script set and version 0.3.192 while adding only the B-3928 proof-or-stop baseline script and its root test-chain invocation. Root/package lock versions remain aligned, the story-owned baseline surfaces remain present, and the baseline verifier plus diff whitespace check pass without terminology or role-identity drift.",
+      "createdAt": "2026-07-13T03:29:17.759Z",
+      "reviewRound": "2026-07-13T03:28:15.343Z",
+      "reviewRunId": "B-3928:RR-042",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package-lock.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b2ccd0c8dc77a48b305d95b1ef5743065578222ef796151b096babcbcd2397e6"
+    },
+    {
+      "id": "B-3928:RP-023",
+      "agent": "lattice-review-quality",
+      "note": "Post-main-merge incremental quality review found no blocker. The package.json conflict resolution correctly unions both sides: it retains B-3928 test:proof-or-stop-prompt-baseline and main test:brief-output in the top-level test chain, while root/core package and lockfile versions consistently remain 0.3.192. JSON parsing and explicit script-presence checks passed; both npm run test:proof-or-stop-prompt-baseline and npm run test:brief-output exited successfully. main...HEAD remains limited to B-3928 baseline artifacts, source decision update, package script, and verifier outside story metadata; worktree stayed clean.",
+      "createdAt": "2026-07-13T03:29:41.453Z",
+      "reviewRound": "2026-07-13T03:28:15.343Z",
+      "reviewRunId": "B-3928:RR-043",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "package-lock.json",
+          "package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "461d4c4840fbd2c77c93535d223668623fa16362f75c22ee04ca8f538e5ab278"
+      },
+      "readDiagnostics": [],
+      "_hash": "f8f342a7e2a426e36a2e18b168c282ec37fe539de36751371762414d62ea29c7"
+    },
+    {
+      "id": "B-3928:RP-024",
+      "agent": "lattice-review-docs",
+      "note": "Post-main-merge incremental docs review found no blocker. The package.json conflict resolution correctly preserves both the story-owned proof-or-stop baseline test in the root test chain and main-owned brief-output/usage-burn scripts, while all four package/lock manifests consistently resolve to 0.3.192. The prompt baseline verifier passes against the merged prompt registry and Markdown/JSON role matrix, confirming current doc/baseline truth alignment; imported docs/CLI.md and candidate-routing plan changes are main-owned unrelated scope and do not contradict this story baseline.",
+      "createdAt": "2026-07-13T03:30:36.528Z",
+      "reviewRound": "2026-07-13T03:28:15.343Z",
+      "reviewRunId": "B-3928:RR-045",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "03ddcc13bc9e3fef78162310a801e7406559610523314064ade8e421cbbc8faa"
+    },
+    {
+      "id": "B-3928:RP-025",
+      "agent": "lattice-review-concept",
+      "note": "Narrow stdout/product-acceptance concept review passed. The three added success lines exactly match CHK-001, CHK-004, and CHK-005 userSees promises, remain conceptually distinct from the existing snapshot and diagnostic detail lines, and execute only after all verifier checks have completed. A fresh live invocation emitted every promised CHK-001 through CHK-005 output line exactly and exited successfully.",
+      "createdAt": "2026-07-13T03:36:54.368Z",
+      "reviewRound": "2026-07-13T03:36:11.674Z",
+      "reviewRunId": "B-3928:RR-046",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e18cdc97fe5d5712656a3d57d6af52b53297c6dc6e1dc36a75679a932691df4a"
+    },
+    {
+      "id": "B-3928:RP-026",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS after narrow verifier stdout/product-acceptance fix: all 15 verificationIntent entries across CHK-001..005 retain one-to-one evidence, uniformly rebound to storyFilesHash 3666b71e matching the current signed review run. The only material delta adds three success lines after all existing mechanical checks complete; it does not bypass or weaken assertions. Fresh live smoke ran npm run test:proof-or-stop-prompt-baseline with pipefail and observed every promised userSees line: registry hashes, agent_prompt hashes, role matrix integrity plus reviewer-audited semantics, legacy vocabulary classification, and direct story-file classification.",
+      "createdAt": "2026-07-13T03:37:01.057Z",
+      "reviewRound": "2026-07-13T03:36:11.674Z",
+      "reviewRunId": "B-3928:RR-048",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "db3ce3ca8bb6f37ec6367d7e9c643742ed35f2b9e33e429c6dcefc64d27d9284"
+    },
+    {
+      "id": "B-3928:RP-027",
+      "agent": "lattice-review-quality",
+      "note": "Narrow incremental review found no blocker. The only material change adds exactly the three checklist-promised product-acceptance stdout lines after all verification checks have succeeded; it does not alter validation predicates, exception paths, or drift rejection. A fresh live smoke passed, each new line was asserted to appear exactly once, the role-matrix negative probe still passed, and the worktree remained clean.",
+      "createdAt": "2026-07-13T03:37:01.608Z",
+      "reviewRound": "2026-07-13T03:36:11.674Z",
+      "reviewRunId": "B-3928:RR-047",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b3293feac1711a303139a14f8d22b2d3bdf712dd74efa69a5073bcc6f3b61d77"
+    },
+    {
+      "id": "B-3928:RP-028",
+      "agent": "lattice-review-docs",
+      "note": "Focused post-fix docs/product-acceptance review found no blocker. The only scope change adds exactly the three previously missing PASS stdout lines, matching frozen userSees text for CHK-001, CHK-004, and CHK-005 without changing verifier semantics. A fresh live run of node scripts/verify-proof-or-stop-prompt-baseline.mjs emitted all five checklist-visible PASS/INFO claims verbatim and completed successfully.",
+      "createdAt": "2026-07-13T03:37:44.621Z",
+      "reviewRound": "2026-07-13T03:36:11.674Z",
+      "reviewRunId": "B-3928:RR-049",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "71eeafa9e7fdaaf051f186dadd5bab0cbb9b09779637d8acd53e61bcf85c36ae"
+    }
+  ]
+}

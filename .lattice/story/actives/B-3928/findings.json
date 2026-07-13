@@ -1,0 +1,1337 @@
+{
+  "findings": [
+    {
+      "id": "B-3928:F-001",
+      "desc": "quality-correctness: scripts/verify-proof-or-stop-prompt-baseline.mjs:599 verifies the overlap matrix by role count/presence only; it never compares roleMatrix fields against the baseline or regenerated Markdown, so status/phase/purpose/commands/notes drift in the committed baseline or matrix can pass while the verifier prints overlap matrix verified. Compare each roleMatrix field and the rendered Markdown content to the committed file.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-10T03:41:17.972Z",
+      "reviewRound": "2026-07-10T03:38:27.147Z",
+      "reviewRunId": "B-3928:RR-004",
+      "_hash": "2b754a459ef5000da71c3f174f1f6f7f9d72568af66ed7378e09df819727be40",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:599"
+      ],
+      "signatureTag": "missing|mjs:599|quality-correctness-scripts",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Verifier now compares every roleMatrix field in current generated defaults against baseline JSON, requires all roleMatrix fields for all 16 roles, and compares normalized regenerated Markdown against docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md with line/hash mismatch output. Evidence: npm --prefix packages/main run build PASS; node scripts/verify-proof-or-stop-prompt-baseline.mjs PASS; npm run test:proof-or-stop-prompt-baseline PASS.",
+      "resolvedAt": "2026-07-10T03:46:03.595Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-002",
+      "desc": "M0.3 requires the role-overlap matrix to cover phase, commands, direct file access, output artifact, and overlap category, but the generated matrix table has columns for Role/Status/Phase/Purpose/Commands/Inputs/Outputs/Capabilities/Overlap category/Notes and no direct-file-access column or per-role field. The baseline JSON roleMatrix objects likewise contain role/status/phase/purpose/commands/inputs/outputs/capabilities/overlapCategory/notes only, so direct file access is not systematically covered for all 16 roles; it only appears incidentally in the story-init note while the separate directStoryFileReferences section is not part of the overlap matrix.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-10T03:41:18.209Z",
+      "reviewRound": "2026-07-10T03:38:27.147Z",
+      "reviewRunId": "B-3928:RR-003",
+      "_hash": "b23641e2b94e3d6ce05906c72c7fbbee0c12f17972c332765a1a25d70ccab533",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+      ],
+      "signatureTag": "missing|md|requires-role-overlap",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added directFileAccess to ROLE_MATRIX_DEFAULTS for all 16 roles, regenerated baseline JSON roleMatrix with directFileAccess for every role, and regenerated docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md with a Direct file access column. Evidence: npm --prefix packages/main run build PASS; node scripts/verify-proof-or-stop-prompt-baseline.mjs PASS; npm run test:proof-or-stop-prompt-baseline PASS.",
+      "resolvedAt": "2026-07-10T03:46:10.676Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-003",
+      "desc": "CHK-005:adversarial:0 lacks valid verification coverage for actionable edit instructions. The committed classifier recognizes only shell redirection or echo as direct-write; exact in-memory execution of classifyStoryFinding classifies explicit Edit, Write, tee, and sed -i instructions targeting docs/story as other with grandfathered:true, and verifyNoUnregisteredDirectStoryWrite skips non-direct-write findings. The current passing verifier evidence therefore does not prove the required distinction between harmless policy reminders and actionable edit instructions. Add committed adversarial cases for non-redirection write forms and make them fail closed as direct-write.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-10T04:19:59.179Z",
+      "reviewRound": "2026-07-10T04:15:51.636Z",
+      "reviewRunId": "B-3928:RR-009",
+      "_hash": "1e4bd88a0f3ebdf94b3e804532aa083e761846d5dd107657c96d8297603c6200",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:315",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:716"
+      ],
+      "signatureTag": "missing|mjs:315|adversarial-lacks-valid",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 6aef18eb8: the direct-story classifier now fails closed for actionable Edit, Write, tee, sed -i, Directly Read/Edit, and conditional echo/redirection targeting docs/story while preserving genuinely negative reminders, with committed adversarial probes. Current materialHash 69f774ee02a1edeac5a6f9b62f987ea59d9ef709bdba5df0dd1da65c717e9a1c was reverified and recorded by 591b314ae. npm --prefix packages/main run build passed with @lattice/core@0.3.179 build and tsc. node scripts/verify-proof-or-stop-prompt-baseline.mjs passed all seven lines: PASS proof-or-stop prompt baseline: roleCount=16 registry hashes verified; PASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 16 roles; PASS proof-or-stop prompt baseline: overlap matrix verified for 16 roles; PASS proof-or-stop prompt baseline: exhaustive role matrix source claims verified for 16 roles; PASS proof-or-stop prompt baseline: role matrix unsupported-claim mutation probe rejected; PASS proof-or-stop prompt baseline: legacy vocabulary findings classified; PASS proof-or-stop prompt baseline: direct story-file findings classified. node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-direct-story-classifier passed: PASS direct story-file classifier adversarial probes: 9 cases. npm run test:proof-or-stop-prompt-baseline passed with the same seven PASS lines.",
+      "resolvedAt": "2026-07-10T09:23:51.254Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-004",
+      "desc": "responsibility-boundary: M0.3 is not a truthful command/output ownership inventory. The committed matrix assigns scope_check_save to lattice-review-behavior even though that prompt only consumes the scope-plan artifact and the source plan reserves scope_check_save writes to scope-plan; it also assigns reviewer-run/finding/pass writes to evaluator/delivery rows whose role-specific contracts are raw JSON or delivery_check_set-only, while product-reviewer is listed with commands=none despite its conditional init_check_set call. The verifier cannot detect these semantic errors because collectCurrentBaseline builds current.roleMatrix from the same hard-coded ROLE_MATRIX_DEFAULTS that seed the baseline/Markdown, then verifyMatrix checks only parity with those constants. As a result it prints overlap matrix verified for a false responsibility boundary. Audit and correct all 16 command/output rows against the role-specific prompt contracts and add an independent source-backed semantic check or explicitly stop claiming semantic verification.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-10T04:20:40.620Z",
+      "reviewRound": "2026-07-10T04:15:51.636Z",
+      "reviewRunId": "B-3928:RR-010",
+      "_hash": "f3479437340b271677bc857ab5fb6575f4451f05436e12a057ac2c3074df6176",
+      "files": [
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md:11",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md:13",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md:16",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md:22",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:57",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:110",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:469",
+        "packages/main/templates/agents/lattice-review-behavior.md:129",
+        "packages/main/templates/agents/product-reviewer.md:34",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:823"
+      ],
+      "signatureTag": "missing|md:11|responsibility-boundary-truthful",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commits 6aef18eb8 and c874f10f3: all 16 ROLE_MATRIX_DEFAULTS commands, outputs, and directFileAccess rows were audited against canonical prompts, and source evidence is now exhaustive claim-to-snippet coverage for every semicolon-delimited command claim plus exact whole-field bindings for outputs and directFileAccess. Current materialHash 69f774ee02a1edeac5a6f9b62f987ea59d9ef709bdba5df0dd1da65c717e9a1c was reverified and recorded by 591b314ae. npm --prefix packages/main run build passed with @lattice/core@0.3.179 build and tsc. node scripts/verify-proof-or-stop-prompt-baseline.mjs passed all seven lines: PASS proof-or-stop prompt baseline: roleCount=16 registry hashes verified; PASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 16 roles; PASS proof-or-stop prompt baseline: overlap matrix verified for 16 roles; PASS proof-or-stop prompt baseline: exhaustive role matrix source claims verified for 16 roles; PASS proof-or-stop prompt baseline: role matrix unsupported-claim mutation probe rejected; PASS proof-or-stop prompt baseline: legacy vocabulary findings classified; PASS proof-or-stop prompt baseline: direct story-file findings classified. node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-role-matrix-evidence passed: PASS role matrix source-evidence mutation probes: 1 refreshed-baseline injection rejected during collection and verification. node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-direct-story-classifier passed: PASS direct story-file classifier adversarial probes: 9 cases. npm run test:proof-or-stop-prompt-baseline passed with the same seven PASS lines.",
+      "resolvedAt": "2026-07-10T09:24:03.173Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-005",
+      "desc": "quality-correctness: scripts/verify-proof-or-stop-prompt-baseline.mjs:318 classifies any docs/story line containing directly read/edit as a policy reminder before write detection, while scripts/verify-proof-or-stop-prompt-baseline.mjs:343 only recognizes echo or a narrow shell redirection. Executing the changed classifier against actionable examples classified Directly Read/Edit as policy-reminder, tee as other with grandfathered=true, and If available, echo x > docs/story/... as read-only-reference with grandfathered=true. scripts/verify-proof-or-stop-prompt-baseline.mjs:724 then enforces only findings already classified direct-write, so an intentional baseline refresh can admit actionable direct-story writes without the required explicit grandfathering and CLI-gap justification. This breaks the CHK-005 promised distinction and leaves a direct-write regression bypass.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-10T04:21:31.553Z",
+      "reviewRound": "2026-07-10T04:15:51.636Z",
+      "reviewRunId": "B-3928:RR-011",
+      "_hash": "c1783ec2d301a7657637a2ee20448842ff9931124ebd2597cbd6d69d9f5da7bd",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:318",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:343",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:724"
+      ],
+      "signatureTag": "adversarial|mjs:318|quality-correctness-scripts",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commits 6aef18eb8 and c874f10f3: direct-story classification now rejects the documented bypass forms without allowing a baseline refresh to bless actionable write instructions; the committed 9-case probe covers negative reminders, Directly Read/Edit, Edit, Write, tee, sed -i, conditional redirection, and read-only references. Current materialHash 69f774ee02a1edeac5a6f9b62f987ea59d9ef709bdba5df0dd1da65c717e9a1c was reverified and recorded by 591b314ae. npm --prefix packages/main run build passed with @lattice/core@0.3.179 build and tsc. node scripts/verify-proof-or-stop-prompt-baseline.mjs passed all seven lines: PASS proof-or-stop prompt baseline: roleCount=16 registry hashes verified; PASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 16 roles; PASS proof-or-stop prompt baseline: overlap matrix verified for 16 roles; PASS proof-or-stop prompt baseline: exhaustive role matrix source claims verified for 16 roles; PASS proof-or-stop prompt baseline: role matrix unsupported-claim mutation probe rejected; PASS proof-or-stop prompt baseline: legacy vocabulary findings classified; PASS proof-or-stop prompt baseline: direct story-file findings classified. node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-direct-story-classifier passed: PASS direct story-file classifier adversarial probes: 9 cases. node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-role-matrix-evidence passed: PASS role matrix source-evidence mutation probes: 1 refreshed-baseline injection rejected during collection and verification. npm run test:proof-or-stop-prompt-baseline passed with the same seven PASS lines.",
+      "resolvedAt": "2026-07-10T09:24:13.928Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-006",
+      "desc": "doc-promise-undelivered: scripts/verify-proof-or-stop-prompt-baseline.mjs prints that the overlap matrix is verified, but collectCurrentBaseline builds roleMatrix only from hardcoded ROLE_MATRIX_DEFAULTS and verifyMatrix only compares those defaults with the committed JSON/Markdown; it never checks matrix facts against the prompt bodies or source-plan contracts. Concrete drift is already present: matrix line 22 says product-reviewer commands are none although its prompt lines 31-39 mandate init_check_set; line 13 assigns scope_check_save to lattice-review-behavior although its prompt only consumes that artifact and writes finding/pass; line 14 lists dispatch for lattice-review-channel although that reviewer only inspects dispatch evidence; and line 12 claims lattice-implementer outputs verificationEvidence although its whitelist limits checklist_update to status/times. Correct the rows and add prompt/contract-backed assertions before emitting the verified claim.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-10T04:21:35.147Z",
+      "reviewRound": "2026-07-10T04:15:51.636Z",
+      "reviewRunId": "B-3928:RR-012",
+      "_hash": "3b3abb873cb29012f78984e51eaac375a1bf6c6eb762ba3d7f8439e575d82ded",
+      "files": [
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "packages/main/templates/agents/product-reviewer.md",
+        "packages/main/templates/agents/lattice-review-behavior.md",
+        "packages/main/templates/agents/lattice-review-channel.md",
+        "packages/main/templates/agents/lattice-review-implementer.md"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-scripts",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commits 6aef18eb8 and c874f10f3: the false ownership rows called out for product-reviewer, behavior, evaluator, delivery, scope-plan, channel, and implementer were corrected across ROLE_MATRIX_DEFAULTS, baseline JSON, and Markdown. The verified claim is mechanically grounded in canonical prompts through exhaustive command claim-to-snippet mappings, exact normalized command-set equality including none, and explicit whole-field outputs/directFileAccess evidence; no second ungrounded truth table was added. Current materialHash 69f774ee02a1edeac5a6f9b62f987ea59d9ef709bdba5df0dd1da65c717e9a1c was reverified and recorded by 591b314ae. npm --prefix packages/main run build passed with @lattice/core@0.3.179 build and tsc. node scripts/verify-proof-or-stop-prompt-baseline.mjs passed all seven lines: PASS proof-or-stop prompt baseline: roleCount=16 registry hashes verified; PASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 16 roles; PASS proof-or-stop prompt baseline: overlap matrix verified for 16 roles; PASS proof-or-stop prompt baseline: exhaustive role matrix source claims verified for 16 roles; PASS proof-or-stop prompt baseline: role matrix unsupported-claim mutation probe rejected; PASS proof-or-stop prompt baseline: legacy vocabulary findings classified; PASS proof-or-stop prompt baseline: direct story-file findings classified. node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-role-matrix-evidence passed: PASS role matrix source-evidence mutation probes: 1 refreshed-baseline injection rejected during collection and verification. node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-direct-story-classifier passed: PASS direct story-file classifier adversarial probes: 9 cases. npm run test:proof-or-stop-prompt-baseline passed with the same seven PASS lines.",
+      "resolvedAt": "2026-07-10T09:24:25.852Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-007",
+      "desc": "doc-code-drift: .lattice/story/actives/B-3928/evidence/delivery-context-pack.json claims to snapshot the current diff, and marks transcriptDiff=true, but its diff.changedFiles list and summary omit .lattice/story/actives/B-3928/evidence/transcript-diff.md. A direct comparison with git diff --name-only main...HEAD shows that file as the sole mismatch. Refresh the delivery context from the current committed diff so the transcript evidence package is internally consistent.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-10T04:21:45.493Z",
+      "reviewRound": "2026-07-10T04:15:51.636Z",
+      "reviewRunId": "B-3928:RR-012",
+      "_hash": "9864c3483adc4ef64fafb12b4aa75bde2ffffe7328530121327c30148de0e146",
+      "files": [
+        ".lattice/story/actives/B-3928/evidence/delivery-context-pack.json",
+        ".lattice/story/actives/B-3928/evidence/transcript-diff.md",
+        ".lattice/story/actives/B-3928/evidence/live-smoke-transcript.json"
+      ],
+      "signatureTag": "missing|json|code-drift-lattice",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 424eb89d4 after product fixes 6aef18eb8 and c874f10f3: lattice delivery_context_pack --storyId=B-3928 --write --json regenerated the canonical pack with persisted=true. The committed pack has changedFilesCount=27, changedFilesIncludesTranscriptDiff=true for .lattice/story/actives/B-3928/evidence/transcript-diff.md, and summaryIncludesTranscriptDiff=true. Current materialHash 69f774ee02a1edeac5a6f9b62f987ea59d9ef709bdba5df0dd1da65c717e9a1c was reverified and recorded by 591b314ae. npm --prefix packages/main run build passed with @lattice/core@0.3.179 build and tsc. node scripts/verify-proof-or-stop-prompt-baseline.mjs passed all seven lines: PASS proof-or-stop prompt baseline: roleCount=16 registry hashes verified; PASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 16 roles; PASS proof-or-stop prompt baseline: overlap matrix verified for 16 roles; PASS proof-or-stop prompt baseline: exhaustive role matrix source claims verified for 16 roles; PASS proof-or-stop prompt baseline: role matrix unsupported-claim mutation probe rejected; PASS proof-or-stop prompt baseline: legacy vocabulary findings classified; PASS proof-or-stop prompt baseline: direct story-file findings classified. node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-direct-story-classifier passed: PASS direct story-file classifier adversarial probes: 9 cases. node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-role-matrix-evidence passed: PASS role matrix source-evidence mutation probes: 1 refreshed-baseline injection rejected during collection and verification. npm run test:proof-or-stop-prompt-baseline passed with the same seven PASS lines.",
+      "resolvedAt": "2026-07-10T09:24:37.591Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-008",
+      "desc": "delivery-evidence-scope: .lattice/story/actives/B-3928/evidence/delivery-context-pack.json:5 records 25 changed files and sets transcriptDiff=true, but a direct comparison with git diff main...HEAD --name-only found 26 committed files; the omitted file is .lattice/story/actives/B-3928/evidence/transcript-diff.md. The pack also has no top-level captured head or scope hash that would identify this as an older snapshot. A delivery reviewer consuming this pack can therefore miss the newly added transcript evidence while being told the transcript diff is present. Regenerate the pack after adding the transcript diff, or bind the pack to an explicit captured commit and complete file list.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-10T04:21:52.358Z",
+      "reviewRound": "2026-07-10T04:15:51.636Z",
+      "reviewRunId": "B-3928:RR-011",
+      "_hash": "8a48e071d72d39d5c3f79c571236d5d452ae555c9fb982e1acd1f57aa77ef799",
+      "files": [
+        ".lattice/story/actives/B-3928/evidence/delivery-context-pack.json:5",
+        ".lattice/story/actives/B-3928/evidence/transcript-diff.md:1"
+      ],
+      "signatureTag": "missing|json:5|delivery-evidence-scope",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 424eb89d4 after product fixes 6aef18eb8 and c874f10f3: lattice delivery_context_pack --storyId=B-3928 --write --json regenerated and persisted the delivery context pack. Its committed changedFiles array now contains 27 paths including .lattice/story/actives/B-3928/evidence/transcript-diff.md, and its summary explicitly includes transcript-diff.md; the read-only committed-pack assertions returned true, true, and 27. Current materialHash 69f774ee02a1edeac5a6f9b62f987ea59d9ef709bdba5df0dd1da65c717e9a1c was reverified and recorded by 591b314ae. npm --prefix packages/main run build passed with @lattice/core@0.3.179 build and tsc. node scripts/verify-proof-or-stop-prompt-baseline.mjs passed all seven lines: PASS proof-or-stop prompt baseline: roleCount=16 registry hashes verified; PASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 16 roles; PASS proof-or-stop prompt baseline: overlap matrix verified for 16 roles; PASS proof-or-stop prompt baseline: exhaustive role matrix source claims verified for 16 roles; PASS proof-or-stop prompt baseline: role matrix unsupported-claim mutation probe rejected; PASS proof-or-stop prompt baseline: legacy vocabulary findings classified; PASS proof-or-stop prompt baseline: direct story-file findings classified. node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-direct-story-classifier passed: PASS direct story-file classifier adversarial probes: 9 cases. node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-role-matrix-evidence passed: PASS role matrix source-evidence mutation probes: 1 refreshed-baseline injection rejected during collection and verification. npm run test:proof-or-stop-prompt-baseline passed with the same seven PASS lines.",
+      "resolvedAt": "2026-07-10T09:24:47.563Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-009",
+      "desc": "quality-correctness: scripts/verify-proof-or-stop-prompt-baseline.mjs:1042 classifies negative policy wording before checking for a write, :1098 recognizes only a narrow verb/shell set, and :1778 rejects only findings already labeled direct-write. Exact in-memory execution of the committed functions classified a mixed `do not directly read or write ...; echo > docs/story/...` instruction as policy-reminder and `Use apply_patch to update docs/story/...` as other/grandfathered; simulating a refreshed baseline left verifyFindings plus verifyNoUnregisteredDirectStoryWrite with zero failures for both. Thus --write can bless actionable story-file writes despite CHK-005. Check direct-write signals before negative reminders, fail closed on unrecognized mutation forms, and add mixed-policy/apply_patch/copy/multiline probes.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-11T15:18:46.050Z",
+      "reviewRound": "2026-07-10T09:21:14.756Z",
+      "reviewRunId": "B-3928:RR-013",
+      "_hash": "c6f190a82ef05e1c9d7e9fc46f66ee915149b2345dd4bcee0b4a8801f010a245",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1042",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1098",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1778"
+      ],
+      "signatureTag": "adversarial|mjs:1042|quality-correctness-scripts",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in ce499e68b0 and fc4a9fc647. Direct-write detection now precedes harmless-policy classification at the clause level, covers apply_patch plus Edit/Write/tee/sed/redirection/cp/copy/mv/move/install/rsync and backslash continuations, fails closed on unknown actionable forms, and `--write` rejects every recognized unapproved write. Role-wide grandfathering was replaced by one exact current INIT echo allow entry. Evidence: build PASS; 23 classifier + 1 scanner probes PASS; normal verifier and npm baseline test PASS with exactly one grandfathered write.",
+      "resolvedAt": "2026-07-11T15:51:34.936Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-010",
+      "desc": "quality-correctness: scripts/verify-proof-or-stop-prompt-baseline.mjs:1392 treats any verbatim prompt substring as support for any matrix claim, while the :1830 mutation probe deliberately leaves the claim ledger unchanged, so it proves only that an unmapped claim fails. Exact in-memory execution of the committed buildRoleMatrixEvidence accepted adding `scope_check_save` to lattice-review-behavior commands when the ledger paired it with the mention-only snippet `Default inputs: the lattice scope_check_save result recorded by lattice-review-scope-plan`; that text describes an input, not permission to call the writer. The committed matrix at docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md:13 is also non-exhaustive: the canonical behavior prompt requires git diff, session_brief/aux_doc_list/story_get, and dev_memory preflight/search, but lists only checklist_get plus review writes, even though other rows count git diff and common reads. Therefore the emitted `exhaustive role matrix source claims verified` result is unsupported and false ownership can survive a refreshed baseline. Ground command claims in a structured allowed-command source, check prompt-to-matrix completeness, and add a mutation that updates the ledger with a misleading mention but must still fail.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-11T15:18:59.034Z",
+      "reviewRound": "2026-07-10T09:21:14.756Z",
+      "reviewRunId": "B-3928:RR-013",
+      "_hash": "62c97878b80dc9e3a5e123239f90f87f2a93d7b0556bb8041ceec3460ece769f",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:113",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1392",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1830",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md:13"
+      ],
+      "signatureTag": "missing|mjs:113|quality-correctness-scripts",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in ce499e68b0. Removed the substring-based `exhaustive role matrix source claims verified` machinery and its misleading mutation probe. The baseline now states an explicit audit boundary: machine checks exact 16 role snapshots, template/agent_prompt hashes, required non-empty fields, JSON/Markdown parity, and drift; commands/directFileAccess/outputs remain a human reviewer-audited snapshot and are not claimed as parser-proven ownership. The matrix was manually re-audited, including behavior command ownership. Evidence: normal verifier prints the reviewer-audited semantic boundary and snapshot-drift probe rejects JSON plus Markdown drift.",
+      "resolvedAt": "2026-07-11T15:51:36.106Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-011",
+      "desc": "doc-code-drift: The artifact table labels ledgerHash, planHash, and rollupHash as current code-backed freshness/anti-forgery bindings, and the closeout contract says existing gates validate artifact hashes, but the ProofStory readers never recompute any of those hashes. computeMilestoneLedgerHash, computeSlicePlanHash, and computeParentLedgerRollupHash are writer-only; parentRollupCoversSlicePlan checks only stored cross-field equality, coverage, and evidenceRefs. A read-only HEAD probe passed evaluateDoneIntentEquivalence(..., enforce) with arbitrary mutually matching ledgerHash/planHash/rollupHash values and with a forged rollupHash alone (status=pass, blocking=false, gaps=[]). Amend M4.C1 and the current-contract wording to require reader/gate recomputation or content-bound canonical-writer provenance before these fields are described as integrity bindings.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-11T15:20:37.455Z",
+      "reviewRound": "2026-07-10T09:21:14.756Z",
+      "reviewRunId": "B-3928:RR-017",
+      "_hash": "93c8fedba1ba4a3802ea88d37c56de51d5ffb731d5b9840297a9b95fa02c8f63",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "packages/main/src/core/proofstory.ts",
+        "packages/main/src/core/store.ts",
+        "packages/main/src/core/evidence-freshness.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-artifact",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in ce499e68b0. The execution plan now states that writers compute ledgerHash/planHash/rollupHash but current readers and DONE do not recompute them; `parentRollupCoversSlicePlan` does not consume rollupHash. It labels matching stored fields as consistency checks, not anti-forgery proof, and requires M4.C1 runtime schema validation and hash recomputation before these artifacts become trust/review-retention boundaries.",
+      "resolvedAt": "2026-07-11T15:51:36.982Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-012",
+      "desc": "doc-code-drift: The new overlap matrix is not a complete command inventory even though M0.3 says it covers commands. The lattice-review-delivery row lists only delivery_check_set, while its canonical prompt requires two explicit git diff main...HEAD commands; lattice-review-behavior likewise relies on git diff but omits it, whereas the docs/concept/quality rows do classify git diff/grep as commands. The verifier only proves that each listed claim has a supporting snippet and its mutation probe only rejects unsupported additions, so it passes while source commands are omitted. Add the missing commands or define a consistent narrower Commands contract and mechanically check prompt-to-matrix completeness.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-11T15:21:01.592Z",
+      "reviewRound": "2026-07-10T09:21:14.756Z",
+      "reviewRunId": "B-3928:RR-017",
+      "_hash": "e2cafc3819d742d8aa1db75d9b681717a55636a7e525abda3effaaacd30ae30d",
+      "files": [
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+        "packages/main/templates/agents/lattice-review-delivery.md",
+        "packages/main/templates/agents/lattice-review-behavior.md"
+      ],
+      "signatureTag": "missing|md|code-drift-overlap",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in ce499e68b0. Added `git diff` to both lattice-review-behavior and lattice-review-delivery command snapshots. The plan/matrix now define Commands as a manually audited semantic snapshot, while automation only locks the chosen snapshot and parity; it no longer claims prompt-to-matrix completeness. Evidence: all 16 rows have required fields and the verifier's JSON/Markdown snapshot-drift probe passes.",
+      "resolvedAt": "2026-07-11T15:51:37.772Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-013",
+      "desc": "doc-code-drift: The delivery-context-pack freshness row says its atomic write validates the artifact shape, but persistArtifact only serializes the object and runs JSON.parse on the temporary file before rename. That checks JSON syntax, not the PersistedDeliveryContextPackArtifact structure; there is no Zod schema, type guard, or field-level readback validation. Change the claim to JSON parse/atomic persistence or add real runtime shape validation.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-11T15:21:10.937Z",
+      "reviewRound": "2026-07-10T09:21:14.756Z",
+      "reviewRunId": "B-3928:RR-017",
+      "_hash": "9e74e928ec3ecdfd8faf28c6ea6f4ea27effeafdaba3fe6194fa96b5f8d2c44e",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "packages/main/src/handlers/delivery-context-pack.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-delivery",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in ce499e68b0. The delivery-context-pack row now says the current atomic writer re-reads and JSON.parse checks syntax only, with no runtime shape/schema/signature/freshness validation. M4.C1 is explicitly required to add runtime schema validation before granting writer/path trust; closed-set registration alone cannot promote it to gate evidence.",
+      "resolvedAt": "2026-07-11T15:51:38.650Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-014",
+      "desc": "CHK-001:edge:0, CHK-002:edge:0, and CHK-003:edge:0 lack concretely corresponding negative-path evidence. Their recorded command is `node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-role-matrix-snapshot-drift`, but that probe only clones the current baseline, appends a sentinel to `lattice-review-behavior.commands`, and asserts roleMatrix field plus generated-Markdown drift. It never changes a prompt role/template/hash, never changes agent_prompt stdout metadata, and never removes a matrix role or creates a registry-count mismatch. CHK-002's evidence note therefore overclaims output-metadata coverage. Add focused drift probes for the three stated failure modes, or bind each intent to evidence that actually exercises its branch.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-11T15:57:12.927Z",
+      "reviewRound": "2026-07-11T15:51:16.046Z",
+      "reviewRunId": "B-3928:RR-020",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "package.json",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "139f01cccc80cab6e89ed4b38bd7975cd0d871cc1c32327420b6982c68a733b6",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md"
+      ],
+      "signatureTag": "missing|mjs|edge-edge-edge",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a31f2f08a2 with focused mechanical negative paths. `--probe-baseline-drift` rejects 9 registry material/template hash, missing/extra/renamed/count role, and agent_prompt hash/bytes/role-output mutations; the matrix probe also rejects field, Markdown parity, removed-row and role-count drift. CHK-001/002 evidence now binds to baseline-drift, CHK-003 edge binds to matrix drift. All focused probes and normal verifier pass.",
+      "resolvedAt": "2026-07-11T16:18:02.402Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-015",
+      "desc": "F-009 recurrence: scripts/verify-proof-or-stop-prompt-baseline.mjs:620-635 only treats a fixed mutation-verb set as actionable and :571-575 defaults every other docs/story reference to other with grandfathered=true; :1115-1150 then ignores that class. Exact in-memory execution of the committed functions classified `Use the project-specific metadata transformer on docs/story/actives/B-1234/index.json.` as other/grandfathered and returned no policy error when combined with the one allowed INIT write. Therefore --write can still bless an unrecognized actionable story-file mutation despite the resolved claim that unknown forms fail closed. Make the fallback non-grandfathered/fail-closed for directive-shaped docs/story references and add a transformer-style refresh probe.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-11T15:57:14.549Z",
+      "reviewRound": "2026-07-11T15:51:16.046Z",
+      "reviewRunId": "B-3928:RR-018",
+      "_hash": "84770957af430bf677090dc52b388e3d5f747d5bac0521892f35c4ccc1241b31",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:620",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:571",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1115"
+      ],
+      "signatureTag": "adversarial|mjs:620|recurrence-scripts-verify",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a31f2f08a2. Directive-shaped unknown operations such as `Use the project-specific metadata transformer on docs/story/...` classify as unclassified-actionable unless they are clearly read-only, and collection/--write rejects them. A committed transformer refresh probe passes; current baseline still has exactly one exact grandfathered INIT write.",
+      "resolvedAt": "2026-07-11T16:18:03.406Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-016",
+      "desc": "M0.4 legacy-semantic gate is not implemented: the plan at docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1020-1021 promises failure when an active non-legacy prompt uses testIntent/TEST_CASE_REVIEW without an explicit legacy marker, but classifyLegacyFinding at scripts/verify-proof-or-stop-prompt-baseline.mjs:487-515 receives only role and term and returns `legacy-vocabulary-reference` for any occurrence in an active role. writeBaselineFiles at :1273-1279 has no legacy-policy assertion, so adding an active instruction such as `Set testIntent...` and running --write blesses it; normal verification only detects unrefreshed snapshot drift. Add an excerpt/status-aware explicit-marker policy and a baseline-refresh rejection probe for an active role.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-11T15:57:30.532Z",
+      "reviewRound": "2026-07-11T15:51:16.046Z",
+      "reviewRunId": "B-3928:RR-018",
+      "_hash": "3c7e5bb12130cee81c066dc782ae2f4a4fb40e3cf72ba5628efc16b1ced673c0",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:487",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1273",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1020"
+      ],
+      "signatureTag": "missing|mjs:487|legacy-semantic-gate",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a31f2f08a2. Legacy findings now carry roleStatus and explicit-context policy. Active/conditional/optional roles require old/legacy/deprecated/retired/removed/deleted/replaced/compatibility context; collection, --write, and normal verify reject uncontextualized active use. The committed active `Set testIntent...` refresh probe is rejected while current old/deletion references and legacy/compatibility roles remain readable.",
+      "resolvedAt": "2026-07-11T16:18:04.449Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-017",
+      "desc": "The snapshot-vs-semantic audit boundary omits required semantic columns. M0.3 at docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1015-1019 says phase, commands, direct-file access, output artifact, and overlap category are all manually reviewed for all 16 rows, but REVIEWER_AUDITED_ROLE_MATRIX_FIELDS at scripts/verify-proof-or-stop-prompt-baseline.mjs:43 and the generated matrix line 10 list only commands/directFileAccess/outputs. Machine checks only enforce non-empty strings and parity. Thus either phase/overlapCategory were not audited and M0.3 is incomplete, or the audit manifest falsely omits work it claims was done; status/purpose/inputs/capabilities/notes also remain semantic prose without an explicit authored-snapshot classification. Make the boundary cover every human-authored semantic field, at minimum all five M0.3 columns.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-11T15:57:40.888Z",
+      "reviewRound": "2026-07-11T15:51:16.046Z",
+      "reviewRunId": "B-3928:RR-018",
+      "_hash": "b8353645e11f852ff988685f7796536f5d8241dcc42fb891f9fb4fccb5bd50b6",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:43",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md:9",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1015"
+      ],
+      "signatureTag": "missing|mjs:43|snapshot-semantic-audit",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a31f2f08a2. roleMatrixAudit now marks every human-authored ROLE_MATRIX_FIELDS field reviewer-audited: status, phase, purpose, commands, directFileAccess, inputs, outputs, capabilities, overlapCategory, notes. Machine claims remain limited to required fields, exact snapshots/hashes, JSON/Markdown parity, and drift rejection; the plan and rendered matrix state the same boundary.",
+      "resolvedAt": "2026-07-11T16:18:05.704Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-018",
+      "desc": "F-012 remains semantically unresolved: renaming the Commands column a reviewer-audited snapshot does not define what the snapshot includes. The behavior prompt requires dev_memory_preflight/dev_memory_search, aux_doc_list, and rg at packages/main/templates/agents/lattice-review-behavior.md:128-130, but its matrix row lists only git diff, checklist_get, and review writes; meanwhile implementer and scope-plan rows do include auxiliary/common reads. Because M0.3 still says the matrix covers commands and no rule distinguishes gate writes, role-specific commands, common guide commands, or selected examples, an omission cannot be interpreted consistently as not-owned versus merely unlisted. Define a narrower Commands contract with a uniform inclusion rule, or make the inventory complete; the snapshot caveat limits machine proof but does not make the field conceptually well-defined.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-11T15:58:01.773Z",
+      "reviewRound": "2026-07-11T15:51:16.046Z",
+      "reviewRunId": "B-3928:RR-018",
+      "_hash": "639c2eeead365d2d1ba338208e016713b1c04c0b74a3b31916821a7c4f260520",
+      "files": [
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md:14",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:127",
+        "packages/main/templates/agents/lattice-review-behavior.md:128",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1015"
+      ],
+      "signatureTag": "missing|md:14|remains-semantically-unresolved",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a31f2f08a2. Added a uniform Commands contract to code, baseline audit, Markdown, and M0 plan: include role-owned writes plus role-defining inspection/execution calls in role-specific procedures; exclude universal Runtime Guide navigation reads and prohibited/other-role input mentions. All 16 rows were re-audited; behavior now includes memory/search plus review writes, scope-plan includes config/memory/search/scope save, implementer removes generic reads, and delivery includes diff/source grep/delivery check.",
+      "resolvedAt": "2026-07-11T16:18:06.602Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-019",
+      "desc": "quality-correctness: scripts/verify-proof-or-stop-prompt-baseline.mjs:578-617 suppresses an entire clause whenever it contains a negative mutation verb, so `Do not edit docs/story/... and then use apply_patch to update docs/story/...` is classified as policy-reminder. Lines 664-699 join only backslash continuations, so prose `Copy source.json to\\ndocs/story/...` records the path-only line as other/grandfathered. Exact in-memory execution with the sole allowed INIT echo present showed collectDirectStoryFindings accepts both cases, and the same collection is the pre-write guard at lines 1273-1277; therefore a refreshed baseline/--write can still bless actionable writes and F-009 remains fail-open. Parse positive actions inside mixed clauses and either join actionable prose continuations or reject adjacent path-only references, then add probes that prove baseline refresh and --write reject both forms.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-11T15:58:02.557Z",
+      "reviewRound": "2026-07-11T15:51:16.046Z",
+      "reviewRunId": "B-3928:RR-019",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5371adf79da58df935a1e1fccf790818ea441fa6c5e67eb1eb7170b4f3378ff9",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:578",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:664",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:701",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1273"
+      ],
+      "signatureTag": "adversarial|mjs:578|quality-correctness-scripts",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a31f2f08a2. Clause splitting recognizes `and then` positive actions after a prohibition, and mutation-shaped natural continuations are joined for scanner evaluation. Exact probes now reject both `Do not edit ... and then use apply_patch...` and `Copy source.json to\\ndocs/story/...` during collection/refresh. Direct suite passes 25 classifier and 2 scanner cases.",
+      "resolvedAt": "2026-07-11T16:18:07.519Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-020",
+      "desc": "Resolved F-010 left CHK-003.userSees stale. `lattice checklist_get` still promises the exact line `PASS proof-or-stop prompt baseline: overlap matrix verified for 16 roles`, but the committed verifier now emits `PASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for 16 roles` plus a separate mechanical snapshot-drift line and never emits the promised text. Update the checklist promise to the honest snapshot wording so delivery/user-visible acceptance matches the current command.",
+      "severity": "medium",
+      "category": "happy",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-11T15:58:25.951Z",
+      "reviewRound": "2026-07-11T15:51:16.046Z",
+      "reviewRunId": "B-3928:RR-018",
+      "_hash": "d8df5bcf8043f24d3c5590782f4e0a3a5eca107f807db309254a55fa5b7d4291",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1325",
+        ".lattice/story/actives/B-3928/checklist.json"
+      ],
+      "signatureTag": "happy|mjs:1325|resolved-left-usersees",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed through the supported replan path, not a direct file write: story moved DEV->PLAN and checklist_update changed CHK-003.userSees to the exact current `role matrix snapshot integrity verified for 16 roles` plus `all human-authored role-matrix semantics remain reviewer-audited` output, committed by Lattice as 62d23a3. Story then returned to DEV and evidence was refreshed.",
+      "resolvedAt": "2026-07-11T16:18:08.377Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-021",
+      "desc": "Role naming residue in the overlap matrix: the test-case-reviewer row says `replaced by review-test-coverage`, but no role with that ID exists. The current role is `lattice-review-test-coverage` and the planned canonical role is `proof-or-stop-review-test-coverage`, both used consistently elsewhere in the source plan. Use one exact name and label whether the row refers to current or target taxonomy.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-11T15:58:33.983Z",
+      "reviewRound": "2026-07-11T15:51:16.046Z",
+      "reviewRunId": "B-3928:RR-018",
+      "_hash": "014c184d6e867c4ca569e55c5b9611310318da0800d5d9e9f0cbe005a235c1dd",
+      "files": [
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md:30",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:256"
+      ],
+      "signatureTag": "missing|md:30|role-naming-residue",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a31f2f08a2. The legacy test-case-reviewer overlap row now names the exact current role `lattice-review-test-coverage` and exact target role `proof-or-stop-review-test-coverage`, eliminating the nonexistent `review-test-coverage` residue.",
+      "resolvedAt": "2026-07-11T16:18:09.269Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-022",
+      "desc": "Two adversarial intents still lack command-aligned evidence. For CHK-002:adversarial:0, `--probe-baseline-drift` runs nine mutations but none creates duplicate agent_prompt output ownership, and none exercises an agent_prompt unknown-role command failure; the role rename case only proves missing/extra identity drift. For CHK-004:adversarial:0, `--probe-legacy-vocabulary-policy` runs exactly one synthetic `Set testIntent...` case, so it does not exercise the spaced, hyphenated, or underscored test-intent/test-case-review variants claimed by the evidence note. Add focused negative cases for those stated branches or narrow/rebind the evidence so each command proves the attached intent.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-11T16:21:41.477Z",
+      "reviewRound": "2026-07-11T16:17:38.139Z",
+      "reviewRunId": "B-3928:RR-024",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "package.json",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e7374e31860d87200633a8a362c2381ad4b41e218ceeed81301d7e21c31b80cf",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json"
+      ],
+      "signatureTag": "missing|mjs|adversarial-intents-still",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by ca3bde3a and 50cf8130. Baseline drift probes now reject duplicate agent_prompt output ownership and an actual unknown-role agent_prompt command; legacy policy probes cover spaced, hyphenated, underscored, mixed-case, clause-laundering, and arbitrary attach/persist positive instructions. Independent verification passed: baseline drift 10 mutations plus unknown-role, legacy policy 12 rejected cases, full verifier, package baseline test, and build.",
+      "resolvedAt": "2026-07-11T20:10:21.820Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-023",
+      "desc": "F-015 is still fail-open for directive-shaped unknown writes whose target is expressed as an option rather than `on|against|to|into`. At scripts/verify-proof-or-stop-prompt-baseline.mjs:728-732, hasUnknownStoryMutationDirective only recognizes those four connectors; the fallback at :661-665 remains other/grandfathered. Exact in-memory execution of the committed functions classified `Run metadata-transformer --output docs/story/actives/B-1234/index.json.` as other/grandfathered and directStoryWritePolicyErrors returned no errors alongside the one allowed INIT write. Thus collection/--write can still bless a clear unknown output-file mutation while the resolution claims directive-shaped unknown operations fail closed. Recognize output/destination option forms or make unknown imperative docs/story references fail closed, and add this refresh probe.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-11T16:21:53.661Z",
+      "reviewRound": "2026-07-11T16:17:38.139Z",
+      "reviewRunId": "B-3928:RR-023",
+      "_hash": "f6cb70745b81aac34c5e2280a97dc618582784e72611a69ac9b5df7aebf3f232",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:728",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:661",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1429"
+      ],
+      "signatureTag": "adversarial|mjs:728|still-fail-open",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by ca3bde3a. Generic --output docs/story destinations are classified as direct-write and baseline refresh rejects them. The exact metadata-transformer --output case is committed in the direct classifier suite; independent direct probe passed with 34 classifier and 6 scanner cases after follow-up hardening.",
+      "resolvedAt": "2026-07-11T20:10:23.126Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-024",
+      "desc": "F-016 remains vulnerable to legacy-context laundering. classifyLegacyVocabularyPolicy at scripts/verify-proof-or-stop-prompt-baseline.mjs:546-568 allows an active-role line when any marker occurs anywhere in the whole excerpt, without tying the marker to the legacy term or rejecting a positive current/new-story instruction. Exact execution classified `Old behavior is removed; for new stories, set testIntent on every checklist item.` as allowed-explicit-context, so collection/--write accepts the very active use M0.4 is meant to reject. Evaluate clauses/occurrences rather than the whole line and add a probe where unrelated old/removed wording precedes an explicit new-story testIntent instruction.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-11T16:22:13.091Z",
+      "reviewRound": "2026-07-11T16:17:38.139Z",
+      "reviewRunId": "B-3928:RR-023",
+      "_hash": "fe61ef9053828b6bb004b8c5a912086ce3777d0e6b567b5c1bfd99c53340daa5",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:546",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:762",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1025"
+      ],
+      "signatureTag": "adversarial|mjs:546|remains-vulnerable-legacy",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by ca3bde3a and 50cf8130. Legacy vocabulary is evaluated per occurrence and clause; explicit context must be local and non-negated, while positive or unknown instructions fail closed. Exact old-behavior/new-story laundering, mixed negative/positive, negated-context, attach, and persist probes reject. Independent legacy probe passed 12 cases.",
+      "resolvedAt": "2026-07-11T20:10:24.366Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-025",
+      "desc": "Round-7 F-015/F-019 recurrence: scripts/verify-proof-or-stop-prompt-baseline.mjs:668-731 and :785-807 fix only enumerated clause, verb, connector, and continuation shapes. Exact in-memory execution with the sole exact INIT allow present still classified `Avoid editing docs/story/... and instead use apply_patch...` and `Do not edit docs/story/... then use apply_patch...` as policy-reminder; `Copy source.json\\ninto docs/story/...`, `Use the metadata transformer on\\ndocs/story/...`, `Process docs/story/... with the metadata transformer`, and `Use the metadata transformer for docs/story/...` became other/grandfathered. collectDirectStoryFindings allowed every case. A simulated --write path with writeFileSync replaced by a sentinel reached WRITE_REACHED for the and-instead and process-with variants, while the exact F-015/F-019 strings rejected before writes. The closed grammar therefore leaves the same fail-open class. Add these variants and make actionable/path-adjacent instructions fail closed without relying on a finite connector list.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-11T16:23:05.128Z",
+      "reviewRound": "2026-07-11T16:17:38.139Z",
+      "reviewRunId": "B-3928:RR-022",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0c29834a1a93fdf561068e5f0d19c61fa026d4ebc96f0501078ee61a20c36fc5",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:668",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:728",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:785",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:803",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1633"
+      ],
+      "signatureTag": "adversarial|mjs:668|round-recurrence-scripts",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by ca3bde3a and 50cf8130. Direct-story policy now accepts a negative reminder only through strict whole-instruction safe grammar; unmatched exceptions or second actions fail closed, and mutation continuations join based on imperative plus story target rather than a connector allowlist. Exact and-instead, bare-then, unless, unknown frobnicate, into/on/against/across multiline, process-with, and use-for cases are committed. Independent direct probe passed 34 classifier and 6 scanner cases.",
+      "resolvedAt": "2026-07-11T20:10:25.344Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-026",
+      "desc": "Legacy-policy fail-open: scripts/verify-proof-or-stop-prompt-baseline.mjs:546-568 treats the presence of any context marker anywhere in a line as sufficient, without checking whether it scopes or negates the legacy term. Exact in-memory execution classified both `Do not use legacy testIntent; set testIntent on every new checklist item.` and `Set testIntent on every new checklist item; this behavior is not legacy.` as allowed-explicit-context, and collectLegacyVocabularyFindings allowed baseline refresh. A simulated --write path reached the guarded WRITE_REACHED sentinel for the mixed instruction. The committed probe at :504-511 only proves one uncontextualized instruction is rejected, while the full verifier prints that active-role policy is enforced. Split mixed clauses and handle negation/positive directives so each active use must itself be legacy-contextualized; add both bypass strings as refresh/--write rejection probes.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-11T16:23:22.979Z",
+      "reviewRound": "2026-07-11T16:17:38.139Z",
+      "reviewRunId": "B-3928:RR-022",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c87e60d21953a42fbede7427033c2b2443c93deaf28242b64c9ab1786317e587",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:504",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:546",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:734",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:779",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1692"
+      ],
+      "signatureTag": "adversarial|mjs:504|legacy-policy-fail",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by ca3bde3a and 50cf8130. A marker elsewhere or a negated marker no longer blesses an occurrence; only true negative references or strict local contextual states are allowed. Exact mixed negative/positive and negated-legacy probes reject, along with arbitrary attach/persist variants. Independent legacy probe passed 12 cases.",
+      "resolvedAt": "2026-07-11T20:10:26.236Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-027",
+      "desc": "F-016 also excludes a currently required non-legacy role wholesale. LEGACY_VOCABULARY_ENFORCED_STATUSES at scripts/verify-proof-or-stop-prompt-baseline.mjs:85 contains only active/conditional/optional, so product-reviewer status compatibility bypasses context checks even though the source plan describes its INIT dependency as unresolved and the current INIT contract still requires it. Exact execution allows `Set testIntent on every checklist item.` for status compatibility with policyStatus=allowed-role-status. This contradicts the M0.4 active non-legacy prompt boundary and lets --write bless active legacy instructions in a live compatibility lane. Enforce every non-legacy/non-retired status, or define a narrow negative-reference exemption instead of a status-wide bypass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-11T16:23:28.367Z",
+      "reviewRound": "2026-07-11T16:17:38.139Z",
+      "reviewRunId": "B-3928:RR-023",
+      "_hash": "21f599ddc094af5b2c00a959590372fbe3abf6ae30cdae653b2cff259fc3d528",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:85",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:546",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:806",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1025"
+      ],
+      "signatureTag": "missing|mjs:85|excludes-currently-required",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by ca3bde3a. Compatibility is now an enforced live-role status, while only legacy, retired, and fold-candidate roles remain status-exempt. A mixed-case positive testIntent instruction under compatibility status is a committed rejection probe. Independent legacy and full baseline verification passed.",
+      "resolvedAt": "2026-07-11T20:10:27.304Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-028",
+      "desc": "doc-code-drift: The new uniform Commands contract says the column includes role-owned writes plus role-defining inspection/execution calls from each role-specific procedure, and the verifier now prints that all human-authored role-matrix semantics remain reviewer-audited. Two such calls are still omitted: lattice-evaluator-cli explicitly runs `cat .lattice-serve.json`, but its row lists only bridge curl calls and optional CLI spawn and its directFileAccess text omits that file read; lattice-review-story-init explicitly requires the Edit tool to write the answer field, but its row lists only Read/Grep, init_check_set, and cat/echo. Neither call is a universal Runtime Guide navigation read, prohibited command, or another role's artifact/input, so the Commands/all-fields audit claim is incomplete despite JSON/Markdown parity. Add these role-specific calls (and the evaluator file read) to ROLE_MATRIX_DEFAULTS and regenerate the baseline/matrix, or narrow the Commands contract and F-020 INFO wording so they do not claim coverage.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-11T16:24:16.128Z",
+      "reviewRound": "2026-07-11T16:17:38.139Z",
+      "reviewRunId": "B-3928:RR-025",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "packages/main/templates/agents/implementation-reviewer.md",
+          "packages/main/templates/agents/lattice-evaluator-cli.md",
+          "packages/main/templates/agents/lattice-review-test-coverage.md",
+          "packages/main/templates/agents/product-reviewer.md",
+          "packages/main/templates/agents/test-case-reviewer.md",
+          "packages/main/templates/agents/test-intent.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "packages/main/templates/agents/lattice-evaluator.md",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/templates/agents/lattice-review-behavior.md",
+          "packages/main/templates/agents/lattice-review-channel.md",
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "packages/main/templates/agents/lattice-review-delivery.md",
+          "packages/main/templates/agents/lattice-review-docs.md",
+          "packages/main/templates/agents/lattice-review-quality.md",
+          "packages/main/templates/agents/lattice-review-scope-plan.md",
+          "packages/main/templates/agents/lattice-review-story-init.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8bc3faba8a0754e983cecd4cd96e0e3ade76ce3772b54329c48205f60e3a5c31",
+      "files": [
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md:12",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md:19",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md:29",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1019",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:116",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:236",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1691",
+        "packages/main/templates/agents/lattice-evaluator-cli.md:63",
+        "packages/main/templates/agents/lattice-review-story-init.md:270"
+      ],
+      "signatureTag": "missing|md:12|code-drift-uniform",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by ca3bde3a. ROLE_MATRIX_DEFAULTS, baseline JSON, and generated Markdown now include lattice-evaluator-cli cat .lattice-serve.json plus its file read, and lattice-review-story-init required Edit usage. Independent matrix drift, full verifier, and package test passed; all human-authored semantics remain reviewer-audited rather than self-proven.",
+      "resolvedAt": "2026-07-11T20:10:28.272Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-029",
+      "desc": "F-025 recurrence: scripts/verify-proof-or-stop-prompt-baseline.mjs:1070-1110 treats an entire docs/story instruction as safe whenever it begins with a read-only verb or Lattice-CLI redirect, without requiring the rest of the instruction to remain non-mutating. With the sole exact INIT allow present, exact in-memory execution classified `Inspect docs/story/actives/B-1234/index.json, then frobnicate it.` and `Use the Lattice CLI for docs/story/actives/B-1234/index.json; then frobnicate it.` as other/grandfathered, and collectDirectStoryFindings returned successfully. The same collection path gates --write, so arbitrary second actions can still be blessed. Apply strict whole-instruction negative/safe grammar to every exemption and commit collection/refresh rejection probes.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-11T20:16:07.026Z",
+      "reviewRound": "2026-07-11T20:10:05.981Z",
+      "reviewRunId": "B-3928:RR-028",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "db2c24f2005ce16f2025b13a00c3e6144c536bc6435c46861efb885ca917f0d8",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1076",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1096",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1106"
+      ],
+      "signatureTag": "adversarial|mjs:1076|recurrence-scripts-verify",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 467dc4bb. Story references now use a closed safe-reference model: only exact registered current references, strict whole-instruction safe policy forms, and one exact INIT write are accepted. Read-only or CLI prefixes with any appended second action no longer match an exact safe entry and fail closed. Exact Inspect-then-frobnicate and Lattice-CLI-then-frobnicate collection probes reject. Independent direct probe passed 37 classifier and 10 scanner cases.",
+      "resolvedAt": "2026-07-11T20:38:47.076Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-030",
+      "desc": "F-025 connector-free continuation recurrence: scripts/verify-proof-or-stop-prompt-baseline.mjs:1232-1237 joins a mutation lead to a docs/story target only when the lead has no terminal punctuation and the target is not a list item. With the sole exact INIT allow present, exact in-memory collection accepted `Use the metadata transformer:\\ndocs/story/actives/B-1234/index.json` and `Use the metadata transformer\\n- docs/story/actives/B-1234/index.json`; each target line became other/grandfathered. It also accepted a path-first `docs/story/...\\nFrobnicate it.` continuation. Collection/--write can therefore bless clear multiline mutation instructions outside the committed connector probes. Join bounded instruction blocks based on mutation lead plus story target rather than punctuation/list direction, and add refresh rejection probes.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-11T20:16:16.875Z",
+      "reviewRound": "2026-07-11T20:10:05.981Z",
+      "reviewRunId": "B-3928:RR-028",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3d2a4ca6a2cda1656516a93c80da980f7d93c134f03279cea681648ae17bedaf",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1232",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1240"
+      ],
+      "signatureTag": "adversarial|mjs:1232|connector-free-continuation",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 467dc4bb. The scanner builds bounded bidirectional context around each docs/story line and no longer excludes colon, bullet-target, or path-first continuation shapes. Exact colon target, bullet target, path-first action, and sentence-ended path-first action collection probes reject. Independent direct probe passed 37 classifier and 10 scanner cases.",
+      "resolvedAt": "2026-07-11T20:38:48.022Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-031",
+      "desc": "F-026 recurrence: scripts/verify-proof-or-stop-prompt-baseline.mjs:773-810 does not enforce the promised true-negative/non-negated legacy context semantics. isNegativeLegacyOccurrence blesses any negated leading verb other than a context marker, so `Do not omit testIntent from new stories.` and `Never remove TEST_CASE_REVIEW from the workflow.` are labeled allowed-negative-reference even though they mandate retaining active legacy behavior. The local-context check recognizes only not/never/no-longer before a marker, so `Non-legacy testIntent.` and `This isn’t legacy testIntent.` are labeled allowed-explicit-local-context. Exact collectLegacyVocabularyFindings execution returned successfully for all four, meaning collection/--write can bless them while the committed mixed-occurrence control rejects. Constrain true-negative verbs/whole clauses, recognize common marker negations, and add refresh rejection probes.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-11T20:16:24.617Z",
+      "reviewRound": "2026-07-11T20:10:05.981Z",
+      "reviewRunId": "B-3928:RR-028",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ef2e364afee5e040eb54091515c7b19925eb1dc2462ac15d2a1d897f4d3f895b",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:773",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:783"
+      ],
+      "signatureTag": "adversarial|mjs:773|recurrence-scripts-verify",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 467dc4bb. Live legacy occurrences are accepted only by a closed safe-negative grammar or exact registered context. Omit/remove are not safe-negative verbs, and non-legacy/is-not-legacy forms are unregistered. Exact four recurrence probes plus related controls reject. Independent legacy probe passed 24 rejected and 4 allowed cases.",
+      "resolvedAt": "2026-07-11T20:38:48.809Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-032",
+      "desc": "F-023 semantic recurrence: the direct-story policy still fails open for an imperative output verb. scripts/verify-proof-or-stop-prompt-baseline.mjs:1046-1059 recognizes the literal --output option but not Output as a write action; looksLikeImperativeDirective at :1113-1131 explicitly excludes clauses beginning with output, and classifyStoryFinding at :903-907 then blesses the reference as other/grandfathered. Exact in-memory execution of the committed functions, with the sole exact INIT allow entry present, classified `Output generated metadata to docs/story/actives/B-1234/index.json.` as other/grandfathered and collectDirectStoryFindings returned without error. Collection/--write can therefore bless a clear direct output instruction despite M0.6. Treat output directed to docs/story as a mutation, or fail closed for non-read-only path-directed imperatives, and add this baseline-refresh probe.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-11T20:17:00.940Z",
+      "reviewRound": "2026-07-11T20:10:05.981Z",
+      "reviewRunId": "B-3928:RR-027",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7daa9c2bfbb35222ad196f595bb4970661669246dc5c09b02c91058d11aee66b",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:903",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1046",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1113",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1032"
+      ],
+      "signatureTag": "adversarial|mjs:1113|output-verb-story-write-fail-open",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 467dc4bb. Unregistered docs/story references fail closed by default; Output is no longer a trusted subject exclusion. Exact `Output generated metadata to docs/story/...` classification and collection probe rejects. Independent direct probe passed 37 classifier and 10 scanner cases.",
+      "resolvedAt": "2026-07-11T20:38:49.712Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-033",
+      "desc": "F-024/F-026 semantic recurrence: the occurrence-aware legacy policy still launders positive active use in two clause shapes. isNegativeLegacyOccurrence at scripts/verify-proof-or-stop-prompt-baseline.mjs:773-780 treats any clause beginning `Do not <non-marker>` as negating the first later legacy occurrence, even when an unsplit plain `and set` introduces a positive instruction. isDemonstrablyContextualLegacyOccurrence at :783-810 accepts a marker immediately before the occurrence without checking for an imperative verb before that marker. Exact in-memory execution allowed both `Do not remove verificationIntent and set testIntent on every checklist item.` as allowed-negative-reference and `Set legacy testIntent.` as allowed-explicit-local-context; collection returned no policy error. This contradicts M0.4 and the verifier rule that positive instructions always fail, while the normal verifier still prints that active-role policy is enforced. Bind negation/context to the actual occurrence, reject positive directives even with local markers, and add both refresh probes.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-11T20:17:12.865Z",
+      "reviewRound": "2026-07-11T20:10:05.981Z",
+      "reviewRunId": "B-3928:RR-027",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "792b968af8b2cbf42073617dac00a920743a9fc655dcf19d3a647a317edc35e4",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:744",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:773",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:783",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:910",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1025"
+      ],
+      "signatureTag": "adversarial|mjs:773|legacy-occurrence-positive-laundering",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 467dc4bb. Negation and historical context are no longer inferred from arbitrary neighboring prose: safe negatives use a closed whole-clause grammar and live historical contexts require exact role/term/excerpt registration. Exact `Do not remove verificationIntent and set testIntent...` and `Set legacy testIntent` collection probes reject. Independent legacy probe passed 24 rejected and 4 allowed cases.",
+      "resolvedAt": "2026-07-11T20:38:50.536Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-034",
+      "desc": "F-027 recurrence at the status boundary: compatibility itself is now enforced, but the policy remains an enforced-status allowlist with a fail-open default. LEGACY_VOCABULARY_ENFORCED_STATUSES at scripts/verify-proof-or-stop-prompt-baseline.mjs:85 lists four live statuses; classifyLegacyVocabularyPolicy at :744-750 grants allowed-role-status to every other value, while verifyRoleMatrixFields at :1677-1691 accepts any non-empty status string. Exact in-memory execution with status `required` and `Set testIntent on every checklist item.` was accepted. A new live status or a status typo can therefore recreate the compatibility bypass, despite the declared boundary that legacy, retired, and fold-candidate roles are the readable exemptions. Define an explicit closed status taxonomy or explicit exempt statuses and fail closed for unknown live values; add an unknown-status rejection probe.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-11T20:17:21.907Z",
+      "reviewRound": "2026-07-11T20:10:05.981Z",
+      "reviewRunId": "B-3928:RR-027",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "607d6d67506ff6a1885c31178ff7b7daf0799ffc834e83e58ec93fab2c4e76c2",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:85",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:744",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1677",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1025"
+      ],
+      "signatureTag": "missing|mjs:744|legacy-status-unknown-fail-open",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 467dc4bb. The verifier defines a seven-status closed taxonomy; only legacy, retired-cli-only, and fold-candidate are exempt. All other known statuses are enforced and unknown or empty statuses throw before baseline collection. Required/unknown status probes reject. Independent legacy and full baseline verification passed.",
+      "resolvedAt": "2026-07-11T20:38:51.312Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-035",
+      "desc": "doc-promise-undelivered: M0.4/baseline policy says positive legacy-vocabulary instructions always fail, but the verifier accepts imperative positives with an immediate local marker. Exact-source probe results: `Use legacy testIntent.`, `Keep compatibility TEST_CASE.`, and `Retain old TEST_CASE_REVIEW.` all return accepted=true with policyStatus=allowed-explicit-local-context. The built-in policy probes omit this prefix-imperative shape, so the default verifier still passes. Reconcile the M0.4 wording, generated policy rule, classifier behavior, and adversarial probes; do not claim universal positive-instruction rejection unless the classifier enforces it.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-11T20:19:01.590Z",
+      "reviewRound": "2026-07-11T20:10:05.981Z",
+      "reviewRunId": "B-3928:RR-026",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "0a411edf732f846d8a3b89ff58cbe3272ba92956d8355f0edb36eb299179522b",
+      "files": [
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+      ],
+      "signatureTag": "missing|json|promise-undelivered-baseline",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 467dc4bb. M0.4 plan wording, baseline schema v6 policy, and classifier now agree on closed status/negative/context semantics. Exact `Use legacy testIntent`, `Keep compatibility TEST_CASE`, and `Retain old TEST_CASE_REVIEW` probes reject; only two exact live contextual occurrences are registered. Independent legacy probe passed 24 rejected and 4 allowed cases, plus full verifier and package test.",
+      "resolvedAt": "2026-07-11T20:38:52.132Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-036",
+      "desc": "M0.6 default-fail-closed bypass: story-path detection still requires the literal contiguous substring `docs/story`, so normalized aliases of the same filesystem destination are never classified. buildStoryScanExcerpts at scripts/verify-proof-or-stop-prompt-baseline.mjs:1478-1504 seeds context only from `/docs\\/story/i`, and scanStoryFileReferences at :1527-1546 uses the same literal form. Exact in-memory execution of the committed collection path, with the sole exact INIT write present, accepted `printf \"{}\" > docs//story/actives/B-1234/index.json`, `printf \"{}\" > docs/./story/actives/B-1234/index.json`, and a shell-continuation `docs/\\\\\\n story` form (without the display space); all produced zero candidate findings. POSIX path normalization and shell backslash-newline resolution target `docs/story`, so baseline collection/--write can still bless direct story writes. Canonicalize obvious repeated-separator, dot-segment, and shell-continuation forms before candidate detection and add refresh-rejection probes.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-11T20:45:11.532Z",
+      "reviewRound": "2026-07-11T20:38:32.745Z",
+      "reviewRunId": "B-3928:RR-031",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json",
+          "packages/main/templates/agents/lattice-review-channel.md",
+          "packages/main/templates/agents/lattice-review-story-init.md",
+          "packages/main/templates/agents/lattice-review-test-coverage.md",
+          "packages/main/templates/agents/product-reviewer.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "58603c3409768d130358081f2d78d50d345fef4e51e145057f2bba23dea72e1d",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1478",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1527",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1031"
+      ],
+      "signatureTag": "adversarial|mjs:1482|normalized-story-path-scan-bypass",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by d6bc395a. The independent 16-role whole-prompt SHA-256 approval manifest now blocks every prompt-body mutation before collection or baseline refresh, including normalized path aliases. Diagnostics additionally canonicalize case-insensitive DOCS/STORY, repeated separators, dot segments, and shell continuation. Manifest probe covers 12 direct body mutations and refresh self-authorization; direct diagnostics pass 44 classifier and 14 scanner cases.",
+      "resolvedAt": "2026-07-11T21:10:37.778Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-037",
+      "desc": "The claimed 12-entry closed story-reference set is not actually closed. DIRECT_STORY_POLICY_RULE at scripts/verify-proof-or-stop-prompt-baseline.mjs:132-133 says only exact registered current references, the exact INIT write, and strict negative/CLI forms are accepted and every other docs/story reference fails closed. But classifyStoryFinding at :1188-1193 accepts any role/path matching isStrictReadOnlyStoryInstruction, marks it grandfathered, and directStoryWritePolicyErrors ignores that classification. Exact collection with the current INIT write accepted the unregistered `docs/story/actives/B-1234/index.json — read only the title field` for a probe role; it is not one of DIRECT_STORY_REFERENCE_ALLOWLISTs 12 entries. A new direct story-file read can therefore baseline-refresh without an exact code-reviewed registration while the verifier prints that the closed policy has 12 exact references. Remove the generic exception, add it explicitly to the declared policy if it is intentional, or require exact registration; add a collection/refresh probe that proves the chosen contract.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-11T20:45:22.048Z",
+      "reviewRound": "2026-07-11T20:38:32.745Z",
+      "reviewRunId": "B-3928:RR-031",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json",
+          "packages/main/templates/agents/lattice-review-channel.md",
+          "packages/main/templates/agents/lattice-review-story-init.md",
+          "packages/main/templates/agents/lattice-review-test-coverage.md",
+          "packages/main/templates/agents/product-reviewer.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1f5427d88443dd8622ebe1a968e4884a6f89eee63b695634582ca564e76923d2",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:132",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1188",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1267",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:2280"
+      ],
+      "signatureTag": "adversarial|mjs:1188|unregistered-readonly-story-reference",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by d6bc395a. The generic unregistered read-only acceptance path was removed. Story-reference diagnostics accept only exact registered current references, strict negative/CLI policy forms, and the exact INIT write inside manifest-approved bodies. An unregistered read-only mutation is rejected by the collector manifest and diagnostic probe. Full verifier reports scanner diagnostics, not an authorization count claim.",
+      "resolvedAt": "2026-07-11T21:10:38.635Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-038",
+      "desc": "direct-story case-normalization bypass: scripts/verify-proof-or-stop-prompt-baseline.mjs:1527-1534 preselects docs/story lines case-insensitively but extracts references with a case-sensitive storyPattern. With the sole exact INIT allow present, exact in-memory collection returned zero findings and no error for `Transmogrify DOCS/STORY/actives/B-1234/index.json now.`, while the lowercase control was unclassified-actionable and rejected. `stat -f %N DOCS` also succeeds in this workspace, so mixed-case spelling can address the same tree on the host while collection/--write blesses it. Normalize or extract case-insensitively and add mixed-case collection/refresh probes.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-11T20:45:26.453Z",
+      "reviewRound": "2026-07-11T20:38:32.745Z",
+      "reviewRunId": "B-3928:RR-032",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "package.json",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c69e01103486000a7ed99ddf08bd295910bd1eff26495f2f815fa3cda22bb564",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1527",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1529"
+      ],
+      "signatureTag": "adversarial|mjs:1527|direct-story-case",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by d6bc395a. Diagnostic candidate normalization and extraction are case-insensitive, and the whole-prompt approval manifest independently rejects any mixed-case body mutation. DOCS/STORY is covered by direct diagnostics and manifest body-mutation collection probes.",
+      "resolvedAt": "2026-07-11T21:10:39.506Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-039",
+      "desc": "direct-story safe-negative inversion: scripts/verify-proof-or-stop-prompt-baseline.mjs:1300-1308 accepts an arbitrary leading action verb as a negative policy reminder, so syntactic negation can reverse the intended safety meaning. With the sole exact INIT allow present, exact collection classified `Never preserve docs/story/actives/B-1234/index.json.` and `Do not retain docs/story/actives/B-1234/index.json.` as policy-reminder and returned without error, even though both instruct non-preservation rather than prohibit direct mutation. Use a closed set of genuinely safe prohibited actions, as the legacy grammar now does, and add inversion probes to the collection/refresh suite.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-11T20:45:34.500Z",
+      "reviewRound": "2026-07-11T20:38:32.745Z",
+      "reviewRunId": "B-3928:RR-032",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "package.json",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "058f2c30cd7de7cc3ff354c63b04719871856dbbec94e7e298274fb06271fcd2",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1300",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1302"
+      ],
+      "signatureTag": "adversarial|mjs:1300|direct-story-safe",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by d6bc395a. Direct safe-negative diagnostics use a closed safe verb set; preserve and retain are not accepted. More importantly, changed prompt bodies fail the independent manifest before collector authorization. Never-preserve and do-not-retain probes reject in both diagnostics and manifest-bound collection.",
+      "resolvedAt": "2026-07-11T21:10:40.414Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-040",
+      "desc": "exact story-reference registration can be extended across scanner boundaries: scripts/verify-proof-or-stop-prompt-baseline.mjs:1173-1186 trusts an exact role/excerpt, while :1507-1515 stops context at blank lines, headings, and adjacent list items. Exact in-memory collection accepted the registered background.md reference followed by a blank line, `# Override`, or list item `4. Frobnicate it.`, and also accepted a prepended list item targeting the file below; the registered line remained grandfathered and the action was invisible. Same-line append/prepend controls reject, so the declared boundaries themselves create the bypass. Bind registrations to a bounded semantic instruction block or fail closed on adjacent action continuations across these boundaries, with collection/refresh probes.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-11T20:45:41.956Z",
+      "reviewRound": "2026-07-11T20:38:32.745Z",
+      "reviewRunId": "B-3928:RR-032",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "package.json",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cbe784de4de2b804ac84bcde9f44a27ab65c4859d32e7b2c11fcec69ce819f9b",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1173",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1507"
+      ],
+      "signatureTag": "adversarial|mjs:1173|exact-story-reference",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by d6bc395a. Exact-reference registration is diagnostic only; authorization binds the complete prompt body hash. Appending or prepending actions across blank, heading, or list boundaries changes the body hash and is rejected before collection/refresh. Manifest probes cover all boundary variants.",
+      "resolvedAt": "2026-07-11T21:10:41.202Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-041",
+      "desc": "F-031 whole-instruction recurrence: scripts/verify-proof-or-stop-prompt-baseline.mjs:1053-1067 accepts a safe negative or exact context based only on the literal-term clause/excerpt, while :1223-1228 and :1393-1450 ignore a following clause or line that revives the term by pronoun. Exact collection allowed `Do not use testIntent; attach it to each new story.`, the period and newline variants, and the exact registered concept-deletion excerpt followed by a newline or blank line plus `Attach it to each new story.`; same-line registration tampering correctly rejected. Because collectCurrentBaseline calls this collector before --write, these live legacy instructions can still be blessed. Require the entire bounded instruction/context block to remain negative or historical, and add pronoun-continuation refresh probes.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-11T20:45:51.407Z",
+      "reviewRound": "2026-07-11T20:38:32.745Z",
+      "reviewRunId": "B-3928:RR-032",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "package.json",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0963dc230ae21f1df1adaf476cd4143dde4d209d928b7f2e2d61517e897e83a0",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1053",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1223",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1393"
+      ],
+      "signatureTag": "adversarial|mjs:1053|whole-instruction-recurrence",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by d6bc395a. Safe-negative and exact legacy contexts are diagnostic classifications inside complete manifest-approved bodies. Period, newline, blank-line, and registered-context pronoun continuations change the body hash and are rejected before collection/refresh. Eight legacy body-mutation probes cover these variants.",
+      "resolvedAt": "2026-07-11T21:10:41.999Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-042",
+      "desc": "doc-promise-undelivered: The generated direct-story policy and verifier PASS claim a closed story-reference boundary that the implementation does not deliver. DIRECT_STORY_POLICY_RULE says every non-registered docs/story reference fails closed and verifyBaseline prints `closed story-reference policy has 12 exact references`, while F-036 proves normalized docs/story write aliases are not scanned at all and F-037 proves an unregistered direct read is accepted outside those 12 registrations. M0.6 also promises direct writes under docs/story are flagged. Reconcile the declared policy, terminal claim, canonicalized path detection, and allowed read grammar so the machine output describes only what collection/--write mechanically enforces.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-11T20:45:52.533Z",
+      "reviewRound": "2026-07-11T20:38:32.745Z",
+      "reviewRunId": "B-3928:RR-031",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json",
+          "packages/main/templates/agents/lattice-review-channel.md",
+          "packages/main/templates/agents/lattice-review-story-init.md",
+          "packages/main/templates/agents/lattice-review-test-coverage.md",
+          "packages/main/templates/agents/product-reviewer.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f7cdc07deb44ae7bf827900fc4aa5887f3b0a7d52a0f5945e2e588661b90a10c",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:132",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1188",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1478",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:2550",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1031"
+      ],
+      "signatureTag": "missing|mjs:132|doc-promise-undelivered-closed-story-policy",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by d6bc395a. Plan, baseline schema v7, matrix audit boundary, and verifier output now identify the independent 16-role whole-prompt approval manifest as the primary fail-closed boundary; occurrence scanners are explicitly diagnostic. Path alias and unregistered-read tests pass without overclaiming scanner authority.",
+      "resolvedAt": "2026-07-11T21:10:42.789Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3928:F-043",
+      "desc": "doc-promise-undelivered: docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1026-1030 promises that a live legacy occurrence is allowed only by closed safe-negative grammar or exact registered context, but scripts/verify-proof-or-stop-prompt-baseline.mjs still lets `Do not use testIntent; attach it to each new story.` and an exact registered historical line followed by `Attach it...` pass collectLegacyVocabularyFindings. The normal verifier then prints that the closed policy is enforced. Deliver whole-instruction/context enforcement and adversarial refresh probes before retaining this current-state promise.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-11T20:46:17.457Z",
+      "reviewRound": "2026-07-11T20:38:32.745Z",
+      "reviewRunId": "B-3928:RR-032",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "package.json",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "90238a0e87bc2d0ab23ffbf12cc9006df282ce04e966cbae81b5d38ba32d9aec",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1029",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1053",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs:1393"
+      ],
+      "signatureTag": "missing|md:1029|promise-undelivered-docs",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by d6bc395a. M0.4 now promises manifest-bound prompt approval, with legacy occurrence parsing explicitly diagnostic. Whole-prompt mutations containing pronoun revivals fail manifest validation before baseline refresh; the normal verifier and manifest probe mechanically enforce that boundary.",
+      "resolvedAt": "2026-07-11T21:10:43.632Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

@@ -1,8 +1,8 @@
 {
   "schemaVersion": "proofstory.milestone_ledger.v1",
   "storyId": "B-3928",
-  "state": "candidate",
-  "ledgerHash": "sha256:4e378e4fb58a8fe8a24ed58dc3f7ae29e544d70418487b261ce75befb77cfe62",
+  "state": "confirmed",
+  "ledgerHash": "sha256:42a9d6eabd6e2e0d1d5e085436838ca79794e3a2aa3d358281aae461e8825c78",
   "milestones": [
     {
       "id": "M0.1",
@@ -16,14 +16,18 @@
       "checklistRefs": [
         "CHK-001"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
       "status": "planned"
     },
     {
       "id": "M0.2",
       "sourceRequirementId": "POS-M0.2",
       "claim": "Capture current lattice agent_prompt output for every role as comparison artifacts.",
-      "doneMeans": "All 16 roles have stored agent_prompt output snapshots or a reproducible artifact that can regenerate/compare the output for later prompt migrations.",
+      "doneMeans": "All 16 roles have stored agent_prompt output comparison metadata and a reproducible command that can compare output for later prompt migrations.",
       "requiredEvidence": [
         "agent_prompt_snapshot_artifact",
         "snapshot_verification_command"
@@ -31,7 +35,11 @@
       "checklistRefs": [
         "CHK-002"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
       "status": "planned"
     },
     {
@@ -46,14 +54,18 @@
       "checklistRefs": [
         "CHK-003"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
       "status": "planned"
     },
     {
       "id": "M0.4",
       "sourceRequirementId": "POS-M0.4",
       "claim": "Add a regression check for legacy verification vocabulary in active non-legacy prompts.",
-      "doneMeans": "A mechanical check fails when an active non-legacy prompt uses testIntent or TEST_CASE_REVIEW without an explicit legacy marker, and the check passes on the current baseline.",
+      "doneMeans": "A mechanical check fails when an active non-legacy prompt uses legacy verification vocabulary without an explicit baseline classification, and the check passes on the current baseline.",
       "requiredEvidence": [
         "regression_check",
         "passing_command"
@@ -61,14 +73,18 @@
       "checklistRefs": [
         "CHK-004"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
       "status": "planned"
     },
     {
       "id": "M0.6",
       "sourceRequirementId": "POS-M0.6",
       "claim": "Add a regression check for direct story-file write instructions in prompts.",
-      "doneMeans": "A mechanical check flags prompt instructions requiring direct writes under docs/story unless explicitly grandfathered because no CLI command exists, and the check passes on the current baseline.",
+      "doneMeans": "A mechanical check flags prompt instructions requiring direct writes under docs/story unless they are explicitly baseline-classified for remediation, and the check passes on the current baseline.",
       "requiredEvidence": [
         "regression_check",
         "passing_command"
@@ -76,10 +92,19 @@
       "checklistRefs": [
         "CHK-005"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0"
+      ],
       "status": "planned"
     }
   ],
   "createdAt": "2026-07-10T03:06:06.530Z",
-  "updatedAt": "2026-07-10T03:06:06.530Z"
+  "updatedAt": "2026-07-10T03:26:44.768Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260710032644",
+    "acceptedInterpretationHash": "sha256:04e6edfa5cfb59f1a1acd21e6212c1ff5d7bde2d3a136c3547aa5d9a3010d7fc",
+    "acceptedAt": "2026-07-10T03:26:44.768Z"
+  }
 }

@@ -1,0 +1,96 @@
+{
+  "storyId": "B-3928",
+  "generatedFor": "delivery-review",
+  "diff": {
+    "changedFiles": [
+      ".lattice/story/actives/B-3928/checklist.json",
+      ".lattice/story/actives/B-3928/decision.json",
+      ".lattice/story/actives/B-3928/delivery-check.json",
+      ".lattice/story/actives/B-3928/evidence/delivery-context-pack.json",
+      ".lattice/story/actives/B-3928/evidence/live-smoke-transcript.json",
+      ".lattice/story/actives/B-3928/evidence/transcript-diff.md",
+      ".lattice/story/actives/B-3928/findings.json",
+      ".lattice/story/actives/B-3928/index.json",
+      ".lattice/story/actives/B-3928/intent-collision.json",
+      ".lattice/story/actives/B-3928/milestone-ledger.json",
+      ".lattice/story/actives/B-3928/original-intent-snapshot.json",
+      ".lattice/story/actives/B-3928/plan.md",
+      ".lattice/story/actives/B-3928/process-events.jsonl",
+      ".lattice/story/actives/B-3928/process-metrics.json",
+      ".lattice/story/actives/B-3928/proofstory.json",
+      ".lattice/story/actives/B-3928/red-evidence.json",
+      ".lattice/story/actives/B-3928/review-passes.json",
+      ".lattice/story/actives/B-3928/review-runs.json",
+      ".lattice/story/actives/B-3928/review.json",
+      ".lattice/story/actives/B-3928/scope-check.json",
+      ".lattice/story/actives/B-3928/scope-contract.json",
+      ".lattice/story/actives/B-3928/test-evidence.json",
+      ".lattice/story/actives/B-3928/understanding.json",
+      "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+      "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+      "package.json",
+      "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+    ],
+    "summary": " .lattice/story/actives/B-3928/checklist.json       |  459 ++++-\n .lattice/story/actives/B-3928/decision.json        |   68 +\n .lattice/story/actives/B-3928/delivery-check.json  |   75 +\n .../B-3928/evidence/delivery-context-pack.json     |   87 +\n .../B-3928/evidence/live-smoke-transcript.json     |   20 +\n .../actives/B-3928/evidence/transcript-diff.md     |   29 +\n .lattice/story/actives/B-3928/findings.json        |  180 ++\n .lattice/story/actives/B-3928/index.json           |   86 +-\n .../story/actives/B-3928/intent-collision.json     |   14 +\n .../story/actives/B-3928/milestone-ledger.json     |   47 +-\n .../actives/B-3928/original-intent-snapshot.json   |   17 +\n .lattice/story/actives/B-3928/plan.md              |   37 +\n .lattice/story/actives/B-3928/process-events.jsonl |   25 +\n .lattice/story/actives/B-3928/process-metrics.json |  359 ++++\n .lattice/story/actives/B-3928/proofstory.json      |   92 +\n .lattice/story/actives/B-3928/red-evidence.json    |   44 +\n .lattice/story/actives/B-3928/review-passes.json   |   58 +\n .lattice/story/actives/B-3928/review-runs.json     |  520 ++++++\n .lattice/story/actives/B-3928/review.json          |  318 ++++\n .lattice/story/actives/B-3928/scope-check.json     |  157 ++\n .lattice/story/actives/B-3928/scope-contract.json  |   61 +\n .lattice/story/actives/B-3928/test-evidence.json   |  347 ++++\n .lattice/story/actives/B-3928/understanding.json   |   27 +\n .../baselines/proof-or-stop-prompt-baseline.json   | 1939 ++++++++++++++++++++\n .../proof-or-stop-prompt-overlap-matrix.md         |   24 +\n package.json                                       |    3 +-\n scripts/verify-proof-or-stop-prompt-baseline.mjs   | 1137 ++++++++++++\n 27 files changed, 6199 insertions(+), 31 deletions(-)"
+  },
+  "docsPromises": [
+    {
+      "source": "userSees",
+      "promise": "User sees \"PASS proof-or-stop prompt baseline: roleCount=16 registry hashes verified\" in node scripts/verify-proof-or-stop-prompt-baseline.mjs output."
+    },
+    {
+      "source": "userSees",
+      "promise": "User sees \"PASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 16 roles\" in node scripts/verify-proof-or-stop-prompt-baseline.mjs output."
+    },
+    {
+      "source": "userSees",
+      "promise": "User sees \"PASS proof-or-stop prompt baseline: overlap matrix verified for 16 roles\" in node scripts/verify-proof-or-stop-prompt-baseline.mjs output."
+    },
+    {
+      "source": "userSees",
+      "promise": "User sees \"PASS proof-or-stop prompt baseline: legacy vocabulary findings classified\" in node scripts/verify-proof-or-stop-prompt-baseline.mjs output."
+    },
+    {
+      "source": "userSees",
+      "promise": "User sees \"PASS proof-or-stop prompt baseline: direct story-file findings classified\" in node scripts/verify-proof-or-stop-prompt-baseline.mjs output."
+    }
+  ],
+  "realMachineTests": {
+    "transcriptDiff": true,
+    "testFiles": [
+      "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+    ],
+    "evidenceCommands": [
+      "npm --prefix packages/main run build && node scripts/verify-proof-or-stop-prompt-baseline.mjs && npm run test:proof-or-stop-prompt-baseline"
+    ]
+  },
+  "validation": {
+    "source": "test-evidence.json",
+    "result": "PASS",
+    "timestamp": "2026-07-10T03:57:46.174Z",
+    "headHash": "2b92d2e94e9a8f11d021a26c787a0428565b515b",
+    "materialHash": "b5fd1b15fd07f5e8a0a2062719808ec14147b46de6e2b9bf93ae359bce9b65ce",
+    "storyFilesHash": "74644226b4e7a36b5c2f0ee1fce9c6be8d664f56f6d8eae891dc67b2dd085518"
+  },
+  "reviewRound": "2026-07-10T04:15:51.636Z",
+  "deliveryCheck": {
+    "status": "stale",
+    "ref": {
+      "source": "delivery-check.json",
+      "checkedAt": "2026-07-10T04:20:40.024Z",
+      "headHash": "93b125682b60ac40f5ac272d1b44c654f430c27d",
+      "materialHash": "b5fd1b15fd07f5e8a0a2062719808ec14147b46de6e2b9bf93ae359bce9b65ce",
+      "reviewRound": "2026-07-10T04:15:51.636Z",
+      "hash": "7b31649402cbffe2798956d243775e8cd4cefb302f872eb80f0eda1855b18d08"
+    }
+  },
+  "waiver": {
+    "status": "none"
+  },
+  "isSigner": false,
+  "claims": {
+    "authorityDone": false,
+    "fullAuthorityDone": false,
+    "productionDone": false
+  }
+}

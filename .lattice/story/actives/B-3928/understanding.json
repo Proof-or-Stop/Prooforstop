@@ -1,0 +1,27 @@
+{
+  "task": "M0 freeze the current Proof-or-Stop prompt baseline before prompt edits",
+  "outcome": "Running node scripts/verify-proof-or-stop-prompt-baseline.mjs prints PASS, reports 16 prompt roles, verifies the committed baseline hashes/output hashes/overlap matrix, surfaces legacy verification vocabulary, and rejects unregistered direct docs/story write instructions.",
+  "facts": [
+    "The current prompt registry is packages/main/src/core/prompt-registry.ts and promptRegistryManifest/readPromptRegistry enumerate packages/main/templates/agents/*.md.",
+    "lattice agent_prompt --role=<name> is implemented by packages/main/src/handlers/agent-prompt.ts and returns the registry template body for an exact role basename.",
+    "There are currently 16 package-owned prompt templates under packages/main/templates/agents.",
+    "The M0 decision plan explicitly says no prompt content edits in M0 except tests/docs required to record the baseline.",
+    "Existing prompts already contain legacy verification vocabulary and docs/story references, so M0 must make them mechanically visible before remediation milestones change content.",
+    "The regression check should be exposed as a focused root npm script and can also be included in the root test chain so later prompt edits cannot silently bypass it."
+  ],
+  "constraints": [
+    "Do not edit prompt bodies in packages/main/templates/agents, .claude/agents, or .lattice-codex/agents during M0.",
+    "Do not directly read or write docs/story; story state changes must go through Lattice CLI commands.",
+    "Do not make memory/playbook advisory material gate evidence.",
+    "Baseline verification must be deterministic and runnable after npm build without broad full-corpus scans.",
+    "M0 must stay scoped to inventory/lockfile/regression guardrails and must not implement proof-or-stop-* role renaming."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+    "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+    "package.json"
+  ],
+  "timestamp": "2026-07-10T03:25:25.761Z"
+}

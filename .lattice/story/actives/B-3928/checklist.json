@@ -5,57 +5,478 @@
       "title": "Record the 16 prompt filenames and template hashes",
       "context": "M0.1 requires an exact current prompt baseline from promptRegistryManifest or the current prompt registry source so later proof-or-stop-* migrations can compare hashes without relying on memory.",
       "relatedDocs": [
-        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M0---Baseline-Inventory-And-Lockfile"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-10T03:37:11.454Z",
+      "userSees": "User sees \"PASS proof-or-stop prompt baseline: roleCount=16 registry hashes verified\" in node scripts/verify-proof-or-stop-prompt-baseline.mjs output.",
+      "files": {
+        "modify": [
+          "package.json"
+        ],
+        "create": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json"
+        ],
+        "test": [
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "The baseline JSON records exactly 16 prompt roles from promptRegistryManifest/readPromptRegistry with filename, relPath, bytes, templateHash, and registry materialHash.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "The verifier fails when a prompt template is added, removed, renamed, or hash-changed without updating the baseline.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "The verifier does not trust a hand-maintained role list alone; it recomputes the role list and material hash from the built prompt registry.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Current latest-main baseline records exactly 16 registry roles with source file, relPath, bytes, lines, templateHash, agent_prompt output hash, and registry material hash; normal verification passed.",
+          "headHash": "b933773e44ec434a36e136add9671741dd130490",
+          "materialHash": "6e3651459facd23cc93c67e06942dc54714a0b4bbf485672c5052ad4d6f131aa",
+          "storyFilesHash": "3666b71e069275654c223b557d98a7e32742e8a97cdece8dc05a22c895c620e1",
+          "timestamp": "2026-07-13T03:35:41.968Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-baseline-drift",
+          "result": "pass",
+          "note": "Nine negative mutations prove registry material/template hash drift plus missing, extra, renamed, and declared-count role drift are rejected.",
+          "headHash": "b933773e44ec434a36e136add9671741dd130490",
+          "materialHash": "6e3651459facd23cc93c67e06942dc54714a0b4bbf485672c5052ad4d6f131aa",
+          "storyFilesHash": "3666b71e069275654c223b557d98a7e32742e8a97cdece8dc05a22c895c620e1",
+          "timestamp": "2026-07-13T03:35:41.968Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-baseline-drift",
+          "result": "pass",
+          "note": "The drift harness mutates recomputed registry snapshots rather than trusting the authored matrix, and rejects role identity/count and template/hash tampering.",
+          "headHash": "b933773e44ec434a36e136add9671741dd130490",
+          "materialHash": "6e3651459facd23cc93c67e06942dc54714a0b4bbf485672c5052ad4d6f131aa",
+          "storyFilesHash": "3666b71e069275654c223b557d98a7e32742e8a97cdece8dc05a22c895c620e1",
+          "timestamp": "2026-07-13T03:35:41.968Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Capture agent_prompt output for every role as comparison artifacts",
       "context": "M0.2 requires current lattice agent_prompt --role output for all 16 roles so prompt body and routing changes in later milestones have a stable before snapshot.",
       "relatedDocs": [
-        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
-        "docs/CLI.md"
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M0---Baseline-Inventory-And-Lockfile"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-10T03:37:16.966Z",
+      "userSees": "User sees \"PASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 16 roles\" in node scripts/verify-proof-or-stop-prompt-baseline.mjs output.",
+      "files": {
+        "modify": [
+          "package.json"
+        ],
+        "create": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json"
+        ],
+        "test": [
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:0",
+            "desc": "For every registry role, the verifier obtains lattice agent_prompt output and records/verifies output sha256, byte count, and line count against the baseline.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:edge:0",
+            "desc": "The verifier fails when agent_prompt output diverges from the registry-derived baseline for any role.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:0",
+            "desc": "The verifier fails closed if agent_prompt omits a role, returns an unknown-role error for a registry role, or returns duplicate output ownership.",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "All 16 registry roles produced agent_prompt stdout matching the built template, with sha256, byte count, and line count locked in the baseline.",
+          "headHash": "b933773e44ec434a36e136add9671741dd130490",
+          "materialHash": "6e3651459facd23cc93c67e06942dc54714a0b4bbf485672c5052ad4d6f131aa",
+          "storyFilesHash": "3666b71e069275654c223b557d98a7e32742e8a97cdece8dc05a22c895c620e1",
+          "timestamp": "2026-07-13T03:35:41.968Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-baseline-drift",
+          "result": "pass",
+          "note": "Focused negative mutations prove agent_prompt stdout sha256 and byte drift are rejected.",
+          "headHash": "b933773e44ec434a36e136add9671741dd130490",
+          "materialHash": "6e3651459facd23cc93c67e06942dc54714a0b4bbf485672c5052ad4d6f131aa",
+          "storyFilesHash": "3666b71e069275654c223b557d98a7e32742e8a97cdece8dc05a22c895c620e1",
+          "timestamp": "2026-07-13T03:35:41.968Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-baseline-drift",
+          "result": "pass",
+          "note": "Focused negative mutations prove renamed/missing/extra role-output ownership and role-count/identity drift fail closed.",
+          "headHash": "b933773e44ec434a36e136add9671741dd130490",
+          "materialHash": "6e3651459facd23cc93c67e06942dc54714a0b4bbf485672c5052ad4d6f131aa",
+          "storyFilesHash": "3666b71e069275654c223b557d98a7e32742e8a97cdece8dc05a22c895c620e1",
+          "timestamp": "2026-07-13T03:35:41.968Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Produce a role-overlap matrix for all 16 prompts",
       "context": "M0.3 requires phase, allowed commands, direct file access, output artifact, status, and overlap category for every prompt so M1/M3 can split responsibilities without guessing.",
       "relatedDocs": [
-        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M0---Baseline-Inventory-And-Lockfile"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-10T03:37:21.404Z",
+      "userSees": "User sees \"PASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for 16 roles\" and \"INFO proof-or-stop prompt baseline: all human-authored role-matrix semantics remain reviewer-audited\" in node scripts/verify-proof-or-stop-prompt-baseline.mjs output.",
+      "files": {
+        "modify": [
+          "package.json"
+        ],
+        "create": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md"
+        ],
+        "test": [
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:happy:0",
+            "desc": "The overlap matrix includes all 16 roles with phase, purpose, command surface, input, output artifact, current status, and overlap category.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:edge:0",
+            "desc": "The verifier fails if any baseline role is missing from the overlap matrix or if the matrix role count differs from the registry count.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:adversarial:0",
+            "desc": "The matrix explicitly marks legacy, retired, conditional, or overlapping responsibilities instead of hiding them under generic active labels.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "All 16 matrix rows contain every required field; all human-authored semantics are explicitly reviewer-audited under the uniform Commands inclusion/exclusion contract.",
+          "headHash": "b933773e44ec434a36e136add9671741dd130490",
+          "materialHash": "6e3651459facd23cc93c67e06942dc54714a0b4bbf485672c5052ad4d6f131aa",
+          "storyFilesHash": "3666b71e069275654c223b557d98a7e32742e8a97cdece8dc05a22c895c620e1",
+          "timestamp": "2026-07-13T03:35:41.968Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-role-matrix-snapshot-drift",
+          "result": "pass",
+          "note": "Negative matrix mutations prove changed field, generated Markdown parity, removed role, role-count mismatch, and missing-row drift are rejected.",
+          "headHash": "b933773e44ec434a36e136add9671741dd130490",
+          "materialHash": "6e3651459facd23cc93c67e06942dc54714a0b4bbf485672c5052ad4d6f131aa",
+          "storyFilesHash": "3666b71e069275654c223b557d98a7e32742e8a97cdece8dc05a22c895c620e1",
+          "timestamp": "2026-07-13T03:35:41.968Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Matrix explicitly identifies active, conditional, optional, compatibility, legacy, fold-candidate, and retired-cli-only roles, with exact current/target replacement naming and overlap boundaries.",
+          "headHash": "b933773e44ec434a36e136add9671741dd130490",
+          "materialHash": "6e3651459facd23cc93c67e06942dc54714a0b4bbf485672c5052ad4d6f131aa",
+          "storyFilesHash": "3666b71e069275654c223b557d98a7e32742e8a97cdece8dc05a22c895c620e1",
+          "timestamp": "2026-07-13T03:35:41.968Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Add regression checks for legacy verification vocabulary in active prompts",
       "context": "M0.4 requires a mechanical check that active non-legacy prompts cannot use testIntent or TEST_CASE_REVIEW unless explicitly legacy-marked.",
       "relatedDocs": [
-        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M0---Baseline-Inventory-And-Lockfile"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-10T03:37:26.389Z",
+      "userSees": "User sees \"PASS proof-or-stop prompt baseline: legacy vocabulary findings classified\" in node scripts/verify-proof-or-stop-prompt-baseline.mjs output.",
+      "files": {
+        "modify": [
+          "package.json"
+        ],
+        "create": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json"
+        ],
+        "test": [
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-004:happy:0",
+            "desc": "The verifier scans every prompt for testIntent, TEST_CASE, and TEST_CASE_REVIEW vocabulary and records all baseline findings with role, line, term, and classification.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-004:edge:0",
+            "desc": "The verifier permits only explicitly baseline-classified legacy/deprecation/context mentions and fails on any new unclassified legacy verification vocabulary in active non-legacy prompts.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-004:adversarial:0",
+            "desc": "The verifier treats lowercase/camelCase/phase-name legacy variants as in scope so a prompt cannot bypass the guard through spelling differences.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Legacy scanner records current testIntent, TEST_CASE, and TEST_CASE_REVIEW occurrences with role status, classification, and explicit-context policy result.",
+          "headHash": "b933773e44ec434a36e136add9671741dd130490",
+          "materialHash": "6e3651459facd23cc93c67e06942dc54714a0b4bbf485672c5052ad4d6f131aa",
+          "storyFilesHash": "3666b71e069275654c223b557d98a7e32742e8a97cdece8dc05a22c895c620e1",
+          "timestamp": "2026-07-13T03:35:41.968Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Full verifier proves any prompt-body change must match the independent 16-role approval manifest before baseline refresh, then audits live legacy occurrences against the closed status/negative/context diagnostics; unsafe additions cannot self-authorize.",
+          "headHash": "b933773e44ec434a36e136add9671741dd130490",
+          "materialHash": "6e3651459facd23cc93c67e06942dc54714a0b4bbf485672c5052ad4d6f131aa",
+          "storyFilesHash": "3666b71e069275654c223b557d98a7e32742e8a97cdece8dc05a22c895c620e1",
+          "timestamp": "2026-07-13T03:35:41.968Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Full verifier executes the manifest mutation suite plus 26 unsafe and 4 registered-safe legacy diagnostics, including case/spelling variants, boundary-spanning pronoun actions, unknown statuses, and exact context tampering.",
+          "headHash": "b933773e44ec434a36e136add9671741dd130490",
+          "materialHash": "6e3651459facd23cc93c67e06942dc54714a0b4bbf485672c5052ad4d6f131aa",
+          "storyFilesHash": "3666b71e069275654c223b557d98a7e32742e8a97cdece8dc05a22c895c620e1",
+          "timestamp": "2026-07-13T03:35:41.968Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
       "title": "Add regression checks for direct story-file write instructions",
       "context": "M0.6 requires a mechanical check that prompts requiring direct writes under docs/story are flagged unless a CLI command is missing and the prompt is explicitly grandfathered.",
       "relatedDocs": [
-        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
-        "AGENTS.md"
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M0---Baseline-Inventory-And-Lockfile"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-10T03:37:31.355Z",
+      "userSees": "User sees \"PASS proof-or-stop prompt baseline: direct story-file findings classified\" in node scripts/verify-proof-or-stop-prompt-baseline.mjs output.",
+      "files": {
+        "modify": [
+          "package.json"
+        ],
+        "create": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json"
+        ],
+        "test": [
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-005:happy:0",
+            "desc": "The verifier scans every prompt for docs/story references and classifies each as policy reminder, read-only reference, direct read, direct write, or process-event evidence reference.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-005:edge:0",
+            "desc": "The verifier fails on any new direct docs/story write instruction that is not explicitly registered in the baseline with a grandfather/remediation classification.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-005:adversarial:0",
+            "desc": "The verifier distinguishes harmless reminders like do not directly read/write docs/story from actionable shell redirection or edit instructions that would bypass Lattice CLI state changes.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Current docs/story references are classified and the normal verifier confirms exactly one explicit grandfathered current INIT write; unapproved and unclassified actionable writes block collection and refresh.",
+          "headHash": "b933773e44ec434a36e136add9671741dd130490",
+          "materialHash": "6e3651459facd23cc93c67e06942dc54714a0b4bbf485672c5052ad4d6f131aa",
+          "storyFilesHash": "3666b71e069275654c223b557d98a7e32742e8a97cdece8dc05a22c895c620e1",
+          "timestamp": "2026-07-13T03:35:41.968Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Full verifier executes the independent approval-manifest suite, proving direct-story body mutations and baseline-refresh self-authorization are rejected before diagnostic collection; unregistered writes cannot be blessed by rewriting the baseline.",
+          "headHash": "b933773e44ec434a36e136add9671741dd130490",
+          "materialHash": "6e3651459facd23cc93c67e06942dc54714a0b4bbf485672c5052ad4d6f131aa",
+          "storyFilesHash": "3666b71e069275654c223b557d98a7e32742e8a97cdece8dc05a22c895c620e1",
+          "timestamp": "2026-07-13T03:35:41.968Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Full verifier combines manifest authorization with 44 classifier and 14 scanner diagnostics, covering safe reminders, exact registrations, path aliases, mixed case, boundary-spanning actions, and the one exact INIT write.",
+          "headHash": "b933773e44ec434a36e136add9671741dd130490",
+          "materialHash": "6e3651459facd23cc93c67e06942dc54714a0b4bbf485672c5052ad4d6f131aa",
+          "storyFilesHash": "3666b71e069275654c223b557d98a7e32742e8a97cdece8dc05a22c895c620e1",
+          "timestamp": "2026-07-13T03:35:41.968Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-10T03:37:11.454Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "M0 baseline JSON and verifier evidence committed in 961d52f6; verificationEvidence covers all CHK-001 intents."
+    },
+    {
+      "timestamp": "2026-07-10T03:37:16.966Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "M0 baseline JSON records agent_prompt output metadata for all 16 roles; verificationEvidence covers all CHK-002 intents."
+    },
+    {
+      "timestamp": "2026-07-10T03:37:21.404Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Overlap matrix markdown covers all 16 roles and verifier evidence covers all CHK-003 intents."
+    },
+    {
+      "timestamp": "2026-07-10T03:37:26.389Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Verifier records and enforces classified legacy verification vocabulary findings; verificationEvidence covers all CHK-004 intents."
+    },
+    {
+      "timestamp": "2026-07-10T03:37:31.355Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Verifier records and enforces classified direct story-file reference findings; verificationEvidence covers all CHK-005 intents."
     }
   ]
 }

@@ -1,0 +1,67 @@
+{
+  "storyId": "B-3928",
+  "checkedAt": "2026-07-13T03:38:59.441Z",
+  "headHash": "a9339d758a9dca9875ed21522b3db057728b10d2",
+  "materialHash": "6e3651459facd23cc93c67e06942dc54714a0b4bbf485672c5052ad4d6f131aa",
+  "storyFilesHash": "3666b71e069275654c223b557d98a7e32742e8a97cdece8dc05a22c895c620e1",
+  "reviewRound": "2026-07-13T03:36:11.674Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "checklist:CHK-001.userSees",
+      "promise": "User sees PASS proof-or-stop prompt baseline: roleCount=16 registry hashes verified",
+      "status": "verified",
+      "verifiedBy": "fresh live-smoke plus node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+      "evidence": "Exact promised line observed; command exited 0."
+    },
+    {
+      "docPath": "checklist:CHK-002.userSees",
+      "promise": "User sees PASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 16 roles",
+      "status": "verified",
+      "verifiedBy": "fresh live-smoke plus node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+      "evidence": "Exact promised line observed; command exited 0."
+    },
+    {
+      "docPath": "checklist:CHK-003.userSees",
+      "promise": "User sees role matrix snapshot integrity PASS and reviewer-audited INFO",
+      "status": "verified",
+      "verifiedBy": "fresh live-smoke plus node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+      "evidence": "Both exact promised lines observed; command exited 0."
+    },
+    {
+      "docPath": "checklist:CHK-004.userSees",
+      "promise": "User sees PASS proof-or-stop prompt baseline: legacy vocabulary findings classified",
+      "status": "verified",
+      "verifiedBy": "fresh live-smoke plus node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+      "evidence": "Exact promised line observed; command exited 0."
+    },
+    {
+      "docPath": "checklist:CHK-005.userSees",
+      "promise": "User sees PASS proof-or-stop prompt baseline: direct story-file findings classified",
+      "status": "verified",
+      "verifiedBy": "fresh live-smoke plus node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+      "evidence": "Exact promised line observed; command exited 0."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001/CHK-002/CHK-004/CHK-005",
+      "transcript": "Fresh live-smoke artifact is present-fresh. Independently reran node scripts/verify-proof-or-stop-prompt-baseline.mjs: exit 0; all five exact userSees lines appeared, including registry hashes, agent_prompt hashes, legacy vocabulary, and direct story-file classification."
+    },
+    {
+      "featureId": "CHK-001/CHK-002",
+      "transcript": "node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-baseline-drift exited 0; 10 registry/template/role-count/role-identity/agent_prompt mutations plus unknown-role rejected."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-role-matrix-snapshot-drift exited 0; field, Markdown parity, role-count and missing-row drift rejected."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "PASS delivery review on current material: all five exact user-visible promises are present in normal verifier stdout, fresh live-smoke is present, both targeted adversarial drift probes pass, transcript diff exists, and current REVIEW lanes/quorum are complete. No unresolved delivery TODO observed."
+  },
+  "_hash": "b923d135ae285c24d7bfb7e47cdd5ad8b40463f4d0dc6fbb2affe2a25fe73188"
+}

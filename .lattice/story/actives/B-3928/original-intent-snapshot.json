@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-3928",
+  "sourceText": "User approved starting the M0 milestone for the Proof-or-Stop agent prompt consolidation plan, in serial milestone order, to freeze the current 16-prompt baseline before prompt-body edits.",
+  "normalizedOutcome": "M0 is complete when the repo has a deterministic prompt baseline lockfile, overlap matrix, and verifier command for the current 16 prompts without editing prompt bodies or implementing later role-renaming milestones.",
+  "acceptanceClaim": "node scripts/verify-proof-or-stop-prompt-baseline.mjs prints PASS with roleCount=16, registry hashes verified, agent_prompt output hashes verified, overlap matrix verified, legacy vocabulary findings classified, and direct story-file findings classified.",
+  "keyRequirementIds": [
+    "POS-M0.1",
+    "POS-M0.2",
+    "POS-M0.3",
+    "POS-M0.4",
+    "POS-M0.6"
+  ],
+  "requestHash": "sha256:ea5e9e16e8095885dd47e893c71dbf3e24b41c9146fb6950da59e7cd69c8b1eb",
+  "createdAt": "2026-07-10T03:26:38.969Z",
+  "updatedAt": "2026-07-10T03:26:38.969Z"
+}
