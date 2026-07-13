@@ -525,6 +525,23 @@
         "scanEscalationReason": "Reviewed the complete change diff and focused implementation/control sections; the generated guard file is intentionally large, so unrelated unchanged sections were name-triaged."
       },
       "_hash": "2c92c14dfbd86fb2a3f791340fac7f9cfe6fbccd4acbad11915f6dc588f29c90"
+    },
+    {
+      "id": "B-f458:RP-025",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage PASS at implementation 160fd58752 / signed storyFilesHash c76dcfc: F-058/F-060 array and object rest provenance covers declaration, assignment, parameter, omitted, nested, nonliteral, unknown fail-closed and local noncallable negatives; F-059 computed keys cover literal/template/numeric/enum/const-chain eval, vm, constructor, unresolved dangerous and precise local negatives. All exact control labels and provenance helpers are pinned by verify-process-fact-contract. Program contract asserts one baseline Program, one LanguageService, unchanged-version object identity and bounded roots/requests/distinct identities. Prior six-exemption boundary remains exact. Independent build, guard (PASS; wall 24.53s), process fact contract, brief output and full npm test all pass; 15/15 verification evidence entries pass/current. Doctor has only existing environment/runtime diagnostics.",
+      "createdAt": "2026-07-13T15:47:14.602Z",
+      "reviewRound": "2026-07-13T15:39:54.030Z",
+      "reviewRunId": "B-f458:RR-082",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete implementation diff and the full changed provenance/control/process-pin sections; unchanged portions of the two large files were triaged by name, and no decisions-document escalation was needed for this focused coverage rerun."
+      },
+      "_hash": "b1dde76f15c4d1c8ec160109f094092fc664716aca3bbbab3aa0088615ff8293"
     }
   ]
 }
