@@ -1056,7 +1056,7 @@
       "desc": "The closed compatibility boundary can be bypassed through Node package import maps. resolvedStaticModulePath rejects every non-relative specifier, and deriveShippedPackageEntrypoints reads only bin/exports, not package.json#imports. I temporarily added packages/main/package.json imports {\"#quality-review-compat\":\"./dist/core/legacy-delivery-claims-compat.js\"} and a new scanned packages/main/src/core module that statically imports createLegacyLocalOnlyDeliveryClaims from that alias and invokes it. The retired-authority guard printed PASS; npm --prefix packages/main run build succeeded; importing the emitted module returned the false authority claims object. Because the load is a static non-relative import, neither concealed-loader nor dynamic-code fail-closed logic sees it. Resolve package imports/self-reference aliases to their source targets (or reject active executable imports using package aliases unless pinned), include imports in the manifest-derived entry/edge contract, and add an end-to-end #imports positive control.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T13:34:57.872Z",
@@ -1069,7 +1069,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "package-import-map-compatibility-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by de132e50fb: package imports and self-reference aliases, including conditional and wildcard targets, resolve into the static graph; manifest inventory is fingerprinted/fail-closed and end-to-end alias controls reject.",
+      "resolvedAt": "2026-07-13T14:06:05.814Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-045",
