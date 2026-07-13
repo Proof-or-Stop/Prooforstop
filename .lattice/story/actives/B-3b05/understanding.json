@@ -1,0 +1,31 @@
+{
+  "task": "Add an actionable milestone_ledger_set remediation hint to milestone coverage gap output, and add a writer-session provenance layer to review_pass_set (record writer session identity; validate against the story owner lease session with a staged rollout mode)",
+  "outcome": "Operators hitting the B-f458 desync see the exact repair command in the gate output instead of looping for hours; every review pass carries a persisted writerSessionId/sessionSource, and a pass written from the owner-lease session is visibly warn-flagged (or rejected in opt-in enforce mode) instead of silently accepted",
+  "facts": [
+    "uncovered_required_milestones message (core/proofstory.ts ~1677-1679) names missing milestone ids only; milestone_ledger_set appears nowhere in proofstory.ts messaging",
+    "review_pass_set (handlers/finding.ts:343-420) validates run binding, readManifest, durable persistence; agent is a caller-supplied label, no writer-identity check",
+    "Session identity: resolveSessionIdentity (core/owner-session.ts:42-54) prefers host-adapter/explicit-env then falls back to derived-ppid (hostname+root+ppid); owner lease persists sessionId+sessionSource (owner-lease.json, e.g. B-f458 sess-054aecf189460e3b derived-ppid)",
+    "On the Claude host, owner main agent and its reviewer subagents share the harness process (EXP-001 under B-e71f: same PPID/env) so derived session ids are EQUAL for legitimate subagent reviewers; on Codex multi-thread hosts each thread is a separate process with a distinct session id",
+    "B-f458 forensics (tmp/bf458-forensics-2026-07-14/): checklist 5/5 done vs 5 ledger rows planned for ~14h, 89 story_advance, 131 review_run_start vs ~31 review_pass_set, 65 lease takeovers, inter-pass gaps down to 1-12s",
+    "story-owner-lease.ts documents sessionId as process-local coordination id, not forgery-proof; signature domain changes to pass records must stay backward-verifiable for legacy records"
+  ],
+  "constraints": [
+    "Problem (a) is message-layer only: no gate semantics change",
+    "Default rollout for (b) is warn (record + visible flag); enforce is opt-in config because enforce would reject legitimate same-session Claude subagent reviewer passes (EXP-001 limit)",
+    "writerSessionId/sessionSource enter the new pass signature domain; legacy records without them must still verify (versioned signing, no fail-closed on old evidence)",
+    "Two-layer flow-fact contract: handler runtime checks + gate consumers stay in sync; npm run test:process-fact-contract must stay green",
+    "Normal channel: lattice-implementer writes the code; main agent plans and reviews only"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/core/owner-session.ts",
+    "packages/main/src/core/story-owner-lease.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/review-run.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/tests"
+  ],
+  "timestamp": "2026-07-13T23:24:15.585Z"
+}

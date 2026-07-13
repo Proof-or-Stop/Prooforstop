@@ -1,0 +1,75 @@
+{
+  "principles": [
+    "Gate messages must carry the copy-pastable remedy, not just the diagnosis",
+    "Provenance evidence must be durable and per-session attributable before it can be enforced",
+    "Never silently break the documented legitimate reviewer flow (Claude subagent reviewers share the owner session per EXP-001)",
+    "Rollout follows shadow/warn/enforce; honesty about coordination-level (non-cryptographic) identity limits"
+  ],
+  "drivers": [
+    "B-f458: 14h/89-advance stall for want of a one-line hint",
+    "B-8038 root cause + B-3928 19-56s self-signs: reviewer-labeled passes with no writer identity",
+    "Codex multi-thread sessions are mechanically distinguishable (distinct ppid-derived ids); same-host subagents are not"
+  ],
+  "options": [
+    {
+      "name": "A-record-only",
+      "pros": [
+        "Zero false positives",
+        "Cheapest; pure audit field"
+      ],
+      "cons": [
+        "Self-sign still silently succeeds; user asked for validation, not just recording"
+      ]
+    },
+    {
+      "name": "B-record-plus-warn-default-enforce-optin",
+      "pros": [
+        "Persists writerSessionId/sessionSource in signature domain (durable attribution)",
+        "Same-session writes get a visible persisted flag + stderr warning; enforce config rejects them where hosts have real session separation (Codex multi-thread)",
+        "Does not break Claude subagent flow by default"
+      ],
+      "cons": [
+        "On Claude host the flag cannot distinguish subagent from owner self-sign (EXP-001) so warn text must be carefully neutral",
+        "Signature domain change needs versioned verification for legacy records"
+      ]
+    },
+    {
+      "name": "C-dispatch-token-binding",
+      "pros": [
+        "Strongest mechanical wedge: pass must reference an owner-minted dispatch record; latency dispatch-to-pass becomes auditable"
+      ],
+      "cons": [
+        "Bigger build touching dispatch/review_run/pass lifecycle; overlaps existing channel-gate dispatch evidence; scope creep for this story"
+      ]
+    }
+  ],
+  "chosen": "B-record-plus-warn-default-enforce-optin",
+  "rationale": "Option B delivers exactly what the user asked (record writer session; validate vs owner lease session) at the strongest level that does not reject the documented legitimate Claude reviewer flow. Warn-default with persisted selfSignSuspect flag makes B-3928/B-f458-style self-signs visible in the operator output and in durable records; enforce stays available as config for hosts with genuine per-thread session separation. Option C is noted as the natural layer-3 follow-up.",
+  "preMortem": [
+    {
+      "scenario": "Enforce accidentally becomes default and every Claude-host reviewer pass is rejected",
+      "trigger": "Config default set to enforce or warn/enforce flag inverted",
+      "consequence": "All REVIEW lanes hard-blocked repo-wide",
+      "mitigation": "Default warn hardcoded in resolver fallback; contract test asserts default mode is warn and that a same-session pass in warn mode still persists"
+    },
+    {
+      "scenario": "New signature domain breaks verification of legacy passes",
+      "trigger": "signReviewPass recomputation includes writerSessionId for records that never had it",
+      "consequence": "canPassReviewGuard fail-closed on all existing stories mid-flight",
+      "mitigation": "Versioned signing: records without writerSessionId verify via legacy domain; new records include it; regression test with a legacy fixture"
+    },
+    {
+      "scenario": "Warn flag floods every legitimate Claude pass making the signal worthless noise",
+      "trigger": "Flag text reads as accusation and gates/tools start consuming it as blocking",
+      "consequence": "Operators ignore all provenance warnings; alert fatigue",
+      "mitigation": "Neutral flag semantics (same_session_write: subagent-or-self, mechanically indistinguishable per EXP-001) + this story does NOT wire the flag into any blocking gate; gate consumption is explicitly out of scope"
+    },
+    {
+      "scenario": "Session id spoofing via explicit-env override lets a self-sign masquerade as a distinct session",
+      "trigger": "Owner exports a fabricated session env before calling review_pass_set",
+      "consequence": "Provenance layer bypassed",
+      "mitigation": "Persist sessionSource alongside id (explicit-env vs derived-ppid vs host-adapter); document that explicit-env writers are coordination-level claims; forgery remains detectable in audit via source field and lease history"
+    }
+  ],
+  "timestamp": "2026-07-13T23:26:34.039Z"
+}
