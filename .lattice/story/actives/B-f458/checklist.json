@@ -83,7 +83,30 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "User sees `PASS trusted closeout artifacts: schema and embedded hashes verified`; a malformed ledger/plan/rollup/delivery-context artifact or forged embedded hash is rejected with a named artifact error."
+      "userSees": "User sees `PASS trusted closeout artifacts: schema and embedded hashes verified`; a malformed ledger/plan/rollup/delivery-context artifact or forged embedded hash is rejected with a named artifact error.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:happy:0",
+            "desc": "Before trust-boundary use, valid milestone-ledger, slice-plan, parent-rollup, and delivery-context artifacts pass their runtime schemas and independently recomputed ledgerHash, planHash, and rollupHash checks.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:edge:0",
+            "desc": "Each artifact class fails closed with a named artifact and reason when required fields are missing, types/versions are invalid, or its recomputed embedded hash differs from the persisted claim.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:adversarial:0",
+            "desc": "An attacker cannot gain trust by changing payload and embedded hash together under a non-canonical schema, using duplicate/extra ambiguity, cross-story substitution, stale provenance, or a structurally plausible but semantically invalid delivery context.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
