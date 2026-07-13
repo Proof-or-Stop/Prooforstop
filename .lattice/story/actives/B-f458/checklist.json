@@ -54,11 +54,11 @@
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Full suite passes with closed artifact classification and audit-only local receipt/event identity fields.",
-          "headHash": "33c15f851fb16c6b802e21ad6c5df16dcc4b8751",
+          "note": "Final scope-bound evidence: closed artifacts, audit-only local telemetry, and process contract all pass.",
+          "headHash": "b79d0b9ee32f8c98a02572554f4b34fd029b07dc",
           "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
           "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
-          "timestamp": "2026-07-13T10:45:27.861Z"
+          "timestamp": "2026-07-13T10:46:23.040Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -66,11 +66,11 @@
           "file": "scripts/verify-process-fact-contract.mjs",
           "command": "npm test",
           "result": "pass",
-          "note": "Contract pins narrow index semantics plus independent DONE re-execution of REVIEW-to-TEST preflight.",
-          "headHash": "33c15f851fb16c6b802e21ad6c5df16dcc4b8751",
+          "note": "Final scope-bound process contract pins DONE preflight recheck and narrow index semantics.",
+          "headHash": "b79d0b9ee32f8c98a02572554f4b34fd029b07dc",
           "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
           "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
-          "timestamp": "2026-07-13T10:45:27.993Z"
+          "timestamp": "2026-07-13T10:46:23.174Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -78,11 +78,11 @@
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Same-UID forged receipt and event identity strings grant no authority; unknown paths and tampered stable fields fail.",
-          "headHash": "33c15f851fb16c6b802e21ad6c5df16dcc4b8751",
+          "note": "Final scope-bound adversarial path/writer/same-UID cases fail closed.",
+          "headHash": "b79d0b9ee32f8c98a02572554f4b34fd029b07dc",
           "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
           "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
-          "timestamp": "2026-07-13T10:45:28.128Z"
+          "timestamp": "2026-07-13T10:46:23.305Z"
         }
       ]
     },
