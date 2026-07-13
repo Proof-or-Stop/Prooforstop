@@ -265,7 +265,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-13T11:22:30.034Z",
+      "endTime": "2026-07-13T11:32:17.299Z",
       "userSees": "User runs the TEST roll-up regression and sees `PASS local closeout requires fresh review before TEST retention`; same-UID forged receipts and paired source/docs/scope mutations fail closed, while a fresh post-closeout review can continue TEST.",
       "verificationIntent": {
         "happy": [
@@ -316,33 +316,33 @@
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full suite passed after canonical local-only delivery claims schema fix at commit f24029a313.",
-          "headHash": "6a20a1bfcc0e244ede1fd7f6b7989e4cbd97d997",
-          "materialHash": "506f5cb69448a0c4b08d3cf529d3816cb842380b1a1d699ff19f3774d05fabc4",
-          "storyFilesHash": "8c925217af7b0db4a3e0a978a92e65bcd3850e75a5d1dacd444bafc71a894456",
-          "timestamp": "2026-07-13T11:22:30.197Z"
+          "note": "Full suite passed after narrow legacy delivery compatibility quarantine at commit 398ed6e6b5.",
+          "headHash": "3e9836675b3aac1141b4bb72b69e3da357886a1f",
+          "materialHash": "949f484ddebf989d9864095fd63b493a60406fdb9549301821ec4d09b6664f26",
+          "storyFilesHash": "30e73f2c05308009fc402ffe593470a57490f9a2ecdd44d5e0baaa7893eaf108",
+          "timestamp": "2026-07-13T11:32:17.445Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
-          "note": "Retired vocabulary guard passes with no new allowlist and exact canonical claim keys retained.",
-          "headHash": "6a20a1bfcc0e244ede1fd7f6b7989e4cbd97d997",
-          "materialHash": "506f5cb69448a0c4b08d3cf529d3816cb842380b1a1d699ff19f3774d05fabc4",
-          "storyFilesHash": "8c925217af7b0db4a3e0a978a92e65bcd3850e75a5d1dacd444bafc71a894456",
-          "timestamp": "2026-07-13T11:22:30.365Z"
+          "note": "Guard enforces exact approved compatibility importers, symbols, call counts, direct usages, and forbids constructor spreading.",
+          "headHash": "3e9836675b3aac1141b4bb72b69e3da357886a1f",
+          "materialHash": "949f484ddebf989d9864095fd63b493a60406fdb9549301821ec4d09b6664f26",
+          "storyFilesHash": "30e73f2c05308009fc402ffe593470a57490f9a2ecdd44d5e0baaa7893eaf108",
+          "timestamp": "2026-07-13T11:32:17.582Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "logic_test",
           "command": "npm run test:closeout-trust",
           "result": "pass",
-          "note": "Adversarial true-value and extra-key delivery claim mutations remain rejected by the shared exact schema.",
-          "headHash": "6a20a1bfcc0e244ede1fd7f6b7989e4cbd97d997",
-          "materialHash": "506f5cb69448a0c4b08d3cf529d3816cb842380b1a1d699ff19f3774d05fabc4",
-          "storyFilesHash": "8c925217af7b0db4a3e0a978a92e65bcd3850e75a5d1dacd444bafc71a894456",
-          "timestamp": "2026-07-13T11:22:30.756Z"
+          "note": "Positive controls catch unapproved import+spread+call and direct retired tokens; exact false values and extra-key rejection remain covered.",
+          "headHash": "3e9836675b3aac1141b4bb72b69e3da357886a1f",
+          "materialHash": "949f484ddebf989d9864095fd63b493a60406fdb9549301821ec4d09b6664f26",
+          "storyFilesHash": "30e73f2c05308009fc402ffe593470a57490f9a2ecdd44d5e0baaa7893eaf108",
+          "timestamp": "2026-07-13T11:32:17.770Z"
         }
       ]
     },
