@@ -232,11 +232,11 @@
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Full suite validates trusted ledger, plan, rollup, delivery context, and embedded hashes before lifecycle consumption.",
-          "headHash": "f28936f580cc88ed2944bd4969d65c536724f665",
-          "materialHash": "92eefbdb41b59a1d8296c3bf1aaf71d666f8f2f4895e3ec08e64ab5bd5d6b16e",
-          "storyFilesHash": "c5dc7934120519a46c14380cafb19bfe084d3e04f7117d02108160f105082015",
-          "timestamp": "2026-07-13T10:26:37.235Z"
+          "note": "Trusted closeout schemas and hashes remain validated before lifecycle retention use; full suite passes.",
+          "headHash": "fa85a5c7713ade87741e94e9f9d8517a932c19db",
+          "materialHash": "f0c2ac8f72d4e7e4ad1ea4a5ad93dee3b74b0719bbcc6a9873891e076082c76a",
+          "storyFilesHash": "ca890b72f160b1bd6dd014aa3defef7782852d7a6f289ee43fee5184997d2680",
+          "timestamp": "2026-07-13T10:36:14.702Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -244,11 +244,11 @@
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Malformed and hash-mismatched closeout artifacts fail closed with named diagnostics.",
-          "headHash": "f28936f580cc88ed2944bd4969d65c536724f665",
-          "materialHash": "92eefbdb41b59a1d8296c3bf1aaf71d666f8f2f4895e3ec08e64ab5bd5d6b16e",
-          "storyFilesHash": "c5dc7934120519a46c14380cafb19bfe084d3e04f7117d02108160f105082015",
-          "timestamp": "2026-07-13T10:26:37.434Z"
+          "note": "Malformed artifacts and any noncanonical index semantic delta fail closed with diagnostic reasons.",
+          "headHash": "fa85a5c7713ade87741e94e9f9d8517a932c19db",
+          "materialHash": "f0c2ac8f72d4e7e4ad1ea4a5ad93dee3b74b0719bbcc6a9873891e076082c76a",
+          "storyFilesHash": "ca890b72f160b1bd6dd014aa3defef7782852d7a6f289ee43fee5184997d2680",
+          "timestamp": "2026-07-13T10:36:14.833Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -256,11 +256,11 @@
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Cross-story, extra-field, stale-provenance, and semantically invalid persisted inputs remain rejected in the full suite.",
-          "headHash": "f28936f580cc88ed2944bd4969d65c536724f665",
-          "materialHash": "92eefbdb41b59a1d8296c3bf1aaf71d666f8f2f4895e3ec08e64ab5bd5d6b16e",
-          "storyFilesHash": "c5dc7934120519a46c14380cafb19bfe084d3e04f7117d02108160f105082015",
-          "timestamp": "2026-07-13T10:26:37.586Z"
+          "note": "Cross-story, stale provenance, extra event fields, branch mismatch, and stable-field tampering remain rejected.",
+          "headHash": "fa85a5c7713ade87741e94e9f9d8517a932c19db",
+          "materialHash": "f0c2ac8f72d4e7e4ad1ea4a5ad93dee3b74b0719bbcc6a9873891e076082c76a",
+          "storyFilesHash": "ca890b72f160b1bd6dd014aa3defef7782852d7a6f289ee43fee5184997d2680",
+          "timestamp": "2026-07-13T10:36:14.965Z"
         }
       ]
     },
