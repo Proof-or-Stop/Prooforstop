@@ -1518,7 +1518,7 @@
       "desc": "The plain-any nested array-rest bypass from F-061 is still open. arrayRest now stores `index: unresolved-index-source`, but nested binding uses selectMember with the known key `\"0\"`; the known-key branch never consults base.index, and checker.getIndexTypeOfType(any, Number) is undefined, so it returns empty provenance. `declare const source: any; const [...[run]] = source; run(\"import(… )\")` therefore remains unclassified. The new positive control only covers dynamic `rest[index]`, which goes through bindings.indexKinds and does not exercise nested binding selection. Use base.index as the fallback for numeric known-key selection and add declaration/assignment/parameter controls for any/unknown nested rest plus noncallable indexed negatives.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T15:58:16.013Z",
@@ -1538,7 +1538,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "nested-rest-index-provenance",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 15575c0dec: exact numeric/string selection falls through to preserved base index and checker index provenance, so plain-any nested rest known indices cannot lose danger.",
+      "resolvedAt": "2026-07-13T16:13:26.434Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-064",
