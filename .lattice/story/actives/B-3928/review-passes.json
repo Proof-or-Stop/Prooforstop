@@ -339,6 +339,25 @@
         "scanEscalationReason": null
       },
       "_hash": "71f5c3d767cdd9dbe3106a40d7c4c49590da610d00191689be9eaef471ad326d"
+    },
+    {
+      "id": "B-3928:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Incremental concept review passed: the delivery-role matrix now consistently describes the fresh-context input boundary and independent derivation defined by the prompt across verifier defaults, JSON baseline, and Markdown matrix; no stale validation or docs-review consumption concept remains in the changed scope, and the prompt baseline verifier passes.",
+      "createdAt": "2026-07-13T02:47:29.205Z",
+      "reviewRound": "2026-07-13T02:45:15.808Z",
+      "reviewRunId": "B-3928:RR-039",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "packages/main/templates/agents/lattice-review-delivery.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9a0d2070bdc31815837c3e81d89500537bfe9a87ec1959783cda6dc50b5daadb"
     }
   ]
 }
