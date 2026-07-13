@@ -2062,6 +2062,33 @@
       "resolvedAt": "2026-07-13T17:39:33.903Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f458:F-081",
+      "desc": "The unified loader provenance still implements a narrower equivalence class than the guard's existing canonical loader recognizer, leaving several supported Node loader forms fail-open. isModuleLoaderExpression recognizes direct/global require, direct module.require, direct imported createRequire calls, identifier initializer aliases, and a limited named-function parameter scan (lines 1684-1720). It does not recognize `require.bind(...)`/`module.require.bind(...)`, `import * as mod from 'node:module'; mod.createRequire(...)`, `const { createRequire } = require('node:module')`, or loader parameters passed through arrow/function-expression/method/aliased call sites. These exact bound, namespace, and destructured createRequire forms are already recognized and executable in collectLoaderBindings/loaderCallKind (lines 845-966) and pinned in the import matrix (lines 3421-3424), but the dynamic-code matrix has no corresponding positives. Their bridge results therefore retain bare checker Any without unknownMemberAccess/kind and calls through eval/Function/vm exports evade the payload guard. Reuse one loader identity analysis for both import and dynamic provenance (including fixpoint aliases and callable parameters), preserve global-symbol checks for shadowed require/module, and add dangerous/safe direct/member/destructured controls for every equivalence class.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T17:41:59.205Z",
+      "reviewRound": "2026-07-13T17:37:55.183Z",
+      "reviewRunId": "B-f458:RR-099",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete 439ba331bf diff and focused loader identity, static/dynamic import provenance, export resolution, controls, and process-contract sections; unrelated unchanged portions were name-triaged."
+      },
+      "_hash": "560482d3b7d6cb75a85b74f7e342a98fb3f59881ff20c4568683dec92bf6bf48",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "split-loader-identity-equivalence",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
