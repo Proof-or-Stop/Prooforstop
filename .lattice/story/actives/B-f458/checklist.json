@@ -180,7 +180,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-13T11:42:18.047Z",
+      "endTime": "2026-07-13T11:53:55.701Z",
       "userSees": "User sees `PASS trusted closeout artifacts: schema and embedded hashes verified`; a malformed ledger/plan/rollup/delivery-context artifact or forged embedded hash is rejected with a named artifact error.",
       "verificationIntent": {
         "happy": [
@@ -225,33 +225,33 @@
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full suite passed at d9f301399f, including trusted persisted-schema validation.",
-          "headHash": "2a47db6e701333721e787047aca774196f0e0297",
-          "materialHash": "90f15839206772318007d79565d77df2790fb2399747a67c697139728b75140e",
-          "storyFilesHash": "ece10afc0df39a2ec04b025872be19ec512b30a00d91b9ad58cfed333007ccf8",
-          "timestamp": "2026-07-13T11:42:18.208Z"
+          "note": "Full suite passed at 932387b7a9 including trusted artifact schema validation.",
+          "headHash": "c3171fe7c4804433d22c0b27816b6d9536434a92",
+          "materialHash": "81a56fd7ef5fb7410e9e53b484d76c581ba6d919947a55ac5367806a3a43292d",
+          "storyFilesHash": "5f21567f7ebe6e0b7137ce5bcecb6ce6b03f379e956ece1ce56818a4bf0b7cbb",
+          "timestamp": "2026-07-13T11:53:55.856Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
           "command": "npm run test:closeout-trust",
           "result": "pass",
-          "note": "Closeout artifact schema and embedded-hash checks passed at d9f301399f.",
-          "headHash": "2a47db6e701333721e787047aca774196f0e0297",
-          "materialHash": "90f15839206772318007d79565d77df2790fb2399747a67c697139728b75140e",
-          "storyFilesHash": "ece10afc0df39a2ec04b025872be19ec512b30a00d91b9ad58cfed333007ccf8",
-          "timestamp": "2026-07-13T11:42:18.424Z"
+          "note": "Closeout schema and embedded-hash checks passed at 932387b7a9.",
+          "headHash": "c3171fe7c4804433d22c0b27816b6d9536434a92",
+          "materialHash": "81a56fd7ef5fb7410e9e53b484d76c581ba6d919947a55ac5367806a3a43292d",
+          "storyFilesHash": "5f21567f7ebe6e0b7137ce5bcecb6ce6b03f379e956ece1ce56818a4bf0b7cbb",
+          "timestamp": "2026-07-13T11:53:56.017Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
-          "command": "npm run test:process-fact-contract",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
-          "note": "Process fact contract passed at d9f301399f and retains the narrow legacy compatibility boundary.",
-          "headHash": "2a47db6e701333721e787047aca774196f0e0297",
-          "materialHash": "90f15839206772318007d79565d77df2790fb2399747a67c697139728b75140e",
-          "storyFilesHash": "ece10afc0df39a2ec04b025872be19ec512b30a00d91b9ad58cfed333007ccf8",
-          "timestamp": "2026-07-13T11:42:18.580Z"
+          "note": "Retired claim compatibility schema remains quarantined behind AST-resolved bindings at 932387b7a9.",
+          "headHash": "c3171fe7c4804433d22c0b27816b6d9536434a92",
+          "materialHash": "81a56fd7ef5fb7410e9e53b484d76c581ba6d919947a55ac5367806a3a43292d",
+          "storyFilesHash": "5f21567f7ebe6e0b7137ce5bcecb6ce6b03f379e956ece1ce56818a4bf0b7cbb",
+          "timestamp": "2026-07-13T11:53:56.175Z"
         }
       ]
     },
