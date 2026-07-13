@@ -1,0 +1,54 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-07-13T08:35:51.395Z",
+      "issueCount": 8,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when Register milestone-closeout.json as an artifact fact in process-fact-registry.ts + Add milestone-closeout.json to requiredArtifactFacts in verify-process-fact-contract.mjs are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): State Machine/Gate"
+        },
+        {
+          "type": "missing_decision",
+          "severity": "advisory",
+          "message": "decision.json not filled. Optional for non-high-risk stories, but recommended so reviewers can audit the design rationale."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        },
+        {
+          "type": "scope_orphan_suspect",
+          "severity": "advisory",
+          "message": "scope feature artifact:candidate-spec-set.json already has a full PROCESS_FACT_REGISTRY entry (kind signed-artifact, level L4, consumerGate) in process-fact-registry.ts but is absent from requiredArtifactFacts in scripts/verify-process-fact-contract.mjs -- the same class of registry/contract-script inventory omission this story fixes for milestone-closeout.json, but for a different artifact, and not claimed by this story or any checklist item orphan-suspect: see decisions:lattice-strengthening-roadmap-execution-plan.md is not covered by any CHK but is not explicitly excluded, please confirm"
+        }
+      ],
+      "_hash": "b8e8feed957df7374d68c790a3837a1d0a88ee1bba32103d6c597f7d8b86680b"
+    }
+  ]
+}
