@@ -813,6 +813,25 @@
       ],
       "signatureTag": "adversarial|ts|remains-bypassable-constructor",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f458:F-034",
+      "desc": "The finite nonliteral-loader allowlist is spoofable because it authenticates only file + nearest function name + raw argument text, not the value/provenance of that argument. In packages/main/src/cli-engine.ts, changing `new URL(\"./cli-init.js\", import.meta.url)` to the retired compatibility module leaves `await import(`file://${initPath}`)` under function runCli unchanged; staticModuleText cannot resolve the call-expression-derived initPath, and isKnownBenignNonLiteralLoaderCall accepts it solely from the allowlist entry at lines 729-750. The literal hidden in new URL is not an import specifier, so no compatibility edge is emitted. A second/nested same-named runCli with a malicious initPath also inherits the exemption. Separately, valid CJS `const { createRequire } = require(\"node:module\"); const rq=createRequire(__filename); rq(exactCompatPath)` and `const rq=require.bind(null)` remain unrecognized because collectLoaderBindings handles ImportSpecifier/NamespaceImport and simple identifier/member initializers, not BindingElement destructuring or bind calls. Bind benign exemptions to the exact loader argument producer/full AST chain and recognize or reject these require factory forms; add target-mutation, duplicate-anchor, destructured-createRequire, and bound-require controls.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T12:44:52.139Z",
+      "reviewRound": "2026-07-13T12:40:44.967Z",
+      "reviewRunId": "B-f458:RR-050",
+      "_hash": "e16a4c213f0a2b8af8f7ce7873ad471370ab38e96ee126038b02670042d9b97f",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/src/cli-engine.ts"
+      ],
+      "signatureTag": "adversarial|ts|finite-nonliteral-loader",
+      "signatureTagSource": "auto"
     }
   ]
 }
