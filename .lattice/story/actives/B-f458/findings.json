@@ -2130,7 +2130,7 @@
       "desc": "The new static ESM resolver is not a complete export graph: it follows variable/property initializers, ExportAssignment, and some import aliases, but it cannot project a module namespace that is itself re-exported, and it drops alternative-valued export initializers. provenanceForExportSymbol (lines 2039-2068) has no NamespaceExport/namespace-module case and returns only `{type,symbol}` for module symbols; namespaceImportProvenance is invoked only for a namespace import written directly in the consumer. Therefore `export * as bridge from './dynamic-code-esm-bridge.js'; import { bridge } from './barrel.js'; bridge.evalRun(payload)`, `import * as bridge from './bridge.js'; export { bridge };`, and default-exported namespaces evade. Likewise `export default (flag ? eval : safeRun)` or `export const run = flag && eval` returns a conditional/logical base whose dangerous alternatives are never traversed, so the imported call loses eval identity. Direct `export * from`/named re-export behavior is also unpinned, and no cycle test proves termination. Build a memoized module/export graph that projects namespace members and merges all expression alternatives conservatively, with named/default/export-star/namespace-reexport chains, cycles, dangerous positives, and matched safe negatives.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T17:42:44.831Z",
@@ -2150,7 +2150,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "incomplete-esm-export-graph",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by cdb718114f: memoized cycle-safe graph covers named, default, export-star and namespace re-exports plus conditional/logical alternatives with danger-wins.",
+      "resolvedAt": "2026-07-13T18:04:02.691Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-084",
