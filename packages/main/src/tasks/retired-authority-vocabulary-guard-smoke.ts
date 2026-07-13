@@ -394,6 +394,11 @@ const DYNAMIC_PROVENANCE_REACHABILITY_LABELS = new Set([
   'rest parameter destructured local safe negative',
   'rest parameter mixed local safe negative',
   'optional parameter local safe negative',
+  'computed call local safe negative',
+  'computed apply local safe negative',
+  'computed bind local safe negative',
+  'spread direct local safe negative',
+  'spread rest mixed local safe negative',
 ]);
 const DYNAMIC_CODE_UNAPPROVED_ONLY_LABELS = new Set([
   'namespace safe named reexport eval benign fail closed',
@@ -2888,6 +2893,27 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
     }
   };
   type LocalCallableDeclaration = ts.FunctionDeclaration | ts.FunctionExpression | ts.ArrowFunction | ts.MethodDeclaration;
+  type InvocationMember = 'call' | 'apply' | 'bind';
+  const normalizedInvocationCallee = (expression: ts.Expression): {
+    target: ts.Expression;
+    member?: InvocationMember;
+    unknownComputed: boolean;
+  } => {
+    const current = unwrapExecutionExpression(expression);
+    if (!ts.isPropertyAccessExpression(current) && !ts.isElementAccessExpression(current)) {
+      return { target: expression, unknownComputed: false };
+    }
+    const key = ts.isPropertyAccessExpression(current)
+      ? current.name.text
+      : current.argumentExpression ? staticPropertyKeyExpression(current.argumentExpression, checker) : undefined;
+    if (key === 'call' || key === 'apply' || key === 'bind') {
+      return { target: current.expression, member: key, unknownComputed: false };
+    }
+    if (ts.isElementAccessExpression(current) && key === undefined) {
+      return { target: current.expression, unknownComputed: true };
+    }
+    return { target: expression, unknownComputed: false };
+  };
   const localCallableDeclarations = (
     expression: ts.Expression,
     seen = new Set<ts.Symbol>(),
@@ -2907,35 +2933,86 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
         || ts.isPropertyDeclaration(declaration)
         || ts.isPropertyAssignment(declaration)) && declaration.initializer) {
         const initializer = unwrapExecutionExpression(declaration.initializer);
-        if (ts.isCallExpression(initializer)
-          && ts.isPropertyAccessExpression(initializer.expression)
-          && initializer.expression.name.text === 'bind') {
-          declarations.push(...localCallableDeclarations(initializer.expression.expression, nextSeen));
+        const normalized = ts.isCallExpression(initializer)
+          ? normalizedInvocationCallee(initializer.expression)
+          : undefined;
+        if (normalized?.member === 'bind') {
+          declarations.push(...localCallableDeclarations(normalized.target, nextSeen));
         } else declarations.push(...localCallableDeclarations(initializer, nextSeen));
       }
     }
     return [...new Set(declarations)];
   };
-  const boundArgumentProvenance = (expression: ts.Expression, seen = new Set<ts.Symbol>()): DynamicProvenance[] => {
+  interface ArgumentVector {
+    prefix: DynamicProvenance[];
+    unknownTail?: DynamicProvenance;
+  }
+  const mergeArgumentValue = (
+    left: DynamicProvenance | undefined,
+    right: DynamicProvenance | undefined,
+  ): DynamicProvenance | undefined => left && right ? mergeAlternativeProvenance(left, right) : left ?? right;
+  const exactSpreadValues = (provenance: DynamicProvenance): DynamicProvenance[] | undefined => {
+    if (provenance.completeMembers === true && provenance.arrayLength !== undefined) {
+      return Array.from({ length: provenance.arrayLength }, (_, index) => selectMember(provenance, String(index)));
+    }
+    if (!provenance.type || !checker.isTupleType(provenance.type)) return undefined;
+    return checker.getTypeArguments(provenance.type as ts.TypeReference).map(type => ({
+      type,
+      kind: dangerousCallableTypeKind(type),
+    }));
+  };
+  const spreadTailValue = (provenance: DynamicProvenance): DynamicProvenance => {
+    const rest = arrayRest(provenance, 0);
+    return rest.index ?? rest.element ?? rest;
+  };
+  const flattenCallArguments = (args: readonly ts.Expression[]): ArgumentVector => {
+    const vector: ArgumentVector = { prefix: [] };
+    for (const argument of args) {
+      if (!ts.isSpreadElement(argument)) {
+        const value = provenanceForExpression(argument);
+        if (vector.unknownTail) vector.unknownTail = mergeArgumentValue(vector.unknownTail, value);
+        else vector.prefix.push(value);
+        continue;
+      }
+      const spread = provenanceForExpression(argument.expression);
+      const exact = exactSpreadValues(spread);
+      if (exact && !vector.unknownTail) vector.prefix.push(...exact);
+      else {
+        const tail = exact
+          ? packedArgumentProvenance(exact)
+          : spreadTailValue(spread);
+        vector.unknownTail = mergeArgumentValue(vector.unknownTail, tail);
+      }
+    }
+    return vector;
+  };
+  const vectorFromApplied = (provenance: DynamicProvenance | undefined): ArgumentVector => {
+    if (!provenance) return { prefix: [] };
+    const exact = exactSpreadValues(provenance);
+    return exact ? { prefix: exact } : { prefix: [], unknownTail: spreadTailValue(provenance) };
+  };
+  const boundArgumentProvenance = (expression: ts.Expression, seen = new Set<ts.Symbol>()): ArgumentVector => {
     const current = unwrapExecutionExpression(expression);
     const symbol = expressionSymbol(current, checker);
-    if (!symbol || seen.has(symbol)) return [];
+    if (!symbol || seen.has(symbol)) return { prefix: [] };
     const nextSeen = new Set(seen).add(symbol);
     for (const declaration of symbol.getDeclarations() ?? []) {
       if (!(ts.isVariableDeclaration(declaration)
         || ts.isPropertyDeclaration(declaration)
         || ts.isPropertyAssignment(declaration)) || !declaration.initializer) continue;
       const initializer = unwrapExecutionExpression(declaration.initializer);
-      if (ts.isCallExpression(initializer)
-        && ts.isPropertyAccessExpression(initializer.expression)
-        && initializer.expression.name.text === 'bind') {
-        return [
-          ...boundArgumentProvenance(initializer.expression.expression, nextSeen),
-          ...initializer.arguments.slice(1).map(argument => provenanceForExpression(argument)),
-        ];
+      if (ts.isCallExpression(initializer)) {
+        const normalized = normalizedInvocationCallee(initializer.expression);
+        if (normalized.member === 'bind') {
+          const prior = boundArgumentProvenance(normalized.target, nextSeen);
+          const added = flattenCallArguments(initializer.arguments.slice(1));
+          return prior.unknownTail
+            ? { prefix: prior.prefix, unknownTail: mergeArgumentValue(prior.unknownTail, packedArgumentProvenance(added.prefix)) }
+            : { prefix: [...prior.prefix, ...added.prefix], unknownTail: added.unknownTail };
+        }
       }
     }
-    return [];
+    return { prefix: [] };
   };
   const packedArgumentProvenance = (values: readonly DynamicProvenance[]): DynamicProvenance => {
     const members = new Map(values.map((value, index) => [String(index), value]));
@@ -2954,33 +3031,37 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
   };
   const bindLocalCallArguments = (call: ts.CallExpression | ts.NewExpression): void => {
     const args = call.arguments ?? [];
-    const called = unwrapExecutionExpression(call.expression);
-    const invocationMember = ts.isPropertyAccessExpression(called)
-      && (called.name.text === 'call' || called.name.text === 'apply' || called.name.text === 'bind')
-      ? called.name.text
-      : undefined;
-    const target = invocationMember && ts.isPropertyAccessExpression(called) ? called.expression : call.expression;
+    const normalized = normalizedInvocationCallee(call.expression);
+    const { target } = normalized;
     const bound = boundArgumentProvenance(target);
-    const direct = invocationMember === 'call' || invocationMember === 'bind'
-      ? args.slice(1).map(argument => provenanceForExpression(argument))
-      : invocationMember === 'apply'
-        ? []
-        : args.map(argument => provenanceForExpression(argument));
-    const applied = invocationMember === 'apply' && args[1]
-      ? provenanceForExpression(args[1])
-      : undefined;
+    const direct = normalized.member === 'call' || normalized.member === 'bind' || normalized.unknownComputed
+      ? flattenCallArguments(args.slice(1))
+      : normalized.member === 'apply'
+        ? { prefix: [] }
+        : flattenCallArguments(args);
+    const applied = normalized.member === 'apply' || normalized.unknownComputed
+      ? vectorFromApplied(args[1] ? provenanceForExpression(args[1]) : undefined)
+      : { prefix: [] };
+    const vectorValueAt = (vector: ArgumentVector, index: number): DynamicProvenance | undefined => (
+      mergeArgumentValue(vector.prefix[index], vector.unknownTail)
+    );
     const suppliedAt = (index: number): DynamicProvenance | undefined => {
-      if (index < bound.length) return bound[index];
-      const remaining = index - bound.length;
-      return applied ? selectMember(applied, String(remaining)) : direct[remaining];
+      if (index < bound.prefix.length) return bound.prefix[index];
+      const remaining = index - bound.prefix.length;
+      const supplied = mergeArgumentValue(vectorValueAt(direct, remaining), vectorValueAt(applied, remaining));
+      return mergeArgumentValue(bound.unknownTail, supplied);
+    };
+    const vectorRestAt = (vector: ArgumentVector, index: number): DynamicProvenance => {
+      const packed = packedArgumentProvenance(vector.prefix.slice(index));
+      return vector.unknownTail ? mergeAlternativeProvenance(packed, vector.unknownTail) : packed;
     };
     const restAt = (index: number): DynamicProvenance => {
-      const known = bound.slice(index);
-      if (!applied) return packedArgumentProvenance([...known, ...direct.slice(Math.max(0, index - bound.length))]);
-      const remaining = Math.max(0, index - bound.length);
-      const appliedRest = arrayRest(applied, remaining);
-      if (known.length === 0) return appliedRest;
-      return mergeAlternativeProvenance(packedArgumentProvenance(known), appliedRest);
+      const boundRest = vectorRestAt(bound, index);
+      const remaining = Math.max(0, index - bound.prefix.length);
+      return mergeAlternativeProvenance(
+        boundRest,
+        mergeAlternativeProvenance(vectorRestAt(direct, remaining), vectorRestAt(applied, remaining)),
+      );
     };
     for (const callable of localCallableDeclarations(target)) {
       callable.parameters.forEach((parameter, index) => {
@@ -4202,6 +4283,18 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['parameter invocation shapes danger wins', "function execute(run: (value: string) => unknown) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } const localSafe = (value: string) => value; execute.call(null, localSafe); execute.apply(null, [eval]);"],
     ['default parameter overridden eval fail closed', "const localSafe = (value: string) => value; function execute(run = localSafe) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } execute(eval);"],
     ['optional parameter eval fail closed', "function execute(run?: (value: string) => unknown) { run!(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } execute(eval);"],
+    ['computed call eval fail closed', "function execute(run: (value: string) => unknown) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } execute['call'](null, eval);"],
+    ['computed apply eval fail closed', "function execute(run: (value: string) => unknown) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } execute[`apply`](null, [eval]);"],
+    ['computed bind eval fail closed', "const key = 'bi' + 'nd'; function execute(run: (value: string) => unknown) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } const bound = execute[key](null, eval); bound();"],
+    ['unknown computed invocation eval fail closed', "declare const key: string; function execute(run: (value: string) => unknown) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } execute[key](null, eval);"],
+    ['spread direct eval fail closed', "function execute(run: (value: string) => unknown) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } execute(...[eval]);"],
+    ['spread tuple wrapper eval fail closed', "function execute(run: (value: string) => unknown) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } const args = [eval] as const; execute(...args);"],
+    ['spread typed tuple eval fail closed', "declare const args: [typeof eval]; function execute(run: (value: string) => unknown) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } execute(...args);"],
+    ['spread unknown array eval fail closed', "declare const args: Array<typeof eval>; function execute(run: (value: string) => unknown) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } execute(...args);"],
+    ['spread call eval fail closed', "function execute(run: (value: string) => unknown) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } execute.call(null, ...[eval]);"],
+    ['spread prebound bind eval fail closed', "function execute(prefix: string, run: (value: string) => unknown) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } const bound = execute.bind(null, 'prefix', ...[eval]); bound();"],
+    ['spread default override eval fail closed', "const localSafe = (value: string) => value; function execute(run = localSafe) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } execute(...[eval]);"],
+    ['spread rest mixed danger wins', "declare const index: number; function execute(...runs: Array<(value: string) => unknown>) { runs[index](\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } const localSafe = (value: string) => value; execute(...[localSafe, eval]);"],
     ['rest parameter index eval fail closed', "function execute(...runs: Array<(value: string) => unknown>) { runs[0](\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } execute(eval);"],
     ['rest parameter destructured eval fail closed', "function execute(...[run]: [(value: string) => unknown]) { run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } execute(eval);"],
     ['rest parameter multiple danger wins', "declare const index: number; function execute(...runs: Array<(value: string) => unknown>) { runs[index](\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } const localSafe = (value: string) => value; execute(localSafe, eval);"],
@@ -4386,6 +4479,11 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['rest parameter destructured local safe negative', "function execute(...[run]: [(value: string) => unknown]) { run('safe'); } execute((value: string) => value);"],
     ['rest parameter mixed local safe negative', "declare const index: number; function execute(...runs: Array<(value: string) => unknown>) { runs[index]('safe'); } const first = (value: string) => value; const second = (value: string) => value; execute(first, second);"],
     ['optional parameter local safe negative', "function execute(run?: (value: string) => unknown) { run?.('safe'); } execute((value: string) => value);"],
+    ['computed call local safe negative', "function execute(run: (value: string) => unknown) { run('safe'); } execute['call'](null, (value: string) => value);"],
+    ['computed apply local safe negative', "function execute(run: (value: string) => unknown) { run('safe'); } execute[`apply`](null, [(value: string) => value]);"],
+    ['computed bind local safe negative', "const key = `bind`; function execute(run: (value: string) => unknown) { run('safe'); } const bound = execute[key](null, (value: string) => value); bound();"],
+    ['spread direct local safe negative', "function execute(run: (value: string) => unknown) { run('safe'); } execute(...[(value: string) => value]);"],
+    ['spread rest mixed local safe negative', "declare const index: number; function execute(...runs: Array<(value: string) => unknown>) { runs[index]('safe'); } const first = (value: string) => value; const second = (value: string) => value; execute(...[first, second]);"],
   ] as const;
   const controlSources = [...cases, ...negativeCases].map(([label, source], index) => ({
     label,
