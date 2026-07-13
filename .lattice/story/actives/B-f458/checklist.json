@@ -46,7 +46,45 @@
         "test": [
           "scripts/verify-process-fact-contract.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/closeout-trust-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Closed policy set and canonical writers are enumerated and verified.",
+          "headHash": "07836f09fa1745009495f40a9ec4e3163177a7b2",
+          "materialHash": "e0033f1c8c1953061c8fa3676e2a29119f1990579370b6e684c375f5876edd2c",
+          "storyFilesHash": "b3d3b8f8760dca365ae4182496c327b75640ce08e12e5e75487b4eac0153de70",
+          "timestamp": "2026-07-13T09:16:40.270Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/closeout-trust-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Unknown paths and non-canonical writers are rejected with named errors.",
+          "headHash": "07836f09fa1745009495f40a9ec4e3163177a7b2",
+          "materialHash": "e0033f1c8c1953061c8fa3676e2a29119f1990579370b6e684c375f5876edd2c",
+          "storyFilesHash": "b3d3b8f8760dca365ae4182496c327b75640ce08e12e5e75487b4eac0153de70",
+          "timestamp": "2026-07-13T09:16:40.270Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/closeout-trust-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Exact path matching rejects aliases, traversal-style substitutions, and milestone-closeout remains excluded.",
+          "headHash": "07836f09fa1745009495f40a9ec4e3163177a7b2",
+          "materialHash": "e0033f1c8c1953061c8fa3676e2a29119f1990579370b6e684c375f5876edd2c",
+          "storyFilesHash": "b3d3b8f8760dca365ae4182496c327b75640ce08e12e5e75487b4eac0153de70",
+          "timestamp": "2026-07-13T09:16:40.270Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -98,7 +136,45 @@
         "test": [
           "packages/main/src/tasks/scope-contract-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/closeout-trust-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Composite digest deterministically binds acknowledgements, ledger state/binding, and slice plan.",
+          "headHash": "07836f09fa1745009495f40a9ec4e3163177a7b2",
+          "materialHash": "e0033f1c8c1953061c8fa3676e2a29119f1990579370b6e684c375f5876edd2c",
+          "storyFilesHash": "b3d3b8f8760dca365ae4182496c327b75640ce08e12e5e75487b4eac0153de70",
+          "timestamp": "2026-07-13T09:16:40.270Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/closeout-trust-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Mutating any semantic input changes the digest and invalidates retention.",
+          "headHash": "07836f09fa1745009495f40a9ec4e3163177a7b2",
+          "materialHash": "e0033f1c8c1953061c8fa3676e2a29119f1990579370b6e684c375f5876edd2c",
+          "storyFilesHash": "b3d3b8f8760dca365ae4182496c327b75640ce08e12e5e75487b4eac0153de70",
+          "timestamp": "2026-07-13T09:16:40.270Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/closeout-trust-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Canonical serialization and recomputation reject embedded-digest and replay spoofing.",
+          "headHash": "07836f09fa1745009495f40a9ec4e3163177a7b2",
+          "materialHash": "e0033f1c8c1953061c8fa3676e2a29119f1990579370b6e684c375f5876edd2c",
+          "storyFilesHash": "b3d3b8f8760dca365ae4182496c327b75640ce08e12e5e75487b4eac0153de70",
+          "timestamp": "2026-07-13T09:16:40.270Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -148,7 +224,45 @@
           "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
           "packages/main/src/tasks/delivery-context-pack-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/closeout-trust-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Ledger, plan, rollup, and delivery context schemas and hashes validate.",
+          "headHash": "07836f09fa1745009495f40a9ec4e3163177a7b2",
+          "materialHash": "e0033f1c8c1953061c8fa3676e2a29119f1990579370b6e684c375f5876edd2c",
+          "storyFilesHash": "b3d3b8f8760dca365ae4182496c327b75640ce08e12e5e75487b4eac0153de70",
+          "timestamp": "2026-07-13T09:16:40.270Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/closeout-trust-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Missing fields, invalid versions/types, and forged hashes fail with artifact names.",
+          "headHash": "07836f09fa1745009495f40a9ec4e3163177a7b2",
+          "materialHash": "e0033f1c8c1953061c8fa3676e2a29119f1990579370b6e684c375f5876edd2c",
+          "storyFilesHash": "b3d3b8f8760dca365ae4182496c327b75640ce08e12e5e75487b4eac0153de70",
+          "timestamp": "2026-07-13T09:16:40.270Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/closeout-trust-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Cross-story, extra-field, stale provenance, and semantically invalid payload cases fail closed.",
+          "headHash": "07836f09fa1745009495f40a9ec4e3163177a7b2",
+          "materialHash": "e0033f1c8c1953061c8fa3676e2a29119f1990579370b6e684c375f5876edd2c",
+          "storyFilesHash": "b3d3b8f8760dca365ae4182496c327b75640ce08e12e5e75487b4eac0153de70",
+          "timestamp": "2026-07-13T09:16:40.270Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -204,7 +318,45 @@
           "packages/main/src/tasks/scope-contract-smoke.ts",
           "packages/main/src/tasks/closeout-trust-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/closeout-trust-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Canonical TEST rollup with unchanged material/composite digest retains TEST review evidence.",
+          "headHash": "07836f09fa1745009495f40a9ec4e3163177a7b2",
+          "materialHash": "e0033f1c8c1953061c8fa3676e2a29119f1990579370b6e684c375f5876edd2c",
+          "storyFilesHash": "b3d3b8f8760dca365ae4182496c327b75640ce08e12e5e75487b4eac0153de70",
+          "timestamp": "2026-07-13T09:16:40.270Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/closeout-trust-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Source, test, docs, or semantic scope drift rejects retention.",
+          "headHash": "07836f09fa1745009495f40a9ec4e3163177a7b2",
+          "materialHash": "e0033f1c8c1953061c8fa3676e2a29119f1990579370b6e684c375f5876edd2c",
+          "storyFilesHash": "b3d3b8f8760dca365ae4182496c327b75640ce08e12e5e75487b4eac0153de70",
+          "timestamp": "2026-07-13T09:16:40.270Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/closeout-trust-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Manual, wrong-writer, malformed, unknown, mixed, and bundled unreceipted changes cannot masquerade as canonical closeout.",
+          "headHash": "07836f09fa1745009495f40a9ec4e3163177a7b2",
+          "materialHash": "e0033f1c8c1953061c8fa3676e2a29119f1990579370b6e684c375f5876edd2c",
+          "storyFilesHash": "b3d3b8f8760dca365ae4182496c327b75640ce08e12e5e75487b4eac0153de70",
+          "timestamp": "2026-07-13T09:16:40.270Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -261,7 +413,45 @@
           "packages/main/src/tasks/closeout-trust-smoke.ts",
           "scripts/verify-process-fact-contract.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/closeout-trust-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "All four retention conditions are jointly enforced by the real review-run consumer.",
+          "headHash": "07836f09fa1745009495f40a9ec4e3163177a7b2",
+          "materialHash": "e0033f1c8c1953061c8fa3676e2a29119f1990579370b6e684c375f5876edd2c",
+          "storyFilesHash": "b3d3b8f8760dca365ae4182496c327b75640ce08e12e5e75487b4eac0153de70",
+          "timestamp": "2026-07-13T09:16:40.270Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/closeout-trust-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Each retention condition is independently negated and fails closed; TEST acknowledgement policy remains rejected.",
+          "headHash": "07836f09fa1745009495f40a9ec4e3163177a7b2",
+          "materialHash": "e0033f1c8c1953061c8fa3676e2a29119f1990579370b6e684c375f5876edd2c",
+          "storyFilesHash": "b3d3b8f8760dca365ae4182496c327b75640ce08e12e5e75487b4eac0153de70",
+          "timestamp": "2026-07-13T09:16:40.270Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/closeout-trust-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "New review rounds, stale receipts/passes, dirty metadata, and incoherent provenance cannot reuse assurance.",
+          "headHash": "07836f09fa1745009495f40a9ec4e3163177a7b2",
+          "materialHash": "e0033f1c8c1953061c8fa3676e2a29119f1990579370b6e684c375f5876edd2c",
+          "storyFilesHash": "b3d3b8f8760dca365ae4182496c327b75640ce08e12e5e75487b4eac0153de70",
+          "timestamp": "2026-07-13T09:16:40.270Z"
+        }
+      ]
     }
   ],
   "auditLog": [
