@@ -247,7 +247,7 @@ assert.equal(evaluateMetadataOnlyReviewRetention({
   storedReviewRound: 'round-1',
   currentReviewRound: 'round-1',
 }).ok, false);
-console.log('PASS closeout retention policy pure classifier');
+console.log('PASS local closeout requires fresh review before TEST retention');
 
 function git(root: string, args: string[]): string {
   return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();

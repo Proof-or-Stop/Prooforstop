@@ -770,6 +770,14 @@ function assertCloseoutTrustBoundary() {
   for (const token of ['closeoutArtifactPaths', 'declaredPaths.has(policy.path)', 'buildCloseoutWriteReceipt', 'appendCloseoutWriteReceipt']) {
     assert(autoCommitText.includes(token), `auto-commit closeout receipt choke point missing ${token}`);
   }
+  const closeoutSmokeText = read('packages/main/src/tasks/closeout-trust-smoke.ts');
+  for (const exactUserLine of [
+    'PASS closeout artifact classifications: closed policy set verified',
+    'PASS local closeout requires fresh review before TEST retention',
+    'PASS metadata-only review retention is fail-closed',
+  ]) {
+    assert(closeoutSmokeText.includes(`console.log('${exactUserLine}')`), `closeout smoke missing revised exact userSees line: ${exactUserLine}`);
+  }
   const reviewRunText = read('packages/main/src/core/review-run.ts');
   for (const token of ['evaluateReviewRunMetadataRetention', 'evaluateMetadataOnlyReviewRetention', 'changedFilesBetween', 'uncommittedPathsUnder', 'validateCurrentCloseoutArtifact', 'relative(gitRoot, storyDir)']) {
     assert(reviewRunText.includes(token), `review-run metadata retention consumer missing ${token}`);
