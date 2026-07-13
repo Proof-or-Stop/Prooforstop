@@ -2372,6 +2372,33 @@
       "resolvedAt": "2026-07-13T18:29:13.180Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f458:F-091",
+      "desc": "The Promise/dynamic-import repair still handles only an inline ArrayLiteral passed directly to Promise.all. The special case at lines 2135-2154 does not analyze `const pending = [import('./dynamic-code-esm-bridge.js')]; const [bridge] = await Promise.all(pending)`, spread iterables, Promise.race, or `.then` pass-throughs. Those awaited expressions keep only checker types; no namespaceForModuleSymbol result or unknownMemberAccess reaches the selected binding, so calls through eval/Function/vm exports evade. The F-085 resolution claim says dynamic-import arrays propagate per-slot provenance, but only literal cells are pinned. Propagate dynamic module provenance through const arrays/spreads and standard Promise combinators/callback identity flows, or conservatively mark unresolved awaited module-shaped results; add dangerous/safe controls for variable/spread Promise.all, race, then, and assignment-before-await.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T18:31:21.260Z",
+      "reviewRound": "2026-07-13T18:25:53.527Z",
+      "reviewRunId": "B-f458:RR-105",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete a34d89024d diff and focused Promise/dynamic import flows, createRequire graph, standard URL forms, comma semantics, deep namespace resolution, cache lifecycle, controls, and process-contract sections; unrelated unchanged portions were name-triaged."
+      },
+      "_hash": "3ae4509610102f46d7da5144c12ed7e7ee12bc869b42a00e0b99be92fe80ade2",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "promise-wrapper-module-provenance-gap",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
