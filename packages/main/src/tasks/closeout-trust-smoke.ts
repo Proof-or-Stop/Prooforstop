@@ -39,6 +39,8 @@ import { StoryStore } from '../core/store.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { currentScopeContextForStory, evaluateReviewRunMetadataRetention, signReviewRun, verifyReviewRun } from '../core/review-run.js';
+import { signReviewPass } from '../core/finding-verify.js';
+import { createStoryActor, getGuardFailureReason, getStateName } from '../core/machine.js';
 import type { ReviewRun } from '../core/types.js';
 import { resetConfigCache } from '../core/config.js';
 import { createProofStoryHandlers } from '../handlers/proofstory.js';
@@ -299,6 +301,25 @@ try {
     undefined, run.storyFilesHash,
   );
   assert.equal(verifyReviewRun(run), true);
+  const preCloseoutPassCreatedAt = new Date().toISOString();
+  store.writeReviewRuns(runtimeStoryId, { runs: [run] });
+  store.writeReviewPasses(runtimeStoryId, { passes: [{
+    id: 'RP-001',
+    agent: run.agent,
+    note: 'Pre-closeout review snapshot.',
+    createdAt: preCloseoutPassCreatedAt,
+    reviewRound: run.reviewRound,
+    reviewRunId: run.reviewRunId,
+    _hash: signReviewPass(
+      runtimeStoryId,
+      'RP-001',
+      run.agent,
+      'Pre-closeout review snapshot.',
+      preCloseoutPassCreatedAt,
+      run.reviewRound,
+      run.reviewRunId,
+    ),
+  }] });
   const proofstoryHandlers = createProofStoryHandlers({ store, root: repo, scanRoot: repo } as HandlerContext);
   const handlerResult = proofstoryHandlers.parent_ledger_rollup_set({
     storyId: runtimeStoryId,
@@ -347,6 +368,49 @@ try {
   assertWriterReceipt('done-required-evidence.json', 'done_required_validate');
   await createVerifierHandlers(handlerCtx).validate({ storyId: runtimeStoryId, json: true });
   assertWriterReceipt('test-evidence.json', 'validate');
+  // Make every independent DONE prerequisite current, then exercise the real
+  // XState FINISH transition.  The pre-closeout review must still be the sole
+  // blocker and the renderer must expose the same decision.
+  deliveryHandlers.delivery_check_set({
+    storyId: runtimeStoryId,
+    docsPromises: [],
+    realMachineTests: ['npm run test:closeout-trust'],
+    closingSelfCheck: { hasRealMachineTest: true, hasEdgeCaseCoverage: true, hasUnresolvedTodos: false, summary: 'Lifecycle FINISH transition exercised.' },
+  });
+  const staleActor = createStoryActor(runtimeStoryId, store, 'TEST', repo, repo);
+  staleActor.start();
+  staleActor.send({ type: 'FINISH' });
+  assert.equal(getStateName(staleActor), 'TEST', 'post-REVIEW closeout must block the actual TEST→DONE transition');
+  assert.match(getGuardFailureReason(runtimeStoryId, store, 'DONE', repo, repo) ?? '', /\[stale_closeout_review\]/);
+  staleActor.stop();
+
+  const freshRun = {
+    ...run,
+    reviewRunId: `${runtimeStoryId}:RR-002`,
+    startedAt: new Date().toISOString(),
+    headHash: currentGitHead(repo)!,
+    materialHash: currentMaterialHash(repo, 'HEAD', repo)!,
+    storyFilesHash: currentStoryFilesHash(repo, 'HEAD', repo)!,
+  } as ReviewRun;
+  freshRun._hash = signReviewRun(
+    freshRun.storyId, freshRun.reviewRunId, freshRun.agent, freshRun.lane, freshRun.reviewRound,
+    freshRun.startedAt, freshRun.headHash, freshRun.materialHash, freshRun.promptHash,
+    freshRun.scopeBinding?.bindingHash, undefined, freshRun.storyFilesHash,
+  );
+  const freshPassCreatedAt = new Date().toISOString();
+  store.writeReviewRuns(runtimeStoryId, { runs: [run, freshRun] });
+  store.writeReviewPasses(runtimeStoryId, { passes: [{
+    id: 'RP-002', agent: freshRun.agent, note: 'Fresh post-closeout review snapshot.', createdAt: freshPassCreatedAt,
+    reviewRound: freshRun.reviewRound, reviewRunId: freshRun.reviewRunId,
+    _hash: signReviewPass(runtimeStoryId, 'RP-002', freshRun.agent, 'Fresh post-closeout review snapshot.', freshPassCreatedAt, freshRun.reviewRound, freshRun.reviewRunId),
+  }] });
+  const freshActor = createStoryActor(runtimeStoryId, store, 'TEST', repo, repo);
+  freshActor.start();
+  freshActor.send({ type: 'FINISH' });
+  assert.equal(getStateName(freshActor), 'DONE', 'fresh post-closeout review must allow the actual TEST→DONE transition');
+  freshActor.stop();
+  git(repo, ['add', '.']);
+  git(repo, ['commit', '-m', 'record fresh review protocol metadata']);
   const currentStory = store.readStory(runtimeStoryId);
   const retainedAfterHandlers = evaluateReviewRunMetadataRetention(store, currentStory, run, repo, currentScopeContextForStory(store, runtimeStoryId, repo));
   assert.equal(retainedAfterHandlers.ok, false, 'local causal receipts must not retain the pre-closeout review');

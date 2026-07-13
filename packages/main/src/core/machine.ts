@@ -738,6 +738,17 @@ export function canFinishGuard(context: StoryMachineContext): boolean {
   });
   if (!reviewAssuranceFloor.ok) return false;
 
+  // A closeout artifact written after the signed REVIEW snapshot invalidates
+  // that snapshot for DONE as well as REVIEW retention.  Local write receipts
+  // are deliberately audit-only under the same-UID threat model, so the only
+  // admissible recovery is fresh reviewer evidence bound after the closeout.
+  const reviewerEvidence = collectReviewerEvidenceState(
+    context.store,
+    context.storyId,
+    context.projectRoot,
+  );
+  if (reviewerEvidence.invalid.length > 0) return false;
+
   return true;
 }
 
@@ -1265,6 +1276,16 @@ export function getGuardFailureReason(
     });
     if (!reviewAssuranceFloor.ok) {
       return formatReviewAssuranceFloorFailure(reviewAssuranceFloor);
+    }
+
+    const reviewerEvidence = collectReviewerEvidenceState(
+      store,
+      storyId,
+      projectRoot ?? process.cwd(),
+    );
+    if (reviewerEvidence.invalid.length > 0) {
+      const issue = reviewerEvidence.invalid[0];
+      return `Cannot enter DONE: reviewer evidence is stale after closeout metadata changed: ${issue.message}. [stale_closeout_review] → Return to DEV/REVIEW and record a fresh review run before TEST`;
     }
   }
 

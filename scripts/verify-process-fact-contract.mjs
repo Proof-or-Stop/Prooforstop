@@ -197,7 +197,7 @@ const requiredArtifactFacts = [
   { name: 'artifact:milestone-ledger.json', path: 'milestone-ledger.json', signed: false },
   { name: 'artifact:slice-plan.json', path: 'slice-plan.json', signed: false },
   { name: 'artifact:parent-ledger-rollup.json', path: 'parent-ledger-rollup.json', signed: false },
-  { name: 'artifact:closeout-write-receipts.jsonl', path: 'closeout-write-receipts.jsonl', signed: false },
+  { name: 'artifact:closeout-write-receipts.jsonl', path: 'closeout-write-receipts.jsonl', signed: false, gateRequired: false },
   { name: 'artifact:proofstory.json', path: 'proofstory.json', signed: false },
   { name: 'artifact:intent-collision.json', path: 'intent-collision.json', signed: false },
   { name: 'artifact:scope-shrinkage-decision.json', path: 'scope-shrinkage-decision.json', signed: false },
@@ -760,8 +760,9 @@ function assertCloseoutTrustBoundary() {
   assert(scopeAckPolicy && !scopeAckPolicy.allowedPhases.includes('TEST'), `${commandPolicyPath}: scope_contract_acknowledge must remain rejected in TEST`);
 
   const receiptFact = registry.get('artifact:closeout-write-receipts.jsonl');
-  assert(receiptFact?.level === 'L4' && receiptFact?.artifact?.signed === false, `${processFactRegistryPath}: local closeout receipts must remain an honestly non-signed L4 causal artifact`);
-  assert(receiptFact?.consumerGate.includes('REVIEW') && receiptFact?.rationale.includes('same-UID') && receiptFact?.rationale.includes('forgeable') && receiptFact?.rationale.includes('not canonical-writer authentication') && receiptFact?.rationale.includes('cannot retain a signed review') && receiptFact?.rationale.includes('not closeout evidence'), `${processFactRegistryPath}: receipts must disclose the local same-UID trust limit and fail-closed retention policy`);
+  assert(receiptFact?.level === 'L1' && receiptFact?.artifact?.signed === false, `${processFactRegistryPath}: local closeout receipts must remain an honestly non-signed audit artifact`);
+  assert(!receiptFact?.consumerGate && !receiptFact?.artifact?.consumerGate && !receiptFact?.semantics.includes('gate-evidence'), `${processFactRegistryPath}: local closeout receipts must have no lifecycle gate consumer or gate-evidence semantics`);
+  assert(receiptFact?.rationale.includes('same-UID') && receiptFact?.rationale.includes('forgeable') && receiptFact?.rationale.includes('not canonical-writer authentication') && receiptFact?.rationale.includes('cannot retain a signed review') && receiptFact?.rationale.includes('not closeout evidence'), `${processFactRegistryPath}: receipts must disclose the local same-UID trust limit and fail-closed retention policy`);
   assert(read(lifecycleRegistryPath).includes("'closeout-write-receipts.jsonl'"), `${lifecycleRegistryPath}: receipt ledger must remain classified lifecycle metadata`);
   const lifecycleText = read(lifecycleRegistryPath);
   assert(lifecycleText.includes('REVIEW_RETENTION_PROTOCOL_METADATA_PATHS') && lifecycleText.includes("'process-metrics.json'") && lifecycleText.includes("'test-runs.json'"), `${lifecycleRegistryPath}: non-authoritative review-retention companion metadata must remain closed and registry-backed`);
@@ -778,6 +779,8 @@ function assertCloseoutTrustBoundary() {
   ]) {
     assert(closeoutSmokeText.includes(`console.log('${exactUserLine}')`), `closeout smoke missing revised exact userSees line: ${exactUserLine}`);
   }
+  const machineText = read('packages/main/src/core/machine.ts');
+  assert(machineText.includes('collectReviewerEvidenceState') && machineText.includes('[stale_closeout_review]'), 'TEST→DONE guard and failure renderer must consume closeout-aware reviewer evidence freshness');
   const reviewRunText = read('packages/main/src/core/review-run.ts');
   for (const token of ['evaluateReviewRunMetadataRetention', 'evaluateMetadataOnlyReviewRetention', 'changedFilesBetween', 'uncommittedPathsUnder', 'validateCurrentCloseoutArtifact', 'relative(gitRoot, storyDir)']) {
     assert(reviewRunText.includes(token), `review-run metadata retention consumer missing ${token}`);
@@ -3593,7 +3596,11 @@ function assertProcessFactRegistryContract(cliToolNames, policyEntries, configTe
       assert(entry.semantics.includes('signed-artifact'), `${processFactRegistryPath}: artifact=${expected.name} missing signed-artifact semantic`);
     }
     assert(entry.semantics.includes('artifact'), `${processFactRegistryPath}: artifact=${expected.name} missing artifact semantic`);
-    assert(entry.consumerGate, `${processFactRegistryPath}: artifact=${expected.name} must name consumer gate`);
+    if (expected.gateRequired !== false) {
+      assert(entry.consumerGate, `${processFactRegistryPath}: artifact=${expected.name} must name consumer gate`);
+    } else {
+      assert(!entry.consumerGate, `${processFactRegistryPath}: audit-only artifact=${expected.name} must not name a consumer gate`);
+    }
   }
 
   const flowPolicies = parseFlowFactPolicies();
