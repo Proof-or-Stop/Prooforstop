@@ -2916,6 +2916,24 @@
       ],
       "signatureTag": "adversarial|ts|local-parameter-callsite",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f458:F-112",
+      "desc": "Local callsite propagation explicitly skips every rest parameter (`if (!argument || parameter.dotDotDotToken) return`), leaving a dynamic callable passed through rest unbound. Repro: `function execute(...runs: [(value: string) => unknown]) { runs[0](\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); } execute(eval);`. The outer call resolves to the exact local function, but bindLocalCallArguments refuses to map `eval` into `runs`; the parameter declaration has no initializer provenance, and the inner `runs[0]` therefore has no dangerous/index provenance for dynamicExecutionKind. The exact-safe shortcut suppresses the outer local call, so the eval execution is missed despite the raw prefilter reaching full analysis. This is distinct from F-111's call/apply/bind invocation-shape gap: direct invocation is used here, but rest argument packing is omitted. Model rest arguments as an array/tuple provenance (including all remaining arguments, with dangerous alternatives dominating), and add dangerous/safe rest controls plus multiple-rest-argument merging. Fresh build/guard pass: builds=678 cacheHits=2 fullAnalysis=1115 astCandidates=451 reachability=17, real 41.95s.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T20:24:53.478Z",
+      "reviewRound": "2026-07-13T20:20:44.390Z",
+      "reviewRunId": "B-f458:RR-119",
+      "_hash": "98f5f66534d59c83019ea0ab4df0668e914da54d14f3f1e033cea47fc49cd326",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "signatureTag": "rest-parameter-callsite-provenance-gap",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
