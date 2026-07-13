@@ -786,9 +786,10 @@ function assertCloseoutTrustBoundary() {
     && /function canFinishGuard[\s\S]{0,2500}evaluateReviewVerdict\(context\)\.ok/.test(machineText)
     && (machineText.match(/evaluateReviewVerdict\(\{/g) || []).length >= 2,
   'REVIEW→TEST and TEST→DONE boolean/reason paths must share the authoritative reviewer verdict evaluator');
-  for (const token of ['review_evidence_missing', 'review_evidence_invalid', 'review_lane_missing', 'review_quorum', 'review_finding_blocking']) {
+  for (const token of ['review_round_missing', 'review_evidence_missing', 'review_evidence_invalid', 'review_lane_missing', 'review_quorum', 'review_finding_blocking']) {
     assert(machineText.includes(token), `shared reviewer verdict must preserve ${token}`);
   }
+  assert(/if \(!story\.currentReviewRound\)[\s\S]{0,300}review_round_missing/.test(machineText), 'reviewer-required lifecycle verdict must fail closed before legacy evidence validation when currentReviewRound is absent');
   const reviewRunText = read('packages/main/src/core/review-run.ts');
   for (const token of ['evaluateReviewRunMetadataRetention', 'evaluateMetadataOnlyReviewRetention', 'evaluatePersistedReviewToTestIndexTransition', 'changedFilesBetween', 'uncommittedPathsUnder', 'validateCurrentCloseoutArtifact', 'relative(gitRoot, storyDir)', 'same-UID actor can freely mint them', "reviewedStory.phase !== 'REVIEW'", "currentStory.phase !== 'TEST'"]) {
     assert(reviewRunText.includes(token), `review-run metadata retention consumer missing ${token}`);

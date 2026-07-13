@@ -611,7 +611,7 @@ export function canReenterDevGuard(context: StoryMachineContext): boolean {
 
 export interface ReviewVerdict {
   ok: boolean;
-  code?: 'review_loop' | 'review_evidence_missing' | 'review_evidence_invalid' | 'review_lane_missing' | 'review_quorum' | 'review_finding_blocking' | 'review_verdict_error';
+  code?: 'review_loop' | 'review_round_missing' | 'review_evidence_missing' | 'review_evidence_invalid' | 'review_lane_missing' | 'review_quorum' | 'review_finding_blocking' | 'review_verdict_error';
   message?: string;
 }
 
@@ -632,6 +632,13 @@ export function evaluateReviewVerdict(context: StoryMachineContext): ReviewVerdi
     const policy = resolveWorkflowPolicy(config, story);
 
     if (!policy.review.requireReviewer) return { ok: true };
+    if (!story.currentReviewRound) {
+      return {
+        ok: false,
+        code: 'review_round_missing',
+        message: 'reviewer-required lifecycle transition has no currentReviewRound; unsigned legacy-shaped evidence is not admissible',
+      };
+    }
 
     const findings = context.store.readFindings(context.storyId);
     const reviewPasses = context.store.readReviewPasses(context.storyId);

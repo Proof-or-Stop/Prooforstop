@@ -493,6 +493,74 @@ try {
   assert.match(getGuardFailureReason(runtimeStoryId, store, 'DONE', repo, repo) ?? '', /\[stale_closeout_review\]/);
   staleActor.stop();
 
+  const assertDoneBlocked = (message: string, reasonCode: string) => {
+    const actor = createStoryActor(runtimeStoryId, store, 'TEST', repo, repo);
+    actor.start();
+    actor.send({ type: 'FINISH' });
+    assert.equal(getStateName(actor), 'TEST', message);
+    assert.match(getGuardFailureReason(runtimeStoryId, store, 'DONE', repo, repo) ?? '', new RegExp(`\\[${reasonCode}\\]`));
+    actor.stop();
+  };
+
+  const storyWithRound = store.readStory(runtimeStoryId);
+  const storyWithoutRound = { ...storyWithRound };
+  delete storyWithoutRound.currentReviewRound;
+  store.writeStory(runtimeStoryId, storyWithoutRound);
+  store.writeReviewRuns(runtimeStoryId, { runs: [] });
+  store.writeReviewPasses(runtimeStoryId, { passes: [{
+    id: 'RP-FORGED-NO-ROUND',
+    agent: 'lattice-review-quality',
+    note: 'Unsigned legacy-shaped pass must not gain authority when currentReviewRound is absent.',
+    createdAt: new Date().toISOString(),
+  }] });
+  assert.equal(evaluateReviewVerdict({ storyId: runtimeStoryId, store, projectRoot: repo, gitCwd: repo }).code, 'review_round_missing');
+  assertDoneBlocked('DONE must reject unsigned pass-shaped evidence when currentReviewRound is absent', 'review_round_missing');
+
+  store.writeStory(runtimeStoryId, storyWithRound);
+  const invalidPassCreatedAt = new Date().toISOString();
+  store.writeReviewPasses(runtimeStoryId, { passes: [{
+    id: 'RP-TAMPERED',
+    agent: 'lattice-review-quality',
+    note: 'Tampered pass.',
+    createdAt: invalidPassCreatedAt,
+    reviewRound: storyWithRound.currentReviewRound,
+    reviewRunId: `${runtimeStoryId}:RR-NOT-REAL`,
+    _hash: 'tampered',
+  }] });
+  assert.equal(evaluateReviewVerdict({ storyId: runtimeStoryId, store, projectRoot: repo, gitCwd: repo }).code, 'review_evidence_invalid');
+  assertDoneBlocked('DONE must reject a tampered current-round pass', 'stale_closeout_review');
+
+  const missingRunIdCreatedAt = new Date().toISOString();
+  store.writeReviewPasses(runtimeStoryId, { passes: [{
+    id: 'RP-MISSING-RUN-ID',
+    agent: 'lattice-review-quality',
+    note: 'Signed pass without reviewRunId.',
+    createdAt: missingRunIdCreatedAt,
+    reviewRound: storyWithRound.currentReviewRound,
+    _hash: signReviewPass(
+      runtimeStoryId, 'RP-MISSING-RUN-ID', 'lattice-review-quality', 'Signed pass without reviewRunId.',
+      missingRunIdCreatedAt, storyWithRound.currentReviewRound!, '',
+    ),
+  }] });
+  assert.equal(evaluateReviewVerdict({ storyId: runtimeStoryId, store, projectRoot: repo, gitCwd: repo }).code, 'review_evidence_invalid');
+  assertDoneBlocked('DONE must reject a signed current-round pass without reviewRunId', 'stale_closeout_review');
+
+  const unknownRunCreatedAt = new Date().toISOString();
+  store.writeReviewPasses(runtimeStoryId, { passes: [{
+    id: 'RP-UNKNOWN-RUN',
+    agent: 'lattice-review-quality',
+    note: 'Signed pass bound to an unknown run.',
+    createdAt: unknownRunCreatedAt,
+    reviewRound: storyWithRound.currentReviewRound,
+    reviewRunId: `${runtimeStoryId}:RR-UNKNOWN`,
+    _hash: signReviewPass(
+      runtimeStoryId, 'RP-UNKNOWN-RUN', 'lattice-review-quality', 'Signed pass bound to an unknown run.',
+      unknownRunCreatedAt, storyWithRound.currentReviewRound!, `${runtimeStoryId}:RR-UNKNOWN`,
+    ),
+  }] });
+  assert.equal(evaluateReviewVerdict({ storyId: runtimeStoryId, store, projectRoot: repo, gitCwd: repo }).code, 'review_evidence_invalid');
+  assertDoneBlocked('DONE must reject a signed current-round pass bound to a missing run', 'stale_closeout_review');
+
   store.writeReviewRuns(runtimeStoryId, { runs: [] });
   store.writeReviewPasses(runtimeStoryId, { passes: [] });
   store.writeFindings(runtimeStoryId, { findings: [] });

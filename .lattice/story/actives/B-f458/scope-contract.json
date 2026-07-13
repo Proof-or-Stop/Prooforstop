@@ -94,8 +94,28 @@
         "evaluateReviewVerdict",
         "canFinishGuard"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The new required currentReviewRound contract invalidates this legacy fixture that intentionally relied on missing-round compatibility.",
+      "timestamp": "2026-07-13T11:10:19.385Z",
+      "paths": [
+        "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "ced5f8302c350198d7667bb667a0261d2257225d",
+      "materialHash": "ad073efd4fec3685844c9e84a54c397c7e7e61af70cd816e6dc1b3641f850116",
+      "anchors": [
+        "evaluateReviewVerdict",
+        "review_round_missing"
+      ]
     }
   ],
   "createdAt": "2026-07-13T08:24:04.138Z",
-  "updatedAt": "2026-07-13T11:00:11.440Z"
+  "updatedAt": "2026-07-13T11:10:19.385Z"
 }

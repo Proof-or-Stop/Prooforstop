@@ -669,6 +669,7 @@ function story(): StoryInfo {
       createdAt: now,
       startedAt: now,
       endedAt: null,
+      currentReviewRound: 'round-1',
       // NO worktree binding -> configured-git-root branch resolves to the subdir.
     };
     store.writeStory(DONE_STORY_ID, doneStory);
