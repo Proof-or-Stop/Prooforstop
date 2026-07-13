@@ -1,0 +1,27 @@
+{
+  "storyId": "B-9188",
+  "checkedAt": "2026-07-13T09:08:56.958Z",
+  "headHash": "0a5664381966214fb322703590d59fa9507dfd12",
+  "materialHash": "0ef3c1170f94f44b4c1bdc163fe6ddf9f93d9b877987144976a95285f0cee4e4",
+  "storyFilesHash": "9c45ff0f8cc7aca0c97f88884f8ff39b8e7f04a78ab5afe170e60e45e1d98570",
+  "reviewRound": "2026-07-13T08:49:22.585Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm run test:process-fact-contract independently re-run by delivery reviewer: prints \"Process fact contract verified\" with the new PROCESS_FACT_ARTIFACT_BY_COMMAND.milestone_closeout_capture ref and artifact:milestone-closeout.json PROCESS_FACT_REGISTRY entry present (process-fact-registry.ts:262-269, 977-988, confirmed by grep). DEV-time bite test transcript (.lattice/story/actives/B-9188/evidence/transcript-diff.md): removing the registry fact entry makes the script fail with \"artifact missing from PROCESS_FACT_REGISTRY: artifact=artifact:milestone-closeout.json\", restoring makes it pass again; not independently re-run destructively by this reviewer (non-destructive constraint) but corroborated by round-2 lattice-review-quality pass B-9188:RP-003 (review-passes.json) which re-verified the parser-limitation claim and re-ran the contract script green. Compiled registry lookup transcript in same evidence file confirms the runtime PROCESS_FACT_REGISTRY (dist) actually exposes the fact, not just source text."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same npm run test:process-fact-contract run (independently reproduced) covers the requiredArtifactFacts line added at scripts/verify-process-fact-contract.mjs:197 (grep-confirmed: { name: \"artifact:milestone-closeout.json\", path: \"milestone-closeout.json\", signed: false }). Shared bite test with CHK-001 (same transcript file) proves the required-list line is load-bearing: entry present + registry ref absent still fails with the artifact-missing assertion. Contract test currently green with both registrations present."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Diff is scoped exactly as described: two source files (process-fact-registry.ts + verify-process-fact-contract.mjs) registering milestone-closeout.json in the process-fact inventory, no .md documentation promises changed (transcript-diff.md is evidence, not a feature promise, so zero docsPromises is correct here, not a missed scan). Independently re-ran npm run test:process-fact-contract and confirmed green; DEV-time adversarial bite test (registry entry removed -> fails, restored -> passes) is documented and cross-corroborated by an independent round-2 quality reviewer pass (RP-003) rather than blindly trusted. The one real finding (F-001, medium, synthetic non-command map key) was resolved with an 8-line deviation comment and verified in round 2, not silently dismissed. No TODO/FIXME/HACK left in the diff."
+  },
+  "_hash": "3535128013513620c739c809edb29c885ccb716b4df2bd01f8e4fa5cdaf0d6d8"
+}
