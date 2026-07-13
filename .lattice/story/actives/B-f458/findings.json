@@ -800,7 +800,7 @@
       "desc": "F-031 remains bypassable after the constructor call completes: the guard enforces the exact binding call parent chain but does not constrain dataflow from the canonical `report.claims` result. In delivery-context-pack.ts, add `export const leakBox: any = {};` and add `leakBox.payload = report.claims;` immediately after the unchanged canonical `const report = { ... claims: createLegacyLocalOnlyDeliveryClaims() }`. All compatibility binding references, occurrence counts, and approved call shapes remain byte-for-byte canonical, so scanLegacyDeliveryCompatibilityUsage returns no violation and directlyExportsCompatibilityBinding returns false (it now only asks whether there is a noncanonical import-binding reference, lines 857-866). A downstream module can import leakBox and consume the retired claims through property/destructuring access with no graph edge. The positive control wraps the constructor itself in an assignment, which correctly breaks the parent chain but does not cover post-call assignment. Bind/forbid escape of the canonical claims property result, or structurally lock the complete canonical containing statement/function rather than only the constructor call chain; add post-construction exported-container assignment controls.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T12:44:43.926Z",
@@ -812,7 +812,11 @@
         "packages/main/src/handlers/delivery-context-pack.ts"
       ],
       "signatureTag": "adversarial|ts|remains-bypassable-constructor",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 57a7d2cf68: normalized whole-source TypeScript AST fingerprints bind every approved importer, so post-call report.claims assignment or any executable/export mutation causes fingerprint drift and rejection; exact leakBox regression passes.",
+      "resolvedAt": "2026-07-13T12:57:02.662Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-034",
