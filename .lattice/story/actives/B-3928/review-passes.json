@@ -409,6 +409,22 @@
       },
       "readDiagnostics": [],
       "_hash": "bf04805585b7a03c0f68af22e6501ad0e6ef92331c2acd9b8202a44f94d0699a"
+    },
+    {
+      "id": "B-3928:RP-020",
+      "agent": "lattice-review-docs",
+      "note": "Incremental docs review checked the scope-changed delivery-role baseline fields against the mirrored delivery reviewer prompt and verifier defaults. The JSON and Markdown describe the same fresh-context input fence, the prompt explicitly excludes prior reviewer results and test-evidence.json, the Codex/Claude mirrors match, and node scripts/verify-proof-or-stop-prompt-baseline.mjs passes; no documentation drift or unsupported promise found.",
+      "createdAt": "2026-07-13T02:50:51.693Z",
+      "reviewRound": "2026-07-13T02:45:15.808Z",
+      "reviewRunId": "B-3928:RR-041",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "f54336e059b3f2381996508a36d7c8b9acebb038c7b6dc1585fe29b025711805"
     }
   ]
 }
