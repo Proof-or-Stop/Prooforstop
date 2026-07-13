@@ -38,11 +38,11 @@
           "file": "packages/main/tests/milestone-status.test.mjs",
           "command": "npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
-          "note": "desync scenario output contains milestone_ledger_set hint + desync prefix",
-          "headHash": "34484b74cc0b055bf2a445e60c34414cba594fce",
-          "materialHash": "9282c0c7e9b943afd1be76a517c44d96d5d6ef35a48e9b83f59f9d87ffacd166",
-          "storyFilesHash": "b287e991b66fd2fcac0127697cac31a8c462eec35fdff33ef3efd15deb082ea8",
-          "timestamp": "2026-07-13T23:51:07.972Z"
+          "note": "desync scenario output contains milestone_ledger_set hint + desync prefix (re-recorded post-commit for fresh binding)",
+          "headHash": "d60e079013f7df7fe636c1792a5df2f52e90bfda",
+          "materialHash": "884c883e2d84d5cf00f6aa4996fd9ceecb0a281a1c3f7e3a00d785c3d499fa55",
+          "storyFilesHash": "21a4c750033563ef351d12c47253c450cfd1ff47ab309c2f81c0e279def6cc99",
+          "timestamp": "2026-07-13T23:51:47.437Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -50,11 +50,11 @@
           "file": "packages/main/tests/milestone-status.test.mjs",
           "command": "npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
-          "note": "non-desync uncovered case has hint without desync claim; not_applicable and shrinkage rows produce no hint",
-          "headHash": "34484b74cc0b055bf2a445e60c34414cba594fce",
-          "materialHash": "9282c0c7e9b943afd1be76a517c44d96d5d6ef35a48e9b83f59f9d87ffacd166",
-          "storyFilesHash": "b287e991b66fd2fcac0127697cac31a8c462eec35fdff33ef3efd15deb082ea8",
-          "timestamp": "2026-07-13T23:51:07.972Z"
+          "note": "non-desync uncovered case has hint without desync claim; not_applicable and shrinkage rows produce no hint (re-recorded post-commit for fresh binding)",
+          "headHash": "d60e079013f7df7fe636c1792a5df2f52e90bfda",
+          "materialHash": "884c883e2d84d5cf00f6aa4996fd9ceecb0a281a1c3f7e3a00d785c3d499fa55",
+          "storyFilesHash": "21a4c750033563ef351d12c47253c450cfd1ff47ab309c2f81c0e279def6cc99",
+          "timestamp": "2026-07-13T23:51:47.437Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -62,11 +62,11 @@
           "file": "packages/main/tests/milestone-status.test.mjs",
           "command": "npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
-          "note": "gap ids/severities/pass-fail byte-identical for identical fixtures pre/post (message-layer only proven)",
-          "headHash": "34484b74cc0b055bf2a445e60c34414cba594fce",
-          "materialHash": "9282c0c7e9b943afd1be76a517c44d96d5d6ef35a48e9b83f59f9d87ffacd166",
-          "storyFilesHash": "b287e991b66fd2fcac0127697cac31a8c462eec35fdff33ef3efd15deb082ea8",
-          "timestamp": "2026-07-13T23:51:07.972Z"
+          "note": "gap ids/severities/pass-fail byte-identical for identical fixtures pre/post (message-layer only proven; re-recorded post-commit for fresh binding)",
+          "headHash": "d60e079013f7df7fe636c1792a5df2f52e90bfda",
+          "materialHash": "884c883e2d84d5cf00f6aa4996fd9ceecb0a281a1c3f7e3a00d785c3d499fa55",
+          "storyFilesHash": "21a4c750033563ef351d12c47253c450cfd1ff47ab309c2f81c0e279def6cc99",
+          "timestamp": "2026-07-13T23:51:47.437Z"
         }
       ]
     },
