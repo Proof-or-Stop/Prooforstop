@@ -10,6 +10,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import ts from 'typescript';
 import { MAIN_TOOLS } from '../cli-engine.js';
 import { NESTED_SPACE_ALIASES } from '../cli/alias-normalizer.js';
 
@@ -305,19 +306,49 @@ function lineNumberAt(text: string, index: number): number {
   return text.slice(0, index).split(/\r?\n/).length;
 }
 
-function extractImportSpecifiers(text: string): Array<{ specifier: string; index: number }> {
-  const specifiers: Array<{ specifier: string; index: number }> = [];
-  const patterns = [
-    /\bfrom\s*['"]([^'"]+)['"]/g,
-    /\bimport\s*\(\s*['"]([^'"]+)['"]\s*\)/g,
-    /\brequire\s*\(\s*['"]([^'"]+)['"]\s*\)/g,
-  ];
-  for (const pattern of patterns) {
-    let match: RegExpExecArray | null;
-    while ((match = pattern.exec(text)) !== null) {
-      specifiers.push({ specifier: match[1], index: match.index });
+type ModuleReferenceKind = 'import' | 'export' | 'dynamic-import' | 'require';
+
+interface ModuleReference {
+  specifier: string;
+  index: number;
+  kind: ModuleReferenceKind;
+}
+
+const parsedSourceCache = new Map<string, { text: string; source: ts.SourceFile }>();
+
+function parseSource(file: string, text: string): ts.SourceFile {
+  const cached = parsedSourceCache.get(file);
+  if (cached?.text === text) return cached.source;
+  const scriptKind = /\.[cm]?js$/.test(file) ? ts.ScriptKind.JS : ts.ScriptKind.TS;
+  const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, scriptKind);
+  parsedSourceCache.set(file, { text, source });
+  return source;
+}
+
+function staticModuleText(node: ts.Expression): string | undefined {
+  return ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node) ? node.text : undefined;
+}
+
+function extractImportSpecifiers(text: string, file = '<module-scan>.ts'): ModuleReference[] {
+  const source = parseSource(file, text);
+  const specifiers: ModuleReference[] = [];
+  const add = (node: ts.Expression, kind: ModuleReferenceKind): void => {
+    const specifier = staticModuleText(node);
+    if (specifier !== undefined) specifiers.push({ specifier, index: node.getStart(source), kind });
+  };
+  const visit = (node: ts.Node): void => {
+    if (ts.isImportDeclaration(node)) add(node.moduleSpecifier, 'import');
+    else if (ts.isExportDeclaration(node) && node.moduleSpecifier) add(node.moduleSpecifier, 'export');
+    else if (ts.isImportEqualsDeclaration(node)
+      && ts.isExternalModuleReference(node.moduleReference)
+      && node.moduleReference.expression) add(node.moduleReference.expression, 'require');
+    else if (ts.isCallExpression(node) && node.arguments.length === 1) {
+      if (node.expression.kind === ts.SyntaxKind.ImportKeyword) add(node.arguments[0], 'dynamic-import');
+      else if (ts.isIdentifier(node.expression) && node.expression.text === 'require') add(node.arguments[0], 'require');
     }
-  }
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
   return specifiers;
 }
 
@@ -341,9 +372,46 @@ function moduleSpecifierResolvesTo(file: string, specifier: string, targetFile: 
   return target === normalizeModulePath(targetFile);
 }
 
+function identifierCount(source: ts.SourceFile, symbol: string): number {
+  let count = 0;
+  const visit = (node: ts.Node): void => {
+    if (ts.isIdentifier(node) && node.text === symbol) count += 1;
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return count;
+}
+
+function directIdentifierCallCount(source: ts.SourceFile, symbol: string): number {
+  let count = 0;
+  const visit = (node: ts.Node): void => {
+    if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === symbol) count += 1;
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return count;
+}
+
+function importedCompatSymbols(file: string, source: ts.SourceFile): string[] {
+  const symbols: string[] = [];
+  for (const statement of source.statements) {
+    if (!ts.isImportDeclaration(statement)
+      || !ts.isStringLiteral(statement.moduleSpecifier)
+      || !moduleSpecifierResolvesTo(file, statement.moduleSpecifier.text, LEGACY_DELIVERY_COMPAT_MODULE)) continue;
+    const bindings = statement.importClause?.namedBindings;
+    if (!bindings || !ts.isNamedImports(bindings)) continue;
+    for (const element of bindings.elements) {
+      const imported = (element.propertyName ?? element.name).text;
+      symbols.push(element.name.text === imported ? imported : `${imported} as ${element.name.text}`);
+    }
+  }
+  return symbols;
+}
+
 function scanLegacyDeliveryCompatibilityUsage(file: string, text: string): Violation[] {
   if (file === LEGACY_DELIVERY_COMPAT_MODULE) return [];
-  const compatImports = extractImportSpecifiers(text)
+  const source = parseSource(file, text);
+  const compatImports = extractImportSpecifiers(text, file)
     .filter(({ specifier }) => moduleSpecifierResolvesTo(file, specifier, LEGACY_DELIVERY_COMPAT_MODULE));
   if (compatImports.length === 0) return [];
   const approved = approvedLegacyDeliveryCompatUsages.get(file);
@@ -357,14 +425,7 @@ function scanLegacyDeliveryCompatibilityUsage(file: string, text: string): Viola
   }
 
   const violations: Violation[] = [];
-  const importedSymbols: string[] = [];
-  const importPattern = /import\s+\{([\s\S]*?)\}\s+from\s*['"]([^'"]+)['"]/g;
-  let importMatch: RegExpExecArray | null;
-  while ((importMatch = importPattern.exec(text)) !== null) {
-    if (!moduleSpecifierResolvesTo(file, importMatch[2], LEGACY_DELIVERY_COMPAT_MODULE)) continue;
-    importedSymbols.push(...importMatch[1].split(',').map(symbol => symbol.trim().replace(/^type\s+/, '')).filter(Boolean));
-  }
-  const actualSymbols = [...new Set(importedSymbols)].sort();
+  const actualSymbols = [...new Set(importedCompatSymbols(file, source))].sort();
   const expectedSymbols = [...approved.symbols].sort();
   if (compatImports.length !== 1 || JSON.stringify(actualSymbols) !== JSON.stringify(expectedSymbols)) {
     violations.push({
@@ -375,13 +436,13 @@ function scanLegacyDeliveryCompatibilityUsage(file: string, text: string): Viola
     });
   }
   for (const [symbol, expectedCount] of Object.entries(approved.calls)) {
-    const actualCount = (text.match(new RegExp(`\\b${symbol}\\s*\\(`, 'g')) ?? []).length;
+    const actualCount = directIdentifierCallCount(source, symbol);
     if (actualCount !== expectedCount) {
       violations.push({ file, line: 1, label: 'legacy delivery compatibility call-count drift', text: `${symbol}: expected ${expectedCount}, got ${actualCount}` });
     }
   }
   for (const [symbol, expectedCount] of Object.entries(approved.occurrences)) {
-    const actualCount = (text.match(new RegExp(`\\b${symbol}\\b`, 'g')) ?? []).length;
+    const actualCount = identifierCount(source, symbol);
     if (actualCount !== expectedCount) {
       violations.push({ file, line: 1, label: 'legacy delivery compatibility symbol escape', text: `${symbol}: expected ${expectedCount} local occurrence(s), got ${actualCount}` });
     }
@@ -411,10 +472,40 @@ function scanLegacyDeliveryCompatibilityUsage(file: string, text: string): Viola
 function directlyExportsCompatibilityBinding(file: string, text: string): boolean {
   const approved = approvedLegacyDeliveryCompatUsages.get(file);
   if (!approved) return false;
-  const values = Object.keys(approved.calls).join('|');
-  return new RegExp(`\\bexport\\s*\\{[^}]*\\b(?:${values})\\b[^}]*\\}`).test(text)
-    || new RegExp(`\\bexport\\s+default\\s+(?:${values})\\b`).test(text)
-    || new RegExp(`\\bexport\\s+(?:const|let|var)\\s+\\w+\\s*=\\s*(?:${values})\\b`).test(text);
+  const source = parseSource(file, text);
+  const valueBindings = new Set(Object.keys(approved.calls));
+  const containsValueBinding = (root: ts.Node): boolean => {
+    let found = false;
+    const visit = (node: ts.Node): void => {
+      if (found) return;
+      if (ts.isIdentifier(node) && valueBindings.has(node.text)) {
+        found = true;
+        return;
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(root);
+    return found;
+  };
+  const hasExportModifier = (node: ts.Node): boolean => (
+    ts.canHaveModifiers(node)
+    && (ts.getModifiers(node)?.some(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword) ?? false)
+  );
+
+  for (const statement of source.statements) {
+    if (ts.isExportDeclaration(statement) && !statement.moduleSpecifier && statement.exportClause && ts.isNamedExports(statement.exportClause)) {
+      if (statement.exportClause.elements.some(element => valueBindings.has((element.propertyName ?? element.name).text))) return true;
+    }
+    if (ts.isExportAssignment(statement) && containsValueBinding(statement.expression)) return true;
+  }
+
+  const usageDrift = Object.entries(approved.calls)
+    .some(([symbol, expected]) => directIdentifierCallCount(source, symbol) !== expected)
+    || Object.entries(approved.occurrences)
+      .some(([symbol, expected]) => identifierCount(source, symbol) !== expected)
+    || (text.match(approved.directUsePattern) ?? []).length !== approved.directUseCount;
+  if (!usageDrift) return false;
+  return source.statements.some(statement => hasExportModifier(statement) && containsValueBinding(statement));
 }
 
 function scanLegacyDeliveryCompatibilityGraph(fileTexts: ReadonlyMap<string, string>): Violation[] {
@@ -423,9 +514,9 @@ function scanLegacyDeliveryCompatibilityGraph(fileTexts: ReadonlyMap<string, str
 
   for (const [file, text] of fileTexts) {
     if (directlyExportsCompatibilityBinding(file, text)) exporters.add(normalizeModulePath(file));
-    for (const { specifier, index } of extractImportSpecifiers(text)) {
+    for (const { specifier, index, kind } of extractImportSpecifiers(text, file)) {
       if (!moduleSpecifierResolvesTo(file, specifier, LEGACY_DELIVERY_COMPAT_MODULE)) continue;
-      if (/\bexport\s+(?:\*|\{[\s\S]*?\})\s+from\s*['"][^'"]+['"]/.test(text.slice(Math.max(0, index - 200), index + specifier.length + 100))) {
+      if (kind === 'export') {
         violations.push({ file, line: lineNumberAt(text, index), label: 'direct legacy delivery compatibility re-export', text: specifier });
         exporters.add(normalizeModulePath(file));
       }
@@ -437,7 +528,7 @@ function scanLegacyDeliveryCompatibilityGraph(fileTexts: ReadonlyMap<string, str
     changed = false;
     for (const [file, text] of fileTexts) {
       const normalizedFile = normalizeModulePath(file);
-      for (const { specifier, index } of extractImportSpecifiers(text)) {
+      for (const { specifier, index, kind } of extractImportSpecifiers(text, file)) {
         if (!specifier.startsWith('.')) continue;
         const target = normalizeModulePath(join(dirname(file), specifier).replace(/\\/g, '/'));
         if (!exporters.has(target) || target === normalizeModulePath(LEGACY_DELIVERY_COMPAT_MODULE)) continue;
@@ -447,7 +538,7 @@ function scanLegacyDeliveryCompatibilityGraph(fileTexts: ReadonlyMap<string, str
           label: 'transitive legacy delivery compatibility import',
           text: `${specifier} via ${target}`,
         });
-        if (/\bexport\s+(?:\*|\{[\s\S]*?\})\s+from\s*['"]/.test(text.slice(Math.max(0, index - 200), index + specifier.length + 100)) && !exporters.has(normalizedFile)) {
+        if (kind === 'export' && !exporters.has(normalizedFile)) {
           exporters.add(normalizedFile);
           changed = true;
         }
@@ -466,7 +557,7 @@ function shouldScanImports(file: string): boolean {
 function scanImportSpecifiers(file: string, text: string): Violation[] {
   if (!shouldScanImports(file)) return [];
   const violations: Violation[] = [];
-  for (const { specifier, index } of extractImportSpecifiers(text)) {
+  for (const { specifier, index } of extractImportSpecifiers(text, file)) {
     const label = retiredModuleMatch(file, specifier);
     if (label) {
       violations.push({
@@ -573,10 +664,24 @@ function assertLegacyDeliveryCompatibilityPositiveControls(): void {
   assert.ok(twoHopViolations.some(violation => violation.label === 'legacy delivery compatibility alias/export escape'), 'patched approved importer export-list escape must be caught');
   assert.ok(twoHopViolations.some(violation => violation.label === 'transitive legacy delivery compatibility import' && violation.file === twoHopConsumer), 'true two-hop consumer import through a patched approved exporter must be caught');
 
+  const escapedWrapperProducer = `${readRel(approvedProducer)}\nexport function emitLegacyClaims() { return createLegacyLocalOnlyDeliveryClaim\\u0073(); }\n`;
+  const escapedWrapperConsumer = 'packages/main/src/core/escaped-wrapper-consumer.ts';
+  const escapedWrapperTexts = new Map<string, string>([
+    [approvedProducer, escapedWrapperProducer],
+    [escapedWrapperConsumer, "import { emitLegacyClaims } from '../handlers/delivery-context-pack.js';\nexport const leaked = { ...emitLegacyClaims() };\n"],
+  ]);
+  const escapedWrapperViolations = [
+    ...scanLegacyDeliveryCompatibilityUsage(approvedProducer, escapedWrapperProducer),
+    ...scanLegacyDeliveryCompatibilityGraph(escapedWrapperTexts),
+  ];
+  assert.ok(escapedWrapperViolations.some(violation => violation.label === 'legacy delivery compatibility symbol escape'), 'Unicode-escaped compatibility identifier in an exported wrapper must be decoded and caught');
+  assert.ok(escapedWrapperViolations.some(violation => violation.label === 'transitive legacy delivery compatibility import' && violation.file === escapedWrapperConsumer), 'downstream consumer of Unicode-escaped compatibility wrapper must be caught');
+
   const matrix: Array<[string, string]> = [
     ['namespace import', "import * as compat from './legacy-delivery-claims-compat.js';\ncompat.createLegacyLocalOnlyDeliveryClaims();"],
     ['aliased named import', "import { createLegacyLocalOnlyDeliveryClaims as indirect } from './legacy-delivery-claims-compat.js';\nindirect();"],
     ['dynamic import', "const compat = await import('./legacy-delivery-claims-compat.js');\ncompat.createLegacyLocalOnlyDeliveryClaims();"],
+    ['template-literal dynamic import', "const compat = await import(`./legacy-delivery-claims-compat.js`);\ncompat.createLegacyLocalOnlyDeliveryClaims();"],
     ['require import', "const compat = require('./legacy-delivery-claims-compat.js');\ncompat.createLegacyLocalOnlyDeliveryClaims();"],
     ['direct re-export', "export { createLegacyLocalOnlyDeliveryClaims } from './legacy-delivery-claims-compat.js';"],
   ];
