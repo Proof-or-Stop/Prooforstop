@@ -4,7 +4,7 @@
   "title": "Register milestone-closeout.json in the process-fact registry and contract script",
   "description": "Pre-existing inventory omission noted by the B-12a1 round-2 docs reviewer: packages/main/src/core/store.ts writeMilestoneCloseout (writeJson at ~line 706) persists milestone-closeout.json, produced by the DONE-time capture path in packages/main/src/handlers/milestone-status.ts (~line 145, buildMilestoneCloseoutSnapshot -> store.writeMilestoneCloseout). The artifact is already listed in lifecycle-registry.ts (line 616) and scope-contract-smoke.ts (line 265), and the read-only milestone_closeout command is registered in process-fact-levels.ts (L0 readiness-read). But it is missing from BOTH the process-fact registry (packages/main/src/core/process-fact-registry.ts has no PROCESS_FACT_ARTIFACT_BY_COMMAND entry and no 'artifact:milestone-closeout.json' fact entry) AND the contract script's requiredArtifactFacts list (scripts/verify-process-fact-contract.mjs line ~171). So the process-fact inventory under-reports a command-generated story metadata artifact, and the contract test cannot notice if closeout-snapshot handling drifts. Fix: register it in both places following the neighboring artifact:milestone-ledger.json pattern ({ name: 'artifact:milestone-closeout.json', path: 'milestone-closeout.json', signed: false }), with producer handlers/milestone-status and a consumer description matching its real semantics: the snapshot is frozen at DONE and later read by the DONE-phase milestone_status / milestone_closeout report path; it is snapshot-only and never re-blocks DONE. Unrelated to the scope-classifier registry work (B-12a1 and its follow-up).",
   "type": "chore",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "medium",
   "keywords": [
     "process-fact-registry",
@@ -80,6 +80,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-07-13T08:49:22.585Z",
+      "branch": "story/B-9188",
+      "user": "Harmonygo",
+      "sessionId": "9f8bf495-b234-42dc-9ecb-16d603a760d2",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-13T09:05:00.989Z",
       "branch": "story/B-9188",
       "user": "Harmonygo",
       "sessionId": "9f8bf495-b234-42dc-9ecb-16d603a760d2",
