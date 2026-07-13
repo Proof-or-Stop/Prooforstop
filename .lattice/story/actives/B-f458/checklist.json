@@ -93,7 +93,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-13T11:42:16.902Z",
+      "endTime": "2026-07-13T11:53:54.666Z",
       "userSees": "User sees `PASS composite scope digest: semantic scope facts bound`; changing acknowledgement content/provenance, milestone ledger, or slice plan changes the digest and blocks metadata-only review retention until signed re-attestation.",
       "verificationIntent": {
         "happy": [
@@ -140,33 +140,33 @@
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full suite passed at d9f301399f, including composite scope digest and re-attestation coverage.",
-          "headHash": "fba88e2c7996855724ee4aab10dff20451aaf429",
-          "materialHash": "90f15839206772318007d79565d77df2790fb2399747a67c697139728b75140e",
-          "storyFilesHash": "ece10afc0df39a2ec04b025872be19ec512b30a00d91b9ad58cfed333007ccf8",
-          "timestamp": "2026-07-13T11:42:17.092Z"
+          "note": "Full suite passed at 932387b7a9 including scope digest and re-attestation coverage.",
+          "headHash": "f5afcc6f3ef7265362d81eb75b658e03e002b387",
+          "materialHash": "81a56fd7ef5fb7410e9e53b484d76c581ba6d919947a55ac5367806a3a43292d",
+          "storyFilesHash": "5f21567f7ebe6e0b7137ce5bcecb6ce6b03f379e956ece1ce56818a4bf0b7cbb",
+          "timestamp": "2026-07-13T11:53:54.806Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
           "command": "npm run test:closeout-trust",
           "result": "pass",
-          "note": "Closeout trust smoke passed at d9f301399f across scope drift and metadata-only boundaries.",
-          "headHash": "fba88e2c7996855724ee4aab10dff20451aaf429",
-          "materialHash": "90f15839206772318007d79565d77df2790fb2399747a67c697139728b75140e",
-          "storyFilesHash": "ece10afc0df39a2ec04b025872be19ec512b30a00d91b9ad58cfed333007ccf8",
-          "timestamp": "2026-07-13T11:42:17.267Z"
+          "note": "Closeout trust smoke passed at 932387b7a9.",
+          "headHash": "f5afcc6f3ef7265362d81eb75b658e03e002b387",
+          "materialHash": "81a56fd7ef5fb7410e9e53b484d76c581ba6d919947a55ac5367806a3a43292d",
+          "storyFilesHash": "5f21567f7ebe6e0b7137ce5bcecb6ce6b03f379e956ece1ce56818a4bf0b7cbb",
+          "timestamp": "2026-07-13T11:53:54.942Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
-          "note": "Two-hop compatibility export/import attack controls passed at d9f301399f.",
-          "headHash": "fba88e2c7996855724ee4aab10dff20451aaf429",
-          "materialHash": "90f15839206772318007d79565d77df2790fb2399747a67c697139728b75140e",
-          "storyFilesHash": "ece10afc0df39a2ec04b025872be19ec512b30a00d91b9ad58cfed333007ccf8",
-          "timestamp": "2026-07-13T11:42:17.401Z"
+          "note": "Graph propagation rejects Unicode-wrapper downstream imports at 932387b7a9.",
+          "headHash": "f5afcc6f3ef7265362d81eb75b658e03e002b387",
+          "materialHash": "81a56fd7ef5fb7410e9e53b484d76c581ba6d919947a55ac5367806a3a43292d",
+          "storyFilesHash": "5f21567f7ebe6e0b7137ce5bcecb6ce6b03f379e956ece1ce56818a4bf0b7cbb",
+          "timestamp": "2026-07-13T11:53:55.076Z"
         }
       ]
     },
