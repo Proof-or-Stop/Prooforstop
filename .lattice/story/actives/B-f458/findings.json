@@ -19,6 +19,26 @@
       ],
       "signatureTag": "closeout-receipt-replay",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-002",
+      "desc": "The delivery-context runtime validator accepts semantically invalid payloads that CHK-003 says must fail closed. validatePersistedDeliveryContextPack leaves candidateRouting and validation completely unchecked, does not exact-key or type-check claims, accepts non-string entries in diff.changedFiles/testFiles/evidenceCommands, and does not validate deliveryCheck.ref. A structurally plausible pack such as changedFiles:[42] with arbitrary candidateRouting/validation and extra claims fields is treated as trusted, while the smoke only tests authorityDone=true. Tighten the persisted schema to the producer contract and add adversarial cases.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T09:19:22.136Z",
+      "reviewRound": "2026-07-13T09:17:07.451Z",
+      "reviewRunId": "B-f458:RR-002",
+      "_hash": "7baaf15540e9dc7ee5db5791b68466f37ee8f172beece4e407d20362a650375c",
+      "files": [
+        "packages/main/src/core/closeout-trust.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts",
+        "packages/main/src/handlers/delivery-context-pack.ts"
+      ],
+      "signatureTag": "trusted-artifact-schema-gap",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
