@@ -2285,7 +2285,7 @@
       "desc": "The new alternative merger regresses exact identity precision for the comma operator. provenanceForExpression groups `&&`, `||`, `??`, and comma together and danger-merges both operands (lines 1963-1971), but comma deterministically evaluates to the right operand; it is not an alternative. Consequently `const safeRun = (value:string) => value; const run = (eval, safeRun); run(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")` is falsely classified as global eval even though the invoked identity is exactly the local callback. dynamicReferenceKind already implements the correct comma rule by following only `.right`, so the two provenance paths disagree. Handle comma as right-only, retain danger-wins for genuinely feasible conditional/logical branches, and add dangerous-left/safe-right and safe-left/dangerous-right controls (plus imported/re-exported variants) to pin both detection and precision.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T18:07:33.478Z",
@@ -2305,7 +2305,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "comma-operator-identity-precision",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by a34d89024d: comma expressions propagate only the runtime result on the right; danger-safe and safe-danger controls pass.",
+      "resolvedAt": "2026-07-13T18:28:06.197Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-089",
