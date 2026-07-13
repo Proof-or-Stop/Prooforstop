@@ -10,7 +10,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-13T08:37:36.211Z",
-      "endTime": "2026-07-13T11:22:26.496Z",
+      "endTime": "2026-07-13T11:32:14.081Z",
       "userSees": "User runs the M4.C1 contract verifier and sees `PASS closeout artifact classifications: closed policy set verified`; adding an unknown trusted path or wrong writer makes the command exit non-zero with the exact path.",
       "verificationIntent": {
         "happy": [
@@ -53,33 +53,33 @@
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full suite passed after canonical local-only delivery claims schema fix at commit f24029a313.",
-          "headHash": "f24029a3139fa211603c4a3700ae3992c0f382f8",
-          "materialHash": "506f5cb69448a0c4b08d3cf529d3816cb842380b1a1d699ff19f3774d05fabc4",
-          "storyFilesHash": "8c925217af7b0db4a3e0a978a92e65bcd3850e75a5d1dacd444bafc71a894456",
-          "timestamp": "2026-07-13T11:22:26.706Z"
+          "note": "Full suite passed after narrow legacy delivery compatibility quarantine at commit 398ed6e6b5.",
+          "headHash": "398ed6e6b52e149df7dd480b053a94a4c1ee8868",
+          "materialHash": "949f484ddebf989d9864095fd63b493a60406fdb9549301821ec4d09b6664f26",
+          "storyFilesHash": "30e73f2c05308009fc402ffe593470a57490f9a2ecdd44d5e0baaa7893eaf108",
+          "timestamp": "2026-07-13T11:32:14.303Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
-          "note": "Retired vocabulary guard passes with no new allowlist and exact canonical claim keys retained.",
-          "headHash": "f24029a3139fa211603c4a3700ae3992c0f382f8",
-          "materialHash": "506f5cb69448a0c4b08d3cf529d3816cb842380b1a1d699ff19f3774d05fabc4",
-          "storyFilesHash": "8c925217af7b0db4a3e0a978a92e65bcd3850e75a5d1dacd444bafc71a894456",
-          "timestamp": "2026-07-13T11:22:26.846Z"
+          "note": "Guard enforces exact approved compatibility importers, symbols, call counts, direct usages, and forbids constructor spreading.",
+          "headHash": "398ed6e6b52e149df7dd480b053a94a4c1ee8868",
+          "materialHash": "949f484ddebf989d9864095fd63b493a60406fdb9549301821ec4d09b6664f26",
+          "storyFilesHash": "30e73f2c05308009fc402ffe593470a57490f9a2ecdd44d5e0baaa7893eaf108",
+          "timestamp": "2026-07-13T11:32:14.438Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
           "command": "npm run test:closeout-trust",
           "result": "pass",
-          "note": "Adversarial true-value and extra-key delivery claim mutations remain rejected by the shared exact schema.",
-          "headHash": "f24029a3139fa211603c4a3700ae3992c0f382f8",
-          "materialHash": "506f5cb69448a0c4b08d3cf529d3816cb842380b1a1d699ff19f3774d05fabc4",
-          "storyFilesHash": "8c925217af7b0db4a3e0a978a92e65bcd3850e75a5d1dacd444bafc71a894456",
-          "timestamp": "2026-07-13T11:22:26.984Z"
+          "note": "Positive controls catch unapproved import+spread+call and direct retired tokens; exact false values and extra-key rejection remain covered.",
+          "headHash": "398ed6e6b52e149df7dd480b053a94a4c1ee8868",
+          "materialHash": "949f484ddebf989d9864095fd63b493a60406fdb9549301821ec4d09b6664f26",
+          "storyFilesHash": "30e73f2c05308009fc402ffe593470a57490f9a2ecdd44d5e0baaa7893eaf108",
+          "timestamp": "2026-07-13T11:32:14.572Z"
         }
       ]
     },
