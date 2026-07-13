@@ -37,7 +37,30 @@
       "context": "Insert { name: 'artifact:milestone-closeout.json', path: 'milestone-closeout.json', signed: false } into requiredArtifactFacts (scripts/verify-process-fact-contract.mjs ~line 171, next to the milestone-ledger.json line ~196), matching the neighboring assertion pattern. npm run test:process-fact-contract must pass with the registry entry present and fail if the CHK-001 registry entry is removed (non-vacuous check).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "requiredArtifactFacts contains { name: artifact:milestone-closeout.json, path: milestone-closeout.json, signed: false } and the contract run stays green",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The entry sits in requiredArtifactFacts so the loop also enforces path match and kind (artifact vs signed-artifact) drift for this artifact",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "With the required-list line present but the registry entry absent, the script fails with artifact missing from PROCESS_FACT_REGISTRY (the line is load-bearing, shared bite test with CHK-001)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
