@@ -2643,6 +2643,33 @@
       ],
       "signatureTag": "adversarial|ts|async-transform-provenance",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f458:F-101",
+      "desc": "The F091–F097 labels are present and process-pinned, and the positive/matching dynamic-import controls execute, but several newly added precision negatives pass vacuously because DYNAMIC_CODE_ANALYSIS_PREFILTER returns [] before type/provenance analysis. `inline conditional safe target negative` contains only local left/right calls; `deterministic final safe namespace reassignment negative`, `nested default namespace safe negative`, and `cyclic nested namespace safe negative` use static imports and safeRun names. None matches the raw prefilter, so scanDynamicCodeGeneration parses them and immediately returns [] without building bindings or exercising expressionKind, conditional alias overwrite precision, nested default projection, or cyclic namespace resolution. Exact process-label pins cannot distinguish this short-circuit from a real analyzed verdict. Add instrumentation/assertions that every provenance regression control reaches the intended analysis path (or force-analysis for the control program), and process-pin that execution contract; retain cheap prefilter coverage separately. This is complementary to F-098: F-098 proves the prefilter is semantically unsound for escaped dangerous code, while this finding proves current safety controls do not validate the repaired precision paths.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-13T19:04:43.196Z",
+      "reviewRound": "2026-07-13T18:55:49.140Z",
+      "reviewRunId": "B-f458:RR-110",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete 151eac3ea1 diff and full changed async provenance, prefilter, Promise, wrapped-call, URL, alias-order, nested-cycle, loader-safe, shared execution, instrumentation, and process-pin sections; unchanged portions were triaged by name and no decisions-document escalation was needed."
+      },
+      "_hash": "0a5233d74b491159887f7b04f9d5c19c3d3b22ebd3e52c0c1621dde9c9affa63",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "prefilter-vacuous-negative-controls",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
