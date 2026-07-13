@@ -2833,7 +2833,7 @@
       "desc": "The lazy AST fast path is unsound for safe-named property calls whose receiver carries dynamic provenance. Repro using the existing fixture graph: `import * as bridge from './dynamic-code-esm-named-reexport.js'; bridge.run('safe');`, where that module re-exports `evalRun as run`. The raw regex has no match (static import, safe member name, safe payload). hasDynamicExecutionAstCandidate then treats every PropertyAccessExpression with a non-dangerous member name and statically safe arguments as skippable, without consulting receiver/module provenance, so scanDynamicCodeGeneration returns [] before type analysis. Full provenance analysis is specifically capable of resolving namespace exports/re-exports and would classify `bridge.run` as eval; the guard contract rejects unapproved dynamic code generation even without a compatibility payload. This same hole applies to safe-named namespace/default/imported re-export members. Do not skip property calls solely from member spelling and arguments: require exact local-safe receiver/declaration evidence or conservatively reach the lazy executionBindings graph; add a namespace safe-named re-export positive control with a benign payload and a genuinely local receiver negative. Fresh build/guard otherwise pass: builds=553 cacheHits=2 fullAnalysis=1105 astCandidates=445 reachability=15, real 38.49s.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T19:58:40.962Z",
@@ -2844,7 +2844,11 @@
         "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
       ],
       "signatureTag": "lazy-property-call-reexport-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 3115d67a5d: Namespace and re-export receiver provenance is consulted before any property-call fast path.",
+      "resolvedAt": "2026-07-13T20:21:17.880Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-109",
