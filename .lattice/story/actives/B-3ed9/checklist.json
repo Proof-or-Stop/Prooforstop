@@ -7,7 +7,30 @@
       "userSees": "rg 'grill.json|clusters.json|scope-extension-decisions.json|cluster.json' packages/main/src/core/lifecycle-registry.ts shows the three new entries present and the singular cluster.json entry gone",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Under an enforce contract that lists no story-metadata paths, .lattice/story/actives/<id>/grill.json, clusters.json, and scope-extension-decisions.json classify as scope.lifecycle_artifact pass rows",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The registry closed set no longer contains the singular cluster.json entry: rg over lifecycle-registry.ts shows the three new entries and no singular entry",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A hand-created singular cluster.json at the story-dir top level (which no command writes) classifies fail-closed as rule=out_of_scope under enforce, preserving the narrow trust policy",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

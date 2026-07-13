@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-3ed9",
+  "sourceText": "In /Users/jek/Documents/Work/proofbound (Lattice story workflow required — run as a small chore story): the scope classifier registry LATTICE_LIFECYCLE_ARTIFACT_FILENAMES in packages/main/src/core/lifecycle-registry.ts is missing three command-generated story-metadata filenames written by packages/main/src/core/store.ts: grill.json (store.ts ~line 331), clusters.json (~line 439 — note the registry currently lists singular cluster.json, which store.ts never writes; likely a typo entry that should be checked/corrected), and scope-extension-decisions.json (~line 578). Under a mode=enforce scope contract these classify rule=out_of_scope and block phase gates, same friction class as the ProofStory artifacts fixed in story B-12a1 (which deliberately carved these three out as different command families). Verify each is actually written to the story dir top level, add them to the registry, decide whether to keep or remove the stale cluster.json entry, and extend the smoke in packages/main/src/tasks/scope-contract-smoke.ts accordingly.",
+  "normalizedOutcome": "grill.json, clusters.json, and scope-extension-decisions.json classify as lifecycle artifacts (not out_of_scope) under enforce scope contracts; the stale singular cluster.json registry entry is verified unwritten and removed; the scope-contract smoke covers all of this so regressions are caught.",
+  "acceptanceClaim": "The scope-contract smoke passes with new per-row assertions proving scope.lifecycle_artifact pass rows for grill.json, clusters.json, and scope-extension-decisions.json and fail-closed out_of_scope for the unregistered singular cluster.json.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:02fdc5ca1702a06649c1a0df0a057aa0c3fa20afdf4685085b2373cf99c1f7f4",
+  "createdAt": "2026-07-13T08:25:06.785Z",
+  "updatedAt": "2026-07-13T08:25:06.785Z"
+}

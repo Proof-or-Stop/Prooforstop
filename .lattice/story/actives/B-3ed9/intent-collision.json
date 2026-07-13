@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-3ed9",
+  "id": "IC-20260713082534",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "The request is a bounded two-deliverable chore: (1) correct the LATTICE_LIFECYCLE_ARTIFACT_FILENAMES closed set in packages/main/src/core/lifecycle-registry.ts by adding the three store.ts-written filenames (grill.json, clusters.json, scope-extension-decisions.json) and removing the stale singular cluster.json entry, which verification confirmed has no writer and no on-disk instance; (2) extend packages/main/src/tasks/scope-contract-smoke.ts per the B-12a1 pattern to lock both behaviors in. No classifier logic, writer code, or other registries are touched. Recorded after milestone_ledger_set to confirm candidate ledger sha256:34afbdfe53ed0adc880f86e737ea2725c6be2533397e71a4ac8295d6d72be78f.",
+  "acceptedInterpretationHash": "sha256:747d3706ae6fe7c26140515ff720228556d03fa6229ed223c9ee5d18156f4928",
+  "notes": "The keep-or-remove decision for cluster.json resolves to remove: rg shows the registry line is the only repo-wide occurrence and active story dirs contain zero cluster.json (vs 4 clusters.json, 1 grill.json).",
+  "ledgerHashBeforeDecision": "sha256:34afbdfe53ed0adc880f86e737ea2725c6be2533397e71a4ac8295d6d72be78f",
+  "confirmedLedgerHash": "sha256:34afbdfe53ed0adc880f86e737ea2725c6be2533397e71a4ac8295d6d72be78f",
+  "createdAt": "2026-07-13T08:25:34.886Z",
+  "updatedAt": "2026-07-13T08:25:34.886Z"
+}
