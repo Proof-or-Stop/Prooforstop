@@ -53,7 +53,7 @@
       "desc": "Receipt replay defeats the claimed manual/stale-write rejection. latestValidCloseoutReceipt filters all historical receipts for the path and returns any matching valid record, so after canonical A then canonical B, a manual revert of the artifact to A is accepted under the old receipt even though the latest write was not canonical. Reproduced against dist: receipts [A@2026-01-01,B@2026-01-02] plus current summary.json=A returned acceptedTimestamp=2026-01-01. Bind receipts to the actual write/commit and reject superseded/replayed receipts (including copied/reordered receipt-ledger entries).",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-13T09:19:23.032Z",
@@ -66,7 +66,11 @@
         "packages/main/src/tasks/closeout-trust-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|receipt-replay-defeats",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 812a711565. Only the final intact receipt-chain entry can qualify, and its introduction commit must equal the latest artifact-changing commit with pre-write HEAD as parent. A-to-B-to-manual-A replay, copy, and reorder regressions pass.",
+      "resolvedAt": "2026-07-13T09:37:53.935Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-004",
