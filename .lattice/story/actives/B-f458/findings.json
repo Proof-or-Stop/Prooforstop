@@ -1748,6 +1748,33 @@
       ],
       "signatureTag": "known-key-any-provenance",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-071",
+      "desc": "Spread order/enumerability precision is still incorrect in two ordinary safe cases. First, an unknown typed spread followed by an explicit safe property is deterministically overridden at runtime, but the object retains the spread index provenance and completeMembers:false; the exact safe dangerous-name member is then reclassified by memberProvenanceKind/indexKinds. `declare const source: Record<string, typeof eval>; const holder = { ...source, eval: (value: string) => value }; holder.eval(\"import(… )\")` is therefore falsely banned, while only the opposite order is tested. Second, the new positive `function object spread constructor provenance` copies the synthetic callable `constructor` member through object spread, although constructor is inherited/non-enumerable and `{ ...function() {} }.constructor` is Object, not Function; that payload does not perform dynamic code generation. Track per-key last-write certainty after unknown spreads, distinguish enumerable own spread members from synthetic/inherited callable metadata, replace the invalid positive, and add typed-spread-then-explicit-safe negatives.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T16:34:18.470Z",
+      "reviewRound": "2026-07-13T16:32:19.000Z",
+      "reviewRunId": "B-f458:RR-090",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete change diff and focused spread overwrite, safe dangerous-name, enumerable-member, and control semantics; unrelated unchanged portions were name-triaged."
+      },
+      "_hash": "669c7f3159c5f6ffc6bef00f98c8ec762692931aa15527e61a3efe98ba5249b1",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "spread-order-enumerability-precision",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
