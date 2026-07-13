@@ -181,7 +181,7 @@
       "desc": "F-001 was only partially resolved: the v2 chain prevents historical receipt replay, but it still does not distinguish a canonical CLI write from a hand-crafted co-commit. Repro against current dist created summary.json manually, built a v2 receipt with writerCommand=summary_set using the exported deterministic builder, committed artifact+receipt together with an arbitrary manual commit, and latestValidCloseoutReceipt returned ACCEPTED forged writer=summary_set. The causal checks all pass because artifactCommit equals receipt introductionCommit and receipt.headHash is its parent. Reclassifying the receipt as non-signed is honest, but CHK-001 canonical writer provenance and CHK-004/CHK-005 manual-write fail-closed guarantees still require a mechanically trusted writer fact. Bind provenance to an existing non-forgeable/controlled command event or signed CLI artifact, or narrow the acceptance claim; add this exact forged co-commit regression.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T09:40:21.624Z",
@@ -195,7 +195,11 @@
         "packages/main/src/core/process-fact-registry.ts"
       ],
       "signatureTag": "adversarial|ts|partially-resolved-chain",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 065b7dde13: the causal receipt no longer trusts a self-reported public key; verification is anchored to the signer identity embedded in the exact signed ReviewRun and rejects independently minted co-commit receipts.",
+      "resolvedAt": "2026-07-13T09:56:18.777Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-009",
