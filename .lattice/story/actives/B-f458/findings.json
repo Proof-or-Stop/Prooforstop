@@ -302,6 +302,28 @@
       "resolvedAt": "2026-07-13T10:17:18.491Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f458:F-013",
+      "desc": "The implementation correctly makes local causal receipts audit-only, but the process-fact registry still falsely classifies closeout-write-receipts.jsonl as gate evidence. The entry retains semantics=[artifact,schema-contract,freshness-policy,gate-evidence] and consumerGate=REVIEW evidence metadata-only retention gate, while REVIEW_RETENTION_PROTOCOL_METADATA_PATHS explicitly ignores the receipt file, latestValidCloseoutReceipt returns null without reading it, and latestCausallyValidCloseoutReceipt has no production consumer. This contradicts the registry rationale (not authority/not closeout evidence) and the project rule that gate-consumed facts must match actual mechanical consumers. Reclassify the artifact as audit/telemetry with no gate-evidence semantic or claimed consumer; keep the fail-closed authoritative boundary as the L4 runtime gate fact.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T10:18:54.721Z",
+      "reviewRound": "2026-07-13T10:16:45.271Z",
+      "reviewRunId": "B-f458:RR-011",
+      "_hash": "529ec245a68a8b2d4c551f3c0e3710a8321972724892fd7130828d9353eac773",
+      "files": [
+        "packages/main/src/core/process-fact-registry.ts",
+        "packages/main/src/core/lifecycle-registry.ts",
+        "packages/main/src/core/closeout-trust.ts",
+        "packages/main/src/core/review-run.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "audit-telemetry-gate-evidence-drift",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
