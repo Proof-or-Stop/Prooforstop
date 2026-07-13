@@ -1356,7 +1356,7 @@
       "desc": "F-054 is implemented with TypeChecker declaration provenance, but its exact regression contract remains incomplete. F-054 required for/for-of/case/enum shadow negatives plus global eval/Function positives and called out loop-local require. Commit 077a355a40 adds for-of eval, for-in Function, switch-case eval, catch eval, and nested-block Function controls, while existing controls cover function/parameter/import shadows and global eval/Function. It adds no classic for-initializer eval control, enum or namespace declaration-identity control, or loop-local require control; scripts/verify-process-fact-contract.mjs pins only the same subset. These are valid TypeScript declaration forms (confirmed parse-diagnostic-free), so a future regression in checker symbol/declaration provenance for one of those scopes could pass every current guard and process-contract test. Add exact negative controls for classic for initializer, enum/namespace declarations, and loop-local require (exercising loader classification where applicable), and pin their labels in the process contract.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-13T15:04:08.623Z",
@@ -1368,7 +1368,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "global-identifier-scope-control-gap",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by a600c677dc: classic for initializer, for-of/in loop-local require, enum and namespace provenance negatives are executable and process-pinned; LanguageService Program identity reuse and bounded distinct identities are directly asserted.",
+      "resolvedAt": "2026-07-13T15:15:51.518Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
