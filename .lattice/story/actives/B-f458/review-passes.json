@@ -425,6 +425,27 @@
         "scanEscalationReason": null
       },
       "_hash": "5feac02e86b4877bf076fda4e51378fa07da0ed6f6b4923608c9f834dd75e872"
+    },
+    {
+      "id": "B-f458:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "Concept PASS at 238958b265/cc1c319cd0: compatibility use is a finite structural proof over exactly four full AST parent chains and TypeChecker-bound import references; any other binding use taints the importer and downstream graph. Nonliteral loaders fail closed except four explicit file/function/argument allowlist entries, while literal/const paths and require/createRequire bindings are deterministically resolved. Doctor brief preserves burn counts, bounded actionable samples, advisory semantics, and an explicit --full route; doctor --full and JSON retain complete detail. Full npm test exits 0, including brief-output and process contract; fresh build plus retired-vocabulary guard also pass.",
+      "createdAt": "2026-07-13T12:45:00.576Z",
+      "reviewRound": "2026-07-13T12:40:44.967Z",
+      "reviewRunId": "B-f458:RR-049",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/brief-output-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c9cad26f8ad39f7bfa4045913038c2659d470bc64033d61b57879d6dae2ea33b"
     }
   ]
 }
