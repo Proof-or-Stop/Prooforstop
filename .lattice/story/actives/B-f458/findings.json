@@ -2254,7 +2254,7 @@
       "desc": "Static file-URL dynamic imports are still treated as unknown, causing a concrete safe-code false positive and leaving the F-082 `file-URL modules` resolution claim untested. staticRuntimeModulePath supports string/const values, import.meta.url, direct named fileURLToPath/dirname/join, and `pathToFileURL(...).href` (lines 1888-1931), but not the standard Node forms `import(new URL('./safe.js', import.meta.url))`, `import(pathToFileURL(absPath))` (URL object without `.href`), namespace helpers such as `url.pathToFileURL(path.join(...))`, or a literal `file:///...` URL mapped back to source. All fall to `{unknown:true, unknownMemberAccess:true}`, so calling a known safe export is rejected even when the target is statically exact. Add a canonical URL/path evaluator with symbol-identity checks and fileURLToPath conversion before source lookup; cover dangerous and safe modules across new URL, URL object/.href, namespace helpers, const aliases, query/hash suffixes, and ensure shadowed URL/path helpers remain unknown rather than trusted.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T18:07:22.379Z",
@@ -2274,7 +2274,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "static-file-url-resolution-precision",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by a34d89024d: standard new URL, URL object and path/file-URL helper forms resolve exact static local modules; unknown paths remain conservative.",
+      "resolvedAt": "2026-07-13T18:27:32.574Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-088",
