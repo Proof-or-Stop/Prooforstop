@@ -413,7 +413,7 @@
       "desc": "The REVIEW→TEST index exception removes the deadlock and correctly rejects stable-field/round/phase/action/branch/extra-key drift, but it does not authenticate or even compare most transition provenance. evaluatePersistedReviewToTestIndexTransition accepts any non-empty event.user, event.sessionId, and event.agent, and any parseable timestamp at or after run.startedAt. Therefore changing a canonical collectContext event from the real user/session/agent/timestamp to attacker-chosen non-empty values still returns ok:true; a same-UID writer can manually forge an index delta with the accepted shape and have it treated as the canonical story_advance transition. The smoke only mutates title and has no negative cases for user/sessionId/agent/timestamp, despite the contract requiring provenance mutation to block. Bind the exception to mechanically verifiable transition provenance (or a gate-authoritative transition artifact) and add negative tests for each provenance field; shape/presence alone cannot distinguish production collectContext from a same-UID manual write. Post-closeout artifacts remain correctly blocking and same-UID receipts remain non-authoritative.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T10:38:43.817Z",
@@ -428,7 +428,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "missing|ts|review-test-index",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 33c15f851f: local event identity/timestamp/branch strings are explicitly audit-only and authorization-neutral. DONE independently reruns the full REVIEW-to-TEST preflight over signed current review run/pass/round and gate facts, so forged provenance grants no privilege; mutations are regression-tested.",
+      "resolvedAt": "2026-07-13T10:47:27.563Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-018",
