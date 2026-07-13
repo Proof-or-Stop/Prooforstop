@@ -77,7 +77,7 @@
       "desc": "The 15-intent evidence overstates CLI/integration coverage. CHK-004 is type=cli and requires canonical parent_ledger_rollup_set output, but closeout-trust-smoke never invokes that handler/CLI; it calls store.writeProofStoryParentLedgerRollup plus autoCommitStoryMetadata directly. Likewise none of the newly wired validate, done_required_validate, delivery_check_set/waiver, evaluate_save, summary_set, delivery_context_pack, or live_smoke_transcript handler paths are executed. The smoke can stay green if a handler omits or passes the wrong closeoutArtifactPaths. Add at least one real CLI/handler regression for parent_ledger_rollup_set and table-driven integration coverage for every registered canonical writer path; wire this high-risk smoke into routine test discovery/evidence.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-13T09:19:31.348Z",
@@ -96,7 +96,11 @@
         "packages/main/src/handlers/live-smoke-transcript.ts"
       ],
       "signatureTag": "missing|ts|intent-evidence-overstates",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 812a711565. The closeout smoke executes all supported canonical writer-path pairs through real handlers, including parent rollup and legacy test writers, and routine npm test includes test:closeout-trust. Full npm test exits 0.",
+      "resolvedAt": "2026-07-13T09:38:02.484Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-005",
