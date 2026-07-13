@@ -4,17 +4,17 @@
   "actual": {
     "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
     "exitCode": 0,
-    "stdout": "PASS proof-or-stop prompt baseline: roleCount=16 registry hashes verified\nPASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 16 roles\nPASS proof-or-stop prompt baseline: overlap matrix verified for 16 roles\nPASS proof-or-stop prompt baseline: legacy vocabulary findings classified\nPASS proof-or-stop prompt baseline: direct story-file findings classified\n"
+    "stdout": "PASS proof-or-stop prompt baseline: independent approval manifest binds all 16 exact role IDs and complete prompt bodies\nPASS proof-or-stop prompt baseline: roleCount=16 registry hashes verified\nPASS proof-or-stop prompt baseline: roleCount=16 registry snapshot integrity verified\nPASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 16 roles\nPASS proof-or-stop prompt baseline: 10 baseline mechanical drift mutations and unknown-role agent_prompt command rejected\nPASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for 16 roles\nPASS proof-or-stop prompt baseline: role matrix field/Markdown/role-count/missing-row drift rejected\nINFO proof-or-stop prompt baseline: all human-authored role-matrix semantics remain reviewer-audited\nPASS proof-or-stop prompt baseline: legacy vocabulary findings classified\nINFO proof-or-stop prompt baseline: legacy occurrence scanner diagnostics audited inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-file findings classified\nINFO proof-or-stop prompt baseline: story-reference scanner diagnostics audit 12 exact references inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-write diagnostics have 1 exact registered INIT write\n"
   },
   "mode": {
     "runCommands": true,
     "writeEvidence": true
   },
-  "capturedAtIso": "2026-07-10T03:59:00.765Z",
+  "capturedAtIso": "2026-07-13T03:35:54.580Z",
   "claims": {
     "authorityDone": false,
     "productionDone": false
   },
-  "headHash": "b814ac9d6b96442253cb780e89f4cdebbdfd6aa2",
-  "materialHash": "b5fd1b15fd07f5e8a0a2062719808ec14147b46de6e2b9bf93ae359bce9b65ce"
+  "headHash": "3db1c37d179575814789973f6b04261cd7f5bf62",
+  "materialHash": "6e3651459facd23cc93c67e06942dc54714a0b4bbf485672c5052ad4d6f131aa"
 }
