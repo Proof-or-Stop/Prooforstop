@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-bbaf",
+  "mode": "feature",
+  "allowed": [
+    "Enforcement at story_advance and takeover-command entry, cleared only by a human-only ack/resume command that refuses under autopilot/non-interactive mode",
+    "Env-tunable thresholds with B-f458-derived defaults (advance ~20, takeover ~5/window, min pass-rate + min-sample, repeat-failure ~2)",
+    "Graduated freeze state with a one-shot auto-recovery budget, persisted as a gitignored runtime artifact",
+    "Pure core convergence-breaker deriving four read-only signals from story.events: total advance count, review pass-rate (pass_set/run_start), takeover frequency, and repeated-identical-gate-failure (same gate + same reason)",
+    "Smoke test replaying the B-f458 signature (89 advances / 131:31 pass / 65 takeovers) plus a healthy converging control"
+  ],
+  "excluded": [
+    "core/usage-burn-alert.ts host-session token-burn scanning (B-623a): an orthogonal axis, not modified",
+    "milestone_ledger_set blocker-hint gap: checklist can reach 5/5 done while the milestone ledger stays 0/5 planned and nothing points the agent at milestone_ledger_set — owned by concurrent work",
+    "review_pass_set writer-identity validation: rapid self-authored passes (1-12s apart) with no writer-identity check — owned by concurrent work",
+    "The single legitimate forceTakeover human-override path in story-owner-lease.ts: not weakened"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User directed: solve death-loop root causes 1 (takeover storm) and 2 (no convergence fuse); exclude 3 (milestone_ledger_set hint) and 4 (review_pass_set writer-identity) as owned by concurrent stories.",
+  "createdAt": "2026-07-13T23:20:32.322Z",
+  "updatedAt": "2026-07-13T23:20:32.322Z",
+  "_hash": "cb25f0b0d8bac246268bdbe05a38daf209ffc53fc63b5943ae8bc0ae80330084"
+}

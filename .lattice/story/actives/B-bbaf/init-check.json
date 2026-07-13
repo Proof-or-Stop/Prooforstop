@@ -1,0 +1,57 @@
+{
+  "storyId": "B-bbaf",
+  "checkedAt": "2026-07-13T23:18:07.758Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md line 8 (Blocker-hint specifics milestone_ledger_set and review_pass_set writer-identity are OUT of scope, owned by concurrent work) and index.json description reference two excluded gaps -- milestone_ledger_set blocker-hint and review_pass_set writer-identity -- without naming which concurrent story owns them or explaining what the gap actually is. A fresh reader with no conversation history cannot trace these; grepping the repo shows they correspond to other active stories (B-3b05, and B-53a4 or B-b550) but B-bbaf never cites a story ID or one-sentence explanation for either, violating standalone readability."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "medium",
+      "desc": "Promised-but-not-delivered gap: background.md Solution Tradeoffs section defines the pathological signature as three distinct conditions -- advance far over normal with no net progress, same gate failing the same reason twice, and takeover storm -- but checklist CHK-001 (core/convergence-breaker.ts) only derives three counters: (a) total story_advance count, (b) review pass-rate (review_pass_set over review_run_start), (c) takeover frequency. None of these three counters implements or clearly maps to same gate failing the same reason twice (which requires tracking repeated identical failure reasons per gate, distinct from an aggregate pass-rate ratio). This signature component is promised in the trade-off narrative but has no corresponding checklist item, counter, or CHK-004 threshold."
+    },
+    {
+      "id": "INIT-003",
+      "severity": "medium",
+      "desc": "checklist.json CHK-004 context states as an evidence-derived default: the storm was 89 advances / 65 takeovers / pass-rate collapsing to under 10 percent. But background.md Trigger Event cites 131 review_run_start against 31 review_pass_set for the same incident, which computes to about 23.7 percent (31/131), not below 10 percent. The under-10-percent figure is not supported by the numbers the story itself cites elsewhere, and no other data point in background.md justifies it (the 8 hours produced about 4 passes sub-window figure lacks a paired review_run_start count to compute a rate). This risks miscalibrating the LATTICE_CONVERGENCE_MIN_PASS_RATE default."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-13T23:16:49.235Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "CHK-003 specifies the freeze rejection names tripped counters and points at next action, but no concrete example of the user-facing terminal output is prescribed. At DONE, product acceptance will need a transcript showing the exact rejection message text and the ack command invocation the user would run. Not blocking INIT but should be addressed in DEV/TEST."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-13T23:18:07.758Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md line 8 (Blocker-hint specifics milestone_ledger_set and review_pass_set writer-identity are OUT of scope, owned by concurrent work) and index.json description reference two excluded gaps -- milestone_ledger_set blocker-hint and review_pass_set writer-identity -- without naming which concurrent story owns them or explaining what the gap actually is. A fresh reader with no conversation history cannot trace these; grepping the repo shows they correspond to other active stories (B-3b05, and B-53a4 or B-b550) but B-bbaf never cites a story ID or one-sentence explanation for either, violating standalone readability."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "medium",
+          "desc": "Promised-but-not-delivered gap: background.md Solution Tradeoffs section defines the pathological signature as three distinct conditions -- advance far over normal with no net progress, same gate failing the same reason twice, and takeover storm -- but checklist CHK-001 (core/convergence-breaker.ts) only derives three counters: (a) total story_advance count, (b) review pass-rate (review_pass_set over review_run_start), (c) takeover frequency. None of these three counters implements or clearly maps to same gate failing the same reason twice (which requires tracking repeated identical failure reasons per gate, distinct from an aggregate pass-rate ratio). This signature component is promised in the trade-off narrative but has no corresponding checklist item, counter, or CHK-004 threshold."
+        },
+        {
+          "id": "INIT-003",
+          "severity": "medium",
+          "desc": "checklist.json CHK-004 context states as an evidence-derived default: the storm was 89 advances / 65 takeovers / pass-rate collapsing to under 10 percent. But background.md Trigger Event cites 131 review_run_start against 31 review_pass_set for the same incident, which computes to about 23.7 percent (31/131), not below 10 percent. The under-10-percent figure is not supported by the numbers the story itself cites elsewhere, and no other data point in background.md justifies it (the 8 hours produced about 4 passes sub-window figure lacks a paired review_run_start count to compute a rate). This risks miscalibrating the LATTICE_CONVERGENCE_MIN_PASS_RATE default."
+        }
+      ]
+    }
+  ],
+  "_hash": "b57f267662e4f094abd74fae12e3d563158d361099f77190a46e110d5fb0cfa1"
+}
