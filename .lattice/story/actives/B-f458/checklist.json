@@ -180,6 +180,18 @@
             "type": "cli"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/phase-gates.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ]
       }
     },
     {
