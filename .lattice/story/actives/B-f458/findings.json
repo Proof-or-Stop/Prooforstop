@@ -1,0 +1,24 @@
+{
+  "findings": [
+    {
+      "id": "B-f458:F-001",
+      "desc": "Closeout receipt replay does not prove the current write was canonical. latestValidCloseoutReceipt accepts any historical receipt whose artifactDigest matches current bytes and whose headHash is merely an ancestor; it does not bind the receipt to the commit/change under review or require the receipt to be newly minted with that artifact change. Reverting an artifact manually to previously receipted bytes therefore reuses the old canonical writer claim and passes retention. More generally receiptHash is recomputable from a public salt, so a manual writer can self-assert a canonical writerCommand. This violates CHK-004/CHK-005 manual, replayed, and stale-provenance fail-closed guarantees.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T09:19:14.567Z",
+      "reviewRound": "2026-07-13T09:17:07.451Z",
+      "reviewRunId": "B-f458:RR-002",
+      "_hash": "98767950e41fdd6bbdd676cd78c372caae50d139e92682ac3f10600594930f4e",
+      "files": [
+        "packages/main/src/core/closeout-trust.ts",
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts"
+      ],
+      "signatureTag": "closeout-receipt-replay",
+      "signatureTagSource": "confirmed"
+    }
+  ]
+}
