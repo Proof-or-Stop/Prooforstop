@@ -1195,7 +1195,7 @@
       "desc": "The new generic callable-receiver model is only generic within the isolated one-file TypeChecker, so imported and ambient callables still bypass it. typeCheckerFor uses `noResolve:true`, supplies only the current source from getSourceFile, and returns an empty default-lib name; `typeHasCallableSignature` therefore sees zero call/construct signatures for imported functions and built-ins. Using the exact compiler-host settings on `import { readFile } from \"node:fs\"; const Build = readFile.constructor` produced call=0 and construct=0 for the readFile receiver, while a Node runtime probe confirmed `readFile.constructor === Function` and its compiled string body returned 42. Thus a scanned file can execute `readFile.constructor(\"return import(...)\")()` (or another imported/ambient callable constructor) without any dynamic-code violation; current positives cover only locally declared/inferred callables. Build the checker from the project tsconfig with module/default-lib resolution, or conservatively classify `.constructor` access on value imports/known ambient callables and propagate it through aliases; add node:fs or local imported-function positives and noncallable import/object negatives.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T14:20:14.432Z",
@@ -1207,7 +1207,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "dynamic-function-constructor-imported-callable-typechecker-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 63479e0b41: a shared project Program uses tsconfig, Node16 module resolution, default libs/types and full root inventory; imported/ambient callable receivers resolve correctly and unresolved/unknown cases fail closed.",
+      "resolvedAt": "2026-07-13T14:41:54.886Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-051",
