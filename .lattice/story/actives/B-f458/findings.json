@@ -949,6 +949,24 @@
       ],
       "signatureTag": "extension-scan-symlink-cycle-control",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-040",
+      "desc": "Module resolution matching still treats specifiers as plain filesystem strings and misses valid Node ESM URL variants. An unapproved `.mts` source can execute `await import(\"./legacy-delivery-claims-compat.js?quality\")` (or a percent-encoded path/fragment). The mechanical runtime probe loaded the real dist compatibility module with `?quality-review`, but staticModuleText returns the query-bearing literal, normalizeModulePath does not strip URL search/hash or decode URL path segments, and moduleSpecifierResolvesTo therefore returns false. Because the argument is static, scanConcealedCompatibilityLoads also does not reject it; the graph sees a distinct target. Normalize relative ESM specifiers with URL semantics before target comparison (including query/fragment and percent encoding), while rejecting encoded separators/invalid URLs; add direct/dynamic query, fragment, and percent-encoding controls across mts/ts.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T13:18:48.721Z",
+      "reviewRound": "2026-07-13T13:16:00.661Z",
+      "reviewRunId": "B-f458:RR-056",
+      "_hash": "29e5fa17b561cb864be732ab1a3e3c342828549d89deb67627c948ecdb6ec101",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|module-resolution-matching",
+      "signatureTagSource": "auto"
     }
   ]
 }
