@@ -225,33 +225,33 @@
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full suite passed at implementation commit 67af589ec3 after F-061/F-062 indexed rest provenance hardening.",
-          "headHash": "5c181713c4f56f519aefda669b70f1acbd9c2015",
-          "materialHash": "9093a6951acc98d3a1fa766e71776c68bb07de17b6e8e5b69ce883c7144b7859",
-          "storyFilesHash": "8681a670bda14e2a4d71d53725c9fb5524a8fcbbc8e8bf7cb8e7c446de2a18dd",
-          "timestamp": "2026-07-13T15:55:40.214Z"
+          "note": "Full suite passed at implementation commit 15575c0dec after F-063/F-064/F-065/F-066 flow-insensitive provenance union hardening.",
+          "headHash": "df3261a68f5546271ce03f70b345440c5010455c",
+          "materialHash": "0dad2289bd47eff591a56fc3a53d4ea4e8aeab7de9f8f83654e2b084a350d8e2",
+          "storyFilesHash": "6ee047ef28ef79ed417c867226248a42543911de9c3c86efddad6b8f87d1095b",
+          "timestamp": "2026-07-13T16:11:47.562Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/brief-output-smoke.js",
           "result": "pass",
-          "note": "Closeout, runtime fact, and brief-output edge regressions passed at implementation commit 67af589ec3.",
-          "headHash": "5c181713c4f56f519aefda669b70f1acbd9c2015",
-          "materialHash": "9093a6951acc98d3a1fa766e71776c68bb07de17b6e8e5b69ce883c7144b7859",
-          "storyFilesHash": "8681a670bda14e2a4d71d53725c9fb5524a8fcbbc8e8bf7cb8e7c446de2a18dd",
-          "timestamp": "2026-07-13T15:55:40.367Z"
+          "note": "Closeout, runtime fact, and brief-output regressions passed at implementation commit 15575c0dec.",
+          "headHash": "df3261a68f5546271ce03f70b345440c5010455c",
+          "materialHash": "0dad2289bd47eff591a56fc3a53d4ea4e8aeab7de9f8f83654e2b084a350d8e2",
+          "storyFilesHash": "6ee047ef28ef79ed417c867226248a42543911de9c3c86efddad6b8f87d1095b",
+          "timestamp": "2026-07-13T16:11:47.751Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node scripts/verify-process-fact-contract.mjs && node packages/main/dist/tasks/usage-burn-alert-smoke.js",
           "result": "pass",
-          "note": "Adversarial checks passed at implementation commit 67af589ec3: base expression/type/symbol/unknown preservation through rest; member/index provenance for dynamic ElementAccess and computed bindings; any/unknown/non-indexable fail-closed; dangerous and safe Record index controls; JS ToPropertyKey normalization for -0, NaN, Infinity, enum and const chains. Guard wall time 18.24s with Program reuse/performance bounds intact.",
-          "headHash": "5c181713c4f56f519aefda669b70f1acbd9c2015",
-          "materialHash": "9093a6951acc98d3a1fa766e71776c68bb07de17b6e8e5b69ce883c7144b7859",
-          "storyFilesHash": "8681a670bda14e2a4d71d53725c9fb5524a8fcbbc8e8bf7cb8e7c446de2a18dd",
-          "timestamp": "2026-07-13T15:55:40.517Z"
+          "note": "Adversarial checks passed at implementation commit 15575c0dec: exact Record numeric/string fallback, empty-string keys, plain-any nested rest, explicit knownMembersComplete proof, order-independent safe/unknown assignment unions, and stable single-complete safe negatives. Guard wall time 17.75s with Program reuse/performance bounds intact.",
+          "headHash": "df3261a68f5546271ce03f70b345440c5010455c",
+          "materialHash": "0dad2289bd47eff591a56fc3a53d4ea4e8aeab7de9f8f83654e2b084a350d8e2",
+          "storyFilesHash": "6ee047ef28ef79ed417c867226248a42543911de9c3c86efddad6b8f87d1095b",
+          "timestamp": "2026-07-13T16:11:47.937Z"
         }
       ]
     },
