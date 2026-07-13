@@ -2399,6 +2399,33 @@
       ],
       "signatureTag": "promise-wrapper-module-provenance-gap",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-092",
+      "desc": "Danger-wins and dynamic namespace provenance are applied only while building aliases; direct wrapped call targets still bypass. dynamicReferenceKind handles identifiers, comma-right, bind, and property chains rooted in bindings.provenanceBySymbol, while boundExpressionProvenance only descends identifiers/comma/member access. It does not evaluate ConditionalExpression, AwaitExpression, or ImportKeyword. Therefore `(flag ? eval : safeRun)(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")`, `(await import('./dynamic-code-esm-bridge.js')).evalRun(payload)`, and `(await import('./namespace-barrel.js')).bridge.vmRun(payload)` never consume mergeAlternativeProvenance or namespace provenance and are missed. Existing conditional/logical and dynamic/deep namespace controls first assign/import into a symbol, hiding this expression-level boundary. Make dynamicExecutionKind consume cycle-safe provenanceForExpression for arbitrary call/new targets while retaining exact comma-right and safe local identity precision; pin inline conditional/logical, direct await-import member, and nested inline namespace dangerous/safe cases.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T18:31:36.325Z",
+      "reviewRound": "2026-07-13T18:25:53.527Z",
+      "reviewRunId": "B-f458:RR-105",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete a34d89024d diff and focused Promise/dynamic import flows, createRequire graph, standard URL forms, comma semantics, deep namespace resolution, cache lifecycle, controls, and process-contract sections; unrelated unchanged portions were name-triaged."
+      },
+      "_hash": "8f68f0d93f9fc4497d5377a4e9f47b05ff3bf04771204b85b29aea888ad3e302",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "inline-call-target-provenance-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
