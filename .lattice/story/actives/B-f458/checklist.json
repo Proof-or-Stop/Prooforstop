@@ -180,7 +180,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-13T12:18:26.128Z",
+      "endTime": "2026-07-13T12:31:18.472Z",
       "userSees": "User sees `PASS trusted closeout artifacts: schema and embedded hashes verified`; a malformed ledger/plan/rollup/delivery-context artifact or forged embedded hash is rejected with a named artifact error.",
       "verificationIntent": {
         "happy": [
@@ -223,35 +223,35 @@
         {
           "intentRef": "CHK-003:happy:0",
           "kind": "logic_test",
-          "command": "npm test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
-          "note": "Full suite passed at implementation commit aa86b4d950 after TypeChecker-bound compatibility guard hardening (CHK-003).",
-          "headHash": "2f1b6f6422740195cb4f33e196ad2cd03c2ef4d6",
-          "materialHash": "42746a6160ea4b6b6347cbe0ad1fc26ba2fd428f015b24d346de108faab041f4",
-          "storyFilesHash": "f4b384bdf30976ba37e29c55a1969e786b149eaf478f7053abea10eef0ab61ec",
-          "timestamp": "2026-07-13T12:18:26.305Z"
+          "note": "Build and closed structural compatibility-boundary guard passed at 238958b265 (CHK-003).",
+          "headHash": "fa48f76439171c28a96ee98088feb97d450a0ec5",
+          "materialHash": "9ca061475c8a831ffcaf9d7e95d66d36432856ccdce91791c3c69f7ccb0f69b9",
+          "storyFilesHash": "f076b05da8f2ae1d8dff36dc22e11913ffa210decc44bbf9ba052ba6d8c0796e",
+          "timestamp": "2026-07-13T12:31:18.617Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
-          "command": "npm run test:closeout-trust",
+          "command": "npm run test:closeout-trust && npm run test:runtime-fact-contract",
           "result": "pass",
-          "note": "Closeout trust regression suite passed at aa86b4d950, including metadata/re-attestation boundaries (CHK-003).",
-          "headHash": "2f1b6f6422740195cb4f33e196ad2cd03c2ef4d6",
-          "materialHash": "42746a6160ea4b6b6347cbe0ad1fc26ba2fd428f015b24d346de108faab041f4",
-          "storyFilesHash": "f4b384bdf30976ba37e29c55a1969e786b149eaf478f7053abea10eef0ab61ec",
-          "timestamp": "2026-07-13T12:18:26.456Z"
+          "note": "Closeout trust and runtime fact contracts passed at 238958b265 (CHK-003).",
+          "headHash": "fa48f76439171c28a96ee98088feb97d450a0ec5",
+          "materialHash": "9ca061475c8a831ffcaf9d7e95d66d36432856ccdce91791c3c69f7ccb0f69b9",
+          "storyFilesHash": "f076b05da8f2ae1d8dff36dc22e11913ffa210decc44bbf9ba052ba6d8c0796e",
+          "timestamp": "2026-07-13T12:31:18.757Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && npm run test:process-fact-contract",
+          "command": "npm run test:process-fact-contract",
           "result": "pass",
-          "note": "Adversarial guard controls passed at aa86b4d950: const-path flow, require/createRequire aliases, relocated exported objects, downstream property/destructure consumers, and shadowed same-name symbols (CHK-003).",
-          "headHash": "2f1b6f6422740195cb4f33e196ad2cd03c2ef4d6",
-          "materialHash": "42746a6160ea4b6b6347cbe0ad1fc26ba2fd428f015b24d346de108faab041f4",
-          "storyFilesHash": "f4b384bdf30976ba37e29c55a1969e786b149eaf478f7053abea10eef0ab61ec",
-          "timestamp": "2026-07-13T12:18:26.603Z"
+          "note": "Process contract passed at 238958b265 with F-031 exported-container assignment and F-032 wrapper/property/destructure/namespace-createRequire controls plus exact benign-loader allowlist (CHK-003).",
+          "headHash": "fa48f76439171c28a96ee98088feb97d450a0ec5",
+          "materialHash": "9ca061475c8a831ffcaf9d7e95d66d36432856ccdce91791c3c69f7ccb0f69b9",
+          "storyFilesHash": "f076b05da8f2ae1d8dff36dc22e11913ffa210decc44bbf9ba052ba6d8c0796e",
+          "timestamp": "2026-07-13T12:31:18.898Z"
         }
       ]
     },
