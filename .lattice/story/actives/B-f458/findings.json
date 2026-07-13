@@ -2534,6 +2534,33 @@
       ],
       "signatureTag": "dynamic-binding-cache-bound-failure",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-097",
+      "desc": "The a34d89024d controls execute and their added labels are process-pinned, but the claimed F085/F089/F090 coverage is still incomplete beyond the separately reported cache failure. Every Promise.all positive and negative uses a one-element array, so no nonzero slot, mixed safe/dangerous ordering, omitted/spread slot, or unresolved slot proves that per-slot provenance and tuple indexing are correct. F-089 explicitly requested named/default and cyclic nested namespace controls: the suite has static/dynamic nested positives and negatives plus a default-nested dangerous positive, but no matched default-nested safe negative and no cyclic nested namespace positive/negative at all. F-090 is resolved as a per-loader direct/member/destructured dangerous-safe Cartesian matrix, yet bound global require, namespace createRequire, and CJS-destructured createRequire still retain only one safe control each rather than matched direct/member/destructured safe projections. Add executable matched controls for multi-slot Promise.all (danger in each position plus safe/mixed/unresolved cases), default and cyclic nested chains, and the remaining loader-safe projections, and pin every exact label. The current focused guard also fails its cache bound at 1090 builds; that blocker is already recorded independently as F-094/F-096.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-13T18:34:40.486Z",
+      "reviewRound": "2026-07-13T18:25:53.527Z",
+      "reviewRunId": "B-f458:RR-107",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete a34d89024d implementation diff and full changed Promise/module provenance, loader projection, URL, comma, nested-chain, cache instrumentation, shared-program execution, and process-pin sections; unchanged portions of the two large files were triaged by name, and no decisions-document escalation was needed."
+      },
+      "_hash": "a8294b7539b2ac0ee9089a4718eb78e03cdeac896e01dd3d8e54edbf810efd39",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "promise-nested-loader-cartesian-gap",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
