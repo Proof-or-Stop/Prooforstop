@@ -529,6 +529,22 @@
         "scanEscalationReason": null
       },
       "_hash": "03ddcc13bc9e3fef78162310a801e7406559610523314064ade8e421cbbc8faa"
+    },
+    {
+      "id": "B-3928:RP-025",
+      "agent": "lattice-review-concept",
+      "note": "Narrow stdout/product-acceptance concept review passed. The three added success lines exactly match CHK-001, CHK-004, and CHK-005 userSees promises, remain conceptually distinct from the existing snapshot and diagnostic detail lines, and execute only after all verifier checks have completed. A fresh live invocation emitted every promised CHK-001 through CHK-005 output line exactly and exited successfully.",
+      "createdAt": "2026-07-13T03:36:54.368Z",
+      "reviewRound": "2026-07-13T03:36:11.674Z",
+      "reviewRunId": "B-3928:RR-046",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e18cdc97fe5d5712656a3d57d6af52b53297c6dc6e1dc36a75679a932691df4a"
     }
   ]
 }
