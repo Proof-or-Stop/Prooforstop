@@ -1207,6 +1207,7 @@ function isGlobalRequireCall(node: ts.Expression, checker: ts.TypeChecker): node
 
 function functionExpressionConstructorKind(node: ts.Expression): string | undefined {
   const current = unwrapExecutionExpression(node);
+  if (ts.isClassExpression(current)) return 'Function';
   if (!ts.isArrowFunction(current) && !ts.isFunctionExpression(current)) return undefined;
   const isAsync = current.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.AsyncKeyword) === true;
   const isGenerator = ts.isFunctionExpression(current) && Boolean(current.asteriskToken);
@@ -1216,7 +1217,8 @@ function functionExpressionConstructorKind(node: ts.Expression): string | undefi
   return 'Function';
 }
 
-function functionDeclarationConstructorKind(node: ts.FunctionDeclaration): string {
+function functionDeclarationConstructorKind(node: ts.FunctionDeclaration | ts.ClassDeclaration): string {
+  if (ts.isClassDeclaration(node)) return 'Function';
   const isAsync = node.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.AsyncKeyword) === true;
   const isGenerator = Boolean(node.asteriskToken);
   if (isAsync && isGenerator) return 'AsyncGeneratorFunction';
@@ -1234,6 +1236,33 @@ function functionPrototypeLookupKind(node: ts.Expression, checker: ts.TypeChecke
   const objectExpression = unwrapExecutionExpression(current.expression.expression);
   if (!ts.isIdentifier(objectExpression) || !isGlobalIdentifier(objectExpression, checker, 'Object')) return undefined;
   return functionExpressionConstructorKind(current.arguments[0]);
+}
+
+function typeHasCallableSignature(expression: ts.Expression, checker: ts.TypeChecker): boolean {
+  const type = checker.getTypeAtLocation(unwrapExecutionExpression(expression));
+  return checker.getSignaturesOfType(type, ts.SignatureKind.Call).length > 0
+    || checker.getSignaturesOfType(type, ts.SignatureKind.Construct).length > 0;
+}
+
+function staticallyCallableKind(
+  expression: ts.Expression,
+  checker: ts.TypeChecker,
+  bindings: DynamicExecutionBindings,
+): string | undefined {
+  const current = unwrapExecutionExpression(expression);
+  const directKind = functionExpressionConstructorKind(current);
+  if (directKind) return directKind;
+  if (ts.isCallExpression(current)
+    && ts.isPropertyAccessExpression(current.expression)
+    && current.expression.name.text === 'bind') {
+    return staticallyCallableKind(current.expression.expression, checker, bindings);
+  }
+  if (ts.isIdentifier(current)) {
+    const symbol = identifierSymbol(current, checker);
+    const knownKind = symbol ? bindings.functionCallableSymbols.get(symbol) : undefined;
+    if (knownKind) return knownKind;
+  }
+  return typeHasCallableSignature(current, checker) ? 'Function' : undefined;
 }
 
 function dynamicReferenceKind(
@@ -1265,13 +1294,9 @@ function dynamicReferenceKind(
     if (['call', 'apply', 'bind'].includes(member)) return dynamicReferenceKind(target, checker, bindings);
     if ((member === 'eval' || member === 'Function') && isGlobalObjectIdentifier(target, checker)) return member;
     if (member === 'constructor') {
-      const directKind = functionExpressionConstructorKind(target) ?? functionPrototypeLookupKind(target, checker);
+      const directKind = functionPrototypeLookupKind(target, checker)
+        ?? staticallyCallableKind(target, checker, bindings);
       if (directKind) return `${directKind}.constructor`;
-      if (ts.isIdentifier(target)) {
-        const targetSymbol = identifierSymbol(target, checker);
-        const callableKind = targetSymbol ? bindings.functionCallableSymbols.get(targetSymbol) : undefined;
-        if (callableKind) return `${callableKind}.constructor`;
-      }
       const inherited = dynamicReferenceKind(target, checker, bindings);
       if (inherited) return `${inherited}.constructor`;
       return undefined;
@@ -1304,12 +1329,7 @@ function functionCallableReference(
   checker: ts.TypeChecker,
   bindings: DynamicExecutionBindings,
 ): string | undefined {
-  const current = unwrapExecutionExpression(expression);
-  const directKind = functionExpressionConstructorKind(current);
-  if (directKind) return directKind;
-  if (!ts.isIdentifier(current)) return undefined;
-  const symbol = identifierSymbol(current, checker);
-  return symbol ? bindings.functionCallableSymbols.get(symbol) : undefined;
+  return staticallyCallableKind(expression, checker, bindings);
 }
 
 function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.TypeChecker): DynamicExecutionBindings {
@@ -1377,13 +1397,13 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
         }
       }
     }
-    if (ts.isFunctionDeclaration(node) && node.name) {
+    if ((ts.isFunctionDeclaration(node) || ts.isClassDeclaration(node)) && node.name) {
       const symbol = identifierSymbol(node.name, checker);
       if (symbol) bindings.functionCallableSymbols.set(symbol, functionDeclarationConstructorKind(node));
     }
-    if (ts.isParameter(node) && node.initializer) {
-      if (ts.isIdentifier(node.name)) addAlias(node.name, node.initializer);
-      if (ts.isObjectBindingPattern(node.name)) collectBindingPattern(node.name, node.initializer);
+    if (ts.isParameter(node)) {
+      if (node.initializer && ts.isIdentifier(node.name)) addAlias(node.name, node.initializer);
+      if (node.initializer && ts.isObjectBindingPattern(node.name)) collectBindingPattern(node.name, node.initializer);
       collectBindingDefaults(node.name);
     }
     if (ts.isVariableDeclaration(node) && node.initializer) {
@@ -1392,7 +1412,7 @@ function collectDynamicExecutionBindings(source: ts.SourceFile, checker: ts.Type
         if (symbol) {
           aliases.push({ target: symbol, expression: node.initializer });
           if (isGlobalRequireCall(node.initializer, checker)) bindings.vmNamespaceSymbols.add(symbol);
-          const callableKind = functionExpressionConstructorKind(node.initializer);
+          const callableKind = staticallyCallableKind(node.initializer, checker, bindings);
           if (callableKind) bindings.functionCallableSymbols.set(symbol, callableKind);
         }
       } else if (ts.isObjectBindingPattern(node.name)) {
@@ -1909,10 +1929,20 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['object destructure parameter default', "function execute({ eval: indirect } = globalThis) { indirect(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
     ['array destructure parameter default', "function execute([indirect = eval] = []) { indirect(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
     ['rest-fed array destructure default', "function execute(...args) { const [indirect = eval] = args; indirect(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['object element parameter default without outer default', "function execute({ indirect = eval }) { indirect(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['array element parameter default without outer default', "function execute([indirect = eval]) { indirect(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['nested object array parameter default', "function execute({ nested: [{ indirect = eval }] }) { indirect(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['nested rest parameter binding default', "function execute([head, ...[indirect = eval]]) { indirect(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
     ['ordinary function expression constructor', "const Build = (function() {}).constructor; new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['ordinary function declaration constructor alias', "function factory() {} const alias = factory; const Build = alias.constructor; new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['generator function constructor', "const Build = (function*() {}).constructor; new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['async generator function constructor', "const Build = (async function*() {}).constructor; new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['class expression constructor', "const Build = (class Local {}).constructor; new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['class declaration constructor', "class Local {} Local.constructor(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")();"],
+    ['class declaration constructor alias', "class Local {} const Alias = Local; const Build = Alias.constructor; new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['object method constructor', "const holder = { method() {} }; holder.method.constructor(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")();"],
+    ['bound arrow constructor', "const Build = (() => {}).bind(null).constructor; new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
+    ['bound function constructor alias', "function source() {} const bound = source.bind(null); const Build = bound.constructor; new Build(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
     ['node vm default import', "import vm from 'node:vm'; vm.runInNewContext(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
   ] as const;
   for (const [label, source] of cases) {
@@ -1930,6 +1960,8 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     ['shadowed eval parameter default', "function execute(eval = value => value) { eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
     ['shadowed vm parameter default', "function execute(vm = { runInContext(value) { return value; } }) { vm.runInContext(\"require('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
     ['shadowed Function parameter default', "function execute(Function = class LocalBuilder {}) { new Function(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['shadowed nested object parameter default', "function execute({ nested: { indirect = value => value } }) { indirect(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
+    ['shadowed nested rest parameter default', "function execute([head, ...[indirect = value => value]]) { indirect(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\"); }"],
     ['ordinary object constructor', "const object = { constructor(value) { return value; } }; object.constructor(\"return import('../packages/main/src/core/legacy-delivery-claims-compat.js')\");"],
   ] as const) {
     assert.deepEqual(scanDynamicCodeGeneration(controlFile, source), [], `${label} must remain a declaration-identity negative control`);
