@@ -41,6 +41,27 @@
         "scanEscalationReason": null
       },
       "_hash": "ccddafd7edacd9ad83aa25b3f70bd97b66f9c9b8370461d389c33c03cac32b18"
+    },
+    {
+      "id": "B-9188:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 targeted re-review of F-001: verified doc fix at process-fact-registry.ts:262-269 is factually accurate incl. the verify-process-fact-contract.mjs parser-limitation claim; ran the script directly, contract still verifies clean.",
+      "createdAt": "2026-07-13T08:52:58.470Z",
+      "reviewRound": "2026-07-13T08:49:22.585Z",
+      "reviewRunId": "B-9188:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/milestone-status.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "518813d560828cce48329bd60a59e9f328fad3fa3ba5a968b6c38bb1b9fc7290"
     }
   ]
 }
