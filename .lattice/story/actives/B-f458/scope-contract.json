@@ -7,6 +7,7 @@
     "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/core/runtime-artifact-registry.ts",
     "scripts/verify-process-fact-contract.mjs",
+    "scripts/verify-runtime-fact-contract.mjs",
     "packages/main/src/core/guard-session.ts",
     "packages/main/src/core/review-run.ts",
     "packages/main/src/core/review-scope-binding.ts",
@@ -56,8 +57,8 @@
     ".lattice-codex/agents",
     ".claude/agents"
   ],
-  "scopeChangeReason": "Round-2 findings F-007/F-008 require a non-self-signed writer anchor. Add only runtime-artifact-registry.ts so a per-review-round Ed25519 private key can be explicitly registered as sensitive ignored runtime state while its public key is bound into signed review runs. F-009 wrapper-root repair remains in existing auto-commit scope.",
+  "scopeChangeReason": "Runtime artifact registry changes require the paired mechanical runtime-fact contract verifier. Add only scripts/verify-runtime-fact-contract.mjs to pin the sensitive review-round signer path semantics; no product scope expansion.",
   "acknowledgements": [],
   "createdAt": "2026-07-13T08:24:04.138Z",
-  "updatedAt": "2026-07-13T09:42:06.072Z"
+  "updatedAt": "2026-07-13T09:45:33.543Z"
 }
