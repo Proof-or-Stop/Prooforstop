@@ -1227,6 +1227,25 @@
       ],
       "signatureTag": "dynamic-code-unresolved-callable-constructor-bypass",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-052",
+      "desc": "The new TypeChecker fallback does not close callable constructors for imported function values. typeCheckerFor intentionally creates a one-file noResolve program whose host exposes only the current source and no default library (lines 562-585). Consequently an ImportSpecifier/ImportClause may have a declaration symbol, but its referenced module and callable type are unavailable; it is not seeded into functionCallableSymbols, and typeHasCallableSignature returns no call/construct signatures. A scanned module can therefore `import { helper } from './helper.js'; helper.constructor(\"return import('./legacy-delivery-claims-compat.js')\")()` (or alias helper first) and dynamicReferenceKind returns undefined even though an exported function's inherited constructor is Function at runtime. The new controls cover only callables declared/inferred inside the same synthetic source, so all existing build, vocabulary-guard, and process-contract tests pass. Either resolve the active source graph in the checker, propagate callable export/import identities from the already-built module graph, or fail closed on `.constructor` invocation/alias for unresolved imported values; add named/default/namespace-imported function controls and a benign imported object with an own constructor negative.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T14:20:22.737Z",
+      "reviewRound": "2026-07-13T14:18:34.640Z",
+      "reviewRunId": "B-f458:RR-069",
+      "_hash": "d8858c8769d9a745ba4c56afa019a6f23a70691511b416c33c1a7820fc3494d6",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "imported-callable-constructor-noresolve-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
