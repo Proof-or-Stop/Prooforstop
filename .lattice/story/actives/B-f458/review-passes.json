@@ -468,6 +468,27 @@
         "scanEscalationReason": null
       },
       "_hash": "14536695a3ec416ea6e6e4f52fc800da136cc511e19254ec3a95012f0460bcbc"
+    },
+    {
+      "id": "B-f458:RP-022",
+      "agent": "lattice-review-concept",
+      "note": "Concept PASS at 57a7d2cf68/6a615f7: deterministic TypeScript printer (LF, removeComments) plus SHA-256 binds normalized executable AST while intentionally excluding comments/formatting trivia. Three compatibility importers are unconditionally fingerprint-checked; four benign nonliteral-loader exemptions require their full-source fingerprint before file/function/argument matching. Importer drift reports algorithm plus expected/got and review guidance; loader drift reports the exact loader line/expression and current algorithm hash. Process-fact contract pins the algorithm token and all seven hashes. Doctor brief/full/JSON behavior remains intact. Full npm test exits 0; fresh build and retired-vocabulary guard pass.",
+      "createdAt": "2026-07-13T13:01:11.530Z",
+      "reviewRound": "2026-07-13T12:56:50.330Z",
+      "reviewRunId": "B-f458:RR-052",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/brief-output-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9439dafdfff870a588e9bb02ebe9d3b0a81c3f2c731fb96f99bc157a8c0883ba"
     }
   ]
 }
