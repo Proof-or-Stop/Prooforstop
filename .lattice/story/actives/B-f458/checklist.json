@@ -93,7 +93,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-13T12:31:17.074Z",
+      "endTime": "2026-07-13T12:39:44.391Z",
       "userSees": "User sees `PASS composite scope digest: semantic scope facts bound`; changing acknowledgement content/provenance, milestone ledger, or slice plan changes the digest and blocks metadata-only review retention until signed re-attestation.",
       "verificationIntent": {
         "happy": [
@@ -138,35 +138,35 @@
         {
           "intentRef": "CHK-002:happy:0",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "command": "npm test",
           "result": "pass",
-          "note": "Build and closed structural compatibility-boundary guard passed at 238958b265 (CHK-002).",
-          "headHash": "bc3e1b238a9f37ef4fd01ca2e422c5f426053408",
-          "materialHash": "9ca061475c8a831ffcaf9d7e95d66d36432856ccdce91791c3c69f7ccb0f69b9",
-          "storyFilesHash": "f076b05da8f2ae1d8dff36dc22e11913ffa210decc44bbf9ba052ba6d8c0796e",
-          "timestamp": "2026-07-13T12:31:17.231Z"
+          "note": "Full repository suite passed at cc1c319cd0 after bounded doctor burn-summary repair (CHK-002).",
+          "headHash": "d63b271a0681f9316679800cfae255b5ebd21681",
+          "materialHash": "c24955ed04a8aa8c522901f6864bbbb860b4b761b362aecf4e649431fbffc98f",
+          "storyFilesHash": "285aefea91fc96464bf10ca050bbc9ca47484143ab82b232b3702155175bcf96",
+          "timestamp": "2026-07-13T12:39:44.538Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
-          "command": "npm run test:closeout-trust && npm run test:runtime-fact-contract",
+          "command": "npm run test:closeout-trust && npm run test:runtime-fact-contract && npm run test:brief-output",
           "result": "pass",
-          "note": "Closeout trust and runtime fact contracts passed at 238958b265 (CHK-002).",
-          "headHash": "bc3e1b238a9f37ef4fd01ca2e422c5f426053408",
-          "materialHash": "9ca061475c8a831ffcaf9d7e95d66d36432856ccdce91791c3c69f7ccb0f69b9",
-          "storyFilesHash": "f076b05da8f2ae1d8dff36dc22e11913ffa210decc44bbf9ba052ba6d8c0796e",
-          "timestamp": "2026-07-13T12:31:17.374Z"
+          "note": "Closeout/runtime contracts and deterministic <20k doctor brief regression passed at cc1c319cd0 (CHK-002).",
+          "headHash": "d63b271a0681f9316679800cfae255b5ebd21681",
+          "materialHash": "c24955ed04a8aa8c522901f6864bbbb860b4b761b362aecf4e649431fbffc98f",
+          "storyFilesHash": "285aefea91fc96464bf10ca050bbc9ca47484143ab82b232b3702155175bcf96",
+          "timestamp": "2026-07-13T12:39:44.673Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
-          "command": "npm run test:process-fact-contract",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && npm run test:process-fact-contract && npm run test:usage-burn-alert",
           "result": "pass",
-          "note": "Process contract passed at 238958b265 with F-031 exported-container assignment and F-032 wrapper/property/destructure/namespace-createRequire controls plus exact benign-loader allowlist (CHK-002).",
-          "headHash": "bc3e1b238a9f37ef4fd01ca2e422c5f426053408",
-          "materialHash": "9ca061475c8a831ffcaf9d7e95d66d36432856ccdce91791c3c69f7ccb0f69b9",
-          "storyFilesHash": "f076b05da8f2ae1d8dff36dc22e11913ffa210decc44bbf9ba052ba6d8c0796e",
-          "timestamp": "2026-07-13T12:31:17.539Z"
+          "note": "Compatibility boundary, process fact, and 21-case host burn renderer controls passed at cc1c319cd0; --full detail remains intact while brief is bounded (CHK-002).",
+          "headHash": "d63b271a0681f9316679800cfae255b5ebd21681",
+          "materialHash": "c24955ed04a8aa8c522901f6864bbbb860b4b761b362aecf4e649431fbffc98f",
+          "storyFilesHash": "285aefea91fc96464bf10ca050bbc9ca47484143ab82b232b3702155175bcf96",
+          "timestamp": "2026-07-13T12:39:44.809Z"
         }
       ]
     },
