@@ -10,7 +10,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-13T08:37:36.211Z",
-      "endTime": "2026-07-13T09:16:53.455Z",
+      "endTime": "2026-07-13T10:14:41.934Z",
       "userSees": "User runs the M4.C1 contract verifier and sees `PASS closeout artifact classifications: closed policy set verified`; adding an unknown trusted path or wrong writer makes the command exit non-zero with the exact path.",
       "verificationIntent": {
         "happy": [
@@ -52,37 +52,37 @@
           "intentRef": "CHK-001:happy:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/closeout-trust-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && npm run test:closeout-trust && npm run test:process-fact-contract && npm run test:runtime-fact-contract",
           "result": "pass",
-          "note": "Closed policy set and canonical writers are enumerated and verified.",
-          "headHash": "065b7dde13c6f5aa1874245cf3d7b12ad516b164",
-          "materialHash": "f64678a73cd3f3477178dc1aa08b4ae60ef7cd0c77232b71fa255069f425f116",
-          "storyFilesHash": "70f020519d23cfc20d922515f44605831638d8cbc58535a48a6e4fc19cb41dee",
-          "timestamp": "2026-07-13T09:54:44.604Z"
+          "note": "Closed scope/closeout path set and canonical writer policy are enumerated; exact userSees line passes without treating local same-UID telemetry as authority.",
+          "headHash": "f10e43b8ee948eefae9b31a0001bd916066ea0cf",
+          "materialHash": "d189ecd2427dfff56d4fef54beda2206d5da20301a5fff3a254d6227ede2ca14",
+          "storyFilesHash": "4de5ef436f8d8e55aaad46748510eba7965cbcce87753c5eae4e3a58d8fb4356",
+          "timestamp": "2026-07-13T10:14:42.123Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/closeout-trust-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && npm run test:closeout-trust && npm run test:process-fact-contract && npm run test:runtime-fact-contract",
           "result": "pass",
-          "note": "Unknown paths and non-canonical writers are rejected with named errors.",
-          "headHash": "065b7dde13c6f5aa1874245cf3d7b12ad516b164",
-          "materialHash": "f64678a73cd3f3477178dc1aa08b4ae60ef7cd0c77232b71fa255069f425f116",
-          "storyFilesHash": "70f020519d23cfc20d922515f44605831638d8cbc58535a48a6e4fc19cb41dee",
-          "timestamp": "2026-07-13T09:54:44.604Z"
+          "note": "Unknown paths and known paths paired with non-canonical writers fail with named path/writer diagnostics.",
+          "headHash": "f10e43b8ee948eefae9b31a0001bd916066ea0cf",
+          "materialHash": "d189ecd2427dfff56d4fef54beda2206d5da20301a5fff3a254d6227ede2ca14",
+          "storyFilesHash": "4de5ef436f8d8e55aaad46748510eba7965cbcce87753c5eae4e3a58d8fb4356",
+          "timestamp": "2026-07-13T10:14:42.260Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/closeout-trust-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && npm run test:closeout-trust && npm run test:process-fact-contract && npm run test:runtime-fact-contract",
           "result": "pass",
-          "note": "Exact path matching rejects aliases, traversal-style substitutions, and milestone-closeout remains excluded.",
-          "headHash": "065b7dde13c6f5aa1874245cf3d7b12ad516b164",
-          "materialHash": "f64678a73cd3f3477178dc1aa08b4ae60ef7cd0c77232b71fa255069f425f116",
-          "storyFilesHash": "70f020519d23cfc20d922515f44605831638d8cbc58535a48a6e4fc19cb41dee",
-          "timestamp": "2026-07-13T09:54:44.604Z"
+          "note": "Exact path matching rejects alias/traversal/broad-whitelist substitutions, milestone-closeout remains excluded, and locally mintable receipts are mechanically non-authoritative.",
+          "headHash": "f10e43b8ee948eefae9b31a0001bd916066ea0cf",
+          "materialHash": "d189ecd2427dfff56d4fef54beda2206d5da20301a5fff3a254d6227ede2ca14",
+          "storyFilesHash": "4de5ef436f8d8e55aaad46748510eba7965cbcce87753c5eae4e3a58d8fb4356",
+          "timestamp": "2026-07-13T10:14:42.405Z"
         }
       ]
     },
