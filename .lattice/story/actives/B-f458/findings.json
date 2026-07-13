@@ -2982,6 +2982,33 @@
       ],
       "signatureTag": "adversarial|ts|local-callsite-argument",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f458:F-115",
+      "desc": "The 94db95a404 F110-F112 controls, reachability set, and process pins execute successfully (clean guard builds=701 under hard 800, cacheHits=2, fullAnalysis=1138, astCandidates=458, reachability=26), but the call/apply/bind/rest coverage matrix omits two equivalent invocation families now verified by F-113/F-114: static computed invocation (`execute['call'](null, eval)`, likewise apply/bind) and spread-carried arguments (`execute(...[eval])`, including spread into call/bind and rest/default combinations). Add positive controls for computed call/apply/bind and direct/spread-to-wrapper dynamic targets, genuinely local-safe negative controls for each normalization, and at least one mixed safe/danger spread case proving danger-wins; include applicable safe controls in exact full-analysis reachability and pin all new labels/helpers in the process-fact contract.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-13T21:44:57.393Z",
+      "reviewRound": "2026-07-13T21:34:17.039Z",
+      "reviewRunId": "B-f458:RR-124",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete 94db95a404 diff and all changed mutable target, invocation normalization, rest/default/optional control, reachability, instrumentation, and process-pin sections. Concurrent verified F-113/F-114 establish missing equivalent shapes within this strictly bounded control family; no unrelated decisions-document escalation was needed."
+      },
+      "_hash": "ed9ca2096b309af77528a65b15091e4588d9dd27233d89af40673be2addef699",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "missing|dynamic-code|computed-spread-invocation-controls",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
