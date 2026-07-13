@@ -360,7 +360,7 @@
       "desc": "F-014 is not fixed for the real persisted lifecycle: a normal REVIEW→TEST update to index.json invalidates every REVIEW run before DONE. evaluateReviewRunMetadataRetention treats index.json as an unknown closeout artifact because it is not in the protocol allowlist and has no narrow phase-transition exception. A real Git fixture captured a REVIEW snapshot, changed only StoryInfo.phase from REVIEW to TEST, committed the normal index.json metadata, and then returned ok:false with `untrusted closeout artifact path: index.json` and `invalid closeout artifact: index.json`. The added smoke starts with phase TEST and drives only the in-memory XState FINISH event, so it never exercises story_advance persistence. Add a narrowly validated REVIEW→TEST index transition allowance (currentReviewRound and non-transition story semantics unchanged), not a blanket index.json ignore, and test via actual persisted transition before TEST→DONE guard/reason parity.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T10:29:08.309Z",
@@ -375,7 +375,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "review-test-index-retention",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 0bc3da31f3: added a narrow persisted REVIEW-to-TEST index transition validator that compares the signed review HEAD index to current TEST index, permits only exact phase/event/provenance deltas, and rejects title or stable-field tampering. Real committed git regression passes.",
+      "resolvedAt": "2026-07-13T10:37:13.038Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-016",
