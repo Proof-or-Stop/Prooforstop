@@ -879,6 +879,26 @@
       ],
       "signatureTag": "adversarial|ts|active-source-scan",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f458:F-037",
+      "desc": "The seven pinned fingerprints do not actually bind all seven source files: the four benign-loader fingerprints are consulted only from isKnownBenignNonLiteralLoaderCall, which itself runs only after loaderCallKind has already recognized a nonliteral import/require call (lines 801-829). Replacing cli-engine’s sole approved await import(file URL) with an unrecognized executable loader such as indirect eval of import(\"./legacy-delivery-claims-compat.js\") removes the recognized call entirely. scanConcealedCompatibilityLoads never invokes canonicalAstFingerprint, and extractImportSpecifiers does not parse the string passed to eval, so the mutated whole source produces no loader/fingerprint violation despite executing the retired module. The new path-producer and duplicate-anchor controls keep the recognized import call in place, so they cannot expose this gap. Enforce each knownBenignNonLiteralLoaderCalls sourceFingerprint unconditionally once per scanned file (including when the approved call is removed/replaced), and add an exact call-removal/unrecognized-loader mutation control.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-13T13:00:31.789Z",
+      "reviewRound": "2026-07-13T12:56:50.330Z",
+      "reviewRunId": "B-f458:RR-054",
+      "_hash": "6f62c2b89d9c84d5d2aeb0a378a4de579603d0a55f8f944f0500fc0f0046aadf",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/src/cli-engine.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "compat-loader-fingerprint-unconditional",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
