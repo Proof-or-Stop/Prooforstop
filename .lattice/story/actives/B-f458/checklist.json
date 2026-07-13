@@ -180,7 +180,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-13T12:05:32.426Z",
+      "endTime": "2026-07-13T12:18:26.128Z",
       "userSees": "User sees `PASS trusted closeout artifacts: schema and embedded hashes verified`; a malformed ledger/plan/rollup/delivery-context artifact or forged embedded hash is rejected with a named artifact error.",
       "verificationIntent": {
         "happy": [
@@ -225,33 +225,33 @@
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full suite passed at eaad32b53c including trusted persisted schema validation.",
-          "headHash": "df1fd7276a00fb4541e3b8686041776e4dd66426",
-          "materialHash": "4e1cd302c15f264c841eac0c26e1f5013b83153ce555b1a3abb254573089775c",
-          "storyFilesHash": "a22f46aac7120b7bb5959bf6e3c6847ad677463dad52cf542b086d4014eb28f4",
-          "timestamp": "2026-07-13T12:05:32.565Z"
+          "note": "Full suite passed at implementation commit aa86b4d950 after TypeChecker-bound compatibility guard hardening (CHK-003).",
+          "headHash": "2f1b6f6422740195cb4f33e196ad2cd03c2ef4d6",
+          "materialHash": "42746a6160ea4b6b6347cbe0ad1fc26ba2fd428f015b24d346de108faab041f4",
+          "storyFilesHash": "f4b384bdf30976ba37e29c55a1969e786b149eaf478f7053abea10eef0ab61ec",
+          "timestamp": "2026-07-13T12:18:26.305Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
           "command": "npm run test:closeout-trust",
           "result": "pass",
-          "note": "Closeout schema and embedded-hash checks passed at eaad32b53c.",
-          "headHash": "df1fd7276a00fb4541e3b8686041776e4dd66426",
-          "materialHash": "4e1cd302c15f264c841eac0c26e1f5013b83153ce555b1a3abb254573089775c",
-          "storyFilesHash": "a22f46aac7120b7bb5959bf6e3c6847ad677463dad52cf542b086d4014eb28f4",
-          "timestamp": "2026-07-13T12:05:32.700Z"
+          "note": "Closeout trust regression suite passed at aa86b4d950, including metadata/re-attestation boundaries (CHK-003).",
+          "headHash": "2f1b6f6422740195cb4f33e196ad2cd03c2ef4d6",
+          "materialHash": "42746a6160ea4b6b6347cbe0ad1fc26ba2fd428f015b24d346de108faab041f4",
+          "storyFilesHash": "f4b384bdf30976ba37e29c55a1969e786b149eaf478f7053abea10eef0ab61ec",
+          "timestamp": "2026-07-13T12:18:26.456Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && npm run test:process-fact-contract",
           "result": "pass",
-          "note": "Retired claims remain behind exact AST-approved type/value bindings at eaad32b53c.",
-          "headHash": "df1fd7276a00fb4541e3b8686041776e4dd66426",
-          "materialHash": "4e1cd302c15f264c841eac0c26e1f5013b83153ce555b1a3abb254573089775c",
-          "storyFilesHash": "a22f46aac7120b7bb5959bf6e3c6847ad677463dad52cf542b086d4014eb28f4",
-          "timestamp": "2026-07-13T12:05:32.843Z"
+          "note": "Adversarial guard controls passed at aa86b4d950: const-path flow, require/createRequire aliases, relocated exported objects, downstream property/destructure consumers, and shadowed same-name symbols (CHK-003).",
+          "headHash": "2f1b6f6422740195cb4f33e196ad2cd03c2ef4d6",
+          "materialHash": "42746a6160ea4b6b6347cbe0ad1fc26ba2fd428f015b24d346de108faab041f4",
+          "storyFilesHash": "f4b384bdf30976ba37e29c55a1969e786b149eaf478f7053abea10eef0ab61ec",
+          "timestamp": "2026-07-13T12:18:26.603Z"
         }
       ]
     },
