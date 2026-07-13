@@ -4,17 +4,139 @@
       "id": "CHK-001",
       "title": "Register milestone-closeout.json as an artifact fact in process-fact-registry.ts",
       "context": "Add a PROCESS_FACT_ARTIFACT_BY_COMMAND ref (name/path milestone-closeout.json, signed:false, producerCommand story_advance DONE-time capture implemented in handlers/milestone-status.ts, written via store.writeMilestoneCloseout at store.ts ~706) plus a PROCESS_FACT_REGISTRY fact entry named artifact:milestone-closeout.json modeled on the adjacent artifact:milestone-ledger.json entry, with producer handlers/milestone-status and a consumer description naming the DONE-phase milestone_status / milestone_closeout frozen-snapshot read path (snapshot-only; never re-blocks DONE).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-13T08:40:57.002Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "With the new artifact:milestone-closeout.json registry entry present, npm run test:process-fact-contract passes",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The registry entry is unsigned artifact kind with a consumerGate and no signed-artifact semantic, satisfying the contract loop kind/signed/consumerGate assertions",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Bite test: temporarily removing the milestone-closeout registry entry makes npm run test:process-fact-contract fail with artifact-missing assertion, then restore and re-run green (non-vacuous)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Contract run on commit b7d953361d prints Process fact contract verified with the artifact:milestone-closeout.json registry entry present.",
+          "headHash": "60555846c3377ca95f085448f5f8691bae3632a1",
+          "materialHash": "0ef3c1170f94f44b4c1bdc163fe6ddf9f93d9b877987144976a95285f0cee4e4",
+          "storyFilesHash": "9c45ff0f8cc7aca0c97f88884f8ff39b8e7f04a78ab5afe170e60e45e1d98570",
+          "timestamp": "2026-07-13T09:01:34.311Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "The requiredArtifactFacts loop mechanically asserts kind=artifact for signed:false, artifact semantic, path match, and consumerGate presence for this entry; the verified run executed those assertions against the new entry. tsc build also passed, proving the semantics array type-checks as ProcessFactSemantic[].",
+          "headHash": "60555846c3377ca95f085448f5f8691bae3632a1",
+          "materialHash": "0ef3c1170f94f44b4c1bdc163fe6ddf9f93d9b877987144976a95285f0cee4e4",
+          "storyFilesHash": "9c45ff0f8cc7aca0c97f88884f8ff39b8e7f04a78ab5afe170e60e45e1d98570",
+          "timestamp": "2026-07-13T09:01:34.311Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/process-fact-registry.ts",
+          "command": "python3 remove-entry && npm run test:process-fact-contract && git restore && npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Bite test transcript: with the artifact:milestone-closeout.json fact entry removed from PROCESS_FACT_REGISTRY the script fails with artifact missing from PROCESS_FACT_REGISTRY: artifact=artifact:milestone-closeout.json; after git restore the run prints Process fact contract verified. Source byte-restored (git status clean for the two source files).",
+          "headHash": "60555846c3377ca95f085448f5f8691bae3632a1",
+          "materialHash": "0ef3c1170f94f44b4c1bdc163fe6ddf9f93d9b877987144976a95285f0cee4e4",
+          "storyFilesHash": "9c45ff0f8cc7aca0c97f88884f8ff39b8e7f04a78ab5afe170e60e45e1d98570",
+          "timestamp": "2026-07-13T09:01:34.311Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Add milestone-closeout.json to requiredArtifactFacts in verify-process-fact-contract.mjs",
       "context": "Insert { name: 'artifact:milestone-closeout.json', path: 'milestone-closeout.json', signed: false } into requiredArtifactFacts (scripts/verify-process-fact-contract.mjs ~line 171, next to the milestone-ledger.json line ~196), matching the neighboring assertion pattern. npm run test:process-fact-contract must pass with the registry entry present and fail if the CHK-001 registry entry is removed (non-vacuous check).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-13T08:40:57.636Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "requiredArtifactFacts contains { name: artifact:milestone-closeout.json, path: milestone-closeout.json, signed: false } and the contract run stays green",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The entry sits in requiredArtifactFacts so the loop also enforces path match and kind (artifact vs signed-artifact) drift for this artifact",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "With the required-list line present but the registry entry absent, the script fails with artifact missing from PROCESS_FACT_REGISTRY (the line is load-bearing, shared bite test with CHK-001)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "requiredArtifactFacts now contains { name: artifact:milestone-closeout.json, path: milestone-closeout.json, signed: false } next to the milestone-ledger line and the contract run stays green.",
+          "headHash": "60555846c3377ca95f085448f5f8691bae3632a1",
+          "materialHash": "0ef3c1170f94f44b4c1bdc163fe6ddf9f93d9b877987144976a95285f0cee4e4",
+          "storyFilesHash": "9c45ff0f8cc7aca0c97f88884f8ff39b8e7f04a78ab5afe170e60e45e1d98570",
+          "timestamp": "2026-07-13T09:01:34.311Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Because the entry sits in requiredArtifactFacts, the loop enforces path match and kind drift (artifact vs signed-artifact) for this artifact on every contract run; assertions executed in the verified run.",
+          "headHash": "60555846c3377ca95f085448f5f8691bae3632a1",
+          "materialHash": "0ef3c1170f94f44b4c1bdc163fe6ddf9f93d9b877987144976a95285f0cee4e4",
+          "storyFilesHash": "9c45ff0f8cc7aca0c97f88884f8ff39b8e7f04a78ab5afe170e60e45e1d98570",
+          "timestamp": "2026-07-13T09:01:34.311Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/process-fact-registry.ts",
+          "command": "python3 remove-entry && npm run test:process-fact-contract && git restore && npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Shared bite test with CHK-001: required-list line present but registry entry absent makes the script fail with the artifact-missing assertion, proving the CHK-002 line is load-bearing; restored run green.",
+          "headHash": "60555846c3377ca95f085448f5f8691bae3632a1",
+          "materialHash": "0ef3c1170f94f44b4c1bdc163fe6ddf9f93d9b877987144976a95285f0cee4e4",
+          "storyFilesHash": "9c45ff0f8cc7aca0c97f88884f8ff39b8e7f04a78ab5afe170e60e45e1d98570",
+          "timestamp": "2026-07-13T09:01:34.311Z"
+        }
+      ]
     }
   ]
 }

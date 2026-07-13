@@ -1,0 +1,131 @@
+{
+  "passes": [
+    {
+      "id": "B-9188:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round; diff is purely additive (new milestone_closeout_capture artifact ref + artifact:milestone-closeout.json fact entry in process-fact-registry.ts, plus matching requiredArtifactFacts line in verify-process-fact-contract.mjs). Grepped removed diff lines, found only story-metadata phase/status transitions, no code concepts deleted/renamed. Cross-checked closing self-check: writeMilestoneCloseout/handlers/milestone-status.ts/store.ts already existed pre-diff (untouched by this story), so new registry entry documents pre-existing implemented behavior, not an undelivered promise. No blocker.",
+      "createdAt": "2026-07-13T08:43:57.563Z",
+      "reviewRound": "2026-07-13T08:41:09.870Z",
+      "reviewRunId": "B-9188:RR-004",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/milestone-status.ts",
+          "packages/main/src/tasks/milestone-done-gate-reconciliation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4732434ddeb2f0c8469abb8c18bf8b17fe867513af87515433692ff45ca7aadf"
+    },
+    {
+      "id": "B-9188:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. CHK-001 and CHK-002 each have happy/edge/adversarial must intents (channel=express, exceeding the express minimum of happy-only); lattice validate --json verificationCoverage reports total=6 required=6 covered=6 missingRequired=0. Cross-checked evidence notes against git diff main...HEAD (2 source files as claimed) and re-ran npm run test:process-fact-contract locally (green, matches happy/edge evidence). Confirmed the exact bite-test assertion string used in the shared manual_transcript adversarial evidence exists in scripts/verify-process-fact-contract.mjs:3476 (did not re-run the destructive bite test myself, per instructions).",
+      "createdAt": "2026-07-13T08:47:19.904Z",
+      "reviewRound": "2026-07-13T08:41:09.870Z",
+      "reviewRunId": "B-9188:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9188/checklist.json",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/milestone-status.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ccddafd7edacd9ad83aa25b3f70bd97b66f9c9b8370461d389c33c03cac32b18"
+    },
+    {
+      "id": "B-9188:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 targeted re-review of F-001: verified doc fix at process-fact-registry.ts:262-269 is factually accurate incl. the verify-process-fact-contract.mjs parser-limitation claim; ran the script directly, contract still verifies clean.",
+      "createdAt": "2026-07-13T08:52:58.470Z",
+      "reviewRound": "2026-07-13T08:49:22.585Z",
+      "reviewRunId": "B-9188:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/milestone-status.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "518813d560828cce48329bd60a59e9f328fad3fa3ba5a968b6c38bb1b9fc7290"
+    },
+    {
+      "id": "B-9188:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 re-verification (independent of prior scan): git diff main...HEAD is purely additive in both touched source files. Confirmed via git show main:... that no prior milestone-closeout reference existed to be renamed/replaced, and MILESTONE_CLOSEOUT_FILENAME constant already exists unchanged on main -- pure registration of a pre-existing artifact, not a concept deletion/rename. No concept residue check applicable; no blocker.",
+      "createdAt": "2026-07-13T09:24:52.847Z",
+      "reviewRound": "2026-07-13T09:23:14.688Z",
+      "reviewRunId": "B-9188:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-9188/checklist.json",
+          ".lattice/story/actives/B-9188/index.json",
+          ".lattice/story/actives/B-9188/summary.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a58d5ddbeb894a599cc8e84c2c3fbab4796b7d2c09308db64c580c0cb48dea48"
+    },
+    {
+      "id": "B-9188:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 re-verification: diff unchanged from round 2 (same 26-line addition across process-fact-registry.ts and verify-process-fact-contract.mjs). F-001 remains resolved/verified; re-checked synthetic-key regex claim and story_advance producer attribution directly against source, and re-ran the contract script green. No new dead code/type-safety/IO-isolation issues in this additive two-file diff.",
+      "createdAt": "2026-07-13T09:25:04.381Z",
+      "reviewRound": "2026-07-13T09:23:14.688Z",
+      "reviewRunId": "B-9188:RR-008",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/milestone-status.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6ba83ea35c92b05bda41864cbfab2472208fafbd19f0e36046090b1a6d9d2532"
+    },
+    {
+      "id": "B-9188:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. 6/6 must intents (CHK-001 happy/edge/adversarial, CHK-002 happy/edge/adversarial) have concrete pass evidence (integration_test x4 + manual_transcript bite-test x2); independently reran npm run test:process-fact-contract green and grep-confirmed source presence of artifact:milestone-closeout.json registry entry and requiredArtifactFacts line; storyFilesHash 9c45ff0f unchanged, confirmed via review_run_start binding.",
+      "createdAt": "2026-07-13T09:28:03.354Z",
+      "reviewRound": "2026-07-13T09:23:14.688Z",
+      "reviewRunId": "B-9188:RR-009",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7ea28e8b0fea88c6ad362b5d4bf0cd5165c92b7016d2d87fb7851c11909db3e6"
+    }
+  ]
+}

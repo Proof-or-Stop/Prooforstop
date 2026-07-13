@@ -194,6 +194,7 @@ const requiredArtifactFacts = [
   { name: 'artifact:story-evidence-binding', path: 'story-evidence-binding', signed: false },
   { name: 'artifact:original-intent-snapshot.json', path: 'original-intent-snapshot.json', signed: false },
   { name: 'artifact:milestone-ledger.json', path: 'milestone-ledger.json', signed: false },
+  { name: 'artifact:milestone-closeout.json', path: 'milestone-closeout.json', signed: false },
   { name: 'artifact:slice-plan.json', path: 'slice-plan.json', signed: false },
   { name: 'artifact:parent-ledger-rollup.json', path: 'parent-ledger-rollup.json', signed: false },
   { name: 'artifact:proofstory.json', path: 'proofstory.json', signed: false },
