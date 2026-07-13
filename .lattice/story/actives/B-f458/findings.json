@@ -2316,7 +2316,7 @@
       "desc": "The export graph records nested namespace provenance, but dynamicReferenceKind cannot consume a property chain beyond one identifier-rooted member. For a call like `import * as barrel from './dynamic-code-esm-namespace-reexport.js'; barrel.bridge.evalRun(\"import('./legacy-delivery-claims-compat.js')\")`, the outer `evalRun` target is the PropertyAccess `barrel.bridge`, so the bindings.memberKinds/knownMembers lookup guarded by `ts.isIdentifier(target)` is skipped; no recursive member selection occurs and the dangerous nested member is missed. The new namespace-reexport positive avoids this path by named-importing `{ bridge }`, flattening the namespace before the call. Dynamic-import namespaces and cyclic namespace re-exports have the same nested-chain gap. Resolve arbitrary PropertyAccess/ElementAccess chains against DynamicProvenance (cycle-safe), or conservatively propagate nested dangerous identity without turning exact safe siblings into false positives. Add static/dynamic namespace-chain positives and safe negatives, including named/default namespace re-exports and a cyclic nested namespace control.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T18:08:03.953Z",
@@ -2336,7 +2336,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "nested-namespace-member-provenance",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by a34d89024d: arbitrary-depth namespace and member chains consume expression provenance for static and dynamic module graphs with safe controls.",
+      "resolvedAt": "2026-07-13T18:28:39.594Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-090",
