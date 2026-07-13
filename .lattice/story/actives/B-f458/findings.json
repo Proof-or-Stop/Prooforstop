@@ -376,6 +376,29 @@
       ],
       "signatureTag": "review-test-index-retention",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-016",
+      "desc": "F-014 fix wires closeout-aware reviewer freshness into the real TEST→DONE canFinishGuard and emits stale_closeout_review, but the recovery path deadlocks on the legitimate REVIEW→TEST lifecycle mutation. A review run/pass is necessarily captured in REVIEW; story_advance TEST then persists phase=TEST and events into index.json after that snapshot. index.json is not in REVIEW_RETENTION_PROTOCOL_METADATA_PATHS, so evaluateReviewRunMetadataRetention treats it as a changed unknown/untrusted artifact and invalidates the fresh REVIEW evidence at DONE. review_run_start/review_pass_set are allowed only in REVIEW, so TEST cannot create the post-transition snapshot needed to recover. The new smoke misses this because it initializes the persisted story directly in TEST and only exercises an in-memory FINISH actor; its synthetic fresh run is created after all metadata changes without executing the real REVIEW→TEST persistence step. Add a real lifecycle regression covering REVIEW run/pass → persisted story_advance TEST/index mutation → TEST→DONE, and classify/bind legitimate lifecycle index mutations so they do not authorize arbitrary closeout changes or deadlock DONE. Same-UID receipts remain correctly non-authoritative.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T10:29:19.492Z",
+      "reviewRound": "2026-07-13T10:27:30.896Z",
+      "reviewRunId": "B-f458:RR-013",
+      "_hash": "a696c3eeb3cd4972f28572667550ff7c318a928655ea1ad93ff9584810f9dca6",
+      "files": [
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/core/lifecycle-registry.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "packages/main/src/core/command-policy.ts"
+      ],
+      "signatureTag": "missing|ts|wires-closeout-aware",
+      "signatureTagSource": "auto"
     }
   ]
 }
