@@ -383,6 +383,28 @@
         "scanEscalationReason": null
       },
       "_hash": "79a49c937cdfe508c67a9599a1a7c77aa0cfb038d089deaf4e2742716e7654b7"
+    },
+    {
+      "id": "B-f458:RP-018",
+      "agent": "lattice-review-test-coverage",
+      "note": "Current-round coverage PASS for F-028/F-029/F-030 at story material f4b384b. Executable controls verify TypeChecker symbol identity for const path chains and require/module.require/createRequire aliases, canonical full call-site ancestry, relocation of approved-shaped constructor calls into exported objects, and taint propagation to downstream property and destructuring consumers. Same-name shadowed constructor parameters and unrelated unresolved plugin/compatPluginPath loads remain clean negatives. Build, configured retired-vocabulary guard, closeout lifecycle, process-fact, and runtime-fact suites pass; process contract pins the new symbol, loader, ancestry, downstream, and negative-control facts. All 15 verification intents pass and bind current storyFilesHash.",
+      "createdAt": "2026-07-13T12:20:57.710Z",
+      "reviewRound": "2026-07-13T12:19:02.442Z",
+      "reviewRunId": "B-f458:RR-048",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/legacy-delivery-claims-compat.ts",
+          "packages/main/src/handlers/delivery-context-pack.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "28c9b58179826678d89532bfc691e77d5879746b622d41180290aad147dff2fa"
     }
   ]
 }
