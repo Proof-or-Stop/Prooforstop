@@ -917,7 +917,7 @@
       "desc": "The traversal is cycle-safe but not canonical-path safe: `listFiles` uses one global `visitedDirectories` set keyed by realpath and emits whichever logical alias reaches a real directory first. If a symlink directory under packages/main/src points at `core` and is enumerated before the real `core` entry, the alias marks the realpath visited and the canonical `packages/main/src/core` subtree is skipped. Files are then recorded under the symlink path, so the eight exact-path fingerprint keys are not consulted and relative imports resolve against the alias (for example alias/legacy-delivery-claims-compat), not `LEGACY_DELIVERY_COMPAT_MODULE`. There is also no postcondition that every pinned path was discovered. Thus the claimed symlink-cycle-safe traversal can starve canonical pinned/import graph paths nondeterministically by directory enumeration order. Use an ancestor recursion stack rather than a global realpath de-dup set (so true cycles stop but canonical and alias paths can both be evaluated), or define a lstat symlink policy plus independently validate all pinned canonical paths and assert all eight were checked; add alias-before-target and self-cycle controls.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T13:17:28.349Z",
@@ -929,7 +929,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "source-traversal-symlink-canonical-starvation",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 1095a076ab: lstat traversal skips symlink entries, canonical pinned paths must each be checked exactly once, and alias-before-target plus self/back-edge controls prove no starvation/cycle.",
+      "resolvedAt": "2026-07-13T13:31:11.443Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-039",
