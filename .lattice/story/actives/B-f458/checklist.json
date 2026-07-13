@@ -180,7 +180,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-13T10:14:59.611Z",
+      "endTime": "2026-07-13T11:00:40.505Z",
       "userSees": "User sees `PASS trusted closeout artifacts: schema and embedded hashes verified`; a malformed ledger/plan/rollup/delivery-context artifact or forged embedded hash is rejected with a named artifact error.",
       "verificationIntent": {
         "happy": [
@@ -223,38 +223,35 @@
         {
           "intentRef": "CHK-003:happy:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Final scope-bound trusted schema/hash validation passes.",
-          "headHash": "2bb4a7c00e790af8331b0e0d5f72a2bf7ef373f5",
-          "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
-          "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
-          "timestamp": "2026-07-13T10:46:25.536Z"
+          "note": "Full suite passed after shared REVIEW/DONE reviewer verdict enforcement at commit 1baeb54a9d.",
+          "headHash": "e11a57b26f1b1fffdc8be5360f0da7771f7d40b1",
+          "materialHash": "ad073efd4fec3685844c9e84a54c397c7e7e61af70cd816e6dc1b3641f850116",
+          "storyFilesHash": "97b41175b50ecf541e1aa9b58bb531cfdcf96141ba381420e6792f93f469b126",
+          "timestamp": "2026-07-13T11:00:40.705Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Final scope-bound no-user positive and malformed audit/artifact negatives pass.",
-          "headHash": "2bb4a7c00e790af8331b0e0d5f72a2bf7ef373f5",
-          "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
-          "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
-          "timestamp": "2026-07-13T10:46:25.676Z"
+          "note": "Full suite covers stale/missing lane and wrapper-root compatibility after shared verdict enforcement.",
+          "headHash": "e11a57b26f1b1fffdc8be5360f0da7771f7d40b1",
+          "materialHash": "ad073efd4fec3685844c9e84a54c397c7e7e61af70cd816e6dc1b3641f850116",
+          "storyFilesHash": "97b41175b50ecf541e1aa9b58bb531cfdcf96141ba381420e6792f93f469b126",
+          "timestamp": "2026-07-13T11:00:40.956Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Final scope-bound cross-story/stale/same-UID substitutions fail.",
-          "headHash": "2bb4a7c00e790af8331b0e0d5f72a2bf7ef373f5",
-          "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
-          "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
-          "timestamp": "2026-07-13T10:46:25.814Z"
+          "note": "Full suite covers manual TEST phase bypass attempts with no reviewer, missing lane, and open verified high finding.",
+          "headHash": "e11a57b26f1b1fffdc8be5360f0da7771f7d40b1",
+          "materialHash": "ad073efd4fec3685844c9e84a54c397c7e7e61af70cd816e6dc1b3641f850116",
+          "storyFilesHash": "97b41175b50ecf541e1aa9b58bb531cfdcf96141ba381420e6792f93f469b126",
+          "timestamp": "2026-07-13T11:00:41.121Z"
         }
       ]
     },
