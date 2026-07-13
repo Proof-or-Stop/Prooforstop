@@ -429,6 +429,28 @@
       ],
       "signatureTag": "missing|ts|review-test-index",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f458:F-018",
+      "desc": "The exact index-transition validator also creates a false deadlock for a legitimate collectContext event when Git identity is supplied through environment rather than git config. StoryEvent.user is optional and collectContext sets it only when `git config user.name` succeeds, but evaluatePersistedReviewToTestIndexTransition requires event.user to be non-empty. In a real repo with commits authorized by GIT_AUTHOR_NAME/GIT_COMMITTER_NAME and no configured user.name, the persisted REVIEW→TEST event correctly omitted user and the validator rejected it as incomplete provenance. This is distinct from F-017’s overbroad acceptance of attacker-chosen non-empty provenance: the fix needs mechanically authoritative provenance while preserving collectContext’s documented optional user behavior, or collectContext/commit identity must be made consistently required at the producer boundary. Add the environment-identity/no-user regression.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T10:39:23.637Z",
+      "reviewRound": "2026-07-13T10:36:52.850Z",
+      "reviewRunId": "B-f458:RR-017",
+      "_hash": "adca339ee06e4fa57b8630287d9b270f24a1fdbae4dd5f8c9f813bbb06f86e4c",
+      "files": [
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/handlers/context.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "packages/main/src/core/types.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts"
+      ],
+      "signatureTag": "optional-event-user-deadlock",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
