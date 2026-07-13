@@ -1566,6 +1566,33 @@
       ],
       "signatureTag": "empty-property-key-truthiness",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-065",
+      "desc": "knownMembers is accumulated independently from dangerous provenance and is consulted as an unconditional early safe return, so an exact member observed in any alias record can suppress unresolved rest provenance from another assignment to the same symbol. For example, valid TypeScript can declare `declare const source: any; let rest: any = { value: (text: string) => text }; ({ ...rest } = source); rest.value(\"import('./legacy-delivery-claims-compat.js')\");`. The initializer records `value` in knownMembers; the later object-rest assignment records unresolved index/rest danger on the same symbol but does not clear that set. dynamicReferenceKind then finds no memberKind for `value`, sees the stale knownMembers entry, and returns undefined before consulting dangerousSymbols, although at runtime source.value may be eval/Function/vm. Because bindings are deliberately flow-insensitive, known-member evidence must not override dangerous evidence from a competing provenance record: merge a per-member safety lattice conservatively (danger wins), or preserve assignment-sensitive provenance. Add positive controls for safe-initializer then any/unknown rest reassignment (declaration and assignment patterns), plus the reverse-order benign/precision controls.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T16:00:36.855Z",
+      "reviewRound": "2026-07-13T15:56:37.277Z",
+      "reviewRunId": "B-f458:RR-084",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the full indexed-provenance commit diff and the complete focused DynamicProvenance, ElementAccess, ToPropertyKey, fixpoint, knownMembers/indexKinds, and regression-control sections; unrelated unchanged portions of the large guard were triaged."
+      },
+      "_hash": "cdb3425039bc51c3f98c676dabbd756cfc094e4715d157118bdf8acb9bcb40c8",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "known-member-cross-assignment-suppression",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
