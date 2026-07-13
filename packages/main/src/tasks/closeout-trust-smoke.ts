@@ -39,9 +39,9 @@ import { StoryStore } from '../core/store.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { currentScopeContextForStory, evaluatePersistedReviewToTestIndexTransition, evaluateReviewRunMetadataRetention, signReviewRun, verifyReviewRun } from '../core/review-run.js';
-import { signReviewPass } from '../core/finding-verify.js';
-import { createStoryActor, getGuardFailureReason, getStateName } from '../core/machine.js';
-import type { ReviewRun } from '../core/types.js';
+import { signFinding, signReviewPass } from '../core/finding-verify.js';
+import { createStoryActor, evaluateReviewVerdict, getGuardFailureReason, getStateName } from '../core/machine.js';
+import type { Finding, ReviewRun } from '../core/types.js';
 import { resetConfigCache } from '../core/config.js';
 import { createProofStoryHandlers } from '../handlers/proofstory.js';
 import { createTestHandlers } from '../handlers/test.js';
@@ -54,6 +54,7 @@ import { createLiveSmokeTranscriptHandlers } from '../handlers/live-smoke-transc
 import { createDoneRequiredValidationHandlers } from '../handlers/done-required-validation.js';
 import { createVerifierHandlers } from '../handlers/verifier.js';
 import type { HandlerContext } from '../handlers/context.js';
+import { computeActiveReviewers } from '../handlers/reviewer-list.js';
 
 const storyId = 'B-closeout';
 const ledger = buildMilestoneLedger({
@@ -492,26 +493,87 @@ try {
   assert.match(getGuardFailureReason(runtimeStoryId, store, 'DONE', repo, repo) ?? '', /\[stale_closeout_review\]/);
   staleActor.stop();
 
-  const freshRun = {
-    ...run,
-    reviewRunId: `${runtimeStoryId}:RR-002`,
-    startedAt: new Date().toISOString(),
-    headHash: currentGitHead(repo)!,
-    materialHash: currentMaterialHash(repo, 'HEAD', repo)!,
-    storyFilesHash: currentStoryFilesHash(repo, 'HEAD', repo)!,
-  } as ReviewRun;
-  freshRun._hash = signReviewRun(
-    freshRun.storyId, freshRun.reviewRunId, freshRun.agent, freshRun.lane, freshRun.reviewRound,
-    freshRun.startedAt, freshRun.headHash, freshRun.materialHash, freshRun.promptHash,
-    freshRun.scopeBinding?.bindingHash, undefined, freshRun.storyFilesHash,
-  );
-  const freshPassCreatedAt = new Date().toISOString();
-  store.writeReviewRuns(runtimeStoryId, { runs: [run, freshRun] });
-  store.writeReviewPasses(runtimeStoryId, { passes: [{
-    id: 'RP-002', agent: freshRun.agent, note: 'Fresh post-closeout review snapshot.', createdAt: freshPassCreatedAt,
-    reviewRound: freshRun.reviewRound, reviewRunId: freshRun.reviewRunId,
-    _hash: signReviewPass(runtimeStoryId, 'RP-002', freshRun.agent, 'Fresh post-closeout review snapshot.', freshPassCreatedAt, freshRun.reviewRound, freshRun.reviewRunId),
-  }] });
+  store.writeReviewRuns(runtimeStoryId, { runs: [] });
+  store.writeReviewPasses(runtimeStoryId, { passes: [] });
+  store.writeFindings(runtimeStoryId, { findings: [] });
+  assert.equal(evaluateReviewVerdict({ storyId: runtimeStoryId, store, projectRoot: repo, gitCwd: repo }).code, 'review_evidence_missing');
+  const noReviewerActor = createStoryActor(runtimeStoryId, store, 'TEST', repo, repo);
+  noReviewerActor.start();
+  noReviewerActor.send({ type: 'FINISH' });
+  assert.equal(getStateName(noReviewerActor), 'TEST', 'DONE must reject a hand-edited TEST phase with no reviewer evidence');
+  assert.match(getGuardFailureReason(runtimeStoryId, store, 'DONE', repo, repo) ?? '', /\[review_evidence_missing\]/);
+  noReviewerActor.stop();
+
+  const activeReviewers = computeActiveReviewers(store.readStory(runtimeStoryId), store.readChecklist(runtimeStoryId), null, []);
+  const currentHead = currentGitHead(repo)!;
+  const currentMaterial = currentMaterialHash(repo, 'HEAD', repo)!;
+  const currentStoryFiles = currentStoryFilesHash(repo, 'HEAD', repo)!;
+  const freshRuns = activeReviewers.map((reviewer, index) => {
+    const agent = `lattice-review-${reviewer.name}`;
+    const freshRun = {
+      ...run,
+      reviewRunId: `${runtimeStoryId}:RR-${String(index + 2).padStart(3, '0')}`,
+      agent,
+      lane: agent,
+      startedAt: new Date(Date.now() + index).toISOString(),
+      headHash: currentHead,
+      materialHash: currentMaterial,
+      storyFilesHash: currentStoryFiles,
+    } as ReviewRun;
+    freshRun._hash = signReviewRun(
+      freshRun.storyId, freshRun.reviewRunId, freshRun.agent, freshRun.lane, freshRun.reviewRound,
+      freshRun.startedAt, freshRun.headHash, freshRun.materialHash, freshRun.promptHash,
+      freshRun.scopeBinding?.bindingHash, undefined, freshRun.storyFilesHash,
+    );
+    return freshRun;
+  });
+  const freshPasses = freshRuns.map((freshRun, index) => {
+    const id = `RP-${String(index + 2).padStart(3, '0')}`;
+    const note = `Fresh post-closeout ${freshRun.lane} review snapshot.`;
+    const createdAt = new Date(Date.now() + index).toISOString();
+    return {
+      id, agent: freshRun.agent, note, createdAt, reviewRound: freshRun.reviewRound, reviewRunId: freshRun.reviewRunId,
+      _hash: signReviewPass(runtimeStoryId, id, freshRun.agent, note, createdAt, freshRun.reviewRound, freshRun.reviewRunId),
+    };
+  });
+
+  store.writeReviewRuns(runtimeStoryId, { runs: [freshRuns[0]] });
+  store.writeReviewPasses(runtimeStoryId, { passes: [freshPasses[0]] });
+  assert.equal(evaluateReviewVerdict({ storyId: runtimeStoryId, store, projectRoot: repo, gitCwd: repo }).code, 'review_lane_missing');
+  const missingLaneActor = createStoryActor(runtimeStoryId, store, 'TEST', repo, repo);
+  missingLaneActor.start();
+  missingLaneActor.send({ type: 'FINISH' });
+  assert.equal(getStateName(missingLaneActor), 'TEST', 'DONE must reject missing required reviewer lanes/quorum');
+  assert.match(getGuardFailureReason(runtimeStoryId, store, 'DONE', repo, repo) ?? '', /\[review_lane_missing\]/);
+  missingLaneActor.stop();
+
+  store.writeReviewRuns(runtimeStoryId, { runs: freshRuns });
+  store.writeReviewPasses(runtimeStoryId, { passes: freshPasses });
+  const findingCreatedAt = new Date().toISOString();
+  const blockingFinding: Finding = {
+    id: `${runtimeStoryId}:F-001`,
+    desc: 'Verified high finding must remain blocking at DONE.',
+    severity: 'high',
+    category: 'adversarial',
+    status: 'open',
+    evidenceState: 'verified',
+    agent: freshRuns[0].agent,
+    createdAt: findingCreatedAt,
+    reviewRound: freshRuns[0].reviewRound,
+    reviewRunId: freshRuns[0].reviewRunId,
+    _hash: signFinding(runtimeStoryId, `${runtimeStoryId}:F-001`, 'Verified high finding must remain blocking at DONE.', 'high', findingCreatedAt, freshRuns[0].reviewRound, freshRuns[0].reviewRunId),
+  };
+  store.writeFindings(runtimeStoryId, { findings: [blockingFinding] });
+  assert.equal(evaluateReviewVerdict({ storyId: runtimeStoryId, store, projectRoot: repo, gitCwd: repo }).code, 'review_finding_blocking');
+  const blockingFindingActor = createStoryActor(runtimeStoryId, store, 'TEST', repo, repo);
+  blockingFindingActor.start();
+  blockingFindingActor.send({ type: 'FINISH' });
+  assert.equal(getStateName(blockingFindingActor), 'TEST', 'DONE must reject an open verified high finding after a manual phase edit');
+  assert.match(getGuardFailureReason(runtimeStoryId, store, 'DONE', repo, repo) ?? '', /\[review_finding_blocking\]/);
+  blockingFindingActor.stop();
+
+  store.writeFindings(runtimeStoryId, { findings: [] });
+  assert.equal(evaluateReviewVerdict({ storyId: runtimeStoryId, store, projectRoot: repo, gitCwd: repo }).ok, true);
   const freshActor = createStoryActor(runtimeStoryId, store, 'TEST', repo, repo);
   freshActor.start();
   freshActor.send({ type: 'FINISH' });

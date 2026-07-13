@@ -74,8 +74,28 @@
       "phase": "DEV",
       "headHash": "81ce808903f6c7e478bd74e89a462fec30641853",
       "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The shared DONE reviewer verdict makes this existing DONE-ready regression fixture require complete current-round reviewer passes.",
+      "timestamp": "2026-07-13T11:00:11.440Z",
+      "paths": [
+        "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "6b0dd55b2db345e4332159d2288117ddae938006",
+      "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
+      "anchors": [
+        "evaluateReviewVerdict",
+        "canFinishGuard"
+      ]
     }
   ],
   "createdAt": "2026-07-13T08:24:04.138Z",
-  "updatedAt": "2026-07-13T10:45:52.993Z"
+  "updatedAt": "2026-07-13T11:00:11.440Z"
 }
