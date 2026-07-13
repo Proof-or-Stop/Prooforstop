@@ -358,6 +358,24 @@
         "scanEscalationReason": null
       },
       "_hash": "9a0d2070bdc31815837c3e81d89500537bfe9a87ec1959783cda6dc50b5daadb"
+    },
+    {
+      "id": "B-3928:RP-018",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: Re-reviewed all 15 verificationIntent entries across CHK-001..005 against their current verificationEvidence. Coverage is one-to-one; evidence is bound to storyFilesHash 6d331255, matching the current signed review run. Independently reran the baseline verifier plus baseline-drift and role-matrix snapshot probes; all passed, including 16-role registry/output locks, 10 mechanical drift mutations, matrix field/Markdown/count/missing-row rejection, legacy occurrence diagnostics, and direct story-write diagnostics. The incremental delivery-row fix remains covered by the matrix snapshot verifier and does not create a missing intent.",
+      "createdAt": "2026-07-13T02:47:39.998Z",
+      "reviewRound": "2026-07-13T02:45:15.808Z",
+      "reviewRunId": "B-3928:RR-040",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8bb0dacf0d11cbd67a7ee6c357d53c8c3f98a53bcf66c35e51ad3405ab236cb5"
     }
   ]
 }
