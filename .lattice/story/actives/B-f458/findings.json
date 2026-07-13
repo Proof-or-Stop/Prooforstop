@@ -1103,7 +1103,7 @@
       "desc": "The new symbol-aware dynamic-code model still misses standard executable constructor and vm binding forms. dynamicReferenceKind treats `.constructor` as dangerous only when the target is async or already resolves to a dangerous reference (lines 1114-1122), so `(function() {}).constructor(\"return import('./legacy-delivery-claims-compat.js')\")()` and an alias of that ordinary Function constructor are unmarked even though they execute exactly like `Function(...)`; generator-function constructors are likewise omitted. Separately, the node:vm import collector handles only namedBindings (lines 1191-1205), so the valid builtin default form `import vm from 'node:vm'; vm.runInNewContext(payload)` never enters vmNamespaceSymbols. The positive controls cover direct Function/new Function, AsyncFunction, namespace vm, and named vm only, so all existing build/guard/process-contract tests pass without exercising these branches. Model ordinary/generator callable constructors (or reject statically-known function-expression `.constructor` access), collect the default vm import symbol, and add matching positive plus benign ordinary-object-constructor negatives.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T13:50:55.257Z",
@@ -1115,7 +1115,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "dynamic-function-constructor-default-vm-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by de132e50fb: ordinary/async/generator/async-generator function constructors and aliases plus node:vm default imports are classified; executable controls reject while ordinary object constructor negatives remain accepted.",
+      "resolvedAt": "2026-07-13T14:06:18.107Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
