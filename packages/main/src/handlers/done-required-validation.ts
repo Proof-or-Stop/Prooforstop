@@ -8,6 +8,7 @@ import {
 } from '../core/done-required-validation.js';
 import type { ValidationProgressReporter } from '../core/validation-types.js';
 import { withValidationExecutionLock } from '../core/validation-execution-lock.js';
+import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 
 export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
@@ -58,6 +59,9 @@ export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Recor
           deadlineError: args.deadlineError,
         },
       }));
+      autoCommitStoryMetadata(ctx.root, storyId, 'done_required_validate', {
+        closeoutArtifactPaths: ['done-required-evidence.json'],
+      });
       if (args.json) return JSON.stringify(evidence);
       return renderDoneRequiredEvidence(evidence);
     },

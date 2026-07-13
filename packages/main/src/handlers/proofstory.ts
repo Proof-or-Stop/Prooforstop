@@ -32,6 +32,7 @@ import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.
 import { currentMilestoneStatusEvidenceBinding } from '../core/milestone-status.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { readTrustedProofStoryScopeArtifacts } from '../core/closeout-trust.js';
+import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 
 type JsonFlag = { json?: boolean };
 type ModeFlag = { mode?: ProofStoryGateMode; dryRun?: boolean };
@@ -275,6 +276,9 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
         existing: store.readProofStoryParentLedgerRollup(args.storyId),
       });
       store.writeProofStoryParentLedgerRollup(args.storyId, rollup);
+      const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'parent_ledger_rollup_set', {
+        closeoutArtifactPaths: ['parent-ledger-rollup.json'],
+      });
       if (args.json) return stringify(rollup);
       return [
         'Parent ledger roll-up: configured',
@@ -283,7 +287,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
         `Slice plan hash: ${rollup.slicePlanHash ?? 'none'}`,
         `Children: ${rollup.children.length}`,
         ...rollup.children.map((child) => `  - ${child.storyId} [${child.status}]: ${child.milestoneIds.join(', ')}`),
-      ].join('\n');
+      ].join('\n') + commitHint;
     },
 
     parent_ledger_rollup_get(args: { storyId: string; json?: boolean }): string {

@@ -1,4 +1,7 @@
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { appendFileSync, existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import {
   computeMilestoneLedgerHash,
   computeParentLedgerRollupHash,
@@ -12,6 +15,7 @@ import type {
   ScopeContractData,
 } from './types.js';
 import type { StoryStore } from './store.js';
+import { currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 
 export type CloseoutArtifactClass = 'scope-defining' | 'closeout-evidence';
 
@@ -41,12 +45,12 @@ export const CLOSEOUT_ARTIFACT_POLICIES = [
   { path: 'evidence/live-smoke-transcript.json', artifactClass: 'closeout-evidence', canonicalWriters: ['live_smoke_transcript'] },
 ] as const satisfies readonly CloseoutArtifactPolicy[];
 
-function policyFor(path: string): CloseoutArtifactPolicy | null {
+export function closeoutArtifactPolicyFor(path: string): CloseoutArtifactPolicy | null {
   return CLOSEOUT_ARTIFACT_POLICIES.find((entry) => entry.path === path) ?? null;
 }
 
 export function assertCanonicalCloseoutWrite(path: string, writer: string): CloseoutArtifactPolicy {
-  const policy = policyFor(path);
+  const policy = closeoutArtifactPolicyFor(path);
   if (!policy) throw new Error(`untrusted closeout artifact path: ${path}`);
   if (!policy.canonicalWriters.includes(writer)) {
     throw new Error(`non-canonical writer for ${path}: ${writer}`);
@@ -111,6 +115,14 @@ export function validateTrustedMilestoneLedger(raw: unknown, expectedStoryId?: s
   const storyId = text(value.storyId, artifact, 'storyId');
   if (expectedStoryId && storyId !== expectedStoryId) throw new Error(`${artifact}: storyId mismatch`);
   if (value.state !== 'candidate' && value.state !== 'confirmed') throw new Error(`${artifact}: invalid state`);
+  if (value.acceptedIntentBinding !== undefined) {
+    const binding = object(value.acceptedIntentBinding, artifact);
+    exactKeys(binding, artifact, ['intentCollisionId', 'acceptedInterpretationHash', 'acceptedAt']);
+    text(binding.intentCollisionId, artifact, 'acceptedIntentBinding.intentCollisionId');
+    text(binding.acceptedInterpretationHash, artifact, 'acceptedIntentBinding.acceptedInterpretationHash');
+    const acceptedAt = text(binding.acceptedAt, artifact, 'acceptedIntentBinding.acceptedAt');
+    if (Number.isNaN(Date.parse(acceptedAt))) throw new Error(`${artifact}: acceptedIntentBinding.acceptedAt must be ISO time`);
+  }
   const milestones = array(value.milestones, artifact, 'milestones');
   const ids = new Set<string>();
   for (const [index, rawMilestone] of milestones.entries()) {
@@ -304,7 +316,11 @@ export function computeCompositeScopeDigest(args: {
       protectedAnchors: args.contract.protectedAnchors ?? [],
       acknowledgements: normalizedAcknowledgements(args.contract.acknowledgements),
     },
-    milestoneLedgerHash: ledger.ledgerHash,
+    milestoneLedger: {
+      ledgerHash: ledger.ledgerHash,
+      state: ledger.state,
+      acceptedIntentBinding: ledger.acceptedIntentBinding ?? null,
+    },
     slicePlanHash: slicePlan?.planHash ?? null,
   });
 }
@@ -325,11 +341,160 @@ export function evaluateMetadataOnlyReviewRetention(input: MetadataOnlyReviewRet
   else if (input.storedCompositeScopeDigest !== input.currentCompositeScopeDigest) reasons.push('composite scope digest changed');
   if (input.storedReviewRound !== input.currentReviewRound) reasons.push('review round changed');
   for (const artifact of input.changedArtifacts) {
-    const policy = policyFor(artifact.path);
+    const policy = closeoutArtifactPolicyFor(artifact.path);
     if (!policy) reasons.push(`untrusted closeout artifact path: ${artifact.path}`);
     else if (policy.artifactClass !== 'closeout-evidence') reasons.push(`scope-defining artifact changed: ${artifact.path}`);
     else if (!policy.canonicalWriters.includes(artifact.writer)) reasons.push(`non-canonical writer for ${artifact.path}: ${artifact.writer}`);
     if (!artifact.valid) reasons.push(`invalid closeout artifact: ${artifact.path}`);
   }
   return { ok: reasons.length === 0, reasons: [...new Set(reasons)] };
+}
+
+export const CLOSEOUT_WRITE_RECEIPTS_PATH = 'closeout-write-receipts.jsonl';
+export const CLOSEOUT_WRITE_RECEIPT_SCHEMA = 'lattice.closeout_write_receipt.v1' as const;
+const CLOSEOUT_WRITE_RECEIPT_SALT = 'lattice-closeout-write-receipt-v1';
+
+export interface CloseoutWriteReceipt {
+  schemaVersion: typeof CLOSEOUT_WRITE_RECEIPT_SCHEMA;
+  storyId: string;
+  artifactPath: string;
+  writerCommand: string;
+  artifactDigest: string;
+  timestamp: string;
+  phase: string;
+  headHash: string;
+  materialHash: string;
+  storyFilesHash: string;
+  receiptHash: string;
+}
+
+function receiptPayload(receipt: Omit<CloseoutWriteReceipt, 'receiptHash'>): unknown {
+  return { ...receipt, salt: CLOSEOUT_WRITE_RECEIPT_SALT };
+}
+
+export function signCloseoutWriteReceipt(receipt: Omit<CloseoutWriteReceipt, 'receiptHash'>): string {
+  return digest(receiptPayload(receipt));
+}
+
+export function rawArtifactDigest(bytes: string | Buffer): string {
+  return createHash('sha256').update(bytes).digest('hex');
+}
+
+export function buildCloseoutWriteReceipt(input: Omit<CloseoutWriteReceipt, 'schemaVersion' | 'timestamp' | 'receiptHash'> & { timestamp?: string }): CloseoutWriteReceipt {
+  assertCanonicalCloseoutWrite(input.artifactPath, input.writerCommand);
+  const unsigned = {
+    schemaVersion: CLOSEOUT_WRITE_RECEIPT_SCHEMA,
+    storyId: input.storyId,
+    artifactPath: input.artifactPath,
+    writerCommand: input.writerCommand,
+    artifactDigest: input.artifactDigest,
+    timestamp: input.timestamp ?? new Date().toISOString(),
+    phase: input.phase,
+    headHash: input.headHash,
+    materialHash: input.materialHash,
+    storyFilesHash: input.storyFilesHash,
+  };
+  for (const [field, value] of Object.entries(unsigned)) {
+    if (typeof value !== 'string' || !value.trim()) throw new Error(`closeout-write-receipts.jsonl: ${field} must be non-empty`);
+  }
+  return { ...unsigned, receiptHash: signCloseoutWriteReceipt(unsigned) };
+}
+
+export function appendCloseoutWriteReceipt(storyDir: string, receipt: CloseoutWriteReceipt): void {
+  appendFileSync(join(storyDir, CLOSEOUT_WRITE_RECEIPTS_PATH), `${JSON.stringify(receipt)}\n`, 'utf8');
+}
+
+export function readCloseoutWriteReceipts(storyDir: string): CloseoutWriteReceipt[] {
+  const path = join(storyDir, CLOSEOUT_WRITE_RECEIPTS_PATH);
+  if (!existsSync(path)) return [];
+  return readFileSync(path, 'utf8').split('\n').filter(Boolean).map((line, index) => {
+    try { return JSON.parse(line) as CloseoutWriteReceipt; }
+    catch { throw new Error(`closeout-write-receipts.jsonl: malformed line ${index + 1}`); }
+  });
+}
+
+export function verifyCloseoutWriteReceipt(receipt: CloseoutWriteReceipt, expected: {
+  storyId: string;
+  artifactPath: string;
+  artifactBytes: string | Buffer;
+  projectRoot?: string;
+  metadataRoot?: string;
+}): { ok: boolean; reason?: string } {
+  if (!receipt || receipt.schemaVersion !== CLOSEOUT_WRITE_RECEIPT_SCHEMA) return { ok: false, reason: 'invalid receipt schema' };
+  if (receipt.storyId !== expected.storyId || receipt.artifactPath !== expected.artifactPath) return { ok: false, reason: 'receipt story/path mismatch' };
+  try { assertCanonicalCloseoutWrite(receipt.artifactPath, receipt.writerCommand); }
+  catch (error) { return { ok: false, reason: String((error as Error).message) }; }
+  const { receiptHash, ...unsigned } = receipt;
+  if (!receiptHash || receiptHash !== signCloseoutWriteReceipt(unsigned)) return { ok: false, reason: 'receipt integrity hash mismatch' };
+  if (receipt.artifactDigest !== rawArtifactDigest(expected.artifactBytes)) return { ok: false, reason: 'receipt artifact digest mismatch' };
+  for (const field of ['timestamp', 'phase', 'headHash', 'materialHash', 'storyFilesHash'] as const) {
+    if (!receipt[field]?.trim()) return { ok: false, reason: `receipt ${field} missing` };
+  }
+  if (Number.isNaN(Date.parse(receipt.timestamp))) return { ok: false, reason: 'receipt timestamp is invalid' };
+  if (expected.projectRoot) {
+    try {
+      execFileSync('git', ['merge-base', '--is-ancestor', receipt.headHash, 'HEAD'], {
+        cwd: expected.projectRoot,
+        stdio: ['ignore', 'ignore', 'ignore'],
+      });
+    } catch {
+      return { ok: false, reason: 'receipt headHash is not an ancestor of current HEAD' };
+    }
+    const metadataRoot = expected.metadataRoot ?? expected.projectRoot;
+    if (currentMaterialHash(expected.projectRoot, receipt.headHash, metadataRoot) !== receipt.materialHash) {
+      return { ok: false, reason: 'receipt materialHash is incoherent with headHash' };
+    }
+    if (currentStoryFilesHash(expected.projectRoot, receipt.headHash, metadataRoot) !== receipt.storyFilesHash) {
+      return { ok: false, reason: 'receipt storyFilesHash is incoherent with headHash' };
+    }
+  }
+  return { ok: true };
+}
+
+export function latestValidCloseoutReceipt(
+  storyDir: string,
+  storyId: string,
+  artifactPath: string,
+  provenance?: { projectRoot: string; metadataRoot?: string },
+): CloseoutWriteReceipt | null {
+  const bytesPath = join(storyDir, artifactPath);
+  if (!existsSync(bytesPath)) return null;
+  const bytes = readFileSync(bytesPath);
+  const receipts = readCloseoutWriteReceipts(storyDir).filter((receipt) => receipt.artifactPath === artifactPath).reverse();
+  return receipts.find((receipt) => verifyCloseoutWriteReceipt(receipt, {
+    storyId,
+    artifactPath,
+    artifactBytes: bytes,
+    ...provenance,
+  }).ok) ?? null;
+}
+
+export function validateCurrentCloseoutArtifact(
+  store: StoryStore,
+  storyId: string,
+  artifactPath: string,
+  projectRoot?: string,
+  metadataRoot?: string,
+): { valid: boolean; reason?: string } {
+  const policy = closeoutArtifactPolicyFor(artifactPath);
+  if (!policy || policy.artifactClass !== 'closeout-evidence') return { valid: false, reason: `untrusted closeout artifact path: ${artifactPath}` };
+  const storyDir = store.storyDirPath(storyId);
+  const absolute = join(storyDir, artifactPath);
+  if (!existsSync(absolute)) return { valid: false, reason: `closeout artifact missing: ${artifactPath}` };
+  try {
+    if (artifactPath === 'parent-ledger-rollup.json') readTrustedProofStoryScopeArtifacts(store, storyId);
+    else if (artifactPath === 'evidence/delivery-context-pack.json') validatePersistedDeliveryContextPack(JSON.parse(readFileSync(absolute, 'utf8')), storyId);
+    else if (artifactPath.endsWith('.json')) object(JSON.parse(readFileSync(absolute, 'utf8')), artifactPath);
+    else if (!readFileSync(absolute).length) throw new Error(`${artifactPath}: empty artifact`);
+    const receipt = latestValidCloseoutReceipt(
+      storyDir,
+      storyId,
+      artifactPath,
+      projectRoot ? { projectRoot, metadataRoot: metadataRoot ?? projectRoot } : undefined,
+    );
+    if (!receipt) return { valid: false, reason: `missing or stale canonical receipt: ${artifactPath}` };
+    return { valid: true };
+  } catch (error) {
+    return { valid: false, reason: String((error as Error).message) };
+  }
 }

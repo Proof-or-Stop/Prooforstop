@@ -29,6 +29,8 @@
  */
 
 import { execFileSync } from 'child_process';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { reportHealthIssue } from './health.js';
 import {
   classifyGitStatusRows,
@@ -41,6 +43,13 @@ import { loadConfig } from './config.js';
 import { LATTICE_STORY_DIR, normalizeRelPath } from './lattice-paths.js';
 import { StoryStore } from './store.js';
 import { resolveGitCwd } from './story-signed-workspace-resolution.js';
+import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
+import {
+  CLOSEOUT_ARTIFACT_POLICIES,
+  appendCloseoutWriteReceipt,
+  buildCloseoutWriteReceipt,
+  rawArtifactDigest,
+} from './closeout-trust.js';
 
 /**
  * Literal byte-equal user-visible prefix. Pinned for vocabulary consistency
@@ -50,6 +59,51 @@ export const AUTO_COMMIT_METADATA_PREFIX = '\n✓ lattice metadata auto-committe
 
 /** Canonical literal path prefix the helper is allowed to stage. */
 export const AUTO_COMMIT_STORY_DIR_PREFIX = `${LATTICE_STORY_DIR}/`;
+
+function appendCanonicalReceiptsBeforeCommit(args: {
+  projectRoot: string;
+  gitCwd: string;
+  storyId: string;
+  storyRel: string;
+  reason: string;
+  artifactPaths: readonly string[];
+}): void {
+  const declaredPaths = new Set(args.artifactPaths);
+  const policies = CLOSEOUT_ARTIFACT_POLICIES.filter((policy) => declaredPaths.has(policy.path));
+  if (!policies.length) return;
+  const store = new StoryStore(args.projectRoot);
+  const phase = store.readStory(args.storyId).phase;
+  const headHash = currentGitHead(args.gitCwd);
+  const materialHash = currentMaterialHash(args.gitCwd, 'HEAD', args.projectRoot);
+  const storyFilesHash = currentStoryFilesHash(args.gitCwd, 'HEAD', args.projectRoot);
+  if (!headHash || !materialHash || !storyFilesHash) throw new Error('closeout receipt provenance hashes unavailable');
+  const storyDir = join(args.gitCwd, args.storyRel);
+  for (const policy of policies) {
+    if (!(policy.canonicalWriters as readonly string[]).includes(args.reason)) {
+      throw new Error(`non-canonical writer for ${policy.path}: ${args.reason}`);
+    }
+    const artifactRel = `${args.storyRel}/${policy.path}`;
+    const dirty = execFileSync('git', ['status', '--porcelain', '--', artifactRel], {
+      cwd: args.gitCwd,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    if (!dirty) continue;
+    const artifactPath = join(storyDir, policy.path);
+    if (!existsSync(artifactPath)) continue;
+    const bytes = readFileSync(artifactPath);
+    appendCloseoutWriteReceipt(storyDir, buildCloseoutWriteReceipt({
+      storyId: args.storyId,
+      artifactPath: policy.path,
+      writerCommand: args.reason,
+      artifactDigest: rawArtifactDigest(bytes),
+      phase,
+      headHash,
+      materialHash,
+      storyFilesHash,
+    }));
+  }
+}
 
 /**
  * storyId form gate — anti-broadening defense (preMortem #1).
@@ -145,6 +199,7 @@ export function autoCommitStoryMetadata(
   projectRoot: string,
   storyId: string,
   reason: string,
+  options: { closeoutArtifactPaths?: readonly string[] } = {},
 ): string {
   // 1. storyId runtime gate (anti-broadening defense — preMortem #1 anchor)
   assertStoryIdShape(storyId);
@@ -196,6 +251,26 @@ export function autoCommitStoryMetadata(
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
     if (!before) return '';
+
+    // Provenance telemetry is best-effort at write time but fail-closed at the
+    // review gate: a receipt failure never mints a partial/guessed receipt and
+    // never changes this helper's historical never-throw commit behavior.
+    try {
+      appendCanonicalReceiptsBeforeCommit({
+        projectRoot,
+        gitCwd,
+        storyId,
+        storyRel,
+        reason,
+        artifactPaths: options.closeoutArtifactPaths ?? [],
+      });
+    } catch (receiptError) {
+      reportHealthIssue('persist:closeoutWriteReceipt', receiptError instanceof Error ? receiptError : new Error(String(receiptError)), {
+        storyId,
+        reason,
+        projectRoot,
+      });
+    }
 
     // 6. stage only paths inside the story dir (path-scoped — never `.` / `-A`)
     execFileSync('git', ['add', '--', storyRel], {

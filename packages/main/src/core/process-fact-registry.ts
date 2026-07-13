@@ -169,6 +169,14 @@ export const PROCESS_FACT_RUNTIME_SEMANTICS = {
 } as const satisfies Record<string, readonly ProcessFactSemantic[]>;
 
 export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifactRef> = {
+  closeout_write_receipt: {
+    name: 'closeout-write-receipts.jsonl',
+    path: 'closeout-write-receipts.jsonl',
+    signed: true,
+    signature: 'signCloseoutWriteReceipt/verifyCloseoutWriteReceipt binds storyId, artifactPath, writerCommand, raw artifactDigest, timestamp, phase, headHash, materialHash, and storyFilesHash',
+    producerCommand: 'core/auto-commit-metadata',
+    consumerGate: 'REVIEW evidence metadata-only retention gate',
+  },
   story_advance: {
     name: 'index.json',
     path: 'index.json',
@@ -990,6 +998,16 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'ProofStory DONE intent-equivalence gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.parent_ledger_rollup_set,
     rationale: 'Parent ledger roll-up records child-story coverage for slice-plan DONE equivalence.',
+  },
+  {
+    name: 'artifact:closeout-write-receipts.jsonl',
+    kind: 'signed-artifact',
+    semantics: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'gate-evidence'],
+    level: 'L4',
+    producer: 'core/auto-commit-metadata',
+    consumerGate: 'REVIEW evidence metadata-only retention gate',
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.closeout_write_receipt,
+    rationale: 'Append-only review-protocol provenance for canonical closeout writes; it is not closeout evidence itself and cannot satisfy delivery/validation gates.',
   },
   {
     name: 'artifact:evidence/delivery-context-pack.json',

@@ -11,6 +11,7 @@ import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import type { ChecklistData } from '../core/types.js';
 import { validatePersistedDeliveryContextPack } from '../core/closeout-trust.js';
+import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 
 /**
  * P6 — `delivery_context_pack`: the delivery-review CONTEXT PRODUCER for the
@@ -513,6 +514,9 @@ export function createDeliveryContextPackHandlers(ctx: HandlerContext): Record<s
     // gate). This NEVER writes delivery-check.json and NEVER signs.
     if (wantsWrite(args)) {
       persistArtifact(artifactPath, toPersistable(report));
+      autoCommitStoryMetadata(ctx.root, args.storyId, 'delivery_context_pack', {
+        closeoutArtifactPaths: ['evidence/delivery-context-pack.json'],
+      });
       report.mode = { runCommands: false, writeEvidence: true };
       report.write = { requested: true, persisted: true, artifactPath };
     }

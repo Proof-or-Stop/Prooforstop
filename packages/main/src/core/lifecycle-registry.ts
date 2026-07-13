@@ -335,6 +335,7 @@ export const LIFECYCLE_ARTIFACTS = [
   'milestone-ledger.json',
   'slice-plan.json',
   'parent-ledger-rollup.json',
+  'closeout-write-receipts.jsonl',
   'process-events.jsonl',
   'evidence/transcript-diff.md',
   'evidence/live-smoke-transcript.json',
