@@ -265,7 +265,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-13T12:05:33.525Z",
+      "endTime": "2026-07-13T12:18:27.659Z",
       "userSees": "User runs the TEST roll-up regression and sees `PASS local closeout requires fresh review before TEST retention`; same-UID forged receipts and paired source/docs/scope mutations fail closed, while a fresh post-closeout review can continue TEST.",
       "verificationIntent": {
         "happy": [
@@ -316,33 +316,33 @@
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full suite passed at eaad32b53c including canonical TEST closeout behavior.",
-          "headHash": "fdef6fc5e76e4eb628adc89a518853b3f1ea12dd",
-          "materialHash": "4e1cd302c15f264c841eac0c26e1f5013b83153ce555b1a3abb254573089775c",
-          "storyFilesHash": "a22f46aac7120b7bb5959bf6e3c6847ad677463dad52cf542b086d4014eb28f4",
-          "timestamp": "2026-07-13T12:05:33.666Z"
+          "note": "Full suite passed at implementation commit aa86b4d950 after TypeChecker-bound compatibility guard hardening (CHK-004).",
+          "headHash": "aa96ab071b8df252e922282c1510a5d44a69b2f3",
+          "materialHash": "42746a6160ea4b6b6347cbe0ad1fc26ba2fd428f015b24d346de108faab041f4",
+          "storyFilesHash": "f4b384bdf30976ba37e29c55a1969e786b149eaf478f7053abea10eef0ab61ec",
+          "timestamp": "2026-07-13T12:18:27.821Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "logic_test",
           "command": "npm run test:closeout-trust",
           "result": "pass",
-          "note": "Local-only closeout writer and freshness paths passed at eaad32b53c.",
-          "headHash": "fdef6fc5e76e4eb628adc89a518853b3f1ea12dd",
-          "materialHash": "4e1cd302c15f264c841eac0c26e1f5013b83153ce555b1a3abb254573089775c",
-          "storyFilesHash": "a22f46aac7120b7bb5959bf6e3c6847ad677463dad52cf542b086d4014eb28f4",
-          "timestamp": "2026-07-13T12:05:33.800Z"
+          "note": "Closeout trust regression suite passed at aa86b4d950, including metadata/re-attestation boundaries (CHK-004).",
+          "headHash": "aa96ab071b8df252e922282c1510a5d44a69b2f3",
+          "materialHash": "42746a6160ea4b6b6347cbe0ad1fc26ba2fd428f015b24d346de108faab041f4",
+          "storyFilesHash": "f4b384bdf30976ba37e29c55a1969e786b149eaf478f7053abea10eef0ab61ec",
+          "timestamp": "2026-07-13T12:18:27.990Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && npm run test:process-fact-contract",
           "result": "pass",
-          "note": "Comment/string padded metric-preserving wrapper, concatenated/interpolated loader, import options, require, re-export, and two-hop controls pass at eaad32b53c.",
-          "headHash": "fdef6fc5e76e4eb628adc89a518853b3f1ea12dd",
-          "materialHash": "4e1cd302c15f264c841eac0c26e1f5013b83153ce555b1a3abb254573089775c",
-          "storyFilesHash": "a22f46aac7120b7bb5959bf6e3c6847ad677463dad52cf542b086d4014eb28f4",
-          "timestamp": "2026-07-13T12:05:33.937Z"
+          "note": "Adversarial guard controls passed at aa86b4d950: const-path flow, require/createRequire aliases, relocated exported objects, downstream property/destructure consumers, and shadowed same-name symbols (CHK-004).",
+          "headHash": "aa96ab071b8df252e922282c1510a5d44a69b2f3",
+          "materialHash": "42746a6160ea4b6b6347cbe0ad1fc26ba2fd428f015b24d346de108faab041f4",
+          "storyFilesHash": "f4b384bdf30976ba37e29c55a1969e786b149eaf478f7053abea10eef0ab61ec",
+          "timestamp": "2026-07-13T12:18:28.139Z"
         }
       ]
     },
