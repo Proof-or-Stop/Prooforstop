@@ -664,7 +664,7 @@
       "desc": "The AST module-reference extractor remains fail-open for executable dynamic loaders. `staticModuleText` accepts only string/no-substitution-template literals and call handling requires exactly one argument (lines 335-347), so an unapproved source can load the retired compatibility module with `await import(\"./legacy-delivery-\" + \"claims-compat.js\")`, an interpolated template, or a two-argument dynamic import without producing any ModuleReference; usage and graph scans then see zero compatibility imports. The new positive matrix covers only a no-substitution template literal. Conservatively reject unresolved import()/require() module expressions in active source, and accept dynamic-import option arguments while scanning argument 0; add computed/interpolated and two-argument positive controls.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T11:58:35.964Z",
@@ -675,7 +675,11 @@
         "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|module-reference-extractor",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by eaad32b53c: all dynamic import and require arg0 forms are inspected, static expressions are folded, and suspicious unresolved compatibility expressions fail closed; executable computed, interpolated, two-argument import, and require controls pass without rejecting unrelated plugin imports.",
+      "resolvedAt": "2026-07-13T12:06:46.452Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
