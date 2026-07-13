@@ -2023,6 +2023,33 @@
       ],
       "signatureTag": "cjs-loader-form-control-gap",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-080",
+      "desc": "Dynamic provenance still does not cross an ES-module import boundary for direct calls. collectDynamicExecutionBindings is built per SourceFile and seeds imports only for node:vm members; dynamicReferenceKind on an imported Identifier uses the local alias symbol but never resolves or classifies the exported initializer. Therefore a local bridge `export const run = eval` followed by `import { run } from './eval-bridge.js'; run(\"import('./legacy-delivery-claims-compat.js')\")` is missed: the bridge contains no invocation, and the consumer contains no global eval identity. Default-export and namespace-member forms have the same gap. The project-wide Program/type resolution added for imported callable `.constructor` does not help ordinary direct calls because callable type alone is intentionally not treated as dynamic identity. Propagate dangerous exported identity through named/default/namespace imports (or build a conservative cross-file provenance graph), retaining safe imported callback negatives. Add hermetic two-file controls for named/default/namespace eval, Function, and vm re-exports plus safe local function exports.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T17:27:33.461Z",
+      "reviewRound": "2026-07-13T17:19:18.480Z",
+      "reviewRunId": "B-f458:RR-097",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the full F-070–F-076 repair diff and focused implementation for require classification, mapped/ambient property projection, typeof removal, import/type identity, Cartesian controls, fixpoint termination, and performance instrumentation; unrelated unchanged guard sections were triaged."
+      },
+      "_hash": "75f8db1dd6b47c23c51df251f2e917047d3f3e2a336ee7a0b35475c5f5324eb8",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "imported-dynamic-identity-provenance",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
