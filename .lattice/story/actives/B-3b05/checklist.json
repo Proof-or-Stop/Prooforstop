@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Milestone coverage gap output includes an actionable milestone_ledger_set remediation hint",
       "context": "uncovered_required_milestones and sibling milestone gaps (core/proofstory.ts ~1670-1690) currently only name missing milestone ids. Append a one-line remediation hint with the exact milestone_ledger_set command shape; when checklist/evidence coverage exists but ledger rows remain status=planned (B-f458 case: checklist 5/5 done vs 5x planned rows for 14h, tmp/bf458-forensics-2026-07-14/story-metadata/), say explicitly that the ledger is out of sync with delivered checklist coverage. Message-layer change only; no gate semantics change. Consumers: story_advance DONE output, done_prepare doneClosure step, milestone_status diagnostics where they surface these gaps.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-13T23:51:22.291Z",
       "userSees": "When the DONE-path gate blocks on uncovered milestones with checklist coverage present, the operator sees the gap message followed by a remediation line of the form: → Ledger out of sync: checklist coverage exists but ledger row(s) M4.C1.x remain planned. Fix: lattice milestone_ledger_set (or milestone_ledger_add/checklist refs) with the exact command shape printed inline",
       "verificationIntent": {
         "happy": [
