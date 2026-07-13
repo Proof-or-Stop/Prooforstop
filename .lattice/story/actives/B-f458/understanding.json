@@ -6,7 +6,7 @@
     "lifecycle-registry already recognizes parent-ledger-rollup.json but does not expose the complete closed scope-defining and closeout-evidence trust classes with canonical writer provenance.",
     "proofstory computes ledgerHash, planHash, and rollupHash on canonical writes, but current store/read/DONE consumers do not uniformly runtime-validate schema and recompute embedded hashes.",
     "digestScopeContract intentionally excludes acknowledgements, so the current review scope hash cannot represent semantically relevant acknowledgement content and provenance.",
-    "review-run.ts is the narrow gate-consumed review freshness and scope-binding path; it must consume the composite scope-defining digest for retention decisions.",
+    "review-run.ts and review-scope-binding.ts form the narrow gate-consumed review freshness/scope path; ReviewScopeBinding must sign and compare the composite scope-defining digest.",
     "evidence/delivery-context-pack.json currently gets syntax-only JSON.parse validation; a shared core validator must be consumed by its canonical writer and any trust-boundary reader.",
     "B-9188 owns only milestone-closeout.json registration and is excluded from this story."
   ],
@@ -25,16 +25,19 @@
     "packages/main/src/core/proofstory.ts",
     "packages/main/src/core/guard-session.ts",
     "packages/main/src/core/review-run.ts",
-    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/review-scope-binding.ts",
     "packages/main/src/core/done-prepare-validation-reuse.ts",
+    "packages/main/src/core/types.ts",
     "packages/main/src/core/store.ts",
     "packages/main/src/core/closeout-trust.ts",
     "packages/main/src/handlers/proofstory.ts",
     "packages/main/src/handlers/delivery-context-pack.ts",
+    "packages/main/src/handlers/phase-gates.ts",
     "scripts/verify-process-fact-contract.mjs",
     "packages/main/src/tasks/scope-contract-smoke.ts",
     "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
-    "packages/main/src/tasks/delivery-context-pack-smoke.ts"
+    "packages/main/src/tasks/delivery-context-pack-smoke.ts",
+    "packages/main/src/tasks/closeout-trust-smoke.ts"
   ],
-  "timestamp": "2026-07-13T08:22:00.424Z"
+  "timestamp": "2026-07-13T08:26:57.075Z"
 }
