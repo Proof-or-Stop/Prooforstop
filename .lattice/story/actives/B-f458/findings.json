@@ -1327,6 +1327,25 @@
       "resolvedAt": "2026-07-13T14:58:38.998Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f458:F-056",
+      "desc": "Constructor destructure propagation is still limited to one direct object-binding level and leaves ordinary array/nested destructuring as executable alias escapes. collectBindingPattern only iterates an ObjectBindingPattern and addDestructure immediately drops any non-Identifier element name; collectAssignmentPattern likewise accepts only ObjectLiteralExpression assignment patterns. Therefore `const [Build] = [source.constructor]; new Build(\"return import('./legacy-delivery-claims-compat.js')\")`, `const [indirect] = [eval]; indirect(payload)`, `([Build] = [readFile.constructor])`, and `const { nested: { constructor: Build } } = { nested: source }` create local symbols that never enter aliases/destructures/dangerousSymbols. The new positives cover only direct `{ constructor: Build } = callable` declarations/assignments/parameters, so build, guard, and process-contract tests all pass. Replace the two ad-hoc collectors with a recursive binding-pattern-to-source-expression walker covering array elements, nested object properties, omitted/rest elements and assignment patterns; add direct/assignment/parameter nested and array positives plus benign noncallable counterparts. The performance counter passes but measures wrapper calls rather than actual LanguageService Program rebuilds, and guard wall time increased to 22.43s here, so the recursive fix should reuse the existing analysis rather than request more Programs.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T15:00:14.572Z",
+      "reviewRound": "2026-07-13T14:58:04.668Z",
+      "reviewRunId": "B-f458:RR-075",
+      "_hash": "df8f1311858bbe9a7a1bcf629974eed6bf4fe697b1250e4d3f6fd6b4d101fb68",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "array-nested-destructure-alias-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
