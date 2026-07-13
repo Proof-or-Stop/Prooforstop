@@ -30,7 +30,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "desync scenario output contains milestone_ledger_set hint + desync prefix",
+          "headHash": "34484b74cc0b055bf2a445e60c34414cba594fce",
+          "materialHash": "9282c0c7e9b943afd1be76a517c44d96d5d6ef35a48e9b83f59f9d87ffacd166",
+          "storyFilesHash": "b287e991b66fd2fcac0127697cac31a8c462eec35fdff33ef3efd15deb082ea8",
+          "timestamp": "2026-07-13T23:51:07.972Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "non-desync uncovered case has hint without desync claim; not_applicable and shrinkage rows produce no hint",
+          "headHash": "34484b74cc0b055bf2a445e60c34414cba594fce",
+          "materialHash": "9282c0c7e9b943afd1be76a517c44d96d5d6ef35a48e9b83f59f9d87ffacd166",
+          "storyFilesHash": "b287e991b66fd2fcac0127697cac31a8c462eec35fdff33ef3efd15deb082ea8",
+          "timestamp": "2026-07-13T23:51:07.972Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/milestone-status.test.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs",
+          "result": "pass",
+          "note": "gap ids/severities/pass-fail byte-identical for identical fixtures pre/post (message-layer only proven)",
+          "headHash": "34484b74cc0b055bf2a445e60c34414cba594fce",
+          "materialHash": "9282c0c7e9b943afd1be76a517c44d96d5d6ef35a48e9b83f59f9d87ffacd166",
+          "storyFilesHash": "b287e991b66fd2fcac0127697cac31a8c462eec35fdff33ef3efd15deb082ea8",
+          "timestamp": "2026-07-13T23:51:07.972Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
