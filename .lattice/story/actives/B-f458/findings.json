@@ -1400,6 +1400,25 @@
       ],
       "signatureTag": "recursive-binding-rest-provenance",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-059",
+      "desc": "Recursive provenance still drops every computed property binding, including compile-time literal keys. `propertyName` accepts Identifier/StringLiteralLike/NumericLiteral directly but not `ComputedPropertyName`; walkPattern then skips the element when the derived property is undefined. Thus `const { ['constructor']: Build } = function source() {}; new Build(\"return import('./legacy-delivery-claims-compat.js')\")`, the assignment/parameter equivalents, and `const key = 'constructor'; const { [key]: Build } = callable` leave Build unrecorded even though TypeChecker/staticModuleText can resolve these keys and runtime extracts Function. The same route hides `globalThis['eval']` or vm members through computed destructuring. Existing deep object/array controls use only noncomputed keys, so build, guard, and process-contract tests pass. Resolve literal/no-substitution-template and const-symbol computed keys with the existing checker/const-string machinery; fail closed for unresolved computed destructures sourced from callable/global/vm/any values, while retaining computed local noncallable negatives. F-058 separately covers rest semantics. Program instrumentation now proves identity only for two unchanged final getProgram calls and permits up to 128 distinct programs; guard still took 24.29s here, so add a meaningful measured/baseline bound or tighten the distinct-program budget if performance is intended as a mechanical contract.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T15:17:45.474Z",
+      "reviewRound": "2026-07-13T15:15:25.349Z",
+      "reviewRunId": "B-f458:RR-078",
+      "_hash": "8f9163851ae716d92d85c7d90fceb4deccbf8d98dcd2168825e25a25da984412",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "computed-destructure-provenance-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
