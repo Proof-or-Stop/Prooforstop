@@ -225,33 +225,33 @@
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full repository suite passed for 63479e0b41 after F-050/F-051/F-052 project-wide TypeScript Program and fail-closed callable receiver hardening (CHK-003).",
-          "headHash": "e7511e51b7211d480251ee13785767049eae9700",
-          "materialHash": "5367ef31ae568e21e22fb114407ca06e152cfa46884288c38a25b3977e9544f0",
-          "storyFilesHash": "563e7684a3949add7655761db427e3604004cf191216f5bf5e37762143336a41",
-          "timestamp": "2026-07-13T14:40:37.661Z"
+          "note": "Full repository suite passed for 077a355a40 after F-053/F-054/F-055 constructor-destructure, symbol-provenance, and Program instrumentation hardening (CHK-003).",
+          "headHash": "97a3a28509d1a18bba95ce6e71d30aeebd2920ed",
+          "materialHash": "1ac5ec687d845f903a574dbe87a83d72849f47ccf9b1a518972655b020a18fa2",
+          "storyFilesHash": "77c037cecc240db4bce240b1b217c4adc026d8c5b392538b5b30c7d8b9dcdb35",
+          "timestamp": "2026-07-13T14:56:39.265Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/brief-output-smoke.js",
           "result": "pass",
-          "note": "Closeout/runtime contracts and bounded brief output passed for 63479e0b41 (CHK-003).",
-          "headHash": "e7511e51b7211d480251ee13785767049eae9700",
-          "materialHash": "5367ef31ae568e21e22fb114407ca06e152cfa46884288c38a25b3977e9544f0",
-          "storyFilesHash": "563e7684a3949add7655761db427e3604004cf191216f5bf5e37762143336a41",
-          "timestamp": "2026-07-13T14:40:37.818Z"
+          "note": "Closeout/runtime contracts and bounded brief output passed for 077a355a40 (CHK-003).",
+          "headHash": "97a3a28509d1a18bba95ce6e71d30aeebd2920ed",
+          "materialHash": "1ac5ec687d845f903a574dbe87a83d72849f47ccf9b1a518972655b020a18fa2",
+          "storyFilesHash": "77c037cecc240db4bce240b1b217c4adc026d8c5b392538b5b30c7d8b9dcdb35",
+          "timestamp": "2026-07-13T14:56:39.428Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node scripts/verify-process-fact-contract.mjs && node packages/main/dist/tasks/usage-burn-alert-smoke.js",
           "result": "pass",
-          "note": "Shared tsconfig Program roots, default libs/module resolution, imported Node/Array/global callable controls, local imported noncallable negative, unresolved/malformed fail-closed diagnostics, process contract, and burn controls passed for 63479e0b41; guard wall time 15.57s (CHK-003).",
-          "headHash": "e7511e51b7211d480251ee13785767049eae9700",
-          "materialHash": "5367ef31ae568e21e22fb114407ca06e152cfa46884288c38a25b3977e9544f0",
-          "storyFilesHash": "563e7684a3949add7655761db427e3604004cf191216f5bf5e37762143336a41",
-          "timestamp": "2026-07-13T14:40:38.008Z"
+          "note": "Generic constructor destructure propagation, checker declaration provenance across loop/case/catch/block shadows, hermetic local named/default/namespace callable and noncallable imports, bounded Program instrumentation, process contract, and burn controls passed for 077a355a40; guard wall 17.72s (CHK-003).",
+          "headHash": "97a3a28509d1a18bba95ce6e71d30aeebd2920ed",
+          "materialHash": "1ac5ec687d845f903a574dbe87a83d72849f47ccf9b1a518972655b020a18fa2",
+          "storyFilesHash": "77c037cecc240db4bce240b1b217c4adc026d8c5b392538b5b30c7d8b9dcdb35",
+          "timestamp": "2026-07-13T14:56:39.652Z"
         }
       ]
     },
