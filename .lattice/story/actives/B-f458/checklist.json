@@ -10,7 +10,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-13T08:37:36.211Z",
-      "endTime": "2026-07-13T12:39:43.025Z",
+      "endTime": "2026-07-13T12:56:05.633Z",
       "userSees": "User runs the M4.C1 contract verifier and sees `PASS closeout artifact classifications: closed policy set verified`; adding an unknown trusted path or wrong writer makes the command exit non-zero with the exact path.",
       "verificationIntent": {
         "happy": [
@@ -53,33 +53,33 @@
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full repository suite passed at cc1c319cd0 after bounded doctor burn-summary repair (CHK-001).",
-          "headHash": "cc1c319cd07a2d00126225931705a4fbdf9bd68d",
-          "materialHash": "c24955ed04a8aa8c522901f6864bbbb860b4b761b362aecf4e649431fbffc98f",
-          "storyFilesHash": "285aefea91fc96464bf10ca050bbc9ca47484143ab82b232b3702155175bcf96",
-          "timestamp": "2026-07-13T12:39:43.232Z"
+          "note": "Full repository suite passed at 57a7d2cf68 with canonical AST fingerprints for compatibility importers and loader exemptions (CHK-001).",
+          "headHash": "57a7d2cf686240d5692e1123714fb2eb46774516",
+          "materialHash": "2b93c5a19fee6fa545059d85c65224657cd5c19273c4eb268d9c0130c9c7b7bd",
+          "storyFilesHash": "f5e97da4108a267fc00fa722a6efce035971e64c391e7d790bd656e82a602cb1",
+          "timestamp": "2026-07-13T12:56:05.860Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
           "command": "npm run test:closeout-trust && npm run test:runtime-fact-contract && npm run test:brief-output",
           "result": "pass",
-          "note": "Closeout/runtime contracts and deterministic <20k doctor brief regression passed at cc1c319cd0 (CHK-001).",
-          "headHash": "cc1c319cd07a2d00126225931705a4fbdf9bd68d",
-          "materialHash": "c24955ed04a8aa8c522901f6864bbbb860b4b761b362aecf4e649431fbffc98f",
-          "storyFilesHash": "285aefea91fc96464bf10ca050bbc9ca47484143ab82b232b3702155175bcf96",
-          "timestamp": "2026-07-13T12:39:43.368Z"
+          "note": "Closeout/runtime contracts and bounded doctor brief passed at 57a7d2cf68 (CHK-001).",
+          "headHash": "57a7d2cf686240d5692e1123714fb2eb46774516",
+          "materialHash": "2b93c5a19fee6fa545059d85c65224657cd5c19273c4eb268d9c0130c9c7b7bd",
+          "storyFilesHash": "f5e97da4108a267fc00fa722a6efce035971e64c391e7d790bd656e82a602cb1",
+          "timestamp": "2026-07-13T12:56:06.011Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && npm run test:process-fact-contract && npm run test:usage-burn-alert",
           "result": "pass",
-          "note": "Compatibility boundary, process fact, and 21-case host burn renderer controls passed at cc1c319cd0; --full detail remains intact while brief is bounded (CHK-001).",
-          "headHash": "cc1c319cd07a2d00126225931705a4fbdf9bd68d",
-          "materialHash": "c24955ed04a8aa8c522901f6864bbbb860b4b761b362aecf4e649431fbffc98f",
-          "storyFilesHash": "285aefea91fc96464bf10ca050bbc9ca47484143ab82b232b3702155175bcf96",
-          "timestamp": "2026-07-13T12:39:43.504Z"
+          "note": "F-033 post-call report.claims export, F-034 path-producer/duplicate-anchor, destructured createRequire, require.bind, pinned fingerprint, and burn renderer controls passed at 57a7d2cf68 (CHK-001).",
+          "headHash": "57a7d2cf686240d5692e1123714fb2eb46774516",
+          "materialHash": "2b93c5a19fee6fa545059d85c65224657cd5c19273c4eb268d9c0130c9c7b7bd",
+          "storyFilesHash": "f5e97da4108a267fc00fa722a6efce035971e64c391e7d790bd656e82a602cb1",
+          "timestamp": "2026-07-13T12:56:06.155Z"
         }
       ]
     },
