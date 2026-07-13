@@ -1,0 +1,38 @@
+{
+  "storyId": "B-1be5",
+  "name": "quorum-verdict-ledger-provenance-gate",
+  "title": "Bind host quorum verdict evidence to host_run usage-ledger rows (shadow to warn to enforce)",
+  "description": "Root fix for the B-8038 class of burn incidents (2026-07-12: ~0.92B real input in one day because a story lifecycle ran on unmetered Codex Desktop agent-teams instead of metered host_run lanes). Today the review escalation quorum accepts host verdict evidence (quorum_submit / autopilot_review_submit) on the submitter's word: nothing verifies that the claimed independent host run actually happened through the metered B-70e9 host_run choke point. Since Proof-or-Stop gates check evidence content but not execution provenance, the cheapest execution platform wins - and the cheapest platform is the unmetered, uncapped, unledgered desktop agent-team. This story adds a LEDGER-PROVENANCE check: when quorum host verdict evidence is recorded (quorum_submit) and when the DONE-side review escalation gate consumes it, the claimed host verdicts must be corroborated by usage-ledger rows written by host_run (provider + storyId + phase-appropriate agentType, recorded within a plausible time window; B-70e9 already binds reviewRunId->threadId and lane->subagentId on those rows). Rollout is staged like candidate-spec routing: shadow (report-only diagnostics) -> warn (visible warning lines on submit and in escalation status) -> enforce (quorum_submit refuses unbacked verdicts), with the mode in lattice.config.json and shadow as the default. Lane reviewer passes (in-session subagents with readManifest signatures) are explicitly OUT of scope - this binds only the evidence class that claims INDEPENDENT HOST runs.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "quorum",
+    "usage-ledger",
+    "provenance",
+    "host-run",
+    "review-escalation",
+    "gate"
+  ],
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "DONE gate"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-07-13T00:39:54.325Z",
+  "startedAt": "2026-07-13T00:39:54.325Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-13T00:39:54.760Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "904e207a-87af-4820-9237-36cfb7f8f4da",
+      "agent": "main"
+    }
+  ]
+}

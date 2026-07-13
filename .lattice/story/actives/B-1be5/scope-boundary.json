@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-1be5",
+  "mode": "feature",
+  "allowed": [
+    "command catalog description updates for quorum_submit / review_escalation_status",
+    "lattice.config.json schema knob quorumLedgerProvenance.mode (default shadow)",
+    "packages/main/src/core/quorum-ledger-provenance.ts (new pure core evaluator)",
+    "packages/main/src/tasks/quorum-ledger-provenance-smoke.ts (new smoke) + package.json test script wiring",
+    "process-fact-levels rationale touch-ups for the affected commands",
+    "quorum_submit handler wiring (shadow/warn/enforce writer surface)",
+    "review escalation status/evaluation wiring (consumer surface)",
+    "usage-ledger read-utility reuse at the handler boundary (read-only)"
+  ],
+  "excluded": [
+    "No changes to autopilot_review_submit semantics beyond what the escalation consumer surface requires (its binding fields already exist)",
+    "No default-enforce: default mode is shadow; enforce is an explicit config opt-in",
+    "No gating of lane reviewer passes (in-session subagents legitimately have no host_run rows)",
+    "No host transcript store reads (transcripts are NON-AUTHORITATIVE; the ledger is the trust root)",
+    "No retroactive invalidation of existing DONE stories",
+    "No usage-ledger WRITES and no ledger schema changes (read-only consumption of B-70e9 rows)"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User instruction 2026-07-13 (following the B-8038 forensics discussion): 先把B-623a 推完，然后开门禁绑台账story(根治)→ 绊线 开个story执行完成 — the gate-binds-ledger story is the root fix: review/quorum evidence must be verifiable against host_run usage-ledger rows so unmetered desktop agent-team execution cannot produce accepted quorum evidence; staged shadow→warn→enforce rollout as proposed and acknowledged in the conversation.",
+  "createdAt": "2026-07-13T00:39:54.325Z",
+  "updatedAt": "2026-07-13T00:39:54.325Z",
+  "_hash": "04def2e39399e7738b9d2cfe1d89f462cb5a473ed1107d42f52b56fd136106e0"
+}
