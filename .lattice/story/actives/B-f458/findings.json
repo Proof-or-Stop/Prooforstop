@@ -930,6 +930,25 @@
       ],
       "signatureTag": "source-traversal-symlink-canonical-starvation",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-039",
+      "desc": "F-036 explicitly required a symlink-cycle-safe traversal regression, but 453503c119 only adds the realpathSync/visitedDirectories implementation. The smoke has no fixture that creates a directory symlink cycle, calls listFiles, and proves bounded completion/deduplicated results; the process contract also pins no such control. The ordinary repository scan contains no demonstrated cycle, so its PASS does not exercise the new termination branch. Add a hermetic temporary directory tree with a back-edge symlink (and platform-aware skip only when symlinks are unavailable), assert listFiles terminates and returns each executable source once, and pin that executable control in the process contract.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-13T13:18:03.670Z",
+      "reviewRound": "2026-07-13T13:16:00.661Z",
+      "reviewRunId": "B-f458:RR-057",
+      "_hash": "bd4595b994d87c4f1347a5f8b792dc0f2e21958b338655eb5a6d495fe786b799",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "extension-scan-symlink-cycle-control",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
