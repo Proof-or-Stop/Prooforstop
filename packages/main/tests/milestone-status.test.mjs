@@ -2545,6 +2545,152 @@ function assertEvidenceRefShape(evidenceRef) {
 }
 
 {
+  // B-3b05 CHK-001: the uncovered_required_milestones gap message carries an
+  // actionable milestone_ledger_set remediation hint (message-layer ONLY — gap
+  // code, severity, pass/fail decision, and gap count are byte-identical to the
+  // pre-hint behavior for identical inputs). Desync framing (the B-f458 case:
+  // checklist done, ledger rows lagging at planned) prefixes the hint; a plain
+  // uncovered milestone gets the hint WITHOUT the desync claim; not_applicable
+  // and accepted-shrinkage rows produce no hint noise at all.
+  const structuralStory = (storyId) => ({
+    ...story(storyId),
+    phase: 'TEST',
+    priority: 'medium',
+    description: 'Deliver all milestones for the accepted intent.',
+  });
+  const doneEquivalenceInput = (storyId, checklist, milestoneLedger, overrides = {}) => ({
+    story: structuralStory(storyId),
+    checklist,
+    originalIntentSnapshot: null,
+    milestoneLedger,
+    slicePlan: null,
+    parentLedgerRollup: null,
+    proofStoryContract: null,
+    intentCollision: null,
+    scopeContract: null,
+    scopeShrinkageDecision: null,
+    redEvidence: null,
+    spikeEvidence: null,
+    summary: null,
+    ...overrides,
+  });
+  const notApplicableDecision = {
+    reason: 'This milestone is out of scope for the accepted intent.',
+    decidedBy: 'milestone-status-test',
+    decidedAt: '2026-07-06T00:00:00.000Z',
+  };
+
+  // Scenario 1 (desync, the B-f458 case): checklist items done, ledger rows
+  // still planned with NO covering verification evidence. Hint + desync prefix.
+  const desyncChecklist = {
+    items: [
+      checklistItem('CHK-DS-1', 'done', [], intent('desync row one')),
+      checklistItem('CHK-DS-2', 'done', [], intent('desync row two')),
+    ],
+  };
+  const desyncLedger = ledger([
+    milestone({ id: 'M-ds-1', checklistRefs: ['CHK-DS-1'], verificationIntentRefs: ['CHK-DS-1:happy:0'], status: 'planned' }),
+    milestone({ id: 'M-ds-2', checklistRefs: ['CHK-DS-2'], verificationIntentRefs: ['CHK-DS-2:happy:0'], status: 'planned' }),
+  ], 'B-hint-desync');
+  const desyncInput = doneEquivalenceInput('B-hint-desync', desyncChecklist, desyncLedger);
+  const desyncReport = evaluateDoneIntentEquivalence(desyncInput, 'enforce');
+  const desyncGap = desyncReport.gaps.find((g) => g.code === 'uncovered_required_milestones');
+  assert.ok(desyncGap, 'the desync fixture still yields an uncovered_required_milestones gap');
+  assert.match(desyncGap.message, /milestone_ledger_set/, 'the desync gap message names the milestone_ledger_set repair command');
+  assert.match(desyncGap.message, /lattice milestone_ledger_set --help/, 'the desync gap message points at the command help');
+  assert.match(
+    desyncGap.message,
+    /Ledger out of sync: checklist coverage exists but ledger row\(s\) M-ds-1, M-ds-2 remain planned\./,
+    'the desync gap message carries the explicit ledger-out-of-sync framing naming every lagging row',
+  );
+  assert.match(desyncGap.message, /"storyId":"B-hint-desync"/, 'the command shape is copy-pastable for THIS story');
+  assert.match(desyncGap.message, /M-ds-1, M-ds-2/, 'the hint names the affected milestone ids');
+
+  // Scenario 2 (non-desync uncovered): the referenced checklist item is NOT
+  // done, so checklist coverage does not exist — hint present, desync claim absent.
+  const plainChecklist = {
+    items: [
+      checklistItem('CHK-PLAIN', 'in_progress', [], intent('plain uncovered row')),
+    ],
+  };
+  const plainLedger = ledger([
+    milestone({ id: 'M-plain', checklistRefs: ['CHK-PLAIN'], verificationIntentRefs: ['CHK-PLAIN:happy:0'], status: 'planned' }),
+  ], 'B-hint-plain');
+  const plainReport = evaluateDoneIntentEquivalence(
+    doneEquivalenceInput('B-hint-plain', plainChecklist, plainLedger),
+    'enforce',
+  );
+  const plainGap = plainReport.gaps.find((g) => g.code === 'uncovered_required_milestones');
+  assert.ok(plainGap, 'the non-desync fixture still yields an uncovered_required_milestones gap');
+  assert.match(plainGap.message, /milestone_ledger_set/, 'a plain uncovered milestone still gets the repair-command hint');
+  assert.doesNotMatch(plainGap.message, /Ledger out of sync/, 'a non-desync uncovered milestone must NOT claim ledger desync');
+
+  // Scenario 3 (quiet rows): a justified not_applicable row plus an
+  // accepted-shrinkage row produce NO hint noise — no uncovered gap exists, and
+  // no gap message anywhere in the report mentions the repair command.
+  const quietLedger = ledger([
+    milestone({ id: 'M-na-quiet', checklistRefs: [], verificationIntentRefs: [], status: 'not_applicable', notApplicableDecision }),
+    milestone({ id: 'M-shrunk', checklistRefs: ['CHK-SHRUNK'], verificationIntentRefs: ['CHK-SHRUNK:happy:0'], status: 'planned' }),
+    milestone({
+      id: 'M-quiet-covered',
+      checklistRefs: ['CHK-QUIET'],
+      verificationIntentRefs: ['CHK-QUIET:happy:0'],
+      status: 'done',
+    }),
+  ], 'B-hint-quiet');
+  const quietChecklist = {
+    items: [
+      checklistItem('CHK-QUIET', 'done', [evidence('CHK-QUIET:happy:0')], intent('quiet covered milestone')),
+    ],
+  };
+  const quietReport = evaluateDoneIntentEquivalence(
+    doneEquivalenceInput('B-hint-quiet', quietChecklist, quietLedger, {
+      scopeShrinkageDecision: {
+        decision: 'confirmed',
+        userConfirmed: true,
+        removedMilestoneIds: ['M-shrunk'],
+      },
+    }),
+    'enforce',
+  );
+  assert.equal(
+    quietReport.gaps.some((g) => g.code === 'uncovered_required_milestones'),
+    false,
+    'not_applicable + accepted-shrinkage rows do not land in the uncovered set',
+  );
+  assert.equal(
+    quietReport.gaps.some((g) => /milestone_ledger_set/.test(g.message)),
+    false,
+    'no gap message mentions the repair command when nothing is uncovered (no hint noise)',
+  );
+
+  // Adversarial (message-layer only): for identical inputs the gap ids,
+  // severities, messages, pass/fail decision, and gap count are byte-identical
+  // across runs; and the desync vs non-desync fixtures differ ONLY in message
+  // text — same gap code set, same severities, same gap count, same decision.
+  const desyncReportRerun = evaluateDoneIntentEquivalence(desyncInput, 'enforce');
+  assert.deepEqual(
+    desyncReportRerun.gaps,
+    desyncReport.gaps,
+    'identical inputs produce byte-identical gap sets (ids, severities, messages) across runs',
+  );
+  assert.deepEqual(
+    desyncReport.gaps.map((g) => [g.code, g.severity]),
+    [['uncovered_required_milestones', 'fail']],
+    'the desync fixture yields exactly the pre-hint gap id/severity set',
+  );
+  assert.deepEqual(
+    plainReport.gaps.map((g) => [g.code, g.severity]),
+    [['uncovered_required_milestones', 'fail']],
+    'the non-desync fixture yields the same gap id/severity set — only the message differs',
+  );
+  assert.deepEqual(desyncReport.uncoveredRequiredMilestoneIds, ['M-ds-1', 'M-ds-2'], 'uncovered id reporting is unchanged');
+  assert.equal(desyncReport.status, 'fail', 'pass/fail decision is unchanged by the hint');
+  assert.equal(desyncReport.blocking, true, 'enforce-mode blocking is unchanged by the hint');
+  assert.equal(plainReport.status, 'fail', 'pass/fail decision is unchanged for the non-desync fixture');
+}
+
+{
   const storyId = 'B-done-cli-append';
   const root = mkdtempSync(join(tmpdir(), 'lattice-done-cli-append-'));
   const mainRoot = join(root, 'main');

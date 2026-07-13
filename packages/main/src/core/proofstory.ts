@@ -1673,10 +1673,36 @@ export function evaluateDoneIntentEquivalence(
     ));
   }
   if (uncoveredRequiredMilestoneIds.length > 0) {
+    // B-3b05 CHK-001: message-layer remediation hint ONLY. The gap's code,
+    // severity, artifact, pass/fail decision, and gap-count semantics are
+    // byte-identical to the pre-hint behavior for identical inputs — only the
+    // human-readable message grows. The hint turns the B-f458 failure mode
+    // (14 hours / 89 story_advance transitions with no repair pointer) into a
+    // copy-paste: it names the exact repair command (milestone_ledger_set),
+    // the affected milestone ids, and the command shape. not_applicable and
+    // accepted-shrinkage rows `continue` before reaching the uncovered set,
+    // so they never produce hint noise.
+    const uncoveredIdList = uncoveredRequiredMilestoneIds.join(', ');
+    const checklistStatusById = new Map(input.checklist.items.map((item) => [item.id, item.status]));
+    const uncoveredIdSet = new Set(uncoveredRequiredMilestoneIds);
+    const uncoveredRows = (ledger?.milestones ?? []).filter((row) => uncoveredIdSet.has(row.id));
+    // Desync framing (the B-f458 case): every uncovered row points at checklist
+    // items that ALL exist and are ALL status=done — checklist coverage exists,
+    // the ledger rows just lag behind. Empty or unresolvable checklistRefs do
+    // NOT count as desync: "checklist coverage exists" must be literally true
+    // before the message claims it.
+    const ledgerDesynced = uncoveredRows.length > 0 && uncoveredRows.every((row) =>
+      row.checklistRefs.length > 0
+      && row.checklistRefs.every((ref) => checklistStatusById.get(ref) === 'done'),
+    );
+    const desyncPrefix = ledgerDesynced
+      ? `Ledger out of sync: checklist coverage exists but ledger row(s) ${uncoveredIdList} remain planned. `
+      : '';
+    const remediationHint = `${desyncPrefix}→ Fix: lattice milestone_ledger_set '{"storyId":"${input.story.storyId}","milestones":[... update status/checklistRefs/verificationIntentRefs for: ${uncoveredIdList} ...]}' (see lattice milestone_ledger_set --help)`;
     gaps.push(gap(
       'uncovered_required_milestones',
       'milestone-ledger.json',
-      `Required milestone(s) lack passing verification evidence and no confirmed shrinkage decision removes them: ${uncoveredRequiredMilestoneIds.join(', ')}.`,
+      `Required milestone(s) lack passing verification evidence and no confirmed shrinkage decision removes them: ${uncoveredIdList}. ${remediationHint}`,
       undefined,
       'fail',
     ));
