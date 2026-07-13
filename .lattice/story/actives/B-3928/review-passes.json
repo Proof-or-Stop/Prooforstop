@@ -545,6 +545,24 @@
         "scanEscalationReason": null
       },
       "_hash": "e18cdc97fe5d5712656a3d57d6af52b53297c6dc6e1dc36a75679a932691df4a"
+    },
+    {
+      "id": "B-3928:RP-026",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS after narrow verifier stdout/product-acceptance fix: all 15 verificationIntent entries across CHK-001..005 retain one-to-one evidence, uniformly rebound to storyFilesHash 3666b71e matching the current signed review run. The only material delta adds three success lines after all existing mechanical checks complete; it does not bypass or weaken assertions. Fresh live smoke ran npm run test:proof-or-stop-prompt-baseline with pipefail and observed every promised userSees line: registry hashes, agent_prompt hashes, role matrix integrity plus reviewer-audited semantics, legacy vocabulary classification, and direct story-file classification.",
+      "createdAt": "2026-07-13T03:37:01.057Z",
+      "reviewRound": "2026-07-13T03:36:11.674Z",
+      "reviewRunId": "B-3928:RR-048",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "db3ce3ca8bb6f37ec6367d7e9c643742ed35f2b9e33e429c6dcefc64d27d9284"
     }
   ]
 }
