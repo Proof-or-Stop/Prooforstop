@@ -654,6 +654,24 @@
       ],
       "signatureTag": "compat-metric-preserving-export-wrapper",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-027",
+      "desc": "The AST module-reference extractor remains fail-open for executable dynamic loaders. `staticModuleText` accepts only string/no-substitution-template literals and call handling requires exactly one argument (lines 335-347), so an unapproved source can load the retired compatibility module with `await import(\"./legacy-delivery-\" + \"claims-compat.js\")`, an interpolated template, or a two-argument dynamic import without producing any ModuleReference; usage and graph scans then see zero compatibility imports. The new positive matrix covers only a no-substitution template literal. Conservatively reject unresolved import()/require() module expressions in active source, and accept dynamic-import option arguments while scanning argument 0; add computed/interpolated and two-argument positive controls.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T11:58:35.964Z",
+      "reviewRound": "2026-07-13T11:55:12.031Z",
+      "reviewRunId": "B-f458:RR-041",
+      "_hash": "4fa25912a0da9bf93576a735a9e985987fb6549235240c55cd3cc6b984ee9a10",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|module-reference-extractor",
+      "signatureTagSource": "auto"
     }
   ]
 }
