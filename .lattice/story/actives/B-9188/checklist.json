@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Register milestone-closeout.json as an artifact fact in process-fact-registry.ts",
       "context": "Add a PROCESS_FACT_ARTIFACT_BY_COMMAND ref (name/path milestone-closeout.json, signed:false, producerCommand story_advance DONE-time capture implemented in handlers/milestone-status.ts, written via store.writeMilestoneCloseout at store.ts ~706) plus a PROCESS_FACT_REGISTRY fact entry named artifact:milestone-closeout.json modeled on the adjacent artifact:milestone-ledger.json entry, with producer handlers/milestone-status and a consumer description naming the DONE-phase milestone_status / milestone_closeout frozen-snapshot read path (snapshot-only; never re-blocks DONE).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-13T08:40:57.002Z",
       "verificationIntent": {
         "happy": [
           {
