@@ -408,33 +408,33 @@
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full repository suite passed for 077a355a40 after F-053/F-054/F-055 constructor-destructure, symbol-provenance, and Program instrumentation hardening (CHK-005).",
-          "headHash": "e87961fd3ea771b5ea37e0b559466a28a12f4015",
-          "materialHash": "1ac5ec687d845f903a574dbe87a83d72849f47ccf9b1a518972655b020a18fa2",
-          "storyFilesHash": "77c037cecc240db4bce240b1b217c4adc026d8c5b392538b5b30c7d8b9dcdb35",
-          "timestamp": "2026-07-13T14:56:42.461Z"
+          "note": "Full suite passed at implementation commit a600c677dc after the F-056/F-057 recursive binding provenance walker and actual LanguageService Program identity instrumentation changes.",
+          "headHash": "29eabe477e6bd28876999ae45e2f3d008a3fcdac",
+          "materialHash": "9e0f914c3b97c9c244c3bee2dfd6a2d25505ec97ad3a0154a6c19fce559d9f39",
+          "storyFilesHash": "23381e36c8341a366e3a2aa6e57ab2bf798b42f838754f8f3fba73f20fe0e4c6",
+          "timestamp": "2026-07-13T15:14:27.390Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/brief-output-smoke.js",
           "result": "pass",
-          "note": "Closeout/runtime contracts and bounded brief output passed for 077a355a40 (CHK-005).",
-          "headHash": "e87961fd3ea771b5ea37e0b559466a28a12f4015",
-          "materialHash": "1ac5ec687d845f903a574dbe87a83d72849f47ccf9b1a518972655b020a18fa2",
-          "storyFilesHash": "77c037cecc240db4bce240b1b217c4adc026d8c5b392538b5b30c7d8b9dcdb35",
-          "timestamp": "2026-07-13T14:56:42.639Z"
+          "note": "Closeout, runtime fact, and brief-output edge regressions passed at implementation commit a600c677dc.",
+          "headHash": "29eabe477e6bd28876999ae45e2f3d008a3fcdac",
+          "materialHash": "9e0f914c3b97c9c244c3bee2dfd6a2d25505ec97ad3a0154a6c19fce559d9f39",
+          "storyFilesHash": "23381e36c8341a366e3a2aa6e57ab2bf798b42f838754f8f3fba73f20fe0e4c6",
+          "timestamp": "2026-07-13T15:14:27.545Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node scripts/verify-process-fact-contract.mjs && node packages/main/dist/tasks/usage-burn-alert-smoke.js",
           "result": "pass",
-          "note": "Generic constructor destructure propagation, checker declaration provenance across loop/case/catch/block shadows, hermetic local named/default/namespace callable and noncallable imports, bounded Program instrumentation, process contract, and burn controls passed for 077a355a40; guard wall 17.72s (CHK-005).",
-          "headHash": "e87961fd3ea771b5ea37e0b559466a28a12f4015",
-          "materialHash": "1ac5ec687d845f903a574dbe87a83d72849f47ccf9b1a518972655b020a18fa2",
-          "storyFilesHash": "77c037cecc240db4bce240b1b217c4adc026d8c5b392538b5b30c7d8b9dcdb35",
-          "timestamp": "2026-07-13T14:56:42.826Z"
+          "note": "Adversarial checks passed at implementation commit a600c677dc: nested object/array declaration, assignment, and parameter provenance; defaults/rest; eval/vm/generic constructor propagation; precise shadows/enums/namespaces; and stable/bounded actual Program identities. Guard wall time was 15.44s.",
+          "headHash": "29eabe477e6bd28876999ae45e2f3d008a3fcdac",
+          "materialHash": "9e0f914c3b97c9c244c3bee2dfd6a2d25505ec97ad3a0154a6c19fce559d9f39",
+          "storyFilesHash": "23381e36c8341a366e3a2aa6e57ab2bf798b42f838754f8f3fba73f20fe0e4c6",
+          "timestamp": "2026-07-13T15:14:27.698Z"
         }
       ]
     }
