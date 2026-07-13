@@ -231,7 +231,7 @@
       "desc": "The Ed25519 repair still does not establish the claimed exact ReviewRun-bound canonical writer provenance. The private key is stored as plaintext mode-0600 under project-accessible .lattice/runtime and is returned by the exported loadReviewRoundReceiptSigner/loadOrCreateReviewRoundReceiptSigner API, so the same local actor that can hand-write story metadata can read the trusted key and sign a forged co-commit. Repro against current dist: load the round signer, manually write summary.json, build a receipt claiming writerCommand=summary_set, sign it with signer.privateKey, append and commit both; latestValidCloseoutReceipt returns `ACCEPTED exact-key manual forge`. The current smoke tests only an attacker-generated wrong key. Also the signer path hashes only reviewRound, and repeated loadOrCreate calls in one round return the same key (`sameRoundKeyReused true`), so it is round-scoped rather than exact-ReviewRun scoped as claimed. Keep the signing capability outside the manual writer threat domain and bind/authorize it per exact reviewRunId (or narrow the contract honestly); add correct-key exfiltration and same-round distinct-run regressions.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T09:58:18.277Z",
@@ -247,7 +247,11 @@
         "packages/main/src/core/process-fact-registry.ts"
       ],
       "signatureTag": "adversarial|ts|ed25519-repair-still",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by c7fc14674c and f10e43b8ee: removed persistent review-round signer authority and narrowed local receipts to audit-only causal telemetry. latestValidCloseoutReceipt now deliberately rejects all same-UID local receipts; the real consumer proves an exact coherent manual forge remains inadmissible and a fresh post-closeout review succeeds.",
+      "resolvedAt": "2026-07-13T10:17:07.026Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-011",
