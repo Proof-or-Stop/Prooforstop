@@ -1913,7 +1913,7 @@
       "desc": "The new non-vm require special case creates a complete dynamic-code bypass by discarding the TypeChecker type and all uncertainty for every literal `require()` result: provenanceForExpression returns only `{ expression: current, completeMembers: false }`. Consequently `const run = require('./eval-bridge'); run(\"import('./legacy-delivery-claims-compat.js')\")` is unclassified when eval-bridge exports global eval/Function; member and destructured variants likewise have no base.type, index, unknownMemberAccess, or dangerousSymbol. A local bridge such as `module.exports = eval` is not itself an invocation, so scanning both files does not recover the lost call-site identity. This exemption is broader than the exact-safe precision it appears intended to provide and bypasses the payload inspection boundary. Preserve checker type/unknown provenance for require results, resolve local literal modules where possible, and fail closed for callable/any results while retaining exact typed noncallable negatives. Add direct/member/destructured positives using a local eval/Function bridge plus safe typed require controls.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T17:02:53.348Z",
@@ -1933,7 +1933,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "non-vm-require-provenance-exemption",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 6df708853d: only exact safe Node builtins receive require special handling; relative/local CommonJS require retains uncertain type provenance and bridge exports of eval, Function and vm remain blocked.",
+      "resolvedAt": "2026-07-13T17:21:00.938Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-077",
