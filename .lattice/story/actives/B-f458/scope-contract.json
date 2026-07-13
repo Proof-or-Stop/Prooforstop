@@ -1,0 +1,47 @@
+{
+  "storyId": "B-f458",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/core/guard-session.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/done-prepare-validation-reuse.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/delivery-context-pack.ts",
+    "packages/main/src/handlers/phase-gates.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/closeout-trust.ts",
+    "packages/main/src/tasks/closeout-trust-smoke.ts"
+  ],
+  "allowedTest": [
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/scope-contract-smoke.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "packages/main/src/tasks/delivery-context-pack-smoke.ts",
+    "packages/main/src/tasks/closeout-trust-smoke.ts"
+  ],
+  "protectedFiles": [
+    "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+    ".lattice-codex/agents",
+    ".claude/agents"
+  ],
+  "explicitExcludes": [
+    "docs/story",
+    "tests/fixtures",
+    ".omx",
+    ".lattice/story/actives/B-9188",
+    "packages/main/src/core/prompt-registry.ts",
+    ".lattice-codex/agents",
+    ".claude/agents"
+  ],
+  "scopeChangeReason": "Initialize M4.C1 implementation scope from PLAN file mappings; prompt bodies and B-9188 milestone-closeout scope remain excluded.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-13T08:24:04.138Z",
+  "updatedAt": "2026-07-13T08:24:04.138Z"
+}

@@ -1,0 +1,255 @@
+{
+  "schemaVersion": "proofbound.candidate-spec-set.v1",
+  "storyId": "B-f458",
+  "corpusDigest": "b404d53dad8442fb10f8a5826f2d85f130f0f271bb142ef5fad2288cbb997d25",
+  "seedDigest": "a600b68b6c8eb5a8a15c57a7feb29ce9ff60ec038806b57a4ee68940d01e744a",
+  "promptDigests": [],
+  "candidates": [
+    {
+      "path": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+      "contentHash": "828ef0e2b20c0e56b003b37cd73368ea57b260ed2eb299a25ce432440d405fb2",
+      "score": 108,
+      "reasons": [
+        {
+          "kind": "related-doc",
+          "term": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "source": "relatedDoc",
+          "points": 100
+        },
+        {
+          "kind": "body",
+          "term": "lattice",
+          "source": "lattice",
+          "points": 8
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "contentHash": "9aad16986d5adbe7338e6d70b83369cf2c6d9f332d6ba54c10b3796448b7ad10",
+      "score": 100,
+      "reasons": [
+        {
+          "kind": "related-doc",
+          "term": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "source": "relatedDoc",
+          "points": 100
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "contentHash": "46c71c3cb78edef37b1dc286850786de923fdb4296153bcbe18ff65e575b1057",
+      "score": 100,
+      "reasons": [
+        {
+          "kind": "related-doc",
+          "term": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "source": "relatedDoc",
+          "points": 100
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "contentHash": "c99632e54fb80eaf08f4ab573eed9936e633c534c7e88e41d0964ccc4644150c",
+      "score": 100,
+      "reasons": [
+        {
+          "kind": "related-doc",
+          "term": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "source": "relatedDoc",
+          "points": 100
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/story-files-hash-material-drift.md",
+      "contentHash": "19de655bf0175b40ac22f9bd5dd2f92123ff69d2812b5add22ce637597726f5a",
+      "score": 100,
+      "reasons": [
+        {
+          "kind": "related-doc",
+          "term": "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "source": "relatedDoc",
+          "points": 100
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/story-lifecycle.md",
+      "contentHash": "25359e172485aec5b9cafabf56659a0736e346aef073b2a78d0a2a5da4a1cbc0",
+      "score": 100,
+      "reasons": [
+        {
+          "kind": "related-doc",
+          "term": "docs/requirements/decisions/story-lifecycle.md",
+          "source": "relatedDoc",
+          "points": 100
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/lattice-authority-customer-api-key-access.md",
+      "contentHash": "ffed937942ad351d4babe01f026e790dbb71e2075a79b92cf1bfb1c7bca3f64b",
+      "score": 20,
+      "reasons": [
+        {
+          "kind": "path",
+          "term": "lattice",
+          "source": "lattice",
+          "points": 20
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/lattice-authority-live-integration.md",
+      "contentHash": "3fa21aa2bd4634863233226ef2d5a52e04aa412571fcb0375140e09ae518153f",
+      "score": 20,
+      "reasons": [
+        {
+          "kind": "path",
+          "term": "lattice",
+          "source": "lattice",
+          "points": 20
+        }
+      ]
+    }
+  ],
+  "candidateSpecSet": [
+    "docs/requirements/decisions/lifecycle-artifact-scope.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+    "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+    "docs/requirements/decisions/story-files-hash-material-drift.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/lattice-authority-customer-api-key-access.md",
+    "docs/requirements/decisions/lattice-authority-live-integration.md"
+  ],
+  "candidateBasis": {
+    "docs/requirements/decisions/lifecycle-artifact-scope.md": [
+      {
+        "kind": "related-doc",
+        "term": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "source": "relatedDoc",
+        "points": 100
+      },
+      {
+        "kind": "body",
+        "term": "lattice",
+        "source": "lattice",
+        "points": 8
+      }
+    ],
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md": [
+      {
+        "kind": "related-doc",
+        "term": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "source": "relatedDoc",
+        "points": 100
+      }
+    ],
+    "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md": [
+      {
+        "kind": "related-doc",
+        "term": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "source": "relatedDoc",
+        "points": 100
+      }
+    ],
+    "docs/requirements/decisions/review-assurance-floor-execution-plan.md": [
+      {
+        "kind": "related-doc",
+        "term": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+        "source": "relatedDoc",
+        "points": 100
+      }
+    ],
+    "docs/requirements/decisions/story-files-hash-material-drift.md": [
+      {
+        "kind": "related-doc",
+        "term": "docs/requirements/decisions/story-files-hash-material-drift.md",
+        "source": "relatedDoc",
+        "points": 100
+      }
+    ],
+    "docs/requirements/decisions/story-lifecycle.md": [
+      {
+        "kind": "related-doc",
+        "term": "docs/requirements/decisions/story-lifecycle.md",
+        "source": "relatedDoc",
+        "points": 100
+      }
+    ],
+    "docs/requirements/decisions/lattice-authority-customer-api-key-access.md": [
+      {
+        "kind": "path",
+        "term": "lattice",
+        "source": "lattice",
+        "points": 20
+      }
+    ],
+    "docs/requirements/decisions/lattice-authority-live-integration.md": [
+      {
+        "kind": "path",
+        "term": "lattice",
+        "source": "lattice",
+        "points": 20
+      }
+    ]
+  },
+  "queryGroups": [
+    [
+      "b f458"
+    ],
+    [
+      "checklist json"
+    ],
+    [
+      "decision json"
+    ],
+    [
+      "index json"
+    ],
+    [
+      "intent collision json"
+    ],
+    [
+      "lattice"
+    ],
+    [
+      "milestone ledger json"
+    ],
+    [
+      "original intent snapshot json"
+    ],
+    [
+      "plan md"
+    ],
+    [
+      "process events jsonl"
+    ]
+  ],
+  "budgets": {
+    "candidates": 8,
+    "queryGroups": 10,
+    "rawHitsPerGroup": 50
+  },
+  "ambiguitySignals": [
+    "query_results_truncated",
+    "candidate_cutoff_tie"
+  ],
+  "requiresEscalation": true,
+  "escalationReasons": [
+    "ranking_affecting_query_truncation",
+    "candidate_cutoff_tie",
+    "high_risk_lifecycle_gate_process_fact_or_global_rename"
+  ],
+  "fullScan": false,
+  "scanEscalationReason": null,
+  "storyInputDigest": "a44e0296cecf315a7ae20fa9a0789df02d96edd096db14213b6fe32b50b0caa5",
+  "headHash": "91ddbff0467867e0f03118ccb02c80be50ff7b1a",
+  "materialHash": "a81adb432bf5d329e355b9c9a58e780591dcb740e424abcfe6f20b945dff2617",
+  "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "artifactDigest": "7b8a657d69686d382628c157f917dee6797255b1d957f68723a2dbe3b6d681bb"
+}
