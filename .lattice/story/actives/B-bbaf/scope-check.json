@@ -1,0 +1,320 @@
+{
+  "storyId": "B-bbaf",
+  "checkedAt": "2026-07-13T23:37:10.917Z",
+  "features": [
+    {
+      "feature": "Pure convergence-breaker core (assessBreaker) deriving three read-only counters: advance-count, review pass-rate, takeover-frequency",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+    },
+    {
+      "feature": "assessBreaker fails open (tripped=false) and never throws on malformed/missing input",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+    },
+    {
+      "feature": "Pass-rate signal cannot trip below a min-sample review-run count",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+    },
+    {
+      "feature": "Takeover-frequency counter is sourced by bumping a tiny per-story counter inside the EXISTING takeover audit write (chosen design explicitly rejects scanning story.events/activity log on the hot path); this requires touching the takeover-audit write site (core/story-owner-lease.ts, which is where 'story-owner-lease-takeover' audit records are actually written per session-ownership-and-write-leases.md and the grep-confirmed source)",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-bbaf/decision.json"
+    },
+    {
+      "feature": "Graduated one-shot auto-recovery: first pathological trip re-baselines the window and proceeds without a human",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+    },
+    {
+      "feature": "Re-trip after the one-shot auto-recovery budget is spent sets frozen=true (no further auto-recovery)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+    },
+    {
+      "feature": "Breaker-state persisted as a gitignored runtime artifact, registered in core/runtime-artifact-registry.ts with a matching .gitignore glob (F-008 pattern), so it never dirties a DONE merge",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+    },
+    {
+      "feature": "When frozen, hard-block mutating story_advance naming the tripped counters and the authoritative next action (done_prepare --dryRun)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+    },
+    {
+      "feature": "When frozen, hard-block takeover-carrying commands (not just story_advance)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+    },
+    {
+      "feature": "New story_resume --ack --reason command clears the freeze only in an interactive human session",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+    },
+    {
+      "feature": "story_resume refuses under autopilot/non-interactive mode (LATTICE_AUTOPILOT=1 / non-TTY) so a looping agent cannot self-ack",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+    },
+    {
+      "feature": "The single legitimate forceTakeover human-override path in story-owner-lease.ts remains unchanged/not weakened by the new breaker",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-bbaf/scope-boundary.json"
+    },
+    {
+      "feature": "A healthy converging story (6-10 advances) never trips the breaker and produces zero breaker output, behaving byte-identical to today",
+      "covered_by": "CHK-001,CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-bbaf/understanding.json"
+    },
+    {
+      "feature": "Env-tunable thresholds (LATTICE_CONVERGENCE_MAX_ADVANCE, MAX_TAKEOVER, MIN_PASS_RATE, MIN_SAMPLE) with typo-safe fallback and evidence-derived defaults, mirroring BURN_ALERT_ENV",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+    },
+    {
+      "feature": "Fourth signal 'repeated-identical-gate-failure' (same gate + same reason twice) as an independent counter with its own env-tunable 'repeat-failure ~2' threshold",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "decision.json INIT-002 resolution: not read-only derivable (gate rejections are not persisted as events anywhere), deliberately not implemented as a separate counter, subsumed by advance-count + pass-rate",
+      "source": ".lattice/story/actives/B-bbaf/decision.json"
+    },
+    {
+      "feature": "Smoke test replays the B-f458 signature (89 advances / 131:31 pass / 65 takeovers) and asserts the breaker trips on each reason and freezes on re-trip",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+    },
+    {
+      "feature": "Smoke test asserts a healthy 8-advance converging control never trips",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+    },
+    {
+      "feature": "Smoke test is wired into package.json (test:convergence-breaker + aggregate npm test)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+    },
+    {
+      "feature": "Smoke test asserts the autopilot self-ack refusal and the gitignored-state assertion",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+    },
+    {
+      "feature": "core/usage-burn-alert.ts host-session token-burn scanning is an orthogonal axis and is not modified by this story",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list: 'core/usage-burn-alert.ts host-session token-burn scanning (B-623a): an orthogonal axis, not modified'",
+      "source": ".lattice/story/actives/B-bbaf/scope-boundary.json"
+    },
+    {
+      "feature": "milestone_ledger_set blocker-hint gap (checklist can reach 5/5 while the milestone ledger stays unplanned)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list: owned by concurrent work",
+      "source": ".lattice/story/actives/B-bbaf/scope-boundary.json"
+    },
+    {
+      "feature": "review_pass_set writer-identity validation (rapid self-authored passes with no writer-identity check)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list: owned by concurrent work",
+      "source": ".lattice/story/actives/B-bbaf/scope-boundary.json"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-bbaf/background.md",
+      ".lattice/story/actives/B-bbaf/checklist.json",
+      ".lattice/story/actives/B-bbaf/decision.json",
+      ".lattice/story/actives/B-bbaf/execution-boundary.json",
+      ".lattice/story/actives/B-bbaf/index.json",
+      ".lattice/story/actives/B-bbaf/plan.md",
+      ".lattice/story/actives/B-bbaf/scope-boundary.json",
+      ".lattice/story/actives/B-bbaf/understanding.json",
+      "docs/requirements/decisions/lifecycle-artifact-scope.md",
+      "docs/requirements/decisions/session-ownership-and-write-leases.md",
+      "docs/requirements/decisions/story-lifecycle.md"
+    ],
+    "filesTriagedByName": [
+      "docs/requirements/decisions/annotation-system.md",
+      "docs/requirements/decisions/authority-client-role.md",
+      "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
+      "docs/requirements/decisions/authority-receipt-cross-repo-live-smoke.md",
+      "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+      "docs/requirements/decisions/authority-runner-session-evidence-envelope.md",
+      "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+      "docs/requirements/decisions/authority-session-receipt-gate-execution.md",
+      "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+      "docs/requirements/decisions/cc-learnings.md",
+      "docs/requirements/decisions/cell06-docker-server-execution-checklist.md",
+      "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+      "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+      "docs/requirements/decisions/cli-engine-english-translation-manifest.md",
+      "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+      "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md",
+      "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+      "docs/requirements/decisions/dev-memory.md",
+      "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+      "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+      "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+      "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+      "docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md",
+      "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+      "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+      "docs/requirements/decisions/framework.md",
+      "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+      "docs/requirements/decisions/host-neutral-observability-console.md",
+      "docs/requirements/decisions/host-overflow.md",
+      "docs/requirements/decisions/lattice-authority-customer-api-key-access.md",
+      "docs/requirements/decisions/lattice-authority-live-integration.md",
+      "docs/requirements/decisions/lattice-authority-m1-m16-generated-proof-and-live-e2e.md",
+      "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+      "docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md",
+      "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md",
+      "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+      "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+      "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+      "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md",
+      "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+      "docs/requirements/decisions/lattice-experiment-protocol.md",
+      "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+      "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+      "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+      "docs/requirements/decisions/lattice-parallel-wave.md",
+      "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+      "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "docs/requirements/decisions/lattice-unattended-completion-plan.md",
+      "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+      "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
+      "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+      "docs/requirements/decisions/milestone-not-applicable-justification.md",
+      "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md",
+      "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md",
+      "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+      "docs/requirements/decisions/multi-model-ablation-replication.md",
+      "docs/requirements/decisions/orchestrate-retirement.md",
+      "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+      "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+      "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+      "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md",
+      "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+      "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+      "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+      "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md",
+      "docs/requirements/decisions/project-vision.md",
+      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+      "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+      "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
+      "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "docs/requirements/decisions/review-run-binding-race.md",
+      "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+      "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
+      "docs/requirements/decisions/role-separation.md",
+      "docs/requirements/decisions/root-document-migration-guide.md",
+      "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+      "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+      "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+      "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+      "docs/requirements/decisions/stack-layering.md",
+      "docs/requirements/decisions/stash-split-execution-plan.md",
+      "docs/requirements/decisions/story-files-hash-material-drift.md",
+      "docs/requirements/decisions/test-fixture-spec.md",
+      "docs/requirements/decisions/test-intent-review.md",
+      "docs/requirements/decisions/test-runner-consolidation-plan.md",
+      "docs/requirements/decisions/testing-completeness.md",
+      "docs/requirements/decisions/testing-infra.md",
+      "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+      "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
+      "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+      "docs/requirements/decisions/truth-source.md",
+      "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+      "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+      "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md",
+      "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md",
+      "docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+      "docs/requirements/decisions/usage-ledger-prototype-pollution-hardening.md",
+      "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+      "docs/requirements/decisions/verification-context-pack.md"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 22,
+    "covered": 17,
+    "excluded": 4,
+    "gaps": 1,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "1e3c99d40251d91d4c44834ca967378f6327ec6b517c6174f8c990515c27eac2",
+  "openQuestions": [
+    {
+      "id": "OQ-1",
+      "q": "scope-boundary.json (human-confirmed allowed scope) still lists a FOURTH breaker signal 'repeated-identical-gate-failure' plus its own 'repeat-failure ~2' env threshold as in-scope, but decision.json's INIT-002 resolution explicitly decided NOT to implement it as a separate counter (subsumed by advance-count + pass-rate), and checklist.json/plan.md contain zero trace of a fourth signal or a repeat-failure threshold. Should scope-boundary.json be amended to match the finalized decision (move this item to excluded, matching decision.json's rationale), or does the checklist need a fourth-signal item to satisfy the human-confirmed boundary as written?",
+      "evidence": "scope-boundary.json allowed[]: \"Pure core convergence-breaker deriving four read-only signals from story.events: total advance count, review pass-rate (pass_set/run_start), takeover frequency, and repeated-identical-gate-failure (same gate + same reason)\" and \"...min pass-rate + min-sample, repeat-failure ~2\" vs decision.json rationale: \"the proposed fourth signal 'repeated-identical-gate-failure' is NOT read-only derivable ... so it is deliberately NOT implemented as a separate counter\"",
+      "sourcePointers": [
+        ".lattice/story/actives/B-bbaf/scope-boundary.json:7",
+        ".lattice/story/actives/B-bbaf/scope-boundary.json:9",
+        ".lattice/story/actives/B-bbaf/decision.json:50"
+      ]
+    },
+    {
+      "id": "OQ-2",
+      "q": "What is the concrete windowing basis for the takeover-frequency and review-pass-rate signals — wall-clock minutes (e.g. 'takeover 65 in 60m') or a trailing count of events? understanding.json explicitly lists this as an unresolved unknown, but decision.json's rationale and plan.md's DoneWhen bullets only say 'over a window' without pinning down units, so the implementer has no concrete spec to build CHK-001/CHK-004 against.",
+      "evidence": "understanding.json unknowns[]: \"Windowing basis for takeover-frequency and pass-rate: wall-clock minutes vs a trailing count of events — which is already available cheaply from story.events?\"; the worked example in understanding.json's outcome field uses wall-clock framing ('takeover-frequency 7 in 60m > 5') but decision.json/plan.md never confirm or resolve this as the chosen mechanism.",
+      "sourcePointers": [
+        ".lattice/story/actives/B-bbaf/understanding.json:24",
+        ".lattice/story/actives/B-bbaf/plan.md"
+      ]
+    }
+  ]
+}
