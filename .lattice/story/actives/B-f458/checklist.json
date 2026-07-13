@@ -93,7 +93,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-13T11:32:15.260Z",
+      "endTime": "2026-07-13T11:42:16.902Z",
       "userSees": "User sees `PASS composite scope digest: semantic scope facts bound`; changing acknowledgement content/provenance, milestone ledger, or slice plan changes the digest and blocks metadata-only review retention until signed re-attestation.",
       "verificationIntent": {
         "happy": [
@@ -140,33 +140,33 @@
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full suite passed after narrow legacy delivery compatibility quarantine at commit 398ed6e6b5.",
-          "headHash": "2b8f7a67bf25f9a66aa63c602ee7f9c98e2a8acb",
-          "materialHash": "949f484ddebf989d9864095fd63b493a60406fdb9549301821ec4d09b6664f26",
-          "storyFilesHash": "30e73f2c05308009fc402ffe593470a57490f9a2ecdd44d5e0baaa7893eaf108",
-          "timestamp": "2026-07-13T11:32:15.401Z"
+          "note": "Full suite passed at d9f301399f, including composite scope digest and re-attestation coverage.",
+          "headHash": "fba88e2c7996855724ee4aab10dff20451aaf429",
+          "materialHash": "90f15839206772318007d79565d77df2790fb2399747a67c697139728b75140e",
+          "storyFilesHash": "ece10afc0df39a2ec04b025872be19ec512b30a00d91b9ad58cfed333007ccf8",
+          "timestamp": "2026-07-13T11:42:17.092Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "command": "npm run test:closeout-trust",
           "result": "pass",
-          "note": "Guard enforces exact approved compatibility importers, symbols, call counts, direct usages, and forbids constructor spreading.",
-          "headHash": "2b8f7a67bf25f9a66aa63c602ee7f9c98e2a8acb",
-          "materialHash": "949f484ddebf989d9864095fd63b493a60406fdb9549301821ec4d09b6664f26",
-          "storyFilesHash": "30e73f2c05308009fc402ffe593470a57490f9a2ecdd44d5e0baaa7893eaf108",
-          "timestamp": "2026-07-13T11:32:15.535Z"
+          "note": "Closeout trust smoke passed at d9f301399f across scope drift and metadata-only boundaries.",
+          "headHash": "fba88e2c7996855724ee4aab10dff20451aaf429",
+          "materialHash": "90f15839206772318007d79565d77df2790fb2399747a67c697139728b75140e",
+          "storyFilesHash": "ece10afc0df39a2ec04b025872be19ec512b30a00d91b9ad58cfed333007ccf8",
+          "timestamp": "2026-07-13T11:42:17.267Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
-          "command": "npm run test:closeout-trust",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
-          "note": "Positive controls catch unapproved import+spread+call and direct retired tokens; exact false values and extra-key rejection remain covered.",
-          "headHash": "2b8f7a67bf25f9a66aa63c602ee7f9c98e2a8acb",
-          "materialHash": "949f484ddebf989d9864095fd63b493a60406fdb9549301821ec4d09b6664f26",
-          "storyFilesHash": "30e73f2c05308009fc402ffe593470a57490f9a2ecdd44d5e0baaa7893eaf108",
-          "timestamp": "2026-07-13T11:32:15.668Z"
+          "note": "Two-hop compatibility export/import attack controls passed at d9f301399f.",
+          "headHash": "fba88e2c7996855724ee4aab10dff20451aaf429",
+          "materialHash": "90f15839206772318007d79565d77df2790fb2399747a67c697139728b75140e",
+          "storyFilesHash": "ece10afc0df39a2ec04b025872be19ec512b30a00d91b9ad58cfed333007ccf8",
+          "timestamp": "2026-07-13T11:42:17.401Z"
         }
       ]
     },
