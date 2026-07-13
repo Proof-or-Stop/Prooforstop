@@ -1003,6 +1003,25 @@
       "resolvedAt": "2026-07-13T13:31:30.003Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f458:F-042",
+      "desc": "The dynamic-code prohibition can be bypassed through aliases declared below the source-file top level. collectDynamicExecutionNames iterates only source.statements and records only top-level VariableStatement declarations; the later recursive AST walk recognizes calls by identifier only when that name is in bindings.direct. Consequently, a new executable source such as `function load() { const indirect = eval; indirect(\"import(./legacy-delivery-claims-compat.js)\"); }` or `function load() { const vm = require(node:vm); vm.runInThisContext(payload); }` produces no unapproved-dynamic-code violation: the nested alias/namespace is never collected, while the call target is just an unrecognized identifier/property base. Existing controls exercise top-level aliases and therefore do not cover this lexical-scope escape. Make alias discovery recursive and scope-aware (prefer symbol identity/fixpoint over global text names), conservatively resolve nested aliases for eval/Function/vm, and add function/block-nested positive controls plus shadowing controls so local benign names do not become false positives.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T13:32:40.977Z",
+      "reviewRound": "2026-07-13T13:30:59.880Z",
+      "reviewRunId": "B-f458:RR-058",
+      "_hash": "82da564802b0d70f0dd7ebf1d99fc761b6df515741709da9a0b46cb0e7aaf552",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "dynamic-code-nested-alias-scope-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
