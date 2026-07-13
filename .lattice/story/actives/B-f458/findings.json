@@ -3111,6 +3111,25 @@
       "_hash": "b9310e24f8f62245e3b82bad03774746396dbcf83bb4e85947f023630421ecdc",
       "signatureTag": "missing|unknown|concept-cleanup-review",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f458:F-120",
+      "desc": "CHK-003 happy/edge/adversarial verificationEvidence (npm test; closeout-trust-smoke.js + verify-runtime-fact-contract.mjs + brief-output-smoke.js; retired-authority-vocabulary-guard-smoke.js + verify-process-fact-contract.mjs + usage-burn-alert-smoke.js) never runs packages/main/src/tasks/review-loop-smoke.ts, so the evidence chain overstates coverage of the declared touchpoint file packages/main/src/core/machine.ts. Reproduced on current HEAD: node packages/main/dist/tasks/review-loop-smoke.js gives 36 passed, 2 failed (section [3] getGuardFailureReason TEST phase: open_review_loop and review_loop_record_error tag regexes no longer match after the machine.ts guard-reason refactor). review-loop-smoke is not wired into npm test (grep confirms it is absent from package.json scripts) and is reachable only via the separate auto-discovered npm run test:all/run-all-smokes path, so none of the storys cited must-evidence commands actually exercise it. Cross-references B-f458:F-119 (lattice-review-concept, same round) which flags the same underlying machine.ts regression from a spec-drift angle; this finding is filed from the test-coverage angle: the evidence commands claimed for CHK-003 do not concretely cover this touched files pre-existing regression test.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-13T23:10:22.819Z",
+      "reviewRound": "2026-07-13T22:57:08.346Z",
+      "reviewRunId": "B-f458:RR-133",
+      "_hash": "de413617e915432f7081d3bdb73b2fc4f79ae305c78a2e2d78b19b32e0bc24c4",
+      "files": [
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/tasks/review-loop-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|happy-edge-adversarial",
+      "signatureTagSource": "auto"
     }
   ]
 }
