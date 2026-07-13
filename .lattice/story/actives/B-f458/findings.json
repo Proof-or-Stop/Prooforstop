@@ -1549,7 +1549,7 @@
       "desc": "Static empty-string ElementAccess is conflated with an unresolved computed key. staticPropertyKeyExpression correctly returns `\"\"`, but dynamicReferenceKind immediately tests `if (!member)` before memberKinds/knownMembers, so the exact dangerous member is never consulted. `const source = { \"\": eval }; source[\"\"](\"import(… )\")` evades the dynamic-code guard even though provenanceForExpression/memberKinds contain the empty-string member. Compare explicitly with `member === undefined`, and add positive/negative empty-string access controls (including aliases/rest) to preserve known-member precision.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T15:58:17.900Z",
@@ -1569,7 +1569,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "empty-property-key-truthiness",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 15575c0dec: resolved member presence is tested against undefined rather than truthiness, preserving the empty-string key through member/index/known-member classification; direct, alias and rest controls reject.",
+      "resolvedAt": "2026-07-13T16:13:32.715Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-065",
