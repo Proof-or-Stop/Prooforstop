@@ -2855,7 +2855,7 @@
       "desc": "The focused guard newly added F102-F105 matrices and exact reachability assertion execute and pass (builds=553, cacheHits=2, fullAnalysis=1105, astCandidates=445, reachability=15), but the coverage matrix still omits two production-relevant carrier shapes exposed by current verified findings: (1) a safe-named property or namespace member whose value resolves to eval, such as `const holder = { run: eval }; holder.run(\"1+1\")` or a safe-named re-export, and (2) a parameter invoked with a dynamic target, such as `function execute(run){ run(\"1+1\") } execute(eval)`. Both can evade detection through the lazy candidate or local-safe shortcuts, so the passing matrix cannot establish the story contract. Add positive controls for both shapes (plus genuinely local-safe receiver and parameter negatives), pin their labels and relevant instrumentation in the process-fact contract, and require the same production `scanDynamicCodeGeneration` path.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-13T19:59:45.865Z",
@@ -2875,7 +2875,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "missing|dynamic-code|safe-named-carrier-control-matrix",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 3115d67a5d: Safe-named carrier and parameter-eval positive/negative controls are reachable, executable and process-pinned.",
+      "resolvedAt": "2026-07-13T20:21:18.548Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
