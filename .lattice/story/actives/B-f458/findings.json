@@ -492,7 +492,7 @@
       "desc": "Shared DONE reviewer verdict is bypassable when currentReviewRound is missing: collectReviewerEvidenceState calls validateEvidenceRunBinding, which returns success immediately at review-run.ts:921 before checking evidence signature, reviewRunId, run signature/workspace binding, round, or freshness. A same-UID editor can set phase=TEST, remove currentReviewRound, and add one forged lattice-review-* pass per opt-in lane; evaluateReviewVerdict then sees valid lane/quorum evidence and can authorize DONE. The new wrapper-root DONE fixture unintentionally exercises the missing-round branch (its doneStory at review-escalation-freshness-root-smoke.ts:661-673 has no currentReviewRound) but only seeds valid signed passes, so it does not detect the bypass. Missing currentReviewRound must fail closed for reviewer-required REVIEW/TEST/DONE stories, and an adversarial smoke should use tampered/missing run bindings and prove both evaluateReviewVerdict and FINISH reject them.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T11:03:21.847Z",
@@ -505,7 +505,11 @@
         "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|shared-reviewer-verdict",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 709f4e5e00: reviewer-required lifecycle verdict now fails closed with review_round_missing before legacy evidence compatibility when currentReviewRound is absent. Missing round plus unsigned/tampered/missing-run passes all block real TEST FINISH; valid signed current passes still succeed.",
+      "resolvedAt": "2026-07-13T11:11:54.319Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-021",
