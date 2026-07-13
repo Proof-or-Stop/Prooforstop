@@ -12,7 +12,11 @@ import {
 } from '../core/review-run.js';
 import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
 import { computeReviewScopeBinding } from '../core/review-scope-binding.js';
-import { readTrustedProofStoryScopeArtifacts } from '../core/closeout-trust.js';
+import {
+  loadOrCreateReviewRoundReceiptSigner,
+  publicReviewRoundReceiptSigner,
+  readTrustedProofStoryScopeArtifacts,
+} from '../core/closeout-trust.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
 import { loadConfig } from '../core/config.js';
 import {
@@ -145,6 +149,11 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
       }
 
       return withReviewRunLock(ctx, args.storyId, () => {
+        const receiptSigner = publicReviewRoundReceiptSigner(loadOrCreateReviewRoundReceiptSigner(
+          workspace.metadataRoot || ctx.root,
+          args.storyId,
+          story.currentReviewRound!,
+        ));
         const data = store.readReviewRuns(args.storyId);
         const nextNum = data.runs.reduce((max, run) => {
           const match = run.reviewRunId.match(/:RR-(\d+)$/);
@@ -164,6 +173,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           promptHash,
           ...(scopeBinding ? { scopeBinding } : {}),
           workspaceBinding,
+          receiptSigner,
           _hash: signReviewRun(
             args.storyId,
             reviewRunId,
@@ -177,6 +187,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
             scopeBinding?.bindingHash,
             workspaceBinding.bindingHash,
             storyFilesHash,
+            `${receiptSigner.schemaVersion}:${receiptSigner.keyId}:${receiptSigner.publicKey}`,
           ),
         };
         data.runs.push(run);
@@ -187,6 +198,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           || persisted.storyFilesHash !== storyFilesHash
           || persisted.scopeBinding?.bindingHash !== scopeBinding?.bindingHash
           || persisted.workspaceBinding?.bindingHash !== workspaceBinding.bindingHash
+          || persisted.receiptSigner?.keyId !== receiptSigner.keyId
         ) {
           throw new Error(`review_run_start: ${reviewRunId} was not durably persisted; refusing to continue`);
         }

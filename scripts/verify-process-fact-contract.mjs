@@ -197,7 +197,7 @@ const requiredArtifactFacts = [
   { name: 'artifact:milestone-ledger.json', path: 'milestone-ledger.json', signed: false },
   { name: 'artifact:slice-plan.json', path: 'slice-plan.json', signed: false },
   { name: 'artifact:parent-ledger-rollup.json', path: 'parent-ledger-rollup.json', signed: false },
-  { name: 'artifact:closeout-write-receipts.jsonl', path: 'closeout-write-receipts.jsonl', signed: false },
+  { name: 'artifact:closeout-write-receipts.jsonl', path: 'closeout-write-receipts.jsonl', signed: true, signaturePattern: /writerSignature.*receiptSigner.*ReviewRun/ },
   { name: 'artifact:proofstory.json', path: 'proofstory.json', signed: false },
   { name: 'artifact:intent-collision.json', path: 'intent-collision.json', signed: false },
   { name: 'artifact:scope-shrinkage-decision.json', path: 'scope-shrinkage-decision.json', signed: false },
@@ -760,18 +760,18 @@ function assertCloseoutTrustBoundary() {
   assert(scopeAckPolicy && !scopeAckPolicy.allowedPhases.includes('TEST'), `${commandPolicyPath}: scope_contract_acknowledge must remain rejected in TEST`);
 
   const receiptFact = registry.get('artifact:closeout-write-receipts.jsonl');
-  assert(receiptFact?.level === 'L4' && receiptFact?.artifact?.signed === false, `${processFactRegistryPath}: closeout write receipts must remain an honest non-signed L4 causal artifact`);
-  assert(receiptFact?.consumerGate.includes('REVIEW') && receiptFact?.rationale.includes('not cryptographic writer authentication') && receiptFact?.rationale.includes('not closeout evidence'), `${processFactRegistryPath}: receipts must disclose causal/integrity trust limits and remain forbidden as closeout evidence`);
+  assert(receiptFact?.level === 'L4' && receiptFact?.artifact?.signed === true, `${processFactRegistryPath}: closeout write receipts must remain an authenticated L4 causal artifact`);
+  assert(receiptFact?.consumerGate.includes('REVIEW') && receiptFact?.rationale.includes('writerSignature') && receiptFact?.rationale.includes('receiptSigner') && receiptFact?.rationale.includes('signed ReviewRun') && receiptFact?.rationale.includes('not closeout evidence'), `${processFactRegistryPath}: receipts must bind Ed25519 writer authentication to the exact ReviewRun and remain forbidden as closeout evidence`);
   assert(read(lifecycleRegistryPath).includes("'closeout-write-receipts.jsonl'"), `${lifecycleRegistryPath}: receipt ledger must remain classified lifecycle metadata`);
   const lifecycleText = read(lifecycleRegistryPath);
   assert(lifecycleText.includes('REVIEW_RETENTION_PROTOCOL_METADATA_PATHS') && lifecycleText.includes("'process-metrics.json'") && lifecycleText.includes("'test-runs.json'"), `${lifecycleRegistryPath}: non-authoritative review-retention companion metadata must remain closed and registry-backed`);
 
   const autoCommitText = read('packages/main/src/core/auto-commit-metadata.ts');
-  for (const token of ['closeoutArtifactPaths', 'declaredPaths.has(policy.path)', 'buildCloseoutWriteReceipt', 'appendCloseoutWriteReceipt']) {
+  for (const token of ['closeoutArtifactPaths', 'declaredPaths.has(policy.path)', 'buildCloseoutWriteReceipt', 'signCloseoutWriteReceipt', 'loadReviewRoundReceiptSigner', 'appendCloseoutWriteReceipt']) {
     assert(autoCommitText.includes(token), `auto-commit closeout receipt choke point missing ${token}`);
   }
   const reviewRunText = read('packages/main/src/core/review-run.ts');
-  for (const token of ['evaluateReviewRunMetadataRetention', 'evaluateMetadataOnlyReviewRetention', 'changedFilesBetween', 'uncommittedPathsUnder', 'validateCurrentCloseoutArtifact']) {
+  for (const token of ['evaluateReviewRunMetadataRetention', 'evaluateMetadataOnlyReviewRetention', 'changedFilesBetween', 'uncommittedPathsUnder', 'validateCurrentCloseoutArtifact', 'run.receiptSigner']) {
     assert(reviewRunText.includes(token), `review-run metadata retention consumer missing ${token}`);
   }
   assert(reviewRunText.includes('REVIEW_RETENTION_PROTOCOL_METADATA_PATHS') && !reviewRunText.includes("'process-metrics.json'"), 'review-run must consume the lifecycle registry instead of maintaining a local protocol ignore list');

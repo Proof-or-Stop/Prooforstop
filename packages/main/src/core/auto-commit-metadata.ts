@@ -29,8 +29,8 @@
  */
 
 import { execFileSync } from 'child_process';
-import { existsSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { existsSync, readFileSync, realpathSync } from 'node:fs';
+import { isAbsolute, join, relative, resolve } from 'node:path';
 import { reportHealthIssue } from './health.js';
 import {
   classifyGitStatusRows,
@@ -48,8 +48,10 @@ import {
   CLOSEOUT_ARTIFACT_POLICIES,
   appendCloseoutWriteReceipt,
   buildCloseoutWriteReceipt,
+  loadReviewRoundReceiptSigner,
   rawArtifactDigest,
   readCloseoutWriteReceipts,
+  signCloseoutWriteReceipt,
 } from './closeout-trust.js';
 
 /**
@@ -73,7 +75,10 @@ function appendCanonicalReceiptsBeforeCommit(args: {
   const policies = CLOSEOUT_ARTIFACT_POLICIES.filter((policy) => declaredPaths.has(policy.path));
   if (!policies.length) return;
   const store = new StoryStore(args.projectRoot);
-  const phase = store.readStory(args.storyId).phase;
+  const story = store.readStory(args.storyId);
+  const phase = story.phase;
+  if (!story.currentReviewRound) throw new Error(`closeout receipt requires a current review round for ${args.storyId}`);
+  const signer = loadReviewRoundReceiptSigner(args.projectRoot, args.storyId, story.currentReviewRound);
   const headHash = currentGitHead(args.gitCwd);
   const materialHash = currentMaterialHash(args.gitCwd, 'HEAD', args.projectRoot);
   const storyFilesHash = currentStoryFilesHash(args.gitCwd, 'HEAD', args.projectRoot);
@@ -93,8 +98,10 @@ function appendCanonicalReceiptsBeforeCommit(args: {
     const artifactPath = join(storyDir, policy.path);
     if (!existsSync(artifactPath)) continue;
     const bytes = readFileSync(artifactPath);
-    const previous = readCloseoutWriteReceipts(storyDir).filter((receipt) => receipt.artifactPath === policy.path).at(-1);
-    appendCloseoutWriteReceipt(storyDir, buildCloseoutWriteReceipt({
+    const previous = readCloseoutWriteReceipts(storyDir)
+      .filter((receipt) => receipt.artifactPath === policy.path && receipt.signerKeyId === signer.keyId)
+      .at(-1);
+    const receipt = buildCloseoutWriteReceipt({
       storyId: args.storyId,
       artifactPath: policy.path,
       writerCommand: args.reason,
@@ -105,7 +112,9 @@ function appendCanonicalReceiptsBeforeCommit(args: {
       storyFilesHash,
       sequence: (previous?.sequence ?? 0) + 1,
       previousIntegrityHash: previous?.integrityHash ?? null,
-    }));
+      signerKeyId: signer.keyId,
+    });
+    appendCloseoutWriteReceipt(storyDir, signCloseoutWriteReceipt(receipt, signer.privateKey));
   }
 }
 
@@ -128,17 +137,6 @@ function assertStoryIdShape(storyId: string): void {
       `Refusing to git-add — broadening the path scope is a preMortem #1 anchor violation.`,
     );
   }
-}
-
-function storyDirPrefixFromConfig(projectRoot: string): string {
-  const configured = normalizeRelPath(loadConfig(projectRoot).storyDir || LATTICE_STORY_DIR);
-  if (!configured || configured === '.' || configured.includes('..')) {
-    throw new Error(
-      `autoCommitStoryMetadata: invalid configured storyDir ${JSON.stringify(configured)}. ` +
-      `Refusing to git-add — broadening the path scope is a preMortem #1 anchor violation.`,
-    );
-  }
-  return configured.endsWith('/') ? configured : `${configured}/`;
 }
 
 /**
@@ -241,7 +239,17 @@ export function autoCommitStoryMetadata(
     if (!branch.startsWith('story/')) return '';
 
     // 3. canonical path computation (scope = configured storyDir + storyId)
-    const storyRel = `${storyDirPrefixFromConfig(projectRoot)}${storyId}`;
+    const store = new StoryStore(projectRoot);
+    const storyAbsolute = realpathSync(resolve(store.storyDirPath(storyId)));
+    const gitAbsolute = realpathSync(resolve(gitCwd));
+    const storyRel = normalizeRelPath(relative(gitAbsolute, storyAbsolute));
+    if (!storyRel || storyRel === '.' || isAbsolute(storyRel) || storyRel === '..' || storyRel.startsWith('../')) {
+      throw new Error(
+        `autoCommitStoryMetadata: configured story directory for ${storyId} is outside the resolved git workspace `
+        + `(git=${gitAbsolute}, story=${storyAbsolute}, relative=${storyRel}). `
+        + 'Refusing to git-add because the path scope cannot be contained.',
+      );
+    }
 
     // 4. snapshot the FULL dirty classification BEFORE committing (so the
     //    tail-note describes coexisting non-metadata dirt as it stood at decision
@@ -259,6 +267,7 @@ export function autoCommitStoryMetadata(
     // Provenance telemetry is best-effort at write time but fail-closed at the
     // review gate: a receipt failure never mints a partial/guessed receipt and
     // never changes this helper's historical never-throw commit behavior.
+    let receiptFailureNote = '';
     try {
       appendCanonicalReceiptsBeforeCommit({
         projectRoot,
@@ -269,11 +278,13 @@ export function autoCommitStoryMetadata(
         artifactPaths: options.closeoutArtifactPaths ?? [],
       });
     } catch (receiptError) {
+      const message = receiptError instanceof Error ? receiptError.message : String(receiptError);
       reportHealthIssue('persist:closeoutWriteReceipt', receiptError instanceof Error ? receiptError : new Error(String(receiptError)), {
         storyId,
         reason,
         projectRoot,
       });
+      receiptFailureNote = `\n⚠ canonical closeout receipt was not issued: ${message}`;
     }
 
     // 6. stage only paths inside the story dir (path-scoped — never `.` / `-A`)
@@ -316,7 +327,7 @@ export function autoCommitStoryMetadata(
     //     under-count because git status now hides what we just committed).
     const tailNote = renderCoexistTailNote(dirtySnapshot);
     const shaSuffix = sha7 ? ` (${sha7})` : '';
-    return `${AUTO_COMMIT_METADATA_PREFIX} ${subject}${shaSuffix}${tailNote}`;
+    return `${AUTO_COMMIT_METADATA_PREFIX} ${subject}${shaSuffix}${tailNote}${receiptFailureNote}`;
   } catch (e: any) {
     reportHealthIssue('mutation:storyMetadataCommit', e instanceof Error ? e : new Error(String(e)), {
       storyId,

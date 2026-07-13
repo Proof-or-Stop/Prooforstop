@@ -372,6 +372,9 @@ export function signReviewRun(
   // B-5a9a: storyFilesHash is appended only when present so legacy review runs
   // without the secondary binding keep the exact previous signature domain.
   storyFilesHash?: string,
+  // B-f458: bind the round-scoped receipt signer into the run checksum. Kept
+  // optional solely so historical runs retain their original signature domain.
+  receiptSignerBinding?: string,
 ): string {
   const parts = [
     storyId,
@@ -387,6 +390,7 @@ export function signReviewRun(
   if (storyFilesHash) parts.push(storyFilesHash);
   if (scopeBindingHash) parts.push(scopeBindingHash);
   if (workspaceBindingHash) parts.push(workspaceBindingHash);
+  if (receiptSignerBinding) parts.push(receiptSignerBinding);
   parts.push(REVIEW_RUN_SALT);
   return createHash('sha256').update(parts.join(':')).digest('hex');
 }
@@ -449,6 +453,9 @@ export function verifyReviewRun(run: ReviewRun): boolean {
     run.scopeBinding?.bindingHash,
     run.workspaceBinding?.bindingHash,
     run.storyFilesHash,
+    run.receiptSigner
+      ? `${run.receiptSigner.schemaVersion}:${run.receiptSigner.keyId}:${run.receiptSigner.publicKey}`
+      : undefined,
   );
   return run._hash === expected
     && (!run.workspaceBinding || verifyReviewRunWorkspaceBinding(run.workspaceBinding, run));
@@ -726,13 +733,14 @@ export function evaluateReviewRunMetadataRetention(
   const changedArtifacts = metadataPaths.map((artifactPath) => {
     const policy = closeoutArtifactPolicyFor(artifactPath);
     const metadataRoot = run.workspaceBinding?.metadataRoot ?? projectRoot;
-    const validation = validateCurrentCloseoutArtifact(store, story.storyId, artifactPath, projectRoot, metadataRoot);
+    const validation = validateCurrentCloseoutArtifact(store, story.storyId, artifactPath, projectRoot, metadataRoot, run.receiptSigner);
     const receipt = policy?.artifactClass === 'closeout-evidence'
       ? latestValidCloseoutReceipt(
         store.storyDirPath(story.storyId),
         story.storyId,
         artifactPath,
         { projectRoot, metadataRoot },
+        run.receiptSigner,
       )
       : null;
     return {

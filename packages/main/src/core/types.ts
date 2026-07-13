@@ -720,6 +720,12 @@ export interface ReviewRun {
    * root binding that later REVIEW consumers verify.
    */
   workspaceBinding?: ReviewRunWorkspaceBinding;
+  /** Public receipt signer pinned to this signed review run and review round. */
+  receiptSigner?: {
+    schemaVersion: 'lattice.review_round_receipt_signer.v1';
+    keyId: string;
+    publicKey: string;
+  };
   _hash?: string;
 }
 
