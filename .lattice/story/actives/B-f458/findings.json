@@ -2471,7 +2471,7 @@
       "desc": "The new dynamic-binding cache performance contract fails in the actual guard. A clean isolated run of `node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js` exits 1 after 73.71s with `AssertionError: dynamic binding graph builds must remain bounded at 800, got 1090`. The cache-hit assertion is satisfied by two repeated control scans, but the cache is keyed by Program and SourceFile identity; the synthetic LanguageService produces successive Program snapshots while controls change, so most binding builds cannot reuse entries and the fixed 800 ceiling is already violated by the committed matrix. This is a current executable blocker, not a theoretical regression. Reduce rebuilds through stable analysis batching/cache keys with explicit content/version invalidation, or revise the architecture and measured bound based on deterministic workload evidence; retain a cold/warm assertion that the shipped guard itself passes and avoids stale bindings.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T18:33:00.190Z",
@@ -2491,7 +2491,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "dynamic-binding-cache-performance-contract-fail",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 151eac3ea1: Fresh clean guard performance is bounded with 646 graph builds below 800 and cache assertions; two independent runs pass.",
+      "resolvedAt": "2026-07-13T18:56:28.486Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-095",
