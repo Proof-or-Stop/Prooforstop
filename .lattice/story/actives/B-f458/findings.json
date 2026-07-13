@@ -1379,7 +1379,7 @@
       "desc": "Recursive binding provenance still does not model rest semantics. walkPattern ignores BindingElement.dotDotDotToken: array rest appends the ordinary element index and then nested binding appends another index (for `const [head, ...[run]] = [0, eval]`, it records path [1,0] although run is sourced from original index 1), while object rest treats the local rest identifier as an ordinary property name (or assignment spread reuses the parent path). expressionAtPath therefore cannot recover the dangerous source, and recordKind has no rest fallback. Source-fed rest chains such as `const [head, ...[run]] = [0, eval]; run(\"import(… )\")` and `const { safe, ...rest } = globalThis; const { eval: run } = rest; run(\"import(… )\")` can evade the dynamic-code guard. Current rest controls only exercise dangerous/default initializers, which create a separate direct alias and do not validate provenance from the rest source. Model rest as an explicit slice/omit projection for declaration, assignment, and parameter patterns, and add positive source-fed array/object rest controls plus local noncallable negatives.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T15:17:22.342Z",
@@ -1399,7 +1399,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "recursive-binding-rest-provenance",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 160fd58752: DynamicProvenance models actual source expressions/types; array rest uses slice-relative members and object rest tracks excluded/remaining properties, preserving eval/vm/constructor flows across nested declaration/assignment/parameter patterns.",
+      "resolvedAt": "2026-07-13T15:40:13.376Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-059",
