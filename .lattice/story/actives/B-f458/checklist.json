@@ -356,7 +356,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-13T13:15:17.179Z",
+      "endTime": "2026-07-13T13:30:18.170Z",
       "userSees": "User runs the M4.C1 regression suite and sees `PASS metadata-only review retention is fail-closed`; unknown paths, changed material/scope, missing provenance, malformed hashes, same-UID forged receipts, TEST acknowledgement, and stale review reuse are all rejected, while a fresh post-closeout review succeeds.",
       "verificationIntent": {
         "happy": [
@@ -408,33 +408,33 @@
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full repository suite passed for 453503c119 after F-035/F-036/F-037 finite executable-boundary hardening (CHK-005).",
-          "headHash": "2428087172bfd623d80a57b80060a265574e577c",
-          "materialHash": "703838279952c96228fe49acde5bbc2fb84b06325c6202cb485f6ba3c0df3e69",
-          "storyFilesHash": "5e7aeebda269ca27772b94f03c559f8eb69ffa7a2f22468290ce1286bb5795f0",
-          "timestamp": "2026-07-13T13:15:17.327Z"
+          "note": "Full repository suite passed for 1095a076ab after F-038/F-039/F-040/F-041 scan-entry-root hardening (CHK-005).",
+          "headHash": "db3f3e1dc85be93d2b3c728de1ac15b874d05516",
+          "materialHash": "78cf224a6dcafc4143ad992160825477d7310701f9fd39d00230320fdf8049e6",
+          "storyFilesHash": "731f0e696320c2d2c869183c57d32776ca7b8e24ed9e69c0e7eb501a9c5620bc",
+          "timestamp": "2026-07-13T13:30:18.330Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/brief-output-smoke.js",
           "result": "pass",
-          "note": "Closeout/runtime contracts and bounded brief output passed on 453503c119 (CHK-005).",
-          "headHash": "2428087172bfd623d80a57b80060a265574e577c",
-          "materialHash": "703838279952c96228fe49acde5bbc2fb84b06325c6202cb485f6ba3c0df3e69",
-          "storyFilesHash": "5e7aeebda269ca27772b94f03c559f8eb69ffa7a2f22468290ce1286bb5795f0",
-          "timestamp": "2026-07-13T13:15:17.468Z"
+          "note": "Closeout/runtime contracts and bounded brief output passed for 1095a076ab (CHK-005).",
+          "headHash": "db3f3e1dc85be93d2b3c728de1ac15b874d05516",
+          "materialHash": "78cf224a6dcafc4143ad992160825477d7310701f9fd39d00230320fdf8049e6",
+          "storyFilesHash": "731f0e696320c2d2c869183c57d32776ca7b8e24ed9e69c0e7eb501a9c5620bc",
+          "timestamp": "2026-07-13T13:30:18.477Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node scripts/verify-process-fact-contract.mjs && node packages/main/dist/tasks/usage-burn-alert-smoke.js",
           "result": "pass",
-          "note": "Eight unconditional AST fingerprints, all eight executable extensions, compat constructor/validator/export/type mutations, extension graph/import bypasses, loader-removal fallback, process contract, and burn controls passed on 453503c119 (CHK-005).",
-          "headHash": "2428087172bfd623d80a57b80060a265574e577c",
-          "materialHash": "703838279952c96228fe49acde5bbc2fb84b06325c6202cb485f6ba3c0df3e69",
-          "storyFilesHash": "5e7aeebda269ca27772b94f03c559f8eb69ffa7a2f22468290ce1286bb5795f0",
-          "timestamp": "2026-07-13T13:15:17.611Z"
+          "note": "Hermetic symlink traversal, exact-once 8-path fingerprints, shipped bin/exports roots, encoded specifiers, dynamic-code generation bans/static payload inspection, exact exemptions, process contract, and burn controls passed for 1095a076ab (CHK-005).",
+          "headHash": "db3f3e1dc85be93d2b3c728de1ac15b874d05516",
+          "materialHash": "78cf224a6dcafc4143ad992160825477d7310701f9fd39d00230320fdf8049e6",
+          "storyFilesHash": "731f0e696320c2d2c869183c57d32776ca7b8e24ed9e69c0e7eb501a9c5620bc",
+          "timestamp": "2026-07-13T13:30:18.617Z"
         }
       ]
     }
