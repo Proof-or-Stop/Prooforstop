@@ -334,7 +334,7 @@
       "desc": "Revised receipt semantics are honest at the helper boundary, but the promised fresh-review requirement is not mechanically enforced on the actual TEST→DONE path. evaluateReviewRunMetadataRetention/collectReviewerEvidenceState reject a pre-closeout review after closeout metadata changes, yet canFinishGuard never consumes either function; reviewer evidence is checked only on REVIEW→TEST. Therefore a TEST-phase closeout writer can change summary/test/delivery metadata and still reach DONE through the remaining DONE gates without a fresh reviewer pass. The smoke test only constructs a synthetic fresh RR-002 and calls the helper directly while the story is in TEST, so it does not prove lifecycle enforcement. Add TEST/DONE gate consumption plus an end-to-end transition regression, while accounting for legitimate REVIEW→TEST phase/index mutations so the new gate does not self-invalidate every pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T10:19:52.222Z",
@@ -349,7 +349,11 @@
         "packages/main/src/core/lifecycle-registry.ts"
       ],
       "signatureTag": "missing|ts|revised-receipt-semantics",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 79f4a84f01: actual canFinishGuard and DONE failure reason consume closeout-aware reviewer evidence freshness. A real XState TEST FINISH regression proves post-review closeout change remains TEST with stale_closeout_review, then a fresh post-closeout run/pass reaches DONE while protocol phase/index metadata is tolerated.",
+      "resolvedAt": "2026-07-13T10:27:54.616Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
