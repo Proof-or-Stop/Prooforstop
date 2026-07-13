@@ -610,6 +610,26 @@
       "resolvedAt": "2026-07-13T11:44:35.908Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f458:F-025",
+      "desc": "F-023/F-024 remain bypassable because the graph is built from regex-extracted quoted specifiers and raw identifier text rather than parsed module bindings. A static unapproved dynamic import whose exact module path is written as a JavaScript template literal is valid Node/TypeScript, but extractImportSpecifiers accepts only single/double-quoted import arguments. Both usage and graph scanners therefore see zero edges, and the caller can invoke or spread the constructor; the mechanical probe returned extracted=[]. Separately, an approved importer can export a wrapper calling the constructor through a Unicode-escaped final identifier character. JavaScript resolves it to the imported binding while the guard retains occurrence=3, call=2, direct-use=2 and no direct-export match, so no exporter edge is created. Positive controls cover only unescaped identifiers and single-quoted dynamic imports. Use an AST to resolve imports/exports and identifier bindings (including template-literal dynamic imports), or conservatively reject nonstandard dynamic loading; add positive controls for the template-literal import and escaped-identifier wrapper followed by an unapproved consumer.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T11:46:57.333Z",
+      "reviewRound": "2026-07-13T11:43:56.938Z",
+      "reviewRunId": "B-f458:RR-037",
+      "_hash": "9e59c66a6dfdae52f4fe8e4d8a122c50a69ab178a7f500f464e5bfe3b7ab274d",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/src/core/legacy-delivery-claims-compat.ts",
+        "packages/main/src/handlers/delivery-context-pack.ts"
+      ],
+      "signatureTag": "adversarial|ts|remain-bypassable-graph",
+      "signatureTagSource": "auto"
     }
   ]
 }
