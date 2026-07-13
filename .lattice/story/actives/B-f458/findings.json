@@ -911,6 +911,25 @@
       "resolvedAt": "2026-07-13T13:16:30.978Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f458:F-038",
+      "desc": "The traversal is cycle-safe but not canonical-path safe: `listFiles` uses one global `visitedDirectories` set keyed by realpath and emits whichever logical alias reaches a real directory first. If a symlink directory under packages/main/src points at `core` and is enumerated before the real `core` entry, the alias marks the realpath visited and the canonical `packages/main/src/core` subtree is skipped. Files are then recorded under the symlink path, so the eight exact-path fingerprint keys are not consulted and relative imports resolve against the alias (for example alias/legacy-delivery-claims-compat), not `LEGACY_DELIVERY_COMPAT_MODULE`. There is also no postcondition that every pinned path was discovered. Thus the claimed symlink-cycle-safe traversal can starve canonical pinned/import graph paths nondeterministically by directory enumeration order. Use an ancestor recursion stack rather than a global realpath de-dup set (so true cycles stop but canonical and alias paths can both be evaluated), or define a lstat symlink policy plus independently validate all pinned canonical paths and assert all eight were checked; add alias-before-target and self-cycle controls.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T13:17:28.349Z",
+      "reviewRound": "2026-07-13T13:16:00.661Z",
+      "reviewRunId": "B-f458:RR-055",
+      "_hash": "dd1b961b1d6c4cf459f63b6b80aa7b3c319fda40002bab27182f1901c99e58a0",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "source-traversal-symlink-canonical-starvation",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
