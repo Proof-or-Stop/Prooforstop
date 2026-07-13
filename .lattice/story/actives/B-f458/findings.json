@@ -2783,6 +2783,24 @@
       "resolvedAt": "2026-07-13T19:56:06.592Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f458:F-106",
+      "desc": "The production AST candidate filter treats any nondangerously-named property call with statically safe arguments as skippable without checking the property value provenance. `const holder = { run: eval }; holder.run(\"1+1\")` has raw `eval` text but raw matching is now metrics-only; hasDynamicExecutionAstCandidate sees member `run` plus a safe literal argument, returns no candidate, and scanDynamicCodeGeneration exits before the binding graph that could identify `holder.run` as eval. This is a current non-exempt dynamic-code bypass and shows the prefilter remains semantically unsound despite the constructed-key controls.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T19:58:21.399Z",
+      "reviewRound": "2026-07-13T19:55:30.756Z",
+      "reviewRunId": "B-f458:RR-114",
+      "_hash": "e368f480d6626d7fa7c7474367a56473e62c4caccbbfff0c33234d7d58a65d07",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|production-candidate-filter",
+      "signatureTagSource": "auto"
     }
   ]
 }
