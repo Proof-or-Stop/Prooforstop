@@ -158,8 +158,49 @@
         "scanLegacyDeliveryCompatibilityUsage",
         "createLegacyLocalOnlyDeliveryClaims"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-031/F-032 full-suite validation exposed deterministic doctor brief output growth; trimming the brief representation is required to restore the existing bounded-output contract without weakening its threshold.",
+      "timestamp": "2026-07-13T12:33:06.700Z",
+      "paths": [
+        "packages/main/src/handlers/doctor.ts",
+        "packages/main/src/tasks/brief-output-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/doctor.ts",
+        "packages/main/src/tasks/brief-output-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "c5f65b88e8089287e4850a78927dc38fad774ea7",
+      "materialHash": "9ca061475c8a831ffcaf9d7e95d66d36432856ccdce91791c3c69f7ccb0f69b9",
+      "anchors": [
+        "doctor.briefOutput",
+        "briefOutputSmoke"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Doctor brief byte profiling identified full per-session host burn blocks as the deterministic output-budget regression; the shared renderer needs an explicit brief summary mode while preserving full diagnostics.",
+      "timestamp": "2026-07-13T12:34:19.947Z",
+      "paths": [
+        "packages/main/src/core/usage-burn-alert.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/usage-burn-alert.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "c5f65b88e8089287e4850a78927dc38fad774ea7",
+      "materialHash": "9ca061475c8a831ffcaf9d7e95d66d36432856ccdce91791c3c69f7ccb0f69b9",
+      "anchors": [
+        "renderHostBurnScan"
+      ]
     }
   ],
   "createdAt": "2026-07-13T08:24:04.138Z",
-  "updatedAt": "2026-07-13T11:31:45.168Z"
+  "updatedAt": "2026-07-13T12:34:19.947Z"
 }
