@@ -206,7 +206,7 @@
       "desc": "Canonical closeout receipt/auto-commit is broken for a valid wrapper-root layout where metadataRoot differs from gitRoot and storyDir is configured inside gitRoot (for example gitRoot=repo, storyDir=repo/.lattice/story/actives). autoCommitStoryMetadata resolves gitCwd to <wrapper>/repo but constructs storyRel directly from the metadata-root-relative config and probes <gitCwd>/repo/.lattice/...; the actual story is <gitCwd>/.lattice/.... In a real temp Git reproduction evaluateStoryDirInsideGitRoot returned ok:true with rel=.lattice/story/actives/B-wrap, while autoCommitStoryMetadata returned an empty hint and git status retained ?? .lattice/. Thus canonical closeout writers silently produce neither commit nor receipt and later retention/clean-tree gates fail. Derive the staged/provenance path by relativizing the canonical StoryStore storyDirPath against resolved gitCwd (and fail closed if outside), and add wrapper-root receipt coverage.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T09:41:04.248Z",
@@ -220,7 +220,11 @@
         "packages/main/src/core/story-signed-workspace-resolution.ts"
       ],
       "signatureTag": "wrapper-root-storydir-rebase",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 065b7dde13: wrapper-root story-relative paths now use canonical realpath containment relative to the git root, preventing doubled prefixes; the real wrapper-root autoCommit and receipt regression passes.",
+      "resolvedAt": "2026-07-13T09:56:22.204Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
