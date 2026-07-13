@@ -860,6 +860,25 @@
       ],
       "signatureTag": "missing|ts|whole-source-fingerprints",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f458:F-036",
+      "desc": "The active-source scan has a parse/extension coverage hole: activeFiles enumerates only `.cjs`, `.js`, and `.ts` code suffixes (line 1372), and shouldScanImports likewise accepts only cjs/js/ts. The package tsconfig includes `src/**/*`, so a valid `packages/main/src/core/compat-bypass.mts` is compiled by TypeScript/Node16 but never enters scanText, scanImportSpecifiers, scanLegacyDeliveryCompatibilityUsage, or the module graph. It can statically import `./legacy-delivery-claims-compat.js` and call/export the constructor with zero guard evidence. `.cts` is similarly omitted; `.tsx` can also contain ordinary TypeScript imports even without JSX. Fingerprinting the known files does not close a new compiled-module edge. Enumerate every compiler-supported executable extension from the project config (`.ts/.tsx/.mts/.cts/.js/.jsx/.mjs/.cjs`) and select ScriptKind correctly; add an executable `.mts` direct-import/control plus `.cts`/`.tsx` coverage and symlink-cycle-safe traversal tests.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T12:59:33.973Z",
+      "reviewRound": "2026-07-13T12:56:50.330Z",
+      "reviewRunId": "B-f458:RR-053",
+      "_hash": "6c05b41c0dae84d0689965ca085f26cb4171277fe87dd14616a7ed089e8015f3",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/tsconfig.json"
+      ],
+      "signatureTag": "adversarial|ts|active-source-scan",
+      "signatureTagSource": "auto"
     }
   ]
 }
