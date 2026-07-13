@@ -421,11 +421,11 @@
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Full regression suite passes canonical persisted REVIEW-to-TEST retention and true actor TEST-to-DONE completion.",
-          "headHash": "bb6f9160aa0a9b05713fac7a75c433cb78c790f6",
-          "materialHash": "f0c2ac8f72d4e7e4ad1ea4a5ad93dee3b74b0719bbcc6a9873891e076082c76a",
-          "storyFilesHash": "ca890b72f160b1bd6dd014aa3defef7782852d7a6f289ee43fee5184997d2680",
-          "timestamp": "2026-07-13T10:36:16.676Z"
+          "note": "Full suite passes normal no-user transition, persisted retention, real actor FINISH, and DONE preflight recheck contract.",
+          "headHash": "e1eb72043ee9651d9780b80fe088c479ef771266",
+          "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
+          "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
+          "timestamp": "2026-07-13T10:45:31.919Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -433,11 +433,11 @@
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Independent unknown metadata, material/scope drift, stale review, invalid artifact, and tampered index cases fail closed.",
-          "headHash": "bb6f9160aa0a9b05713fac7a75c433cb78c790f6",
-          "materialHash": "f0c2ac8f72d4e7e4ad1ea4a5ad93dee3b74b0719bbcc6a9873891e076082c76a",
-          "storyFilesHash": "ca890b72f160b1bd6dd014aa3defef7782852d7a6f289ee43fee5184997d2680",
-          "timestamp": "2026-07-13T10:36:16.809Z"
+          "note": "Identity audit mutations are authorization-neutral; optional user avoids deadlock; stable/event shape remains strict.",
+          "headHash": "e1eb72043ee9651d9780b80fe088c479ef771266",
+          "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
+          "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
+          "timestamp": "2026-07-13T10:45:32.051Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -445,11 +445,11 @@
           "file": "scripts/verify-process-fact-contract.mjs",
           "command": "npm test",
           "result": "pass",
-          "note": "Contract pins the narrow index exception to production collectContext shape and L4 TEST/DONE trust-boundary consumer.",
-          "headHash": "bb6f9160aa0a9b05713fac7a75c433cb78c790f6",
-          "materialHash": "f0c2ac8f72d4e7e4ad1ea4a5ad93dee3b74b0719bbcc6a9873891e076082c76a",
-          "storyFilesHash": "ca890b72f160b1bd6dd014aa3defef7782852d7a6f289ee43fee5184997d2680",
-          "timestamp": "2026-07-13T10:36:16.939Z"
+          "note": "Process contract mechanically requires honest same-UID classification and DONE recheck of REVIEW-to-TEST preflight.",
+          "headHash": "e1eb72043ee9651d9780b80fe088c479ef771266",
+          "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
+          "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
+          "timestamp": "2026-07-13T10:45:32.185Z"
         }
       ]
     }
