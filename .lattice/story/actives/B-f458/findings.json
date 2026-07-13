@@ -3027,7 +3027,7 @@
       "desc": "Spread normalization still loses call/apply/bind arguments when the spread includes the invocation receiver slot. For `function execute(run: (code: string) => unknown) { run(\"1+1\"); } execute.apply(...[null, [eval]]);`, normalized.member is apply but bindLocalCallArguments reads only syntactic `args[1]`; the sole argument is a SpreadElement at index 0, so applied is empty and run receives no eval provenance. `execute.call(...[null, eval])` and `execute.bind(...[null, eval])` similarly drop the whole vector because `args.slice(1)` is empty. Flatten the full invocation argument vector first, then remove/project thisArg and apply-array positions.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T21:58:26.153Z",
@@ -3038,7 +3038,11 @@
         "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|spread-normalization-still",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by e9c08fdc20: The whole invocation argument vector is flattened before call, apply and bind thisArg/argument projection.",
+      "resolvedAt": "2026-07-13T22:16:56.587Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-117",
