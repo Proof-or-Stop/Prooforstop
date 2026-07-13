@@ -2240,6 +2240,33 @@
       ],
       "signatureTag": "loader-factory-export-graph-gap",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-087",
+      "desc": "Static file-URL dynamic imports are still treated as unknown, causing a concrete safe-code false positive and leaving the F-082 `file-URL modules` resolution claim untested. staticRuntimeModulePath supports string/const values, import.meta.url, direct named fileURLToPath/dirname/join, and `pathToFileURL(...).href` (lines 1888-1931), but not the standard Node forms `import(new URL('./safe.js', import.meta.url))`, `import(pathToFileURL(absPath))` (URL object without `.href`), namespace helpers such as `url.pathToFileURL(path.join(...))`, or a literal `file:///...` URL mapped back to source. All fall to `{unknown:true, unknownMemberAccess:true}`, so calling a known safe export is rejected even when the target is statically exact. Add a canonical URL/path evaluator with symbol-identity checks and fileURLToPath conversion before source lookup; cover dangerous and safe modules across new URL, URL object/.href, namespace helpers, const aliases, query/hash suffixes, and ensure shadowed URL/path helpers remain unknown rather than trusted.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T18:07:22.379Z",
+      "reviewRound": "2026-07-13T18:02:19.413Z",
+      "reviewRunId": "B-f458:RR-102",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete cdb718114f diff and focused loader identity, dynamic/static URL resolution, import/export graph, cycles, alternative merging, identity precision, controls, and process-contract sections; unrelated unchanged portions were name-triaged."
+      },
+      "_hash": "7468ad4fdac42c16f8b110ddad16166cd6b7f19e3137978b679020b81b91146c",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "static-file-url-resolution-precision",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
