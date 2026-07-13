@@ -686,7 +686,7 @@
       "desc": "F-027 remains bypassable because unresolved loaders are filtered by the spelling of arg0 instead of resolved values/bindings. `const p = \"./legacy-delivery-claims-compat.js\"; const mod = await import(p, {});` has staticModuleText(p)=undefined, but scanConcealedCompatibilityLoads sees expression text only `p`, so its keyword heuristic returns no violation; the AST probe confirmed concealedViolations=[]. Loader aliases are another zero-edge path: valid CJS `const rq = require; rq(\"./legacy-delivery-claims-compat.js\")`, `module.require(...)`, and ESM createRequire aliases are ignored because lines 356-359/458-462 recognize only a CallExpression whose callee is the literal identifier `require`. Conversely, an unrelated `import(compatPluginPath)` false-positives. The resolved claim that all dynamic import/require arg0 forms are inspected is therefore not met. Fail closed for unresolved import() in active source or implement bounded constant propagation, and bind/forbid require aliases/member/createRequire forms; add variable-indirection and alias controls plus a non-compat variable named compat false-positive control.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T12:08:42.620Z",
@@ -697,7 +697,11 @@
         "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|remains-bypassable-unresolved",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by aa86b4d950: TypeChecker-backed dataflow resolves const module paths and require/module.require/createRequire aliases to real declarations; loader references are no longer keyword guesses. Variable-indirect compat loads reject while shadowed and unrelated plugin identifiers remain valid.",
+      "resolvedAt": "2026-07-13T12:19:14.057Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-029",
