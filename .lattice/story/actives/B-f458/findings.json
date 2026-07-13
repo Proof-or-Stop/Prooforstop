@@ -1139,6 +1139,44 @@
       ],
       "signatureTag": "dynamic-code-class-constructor-bypass",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-048",
+      "desc": "The parameter-binding fix still skips BindingElement defaults whenever the ParameterDeclaration itself has no initializer. The `ts.isParameter(node) && node.initializer` guard means `collectBindingDefaults(node.name)` is never called for a valid form such as `function execute({ indirect = eval }) { indirect(\"import('./legacy-delivery-claims-compat.js')\"); }` or `function execute([run = eval]) { run(payload); }`; those local symbols remain unmarked and the recursive call walk emits no dynamic-code violation. The new controls all give the whole parameter a default (`{...} = globalThis`, `[...] = []`), so build, vocabulary guard, and process-contract tests pass without exercising this branch. Invoke binding-default traversal for every parameter binding pattern, while only processing the parameter-level initializer when present, and add object/array element-default controls without an outer default. Callable-constructor coverage is also still syntactic rather than complete: class values and statically known methods are functions, so `class Builder {}; Builder.constructor(payload)()` and `object.method.constructor(payload)()` reach Function, but neither class nor method symbols enter functionCallableSymbols. Add class/method constructor positives or conservatively reject `.constructor` on statically callable declarations while retaining the ordinary-data-object negative.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T14:08:11.972Z",
+      "reviewRound": "2026-07-13T14:05:51.405Z",
+      "reviewRunId": "B-f458:RR-066",
+      "_hash": "187c2c23717cbb90d63b96e54c09c8161c97d2f7e029bd556c00aa2aa1fd8b39",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "parameter-binding-and-callable-constructor-bypass",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-049",
+      "desc": "The claimed full Function-constructor-family closure still misses standard callable producers whose inherited `.constructor` is `Function`. `functionExpressionConstructorKind` recognizes only arrow/function expressions, and functionCallableSymbols is seeded only from FunctionDeclaration or variable aliases. Therefore `const Build = (() => {}).bind(null).constructor`, `(class Local {}).constructor`, and `const holder = { method() {} }; holder.method.constructor` are not classified: the constructor target is respectively a bind CallExpression, ClassExpression, or method PropertyAccess, dynamicReferenceKind returns undefined, and `new Build(payload)`/direct constructor invocation emits no violation. A harmless Node runtime probe confirmed all three constructors compile and execute string bodies (each returned 42). This preserves the same concealed-import path as Function(...) despite the new ordinary/async/generator controls. Track class declarations/expressions, method/accessor callables and callable `.bind()` results by symbol/declaration identity (or conservatively reject constructor invocation/alias when the receiver is statically callable), and add bound-function, class, and object-method constructor positive controls while retaining the ordinary data-object constructor negative.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T14:08:12.198Z",
+      "reviewRound": "2026-07-13T14:05:51.405Z",
+      "reviewRunId": "B-f458:RR-065",
+      "_hash": "ee14388ea648f4277e2de070026af928e353f90f6160b2f95cc0eb574207eb89",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "dynamic-function-constructor-callable-producer-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
