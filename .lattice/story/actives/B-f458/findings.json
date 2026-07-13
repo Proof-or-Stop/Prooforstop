@@ -465,7 +465,7 @@
       "desc": "Audit provenance is now honestly authorization-neutral, but the claimed independent DONE recheck still does not replay the authoritative REVIEW→TEST reviewer gate. runReviewToTestPreflightGate checks review loops, ProofStory completeness, and CLI channel/concept/lint/docs gates; it does not invoke canPassReviewGuard or an equivalent shared evaluator for required reviewer presence, active-reviewer coverage/quorum, and open blocking findings. canFinishGuard only rejects reviewerEvidence.invalid and does not require any valid reviewer evidence or reject valid open high/critical findings. Consequently a same-UID manual REVIEW→TEST index/phase edit with the accepted stable delta can still skip the XState REVIEW_PASS guard: with no reviewer records invalid is empty, and even a signature-valid open blocking finding is not rejected at DONE, provided the unrelated DONE/preflight gates pass. The process-contract regex only proves that runReviewToTestPreflightGate is called, not that the missing signed reviewer facts are consumed. Add a shared authoritative REVIEW verdict evaluator (or explicitly re-run canPassReviewGuard semantics) at DONE and regress manual phase edits with missing reviewer evidence, missing opt-in lane/quorum, and an open blocking finding. The revised audit-only provenance and post-closeout freshness semantics themselves are sound.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T10:48:22.529Z",
@@ -481,7 +481,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "missing|ts|audit-provenance-honestly",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 1baeb54a9d: extracted shared phase-agnostic evaluateReviewVerdict consumed by REVIEW-to-TEST and TEST-to-DONE boolean/reason paths. It enforces current reviewer presence/binding, opt-in lanes, quorum, review loops, and open blocking findings; real DONE regressions cover no reviewer, missing lane, open high, and valid passes.",
+      "resolvedAt": "2026-07-13T11:01:40.451Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
