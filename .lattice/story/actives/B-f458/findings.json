@@ -1089,6 +1089,25 @@
       ],
       "signatureTag": "dynamic-code-default-parameter-alias-bypass",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-046",
+      "desc": "The new symbol-aware dynamic-code model still misses standard executable constructor and vm binding forms. dynamicReferenceKind treats `.constructor` as dangerous only when the target is async or already resolves to a dangerous reference (lines 1114-1122), so `(function() {}).constructor(\"return import('./legacy-delivery-claims-compat.js')\")()` and an alias of that ordinary Function constructor are unmarked even though they execute exactly like `Function(...)`; generator-function constructors are likewise omitted. Separately, the node:vm import collector handles only namedBindings (lines 1191-1205), so the valid builtin default form `import vm from 'node:vm'; vm.runInNewContext(payload)` never enters vmNamespaceSymbols. The positive controls cover direct Function/new Function, AsyncFunction, namespace vm, and named vm only, so all existing build/guard/process-contract tests pass without exercising these branches. Model ordinary/generator callable constructors (or reject statically-known function-expression `.constructor` access), collect the default vm import symbol, and add matching positive plus benign ordinary-object-constructor negatives.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-13T13:50:55.257Z",
+      "reviewRound": "2026-07-13T13:47:49.809Z",
+      "reviewRunId": "B-f458:RR-064",
+      "_hash": "1e2176aa2886765c9fe67d8ed8ecab2bb5e89bd9fb2cfe987104667440d817c6",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "dynamic-function-constructor-default-vm-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
