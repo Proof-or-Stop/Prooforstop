@@ -361,6 +361,28 @@
         "scanEscalationReason": null
       },
       "_hash": "8a1662d7e7d5daf538d2d77abd60186d553c2b8d563deb75d83d93fa1f4ff6a7"
+    },
+    {
+      "id": "B-f458:RP-017",
+      "agent": "lattice-review-test-coverage",
+      "note": "Current-round coverage PASS for F-026/F-027 at story material a22f46a. Approved compatibility authority now comes only from exact AST bindings and parent/argument call-site shapes; metric-preserving comment/string padding cannot authorize exported wrappers, and real downstream consumers are tainted. Executable module-load controls cover concatenated and statically interpolated import/require, unresolved compatibility interpolation, two-argument import options, plus the prior namespace/alias/re-export cases; unrelated import(pluginPath) remains a clean negative control. Build, configured retired-vocabulary guard, closeout lifecycle, process-fact, and runtime-fact suites pass. All 15 verification intents pass and bind current storyFilesHash.",
+      "createdAt": "2026-07-13T12:08:14.879Z",
+      "reviewRound": "2026-07-13T12:06:13.134Z",
+      "reviewRunId": "B-f458:RR-043",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/legacy-delivery-claims-compat.ts",
+          "packages/main/src/handlers/delivery-context-pack.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "79a49c937cdfe508c67a9599a1a7c77aa0cfb038d089deaf4e2742716e7654b7"
     }
   ]
 }
