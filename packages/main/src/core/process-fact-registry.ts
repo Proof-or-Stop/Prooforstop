@@ -172,8 +172,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
   closeout_write_receipt: {
     name: 'closeout-write-receipts.jsonl',
     path: 'closeout-write-receipts.jsonl',
-    signed: true,
-    signature: 'writerSignature Ed25519 verified against receiptSigner public key bound into the exact signed ReviewRun',
+    signed: false,
     producerCommand: 'core/auto-commit-metadata',
     consumerGate: 'REVIEW evidence metadata-only retention gate',
   },
@@ -1001,13 +1000,13 @@ export const PROCESS_FACT_ARTIFACTS = [
   },
   {
     name: 'artifact:closeout-write-receipts.jsonl',
-    kind: 'signed-artifact',
-    semantics: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'gate-evidence'],
+    kind: 'artifact',
+    semantics: ['artifact', 'schema-contract', 'freshness-policy', 'gate-evidence'],
     level: 'L4',
     producer: 'core/auto-commit-metadata',
     consumerGate: 'REVIEW evidence metadata-only retention gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.closeout_write_receipt,
-    rationale: 'Append-only integrity-chained causal co-commit provenance with an Ed25519 writerSignature verified only against the receiptSigner public key bound into the exact signed ReviewRun. It is authenticated writer provenance, but is not closeout evidence itself.',
+    rationale: 'Append-only integrity-chained causal co-commit telemetry. Under the local same-UID threat model it is forgeable, is not canonical-writer authentication, cannot retain a signed review across closeout changes, and is not closeout evidence itself.',
   },
   {
     name: 'artifact:evidence/delivery-context-pack.json',

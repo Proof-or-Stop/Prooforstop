@@ -1,8 +1,7 @@
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { appendFileSync, chmodSync, existsSync, mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
-import { generateEd25519KeyPair, signCanonical, verifyCanonical } from './authority-signing.js';
 import {
   computeMilestoneLedgerHash,
   computeParentLedgerRollupHash,
@@ -401,90 +400,8 @@ export function evaluateMetadataOnlyReviewRetention(input: MetadataOnlyReviewRet
 }
 
 export const CLOSEOUT_WRITE_RECEIPTS_PATH = 'closeout-write-receipts.jsonl';
-export const CLOSEOUT_WRITE_RECEIPT_SCHEMA = 'lattice.closeout_write_receipt.v2' as const;
-const CLOSEOUT_WRITE_RECEIPT_DOMAIN = 'lattice-closeout-write-receipt-integrity-v2';
-export const REVIEW_ROUND_RECEIPT_SIGNER_SCHEMA = 'lattice.review_round_receipt_signer.v1' as const;
-
-export interface ReviewRoundReceiptSignerPublic {
-  schemaVersion: typeof REVIEW_ROUND_RECEIPT_SIGNER_SCHEMA;
-  keyId: string;
-  publicKey: string;
-}
-
-interface ReviewRoundReceiptSignerRecord extends ReviewRoundReceiptSignerPublic {
-  storyId: string;
-  reviewRound: string;
-  privateKey: string;
-  createdAt: string;
-}
-
-function signerKeyId(publicKey: string): string {
-  return `ed25519:${createHash('sha256').update(publicKey).digest('hex')}`;
-}
-
-export function reviewRoundReceiptSignerPath(metadataRoot: string, storyId: string, reviewRound: string): string {
-  const round = createHash('sha256').update(reviewRound).digest('hex');
-  return join(metadataRoot, '.lattice', 'runtime', 'review-round-receipt-signers', storyId, `${round}.json`);
-}
-
-function validateSignerRecord(raw: unknown, storyId: string, reviewRound: string): ReviewRoundReceiptSignerRecord {
-  const value = raw as Partial<ReviewRoundReceiptSignerRecord>;
-  if (!value || value.schemaVersion !== REVIEW_ROUND_RECEIPT_SIGNER_SCHEMA
-    || value.storyId !== storyId || value.reviewRound !== reviewRound
-    || !value.publicKey || !value.privateKey || !value.keyId
-    || value.keyId !== signerKeyId(value.publicKey)) {
-    throw new Error('review-round receipt signer key record is invalid or does not match the current review round');
-  }
-  const coherenceProbe = { domain: 'lattice-review-round-receipt-signer-keypair-check-v1', storyId, reviewRound };
-  try {
-    const signature = signCanonical(coherenceProbe, value.privateKey);
-    if (!verifyCanonical(coherenceProbe, signature, value.publicKey)) throw new Error('keypair mismatch');
-  } catch {
-    throw new Error('review-round receipt signer key record contains a mismatched or invalid private key');
-  }
-  return value as ReviewRoundReceiptSignerRecord;
-}
-
-export function loadReviewRoundReceiptSigner(metadataRoot: string, storyId: string, reviewRound: string): ReviewRoundReceiptSignerRecord {
-  const path = reviewRoundReceiptSignerPath(metadataRoot, storyId, reviewRound);
-  if (!existsSync(path)) {
-    throw new Error(
-      `review-round receipt signer private key missing for ${storyId} round ${reviewRound}; `
-      + 'return to REVIEW and start a new review run to regenerate review-bound signing authority',
-    );
-  }
-  return validateSignerRecord(JSON.parse(readFileSync(path, 'utf8')), storyId, reviewRound);
-}
-
-export function loadOrCreateReviewRoundReceiptSigner(metadataRoot: string, storyId: string, reviewRound: string): ReviewRoundReceiptSignerRecord {
-  const path = reviewRoundReceiptSignerPath(metadataRoot, storyId, reviewRound);
-  if (existsSync(path)) return loadReviewRoundReceiptSigner(metadataRoot, storyId, reviewRound);
-  mkdirSync(join(path, '..'), { recursive: true, mode: 0o700 });
-  const pair = generateEd25519KeyPair();
-  const record: ReviewRoundReceiptSignerRecord = {
-    schemaVersion: REVIEW_ROUND_RECEIPT_SIGNER_SCHEMA,
-    storyId,
-    reviewRound,
-    keyId: signerKeyId(pair.publicKey),
-    publicKey: pair.publicKey,
-    privateKey: pair.privateKey,
-    createdAt: new Date().toISOString(),
-  };
-  const temporary = `${path}.${process.pid}.${Date.now()}.tmp`;
-  writeFileSync(temporary, `${JSON.stringify(record)}\n`, { encoding: 'utf8', mode: 0o600, flag: 'wx' });
-  try {
-    renameSync(temporary, path);
-    chmodSync(path, 0o600);
-  } catch (error) {
-    try { unlinkSync(temporary); } catch { /* another creator may have won */ }
-    if (!existsSync(path)) throw error;
-  }
-  return loadReviewRoundReceiptSigner(metadataRoot, storyId, reviewRound);
-}
-
-export function publicReviewRoundReceiptSigner(record: ReviewRoundReceiptSignerRecord): ReviewRoundReceiptSignerPublic {
-  return { schemaVersion: record.schemaVersion, keyId: record.keyId, publicKey: record.publicKey };
-}
+export const CLOSEOUT_WRITE_RECEIPT_SCHEMA = 'lattice.closeout_write_receipt.v3' as const;
+const CLOSEOUT_WRITE_RECEIPT_DOMAIN = 'lattice-closeout-write-receipt-integrity-v3';
 
 export interface CloseoutWriteReceipt {
   schemaVersion: typeof CLOSEOUT_WRITE_RECEIPT_SCHEMA;
@@ -500,11 +417,9 @@ export interface CloseoutWriteReceipt {
   sequence: number;
   previousIntegrityHash: string | null;
   integrityHash: string;
-  signerKeyId: string;
-  writerSignature: string;
 }
 
-type ReceiptIntegrityFields = Omit<CloseoutWriteReceipt, 'integrityHash' | 'writerSignature'>;
+type ReceiptIntegrityFields = Omit<CloseoutWriteReceipt, 'integrityHash'>;
 
 function receiptPayload(receipt: ReceiptIntegrityFields): unknown {
   return { ...receipt, domain: CLOSEOUT_WRITE_RECEIPT_DOMAIN };
@@ -514,19 +429,11 @@ export function computeCloseoutWriteReceiptIntegrity(receipt: ReceiptIntegrityFi
   return digest(receiptPayload(receipt));
 }
 
-function receiptSigningPayload(receipt: Omit<CloseoutWriteReceipt, 'writerSignature'>): unknown {
-  return { ...receipt, domain: 'lattice-closeout-write-receipt-signature-v1' };
-}
-
-export function signCloseoutWriteReceipt(receipt: Omit<CloseoutWriteReceipt, 'writerSignature'>, privateKey: string): CloseoutWriteReceipt {
-  return { ...receipt, writerSignature: signCanonical(receiptSigningPayload(receipt), privateKey) };
-}
-
 export function rawArtifactDigest(bytes: string | Buffer): string {
   return createHash('sha256').update(bytes).digest('hex');
 }
 
-export function buildCloseoutWriteReceipt(input: Omit<CloseoutWriteReceipt, 'schemaVersion' | 'timestamp' | 'integrityHash' | 'writerSignature'> & { timestamp?: string }): Omit<CloseoutWriteReceipt, 'writerSignature'> {
+export function buildCloseoutWriteReceipt(input: Omit<CloseoutWriteReceipt, 'schemaVersion' | 'timestamp' | 'integrityHash'> & { timestamp?: string }): CloseoutWriteReceipt {
   assertCanonicalCloseoutWrite(input.artifactPath, input.writerCommand);
   const unsigned = {
     schemaVersion: CLOSEOUT_WRITE_RECEIPT_SCHEMA,
@@ -541,7 +448,6 @@ export function buildCloseoutWriteReceipt(input: Omit<CloseoutWriteReceipt, 'sch
     storyFilesHash: input.storyFilesHash,
     sequence: input.sequence,
     previousIntegrityHash: input.previousIntegrityHash,
-    signerKeyId: input.signerKeyId,
   };
   for (const field of ['schemaVersion', 'storyId', 'artifactPath', 'writerCommand', 'artifactDigest', 'timestamp', 'phase', 'headHash', 'materialHash', 'storyFilesHash'] as const) {
     if (typeof unsigned[field] !== 'string' || !unsigned[field].trim()) throw new Error(`closeout-write-receipts.jsonl: ${field} must be non-empty`);
@@ -571,18 +477,13 @@ export function verifyCloseoutWriteReceipt(receipt: CloseoutWriteReceipt, expect
   artifactBytes: string | Buffer;
   projectRoot?: string;
   metadataRoot?: string;
-  trustedSigner: ReviewRoundReceiptSignerPublic;
 }): { ok: boolean; reason?: string } {
   if (!receipt || receipt.schemaVersion !== CLOSEOUT_WRITE_RECEIPT_SCHEMA) return { ok: false, reason: 'invalid receipt schema' };
   if (receipt.storyId !== expected.storyId || receipt.artifactPath !== expected.artifactPath) return { ok: false, reason: 'receipt story/path mismatch' };
   try { assertCanonicalCloseoutWrite(receipt.artifactPath, receipt.writerCommand); }
   catch (error) { return { ok: false, reason: String((error as Error).message) }; }
-  if (!expected.trustedSigner || receipt.signerKeyId !== expected.trustedSigner.keyId) return { ok: false, reason: 'receipt signer key is not bound to the review run' };
-  const { integrityHash, writerSignature, ...unsigned } = receipt;
+  const { integrityHash, ...unsigned } = receipt;
   if (!integrityHash || integrityHash !== computeCloseoutWriteReceiptIntegrity(unsigned)) return { ok: false, reason: 'receipt integrity hash mismatch' };
-  if (!writerSignature || !verifyCanonical(receiptSigningPayload({ ...unsigned, integrityHash }), writerSignature, expected.trustedSigner.publicKey)) {
-    return { ok: false, reason: 'receipt writer signature is invalid for the review-bound signer' };
-  }
   if (receipt.artifactDigest !== rawArtifactDigest(expected.artifactBytes)) return { ok: false, reason: 'receipt artifact digest mismatch' };
   for (const field of ['timestamp', 'phase', 'headHash', 'materialHash', 'storyFilesHash'] as const) {
     if (!receipt[field]?.trim()) return { ok: false, reason: `receipt ${field} missing` };
@@ -608,16 +509,14 @@ export function verifyCloseoutWriteReceipt(receipt: CloseoutWriteReceipt, expect
   return { ok: true };
 }
 
-function validReceiptChain(receipts: CloseoutWriteReceipt[], storyId: string, artifactPath: string, trustedSigner: ReviewRoundReceiptSignerPublic): boolean {
+function validReceiptChain(receipts: CloseoutWriteReceipt[], storyId: string, artifactPath: string): boolean {
   let previous: CloseoutWriteReceipt | null = null;
-  for (const receipt of receipts.filter((item) => item.artifactPath === artifactPath && item.signerKeyId === trustedSigner.keyId)) {
+  for (const receipt of receipts.filter((item) => item.schemaVersion === CLOSEOUT_WRITE_RECEIPT_SCHEMA && item.artifactPath === artifactPath)) {
     if (receipt.storyId !== storyId) return false;
     if (receipt.sequence !== (previous?.sequence ?? 0) + 1) return false;
     if (receipt.previousIntegrityHash !== (previous?.integrityHash ?? null)) return false;
-    if (receipt.signerKeyId !== trustedSigner.keyId) return false;
-    const { integrityHash, writerSignature, ...unsigned } = receipt;
+    const { integrityHash, ...unsigned } = receipt;
     if (integrityHash !== computeCloseoutWriteReceiptIntegrity(unsigned)) return false;
-    if (!writerSignature || !verifyCanonical(receiptSigningPayload({ ...unsigned, integrityHash }), writerSignature, trustedSigner.publicKey)) return false;
     previous = receipt;
   }
   return previous !== null;
@@ -636,29 +535,49 @@ function causallyBoundToLatestArtifactCommit(receipt: CloseoutWriteReceipt, prov
   }
 }
 
-export function latestValidCloseoutReceipt(
+/**
+ * Local audit-only causal receipt. This proves byte/chain/Git coherence, not
+ * canonical-writer authority: arbitrary code running as the project user can
+ * mint the same fields. Lifecycle gates must never consume this as authority.
+ */
+export function latestCausallyValidCloseoutReceipt(
   storyDir: string,
   storyId: string,
   artifactPath: string,
   provenance?: { projectRoot: string; metadataRoot?: string },
-  trustedSigner?: ReviewRoundReceiptSignerPublic,
 ): CloseoutWriteReceipt | null {
-  if (!trustedSigner) return null;
   const bytesPath = join(storyDir, artifactPath);
   if (!existsSync(bytesPath)) return null;
   const bytes = readFileSync(bytesPath);
   const allReceipts = readCloseoutWriteReceipts(storyDir);
-  if (!validReceiptChain(allReceipts, storyId, artifactPath, trustedSigner)) return null;
-  const receipt = allReceipts.filter((item) => item.artifactPath === artifactPath).at(-1);
+  if (!validReceiptChain(allReceipts, storyId, artifactPath)) return null;
+  const receipt = allReceipts
+    .filter((item) => item.schemaVersion === CLOSEOUT_WRITE_RECEIPT_SCHEMA && item.artifactPath === artifactPath)
+    .at(-1);
   if (!receipt) return null;
   if (provenance && !causallyBoundToLatestArtifactCommit(receipt, provenance, storyDir)) return null;
   return verifyCloseoutWriteReceipt(receipt, {
     storyId,
     artifactPath,
     artifactBytes: bytes,
-    trustedSigner,
     ...provenance,
   }).ok ? receipt : null;
+}
+
+/**
+ * Gate-authoritative receipt lookup. Pure local same-UID receipts have no
+ * isolated signing capability, so none are admissible as canonical-writer
+ * proof. Post-review closeout changes therefore fail closed and require a new
+ * review snapshot. An external/isolated authority can replace this boundary in
+ * a future story; until then returning null is deliberate, not an outage.
+ */
+export function latestValidCloseoutReceipt(
+  _storyDir: string,
+  _storyId: string,
+  _artifactPath: string,
+  _provenance?: { projectRoot: string; metadataRoot?: string },
+): CloseoutWriteReceipt | null {
+  return null;
 }
 
 export function validateCurrentCloseoutArtifact(
@@ -667,7 +586,6 @@ export function validateCurrentCloseoutArtifact(
   artifactPath: string,
   projectRoot?: string,
   metadataRoot?: string,
-  trustedSigner?: ReviewRoundReceiptSignerPublic,
 ): { valid: boolean; reason?: string } {
   const policy = closeoutArtifactPolicyFor(artifactPath);
   if (!policy || policy.artifactClass !== 'closeout-evidence') return { valid: false, reason: `untrusted closeout artifact path: ${artifactPath}` };
@@ -684,9 +602,11 @@ export function validateCurrentCloseoutArtifact(
       storyId,
       artifactPath,
       projectRoot ? { projectRoot, metadataRoot: metadataRoot ?? projectRoot } : undefined,
-      trustedSigner,
     );
-    if (!receipt) return { valid: false, reason: `missing or stale canonical receipt: ${artifactPath}` };
+    if (!receipt) return {
+      valid: false,
+      reason: `local causal receipt cannot authorize canonical writer provenance; re-review required: ${artifactPath}`,
+    };
     return { valid: true };
   } catch (error) {
     return { valid: false, reason: String((error as Error).message) };

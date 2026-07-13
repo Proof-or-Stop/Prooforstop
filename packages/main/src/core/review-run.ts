@@ -1,6 +1,7 @@
 import { createHash } from 'crypto';
 import { execFileSync } from 'child_process';
 import { existsSync, realpathSync } from 'fs';
+import { isAbsolute, relative, resolve } from 'node:path';
 import {
   changedFilesBetween,
   checkEvidenceFreshnessForGit,
@@ -372,9 +373,6 @@ export function signReviewRun(
   // B-5a9a: storyFilesHash is appended only when present so legacy review runs
   // without the secondary binding keep the exact previous signature domain.
   storyFilesHash?: string,
-  // B-f458: bind the round-scoped receipt signer into the run checksum. Kept
-  // optional solely so historical runs retain their original signature domain.
-  receiptSignerBinding?: string,
 ): string {
   const parts = [
     storyId,
@@ -390,7 +388,6 @@ export function signReviewRun(
   if (storyFilesHash) parts.push(storyFilesHash);
   if (scopeBindingHash) parts.push(scopeBindingHash);
   if (workspaceBindingHash) parts.push(workspaceBindingHash);
-  if (receiptSignerBinding) parts.push(receiptSignerBinding);
   parts.push(REVIEW_RUN_SALT);
   return createHash('sha256').update(parts.join(':')).digest('hex');
 }
@@ -453,9 +450,6 @@ export function verifyReviewRun(run: ReviewRun): boolean {
     run.scopeBinding?.bindingHash,
     run.workspaceBinding?.bindingHash,
     run.storyFilesHash,
-    run.receiptSigner
-      ? `${run.receiptSigner.schemaVersion}:${run.receiptSigner.keyId}:${run.receiptSigner.publicKey}`
-      : undefined,
   );
   return run._hash === expected
     && (!run.workspaceBinding || verifyReviewRunWorkspaceBinding(run.workspaceBinding, run));
@@ -716,8 +710,15 @@ export function evaluateReviewRunMetadataRetention(
     run.storyFilesHash ?? run.workspaceBinding?.storyFilesHash,
   );
   let changedFiles: string[];
+  let storyPrefix: string;
   try {
-    const storyPrefix = `${store.storyDirRel().replace(/\/$/, '')}/${story.storyId}/`;
+    const gitRoot = realpathSync(resolve(projectRoot));
+    const storyDir = realpathSync(resolve(store.storyDirPath(story.storyId)));
+    const storyRel = relative(gitRoot, storyDir).replace(/\\/g, '/').replace(/\/+$/, '');
+    if (!storyRel || storyRel === '.' || isAbsolute(storyRel) || storyRel === '..' || storyRel.startsWith('../')) {
+      throw new Error(`story directory is outside signed git root: ${storyDir}`);
+    }
+    storyPrefix = `${storyRel}/`;
     changedFiles = [
       ...changedFilesBetween(projectRoot, run.headHash, 'HEAD'),
       ...uncommittedPathsUnder(projectRoot, storyPrefix),
@@ -725,7 +726,6 @@ export function evaluateReviewRunMetadataRetention(
   } catch {
     return { ok: false, reasons: ['unable to derive metadata changes since the signed review run'] };
   }
-  const storyPrefix = `${store.storyDirRel().replace(/\/$/, '')}/${story.storyId}/`;
   const metadataPaths = changedFiles
     .filter((path) => path.startsWith(storyPrefix))
     .map((path) => path.slice(storyPrefix.length))
@@ -733,14 +733,13 @@ export function evaluateReviewRunMetadataRetention(
   const changedArtifacts = metadataPaths.map((artifactPath) => {
     const policy = closeoutArtifactPolicyFor(artifactPath);
     const metadataRoot = run.workspaceBinding?.metadataRoot ?? projectRoot;
-    const validation = validateCurrentCloseoutArtifact(store, story.storyId, artifactPath, projectRoot, metadataRoot, run.receiptSigner);
+    const validation = validateCurrentCloseoutArtifact(store, story.storyId, artifactPath, projectRoot, metadataRoot);
     const receipt = policy?.artifactClass === 'closeout-evidence'
       ? latestValidCloseoutReceipt(
         store.storyDirPath(story.storyId),
         story.storyId,
         artifactPath,
         { projectRoot, metadataRoot },
-        run.receiptSigner,
       )
       : null;
     return {

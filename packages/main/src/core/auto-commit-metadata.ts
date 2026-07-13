@@ -46,12 +46,11 @@ import { resolveGitCwd } from './story-signed-workspace-resolution.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import {
   CLOSEOUT_ARTIFACT_POLICIES,
+  CLOSEOUT_WRITE_RECEIPT_SCHEMA,
   appendCloseoutWriteReceipt,
   buildCloseoutWriteReceipt,
-  loadReviewRoundReceiptSigner,
   rawArtifactDigest,
   readCloseoutWriteReceipts,
-  signCloseoutWriteReceipt,
 } from './closeout-trust.js';
 
 /**
@@ -63,7 +62,7 @@ export const AUTO_COMMIT_METADATA_PREFIX = '\n✓ lattice metadata auto-committe
 /** Canonical literal path prefix the helper is allowed to stage. */
 export const AUTO_COMMIT_STORY_DIR_PREFIX = `${LATTICE_STORY_DIR}/`;
 
-function appendCanonicalReceiptsBeforeCommit(args: {
+function appendLocalCausalReceiptsBeforeCommit(args: {
   projectRoot: string;
   gitCwd: string;
   storyId: string;
@@ -75,10 +74,7 @@ function appendCanonicalReceiptsBeforeCommit(args: {
   const policies = CLOSEOUT_ARTIFACT_POLICIES.filter((policy) => declaredPaths.has(policy.path));
   if (!policies.length) return;
   const store = new StoryStore(args.projectRoot);
-  const story = store.readStory(args.storyId);
-  const phase = story.phase;
-  if (!story.currentReviewRound) throw new Error(`closeout receipt requires a current review round for ${args.storyId}`);
-  const signer = loadReviewRoundReceiptSigner(args.projectRoot, args.storyId, story.currentReviewRound);
+  const phase = store.readStory(args.storyId).phase;
   const headHash = currentGitHead(args.gitCwd);
   const materialHash = currentMaterialHash(args.gitCwd, 'HEAD', args.projectRoot);
   const storyFilesHash = currentStoryFilesHash(args.gitCwd, 'HEAD', args.projectRoot);
@@ -99,7 +95,7 @@ function appendCanonicalReceiptsBeforeCommit(args: {
     if (!existsSync(artifactPath)) continue;
     const bytes = readFileSync(artifactPath);
     const previous = readCloseoutWriteReceipts(storyDir)
-      .filter((receipt) => receipt.artifactPath === policy.path && receipt.signerKeyId === signer.keyId)
+      .filter((receipt) => receipt.schemaVersion === CLOSEOUT_WRITE_RECEIPT_SCHEMA && receipt.artifactPath === policy.path)
       .at(-1);
     const receipt = buildCloseoutWriteReceipt({
       storyId: args.storyId,
@@ -112,9 +108,8 @@ function appendCanonicalReceiptsBeforeCommit(args: {
       storyFilesHash,
       sequence: (previous?.sequence ?? 0) + 1,
       previousIntegrityHash: previous?.integrityHash ?? null,
-      signerKeyId: signer.keyId,
     });
-    appendCloseoutWriteReceipt(storyDir, signCloseoutWriteReceipt(receipt, signer.privateKey));
+    appendCloseoutWriteReceipt(storyDir, receipt);
   }
 }
 
@@ -269,7 +264,7 @@ export function autoCommitStoryMetadata(
     // never changes this helper's historical never-throw commit behavior.
     let receiptFailureNote = '';
     try {
-      appendCanonicalReceiptsBeforeCommit({
+      appendLocalCausalReceiptsBeforeCommit({
         projectRoot,
         gitCwd,
         storyId,
@@ -284,7 +279,7 @@ export function autoCommitStoryMetadata(
         reason,
         projectRoot,
       });
-      receiptFailureNote = `\n⚠ canonical closeout receipt was not issued: ${message}`;
+      receiptFailureNote = `\n⚠ local causal closeout receipt was not issued: ${message}`;
     }
 
     // 6. stage only paths inside the story dir (path-scoped — never `.` / `-A`)

@@ -61,18 +61,6 @@ async function main() {
   const checksSource = read(root, 'packages/main/src/core/runtime-environment-checks.ts');
   const doctorSource = read(root, 'packages/main/src/handlers/doctor.ts');
   const processFactSource = read(root, 'packages/main/src/core/process-fact-registry.ts');
-  const runtimeArtifactSource = read(root, 'packages/main/src/core/runtime-artifact-registry.ts');
-
-  for (const token of [
-    "id: 'review-round-receipt-signing-keys'",
-    "value: '.lattice/runtime/review-round-receipt-signers/'",
-    "ignorePatterns: ['.lattice/runtime/review-round-receipt-signers/']",
-    "materialHash: 'exclude'",
-    'volatile: true',
-    'repairableTrackedArtifact: true',
-  ]) {
-    check(runtimeArtifactSource.includes(token), `review-round receipt private-key runtime artifact missing contract token: ${token}`);
-  }
 
   for (const [id, outputKey] of requiredFacts) {
     check(registrySource.includes(`id: '${id}'`), `missing runtime fact: ${id}`);

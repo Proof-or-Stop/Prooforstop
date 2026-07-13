@@ -13,13 +13,9 @@ import {
   buildCloseoutWriteReceipt,
   computeCompositeScopeDigest,
   evaluateMetadataOnlyReviewRetention,
+  latestCausallyValidCloseoutReceipt,
   latestValidCloseoutReceipt,
-  loadOrCreateReviewRoundReceiptSigner,
-  loadReviewRoundReceiptSigner,
-  publicReviewRoundReceiptSigner,
   readCloseoutWriteReceipts,
-  signCloseoutWriteReceipt,
-  reviewRoundReceiptSignerPath,
   validatePersistedDeliveryContextPack,
   validateTrustedMilestoneLedger,
   validateTrustedParentLedgerRollup,
@@ -56,7 +52,6 @@ import { createLiveSmokeTranscriptHandlers } from '../handlers/live-smoke-transc
 import { createDoneRequiredValidationHandlers } from '../handlers/done-required-validation.js';
 import { createVerifierHandlers } from '../handlers/verifier.js';
 import type { HandlerContext } from '../handlers/context.js';
-import { generateEd25519KeyPair } from '../core/authority-signing.js';
 
 const storyId = 'B-closeout';
 const ledger = buildMilestoneLedger({
@@ -126,7 +121,7 @@ for (const policy of CLOSEOUT_ARTIFACT_POLICIES) {
 assert.equal(assertCanonicalCloseoutWrite('scope-contract.json', 'scope_contract_acknowledge').artifactClass, 'scope-defining');
 assert.throws(() => assertCanonicalCloseoutWrite('../parent-ledger-rollup.json', 'parent_ledger_rollup_set'), /untrusted closeout artifact path/);
 assert.throws(() => assertCanonicalCloseoutWrite('parent-ledger-rollup.json', 'manual-write'), /non-canonical writer.*parent-ledger-rollup/);
-console.log('PASS closeout artifact classifications: closed set and canonical writer provenance verified');
+console.log('PASS closeout artifact classifications: closed policy set verified');
 
 const digest = computeCompositeScopeDigest({ contract, ledger, slicePlan: plan });
 const reorderedDigest = computeCompositeScopeDigest({
@@ -252,7 +247,7 @@ assert.equal(evaluateMetadataOnlyReviewRetention({
   storedReviewRound: 'round-1',
   currentReviewRound: 'round-1',
 }).ok, false);
-console.log('PASS canonical closeout write retained TEST');
+console.log('PASS closeout retention policy pure classifier');
 
 function git(root: string, args: string[]): string {
   return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
@@ -292,23 +287,18 @@ try {
   const baselineHead = currentGitHead(repo)!;
   const baselineMaterial = currentMaterialHash(repo, 'HEAD', repo)!;
   const baselineStoryFiles = currentStoryFilesHash(repo, 'HEAD', repo)!;
-  const signerRecord = loadOrCreateReviewRoundReceiptSigner(repo, runtimeStoryId, 'round-1');
-  const trustedSigner = publicReviewRoundReceiptSigner(signerRecord);
   const runtimeBinding = computeReviewScopeBinding({ contract: runtimeContract, diffPack: emptyDiff, ledger: runtimeLedger, slicePlan: runtimePlan })!;
   const run = {
     reviewRunId: `${runtimeStoryId}:RR-001`, storyId: runtimeStoryId, agent: 'lattice-review-quality', lane: 'lattice-review-quality',
     reviewRound: 'round-1', startedAt: new Date().toISOString(), headHash: baselineHead, materialHash: baselineMaterial,
-    storyFilesHash: baselineStoryFiles, promptHash: 'prompt', scopeBinding: runtimeBinding, receiptSigner: trustedSigner,
+    storyFilesHash: baselineStoryFiles, promptHash: 'prompt', scopeBinding: runtimeBinding,
   } as ReviewRun;
   run._hash = signReviewRun(
     run.storyId, run.reviewRunId, run.agent, run.lane, run.reviewRound, run.startedAt,
     run.headHash, run.materialHash, run.promptHash, run.scopeBinding?.bindingHash,
     undefined, run.storyFilesHash,
-    `${trustedSigner.schemaVersion}:${trustedSigner.keyId}:${trustedSigner.publicKey}`,
   );
-  assert.equal(verifyReviewRun(run), true, 'ReviewRun hash must bind the receipt signer public key');
-  assert.equal(verifyReviewRun({ ...run, receiptSigner: { ...trustedSigner, publicKey: generateEd25519KeyPair().publicKey } }), false,
-    'tampering the ReviewRun receipt signer public key must invalidate the run');
+  assert.equal(verifyReviewRun(run), true);
   const proofstoryHandlers = createProofStoryHandlers({ store, root: repo, scanRoot: repo } as HandlerContext);
   const handlerResult = proofstoryHandlers.parent_ledger_rollup_set({
     storyId: runtimeStoryId,
@@ -318,9 +308,8 @@ try {
   assert.match(handlerResult, /metadata auto-committed/);
   const handlerCtx = { store, root: repo, scanRoot: repo } as HandlerContext;
   const assertWriterReceipt = (artifactPath: string, writerCommand: string) => {
-    const receipt = latestValidCloseoutReceipt(
+    const receipt = latestCausallyValidCloseoutReceipt(
       store.storyDirPath(runtimeStoryId), runtimeStoryId, artifactPath, { projectRoot: repo, metadataRoot: repo },
-      trustedSigner,
     );
     assert.equal(receipt?.writerCommand, writerCommand, `${writerCommand} must produce a causally valid ${artifactPath} receipt`);
   };
@@ -360,7 +349,8 @@ try {
   assertWriterReceipt('test-evidence.json', 'validate');
   const currentStory = store.readStory(runtimeStoryId);
   const retainedAfterHandlers = evaluateReviewRunMetadataRetention(store, currentStory, run, repo, currentScopeContextForStory(store, runtimeStoryId, repo));
-  assert.equal(retainedAfterHandlers.ok, true, retainedAfterHandlers.reasons.join('; '));
+  assert.equal(retainedAfterHandlers.ok, false, 'local causal receipts must not retain the pre-closeout review');
+  assert(retainedAfterHandlers.reasons.some(reason => reason.includes('invalid closeout artifact')));
 
   git(repo, ['checkout', '-b', 'source-drift', baselineHead]);
   writeFileSync(join(repo, 'src/app.ts'), 'export const stable = false;\n', 'utf8');
@@ -386,15 +376,13 @@ try {
     sequence: parentReceipt.sequence,
     previousIntegrityHash: parentReceipt.previousIntegrityHash,
     timestamp: parentReceipt.timestamp,
-    signerKeyId: trustedSigner.keyId,
   });
-  assert.equal(verifyCloseoutWriteReceipt(signCloseoutWriteReceipt(incoherentReceipt, signerRecord.privateKey), {
+  assert.equal(verifyCloseoutWriteReceipt(incoherentReceipt, {
     storyId: runtimeStoryId,
     artifactPath: 'parent-ledger-rollup.json',
     artifactBytes: readFileSync(store.storyFilePath(runtimeStoryId, 'parent-ledger-rollup.json')),
     projectRoot: repo,
     metadataRoot: repo,
-    trustedSigner,
   }).ok, false, 'integrity-valid but provenance-incoherent receipts must fail');
 
   writeFileSync(store.storyFilePath(runtimeStoryId, 'unknown-hand-written.json'), '{}\n', 'utf8');
@@ -414,8 +402,10 @@ try {
   git(repo, ['commit', '-m', 'manual replay old summary bytes']);
   assert.equal(latestValidCloseoutReceipt(
     store.storyDirPath(runtimeStoryId), runtimeStoryId, 'summary.json', { projectRoot: repo, metadataRoot: repo },
-    trustedSigner,
-  ), null, 'an old matching receipt must not survive a later manual revert to its bytes');
+  ), null, 'purely local receipts must never authorize review retention');
+  assert.equal(latestCausallyValidCloseoutReceipt(
+    store.storyDirPath(runtimeStoryId), runtimeStoryId, 'summary.json', { projectRoot: repo, metadataRoot: repo },
+  ), null, 'an old matching causal receipt must not survive a later manual revert to its bytes');
 
   mkdirSync(dirname(store.storyFilePath(runtimeStoryId, 'evidence/live-smoke-transcript.json')), { recursive: true });
   writeFileSync(store.storyFilePath(runtimeStoryId, 'evidence/live-smoke-transcript.json'), '{}\n', 'utf8');
@@ -423,13 +413,11 @@ try {
   autoCommitStoryMetadata(repo, runtimeStoryId, 'live_smoke_transcript', {
     closeoutArtifactPaths: ['evidence/live-smoke-transcript.json'],
   });
-  assert(latestValidCloseoutReceipt(
+  assert(latestCausallyValidCloseoutReceipt(
     store.storyDirPath(runtimeStoryId), runtimeStoryId, 'evidence/live-smoke-transcript.json', { projectRoot: repo, metadataRoot: repo },
-    trustedSigner,
   ));
   assert.equal(latestValidCloseoutReceipt(
     store.storyDirPath(runtimeStoryId), runtimeStoryId, 'evidence/transcript-diff.md', { projectRoot: repo, metadataRoot: repo },
-    trustedSigner,
   ), null, 'the auto-commit must not bless a bundled artifact omitted from the explicit write attestation');
   const rejectedBundled = evaluateReviewRunMetadataRetention(store, currentStory, run, repo, currentScopeContextForStory(store, runtimeStoryId, repo));
   assert.equal(rejectedBundled.ok, false);
@@ -453,17 +441,17 @@ try {
   assert(testReceiptIndexes.length >= 2);
   [receiptLines[testReceiptIndexes[0]], receiptLines[testReceiptIndexes[1]]] = [receiptLines[testReceiptIndexes[1]], receiptLines[testReceiptIndexes[0]]];
   writeFileSync(receiptLedgerPath, `${receiptLines.join('\n')}\n`, 'utf8');
-  assert.equal(latestValidCloseoutReceipt(store.storyDirPath(runtimeStoryId), runtimeStoryId, 'test-evidence.json', undefined, trustedSigner), null, 'reordered receipt chains must fail');
+  assert.equal(latestCausallyValidCloseoutReceipt(store.storyDirPath(runtimeStoryId), runtimeStoryId, 'test-evidence.json'), null, 'reordered receipt chains must fail');
   writeFileSync(receiptLedgerPath, originalReceiptLedger + originalReceiptLedger.split('\n').find((line) => line.includes('parent-ledger-rollup.json')) + '\n', 'utf8');
-  assert.equal(latestValidCloseoutReceipt(store.storyDirPath(runtimeStoryId), runtimeStoryId, 'parent-ledger-rollup.json', undefined, trustedSigner), null, 'copied receipts must fail');
+  assert.equal(latestCausallyValidCloseoutReceipt(store.storyDirPath(runtimeStoryId), runtimeStoryId, 'parent-ledger-rollup.json'), null, 'copied receipts must fail');
 } finally {
   resetConfigCache();
   rmSync(repo, { recursive: true, force: true });
 }
 
-// Wrapper-root containment + review-round key rotation + manual co-commit
-// forgery regression. The private key stays under wrapper runtime state while
-// the story metadata is committed inside the configured gitRoot.
+// Wrapper-root containment + real retention consumer + same-UID manual
+// co-commit regression. Local receipts remain useful causal telemetry but are
+// deliberately inadmissible as canonical-writer authority.
 const wrapper = mkdtempSync(join(tmpdir(), 'closeout-wrapper-root-'));
 const wrapperRepo = join(wrapper, 'repo');
 try {
@@ -483,64 +471,70 @@ try {
     type: 'feature', phase: 'TEST', priority: 'high', createdAt: new Date().toISOString(), startedAt: new Date().toISOString(), endedAt: null,
     currentReviewRound: 'round-1', events: [],
   });
+  const wrapperContract = { ...contract, storyId: wrapperStoryId };
+  const wrapperLedger = { ...ledger, storyId: wrapperStoryId };
+  const wrapperPlan = { ...plan, storyId: wrapperStoryId };
+  wrapperStore.writeScopeContract(wrapperStoryId, wrapperContract);
+  wrapperStore.writeMilestoneLedger(wrapperStoryId, wrapperLedger);
+  wrapperStore.writeProofStorySlicePlan(wrapperStoryId, wrapperPlan);
   git(wrapperRepo, ['add', '.']);
   git(wrapperRepo, ['commit', '-m', 'wrapper baseline']);
   git(wrapperRepo, ['checkout', '-b', `story/${wrapperStoryId}`]);
 
-  const round1Record = loadOrCreateReviewRoundReceiptSigner(wrapper, wrapperStoryId, 'round-1');
-  const round1Signer = publicReviewRoundReceiptSigner(round1Record);
+  const wrapperBinding = computeReviewScopeBinding({ contract: wrapperContract, diffPack: emptyDiff, ledger: wrapperLedger, slicePlan: wrapperPlan })!;
+  const makeWrapperRun = (id: string): ReviewRun => ({
+    reviewRunId: `${wrapperStoryId}:${id}`,
+    storyId: wrapperStoryId,
+    agent: 'lattice-review-quality',
+    lane: 'lattice-review-quality',
+    reviewRound: 'round-1',
+    startedAt: new Date().toISOString(),
+    headHash: currentGitHead(wrapperRepo)!,
+    materialHash: currentMaterialHash(wrapperRepo, 'HEAD', wrapper)!,
+    storyFilesHash: currentStoryFilesHash(wrapperRepo, 'HEAD', wrapper)!,
+    promptHash: 'prompt',
+    scopeBinding: wrapperBinding,
+  });
+  const preCloseoutRun = makeWrapperRun('RR-001');
   writeFileSync(wrapperStore.storyFilePath(wrapperStoryId, 'summary.json'), '{"round":1}\n', 'utf8');
   assert.match(autoCommitStoryMetadata(wrapper, wrapperStoryId, 'summary_set', { closeoutArtifactPaths: ['summary.json'] }), /metadata auto-committed/);
-  assert(latestValidCloseoutReceipt(
+  assert(latestCausallyValidCloseoutReceipt(
     wrapperStore.storyDirPath(wrapperStoryId), wrapperStoryId, 'summary.json',
-    { projectRoot: wrapperRepo, metadataRoot: wrapper }, round1Signer,
-  ), 'wrapper-root canonical write must resolve and commit the story path relative to gitRoot');
-
-  const rotatedStory = wrapperStore.readStory(wrapperStoryId);
-  rotatedStory.currentReviewRound = 'round-2';
-  wrapperStore.writeStory(wrapperStoryId, rotatedStory);
-  const round2Record = loadOrCreateReviewRoundReceiptSigner(wrapper, wrapperStoryId, 'round-2');
-  const round2Signer = publicReviewRoundReceiptSigner(round2Record);
-  writeFileSync(wrapperStore.storyFilePath(wrapperStoryId, 'summary.json'), '{"round":2}\n', 'utf8');
-  assert.match(autoCommitStoryMetadata(wrapper, wrapperStoryId, 'summary_set', { closeoutArtifactPaths: ['summary.json'] }), /metadata auto-committed/);
-  assert(latestValidCloseoutReceipt(
-    wrapperStore.storyDirPath(wrapperStoryId), wrapperStoryId, 'summary.json',
-    { projectRoot: wrapperRepo, metadataRoot: wrapper }, round2Signer,
-  ), 'new review round must start a valid signer-scoped receipt subchain');
+    { projectRoot: wrapperRepo, metadataRoot: wrapper },
+  ), 'wrapper-root canonical command must still emit coherent causal telemetry');
   assert.equal(latestValidCloseoutReceipt(
     wrapperStore.storyDirPath(wrapperStoryId), wrapperStoryId, 'summary.json',
-    { projectRoot: wrapperRepo, metadataRoot: wrapper }, round1Signer,
-  ), null, 'old review-round key must not authenticate the current artifact');
-  const rotatedReceipts = readCloseoutWriteReceipts(wrapperStore.storyDirPath(wrapperStoryId)).filter(receipt => receipt.artifactPath === 'summary.json');
-  assert.deepEqual(rotatedReceipts.map(receipt => [receipt.signerKeyId, receipt.sequence]), [
-    [round1Signer.keyId, 1], [round2Signer.keyId, 1],
-  ], 'review-round rotation retains history but resets the signer-scoped chain');
-
-  const signerPath = reviewRoundReceiptSignerPath(wrapper, wrapperStoryId, 'round-2');
-  const signerBytes = readFileSync(signerPath, 'utf8');
-  const corruptRecord = JSON.parse(signerBytes) as { privateKey: string };
-  corruptRecord.privateKey = generateEd25519KeyPair().privateKey;
-  writeFileSync(signerPath, `${JSON.stringify(corruptRecord)}\n`, { encoding: 'utf8', mode: 0o600 });
-  assert.throws(
-    () => loadReviewRoundReceiptSigner(wrapper, wrapperStoryId, 'round-2'),
-    /mismatched or invalid private key/,
-    'a signer record with a different private key must fail before emitting receipts',
+    { projectRoot: wrapperRepo, metadataRoot: wrapper },
+  ), null, 'same-UID local telemetry must never authorize canonical writer provenance');
+  const canonicalRetention = evaluateReviewRunMetadataRetention(
+    wrapperStore, wrapperStore.readStory(wrapperStoryId), preCloseoutRun, wrapperRepo,
+    currentScopeContextForStory(wrapperStore, wrapperStoryId, wrapperRepo),
   );
-  writeFileSync(signerPath, signerBytes, { encoding: 'utf8', mode: 0o600 });
+  assert.equal(canonicalRetention.ok, false, 'even a canonical local command requires a fresh post-closeout review');
 
-  rmSync(signerPath);
-  writeFileSync(wrapperStore.storyFilePath(wrapperStoryId, 'summary.json'), '{"missingKey":true}\n', 'utf8');
-  const missingKeyResult = autoCommitStoryMetadata(wrapper, wrapperStoryId, 'summary_set', { closeoutArtifactPaths: ['summary.json'] });
-  assert.match(missingKeyResult, /canonical closeout receipt was not issued/);
-  assert.match(missingKeyResult, /return to REVIEW and start a new review run/,
-    'a moved host without the round private key must surface explicit re-review guidance and never rotate silently');
-  writeFileSync(signerPath, signerBytes, { encoding: 'utf8', mode: 0o600 });
+  const postCloseoutRun = makeWrapperRun('RR-002');
+  const retainedAfterFreshReview = evaluateReviewRunMetadataRetention(
+    wrapperStore, wrapperStore.readStory(wrapperStoryId), postCloseoutRun, wrapperRepo,
+    currentScopeContextForStory(wrapperStore, wrapperStoryId, wrapperRepo),
+  );
+  assert.equal(retainedAfterFreshReview.ok, true, retainedAfterFreshReview.reasons.join('; '));
 
-  const attacker = generateEd25519KeyPair();
-  const attackerKeyId = `ed25519:${createHash('sha256').update(attacker.publicKey).digest('hex')}`;
-  const forgedBytes = '{"forged":true}\n';
+  writeFileSync(wrapperStore.storyFilePath(wrapperStoryId, 'unknown-manual.json'), '{}\n', 'utf8');
+  git(wrapperRepo, ['add', '.']);
+  git(wrapperRepo, ['commit', '-m', 'wrapper unknown manual metadata']);
+  const unknownRetention = evaluateReviewRunMetadataRetention(
+    wrapperStore, wrapperStore.readStory(wrapperStoryId), postCloseoutRun, wrapperRepo,
+    currentScopeContextForStory(wrapperStore, wrapperStoryId, wrapperRepo),
+  );
+  assert.equal(unknownRetention.ok, false, 'git-root-relative wrapper paths must expose committed unknown metadata');
+  assert(unknownRetention.reasons.some(reason => reason.includes('unknown-manual.json')));
+
+  const preForgeRun = makeWrapperRun('RR-003');
+  const forgedBytes = '{"sameUidManualForge":true}\n';
   writeFileSync(wrapperStore.storyFilePath(wrapperStoryId, 'summary.json'), forgedBytes, 'utf8');
-  const forgedReceipt = signCloseoutWriteReceipt(buildCloseoutWriteReceipt({
+  const previous = readCloseoutWriteReceipts(wrapperStore.storyDirPath(wrapperStoryId))
+    .filter(receipt => receipt.artifactPath === 'summary.json').at(-1)!;
+  const forgedReceipt = buildCloseoutWriteReceipt({
     storyId: wrapperStoryId,
     artifactPath: 'summary.json',
     writerCommand: 'summary_set',
@@ -549,17 +543,25 @@ try {
     headHash: currentGitHead(wrapperRepo)!,
     materialHash: currentMaterialHash(wrapperRepo, 'HEAD', wrapper)!,
     storyFilesHash: currentStoryFilesHash(wrapperRepo, 'HEAD', wrapper)!,
-    sequence: 1,
-    previousIntegrityHash: null,
-    signerKeyId: attackerKeyId,
-  }), attacker.privateKey);
+    sequence: previous.sequence + 1,
+    previousIntegrityHash: previous.integrityHash,
+  });
   appendCloseoutWriteReceipt(wrapperStore.storyDirPath(wrapperStoryId), forgedReceipt);
   git(wrapperRepo, ['add', '.']);
   git(wrapperRepo, ['commit', '-m', 'manual forged artifact and receipt']);
+  assert(latestCausallyValidCloseoutReceipt(
+    wrapperStore.storyDirPath(wrapperStoryId), wrapperStoryId, 'summary.json',
+    { projectRoot: wrapperRepo, metadataRoot: wrapper },
+  ), 'the same-UID adversary can mint fully coherent local causal telemetry');
   assert.equal(latestValidCloseoutReceipt(
     wrapperStore.storyDirPath(wrapperStoryId), wrapperStoryId, 'summary.json',
-    { projectRoot: wrapperRepo, metadataRoot: wrapper }, round2Signer,
-  ), null, 'a self-generated artifact+receipt co-commit must fail against the exact ReviewRun signer');
+    { projectRoot: wrapperRepo, metadataRoot: wrapper },
+  ), null, 'the exact same-UID manual forge must remain inadmissible to the authority boundary');
+  const forgedRetention = evaluateReviewRunMetadataRetention(
+    wrapperStore, wrapperStore.readStory(wrapperStoryId), preForgeRun, wrapperRepo,
+    currentScopeContextForStory(wrapperStore, wrapperStoryId, wrapperRepo),
+  );
+  assert.equal(forgedRetention.ok, false, 'same-UID forged causal receipt must not retain review');
 } finally {
   resetConfigCache();
   rmSync(wrapper, { recursive: true, force: true });

@@ -85,17 +85,6 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     repairableTrackedArtifact: true,
   },
   {
-    id: 'review-round-receipt-signing-keys',
-    description: 'Sensitive per-story/per-review-round Ed25519 private keys for canonical closeout writer receipts.',
-    matchers: [
-      { kind: 'prefix', value: '.lattice/runtime/review-round-receipt-signers/' },
-    ],
-    ignorePatterns: ['.lattice/runtime/review-round-receipt-signers/'],
-    materialHash: 'exclude',
-    volatile: true,
-    repairableTrackedArtifact: true,
-  },
-  {
     id: 'runtime-cache',
     description: 'Mutable runtime cache and trigger state under .lattice/runtime/.',
     matchers: [
