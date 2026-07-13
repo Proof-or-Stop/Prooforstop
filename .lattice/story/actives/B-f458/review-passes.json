@@ -272,6 +272,32 @@
         "scanEscalationReason": null
       },
       "_hash": "7828e985ee457b83d89482c262e5daff5b10753dceb057d5b59191d856090315"
+    },
+    {
+      "id": "B-f458:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage re-review PASS for F-022 at story material 30e73f2. The retired-vocabulary guard directly catches retired field tokens and its unapproved indirect-import positive control catches an arbitrary compatibility-module consumer; approved callers are constrained by exact imports, call counts, and direct-use shapes. Exact all-false claims validate while true and extra-field mutations reject. Build, configured vocabulary guard, closeout lifecycle, wrapper-root escalation, incremental-context, process-fact, and runtime-fact suites all exit 0. All 15 verification intents pass and bind the current storyFilesHash.",
+      "createdAt": "2026-07-13T11:35:24.793Z",
+      "reviewRound": "2026-07-13T11:33:21.403Z",
+      "reviewRunId": "B-f458:RR-033",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/legacy-delivery-claims-compat.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/baseline-contracts.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/handlers/delivery-context-pack.ts",
+          "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "44492a860af3ce38e36ed82b826e88339e53d88632b08f58765fdb644e013a07"
     }
   ]
 }
