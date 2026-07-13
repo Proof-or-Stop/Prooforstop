@@ -2564,7 +2564,7 @@
       "desc": "The a34d89024d controls execute and their added labels are process-pinned, but the claimed F085/F089/F090 coverage is still incomplete beyond the separately reported cache failure. Every Promise.all positive and negative uses a one-element array, so no nonzero slot, mixed safe/dangerous ordering, omitted/spread slot, or unresolved slot proves that per-slot provenance and tuple indexing are correct. F-089 explicitly requested named/default and cyclic nested namespace controls: the suite has static/dynamic nested positives and negatives plus a default-nested dangerous positive, but no matched default-nested safe negative and no cyclic nested namespace positive/negative at all. F-090 is resolved as a per-loader direct/member/destructured dangerous-safe Cartesian matrix, yet bound global require, namespace createRequire, and CJS-destructured createRequire still retain only one safe control each rather than matched direct/member/destructured safe projections. Add executable matched controls for multi-slot Promise.all (danger in each position plus safe/mixed/unresolved cases), default and cyclic nested chains, and the remaining loader-safe projections, and pin every exact label. The current focused guard also fails its cache bound at 1090 builds; that blocker is already recorded independently as F-094/F-096.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-13T18:34:40.486Z",
@@ -2584,7 +2584,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "promise-nested-loader-cartesian-gap",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 151eac3ea1: Promise multi-slot, nested default and cycle, loader safe projection, URL and async matrices are executable and process-pinned.",
+      "resolvedAt": "2026-07-13T18:56:30.905Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
