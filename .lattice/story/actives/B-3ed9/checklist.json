@@ -5,8 +5,8 @@
       "title": "Add grill.json, clusters.json, scope-extension-decisions.json to LATTICE_LIFECYCLE_ARTIFACT_FILENAMES and remove the stale cluster.json entry",
       "context": "packages/main/src/core/lifecycle-registry.ts ~line 590-608 (the closed filename set). store.ts writes all three via writeJson(storyId, file) -> join(storyDir, file), so they are top-level story-dir files. Singular cluster.json is written nowhere (rg confirms the registry entry is the only occurrence) and has zero on-disk instances, vs 4 clusters.json and 1 grill.json under .lattice/story/actives — remove it in the same change.",
       "userSees": "rg 'grill.json|clusters.json|scope-extension-decisions.json|cluster.json' packages/main/src/core/lifecycle-registry.ts shows the three new entries present and the singular cluster.json entry gone",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-13T08:28:54.121Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
