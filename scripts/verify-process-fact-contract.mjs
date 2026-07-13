@@ -785,6 +785,17 @@ function assertCloseoutTrustBoundary() {
     'interpolated dynamic import',
     'two-argument dynamic import',
     'unrelated unresolved dynamic imports must not be classified as legacy delivery compatibility access',
+    'typeCheckerFor',
+    'identifierResolvesToBinding',
+    'collectConstStringValues',
+    'collectLoaderBindings',
+    'createRequire alias import',
+    'const variable dynamic import',
+    'module require import',
+    'relocated approved-shaped claims call must fail its canonical declaration anchor',
+    'downstream destructuring of relocated claims object must be caught',
+    'shadowed same-name identifiers must not count as references to the compatibility import binding',
+    'an unrelated unresolved variable named compatPluginPath must not be classified from identifier spelling',
   ]) {
     assert(retiredVocabularyGuardText.includes(token), `retired vocabulary guard must enforce narrow compatibility usage: ${token}`);
   }
