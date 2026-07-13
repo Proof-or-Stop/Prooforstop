@@ -6,7 +6,30 @@
       "context": "Add a PROCESS_FACT_ARTIFACT_BY_COMMAND ref (name/path milestone-closeout.json, signed:false, producerCommand story_advance DONE-time capture implemented in handlers/milestone-status.ts, written via store.writeMilestoneCloseout at store.ts ~706) plus a PROCESS_FACT_REGISTRY fact entry named artifact:milestone-closeout.json modeled on the adjacent artifact:milestone-ledger.json entry, with producer handlers/milestone-status and a consumer description naming the DONE-phase milestone_status / milestone_closeout frozen-snapshot read path (snapshot-only; never re-blocks DONE).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "With the new artifact:milestone-closeout.json registry entry present, npm run test:process-fact-contract passes",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The registry entry is unsigned artifact kind with a consumerGate and no signed-artifact semantic, satisfying the contract loop kind/signed/consumerGate assertions",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Bite test: temporarily removing the milestone-closeout registry entry makes npm run test:process-fact-contract fail with artifact-missing assertion, then restore and re-run green (non-vacuous)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
