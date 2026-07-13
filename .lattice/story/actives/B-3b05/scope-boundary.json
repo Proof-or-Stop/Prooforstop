@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-3b05",
+  "mode": "feature",
+  "allowed": [
+    "Append actionable milestone_ledger_set remediation hint (and ledger-desync framing) to milestone coverage gap output in core/proofstory.ts and its surfacing paths (story_advance DONE output, done_prepare, milestone_status)",
+    "Matching tests, process-fact contract updates, and story metadata/evidence for B-3b05",
+    "Record writer session identity on review_pass_set records (signature domain included) and validate writer session vs story owner lease session with shadow/warn/enforce rollout decided in PLAN"
+  ],
+  "excluded": [
+    "No changes to finding_add/review_run_start enforcement unless PLAN explicitly opts them into the same provenance treatment",
+    "No cryptographic reviewer identity (lease sessionId stays a coordination-level id per story-owner-lease.ts)",
+    "No fixes to the lease-takeover storm or autopilot loop convergence themselves (separate concerns; B-f458 forensics are evidence here, not scope)",
+    "No gate semantics change for problem (a) — message layer only"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User request 2026-07-14: two defects in one story — (3) gate should print the milestone_ledger_set repair command when ledger-checklist desync blocks coverage; (4) review_pass_set must validate writer session != owner session (readManifest was step one, provenance validation is step two). Evidence: tmp/bf458-forensics-2026-07-14/ + B-3928 self-sign audit.",
+  "createdAt": "2026-07-13T23:15:51.423Z",
+  "updatedAt": "2026-07-13T23:15:51.423Z",
+  "_hash": "6beb185cc0b4f62ef2efa4ba937be3b6bf67359688d0ad8e5d794e533de1ea7f"
+}
