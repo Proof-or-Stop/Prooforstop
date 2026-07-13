@@ -1433,7 +1433,7 @@
       "desc": "F-056 remains exploitable through nested array rest destructuring, and its exact requested regression matrix is not present. walkPattern treats a rest BindingElement exactly like an ordinary element and appends its outer index before descending into the nested binding. For `const [head, ...[Build]] = [0, (function() {}).constructor]; new Build(\"return import(../packages/main/src/core/legacy-delivery-claims-compat.js)\")`, it records path [1,0]. At runtime the rest value is the slice beginning at index 1, so Build maps to original index 1; expressionAtPath instead resolves index 1 to the constructor expression and then incorrectly tries index 0 on that expression, returns undefined, and recordKind has final numeric segment 0 so cannot classify a constructor. Build never reaches dangerousSymbols and the executable Function-constructor alias escapes. Commit a600c677dc adds array-declaration eval, array-assignment vm, array-parameter constructor, and direct nested-object constructor controls, but no constructor declaration/assignment via rest, omitted/rest direct controls, nested object-array constructor control, or matching benign rest negatives; the process contract pins the same incomplete subset. Model array rest as a slice offset (and object rest conservatively), add declaration/assignment/parameter positives for direct, omitted, nested and rest constructor/eval/vm provenance plus benign counterparts, and pin the exact labels. Preserve the new Program identity/count assertions without adding per-control Program construction.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-13T15:21:18.772Z",
@@ -1445,7 +1445,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "rest-destructure-provenance-path-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 160fd58752: nested array-rest mapping slices the source before recursing, so rest-relative indices resolve correctly; omitted/deep object-array/rest positives and precise negatives are executable and process-pinned.",
+      "resolvedAt": "2026-07-13T15:40:28.308Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
