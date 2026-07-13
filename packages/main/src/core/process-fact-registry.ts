@@ -259,6 +259,14 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     producerCommand: 'milestone_ledger_add',
     consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates',
   },
+  // Deliberate key/producerCommand deviation: milestone_closeout_capture is NOT an
+  // invocable CLI command. The snapshot is written by the story_advance DONE-time
+  // capture in handlers/milestone-status, but story_advance already claims index.json
+  // in this map and the read-only milestone_closeout command is a consumer, not the
+  // producer. A synthetic unquoted key keeps this ref reachable from the
+  // artifact:milestone-closeout.json fact entry without attaching a false producer
+  // claim to any command fact (a 'runtime:'-style quoted key would not parse in
+  // verify-process-fact-contract.mjs key extraction).
   milestone_closeout_capture: {
     name: 'milestone-closeout.json',
     path: 'milestone-closeout.json',
