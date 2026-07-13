@@ -1258,6 +1258,25 @@
       "resolvedAt": "2026-07-13T14:42:06.392Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f458:F-053",
+      "desc": "Project-wide type resolution correctly classifies imported callables, but the dangerous alias fixpoint still drops their Function constructor when it is extracted with standard object destructuring. collectBindingPattern/collectAssignmentPattern record `{ constructor: Build } = source`, yet the destructure propagation loop only recognizes global eval/Function properties and node:vm members; it never calls constructorReceiverKind for property `constructor`. Thus `import { readFile } from \"node:fs\"; const { constructor: Build } = readFile; Build(\"return import(...)\")()` leaves Build unmarked and emits no dynamic-code violation even though Node confirms Build === Function and its string body executes (42). The same applies to destructuring from local/class/method/bound callables and parameter destructuring defaults. Propagate `constructor` destructures through constructorReceiverKind (including assignment and parameter patterns), retain proven noncallable object negatives, and add imported/local callable constructor-destructure positives plus benign data-object destructure negatives.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-13T14:43:59.461Z",
+      "reviewRound": "2026-07-13T14:41:39.202Z",
+      "reviewRunId": "B-f458:RR-071",
+      "_hash": "f5a428366d4eaf5f1e8d44948389837d2df11f591a29e83f2b9b3ad54e985dbc",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "dynamic-constructor-destructure-alias-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
