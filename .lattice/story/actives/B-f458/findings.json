@@ -1032,7 +1032,7 @@
       "desc": "F-041 remains bypassable because collectDynamicExecutionNames examines only source.statements and therefore discovers aliases only at module top level. A new scanned file can place `const indirect = eval; indirect(\"import('./legacy-delivery-claims-compat.js')\")` inside an exported function; the call walker reaches `indirect(...)`, but bindings.direct lacks that function-local symbol, so dynamicExecutionKind returns undefined and neither dynamic-code violation is emitted. The repository already demonstrates the same blind spot in packages/main/src/handlers/fixture-executors.ts: inside a function it derives AsyncFunction from Object.getPrototypeOf(async function(){}).constructor and invokes new AsyncFunction, yet the guard passes and that file is absent from the three dynamic-code fingerprint exemptions. Current positive controls declare every alias at top level, so they do not exercise lexical scopes. Traverse variable/binding declarations in all scopes with TypeChecker symbol identity (including destructuring), and add function-local eval alias plus the existing fixture-executors AsyncFunction site as exact fingerprinted/explicit controls.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-13T13:33:03.844Z",
@@ -1045,7 +1045,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "dynamic-code-local-alias-scope",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by f454260efc: local eval/vm/derived AsyncFunction aliases now resolve recursively by symbol identity; existing fixture-executors dynamic executor is the sixth whole-source fingerprint exemption pinned by process contract.",
+      "resolvedAt": "2026-07-13T13:48:07.948Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-044",
