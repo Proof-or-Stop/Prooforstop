@@ -326,11 +326,11 @@
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "True XState lifecycle regression proves post-REVIEW closeout blocks FINISH in TEST, then a fresh review snapshot permits TEST-to-DONE.",
-          "headHash": "dc4a49dd0ec856511729577feec1e57fcdc3f734",
-          "materialHash": "92eefbdb41b59a1d8296c3bf1aaf71d666f8f2f4895e3ec08e64ab5bd5d6b16e",
-          "storyFilesHash": "c5dc7934120519a46c14380cafb19bfe084d3e04f7117d02108160f105082015",
-          "timestamp": "2026-07-13T10:26:38.533Z"
+          "note": "Persisted REVIEW snapshot followed by canonical TEST index commit retains review; actual TEST FINISH reaches DONE when no post-review closeout changed.",
+          "headHash": "817d09f98f41bfb6441b7bd07c0b29ae9af852a8",
+          "materialHash": "f0c2ac8f72d4e7e4ad1ea4a5ad93dee3b74b0719bbcc6a9873891e076082c76a",
+          "storyFilesHash": "ca890b72f160b1bd6dd014aa3defef7782852d7a6f289ee43fee5184997d2680",
+          "timestamp": "2026-07-13T10:36:15.690Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -338,11 +338,11 @@
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Real canFinishGuard/getGuardFailureReason consume closeout-aware reviewer freshness while legitimate protocol metadata is ignored.",
-          "headHash": "dc4a49dd0ec856511729577feec1e57fcdc3f734",
-          "materialHash": "92eefbdb41b59a1d8296c3bf1aaf71d666f8f2f4895e3ec08e64ab5bd5d6b16e",
-          "storyFilesHash": "c5dc7934120519a46c14380cafb19bfe084d3e04f7117d02108160f105082015",
-          "timestamp": "2026-07-13T10:26:38.683Z"
+          "note": "Validator accepts only REVIEW-to-TEST, unchanged round/stable fields, reviewed event prefix, and one collectContext-shaped event on story branch.",
+          "headHash": "817d09f98f41bfb6441b7bd07c0b29ae9af852a8",
+          "materialHash": "f0c2ac8f72d4e7e4ad1ea4a5ad93dee3b74b0719bbcc6a9873891e076082c76a",
+          "storyFilesHash": "ca890b72f160b1bd6dd014aa3defef7782852d7a6f289ee43fee5184997d2680",
+          "timestamp": "2026-07-13T10:36:15.819Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -350,11 +350,11 @@
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Same-UID coherent receipt telemetry cannot bypass the actual lifecycle gate; wrong/malformed/replayed/mixed changes fail closed.",
-          "headHash": "dc4a49dd0ec856511729577feec1e57fcdc3f734",
-          "materialHash": "92eefbdb41b59a1d8296c3bf1aaf71d666f8f2f4895e3ec08e64ab5bd5d6b16e",
-          "storyFilesHash": "c5dc7934120519a46c14380cafb19bfe084d3e04f7117d02108160f105082015",
-          "timestamp": "2026-07-13T10:26:38.833Z"
+          "note": "Extra title/event/round/branch mutations and post-review closeout artifacts still block DONE; same-UID receipts do not bypass.",
+          "headHash": "817d09f98f41bfb6441b7bd07c0b29ae9af852a8",
+          "materialHash": "f0c2ac8f72d4e7e4ad1ea4a5ad93dee3b74b0719bbcc6a9873891e076082c76a",
+          "storyFilesHash": "ca890b72f160b1bd6dd014aa3defef7782852d7a6f289ee43fee5184997d2680",
+          "timestamp": "2026-07-13T10:36:15.950Z"
         }
       ]
     },
