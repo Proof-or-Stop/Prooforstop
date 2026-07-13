@@ -1665,7 +1665,7 @@
       "desc": "Exact complete local provenance still produces false positives for ordinary callable members whose property spelling matches a dynamic-code API. memberProvenanceKind classifies any callable member named `eval`, `Function`, a DYNAMIC_VM_EXECUTION_MEMBERS name, or `constructor` as dangerous after hasExactLocalNonCallableEvidence rejects callable expressions; dynamicReferenceKind consults memberKinds before knownMembersComplete, so completeness cannot restore precision. Thus valid local code such as `const helpers = { eval: (value: string) => value }; helpers.eval(\"import('./legacy-delivery-claims-compat.js')\")`, `{ ...rest } = { runInContext: (value: string) => value }; rest.runInContext(...)`, or an exact local `constructor` callback is reported as dynamic execution despite having no global eval/Function/vm identity. Existing negatives cover a generic `safe` member and an empty-string member, not reserved-name local callables. Treat exact local initializer identity as safe unless its provenance resolves to the actual global/vm/constructor primitive; member spelling alone must not override complete local evidence. Add direct/rest/destructured negatives for local callable members named eval, Function, runInContext, and constructor while retaining positives whose values are the real dangerous primitives.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T16:16:31.725Z",
@@ -1685,7 +1685,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "exact-local-callable-member-name-false-positive",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by ad2bb68336: an exact safe member may precede dangerous-name heuristics only when a single knownMembersComplete local literal explicitly proves safe provenance; global/incomplete/unknown and multi-source members remain dangerous.",
+      "resolvedAt": "2026-07-13T16:32:43.897Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-069",
