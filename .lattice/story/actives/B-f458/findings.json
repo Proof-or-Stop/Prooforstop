@@ -541,7 +541,7 @@
       "desc": "The shared delivery-claim schema creates a retired-vocabulary guard bypass instead of an explicit narrow compatibility quarantine. baseline-contracts.ts is excluded wholesale by legacyQuarantineFiles, while active closeout-trust.ts imports LOCAL_ONLY_DELIVERY_CLAIM_KEYS/CLAIMS (symbol names that contain none of the banned tokens) and consumes the hidden authorityDone/fullAuthorityDone/productionDone keys. The source scanner only regex-scans each active line and does not restrict imports of these exported constants, so any future active renderer/producer can spread LOCAL_ONLY_DELIVERY_CLAIMS and emit all retired fields while the guard still passes. This contradicts the retirement contract requirement that whitelisted legacy files be explicit and narrow. Keep the exact schema/validator in a narrowly named compatibility module or explicit structural quarantine, and make the vocabulary guard enforce an allowlisted importer/usage set (including a positive control for indirect constant spreading). The current exact false-value validator and producer copies are otherwise fail-closed.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-13T11:25:58.846Z",
@@ -556,7 +556,11 @@
         "docs/requirements/decisions/authority-server-vocabulary-retirement.md"
       ],
       "signatureTag": "spec-boundary|ts|shared-delivery-claim",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 398ed6e6b5: retired delivery claims moved to a single-purpose compatibility module exposing only constructor and exact validator. Vocabulary guard enforces exact approved importers/symbols/call counts, forbids constructor spread/reexport, and positive-controls unapproved indirect import/call/spread plus direct tokens.",
+      "resolvedAt": "2026-07-13T11:33:51.525Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
