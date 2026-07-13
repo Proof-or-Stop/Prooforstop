@@ -73,9 +73,9 @@
       "id": "CHK-002",
       "title": "Add milestone-closeout.json to requiredArtifactFacts in verify-process-fact-contract.mjs",
       "context": "Insert { name: 'artifact:milestone-closeout.json', path: 'milestone-closeout.json', signed: false } into requiredArtifactFacts (scripts/verify-process-fact-contract.mjs ~line 171, next to the milestone-ledger.json line ~196), matching the neighboring assertion pattern. npm run test:process-fact-contract must pass with the registry entry present and fail if the CHK-001 registry entry is removed (non-vacuous check).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-13T08:40:57.636Z",
       "verificationIntent": {
         "happy": [
           {
