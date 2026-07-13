@@ -1264,7 +1264,7 @@
       "desc": "Project-wide type resolution correctly classifies imported callables, but the dangerous alias fixpoint still drops their Function constructor when it is extracted with standard object destructuring. collectBindingPattern/collectAssignmentPattern record `{ constructor: Build } = source`, yet the destructure propagation loop only recognizes global eval/Function properties and node:vm members; it never calls constructorReceiverKind for property `constructor`. Thus `import { readFile } from \"node:fs\"; const { constructor: Build } = readFile; Build(\"return import(...)\")()` leaves Build unmarked and emits no dynamic-code violation even though Node confirms Build === Function and its string body executes (42). The same applies to destructuring from local/class/method/bound callables and parameter destructuring defaults. Propagate `constructor` destructures through constructorReceiverKind (including assignment and parameter patterns), retain proven noncallable object negatives, and add imported/local callable constructor-destructure positives plus benign data-object destructure negatives.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T14:43:59.461Z",
@@ -1276,7 +1276,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "dynamic-constructor-destructure-alias-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 077a355a40: constructor BindingElement/assignment destructures classify RHS through generic receiver semantics and propagate Function kind across declarations, parameters, assignments, aliases and imports; noncallable negatives remain.",
+      "resolvedAt": "2026-07-13T14:58:21.947Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-054",
