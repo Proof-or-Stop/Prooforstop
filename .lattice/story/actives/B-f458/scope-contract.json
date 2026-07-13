@@ -14,10 +14,17 @@
     "packages/main/src/core/proofstory.ts",
     "packages/main/src/core/store.ts",
     "packages/main/src/core/machine.ts",
+    "packages/main/src/core/auto-commit-metadata.ts",
     "packages/main/src/handlers/proofstory.ts",
     "packages/main/src/handlers/delivery-context-pack.ts",
     "packages/main/src/handlers/phase-gates.ts",
-    "packages/main/src/handlers/review-run.ts"
+    "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/handlers/done-required-validation.ts",
+    "packages/main/src/handlers/delivery-check.ts",
+    "packages/main/src/handlers/evaluate.ts",
+    "packages/main/src/handlers/summary.ts",
+    "packages/main/src/handlers/live-smoke-transcript.ts"
   ],
   "allowedCreate": [
     "packages/main/src/core/closeout-trust.ts",
@@ -44,8 +51,8 @@
     ".lattice-codex/agents",
     ".claude/agents"
   ],
-  "scopeChangeReason": "DEV full-test correction: core/machine.ts is the actual ProofStory DEV/REVIEW/DONE gate consumer and must invoke runtime validators; Store readers remain backward-compatible diagnostics.",
+  "scopeChangeReason": "Owner audit proved per-instance canonical writer provenance is absent. Expand M4.C1 to the metadata auto-commit choke point and canonical closeout handlers so signed artifact-digest receipts can be gate-consumed; no prompt/product scope expansion.",
   "acknowledgements": [],
   "createdAt": "2026-07-13T08:24:04.138Z",
-  "updatedAt": "2026-07-13T08:47:37.724Z"
+  "updatedAt": "2026-07-13T08:59:04.316Z"
 }
