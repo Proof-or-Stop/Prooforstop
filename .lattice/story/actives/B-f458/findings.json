@@ -1218,7 +1218,7 @@
       "desc": "F-049 remains bypassable for standard-library and imported callables because the new generic constructor classification relies on TypeChecker signatures from a deliberately noResolve/no-default-lib single-file program. A probe using the same compiler host/options (`noResolve:true`, getDefaultLibFileName returning empty) reports `[].map` and imported `readFile` as type `any` with 0 Call and 0 Construct signatures, while runtime probes show `[].map.constructor === Function` and `require('node:fs').readFile.constructor === Function`, and both constructors execute string bodies (42/43). Consequently `[].map.constructor(\"return import('./legacy-delivery-claims-compat.js')\")()` or `import { readFile } from 'node:fs'; readFile.constructor(payload)()` reaches staticallyCallableKind with no direct kind, known symbol mapping, or type signature and emits no dynamic-code violation. Current positives use locally inferred class/method/bind values only, so guard/process-contract/full tests pass without these runtime-standard callable producers. Add explicit conservative handling/controls for built-in member and imported callable `.constructor` routes (or reject invoked/aliased `.constructor` unless the receiver is proven non-callable), while retaining the ordinary data-object constructor negative and pinning the new controls in the process contract.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-13T14:20:17.708Z",
@@ -1230,7 +1230,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "dynamic-code-unresolved-callable-constructor-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 63479e0b41: standard library and imported callables now have resolved signatures; readFile, Array.map, setTimeout, and aliases reject, while proven local/imported noncallable values remain negative controls.",
+      "resolvedAt": "2026-07-13T14:42:00.763Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-052",
