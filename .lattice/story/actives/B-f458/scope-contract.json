@@ -24,7 +24,10 @@
     "packages/main/src/handlers/delivery-check.ts",
     "packages/main/src/handlers/evaluate.ts",
     "packages/main/src/handlers/summary.ts",
-    "packages/main/src/handlers/live-smoke-transcript.ts"
+    "packages/main/src/handlers/live-smoke-transcript.ts",
+    "packages/main/src/handlers/test.ts",
+    "packages/main/src/handlers/test-story.ts",
+    "packages/main/src/handlers/transition-effects.ts"
   ],
   "allowedCreate": [
     "packages/main/src/core/closeout-trust.ts",
@@ -51,8 +54,8 @@
     ".lattice-codex/agents",
     ".claude/agents"
   ],
-  "scopeChangeReason": "Owner audit proved per-instance canonical writer provenance is absent. Expand M4.C1 to the metadata auto-commit choke point and canonical closeout handlers so signed artifact-digest receipts can be gate-consumed; no prompt/product scope expansion.",
+  "scopeChangeReason": "REVIEW findings F-004/F-006 proved declared canonical writer coverage and the normal transcript closeout path are incomplete. Expand only to legacy test evidence writers and the TEST user-value hint so every declared writer/path pair has a real choke point and end-to-end regression.",
   "acknowledgements": [],
   "createdAt": "2026-07-13T08:24:04.138Z",
-  "updatedAt": "2026-07-13T08:59:04.316Z"
+  "updatedAt": "2026-07-13T09:22:07.950Z"
 }
