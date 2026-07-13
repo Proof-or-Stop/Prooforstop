@@ -225,33 +225,33 @@
           "kind": "logic_test",
           "command": "npm test",
           "result": "pass",
-          "note": "Full suite passed at implementation commit a600c677dc after the F-056/F-057 recursive binding provenance walker and actual LanguageService Program identity instrumentation changes.",
-          "headHash": "7a8bb4a09ae786e0e5cded9fc6d58448fef448a3",
-          "materialHash": "9e0f914c3b97c9c244c3bee2dfd6a2d25505ec97ad3a0154a6c19fce559d9f39",
-          "storyFilesHash": "23381e36c8341a366e3a2aa6e57ab2bf798b42f838754f8f3fba73f20fe0e4c6",
-          "timestamp": "2026-07-13T15:14:23.926Z"
+          "note": "Final full suite passed at implementation commit 160fd58752 after F-058/F-059/F-060 provenance refactor.",
+          "headHash": "86565b31f7aa76c5675f1bbd8ee69c8782657454",
+          "materialHash": "06756176cc2586fe80bdbd00a0d8bd6ef6991b49c99b3702f09d7a62accf0c21",
+          "storyFilesHash": "c76dcfcc62959749696e4dcbbac2b977bdafc95fd7e2b884a5a8b0f50ba0d292",
+          "timestamp": "2026-07-13T15:38:48.933Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/brief-output-smoke.js",
           "result": "pass",
-          "note": "Closeout, runtime fact, and brief-output edge regressions passed at implementation commit a600c677dc.",
-          "headHash": "7a8bb4a09ae786e0e5cded9fc6d58448fef448a3",
-          "materialHash": "9e0f914c3b97c9c244c3bee2dfd6a2d25505ec97ad3a0154a6c19fce559d9f39",
-          "storyFilesHash": "23381e36c8341a366e3a2aa6e57ab2bf798b42f838754f8f3fba73f20fe0e4c6",
-          "timestamp": "2026-07-13T15:14:24.310Z"
+          "note": "Closeout, runtime fact, and brief-output regressions passed at implementation commit 160fd58752.",
+          "headHash": "86565b31f7aa76c5675f1bbd8ee69c8782657454",
+          "materialHash": "06756176cc2586fe80bdbd00a0d8bd6ef6991b49c99b3702f09d7a62accf0c21",
+          "storyFilesHash": "c76dcfcc62959749696e4dcbbac2b977bdafc95fd7e2b884a5a8b0f50ba0d292",
+          "timestamp": "2026-07-13T15:38:49.090Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node scripts/verify-process-fact-contract.mjs && node packages/main/dist/tasks/usage-burn-alert-smoke.js",
           "result": "pass",
-          "note": "Adversarial checks passed at implementation commit a600c677dc: nested object/array declaration, assignment, and parameter provenance; defaults/rest; eval/vm/generic constructor propagation; precise shadows/enums/namespaces; and stable/bounded actual Program identities. Guard wall time was 15.44s.",
-          "headHash": "7a8bb4a09ae786e0e5cded9fc6d58448fef448a3",
-          "materialHash": "9e0f914c3b97c9c244c3bee2dfd6a2d25505ec97ad3a0154a6c19fce559d9f39",
-          "storyFilesHash": "23381e36c8341a366e3a2aa6e57ab2bf798b42f838754f8f3fba73f20fe0e4c6",
-          "timestamp": "2026-07-13T15:14:24.731Z"
+          "note": "Adversarial checks passed at implementation commit 160fd58752: actual expression/type/symbol/member provenance; relative array-rest slices; excluded-key object rest; literal, template, numeric, enum and const-chain computed keys; unknown computed/rest fail-closed; declaration/assignment/parameter/nested forms; precise local negatives. Final guard wall time 18.41s with LanguageService Program reuse and identity bounds intact.",
+          "headHash": "86565b31f7aa76c5675f1bbd8ee69c8782657454",
+          "materialHash": "06756176cc2586fe80bdbd00a0d8bd6ef6991b49c99b3702f09d7a62accf0c21",
+          "storyFilesHash": "c76dcfcc62959749696e4dcbbac2b977bdafc95fd7e2b884a5a8b0f50ba0d292",
+          "timestamp": "2026-07-13T15:38:49.238Z"
         }
       ]
     },
