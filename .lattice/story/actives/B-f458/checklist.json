@@ -144,11 +144,11 @@
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Signed review run/pass/round and composite scope binding remain the authority across canonical transition metadata.",
-          "headHash": "04aad9511c90da424af96296235606fc98628dbe",
+          "note": "Final scope-bound composite digest and signed review binding tests pass.",
+          "headHash": "2d07bf75c907831e484cf2650cf72e02b2d0bc55",
           "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
           "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
-          "timestamp": "2026-07-13T10:45:28.878Z"
+          "timestamp": "2026-07-13T10:46:24.449Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -156,11 +156,11 @@
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Round, scope, stable index, and event shape changes invalidate retention while optional user is accepted.",
-          "headHash": "04aad9511c90da424af96296235606fc98628dbe",
+          "note": "Final scope-bound round/scope/stable-field mutations fail while optional user passes.",
+          "headHash": "2d07bf75c907831e484cf2650cf72e02b2d0bc55",
           "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
           "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
-          "timestamp": "2026-07-13T10:45:29.010Z"
+          "timestamp": "2026-07-13T10:46:24.607Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -168,11 +168,11 @@
           "file": "packages/main/src/tasks/closeout-trust-smoke.ts",
           "command": "npm test",
           "result": "pass",
-          "note": "Changing user/session/agent/timestamp/branch neither adds nor removes authority; malformed types remain rejected.",
-          "headHash": "04aad9511c90da424af96296235606fc98628dbe",
+          "note": "Final scope-bound audit identity mutations are authority-neutral.",
+          "headHash": "2d07bf75c907831e484cf2650cf72e02b2d0bc55",
           "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
           "storyFilesHash": "65b1228d759bf589057b72cfc03d92a1c53cb92ba967d17ed7e05dc4e4a6483a",
-          "timestamp": "2026-07-13T10:45:29.146Z"
+          "timestamp": "2026-07-13T10:46:24.743Z"
         }
       ]
     },
