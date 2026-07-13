@@ -1634,7 +1634,7 @@
       "desc": "knownMembers completeness and provenance remain fail-open for spread sources. provenanceForExpression treats an ArrayLiteral SpreadElement as one fixed positional member containing the whole spread expression, then unconditionally sets completeMembers:true. `declare const values: Array<typeof eval>; const source = [...values]; source[0](\"import(… )\")` therefore records member `0` as the non-callable array object, and dynamicReferenceKind returns safe at the knownMembersComplete short-circuit even though runtime element 0 is eval; dynamic `source[index]` likewise has no indexKinds. ObjectLiteral SpreadAssignment is only represented as `unknown:true`, but provenanceKind does not turn unknown into a dangerous target and no index/member provenance is copied, so `declare const values: Record<string, typeof eval>; const source = { ...values }; source.eval(\"import(… )\")` also evades. Model spread as an index/member projection (or propagate unknownMemberAccess/index fail-closed), never mark positional membership complete across unknown-length array spreads, and add positive array/object spread access/destructure controls plus local noncallable negatives.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T16:14:56.579Z",
@@ -1654,7 +1654,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "spread-source-provenance-completeness",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by ad2bb68336: array/object spread provenance merges exact literal members or typed index/member/unknown alternatives with source-order overrides; incomplete spreads cannot claim complete safe members, and spread controls cover all entry forms.",
+      "resolvedAt": "2026-07-13T16:32:35.881Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-068",
