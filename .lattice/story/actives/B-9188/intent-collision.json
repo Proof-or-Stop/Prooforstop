@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-9188",
+  "id": "IC-20260713082412",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Register the existing milestone-closeout.json story artifact (persisted at DONE by the milestone-status handler capture via store.writeMilestoneCloseout) as an unsigned artifact fact: one PROCESS_FACT_ARTIFACT_BY_COMMAND ref plus one artifact:milestone-closeout.json entry in process-fact-registry.ts, and one matching requiredArtifactFacts line in scripts/verify-process-fact-contract.mjs, modeled on the adjacent milestone-ledger.json entries. Consumer text names the DONE-phase milestone_status / milestone_closeout frozen-snapshot read path (snapshot-only, never re-blocks DONE). No handler, store, or lifecycle behavior changes; scope-classifier registry explicitly out of scope.",
+  "acceptedInterpretationHash": "sha256:17391b2caa9619d76a78eb5a235a508c0603f1c07a8cccfda77b41c7bedf4462",
+  "notes": "Single plausible interpretation; user request names both target files and the neighboring-entry pattern explicitly. No milestone ledger set (2-item checklist within threshold), so no ledger confirmation ordering concern.",
+  "createdAt": "2026-07-13T08:24:12.462Z",
+  "updatedAt": "2026-07-13T08:24:12.462Z"
+}

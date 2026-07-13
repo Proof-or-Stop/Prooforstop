@@ -1,0 +1,82 @@
+{
+  "storyId": "B-9188",
+  "checkedAt": "2026-07-13T08:35:11.538Z",
+  "features": [
+    {
+      "feature": "Register milestone-closeout.json as an artifact fact in process-fact-registry.ts (PROCESS_FACT_ARTIFACT_BY_COMMAND ref + PROCESS_FACT_REGISTRY artifact:milestone-closeout.json entry, following the artifact:milestone-ledger.json pattern)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add milestone-closeout.json to requiredArtifactFacts in scripts/verify-process-fact-contract.mjs (name/path/signed:false entry)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Any gate-consumed process fact or artifact must be registered in process-fact-registry.ts and verified by scripts/verify-process-fact-contract.mjs before being treated as gate evidence (register-before-use rule)",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-strengthening-roadmap-execution-plan.md"
+    },
+    {
+      "feature": "Process facts require synchronized two-layer protection: prompt guidance plus a hardcoded typed registry (process-fact-registry.ts) and contract verifier kept in sync whenever a maintainer adds a gate-consumed artifact",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-lifecycle.md"
+    },
+    {
+      "feature": "artifact:candidate-spec-set.json already has a full PROCESS_FACT_REGISTRY entry (kind signed-artifact, level L4, consumerGate) in process-fact-registry.ts but is absent from requiredArtifactFacts in scripts/verify-process-fact-contract.mjs -- the same class of registry/contract-script inventory omission this story fixes for milestone-closeout.json, but for a different artifact, and not claimed by this story or any checklist item",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "decisions:lattice-strengthening-roadmap-execution-plan.md"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/requirements/decisions/lifecycle-artifact-scope.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+      "docs/requirements/decisions/milestone-not-applicable-justification.md",
+      "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md",
+      "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md",
+      "docs/requirements/decisions/story-files-hash-material-drift.md",
+      "docs/requirements/decisions/testing-infra.md"
+    ],
+    "filesTriagedByName": [
+      "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+      "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+      "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+      "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+      "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+      "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+      "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+      "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+      "docs/requirements/decisions/story-lifecycle.md",
+      "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 5,
+    "covered": 4,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 1,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "31824edb31aa950ff7b8ffd97f42adbab2d47a74581db019a043bcf7f166ec56",
+  "openQuestions": []
+}
