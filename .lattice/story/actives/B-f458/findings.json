@@ -3278,7 +3278,7 @@
       "desc": "quality-cleanup: packages/main/src/tasks/review-assurance-floor-smoke.ts:854 and :859 still cast a concrete StoryStore value with `as any` after F-123 changed fakeDoneStore to return StoryStore. These casts now suppress type checking without bridging any real interface mismatch and contradict the repair goal of replacing the partial any-shaped store; pass the typed store directly to StoryMachineContext and getGuardFailureReason.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-14T05:36:14.510Z",
@@ -3314,7 +3314,11 @@
         "packages/main/src/tasks/review-assurance-floor-smoke.ts"
       ],
       "signatureTag": "quality-cleanup-unnecessary-story-store-any",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by a5621e382b: both unnecessary StoryStore `as any` casts were removed. TypeScript build, review-assurance-floor smoke (16 checks), full npm test, and all exact evidence commands pass.",
+      "resolvedAt": "2026-07-14T12:53:19.433Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
