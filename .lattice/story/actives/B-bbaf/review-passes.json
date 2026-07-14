@@ -462,6 +462,36 @@
         "scanEscalationReason": null
       },
       "_hash": "fa27b2dc0c7f3a4aa28a21f46dcc3ff4dd5d7e7e7cb431169c99cb2d11fcd0b5"
+    },
+    {
+      "id": "B-bbaf:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Fresh concept pass on current material. Only change since prior concept pass is a 1-line fingerprint re-pin in retired-authority-vocabulary-guard-smoke.ts (commit 1c527eccd5, re-pin after main merge, B-bbaf F-014) — verified test-only: recomputed the canonical AST fingerprint for cli-engine.ts locally (typescript printer removeComments + sha256) and it matches the new pinned value f8a151cb9d24125a0ad95e51db3fddd31235b1c7a5ac0a6a37f5dca7abbd5bae exactly, so the re-pin reflects real reviewed code, not a bypass. No concept was deleted or replaced by this diff: convergence-breaker.ts and the story_resume additions in handlers/story.ts are net-new (git diff shows zero removed lines in both files). Verified story_resume concept is consistently wired with no dangling references across command-catalog.ts (tool schema), command-policy.ts (storyScopedMutating/allowedPhases:all), config.ts (DEFAULT_PHASE_TOOLS all-phase entry), process-fact-levels.ts (L2/story), handlers/story.ts (impl), and convergence-breaker.ts (freeze-message CLI hint). grep found no stale/old naming for this concept. No blocker.",
+      "createdAt": "2026-07-14T19:06:48.385Z",
+      "reviewRound": "2026-07-14T19:04:02.701Z",
+      "reviewRunId": "B-bbaf:RR-027",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "01fd83d5d485acc81c9fe7c4cdc8ef401c96f57fa8e47fd524c2dece96c6e446"
     }
   ]
 }
