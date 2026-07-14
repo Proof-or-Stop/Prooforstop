@@ -56,6 +56,24 @@
       ],
       "signatureTag": "edge|ts|proofstory-1685-1705",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3b05:F-004",
+      "desc": "proofstory.ts:1694-1697 (evaluateDoneIntentEquivalence): the desync check is all-or-nothing across the WHOLE uncoveredRows set (uncoveredRows.every(...)), not per-row. So when a single uncovered_required_milestones gap mixes genuinely-desynced rows (checklist all done, ledger lagging) with even one non-desynced row (its checklistRef not yet done), the desync prefix is suppressed for ALL rows in that gap, including the ones that ARE desynced. Reproduced against the built dist with 5 milestones in one gap (mirroring the B-f458 shape: 5 ledger rows in one story) where 4/5 have fully-done checklistRefs and 1/5 does not: gap.message contains no \"Ledger out of sync\" text at all, silently hiding the desync diagnostic for the 4 genuinely-lagging rows. This is spec-compliant per plan.md CHK-001 literal wording (\"when every listed milestone points at ALL done\"), so not a deviation from the written plan, but it is an untested boundary that materially weakens the fix for the realistic multi-milestone-gap case the story cites as its motivating incident. No existing test in packages/main/tests/milestone-status.test.mjs exercises a mixed desynced/non-desynced uncovered set (only uniform all-desynced or all-non-desynced fixtures exist). Fix suggestion: compute ledgerDesynced per-row and only prefix the message with the rows that are individually desynced (or list both desynced and non-desynced ids separately), instead of gating the whole message on every() across the full uncovered set.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-07-14T00:23:06.376Z",
+      "reviewRound": "2026-07-14T00:13:46.358Z",
+      "reviewRunId": "B-3b05:RR-004",
+      "_hash": "7f8a41d292709957d06548718bdd1a61753aa5f0b0c798589961ab92293cf024",
+      "files": [
+        "packages/main/src/core/proofstory.ts"
+      ],
+      "signatureTag": "edge|ts|proofstory-1694-1697",
+      "signatureTagSource": "auto"
     }
   ]
 }
