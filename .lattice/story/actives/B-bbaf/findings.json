@@ -100,6 +100,25 @@
       ],
       "signatureTag": "missing|ts|happy-edge-adversarial",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bbaf:F-007",
+      "desc": "CHK-001:happy:0 and CHK-005:happy:0 never exercise `collectBreakerCounters` -- the function that derives BreakerCounters from real story.events/readReviewRuns/readReviewPasses, which is literally CHK-001's title (\"deriving three counters from story.events\") and CHK-005's context (\"Synthetic story.events with 89 advances / 131:31 pass / 65 takeovers -> assert the breaker trips\"). convergence-breaker-smoke.ts never imports collectBreakerCounters; STORM and HEALTHY (lines 44-58) are hand-built BreakerCounters objects fed straight to assessBreaker, bypassing the event-scanning/derivation entirely -- no synthetic story.events records are ever constructed or replayed through the real derivation path. Additionally, CHK-001's context explicitly instructs \"reuse resolveReviewRoundCount ... do not reimplement round logic\", but core/convergence-breaker.ts imports nothing from core/review-convergence.ts and computes reviewRunCount/reviewPassCount as raw array lengths -- whether this matches the established round-counting semantics is unverified either way because collectBreakerCounters has no test.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-14T13:05:15.827Z",
+      "reviewRound": "2026-07-14T12:55:51.181Z",
+      "reviewRunId": "B-bbaf:RR-003",
+      "_hash": "737878d0ce62c105723d166a9c4b46eefaa504fa4162484f9e76ba4162e8ddfd",
+      "files": [
+        "packages/main/src/core/convergence-breaker.ts",
+        "packages/main/src/tasks/convergence-breaker-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|happy-happy-never",
+      "signatureTagSource": "auto"
     }
   ]
 }
