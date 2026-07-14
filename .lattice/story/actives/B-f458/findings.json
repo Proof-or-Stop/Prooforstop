@@ -3121,7 +3121,7 @@
       "desc": "CHK-003 happy/edge/adversarial verificationEvidence (npm test; closeout-trust-smoke.js + verify-runtime-fact-contract.mjs + brief-output-smoke.js; retired-authority-vocabulary-guard-smoke.js + verify-process-fact-contract.mjs + usage-burn-alert-smoke.js) never runs packages/main/src/tasks/review-loop-smoke.ts, so the evidence chain overstates coverage of the declared touchpoint file packages/main/src/core/machine.ts. Reproduced on current HEAD: node packages/main/dist/tasks/review-loop-smoke.js gives 36 passed, 2 failed (section [3] getGuardFailureReason TEST phase: open_review_loop and review_loop_record_error tag regexes no longer match after the machine.ts guard-reason refactor). review-loop-smoke is not wired into npm test (grep confirms it is absent from package.json scripts) and is reachable only via the separate auto-discovered npm run test:all/run-all-smokes path, so none of the storys cited must-evidence commands actually exercise it. Cross-references B-f458:F-119 (lattice-review-concept, same round) which flags the same underlying machine.ts regression from a spec-drift angle; this finding is filed from the test-coverage angle: the evidence commands claimed for CHK-003 do not concretely cover this touched files pre-existing regression test.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-13T23:10:22.819Z",
@@ -3133,7 +3133,11 @@
         "packages/main/src/tasks/review-loop-smoke.ts"
       ],
       "signatureTag": "missing|ts|happy-edge-adversarial",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 24f364f469: review-loop, delivery-context-pack, flow-stability, review-assurance-floor, and proofstory-intent-hardening smokes are explicit npm test steps; all five focused smokes passed after build.",
+      "resolvedAt": "2026-07-14T05:22:13.585Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-121",
