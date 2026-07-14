@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "proofstory.scope_shrinkage_decision.v1",
+  "storyId": "B-bbaf",
+  "decision": "rejected",
+  "userConfirmed": false,
+  "removedMilestoneIds": [],
+  "reason": "False-positive shrinkage flag. The delivered outcome fully matches AND exceeds the original-intent-snapshot normalizedOutcome: a runaway story that crosses a pathological threshold (cumulative advances / review pass-rate / takeover count) is frozen at story_advance, a healthy story is never frozen, and the first trip auto-recovers once. Delivered ON TOP of the snapshot: a 4th read-only signal (repeated-identical-gate-failure), takeover-command blocking while frozen, and canonical-id path-traversal guards. No milestone or deliverable was removed. Problems 3 and 4 (owner-lease single-owner enforcement, gate-cause diagnostics) were always excluded and owned by concurrent work per the story's own scope. The heuristic mis-fired on the summary's honest 'limitations' section, which documents an accepted-risk (human-ack presence check) and a deferred low-severity cleanup, neither of which narrows the delivered outcome.",
+  "approvedBy": "claude-main-agent",
+  "createdAt": "2026-07-14T19:47:20.094Z",
+  "updatedAt": "2026-07-14T19:47:20.094Z"
+}
