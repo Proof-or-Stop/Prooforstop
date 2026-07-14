@@ -22,6 +22,31 @@
         "scanEscalationReason": null
       },
       "_hash": "05e3b468b66a507adb1021eecaf9f01d48c960820fb049d6f2b678607c97c960"
+    },
+    {
+      "id": "B-bbaf:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-verified F-005/F-006/F-007/F-008 test-coverage fixes at HEAD 53c25c4: resetGateFailureCounts guards existsSync+non-empty before rewrite (bump narrowed to story_advance failures in cli-engine.ts:1311), review-pass-discard-smoke.js now passes cleanly, smoke section 14 asserts no spurious gate-failure-counts.json is created. Smoke section 13 genuinely invokes enforceConvergenceBreakerGate (the real cli-engine.ts choke-point fn) via a fake store matching the real StoryStore shape: healthy proceeds with no state write, non-gated command ignored, frozen story_advance throws FROZEN, frozen takeover-carrying command also throws FROZEN, ack via resumeBreakerState clears and the gate proceeds again. Smoke section 12 genuinely invokes collectBreakerCounters against a store shape (readStory/readReviewRuns/readReviewPasses), asserting advanceCount filters only action===advance events and review ledger lengths drive run/pass counts, plus fail-open to zeros when the store throws. npm run test:convergence-breaker passes (14 sections). No blocker; coverage of the four re-review targets is genuine integration coverage, not re-testing of pure helpers alone.",
+      "createdAt": "2026-07-14T13:25:49.718Z",
+      "reviewRound": "2026-07-14T12:55:51.181Z",
+      "reviewRunId": "B-bbaf:RR-006",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7fd4c21ce6d67eca44062e23f0e35433e4a2b7b23324297d2d448d63415f7fab"
     }
   ]
 }
