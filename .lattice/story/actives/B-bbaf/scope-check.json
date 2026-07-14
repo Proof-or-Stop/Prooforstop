@@ -217,10 +217,12 @@
       "q": "Story description (index.json) still literally enumerates only THREE derived signals (\"advance-count / review-pass-rate / takeover-frequency counters\") but decision.json/plan.md/scope-boundary.json now commit to FOUR (adding the repeated-identical-gate-failure signal via CHK-006, per the INIT-002 premise reversal). scope-boundary.json's allowed[] array is already reconciled to four signals; only the story description text has not been synced.",
       "evidence": "description: \"Add a circuit breaker that derives advance-count / review-pass-rate / takeover-frequency counters read-only from story.events...\" vs decision.json rationale: \"Chosen multi-signal-cheap-read: ... covers all FOUR B-f458 dimensions\" and scope-boundary.json allowed[3]: \"Pure core convergence-breaker deriving four read-only signals from story.events: total advance count, review pass-rate ..., takeover frequency, and repeated-identical-gate-failure\"",
       "sourcePointers": [
-        ".lattice/story/actives/B-bbaf/index.json (description field, via story_get --detail=true)",
-        ".lattice/story/actives/B-bbaf/decision.json:29",
-        ".lattice/story/actives/B-bbaf/scope-boundary.json:9"
-      ]
+        ".lattice/story/actives/B-bbaf/index.json",
+        "CHK-006",
+        "decision.json"
+      ],
+      "resolution": "Resolved: the index.json story description has been synced (via story_update) to enumerate all FOUR read-only signals — advance-count, review-pass-rate, takeover-frequency, and repeated-identical-gate-failure — matching decision.json, plan.md, scope-boundary.json, and the new CHK-006. The description previously lagged at three signals; it no longer conflicts.",
+      "resolvedAt": "2026-07-14T05:45:04.992Z"
     }
   ]
 }
