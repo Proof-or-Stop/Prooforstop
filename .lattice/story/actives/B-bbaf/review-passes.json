@@ -132,6 +132,35 @@
         "scanEscalationReason": null
       },
       "_hash": "0fcfa452233802a34ae4b796ba4d47a8d23d21f27a65749df1fa2927f43cdda1"
+    },
+    {
+      "id": "B-bbaf:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Quality-lane review of git diff main...HEAD. Checked dead code, type safety, I/O isolation, canonical-id guards, fail-open discipline. Only known non-blocker: resumeBreakerState unused priorState param (accepted, task_a9610374 filed). Build+smoke both pass. No fresh blocking findings.",
+      "createdAt": "2026-07-14T16:03:39.474Z",
+      "reviewRound": "2026-07-14T15:59:16.186Z",
+      "reviewRunId": "B-bbaf:RR-009",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitignore",
+          "package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "4616a9b866e6f2565f445e5397e683f8f22aacd4dc3565b9b78af20391878bfc"
     }
   ]
 }
