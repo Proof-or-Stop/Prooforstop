@@ -27,7 +27,7 @@
       "desc": "quality-comment-accuracy: runtime-environment-checks.ts:786 comment (\"Any git failure falls back to today's un-canonicalized path\") and decision.json preMortem[0].mitigation (\"Fall back to the current un-canonicalized corePackageRoot on any git failure (behavior identical to today)\") both misdescribe the actual fallback. resolveCanonicalCoreRoot's fallback at runtime-environment-checks.ts:788 is `safeRealpath(coreRoot) ?? resolve(coreRoot)`, which DOES apply realpath (symlink-dereferencing) canonicalization. Pre-fix, this branch used `context.corePackageRoot` directly with zero realpath resolution (see pre-diff line 228: `expected = context.corePackageRoot`), so the fallback is not byte-identical to pre-fix behavior as claimed -- it is a new canonicalization step applied even when git fails. In practice this looks benign or even corrective (it keeps `expected` consistent with `globalRealpath`, which is already realpath'd, so it plausibly fixes a latent false-warn for symlinked corePackageRoot paths that the non-git branch previously had), but the comment/decision text asserting behavioral identity to today is inaccurate and could mislead a future maintainer relying on it while debugging a fallback-path anomaly. Recommend correcting the comment/decision text to describe what the fallback actually does (realpath the coreRoot itself, not a byte-identical carry-over of the pre-fix raw-path behavior).",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-14T01:46:36.482Z",
@@ -39,7 +39,11 @@
         "docs/story/actives/B-fa65/decision.json"
       ],
       "signatureTag": "missing|ts|quality-comment-accuracy",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit b9f2786fb5: comment rewritten to state the truth — the non-self fallback is the realpath-normalized core root BY DESIGN (the comparison target globalRealpath is itself realpath-resolved, so symlink normalization must match on both sides), explicitly not a byte-identical pre-fix path. The decision.json preMortem wording inaccuracy is superseded by this code-level statement of record.",
+      "resolvedAt": "2026-07-14T01:54:36.319Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fa65:F-003",
