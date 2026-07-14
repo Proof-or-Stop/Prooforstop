@@ -3319,6 +3319,61 @@
       "resolvedAt": "2026-07-14T12:53:19.433Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f458:F-127",
+      "desc": "concept-cleanup: canonical transcript migration is incomplete: docs/requirements/decisions/cc-learnings.md:829 still promises the retired evidence/transcript-diff.md as a future mandatory DONE artifact, while active producer/consumer contracts and reviewer prompts use evidence/live-smoke-transcript.json and the only retained old-path use is explicitly legacy scope-classification compatibility. The stale learning record can direct future hosts back to the non-canonical hand-authored path and contradicts the current closeout trust boundary.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-14T15:30:52.498Z",
+      "reviewRound": "2026-07-14T15:27:09.855Z",
+      "reviewRunId": "B-f458:RR-143",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/legacy-delivery-claims-compat.ts",
+          "packages/main/templates/agents/product-reviewer.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/product-reviewer.md",
+          ".lattice-codex/agents/product-reviewer.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/delivery-context-pack.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Repository-wide grep was required by the concept reviewer because evidence/transcript-diff.md was replaced by evidence/live-smoke-transcript.json across active producer, consumer, policy, prompt, and process-fact surfaces."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "d1255697225cf7021fc31c30c51586477974edbcfef94d355a055523d245c896"
+      },
+      "readDiagnostics": [],
+      "_hash": "15968574487e85597ecfa2772db6e3afa7d53d6248828d0cd69c6a3ebca3d821",
+      "files": [
+        "docs/requirements/decisions/cc-learnings.md",
+        "packages/main/src/core/lifecycle-registry.ts",
+        "packages/main/src/handlers/delivery-context-pack.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/templates/agents/product-reviewer.md",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "missing|md|concept-cleanup-canonical",
+      "signatureTagSource": "auto"
     }
   ]
 }
