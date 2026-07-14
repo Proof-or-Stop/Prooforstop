@@ -258,6 +258,42 @@
         "scanEscalationReason": null
       },
       "_hash": "d2159c2e8464d03f0c32d3a3a6c8052119241d57c602ca8ade8e6fc9562f2521"
+    },
+    {
+      "id": "B-bbaf:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Fresh concept-lane pass after 5 verificationEvidence notes were corrected to cite accurate smoke section numbers (no source/code change; git diff main...HEAD -- *.ts still shows ZERO minus-lines in any source file — purely additive convergence-breaker feature). Re-verified: (1) isCanonicalStoryId has a single definition at lifecycle-registry.ts:651, imported (not duplicated) by convergence-breaker.ts and cli-engine.ts. (2) story_resume is consistently wired end-to-end: command-catalog.ts schema, command-policy.ts policy entry, config.ts DEFAULT_PHASE_TOOLS allowedPhases:all entry, handlers/story.ts createStoryResumeHandlers spread into createStoryHandlers, and createStoryHandlers registered in registry.ts via registerBatch — confirmed with tsc --noEmit clean. (3) LATTICE_CONVERGENCE_MAX_ADVANCE/_MAX_TAKEOVER/_MIN_PASS_RATE/_MIN_SAMPLE/_MAX_GATE_REPEAT spelled identically across convergence-breaker.ts CONVERGENCE_ENV map, convergence-breaker-smoke.ts, plan.md, checklist.json, delivery-check.json. (4) new runtime artifacts (breaker-state.json, takeover-count.json, gate-failure-counts.json) registered consistently in runtime-artifact-registry.ts and .gitignore. (5) convergence-breaker-smoke.ts auto-discovered by run-all-smokes.ts glob (*-smoke.ts under dist/tasks), plus package.json test chain + test:convergence-breaker script wire it explicitly — no orphaned test file. No concept deletion/rename in this diff; no dangling references found; no blocker.",
+      "createdAt": "2026-07-14T16:19:56.508Z",
+      "reviewRound": "2026-07-14T15:59:16.186Z",
+      "reviewRunId": "B-bbaf:RR-015",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitignore",
+          "package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-bbaf/checklist.json",
+          ".lattice/story/actives/B-bbaf/delivery-check.json",
+          ".lattice/story/actives/B-bbaf/plan.md",
+          ".lattice/story/actives/B-bbaf/review-passes.json",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6bf6b8d884166e8153a96476a379d46309f14b94bdb13508d29b1e07e3bc2332"
     }
   ]
 }
