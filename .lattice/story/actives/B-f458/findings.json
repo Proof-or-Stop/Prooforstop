@@ -3102,7 +3102,7 @@
       "desc": "concept-cleanup: review-loop TEST-phase guard-reason tags open_review_loop/review_loop_record_error deletion incomplete: getGuardFailureReason (core/machine.ts) was refactored to route TEST-phase review-loop blocking through evaluateReviewVerdict, which emits a generic [review_loop] code and a terse active review loop(s): <ids> message instead of the old [open_review_loop]/[review_loop_record_error] tags and loopId=/decision=/nextAction={} detail format. packages/main/src/tasks/review-loop-smoke.ts section [3] still asserts the old tags/format against getGuardFailureReason and now fails: node packages/main/dist/tasks/review-loop-smoke.js reproducibly gives 36 passed, 2 failed (open_review_loop and review_loop_record_error regexes no longer match). This file is not in the storys declared modify/create/test file list and was not updated alongside the machine.ts consolidation, and it is not covered by the npm test chain (only by the auto-discovered npm run test:all / run-all-smokes), so the regression was not caught by the storys own verification evidence.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-13T23:04:16.073Z",
@@ -3110,7 +3110,11 @@
       "reviewRunId": "B-f458:RR-132",
       "_hash": "b9310e24f8f62245e3b82bad03774746396dbcf83bb4e85947f023630421ecdc",
       "signatureTag": "missing|unknown|concept-cleanup-review",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 24f364f469: shared ReviewVerdict restores distinct open_review_loop and review_loop_record_error codes plus loopId/decision/nextAction diagnostics. review-loop-smoke passes 39 checks.",
+      "resolvedAt": "2026-07-14T05:22:11.594Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-120",
