@@ -51,8 +51,10 @@ persisted to activity.jsonl at cli-engine.ts:1256-1260, so it is included as the
 **Owner**: main-agent
 **DependsOn**: CHK-001, CHK-002
 **Files**:
-- Modify: packages/main/src/cli-engine.ts (pre-transition breaker check in the story_advance path + rejection render)
-- Modify: packages/main/src/registry.ts (new `story_resume` ack command)
+- Modify: packages/main/src/cli-engine.ts (pre-transition breaker check in the story_advance path + rejection render; enforcement seam calls into convergence-breaker.ts)
+- Modify: packages/main/src/handlers/story.ts (new `story_resume` ack handler; auto-registers via createStoryHandlers)
+- Modify: packages/main/src/core/command-policy.ts (story_resume ownershipClass = storyScopedMutating)
+- Modify: packages/main/src/cli/command-catalog.ts (story_resume name/description/schema + help)
 
 **Verify**:
 - Frozen fixture: `lattice story_advance` is rejected with a message naming the tripped counters + next action

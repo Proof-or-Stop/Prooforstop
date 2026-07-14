@@ -20,12 +20,12 @@
   ],
   "unknowns": [],
   "touchpoints": [
-    "packages/main/src/core/convergence-breaker.ts (new pure core + threshold resolver + state read/write)",
+    "packages/main/src/core/convergence-breaker.ts (new pure core + threshold resolver + state read/write + gate-failure counter)",
     "packages/main/src/core/story-owner-lease.ts (bump the per-story takeover counter in the existing takeover audit write)",
-    "packages/main/src/cli-engine.ts (pre-transition breaker check at the enforceStoryOwnerLeaseGate choke point + rejection render)",
-    "packages/main/src/core/runtime-artifact-registry.ts (register the gitignored breaker-state artifact)",
-    "packages/main/src/registry.ts (new story_resume ack command)",
-    "packages/main/src/tasks/convergence-breaker-smoke.ts (new), .gitignore, package.json (test wiring)"
+    "packages/main/src/cli-engine.ts (breaker check at the story_advance seam; bump gate-failure counter at the failure catch; reset on successful advance; rejection render)",
+    "packages/main/src/handlers/story.ts (new story_resume ack handler)",
+    "packages/main/src/core/command-policy.ts (story_resume ownershipClass) + packages/main/src/cli/command-catalog.ts (story_resume schema/help)",
+    "packages/main/src/core/runtime-artifact-registry.ts (register gitignored breaker-state.json + gate-failure-counts.json) + packages/main/src/tasks/convergence-breaker-smoke.ts (new) + .gitignore + package.json"
   ],
-  "timestamp": "2026-07-13T23:41:10.605Z"
+  "timestamp": "2026-07-14T05:46:19.443Z"
 }

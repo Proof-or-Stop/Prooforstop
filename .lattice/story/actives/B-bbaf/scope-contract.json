@@ -8,6 +8,7 @@
     "packages/main/src/handlers/story.ts",
     "packages/main/src/core/command-policy.ts",
     "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/config.ts",
     ".gitignore",
     "package.json"
   ],
@@ -21,8 +22,8 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "PLAN under-specified the new story_resume command wiring: a new CLI command needs its handler (handlers/story.ts), ownershipClass (core/command-policy.ts), and catalog schema (cli/command-catalog.ts). registry.ts is NOT needed (story commands auto-register via createStoryHandlers). Enforcement seam stays cli-engine.ts.",
+  "scopeChangeReason": "story_resume declares allowedPhases:all in command-policy, so it must also be registered in the phaseTools global '*' list in core/config.ts (a freeze can occur at story_advance in any phase; the ack must be available in every phase). Add config.ts to allowed scope.",
   "acknowledgements": [],
   "createdAt": "2026-07-14T05:23:23.977Z",
-  "updatedAt": "2026-07-14T05:29:16.348Z"
+  "updatedAt": "2026-07-14T12:46:49.834Z"
 }
