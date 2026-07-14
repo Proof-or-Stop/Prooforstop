@@ -14,6 +14,21 @@
       "_hash": "1ad3e5afbf8cf8f7d31d67358c680b865519fb9cd345343f125b09f8b2f1d161",
       "signatureTag": "missing|unknown|quality-packages-main",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bbaf:F-002",
+      "desc": "quality: packages/main/src/cli-engine.ts:1222,1241,1305 the new convergence-breaker call sites extract the target storyId via the raw cast (parsed.storyId as string) || activeStory?.storyId instead of reusing storyIdFromArgs, which is already imported into this exact file (see line 52/882/1074/1114) and is used by enforceStoryOwnerLeaseGate (packages/main/src/cli/ownership-gate.ts:242) at the same choke point one line above. storyIdFromArgs is type-safe (typeof-narrows args.storyId, no unchecked cast) and also resolves the --story alias and the autopilot-run-id fallback; the new inline cast does neither. Net effect: a command that supplies the story via --story (accepted by the owner-lease gate) silently resolves to no storyId for the breaker gate/gate-failure counters, so enforceConvergenceBreakerGate no-ops (storyId is falsy, early return at convergence-breaker.ts:520) and the reset/bump blocks skip their sid branch too -- an inconsistency between the two gates that share the same choke point, and an unsafe cast where a safe, already-imported helper does the same job correctly.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-14T13:03:03.327Z",
+      "reviewRound": "2026-07-14T12:55:51.181Z",
+      "reviewRunId": "B-bbaf:RR-001",
+      "_hash": "51bba8f7ca8c16471fc1c4074fa7da7ebb0938767685480f373159f06dc51b5f",
+      "signatureTag": "missing|unknown|quality-packages-main",
+      "signatureTagSource": "auto"
     }
   ]
 }
