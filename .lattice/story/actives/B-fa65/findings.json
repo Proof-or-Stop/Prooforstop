@@ -5,7 +5,7 @@
       "desc": "quality-duplication: runtime-environment-checks.ts:791-800 (resolveCanonicalCoreRoot) duplicates the exact git-worktree-list-porcelain-parsing loop already implemented in resolveCanonicalSelfCoreRoot at runtime-environment-checks.ts:761-770 (identical 9-line block: split into records, find worktree/branch lines, match branch===refs/heads/main, build candidate=join(worktree,packages,main), return realpath if exists). This copies rather than shares the parsing logic the story explicitly set out to mirror. A future fix to the parsing (CRLF handling, detached-HEAD worktree rows, path separators) would need to land in two places and could silently drift apart since nothing enforces they stay in sync. Recommend extracting a shared helper (e.g. findMainBranchWorktreeRoot(anchorDir): string | null) that both functions call, each applying their own already-different fallback semantics on top.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-14T01:46:26.984Z",
@@ -16,7 +16,11 @@
         "packages/main/src/core/runtime-environment-checks.ts"
       ],
       "signatureTag": "missing|ts|quality-duplication-runtime",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit b9f2786fb5: extracted findMainWorktreeCoreRoot as the single git-worktree-list parsing source; resolveCanonicalSelfCoreRoot and resolveCanonicalCoreRoot now share it and keep only their distinct fallbacks. tests/global-core-realpath.test.mjs and validation-protocol-smoke both green after the refactor.",
+      "resolvedAt": "2026-07-14T01:54:35.728Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fa65:F-002",
