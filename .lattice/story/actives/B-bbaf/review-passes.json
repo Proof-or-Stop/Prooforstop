@@ -318,6 +318,32 @@
         "scanEscalationReason": null
       },
       "_hash": "cd16e9c1accfd0c27738492fb0f62e633dfd861f11228eabd626a47447ad69ea"
+    },
+    {
+      "id": "B-bbaf:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Fresh concept-lane pass on current material. Only change since last concept pass is one additive line in process-fact-levels.ts registering story_resume (level L2, category story, owner handlers/story) for the process-fact-contract test. Verified single, non-duplicated entry and consistent story_resume registration across command-catalog.ts (schema/help), command-policy.ts (storyScopedMutating/allowedPhases all), config.ts (DEFAULT_PHASE_TOOLS TEST-phase entry with rationale), handlers/story.ts (createStoryResumeHandlers spread into createStoryHandlers), and process-fact-levels.ts. git diff main...HEAD has zero minus-lines in any *.ts source file (purely additive); no concept deleted or renamed; no dangling references to story_resume found anywhere in the repo outside the five expected wiring sites plus convergence-breaker.ts freeze-message strings and story metadata/docs. No blocker.",
+      "createdAt": "2026-07-14T17:31:28.503Z",
+      "reviewRound": "2026-07-14T17:29:22.567Z",
+      "reviewRunId": "B-bbaf:RR-019",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/story.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "20c07658d1259af1bf40c7e468981b23ad6f1d0c87abe1779bab98bdab33a5bb"
     }
   ]
 }
