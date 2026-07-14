@@ -1,0 +1,104 @@
+{
+  "storyId": "B-f458",
+  "checkedAt": "2026-07-14T16:08:44.644Z",
+  "headHash": "c7c24abef09a883211455cbe18f84ba1d44292d3",
+  "materialHash": "420e4a6df93e253f3f361142f3e53e43e90d62f62111958443b28d3299a83103",
+  "storyFilesHash": "5f81fc9894f48c6c3c6feca8e66400c1a78b8a71a66f7eca71165e68311c746f",
+  "reviewRound": "2026-07-14T15:36:22.281Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "checklist:CHK-001#userSees",
+      "promise": "The M4.C1 verifier prints PASS closeout artifact classifications: closed policy set verified and rejects unknown trusted paths or wrong writers with named errors.",
+      "status": "verified",
+      "verifiedBy": "git diff plus source assertion reverse-scan",
+      "evidence": "packages/main/src/tasks/closeout-trust-smoke.ts lines 120-128 enumerate the closed policy, require every writer to exist in COMMAND_POLICIES, and assert traversal and manual-writer rejection before printing the exact PASS line; package.json exposes test:closeout-trust in routine npm test."
+    },
+    {
+      "docPath": "checklist:CHK-002#userSees",
+      "promise": "The composite scope digest is deterministic, changes for acknowledgement/provenance/ledger/plan mutations, and blocks metadata-only retention until re-attestation.",
+      "status": "verified",
+      "verifiedBy": "source assertion reverse-scan",
+      "evidence": "packages/main/src/tasks/closeout-trust-smoke.ts lines 130-178 assert stable reordered input plus distinct digests for acknowledgement content, actor provenance, ledger, and slice-plan changes, then compare signed/current scope bindings before the exact PASS line."
+    },
+    {
+      "docPath": "checklist:CHK-003#userSees",
+      "promise": "Trusted milestone ledger, slice plan, parent rollup, and delivery context schemas and embedded hashes fail closed with named artifact errors when malformed or forged.",
+      "status": "verified",
+      "verifiedBy": "source assertion reverse-scan",
+      "evidence": "packages/main/src/tasks/closeout-trust-smoke.ts lines 180-228 invoke all trusted validators, test missing timestamps, forged ledgerHash/planHash/rollupHash, cross-story mismatch, invalid delivery refs, extra claims, and field mutations before the exact PASS line."
+    },
+    {
+      "docPath": "checklist:CHK-004#userSees",
+      "promise": "TEST closeout cannot retain earlier review authority from same-UID telemetry or paired source/docs/scope mutations, while a fresh post-closeout review can continue.",
+      "status": "verified",
+      "verifiedBy": "source assertion reverse-scan",
+      "evidence": "packages/main/src/tasks/closeout-trust-smoke.ts exercises the actual TEST-to-DONE actor, stale review rejection, wrong/missing reviewer evidence, source and scope drift, coherent same-UID forged receipts, and a fresh post-closeout run/pass that permits DONE; it prints the exact promised PASS line."
+    },
+    {
+      "docPath": "checklist:CHK-005#userSees",
+      "promise": "The M4.C1 regression suite fails closed for unknown paths, changed material/scope, missing provenance, malformed hashes, same-UID forged receipts, TEST acknowledgement, and stale review reuse, while a fresh review succeeds.",
+      "status": "verified",
+      "verifiedBy": "source assertion and routine-script reverse-scan",
+      "evidence": "packages/main/src/tasks/closeout-trust-smoke.ts contains assertion-heavy negative cases for unknown/manual metadata, receipt chain reorder/copy, malformed and forged artifacts, stale/unknown review runs, changed source/scope, and TEST scope_contract_acknowledge rejection; scripts/verify-process-fact-contract.mjs pins the exact user-visible output and package.json runs both checks routinely."
+    },
+    {
+      "docPath": "packages/main/templates/agents/product-reviewer.md#inputs",
+      "promise": "The product reviewer consumes the canonical evidence/live-smoke-transcript.json artifact.",
+      "status": "verified",
+      "verifiedBy": "diff and implementation grep",
+      "evidence": "The template points to evidence/live-smoke-transcript.json; packages/main/src/handlers/live-smoke-transcript.ts owns that exact artifact, command-policy.ts documents it, closeout-trust.ts registers its canonical writer, and verify-process-fact-contract.mjs prevents fallback to the legacy path."
+    },
+    {
+      "docPath": ".lattice-codex/agents/product-reviewer.md#inputs",
+      "promise": "The Codex product-reviewer mirror consumes the canonical evidence/live-smoke-transcript.json artifact.",
+      "status": "verified",
+      "verifiedBy": "diff and mirror/contract grep",
+      "evidence": "The Codex mirror matches the package template, and scripts/verify-process-fact-contract.mjs asserts the mirror contains the canonical path and excludes evidence/transcript-diff.md."
+    },
+    {
+      "docPath": ".claude/agents/product-reviewer.md#inputs",
+      "promise": "The Claude product-reviewer mirror consumes the canonical evidence/live-smoke-transcript.json artifact.",
+      "status": "verified",
+      "verifiedBy": "diff and mirror/contract grep",
+      "evidence": "The Claude mirror matches the package template, and scripts/verify-process-fact-contract.mjs asserts the mirror contains the canonical path and excludes evidence/transcript-diff.md."
+    },
+    {
+      "docPath": "docs/requirements/decisions/cc-learnings.md#not-done-yet-but-should-be-done",
+      "promise": "A future story may make evidence/live-smoke-transcript.json mandatory at DONE with a type-aware waiver.",
+      "status": "waived",
+      "verifiedBy": "documentation scope classification",
+      "evidence": "The changed paragraph now names the canonical artifact but explicitly says Belongs to a future story and preserves the warning that pure refactors/framework work may need a type-aware waiver.",
+      "waiverReason": "This paragraph explicitly scopes the mandatory DONE gate to a future story; B-f458 only corrects the canonical artifact path and does not claim to implement that future policy."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independent source scan found executable assertions for closed policy enumeration, registered canonical writers, traversal rejection, and wrong-writer rejection, followed by the exact promised PASS line. The delivery context lists test:closeout-trust through npm test at current validation binding."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Independent source scan found deterministic reorder coverage and distinct-digest assertions for acknowledgement content/provenance, milestone ledger, and slice plan mutations, plus scope-binding comparison and the exact PASS line."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Independent source scan found runtime validator calls and negative assertions for missing fields, forged embedded hashes, cross-story identity, extra fields, invalid delivery references, and exact artifact-named failures before the PASS line."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Independent source scan found actor-level TEST-to-DONE rejection for stale review, source/scope drift, missing or tampered reviewer evidence, locally forgeable same-UID receipts, and an allowed fresh post-closeout review path."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Independent source scan found the full fail-closed matrix: unknown paths, uncommitted/manual metadata, reordered/copied receipt chains, malformed/forged artifacts, stale or unknown review runs, TEST acknowledgement rejection, and fresh-review success; package.json includes this smoke and process-fact contract in routine npm test."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Five checklist promises are backed by executable assertion-heavy smoke coverage and current-bound validation command inventory; eight current documentation promises are implemented and one explicitly future policy is waived without overclaim. The canonical live-smoke artifact reports present-stale and was not counted as evidence; no TODO/FIXME/HACK was introduced in changed non-test code."
+  },
+  "_hash": "ba9854cd32c51ec89b86033112ff1038b0ea4025f48088ef2c855b7e09eac60e"
+}

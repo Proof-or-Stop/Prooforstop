@@ -16,6 +16,7 @@ import type { HandlerContext } from './context.js';
 import type { EvalEvidenceData } from '../core/types.js';
 import { loadConfig } from '../core/config.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
+import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 
 export function createEvaluateHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
@@ -131,9 +132,12 @@ export function createEvaluateHandlers(ctx: HandlerContext): Record<string, (...
       } catch (e) {
         console.warn(`[process-metrics] recompute failed for ${args.storyId}:`, (e as Error).message);
       }
+      const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'evaluate_save', {
+        closeoutArtifactPaths: ['eval-evidence.json'],
+      });
 
       const icon = evidence.pass ? '✓' : '✗';
-      return `${icon} Eval evidence saved: functionality=${evidence.scores.functionality} usability=${evidence.scores.usability} total=${evidence.total} pass=${evidence.pass}`;
+      return `${icon} Eval evidence saved: functionality=${evidence.scores.functionality} usability=${evidence.scores.usability} total=${evidence.total} pass=${evidence.pass}${commitHint}`;
     },
   };
 }

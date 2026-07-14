@@ -1,0 +1,85 @@
+{
+  "principles": [
+    "Fail closed on semantic scope drift",
+    "Use one canonical artifact registry and one composite digest",
+    "Separate scope-defining inputs from closeout-evidence outputs",
+    "Preserve existing lifecycle behavior unless a structured fact proves safe retention"
+  ],
+  "drivers": [
+    "M4.C1 critical-path prerequisite",
+    "Avoid synthetic TEST rollback for canonical closeout writes",
+    "Prevent storyFilesHash-only review reuse",
+    "Coordinate without duplicating B-9188"
+  ],
+  "options": [
+    {
+      "name": "A: Shared closeout trust module consumed by lifecycle and freshness gates",
+      "pros": [
+        "Single schema/hash/digest implementation",
+        "Mechanical reuse across handlers and tests",
+        "Clear process-fact contract surface"
+      ],
+      "cons": [
+        "Touches several gate consumers",
+        "Requires careful compatibility defaults"
+      ]
+    },
+    {
+      "name": "B: Add local checks independently in each existing gate",
+      "pros": [
+        "Smaller changes per file",
+        "Less new abstraction"
+      ],
+      "cons": [
+        "Duplicated semantics can drift",
+        "Harder to prove closed-set writer provenance",
+        "Higher regression risk"
+      ]
+    },
+    {
+      "name": "C: Documentation and smoke-test-only contract",
+      "pros": [
+        "Lowest implementation cost"
+      ],
+      "cons": [
+        "Does not mechanically protect gates",
+        "Violates process-fact dual-layer contract"
+      ]
+    }
+  ],
+  "chosen": "A: Shared closeout trust module consumed by lifecycle and freshness gates",
+  "rationale": "The milestone exists to establish a mechanical trust boundary. A shared module gives schema/hash verification and the composite digest one authoritative implementation, while registries and contract tests prove every consumer uses it.",
+  "preMortem": [
+    {
+      "scenario": "Canonical TEST rollup still forces DEV/REVIEW",
+      "trigger": "Closeout artifact remains classified as scope-defining material",
+      "consequence": "Legitimate closeout loops indefinitely",
+      "mitigation": "Positive TEST regression with unchanged composite digest and product diff."
+    },
+    {
+      "scenario": "Semantic scope change is incorrectly retained",
+      "trigger": "Composite digest omits acknowledgement provenance, milestone ledger, or slice plan",
+      "consequence": "Old review evidence is reused after meaningful scope drift",
+      "mitigation": "Independent mutation case for each composite component and fail-closed missing component."
+    },
+    {
+      "scenario": "Forged persisted hashes are trusted",
+      "trigger": "Readers accept embedded ledgerHash/planHash/rollupHash without recomputation",
+      "consequence": "DONE consumes tampered scope/coverage facts",
+      "mitigation": "Schema validate and recompute every trusted embedded hash before classification."
+    },
+    {
+      "scenario": "New review round inherits old passes",
+      "trigger": "Retention key ignores reviewRound or signed re-attestation",
+      "consequence": "Review gate is bypassed",
+      "mitigation": "Regression enters a new round and requires explicit current signed evidence."
+    },
+    {
+      "scenario": "B-9188 conflict causes duplicate registry ownership",
+      "trigger": "Both stories edit milestone-closeout registration concurrently",
+      "consequence": "Merge conflict or contradictory process facts",
+      "mitigation": "Exclude that exact path until B-9188 merges; merge main before DONE and consume its result."
+    }
+  ],
+  "timestamp": "2026-07-13T08:20:35.098Z"
+}

@@ -1,9 +1,18 @@
 import { createHash } from 'crypto';
 import { execFileSync } from 'child_process';
 import { existsSync, realpathSync } from 'fs';
-import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
+import { isAbsolute, relative, resolve } from 'node:path';
+import {
+  changedFilesBetween,
+  checkEvidenceFreshnessForGit,
+  currentGitHead,
+  currentMaterialHash,
+  currentStoryFilesHash,
+} from './evidence-freshness.js';
 import { verifyFinding, verifyReviewPass } from './finding-verify.js';
+import { REVIEW_RETENTION_PROTOCOL_METADATA_PATHS } from './lifecycle-registry.js';
 import type { Finding, ReviewPass, ReviewRun, ReviewRunWorkspaceBinding, StoryInfo } from './types.js';
+import { canonicalJson } from './digest.js';
 import type { StoryStore } from './store.js';
 import { buildScopeDiffPack } from './scope-diff-pack.js';
 import { resolveStorySignedWorkspace } from './story-signed-workspace-resolution.js';
@@ -13,6 +22,13 @@ import {
   type CurrentScopeContext,
   type ScopeBindingComparison,
 } from './review-scope-binding.js';
+import {
+  closeoutArtifactPolicyFor,
+  evaluateMetadataOnlyReviewRetention,
+  latestValidCloseoutReceipt,
+  readTrustedProofStoryScopeArtifacts,
+  validateCurrentCloseoutArtifact,
+} from './closeout-trust.js';
 
 export const REVIEW_RUN_SALT = 'lattice-review-run-integrity-v1';
 
@@ -501,7 +517,14 @@ export function currentScopeContextForStory(
   const contract = store.readScopeContract(storyId);
   if (!contract) return null;
   const diffPack = buildScopeDiffPack(projectRoot);
-  return buildCurrentScopeContext(contract, diffPack, projectRoot);
+  const trusted = readTrustedProofStoryScopeArtifacts(store, storyId);
+  return buildCurrentScopeContext(
+    contract,
+    diffPack,
+    projectRoot,
+    trusted.ledger,
+    trusted.slicePlan,
+  );
 }
 
 function scopeComparisonToIssueCode(cmp: ScopeBindingComparison): ReviewRunIssueCode {
@@ -652,6 +675,153 @@ function workspaceBindingHint(storyId: string, lane: string): string {
   return `→ Re-run lattice review_run_start '{"storyId":"${storyId}","agent":"${lane}"}' from the resolved signed workspace, then resubmit finding_add/review_pass_set with the new reviewRunId`;
 }
 
+function uncommittedPathsUnder(gitCwd: string, prefix: string): string[] {
+  const commands = [
+    ['diff', '--name-only', '--', prefix],
+    ['diff', '--cached', '--name-only', '--', prefix],
+    ['ls-files', '--others', '--exclude-standard', '--', prefix],
+  ];
+  const paths = new Set<string>();
+  for (const args of commands) {
+    const output = execFileSync('git', args, {
+      cwd: gitCwd,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    for (const path of output.split('\n').map((line) => line.trim()).filter(Boolean)) paths.add(path);
+  }
+  return [...paths];
+}
+
+export function evaluatePersistedReviewToTestIndexTransition(
+  gitCwd: string,
+  indexGitPath: string,
+  run: ReviewRun,
+  currentStory: StoryInfo,
+): { ok: boolean; reason?: string } {
+  let reviewedStory: StoryInfo;
+  try {
+    reviewedStory = JSON.parse(execFileSync('git', ['show', `${run.headHash}:${indexGitPath}`], {
+      cwd: gitCwd,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    })) as StoryInfo;
+  } catch {
+    return { ok: false, reason: 'signed REVIEW index snapshot is unreadable' };
+  }
+  if (reviewedStory.storyId !== run.storyId || currentStory.storyId !== run.storyId) {
+    return { ok: false, reason: 'index storyId does not match the signed review run' };
+  }
+  if (reviewedStory.phase !== 'REVIEW' || currentStory.phase !== 'TEST') {
+    return { ok: false, reason: `phase delta is ${reviewedStory.phase}->${currentStory.phase}, not REVIEW->TEST` };
+  }
+  if (!run.reviewRound || reviewedStory.currentReviewRound !== run.reviewRound || currentStory.currentReviewRound !== run.reviewRound) {
+    return { ok: false, reason: 'currentReviewRound changed or does not match the signed review run' };
+  }
+  const reviewedEvents = reviewedStory.events ?? [];
+  const currentEvents = currentStory.events ?? [];
+  if (currentEvents.length !== reviewedEvents.length + 1 || canonicalJson(currentEvents.slice(0, -1)) !== canonicalJson(reviewedEvents)) {
+    return { ok: false, reason: 'events are not the reviewed prefix plus exactly one transition event' };
+  }
+  const event = currentEvents.at(-1)!;
+  const allowedEventKeys = new Set(['phase', 'action', 'timestamp', 'branch', 'user', 'sessionId', 'agent']);
+  if (Object.keys(event).some((key) => !allowedEventKeys.has(key))) {
+    return { ok: false, reason: 'transition event contains fields not emitted by collectContext' };
+  }
+  if (event.phase !== 'TEST' || event.action !== 'advance') {
+    return { ok: false, reason: 'transition event is not exactly TEST/advance' };
+  }
+  // Local event identity/timing strings are audit context, not writer
+  // authentication: the same-UID actor can freely mint them and git user.name
+  // is legitimately absent in env-only commit setups.  They therefore cannot
+  // affect authorization.  Only reject malformed types when a field exists;
+  // the gate authority comes from the already-verified signed review
+  // run/pass/round plus the exact stable index delta above/below.
+  for (const key of ['timestamp', 'branch', 'user', 'sessionId', 'agent'] as const) {
+    if (event[key] !== undefined && typeof event[key] !== 'string') {
+      return { ok: false, reason: `transition event audit field ${key} is not a string` };
+    }
+  }
+  const { phase: _reviewedPhase, events: _reviewedEvents, ...reviewedStable } = reviewedStory;
+  const { phase: _currentPhase, events: _currentEvents, ...currentStable } = currentStory;
+  if (canonicalJson(reviewedStable) !== canonicalJson(currentStable)) {
+    return { ok: false, reason: 'index fields outside the canonical phase/event delta changed' };
+  }
+  return { ok: true };
+}
+
+export function evaluateReviewRunMetadataRetention(
+  store: StoryStore,
+  story: StoryInfo,
+  run: ReviewRun,
+  projectRoot: string,
+  scopeContext: CurrentScopeContext | null,
+): { ok: boolean; reasons: string[] } {
+  if (!run.scopeBinding?.compositeScopeDigest && !scopeContext?.compositeScopeDigest) {
+    return { ok: true, reasons: [] };
+  }
+  const freshness = checkEvidenceFreshnessForGit(
+    projectRoot,
+    run.headHash,
+    run.materialHash,
+    run.workspaceBinding?.metadataRoot ?? projectRoot,
+    run.storyFilesHash ?? run.workspaceBinding?.storyFilesHash,
+  );
+  let changedFiles: string[];
+  let storyPrefix: string;
+  try {
+    const gitRoot = realpathSync(resolve(projectRoot));
+    const storyDir = realpathSync(resolve(store.storyDirPath(story.storyId)));
+    const storyRel = relative(gitRoot, storyDir).replace(/\\/g, '/').replace(/\/+$/, '');
+    if (!storyRel || storyRel === '.' || isAbsolute(storyRel) || storyRel === '..' || storyRel.startsWith('../')) {
+      throw new Error(`story directory is outside signed git root: ${storyDir}`);
+    }
+    storyPrefix = `${storyRel}/`;
+    changedFiles = [
+      ...changedFilesBetween(projectRoot, run.headHash, 'HEAD'),
+      ...uncommittedPathsUnder(projectRoot, storyPrefix),
+    ];
+  } catch {
+    return { ok: false, reasons: ['unable to derive metadata changes since the signed review run'] };
+  }
+  const metadataPaths = [...new Set(changedFiles
+    .filter((path) => path.startsWith(storyPrefix))
+    .map((path) => path.slice(storyPrefix.length))
+    .filter((path) => !REVIEW_RETENTION_PROTOCOL_METADATA_PATHS.has(path)))];
+  const indexTransition = metadataPaths.includes('index.json')
+    ? evaluatePersistedReviewToTestIndexTransition(projectRoot, `${storyPrefix}index.json`, run, story)
+    : null;
+  const effectiveMetadataPaths = metadataPaths.filter(
+    (path) => path !== 'index.json' || !indexTransition?.ok,
+  );
+  const changedArtifacts = effectiveMetadataPaths.map((artifactPath) => {
+    const policy = closeoutArtifactPolicyFor(artifactPath);
+    const metadataRoot = run.workspaceBinding?.metadataRoot ?? projectRoot;
+    const validation = validateCurrentCloseoutArtifact(store, story.storyId, artifactPath, projectRoot, metadataRoot);
+    const receipt = policy?.artifactClass === 'closeout-evidence'
+      ? latestValidCloseoutReceipt(
+        store.storyDirPath(story.storyId),
+        story.storyId,
+        artifactPath,
+        { projectRoot, metadataRoot },
+      )
+      : null;
+    return {
+      path: artifactPath,
+      writer: receipt?.writerCommand ?? '',
+      valid: validation.valid,
+    };
+  });
+  return evaluateMetadataOnlyReviewRetention({
+    materialUnchanged: freshness.materialFiles.length === 0,
+    storedCompositeScopeDigest: run.scopeBinding?.compositeScopeDigest,
+    currentCompositeScopeDigest: scopeContext?.compositeScopeDigest,
+    changedArtifacts,
+    storedReviewRound: run.reviewRound,
+    currentReviewRound: story.currentReviewRound ?? '',
+  });
+}
+
 export function assertCurrentReviewRunForEvidence(
   store: StoryStore,
   story: StoryInfo,
@@ -731,6 +901,10 @@ export function assertCurrentReviewRunForEvidence(
         scopeBindingMessage(story.storyId, agent, cmp, `review evidence for ${agent} bound reviewRunId ${reviewRunId}`),
       );
     }
+  }
+  const retention = evaluateReviewRunMetadataRetention(store, story, run, signedProjectRoot, scopeContext);
+  if (!retention.ok) {
+    throw new Error(`review evidence for ${agent} bound reviewRunId ${reviewRunId} failed closeout metadata retention: ${retention.reasons.join('; ')}. ${staleMaterialHint(story.storyId, agent)}`);
   }
   return run;
 }
@@ -904,6 +1078,17 @@ function validateEvidenceRunBinding(
         ),
       };
     }
+  }
+  const retention = evaluateReviewRunMetadataRetention(store, story, run, signedProjectRoot, effectiveScopeContext);
+  if (!retention.ok) {
+    return {
+      code: 'stale_run_hash',
+      kind: evidence.kind,
+      evidenceId: evidence.id,
+      agent: evidence.agent,
+      reviewRunId: evidence.reviewRunId,
+      message: `${evidence.kind} ${evidence.id} failed closeout metadata retention: ${retention.reasons.join('; ')}. ${staleMaterialHint(story.storyId, evidence.agent)}`,
+    };
   }
   return null;
 }

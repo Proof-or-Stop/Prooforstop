@@ -332,9 +332,16 @@ export const LIFECYCLE_ARTIFACTS = [
   'done-required-evidence.json',
   'declared-artifacts.json',
   'eval-evidence.json',
+  'milestone-ledger.json',
+  'slice-plan.json',
+  'parent-ledger-rollup.json',
+  'closeout-write-receipts.jsonl',
   'process-events.jsonl',
+  // Legacy scope-classification compatibility only. Current transcript producers
+  // and consumers use evidence/live-smoke-transcript.json.
   'evidence/transcript-diff.md',
   'evidence/live-smoke-transcript.json',
+  'evidence/delivery-context-pack.json',
 ] as const;
 
 export type LifecycleArtifact = typeof LIFECYCLE_ARTIFACTS[number];
@@ -392,6 +399,8 @@ export const LIFECYCLE_PHASE_ARTIFACTS = {
     consumes: ['candidate-spec-set.json', 'checklist.json', 'findings.json', 'review-passes.json', 'review-runs.json'],
   },
   TEST: {
+    // transcript-diff.md remains recognized only for legacy story compatibility;
+    // live-smoke-transcript.json is the canonical current evidence artifact.
     produces: ['candidate-spec-set.json', 'test-evidence.json', 'delivery-check.json', 'eval-evidence.json', 'summary.json', 'done-required-evidence.json', 'evidence/transcript-diff.md', 'evidence/live-smoke-transcript.json'],
     consumes: ['candidate-spec-set.json', 'test-evidence.json', 'findings.json'],
   },
@@ -625,6 +634,21 @@ export const LATTICE_LIFECYCLE_ARTIFACT_FILENAMES: ReadonlySet<string> = new Set
   'grill.json',
   'clusters.json',
   'scope-extension-decisions.json',
+]);
+
+/**
+ * Non-authoritative command-generated metadata that may be co-committed after a
+ * review run without claiming closeout evidence. REVIEW retention ignores only
+ * this closed registry; adding a path requires process-contract verification.
+ */
+export const REVIEW_RETENTION_PROTOCOL_METADATA_PATHS: ReadonlySet<string> = new Set([
+  'review-runs.json',
+  'review-passes.json',
+  'findings.json',
+  'process-events.jsonl',
+  'process-metrics.json',
+  'test-runs.json',
+  'closeout-write-receipts.jsonl',
 ]);
 
 export const LATTICE_LIFECYCLE_ARTIFACT_RELATIVE_PATHS: ReadonlySet<string> = new Set([

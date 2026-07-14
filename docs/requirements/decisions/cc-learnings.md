@@ -826,7 +826,7 @@ After reading this, the user would ask: "**Did it actually finish or not? What d
 
 - **product-reviewer agent**: a 4th category of role parallel to test-case-reviewer, specifically reviewing "whether the outcome is achieved from the user's perspective". The current review phase only has engineering-perspective reviewers; adding this is what completes the three-way checks-and-balances. Belongs to a future story.
 - **A soft quality check on understanding_set's outcome field during the review phase**: if the outcome length < 100 or it contains too many abstract words ("chain, event, mechanism, closed loop", etc.), the reviewer prompt adds a line "question whether the outcome is a user-facing transcript". Belongs to a future story.
-- **The DONE gate mandatorily requires evidence/transcript-diff.md**: take the PLAN outcome as expected, the real-machine actual transcript as actual, and the diffed product as a required DONE deliverable. Belongs to a future story (be careful: a hard gate would penalize stories that do not need a user-facing transcript, such as pure refactors / lattice framework fixes, and may need a type-aware waiver).
+- **The DONE gate mandatorily requires evidence/live-smoke-transcript.json**: take the PLAN outcome as expected, the real-machine actual transcript as actual, and the diffed product as a required DONE deliverable. Belongs to a future story (be careful: a hard gate would penalize stories that do not need a user-facing transcript, such as pure refactors / lattice framework fixes, and may need a type-aware waiver).
 
 ### One-sentence summary
 

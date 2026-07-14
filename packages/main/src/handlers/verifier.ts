@@ -30,6 +30,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
+import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { loadConfig } from '../core/config.js';
 import type { ValidationCommand, ValidationProgressReporter } from '../core/validation-types.js';
 import {
@@ -508,6 +509,9 @@ function persistStoryValidationEvidence(ctx: HandlerContext, storyId: string, re
     ...(materialHash ? { materialHash } : {}),
     ...(storyFilesHash ? { storyFilesHash } : {}),
     ...(result.verificationCoverage ? { verificationCoverage: result.verificationCoverage } : {}),
+  });
+  autoCommitStoryMetadata(ctx.root, storyId, 'validate', {
+    closeoutArtifactPaths: ['test-evidence.json'],
   });
 }
 

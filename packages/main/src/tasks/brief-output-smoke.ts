@@ -439,6 +439,10 @@ try {
   assert.match(docFull, /fallback command discovery is advisory/, 'doctor --full restores the validation-scan detail');
   assert.doesNotMatch(docFull, /→ Brief view\./, 'doctor --full has no brief hint');
   assert.ok(bytes(docBrief) < bytes(docFull), 'doctor brief is smaller than full');
+  assert.doesNotMatch(docBrief, /Long-lived interactive thread re-paying its full context every turn/, 'doctor brief omits verbose per-session burn remediation blocks');
+  if (docFull.includes('Long-lived interactive thread re-paying its full context every turn')) {
+    assert.match(docBrief, /use lattice doctor --full for every session detail/, 'doctor brief reports omitted burn sessions and points to --full');
+  }
   assert.ok(bytes(docBrief) < 20000, `doctor brief under budget, got ${bytes(docBrief)}`);
 
   const docEnvFull = runCli(temp, ['doctor'], { ...docEnv, LATTICE_BRIEF_OUTPUT: '0' });

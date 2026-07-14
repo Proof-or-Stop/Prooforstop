@@ -125,7 +125,7 @@ function seedDeliveryCheck(store: StoryStore): void {
 
 function createFixture(
   seedChecklist: () => ChecklistData,
-  opts: { withPlan?: boolean; withTranscriptDiff?: boolean; withDeliveryCheck?: boolean; phase?: StoryInfo['phase'] } = {},
+  opts: { withPlan?: boolean; withLiveSmokeTranscript?: boolean; withDeliveryCheck?: boolean; phase?: StoryInfo['phase'] } = {},
 ): { root: string; store: StoryStore; ctx: HandlerContext } {
   const root = mkdtempSync(join(tmpdir(), 'lattice-delivctx-'));
   mkdirSync(join(root, 'packages/main/src'), { recursive: true });
@@ -155,10 +155,10 @@ function createFixture(
       'utf8',
     );
   }
-  if (opts.withTranscriptDiff) {
+  if (opts.withLiveSmokeTranscript) {
     const evidenceDir = join(store.storyDirPath(STORY_ID), 'evidence');
     mkdirSync(evidenceDir, { recursive: true });
-    writeFileSync(join(evidenceDir, 'transcript-diff.md'), '# transcript diff\nexpected vs actual\n', 'utf8');
+    writeFileSync(join(evidenceDir, 'live-smoke-transcript.json'), '{"expected":"pass","actual":"pass"}\n', 'utf8');
   }
   if (opts.withDeliveryCheck) seedDeliveryCheck(store);
   const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
@@ -304,7 +304,7 @@ assert.equal(
 // ---- (a)+(b) default read-only: prints the pack, consumes V1 deliveryCheckRef -
 
 {
-  const { root, store, ctx } = createFixture(checklistWithDeliveryContext, { withTranscriptDiff: true, withDeliveryCheck: true });
+  const { root, store, ctx } = createFixture(checklistWithDeliveryContext, { withLiveSmokeTranscript: true, withDeliveryCheck: true });
   try {
     const handler = createMainRegistry(ctx).get('delivery_context_pack');
     assert.ok(handler, 'registry exposes delivery_context_pack');
@@ -324,7 +324,7 @@ assert.equal(
     assert.ok(report.diff.changedFiles.includes('packages/main/src/feature.ts'), 'diff includes the delivery-scoped changed file');
     assert.ok(report.docsPromises.some((p) => p.source === 'plan.md' && p.promise === PLAN_PROMISE), 'docs-promises include the plan.md promise');
     assert.ok(report.docsPromises.some((p) => p.source === 'userSees' && p.promise === USER_SEES), 'docs-promises include the userSees promise');
-    assert.equal(report.realMachineTests.transcriptDiff, true, 'real-machine tests detect transcript-diff.md');
+    assert.equal(report.realMachineTests.transcriptDiff, true, 'real-machine tests detect the canonical live-smoke transcript');
     assert.ok(report.realMachineTests.testFiles.includes(TEST_FILE), 'real-machine tests include the story test file');
     assert.ok(report.realMachineTests.evidenceCommands.includes(EVIDENCE_COMMAND), 'real-machine tests include the verificationEvidence command');
 
@@ -344,7 +344,7 @@ assert.equal(
     assert.match(text, /mode: read-only context producer \(NOT a delivery signer/);
     assert.match(text, /Diff vs main/);
     assert.match(text, /Docs-promises/);
-    assert.match(text, /transcript-diff\.md present: true/);
+    assert.match(text, /live-smoke-transcript\.json present: true/);
     assert.match(text, /Delivery-check \(consumed from V1 readiness deliveryCheckRef\)/);
     assert.match(text, /isSigner: false/);
 
@@ -381,7 +381,7 @@ assert.equal(
 // ---- (c)+(d) --write persists exactly one pack; no delivery-check is written -
 
 {
-  const { root, store, ctx } = createFixture(checklistWithDeliveryContext, { withTranscriptDiff: true, withDeliveryCheck: true });
+  const { root, store, ctx } = createFixture(checklistWithDeliveryContext, { withLiveSmokeTranscript: true, withDeliveryCheck: true });
   try {
     const handler = createMainRegistry(ctx).get('delivery_context_pack');
     assert.ok(handler, 'registry exposes delivery_context_pack for write test');
@@ -396,9 +396,9 @@ assert.equal(
     assert.equal(report.write.artifactPath, packArtifactPath(store), 'reports the persisted artifact path');
     assert.equal(report.isSigner, false, '--write is still a producer, never a signer');
 
-    // (c) exactly one pack artifact, no .tmp residue (plus the seeded transcript-diff fixture).
+    // (c) exactly one pack artifact, no .tmp residue (plus the seeded canonical transcript fixture).
     assert.equal(existsSync(packArtifactPath(store)), true, '--write created the pack artifact');
-    assertOnlyPackArtifactInEvidenceDir(store, ['transcript-diff.md']);
+    assertOnlyPackArtifactInEvidenceDir(store, ['live-smoke-transcript.json']);
 
     const persisted = JSON.parse(readFileSync(packArtifactPath(store), 'utf8'));
     assert.equal(persisted.storyId, STORY_ID, 'artifact records storyId');
@@ -531,7 +531,7 @@ assert.equal(
 
     const report = handler!({ storyId: STORY_ID, json: true }) as DeliveryContextPackReport;
     assert.deepEqual(report.docsPromises, [], 'no plan/userSees → no docs-promises (no crash)');
-    assert.equal(report.realMachineTests.transcriptDiff, false, 'no transcript-diff → false (no crash)');
+    assert.equal(report.realMachineTests.transcriptDiff, false, 'no live-smoke transcript → false (no crash)');
     assert.deepEqual(report.realMachineTests.testFiles, [], 'no test files declared (no crash)');
     assert.equal(report.deliveryCheck.status, 'missing', 'no delivery-check → missing (consumed from V1)');
     const text = handler!({ storyId: STORY_ID, format: 'text' }) as string;

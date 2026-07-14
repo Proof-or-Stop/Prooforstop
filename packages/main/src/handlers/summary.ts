@@ -225,7 +225,9 @@ export function createSummaryHandlers(ctx: HandlerContext) {
         `  fixtures:    ${fixtureStats!.totalCases} bound, ${fixtureStats!.totalRuns} run(s), ${fixtureStats!.cumulativeCasesRun} cumulative executions`,
         `  bugs:        ${bugStats!.found} found / ${bugStats!.fixed} fixed / ${bugStats!.open} open`,
       ];
-      const commitHint = autoCommitStoryMetadata(root, args.storyId, 'summary_set');
+      const commitHint = autoCommitStoryMetadata(root, args.storyId, 'summary_set', {
+        closeoutArtifactPaths: ['summary.json'],
+      });
       return lines.join('\n') + metricsLine + commitHint;
     },
 

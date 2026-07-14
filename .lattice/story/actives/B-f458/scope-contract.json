@@ -1,0 +1,291 @@
+{
+  "storyId": "B-f458",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "scripts/verify-runtime-fact-contract.mjs",
+    "packages/main/src/core/guard-session.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/review-scope-binding.ts",
+    "packages/main/src/core/done-prepare-validation-reuse.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/auto-commit-metadata.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/delivery-context-pack.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/handlers/done-required-validation.ts",
+    "packages/main/src/handlers/delivery-check.ts",
+    "packages/main/src/handlers/evaluate.ts",
+    "packages/main/src/handlers/summary.ts",
+    "packages/main/src/handlers/live-smoke-transcript.ts",
+    "packages/main/src/handlers/test.ts",
+    "packages/main/src/handlers/test-story.ts",
+    "packages/main/src/handlers/transition-effects.ts",
+    "package.json",
+    ".claude/agents/product-reviewer.md",
+    ".lattice-codex/agents/product-reviewer.md"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/closeout-trust.ts",
+    "packages/main/src/tasks/closeout-trust-smoke.ts"
+  ],
+  "allowedTest": [
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/scope-contract-smoke.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "packages/main/src/tasks/delivery-context-pack-smoke.ts",
+    "packages/main/src/tasks/closeout-trust-smoke.ts"
+  ],
+  "protectedFiles": [
+    "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+  ],
+  "explicitExcludes": [
+    "docs/story",
+    "tests/fixtures",
+    ".omx",
+    ".lattice/story/actives/B-9188",
+    "packages/main/src/core/prompt-registry.ts"
+  ],
+  "scopeChangeReason": "Verified critical finding F-125 requires the canonical product-reviewer prompt and both tracked Codex/Claude mirrors to use the same live-smoke transcript path. This reviewed expansion admits only those two exact mirror files; broader agent directories remain outside allowedModify.",
+  "acknowledgements": [
+    {
+      "actor": "lattice-implementer",
+      "reason": "DONE must independently re-run the existing REVIEW-to-TEST preflight so manual index phase edits cannot bypass lifecycle authorization.",
+      "timestamp": "2026-07-13T10:45:52.993Z",
+      "paths": [
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "81ce808903f6c7e478bd74e89a462fec30641853",
+      "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The shared DONE reviewer verdict makes this existing DONE-ready regression fixture require complete current-round reviewer passes.",
+      "timestamp": "2026-07-13T11:00:11.440Z",
+      "paths": [
+        "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "6b0dd55b2db345e4332159d2288117ddae938006",
+      "materialHash": "8e6a95dbb62680ca990145a6b68956231d5215ddfa4a26f15b8f474e6595cc7c",
+      "anchors": [
+        "evaluateReviewVerdict",
+        "canFinishGuard"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The new required currentReviewRound contract invalidates this legacy fixture that intentionally relied on missing-round compatibility.",
+      "timestamp": "2026-07-13T11:10:19.385Z",
+      "paths": [
+        "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "ced5f8302c350198d7667bb667a0261d2257225d",
+      "materialHash": "ad073efd4fec3685844c9e84a54c397c7e7e61af70cd816e6dc1b3641f850116",
+      "anchors": [
+        "evaluateReviewVerdict",
+        "review_round_missing"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The trust validator and delivery producer must share one canonical local-only claims schema without duplicating retired vocabulary in new files.",
+      "timestamp": "2026-07-13T11:21:57.247Z",
+      "paths": [
+        "packages/main/src/core/baseline-contracts.ts",
+        "packages/main/src/handlers/delivery-context-pack.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/baseline-contracts.ts",
+        "packages/main/src/handlers/delivery-context-pack.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "f54dcf772886a47dda71101a49e951850d464c81",
+      "materialHash": "075bc5ed48d985faf25af6a6dd50b3440c40c67c0c8585d94785d5009d275fc6",
+      "anchors": [
+        "LOCAL_ONLY_DELIVERY_CLAIMS",
+        "isExactLocalOnlyDeliveryClaims"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-022 requires a narrow quarantined compatibility module plus scanner enforcement of its exact approved importers and usages.",
+      "timestamp": "2026-07-13T11:31:45.168Z",
+      "paths": [
+        "packages/main/src/core/legacy-delivery-claims-compat.ts",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/legacy-delivery-claims-compat.ts",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "3e89c601a856cdc6686a099d03ffea186e334e9d",
+      "materialHash": "506f5cb69448a0c4b08d3cf529d3816cb842380b1a1d699ff19f3774d05fabc4",
+      "anchors": [
+        "scanLegacyDeliveryCompatibilityUsage",
+        "createLegacyLocalOnlyDeliveryClaims"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-031/F-032 full-suite validation exposed deterministic doctor brief output growth; trimming the brief representation is required to restore the existing bounded-output contract without weakening its threshold.",
+      "timestamp": "2026-07-13T12:33:06.700Z",
+      "paths": [
+        "packages/main/src/handlers/doctor.ts",
+        "packages/main/src/tasks/brief-output-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/doctor.ts",
+        "packages/main/src/tasks/brief-output-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "c5f65b88e8089287e4850a78927dc38fad774ea7",
+      "materialHash": "9ca061475c8a831ffcaf9d7e95d66d36432856ccdce91791c3c69f7ccb0f69b9",
+      "anchors": [
+        "doctor.briefOutput",
+        "briefOutputSmoke"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Doctor brief byte profiling identified full per-session host burn blocks as the deterministic output-budget regression; the shared renderer needs an explicit brief summary mode while preserving full diagnostics.",
+      "timestamp": "2026-07-13T12:34:19.947Z",
+      "paths": [
+        "packages/main/src/core/usage-burn-alert.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/usage-burn-alert.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "c5f65b88e8089287e4850a78927dc38fad774ea7",
+      "materialHash": "9ca061475c8a831ffcaf9d7e95d66d36432856ccdce91791c3c69f7ccb0f69b9",
+      "anchors": [
+        "renderHostBurnScan"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Story-own lifecycle metadata produced by the prior codex run: closeout-write-receipts.jsonl is emitted by the very closeout-trust-boundary feature this story implements, and evidence/delivery-context-pack.json by its delivery-check flow. Fail-closed unknown-path rule flags them because the scope contract predates these artifact classes; acknowledged during single-owner takeover recovery (2026-07-14) rather than deleted.",
+      "timestamp": "2026-07-13T22:57:07.426Z",
+      "paths": [
+        ".lattice/story/actives/B-f458/closeout-write-receipts.jsonl",
+        ".lattice/story/actives/B-f458/evidence/delivery-context-pack.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-f458/closeout-write-receipts.jsonl",
+        ".lattice/story/actives/B-f458/evidence/delivery-context-pack.json"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "94f5728b4bef093cc13fa59a1e463005055c66a2",
+      "materialHash": "a4c59713a334cdab21142bb79fe39f0e99c1a1c36020c32e44ebd0f9ae5a3613"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required to resolve verified F-119/F-120/F-122/F-123: expose the five focused regressions in the curated npm test chain, restore stable review-loop diagnostics, and replace the invalid partial DONE-store mock without weakening production gates.",
+      "timestamp": "2026-07-14T05:21:51.877Z",
+      "paths": [
+        "packages/main/package.json",
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+        "packages/main/src/tasks/review-loop-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/package.json",
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+        "packages/main/src/tasks/review-loop-smoke.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "24f364f469e26bfb82e584da04315944175ef6a6",
+      "materialHash": "b7e1d050e85ff291dfa533570f0f9c10ebff4e713ef07e9c13c5f1006a7cfc65"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required by verified critical F-125 to align the canonical live-smoke transcript path across active command policy, canonical product-reviewer template, Codex/Claude mirrors, and the mechanically verified prompt approval baseline; no reviewer semantics are broadened.",
+      "timestamp": "2026-07-14T05:42:10.934Z",
+      "paths": [
+        ".claude/agents/product-reviewer.md",
+        ".lattice-codex/agents/product-reviewer.md",
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/templates/agents/product-reviewer.md",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".claude/agents/product-reviewer.md",
+        ".lattice-codex/agents/product-reviewer.md",
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/templates/agents/product-reviewer.md",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+      ],
+      "affectedPathCount": 7,
+      "phase": "DEV",
+      "headHash": "a5621e382b6170a41fe6cd3c98e0c2a21d65328c",
+      "materialHash": "17a231595c17e76fa123b2c49783b6fd74d301bdf4a12dd8b2834feed8c49d39"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Verified critical finding F-127 requires correcting one still-active future DONE-gate promise from the retired transcript-diff path to the canonical live-smoke transcript artifact; no decision semantics beyond the artifact pathname change.",
+      "timestamp": "2026-07-14T15:35:46.261Z",
+      "paths": [
+        "docs/requirements/decisions/cc-learnings.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/cc-learnings.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "e05cafcb9b6218522b928e1b685dcb482668e398",
+      "materialHash": "79d4302157c99a416b4eb2d29984806de8730213608c6f30243f1de0cddd1085",
+      "anchors": [
+        "ccLearningsFutureDoneArtifact"
+      ]
+    }
+  ],
+  "createdAt": "2026-07-13T08:24:04.138Z",
+  "updatedAt": "2026-07-14T15:35:46.261Z",
+  "fileRules": [],
+  "protectedAnchors": []
+}

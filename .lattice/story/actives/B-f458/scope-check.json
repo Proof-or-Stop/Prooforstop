@@ -1,0 +1,104 @@
+{
+  "storyId": "B-f458",
+  "checkedAt": "2026-07-13T10:12:24.690Z",
+  "features": [
+    {
+      "feature": "Closed scope-defining and closeout-evidence classifications reject same-UID receipts as writer authority",
+      "covered_by": "CHK-001/004/005 + closeout-trust/lifecycle/process registries",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story/checklist/understanding/decision, c7fc146, main...HEAD"
+    },
+    {
+      "feature": "Composite scope digest and fresh post-closeout review boundary",
+      "covered_by": "CHK-002 + review-scope-binding/review-run",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "declared checklist and current diff"
+    },
+    {
+      "feature": "Persisted closeout schemas and embedded hash validation",
+      "covered_by": "CHK-003 + closeout-trust/proofstory/delivery-context-pack",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "declared checklist and current diff"
+    },
+    {
+      "feature": "Wrapper-root gitRoot-relative classification and fresh-review continuation",
+      "covered_by": "CHK-004 + review-run + closeout-trust smoke + process contract verifier",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "c7fc146 wrapper-root regression"
+    },
+    {
+      "feature": "Fail-closed coverage for unknown/material/scope/malformed/stale/same-UID cases",
+      "covered_by": "CHK-005 + closeout-trust and proofstory hardening smokes",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "revised verificationIntent and current test diff"
+    },
+    {
+      "feature": "Process-fact dual-layer registry and mechanical verifier coverage",
+      "covered_by": "CHK-001/005 + process-fact levels/registry + verify-process-fact-contract",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "current registry/script diff"
+    },
+    {
+      "feature": "M0.5 role rename and prompt-body work",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Understanding constraint, explicitExcludes, unchanged protected/prompt assets",
+      "source": "M4.C1 plan boundary and path audit"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [],
+    "filesTriagedByName": [
+      "docs/requirements/decisions/lifecycle-artifact-scope.md",
+      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "docs/requirements/decisions/story-files-hash-material-drift.md",
+      "docs/requirements/decisions/story-lifecycle.md",
+      "package.json",
+      "packages/main/src/core/auto-commit-metadata.ts",
+      "packages/main/src/core/closeout-trust.ts",
+      "packages/main/src/core/done-prepare-validation-reuse.ts",
+      "packages/main/src/core/lifecycle-registry.ts",
+      "packages/main/src/core/machine.ts",
+      "packages/main/src/core/process-fact-levels.ts",
+      "packages/main/src/core/process-fact-registry.ts",
+      "packages/main/src/core/review-run.ts",
+      "packages/main/src/core/review-scope-binding.ts",
+      "packages/main/src/core/types.ts",
+      "packages/main/src/handlers/delivery-check.ts",
+      "packages/main/src/handlers/delivery-context-pack.ts",
+      "packages/main/src/handlers/done-required-validation.ts",
+      "packages/main/src/handlers/evaluate.ts",
+      "packages/main/src/handlers/live-smoke-transcript.ts",
+      "packages/main/src/handlers/phase-gates.ts",
+      "packages/main/src/handlers/proofstory.ts",
+      "packages/main/src/handlers/review-run.ts",
+      "packages/main/src/handlers/summary.ts",
+      "packages/main/src/handlers/test-story.ts",
+      "packages/main/src/handlers/test.ts",
+      "packages/main/src/handlers/transition-effects.ts",
+      "packages/main/src/handlers/verifier.ts",
+      "packages/main/src/tasks/closeout-trust-smoke.ts",
+      "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+      "scripts/verify-process-fact-contract.mjs"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 7,
+    "covered": 6,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "2026-07-13T09:54:55.250Z",
+  "_hash": "0a8c76ac887209d4b9f1af9fe3d9cdb9cb6bb15e36bb153e9effeadf9fe640a9",
+  "openQuestions": []
+}

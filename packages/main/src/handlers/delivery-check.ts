@@ -93,7 +93,9 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
       // 6) Write back
       store.writeDeliveryCheck(args.storyId, data);
 
-      const commitHint = autoCommitStoryMetadata(root, args.storyId, 'delivery_waiver_add');
+      const commitHint = autoCommitStoryMetadata(root, args.storyId, 'delivery_waiver_add', {
+        closeoutArtifactPaths: ['delivery-check.json'],
+      });
       return `Waiver added for "${args.promiseId}" in ${args.storyId}: "${args.waiverReason.trim().slice(0, 50)}..."${commitHint}`;
     },
 
@@ -204,7 +206,9 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
       // 5) return summary
       const unverified = docsPromises.filter(p => !p.verifiedBy).length;
       const waived = realMachineTests.filter(t => !!t.waiverReason).length;
-      const commitHint = autoCommitStoryMetadata(root, args.storyId, 'delivery_check_set');
+      const commitHint = autoCommitStoryMetadata(root, args.storyId, 'delivery_check_set', {
+        closeoutArtifactPaths: ['delivery-check.json'],
+      });
       return `Delivery check saved for ${args.storyId}: ${docsPromises.length} docsPromises (${unverified} unverified), ${realMachineTests.length} realMachineTests (${waived} waived), selfCheck: ${closingSelfCheck.hasRealMachineTest ? 'hasRealMachine' : 'noRealMachine'}${commitHint}`;
     },
   };

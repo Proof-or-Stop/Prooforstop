@@ -1,6 +1,6 @@
 import { basename } from 'path';
 
-export const LATTICE_CLI_VERSION = '0.3.198' as const;
+export const LATTICE_CLI_VERSION = '0.3.199' as const;
 export const LATTICE_PRODUCT_NAME = 'Proofbound CLI' as const;
 export const LATTICE_PRIMARY_BIN = 'lattice' as const;
 

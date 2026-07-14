@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-f458",
+  "state": "confirmed",
+  "ledgerHash": "sha256:8b6d989eacfc3d91b990c1e45e1ec02cc4f2e640493b7eedc89201cc118a8cdf",
+  "milestones": [
+    {
+      "id": "M4.C1.1",
+      "sourceRequirementId": "M4.C1",
+      "claim": "Closed scope-defining and closeout-evidence artifact classes are mechanically registered with canonical writer provenance.",
+      "doneMeans": "Contract verifier prints the exact CHK-001 PASS line and rejects unknown trusted paths or wrong writers.",
+      "requiredEvidence": [
+        "logic_test",
+        "contract_test",
+        "regression_test"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4.C1.2",
+      "sourceRequirementId": "M4.C1",
+      "claim": "Composite semantic scope digest binds acknowledgement content/provenance, milestone ledger, and slice plan for review retention.",
+      "doneMeans": "Composite digest regression prints the exact CHK-002 PASS line and semantic mutations change the digest and block retention.",
+      "requiredEvidence": [
+        "logic_test",
+        "contract_test",
+        "regression_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4.C1.3",
+      "sourceRequirementId": "M4.C1",
+      "claim": "Trusted persisted ledger, slice plan, parent rollup, and delivery context artifacts are runtime schema-validated and embedded hashes recomputed.",
+      "doneMeans": "Artifact validator regression prints the exact CHK-003 PASS line and rejects malformed or forged artifacts by name.",
+      "requiredEvidence": [
+        "logic_test",
+        "contract_test",
+        "regression_test"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4.C1.4",
+      "sourceRequirementId": "M4.C1",
+      "claim": "Canonical TEST parent rollup closeout does not create synthetic scope expansion while real material or semantic scope drift routes to DEV/REVIEW.",
+      "doneMeans": "TEST rollup regression prints the exact CHK-004 PASS line and paired material/scope mutations route back to DEV/REVIEW.",
+      "requiredEvidence": [
+        "logic_test",
+        "contract_test",
+        "regression_test"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4.C1.5",
+      "sourceRequirementId": "M4.C1",
+      "claim": "Metadata-only review retention fails closed on every missing condition and never inherits old passes into a new review round.",
+      "doneMeans": "M4.C1 regression suite prints the exact CHK-005 PASS line and rejects unknown path, provenance/hash/schema, TEST acknowledgement, drift, and new-round reuse cases.",
+      "requiredEvidence": [
+        "logic_test",
+        "contract_test",
+        "regression_test"
+      ],
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-13T08:22:28.070Z",
+  "updatedAt": "2026-07-13T08:22:33.760Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260713082233",
+    "acceptedInterpretationHash": "sha256:e7d3df8d84be454f5f69f9812ba40da9b4ed85c8c3def36026eec52378338f11",
+    "acceptedAt": "2026-07-13T08:22:33.760Z"
+  }
+}

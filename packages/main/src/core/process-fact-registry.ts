@@ -163,9 +163,18 @@ export const PROCESS_FACT_RUNTIME_SEMANTICS = {
   'runtime:repro_first_story_intake_preflight': ['runtime-behavior', 'schema-contract', 'workspace-binding', 'gate-evidence'],
   'runtime:proof_admissibility_gate_diagnostic': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
   'runtime:parent_roadmap_totality_claim_consumer': ['runtime-behavior', 'schema-contract', 'verification-policy', 'gate-evidence'],
+  'runtime:closeout_artifact_trust_boundary': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
+  'runtime:composite_scope_digest_review_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'review-run', 'gate-evidence'],
+  'runtime:trusted_closeout_artifact_validation': ['runtime-behavior', 'schema-contract', 'verification-policy', 'gate-evidence'],
 } as const satisfies Record<string, readonly ProcessFactSemantic[]>;
 
 export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifactRef> = {
+  closeout_write_receipt: {
+    name: 'closeout-write-receipts.jsonl',
+    path: 'closeout-write-receipts.jsonl',
+    signed: false,
+    producerCommand: 'core/auto-commit-metadata',
+  },
   story_advance: {
     name: 'index.json',
     path: 'index.json',
@@ -287,6 +296,12 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signed: false,
     producerCommand: 'parent_ledger_rollup_set',
     consumerGate: 'ProofStory DONE intent-equivalence gate',
+  },
+  delivery_context_pack: {
+    name: 'delivery-context-pack.json',
+    path: 'evidence/delivery-context-pack.json',
+    signed: false,
+    producerCommand: 'delivery_context_pack',
   },
   proofstory_contract_set: {
     name: 'proofstory.json',
@@ -1006,6 +1021,24 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'ProofStory DONE intent-equivalence gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.parent_ledger_rollup_set,
     rationale: 'Parent ledger roll-up records child-story coverage for slice-plan DONE equivalence.',
+  },
+  {
+    name: 'artifact:closeout-write-receipts.jsonl',
+    kind: 'artifact',
+    semantics: ['artifact', 'schema-contract'],
+    level: 'L1',
+    producer: 'core/auto-commit-metadata',
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.closeout_write_receipt,
+    rationale: 'Append-only integrity-chained causal co-commit telemetry. Under the local same-UID threat model it is forgeable, is not canonical-writer authentication, cannot retain a signed review across closeout changes, and is not closeout evidence itself.',
+  },
+  {
+    name: 'artifact:evidence/delivery-context-pack.json',
+    kind: 'artifact',
+    semantics: ['artifact', 'schema-contract', 'verification-policy'],
+    level: 'L3',
+    producer: 'handlers/delivery-context-pack',
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.delivery_context_pack,
+    rationale: 'Delivery context is a runtime-validated canonical closeout input, not a signed delivery verdict and not authority evidence.',
   },
   {
     name: 'artifact:proofstory.json',

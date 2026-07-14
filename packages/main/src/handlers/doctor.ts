@@ -335,7 +335,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       lines.push('');
       // B-623a: the burn scan renders near the top on purpose — a runaway host
       // session should be the loudest thing on an otherwise healthy report.
-      for (const line of renderHostBurnScan(hostBurnScan, { disabled: burnDisabled })) lines.push(line);
+      for (const line of renderHostBurnScan(hostBurnScan, { disabled: burnDisabled, brief })) lines.push(line);
       lines.push('');
       lines.push(`lattice doctor — health issues`);
       lines.push(`  source: ${getHealthPath()}`);
