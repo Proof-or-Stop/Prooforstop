@@ -268,7 +268,7 @@
       "desc": "12 of 18 must-priority verificationEvidence rows are stale (materialHash mismatch), making lattice validate report status=fail with verification coverage missing 12 required intent(s), even though npm run test:convergence-breaker currently passes all 15 sections. Root cause: commit e4ef9473836948c54603e8dd05dd655c55f33d43 (F-009, added smoke section 15 canonical-id-guard coverage) materially changed convergence-breaker-smoke.ts AFTER these 12 evidence rows were captured (materialHash 626cd8dc...) but they were never re-run/re-recorded against the post-fix material state (materialHash b6a00baa..., the same state CHK-002/CHK-003:happy/edge/CHK-006:edge were correctly re-captured against). Stale intentRefs (status=stale per verificationCoverage.entries): CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0, CHK-003:adversarial:0, CHK-004:happy:0, CHK-004:edge:0, CHK-004:adversarial:0, CHK-005:happy:0, CHK-005:edge:0, CHK-005:adversarial:0, CHK-006:happy:0, CHK-006:adversarial:0. Fix: re-run npm run test:convergence-breaker and call verification_evidence_add (or the refresh-stale path) for these 12 intentRefs so headHash/materialHash reflect the current HEAD b7bcecd23f19c8a9b9e64a51aed03741b840ec69 (or later).",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-14T16:32:18.313Z",
@@ -280,7 +280,11 @@
         ".lattice/story/actives/B-bbaf/checklist.json"
       ],
       "signatureTag": "missing|ts|priority-verificationevidence-rows",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "recover_evidence rebound all 18 verificationEvidence rows (12 stale refreshed) to the current material after smoke section 15 (commit e4ef9473) was added; validate coverage is now current. Content/coverage was always present — this was an evidence-freshness pin update, not a coverage gap.",
+      "resolvedAt": "2026-07-14T16:41:51.779Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
