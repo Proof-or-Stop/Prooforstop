@@ -217,8 +217,28 @@
       "phase": "DEV",
       "headHash": "94f5728b4bef093cc13fa59a1e463005055c66a2",
       "materialHash": "a4c59713a334cdab21142bb79fe39f0e99c1a1c36020c32e44ebd0f9ae5a3613"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required to resolve verified F-119/F-120/F-122/F-123: expose the five focused regressions in the curated npm test chain, restore stable review-loop diagnostics, and replace the invalid partial DONE-store mock without weakening production gates.",
+      "timestamp": "2026-07-14T05:21:51.877Z",
+      "paths": [
+        "packages/main/package.json",
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+        "packages/main/src/tasks/review-loop-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/package.json",
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+        "packages/main/src/tasks/review-loop-smoke.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "24f364f469e26bfb82e584da04315944175ef6a6",
+      "materialHash": "b7e1d050e85ff291dfa533570f0f9c10ebff4e713ef07e9c13c5f1006a7cfc65"
     }
   ],
   "createdAt": "2026-07-13T08:24:04.138Z",
-  "updatedAt": "2026-07-13T22:57:07.426Z"
+  "updatedAt": "2026-07-14T05:21:51.877Z"
 }
