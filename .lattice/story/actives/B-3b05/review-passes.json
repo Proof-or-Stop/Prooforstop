@@ -135,6 +135,33 @@
         "scanEscalationReason": null
       },
       "_hash": "72c6ead1bd9721893d1c5239418677926f695fafd9478ced79f3296041310855"
+    },
+    {
+      "id": "B-3b05:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 re-verify F-001/F-002 both fixed; tamper add/strip/flip re-probed against rebuilt dist all fail closed; tests + tsc + process-fact-contract green; no new dead code/as-any/empty-catch in delta.",
+      "createdAt": "2026-07-14T00:51:07.110Z",
+      "reviewRound": "2026-07-14T00:46:23.555Z",
+      "reviewRunId": "B-3b05:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3b05/evidence/provenance-warn-transcript.md",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/tasks/review-pass-provenance-smoke.ts",
+          "packages/main/tests/milestone-status.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/review-pass-provenance.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a1d37b2c0e29549b422565ba90e4b0cda88c3f73b7834cf25954741b1ab7aa29"
     }
   ]
 }
