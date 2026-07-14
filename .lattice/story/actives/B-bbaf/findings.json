@@ -223,7 +223,7 @@
       "desc": "CHK-003:happy:0 and CHK-003:edge:0 verificationEvidence notes cite smoke sections that never call enforceConvergenceBreakerGate, so they do not concretely correspond to their (type:cli) intents. CHK-003:happy:0 intent is \"A frozen story rejects story_advance with a message naming the tripped counters and the authoritative next action\" but the note cites section 8, which only round-trips writeBreakerState/readBreakerState and calls resumeBreakerState -- it never invokes the actual gate. The real assertion that a frozen story_advance throws with the tripped-counter message is `assert.throws(() => enforceConvergenceBreakerGate(base), /FROZEN/, ...)` in section 13 (lines 308-312), added by the F-006 fix but never back-referenced into the CHK-003:happy:0 evidence note. CHK-003:edge:0 intent is \"story_resume --ack --reason=... in an interactive session clears the freeze and the next advance proceeds\" but the note cites section 9, which only exercises the pure isInteractiveAckAllowed(env,isTty) predicate with no story/freeze state at all. The actual clear-then-proceed integration (resumeBreakerState + writeBreakerState + a subsequent enforceConvergenceBreakerGate call that must NOT throw) is section 13 lines 316-319, also uncited. Both entries lean on an unverifiable \"real-CLI verified in this session\" phrase to paper over the automated-test mismatch; per the evidence-must-concretely-correspond rule the cited automated section should be the one that actually exercises the claimed behavior (section 13), not sections 8/9 which predate the F-006 fix and were never updated to point at it.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-14T16:15:24.222Z",
@@ -234,7 +234,11 @@
         "packages/main/src/tasks/convergence-breaker-smoke.ts"
       ],
       "signatureTag": "missing|ts|happy-edge-verificationevidence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Corrected the verificationEvidence notes for the affected intents to cite the smoke section numbers that actually contain their assertions (CHK-002 happy->s1, edge->s2, adversarial->s10; CHK-003 happy/edge->s13). Coverage was already present; only the note section references were stale after smoke sections 11-15 were added.",
+      "resolvedAt": "2026-07-14T16:17:13.274Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
