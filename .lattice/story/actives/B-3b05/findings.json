@@ -38,6 +38,24 @@
       ],
       "signatureTag": "adversarial|ts|adversarial-review-pass",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3b05:F-003",
+      "desc": "proofstory.ts:1685-1705 (evaluateDoneIntentEquivalence, uncovered_required_milestones): the desync framing and remediation hint are decoupled from the actual ledger row status and from what actually clears the gap, so the message can be both factually wrong and actively misleading. (1) ledgerDesynced (line 1694) never reads row.status, only checklistRefs coverage; normalizeMilestone (same file) lets milestone_ledger_set/_add set status to ANY of planned|covered|done|not_applicable independent of evidence coverage, so a row already marked status=done/covered but still uncovered (evidence missing) hits the desync branch and the message hardcodes \"remain planned\" (line 1699) even though the persisted status is done/covered — reproduced against the built dist: checklist item done, milestone.status=done, verificationIntentRefs with no covering evidence -> gap.message contains \"ledger row(s) M-x remain planned\" while M-x.status===done. (2) The suggested fix text \"update status/checklistRefs/verificationIntentRefs\" via milestone_ledger_set (line 1701) is itself the wrong remedy for the dominant real cause: coverage is decided purely by refs.every(ref => evidenceCoversIntent(evidence, ref)) (line ~1653); milestone.status and checklistRefs play no role in clearing this gap (status only matters for the separate not_applicable exemption). Reproduced: adding verification_evidence_add for the checklist items intent while leaving the ledger row untouched (status still planned) clears the gap outright, with zero calls to milestone_ledger_set. An operator who follows the hint literally (runs milestone_ledger_set to flip status without adding evidence) will see the gap persist and be confused — reproducing the exact 14-hour-stall failure mode this story was built to eliminate. Fix: (a) derive the status word in the desync message from the actual row.status instead of hardcoding \"remain planned\"; (b) when verificationIntentRefs is non-empty but uncovered, have the hint point at verification_evidence_add as the primary remedy, reserving the milestone_ledger_set refs edit for the refs.length===0 case.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-07-14T00:22:53.854Z",
+      "reviewRound": "2026-07-14T00:13:46.358Z",
+      "reviewRunId": "B-3b05:RR-004",
+      "_hash": "249851848d6368c26cf6b084b32ee42524723cb3953984507efbe5016f9821fc",
+      "files": [
+        "packages/main/src/core/proofstory.ts"
+      ],
+      "signatureTag": "edge|ts|proofstory-1685-1705",
+      "signatureTagSource": "auto"
     }
   ]
 }
