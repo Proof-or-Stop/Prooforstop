@@ -43,7 +43,7 @@
       "desc": "packages/main/src/core/convergence-breaker.ts:267-286 + handlers/story.ts:57-60 + core/story-owner-lease.ts:824-831: the one-shot auto-recovery/human-ack-resume only re-baselines the ADVANCE signal (advanceBaseline=advanceCount); it never resets/windows takeoverCount (takeover-count.json is write-only-increment for the entire story lifetime, bumped at story-owner-lease.ts:831, never decremented or reset by resumeBreakerState in convergence-breaker.ts:301-312 nor by story_resume in handlers/story.ts:58-60) and never windows the pass-rate ratio. Concrete false-freeze sequence for a story that legitimately accumulates >5 lease takeovers over its life (plausible for any multi-session/multi-day story, e.g. crash/session-handoff recoveries): (1) 6th takeover trips the breaker via takeover-signal on the next story_advance -> assessBreaker returns action=auto-recover (budget 0<1), state persisted with autoRecoveriesSpent=1, advance proceeds. (2) The VERY NEXT story_advance call re-reads takeoverCount, still =6>5 (nothing decremented it), re-trips, autoRecoveriesSpent(1) is no longer <AUTO_RECOVERY_BUDGET(1) -> action=freeze -> throws, hard-blocking the story even though it may now be perfectly healthy/converging. (3) A human runs story_resume --ack; resumeBreakerState resets autoRecoveriesSpent=0/frozen=false but leaves takeover-count.json untouched at 6. (4) The next story_advance re-trips via the SAME takeover signal, again auto-recovers (spends the fresh budget), and the call after that freezes again. The story is now PERMANENTLY stuck alternating one advance succeeds, next one freezes forever, requiring a human story_resume roughly every other story_advance for the rest of the story lifetime, with no way to genuinely clear it short of manually deleting the gitignored/undocumented takeover-count.json file on disk. This directly violates the CHK-002 userSees promise (After a first trip ... the story still advances) and the module header contract (auto-recovers ONCE so healthy autonomous work is unaffected) for any story whose takeover count ever crosses the threshold, and is a genuine false-freeze of a healthy story at the story_advance choke point. Pass-rate has the same structural gap (no windowing/baseline) but is a ratio so it can self-heal with enough future passes; takeover is an absolute non-decreasing count so it structurally never heals. The smoke test (tasks/convergence-breaker-smoke.ts section 3) only covers the advance-count recovery path by hand-constructing a fixture where advanceCount stalls, never a re-assessment that reuses an unchanged elevated takeoverCount/passRate after auto-recovery or after story_resume, so this gap is untested. Fix: either window/re-baseline takeoverCount (and the pass-rate sample) the same way advanceCount is re-baselined on auto-recovery/resume, or have story_resume snapshot-baseline takeoverCount (a takeoverBaseline field) so only NEW takeovers after the ack can re-trip.",
       "severity": "critical",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-07-14T13:03:52.389Z",
@@ -51,7 +51,11 @@
       "reviewRunId": "B-bbaf:RR-002",
       "_hash": "0194bb039a30f027adc2d485c7a23c67681a5d9bbdd8d831fb92f4f9adf9a777",
       "signatureTag": "edge|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "assessBreaker now measures every count signal as a DELTA over per-signal baselines (advance/takeover/reviewRun/reviewPass); auto-recovery and resumeBreakerState re-baseline ALL of them, so an elevated lifetime takeoverCount no longer re-freezes a recovered healthy story. Smoke section 11 is the regression test. Fixed in 53c25c4.",
+      "resolvedAt": "2026-07-14T13:20:45.946Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-bbaf:F-004",
