@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-f458",
+  "phase": "TEST",
+  "generatedAt": "2026-07-14T17:28:13.268Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "13094b07a0ec32f2f7fe22555ffac794ccfc2117074075d705cf9cff5a939c3a",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:8b6d989eacfc3d91b990c1e45e1ec02cc4f2e640493b7eedc89201cc118a8cdf"
+    },
+    "groups": {
+      "completed": [
+        "M4.C1.1",
+        "M4.C1.2",
+        "M4.C1.3",
+        "M4.C1.4",
+        "M4.C1.5"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "2e25cee33073cdddab97fd6e27d6653b6713b931",
+    "materialHash": "420e4a6df93e253f3f361142f3e53e43e90d62f62111958443b28d3299a83103",
+    "storyFilesHash": "5f81fc9894f48c6c3c6feca8e66400c1a78b8a71a66f7eca71165e68311c746f"
+  },
+  "rows": [
+    {
+      "milestone": "M4.C1.1",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Closed scope-defining and closeout-evidence artifact classes are mechanically registered with canonical writer provenance.",
+      "acceptance": "Contract verifier prints the exact CHK-001 PASS line and rejects unknown trusted paths or wrong writers.",
+      "evidence": [
+        "CHK-001:happy:0 [pass/logic_test] npm test note=Full npm test suite passed at implementation commit 1e9684f531 after F-070/F-071/F-072/F-073 destructuring and spread provenance hardening.",
+        "CHK-001:edge:0 [pass/logic_test] node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/brief-output-smoke.js note=Closeout trust, runtime fact, and brief-output regression checks passed at implementation commit 1e9684f531.",
+        "CHK-001:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node scripts/verify-process-fact-contract.mjs && node packages/main/dist/tasks/usage-burn-alert-smoke.js note=Adversarial checks passed at implementation commit 1e9684f531: known-key any/unknown fallback, own-enumerable ordered spread override, finite typed and symbol spread provenance, true nested array rest declaration/assignment/parameter controls, and four reserved-name negative matrix; process-fact pins match the controls."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M4.C1.2",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Composite semantic scope digest binds acknowledgement content/provenance, milestone ledger, and slice plan for review retention.",
+      "acceptance": "Composite digest regression prints the exact CHK-002 PASS line and semantic mutations change the digest and block retention.",
+      "evidence": [
+        "CHK-002:happy:0 [pass/logic_test] npm test note=Full npm test suite passed at implementation commit 1e9684f531 after F-070/F-071/F-072/F-073 destructuring and spread provenance hardening.",
+        "CHK-002:edge:0 [pass/logic_test] node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/brief-output-smoke.js note=Closeout trust, runtime fact, and brief-output regressions passed at implementation commit 1e9684f531.",
+        "CHK-002:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node scripts/verify-process-fact-contract.mjs && node packages/main/dist/tasks/usage-burn-alert-smoke.js note=Adversarial checks passed at implementation commit 1e9684f531: known-key any/unknown fallback, own-enumerable ordered spread override, finite typed and symbol spread provenance, true nested array rest declaration/assignment/parameter controls, and four reserved-name negative matrix; process-fact pins match the controls."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M4.C1.3",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Trusted persisted ledger, slice plan, parent rollup, and delivery context artifacts are runtime schema-validated and embedded hashes recomputed.",
+      "acceptance": "Artifact validator regression prints the exact CHK-003 PASS line and rejects malformed or forged artifacts by name.",
+      "evidence": [
+        "CHK-003:happy:0 [pass/logic_test] npm test note=Full npm test suite passed at implementation commit 1e9684f531 after F-070/F-071/F-072/F-073 hardening.",
+        "CHK-003:edge:0 [pass/logic_test] node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/brief-output-smoke.js note=Closeout trust, runtime fact, and brief-output regressions passed at implementation commit 1e9684f531.",
+        "CHK-003:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node scripts/verify-process-fact-contract.mjs && node packages/main/dist/tasks/usage-burn-alert-smoke.js note=Adversarial checks passed at implementation commit 1e9684f531: known-key any/unknown fallback, own-enumerable ordered spread override, finite typed and symbol spread provenance, true nested array rest controls, and four-name negative matrix; process pins match."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M4.C1.4",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Canonical TEST parent rollup closeout does not create synthetic scope expansion while real material or semantic scope drift routes to DEV/REVIEW.",
+      "acceptance": "TEST rollup regression prints the exact CHK-004 PASS line and paired material/scope mutations route back to DEV/REVIEW.",
+      "evidence": [
+        "CHK-004:happy:0 [pass/logic_test] npm test note=Full npm test suite passed at implementation commit 1e9684f531 after F-070/F-071/F-072/F-073 hardening.",
+        "CHK-004:edge:0 [pass/logic_test] node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/brief-output-smoke.js note=Closeout trust, runtime fact, and brief-output regressions passed at implementation commit 1e9684f531.",
+        "CHK-004:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node scripts/verify-process-fact-contract.mjs && node packages/main/dist/tasks/usage-burn-alert-smoke.js note=Adversarial checks passed at implementation commit 1e9684f531: known-key any/unknown fallback, own-enumerable ordered spread override, finite typed and symbol spread provenance, true nested array rest controls, and four-name negative matrix; process pins match."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M4.C1.5",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Metadata-only review retention fails closed on every missing condition and never inherits old passes into a new review round.",
+      "acceptance": "M4.C1 regression suite prints the exact CHK-005 PASS line and rejects unknown path, provenance/hash/schema, TEST acknowledgement, drift, and new-round reuse cases.",
+      "evidence": [
+        "CHK-005:happy:0 [pass/logic_test] npm test note=Full npm test suite passed at implementation commit 1e9684f531 after F-070/F-071/F-072/F-073 hardening.",
+        "CHK-005:edge:0 [pass/logic_test] node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/brief-output-smoke.js note=Closeout trust, runtime fact, and brief-output regressions passed at implementation commit 1e9684f531.",
+        "CHK-005:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node scripts/verify-process-fact-contract.mjs && node packages/main/dist/tasks/usage-burn-alert-smoke.js note=Adversarial checks passed at implementation commit 1e9684f531: known-key any/unknown fallback, own-enumerable ordered spread override, finite typed and symbol spread provenance, true nested array rest controls, and four-name negative matrix; process pins match."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}
