@@ -294,6 +294,30 @@
         "scanEscalationReason": null
       },
       "_hash": "6bf6b8d884166e8153a96476a379d46309f14b94bdb13508d29b1e07e3bc2332"
+    },
+    {
+      "id": "B-bbaf:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 18 required verificationIntents (happy/edge/adversarial across CHK-001..CHK-006) covered by valid, fresh verificationEvidence (npm run test:convergence-breaker, 15-section smoke, all pass, 0 stale rows post-recover_evidence). validate --json confirms verificationCoverage total=18 required=18 covered=18 missingRequired=0, overall status=pass. All 13 prior findings (F-001..F-013) resolved, 0 open. No blocker.",
+      "createdAt": "2026-07-14T16:54:32.093Z",
+      "reviewRound": "2026-07-14T15:59:16.186Z",
+      "reviewRunId": "B-bbaf:RR-018",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bbaf/checklist.json",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/handlers/story.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cd16e9c1accfd0c27738492fb0f62e633dfd861f11228eabd626a47447ad69ea"
     }
   ]
 }
