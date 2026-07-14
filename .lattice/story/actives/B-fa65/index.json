@@ -1,0 +1,30 @@
+{
+  "storyId": "B-fa65",
+  "name": "doctor-worktree-realpath-false-warn",
+  "title": "Doctor global-core-realpath falsely warns in linked worktrees, blowing the brief byte budget and blocking every worktree DONE",
+  "description": "Environmental regression found while closing B-3b05 on 2026-07-14: the doctor global-core-realpath check warns whenever lattice runs inside a linked worktree, because the global @lattice/core realpath resolves to the repo canonical main checkout (/packages/main) while the check expects the CURRENT project root (.worktrees/B-xxxx/packages/main). That resolution is the documented, expected deployment (global CLI = canonical main dist; worktrees are never relinked per-worktree), so the warn plus its repair block (Relink or reinstall the global @lattice/core package) is a false positive in every worktree. Concrete damage: the warn adds ~240 bytes to doctor brief output, pushing it to 20239 bytes against the 20000-byte budget asserted by brief-output-smoke (packages/main/dist/tasks/brief-output-smoke.js, from B-7c05); npm test is in the DONE-required command set (done_required_validate: FAIL root full test suite), so done_prepare validate hard-blocks DONE for EVERY in-flight worktree story (reproduced on B-3b05; main checkout passes the same suite, proving the failure is location-dependent, not story code). Fix direction: make the global-core-realpath check worktree-aware — when cwd is a linked worktree of the same repository and the global realpath equals that repository canonical main checkout packages/main, classify as pass/info with no repair block (brief stays under budget); keep the genuine mismatch warn (global resolving to an unrelated path) intact with a regression test for both contexts. Raising the smoke byte budget instead would hide the false warn and is not the fix.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "doctor",
+    "global-core-realpath",
+    "worktree",
+    "brief-output-smoke",
+    "done_required_validate"
+  ],
+  "createdAt": "2026-07-14T01:14:23.648Z",
+  "startedAt": "2026-07-14T01:14:23.648Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-14T01:14:23.971Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "9f8bf495-b234-42dc-9ecb-16d603a760d2",
+      "agent": "main"
+    }
+  ]
+}
