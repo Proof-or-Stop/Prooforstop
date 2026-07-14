@@ -101,6 +101,14 @@ export function verifyFinding(
 export interface ReviewPassWriterProvenance {
   writerSessionId: string;
   sessionSource: string;
+  /**
+   * B-3b05 F-002: the audit flag itself is part of the signed domain — a flag
+   * added, stripped, or flipped on an already-signed record must break
+   * verification. Canonical representation: absent and empty string both sign
+   * as '' (a no-flag record), so sign/verify stay symmetric for unflagged
+   * records.
+   */
+  provenanceFlag?: string;
 }
 
 export function signReviewPass(
@@ -136,6 +144,7 @@ export function signReviewPass(
       reviewRunId,
       writerSessionId: provenance.writerSessionId,
       sessionSource: provenance.sessionSource ?? '',
+      provenanceFlag: provenance.provenanceFlag ?? '',
       ...(readManifest !== undefined ? { readManifest: normalizeReviewerReadManifest(readManifest) } : {}),
       ...(readLog !== undefined ? { readLog: normalizeReviewerReadLogEvidence(readLog) } : {}),
       ...(readDiagnostics !== undefined ? { readDiagnostics: normalizeReviewerReadDiagnostics(readDiagnostics) } : {}),
@@ -175,17 +184,22 @@ export function verifyReviewPass(
     readDiagnostics?: ReviewerReadDiagnostic[];
     writerSessionId?: string;
     sessionSource?: string;
+    provenanceFlag?: string;
   },
 ): boolean {
   if (!p._hash || !p.createdAt || !p.agent || !p.note) return false;
   const reviewRunId = p.reviewRunId?.trim() || '';
   // B-3b05: provenance-inclusive records verify ONLY via the version-3 domain —
   // no fallback to legacy domains (mirrors the reviewRunId rule). A record with
-  // sessionSource but no writerSessionId can only be a stripped/tampered new
-  // record, so it fails closed too. Records with NEITHER field are pre-B-3b05
-  // history and keep verifying via the legacy domains below (never fail-closed
-  // on history).
-  if (p.writerSessionId !== undefined || p.sessionSource !== undefined) {
+  // sessionSource or provenanceFlag but no writerSessionId can only be a
+  // stripped/tampered new record, so it fails closed too (a legitimate flag is
+  // only ever written alongside a signed writer identity). Records with NONE of
+  // the three fields are pre-B-3b05 history and keep verifying via the legacy
+  // domains below (never fail-closed on history).
+  // F-002: provenanceFlag is bound into the v3 payload (absent ≡ '' — the same
+  // canonicalization signReviewPass applies), so add/strip/flip of the flag on
+  // an already-signed record breaks verification.
+  if (p.writerSessionId !== undefined || p.sessionSource !== undefined || p.provenanceFlag !== undefined) {
     if (typeof p.writerSessionId !== 'string' || p.writerSessionId.trim().length === 0) return false;
     try {
       return p._hash === signReviewPass(
@@ -199,7 +213,11 @@ export function verifyReviewPass(
         p.readManifest,
         p.readLog,
         p.readDiagnostics,
-        { writerSessionId: p.writerSessionId, sessionSource: p.sessionSource ?? '' },
+        {
+          writerSessionId: p.writerSessionId,
+          sessionSource: p.sessionSource ?? '',
+          provenanceFlag: p.provenanceFlag ?? '',
+        },
       );
     } catch {
       return false;

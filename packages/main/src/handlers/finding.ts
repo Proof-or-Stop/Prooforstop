@@ -409,7 +409,13 @@ function recordReviewPass(
         readEvidence.readManifest,
         readEvidence.readLog,
         readEvidence.readDiagnostics,
-        { writerSessionId: provenance.writerSessionId, sessionSource: provenance.sessionSource },
+        {
+          writerSessionId: provenance.writerSessionId,
+          sessionSource: provenance.sessionSource,
+          // F-002: the audit flag is signed too (absent canonicalizes to '') —
+          // adding/stripping/flipping it post-write breaks verification.
+          provenanceFlag: provenance.provenanceFlag,
+        },
       ),
     };
     data.passes.push(pass);

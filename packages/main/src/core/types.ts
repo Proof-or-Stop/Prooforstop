@@ -702,7 +702,10 @@ export interface ReviewPass {
   /**
    * B-3b05: audit-only flag — the writer session equals the story owner lease
    * session at write time (subagent-or-self; not mechanically distinguishable
-   * per EXP-001/B-e71f). NOT consumed by any blocking gate.
+   * per EXP-001/B-e71f). NOT consumed by any blocking gate. Signed into the
+   * provenance-inclusive domain (F-002): adding, stripping, or flipping the
+   * flag on an already-signed record breaks verification (absent ≡ '' in the
+   * signed payload).
    */
   provenanceFlag?: 'same_session_write';
   _hash?: string;

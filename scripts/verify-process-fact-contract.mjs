@@ -182,7 +182,7 @@ const requiredArtifactFacts = [
   { name: 'artifact:delivery-check.json', path: 'delivery-check.json', signed: true, signaturePattern: /signDeliveryCheck\/recomputeDeliveryCheckHash/ },
   { name: 'artifact:review-runs.json', path: 'review-runs.json', signed: true, signaturePattern: /signReviewRun\/verifyReviewRun; .*ReviewRun\.storyFilesHash.*workspaceBinding\.bindingHash/ },
   { name: 'artifact:findings.json', path: 'findings.json', signed: true, signaturePattern: /signFinding\/verifyFinding; reviewRunId-inclusive records do not fall back to legacy signatures/ },
-  { name: 'artifact:review-passes.json', path: 'review-passes.json', signed: true, signaturePattern: /signReviewPass\/verifyReviewPass; reviewRunId-inclusive records do not fall back to legacy signatures; writerSessionId-inclusive records bind writer session provenance \(writerSessionId \+ sessionSource\) in a versioned domain with no legacy fallback/ },
+  { name: 'artifact:review-passes.json', path: 'review-passes.json', signed: true, signaturePattern: /signReviewPass\/verifyReviewPass; reviewRunId-inclusive records do not fall back to legacy signatures; writerSessionId-inclusive records bind writer session provenance \(writerSessionId \+ sessionSource \+ provenanceFlag, absent flag canonicalized to empty\) in a versioned domain with no legacy fallback/ },
   { name: 'artifact:review-loops.jsonl', path: 'review-loops.jsonl', signed: false },
   { name: 'artifact:draft-check.json', path: 'draft-check.json', signed: true, signaturePattern: /computeDraftCheckHash/ },
   { name: 'artifact:summary.json', path: 'summary.json', signed: false },
@@ -4420,8 +4420,10 @@ const inventory = [
       {
         // B-3b05: provenance-inclusive records verify only via the versioned
         // domain; records without writerSessionId keep the legacy domains.
+        // F-002: the provenanceFlag itself is signed (absent canonicalized to
+        // empty), so flag add/strip/flip breaks verification.
         relPath: 'packages/main/src/core/finding-verify.ts',
-        patterns: ['writerSessionId', 'sessionSource', 'ReviewPassWriterProvenance'],
+        patterns: ['writerSessionId', 'sessionSource', 'ReviewPassWriterProvenance', 'provenanceFlag', "provenanceFlag: provenance.provenanceFlag ?? ''"],
       },
     ],
   },

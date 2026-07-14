@@ -15,7 +15,11 @@
  *      writerSessionId still verifies via the legacy domain;
  *   5. absent / invalid config resolves the mode to warn (hardcoded fallback);
  *   6. tampering the persisted writerSessionId (or stripping provenance fields)
- *      breaks signature verification;
+ *      breaks signature verification — and (F-002) so does tampering the
+ *      provenanceFlag itself: ADDING a flag to an unflagged signed record,
+ *      STRIPPING the flag from a flagged signed record, or FLIPPING its value
+ *      all fail verification (asserted against both locally-signed records and
+ *      the record the REAL CLI persisted in scenario 2);
  *   7. an explicit-env session id is recorded with sessionSource=explicit-env
  *      (spoof stays a visible coordination-level claim), and a scrubbed env
  *      degrades to sessionSource=derived-ppid.
@@ -236,7 +240,14 @@ async function assertNonOwnerSessionRecordsIdentityWithoutFlag(): Promise<void> 
     assert.equal(pass!.provenanceFlag, undefined, 'distinct writer session must not be flagged');
     assert.equal(verifyReviewPass(storyId, pass!), true, 'provenance-inclusive record verifies');
     assert.ok(!result.stdout.includes(SAME_SESSION_WRITE_FLAG), 'stdout has no same-session flag for a distinct session');
+    // F-002: fabricating a flag on the CLI-persisted UNFLAGGED record must fail.
+    assert.equal(
+      verifyReviewPass(storyId, { ...pass!, provenanceFlag: SAME_SESSION_WRITE_FLAG }),
+      false,
+      'adding provenanceFlag to the CLI-persisted unflagged record breaks verification',
+    );
     console.log('  ✓ non-owner session records identity + verifies + no flag (sessionSource=explicit-env visible)');
+    console.log('  ✓ CLI-persisted unflagged record: fabricated provenanceFlag add breaks verification (F-002)');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -285,7 +296,21 @@ async function assertOwnerSessionWarnModeFlagsAndWarns(): Promise<void> {
     );
     assert.ok(result.stderr.includes('subagent-or-self'), 'stderr warning keeps neutral EXP-001 wording');
     assert.ok(result.stdout.includes(`provenanceFlag=${SAME_SESSION_WRITE_FLAG}`), 'operator-facing stdout shows the flag');
+    // F-002: tamper the record the REAL CLI just signed — the flag is hash-bound.
+    const cliStripped = { ...pass! } as Record<string, unknown>;
+    delete cliStripped.provenanceFlag;
+    assert.equal(
+      verifyReviewPass(storyId, cliStripped as unknown as ReviewPass),
+      false,
+      'stripping provenanceFlag from the CLI-persisted flagged record breaks verification',
+    );
+    assert.equal(
+      verifyReviewPass(storyId, { ...pass!, provenanceFlag: 'relabeled_flag' as unknown as ReviewPass['provenanceFlag'] }),
+      false,
+      'flipping provenanceFlag on the CLI-persisted flagged record breaks verification',
+    );
     console.log('  ✓ owner-session warn mode persists with same_session_write flag + stderr warning naming both ids');
+    console.log('  ✓ CLI-persisted flagged record: provenanceFlag strip/flip breaks verification (F-002)');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -443,7 +468,56 @@ function assertTamperBreaksSignature(): void {
     false,
     'stripping BOTH provenance fields cannot fall back to a legacy domain for a v3-signed hash',
   );
+
+  // ── F-002: the provenanceFlag itself is signed. ──
+  // ADD: fabricating a flag on an unflagged signed record must fail.
+  assert.equal(
+    verifyReviewPass('B-tamper', { ...base, provenanceFlag: SAME_SESSION_WRITE_FLAG }),
+    false,
+    'ADDING provenanceFlag to an unflagged signed record breaks the signature (fabricated self-sign evidence)',
+  );
+
+  // A record signed WITH the flag (owner-session warn-mode shape).
+  const flagged: ReviewPass = {
+    ...base,
+    id: 'B-tamper:RP-002',
+    writerSessionId: 'sess-owner-selfsigned',
+    provenanceFlag: SAME_SESSION_WRITE_FLAG,
+  };
+  flagged._hash = signReviewPass(
+    'B-tamper',
+    flagged.id,
+    flagged.agent,
+    flagged.note,
+    flagged.createdAt,
+    flagged.reviewRound!,
+    flagged.reviewRunId,
+    flagged.readManifest,
+    undefined,
+    undefined,
+    {
+      writerSessionId: flagged.writerSessionId!,
+      sessionSource: flagged.sessionSource!,
+      provenanceFlag: flagged.provenanceFlag,
+    },
+  );
+  assert.equal(verifyReviewPass('B-tamper', flagged), true, 'untampered FLAGGED provenance record verifies');
+  // STRIP: erasing the self-sign audit flag post-write must fail.
+  const flagStripped = { ...flagged } as Record<string, unknown>;
+  delete flagStripped.provenanceFlag;
+  assert.equal(
+    verifyReviewPass('B-tamper', flagStripped as unknown as ReviewPass),
+    false,
+    'STRIPPING provenanceFlag from a flagged signed record breaks the signature (erased self-sign evidence)',
+  );
+  // FLIP: rewriting the flag to any other value must fail.
+  assert.equal(
+    verifyReviewPass('B-tamper', { ...flagged, provenanceFlag: 'relabeled_flag' as unknown as ReviewPass['provenanceFlag'] }),
+    false,
+    'FLIPPING provenanceFlag on a flagged signed record breaks the signature',
+  );
   console.log('  ✓ writerSessionId/sessionSource tamper or strip breaks signature verification');
+  console.log('  ✓ provenanceFlag add/strip/flip on a signed record breaks signature verification (F-002)');
 }
 
 async function main(): Promise<void> {
