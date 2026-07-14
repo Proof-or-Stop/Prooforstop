@@ -4,7 +4,7 @@
   "title": "Align global-thin root entry documents with the canonical guide",
   "description": "Keep AGENTS.md and CLAUDE.md as concise host-specific entrypoints that refer shared guidance to .lattice/Lattice.md, without changing runtime code or other documentation.",
   "type": "chore",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "medium",
   "createdAt": "2026-07-14T05:13:21.266Z",
   "startedAt": "2026-07-14T05:13:21.266Z",
@@ -18,6 +18,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-07bc482a401d5422",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-14T05:16:10.765Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-07bc482a401d5422",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-e514",
+    "branch": "story/B-e514",
+    "createdAt": "2026-07-14T05:16:08.546Z"
+  }
 }
