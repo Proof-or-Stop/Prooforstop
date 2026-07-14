@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-bbaf",
+  "id": "IC-20260714052323",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Build a pure-core convergence breaker deriving cumulative read-only signals (advance count, review pass-rate, per-story takeover counter) with a one-shot auto-recovery budget then a human-ack freeze enforced at the story_advance choke point; env-tunable thresholds; never blocks a healthy story.",
+  "acceptedInterpretationHash": "sha256:aa1d61e254c18c2cbcc1f91ed4e23756857c6a56285ffd9c1b8a051d91591c91",
+  "notes": "Single coherent interpretation; scope pinned by scope-boundary + decision.json. Problems 3&4 (owner-lease single-owner, gate-cause diagnostics) are owned by concurrent work and excluded.",
+  "createdAt": "2026-07-14T05:23:23.440Z",
+  "updatedAt": "2026-07-14T05:23:23.440Z"
+}

@@ -1,0 +1,28 @@
+{
+  "storyId": "B-bbaf",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/story-owner-lease.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/handlers/story.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    ".gitignore",
+    "package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/convergence-breaker.ts",
+    "packages/main/src/tasks/convergence-breaker-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/**/*.test.ts",
+    "packages/main/test/**"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "PLAN under-specified the new story_resume command wiring: a new CLI command needs its handler (handlers/story.ts), ownershipClass (core/command-policy.ts), and catalog schema (cli/command-catalog.ts). registry.ts is NOT needed (story commands auto-register via createStoryHandlers). Enforcement seam stays cli-engine.ts.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-14T05:23:23.977Z",
+  "updatedAt": "2026-07-14T05:29:16.348Z"
+}

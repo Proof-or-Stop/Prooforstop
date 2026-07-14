@@ -92,7 +92,9 @@
       "files": {
         "modify": [
           "packages/main/src/cli-engine.ts",
-          "packages/main/src/registry.ts"
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/cli/command-catalog.ts"
         ],
         "create": [],
         "test": []
