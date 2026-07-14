@@ -3,7 +3,7 @@
     {
       "id": "CHK-001",
       "title": "Make the doctor global-core-realpath check linked-worktree-aware",
-      "context": "In the doctor implementation (global-core-realpath check, surfaced in handlers/lattice-cli.ts doctor output; locate via rg global-core-realpath packages/main/src): when cwd belongs to a linked git worktree of repository R and the global @lattice/core realpath equals R canonical main checkout packages/main, classify pass (or info) with no repair block; keep warn for genuinely unrelated resolution paths. Regression tests: worktree-context fixture asserts no warn and doctor brief back under the 20000-byte brief-output-smoke budget; unrelated-path fixture still warns. npm test green from inside a worktree is the acceptance signal.",
+      "context": "checkGlobalCoreRealpath (packages/main/src/core/runtime-environment-checks.ts:223-245, surfaced via handlers/doctor.ts): the non-self-project branch compares the global @lattice/core realpath against the running CLI's own corePackageRoot without canonicalization, so a worktree-built CLI evaluating a fixture/temp project always warns (expected=.worktrees/B-xxxx/packages/main vs global=canonical main checkout). Fix: canonicalize the non-self expected via the repository containing corePackageRoot (git worktree list anchored at corePackageRoot, mirroring resolveCanonicalSelfCoreRoot lines 755-777); keep the genuine unrelated-path warn. Regression tests: worktree-built-CLI + fixture context passes with no warn and doctor brief returns under the 20000-byte brief-output-smoke budget; a genuinely mismatched global path still warns. Acceptance signal: npm test green from inside a story worktree.",
       "status": "pending",
       "startTime": null,
       "endTime": null
