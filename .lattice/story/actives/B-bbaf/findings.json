@@ -201,7 +201,7 @@
       "desc": "CHK-002 verificationEvidence notes cite the wrong smoke sections and do not concretely correspond to their stated intents. (a) CHK-002:edge:0 intent is \"A re-trip after the budget is spent flips frozen=true instead of auto-recovering again\" but the note cites smoke section 3, which tests the OPPOSITE scenario (a story that stops growing does NOT freeze, lines 97-106 of convergence-breaker-smoke.ts) -- the actual re-trip-freezes assertion (second.action===freeze, lines 89-91) lives in section 2, which is uncited here. (b) CHK-002:adversarial:0 intent is \"breaker-state.json is gitignored: a DONE-style merge with the file present is not blocked by the dirty-tree/F-008 check\" but the note cites section 8 (a plain writeBreakerState/readBreakerState round-trip + ack-resume, lines 177-203, which never touches gitignore/runtime-artifact-registry at all, and does not even test \"already-frozen state stays frozen\" as the note claims -- that assertion is in section 2 line 93-94). The intent that actually needs the gitignore/F-008 guarantee is tested by section 10 (findRuntimeArtifactEntry + isMaterialExcludedRuntimeArtifactPath + listRuntimeArtifactIgnorePatterns, lines 214-225), which is never cited for CHK-002:adversarial:0. (c) CHK-002:happy:0 note also over-claims: it cites section 2 for the \"spent=1, re-baseline\" assertion, but that specific assertion (nextState.autoRecoveriesSpent===1) is actually in section 1 (line 74), not section 2. These evidence records are stale from before sections 10-15 were appended (F-005/F-006/F-009 fixes) and were never corrected to cite the sections that actually cover them.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-14T16:15:10.856Z",
@@ -212,7 +212,11 @@
         "packages/main/src/tasks/convergence-breaker-smoke.ts"
       ],
       "signatureTag": "missing|ts|verificationevidence-notes-cite",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Corrected the verificationEvidence notes for the affected intents to cite the smoke section numbers that actually contain their assertions (CHK-002 happy->s1, edge->s2, adversarial->s10; CHK-003 happy/edge->s13). Coverage was already present; only the note section references were stale after smoke sections 11-15 were added.",
+      "resolvedAt": "2026-07-14T16:17:11.799Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-bbaf:F-011",
