@@ -130,7 +130,7 @@
       "desc": "CHK-001:happy:0 and CHK-005:happy:0 never exercise `collectBreakerCounters` -- the function that derives BreakerCounters from real story.events/readReviewRuns/readReviewPasses, which is literally CHK-001's title (\"deriving three counters from story.events\") and CHK-005's context (\"Synthetic story.events with 89 advances / 131:31 pass / 65 takeovers -> assert the breaker trips\"). convergence-breaker-smoke.ts never imports collectBreakerCounters; STORM and HEALTHY (lines 44-58) are hand-built BreakerCounters objects fed straight to assessBreaker, bypassing the event-scanning/derivation entirely -- no synthetic story.events records are ever constructed or replayed through the real derivation path. Additionally, CHK-001's context explicitly instructs \"reuse resolveReviewRoundCount ... do not reimplement round logic\", but core/convergence-breaker.ts imports nothing from core/review-convergence.ts and computes reviewRunCount/reviewPassCount as raw array lengths -- whether this matches the established round-counting semantics is unverified either way because collectBreakerCounters has no test.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-14T13:05:15.827Z",
@@ -142,7 +142,11 @@
         "packages/main/src/tasks/convergence-breaker-smoke.ts"
       ],
       "signatureTag": "missing|ts|happy-happy-never",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Smoke section 12 now invokes collectBreakerCounters against a store shape, asserting advanceCount counts only action==='advance' events and the review ledgers drive run/pass counts; a comment documents why the review LEDGERS (not resolveReviewRoundCount) are the correct pass-rate source. Fixed in 53c25c4.",
+      "resolvedAt": "2026-07-14T13:20:48.141Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-bbaf:F-008",
