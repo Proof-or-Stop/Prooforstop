@@ -36,6 +36,26 @@
       ],
       "signatureTag": "missing|ts|quality-comment-accuracy",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fa65:F-003",
+      "desc": "quality-orphaned-test: packages/main/tests/global-core-realpath.test.mjs (new file, 3 scenarios) is not wired into any executable test surface. It is not referenced by any packages/main/package.json or root package.json script; the root aggregate \"test\" script (package.json) does not invoke it; \"test:all\"/\"test:legacy\" (run-all-smokes.js, packages/main/src/tasks/run-all-smokes.ts:97/123-127) only discovers files matching *-smoke.js under packages/main/dist/tasks, so a tests/*.mjs file is invisible to it; and validate.ts has no generic tests/*.test.mjs discovery. This breaks the established convention in this same directory: the sibling packages/main/tests/milestone-status.test.mjs IS wired via an explicit \"test:milestone-status\" script (packages/main/package.json) that is itself included in the root aggregate \"test\" chain. Consequence: this test -- the only automated coverage for the adversarial different-clone-still-warns and non-git-fallback scenarios required by decision.json preMortem 2 -- was run once manually (per the CHK-001 verificationEvidence entries, command: \"node packages/main/tests/global-core-realpath.test.mjs\") but will not run again on any future regression to resolveCanonicalCoreRoot/resolveCanonicalSelfCoreRoot; \"npm test\" being green (the checklist's stated acceptance signal) does not actually exercise this file. Recommend adding a package.json script (e.g. test:global-core-realpath) mirroring test:milestone-status and including it in the root aggregate test chain.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-14T01:46:46.725Z",
+      "reviewRound": "2026-07-14T01:39:27.283Z",
+      "reviewRunId": "B-fa65:RR-002",
+      "_hash": "c06a282593d47b00fe5232100eeb1e8a63102ee63387f06e8f177d6b0491de8c",
+      "files": [
+        "packages/main/tests/global-core-realpath.test.mjs",
+        "packages/main/package.json",
+        "package.json"
+      ],
+      "signatureTag": "missing|mjs|quality-orphaned-test",
+      "signatureTagSource": "auto"
     }
   ]
 }
