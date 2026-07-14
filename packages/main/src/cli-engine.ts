@@ -1211,16 +1211,16 @@ export async function runCli(opts?: {
       // before the lease gate so a control-arm violation is recorded and
       // refused regardless of lease ownership.
       enforceExperimentArmRetrievalGate(cmd, root);
-      enforceStoryOwnerLeaseGate(cmd, parsed, store, activeStory, root);
-      // B-bbaf CHK-003: convergence breaker gate — same single choke point as the
-      // owner lease gate, runs AFTER it so only the owner ever reaches the brake.
-      // Gates story_advance and takeover-carrying commands: an already-frozen or
-      // newly re-tripped runaway story is hard-blocked here (throws, surfaced as
-      // the command failure); healthy stories are byte-identical (nothing written,
-      // nothing thrown). F-002: resolve storyId via storyIdFromArgs (the SAME
-      // resolver the owner-lease gate uses one line above) so a --story alias or
-      // autopilot-run-id cannot silently bypass the breaker while the lease gate
-      // still enforces.
+      // B-bbaf CHK-003: convergence breaker gate — runs BEFORE the owner-lease
+      // gate (codex host-B #1) so a FROZEN story's takeover-carrying command is
+      // rejected BEFORE enforceStoryOwnerLeaseGate can transfer the lease and bump
+      // the takeover counter. A frozen story is frozen for every session, so
+      // gating ahead of the ownership check is correct; healthy stories are
+      // byte-identical (nothing written, nothing thrown). It gates story_advance
+      // and takeover-carrying commands only; all other commands return immediately.
+      // F-002: resolve storyId via storyIdFromArgs (the SAME resolver the owner-
+      // lease gate uses below) so a --story alias or autopilot-run-id cannot
+      // silently bypass the breaker while the lease gate still enforces.
       enforceConvergenceBreakerGate({
         command: cmd,
         storyId: storyIdFromArgs(parsed, activeStory, { command: cmd, projectRoot: root }),
@@ -1228,20 +1228,19 @@ export async function runCli(opts?: {
         store,
         env: process.env,
       });
+      enforceStoryOwnerLeaseGate(cmd, parsed, store, activeStory, root);
       let result = fn();
       if (result && typeof (result as any).then === 'function') result = await result;
       clearInterval(watchdog);
       log(`${cmd} done`);
-      // B-bbaf CHK-006: any SUCCESSFUL story-scoped mutating command is real
-      // progress, so reset that story's repeated-gate-failure counter. The
-      // gate-repeat signal exists to catch a genuine livelock — the SAME gate
-      // failing the SAME reason with NO progress in between (the B-f458 shape).
-      // Resetting on any successful mutation (not just story_advance) keeps
-      // benign, expected rejections during normal iteration — e.g. a premature
-      // story_advance that reports "checklist item(s) not done", which clears the
-      // moment you checklist_update the work — from ever accumulating toward a
-      // false freeze, while a true no-progress repeat still trips. Best-effort.
-      if (!isReadOnlyCommand(cmd, parsed)) {
+      // B-bbaf CHK-006: a SUCCESSFUL story_advance is real progress THROUGH the
+      // gate, so reset that story's repeated-gate-failure counter. Scoped to
+      // story_advance specifically (codex host-B #3): resetting on ANY successful
+      // mutation would let a runaway defeat the gate-repeat signal entirely — fail
+      // story_advance, run any trivial no-op mutation to reset, repeat forever. A
+      // successful advance is the ONLY event that means the same gate is no longer
+      // failing, so it is the only legitimate reset. Best-effort.
+      if (cmd === 'story_advance') {
         try {
           const sid = storyIdFromArgs(parsed, activeStory, { command: cmd, projectRoot: root });
           if (sid) {

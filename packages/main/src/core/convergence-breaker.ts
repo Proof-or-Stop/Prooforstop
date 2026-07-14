@@ -352,10 +352,20 @@ export function resumeBreakerState(
 
 /**
  * Whether the human-ack resume is allowed in the current environment. PURE so
- * the smoke can assert both branches without a real TTY. The ack REQUIRES an
- * interactive human: it is refused when stdin is not a TTY, or when an autopilot
- * / CI marker is present — so a looping agent (the very actor the freeze exists
- * to stop) can never self-service the ack.
+ * the smoke can assert both branches without a real TTY. The ack is refused when
+ * stdin is not a TTY, or when an autopilot / CI / non-interactive marker is
+ * present — which stops the realistic threat: a normal looping autopilot (running
+ * headless, no TTY) self-servicing the ack.
+ *
+ * SCOPE / ACCEPTED RISK (codex host-B #2): this is a barrier against ACCIDENTAL
+ * unattended self-ack, matching the acceptance criterion "refused under autopilot
+ * / non-interactive mode". It is NOT a defense against a DELIBERATELY adversarial
+ * caller that allocates a pseudo-TTY and clears the env markers — no in-process
+ * check can be, since the agent controls its own process. Truly un-spoofable
+ * human presence would require an out-of-band confirmation channel (e.g. a
+ * signed operator token), which is out of scope for this story. The required
+ * explicit --ack flag and a >=10-char human --reason (enforced in the handler)
+ * raise the bar for the realistic case.
  */
 export function isInteractiveAckAllowed(
   env: Record<string, string | undefined>,
