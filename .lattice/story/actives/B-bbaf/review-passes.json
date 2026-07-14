@@ -47,6 +47,31 @@
         "scanEscalationReason": null
       },
       "_hash": "7fd4c21ce6d67eca44062e23f0e35433e4a2b7b23324297d2d448d63415f7fab"
+    },
+    {
+      "id": "B-bbaf:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "Re-verified F-003 and F-004 fixes against committed code (HEAD content identical to 53c25c4; only Lattice bookkeeping commits sit on top). F-003: BreakerState now carries advanceBaseline/takeoverBaseline/reviewRunBaseline/reviewPassBaseline; assessBreaker measures every signal as a delta over these baselines; baselinesFrom() re-baselines ALL four on both auto-recovery and resumeBreakerState (human ack). Hand-traced smoke section 11 (F-003 regression) line by line against assessBreaker: after auto-recovery from the STORM fixture (takeoverBaseline=65), a quiet continuation with unchanged takeoverCount=65 correctly does not re-trip (delta=0), while a genuine continued storm (takeoverCount=71, delta=6>5) correctly re-freezes with reason takeover 6>5 - confirms a lifetime-elevated-but-static counter can no longer permanently re-freeze a recovered story, and a real continuing storm still freezes. Rebuilt dist from current src and ran npm run test:convergence-breaker fresh (not a stale-dist artifact) - PASS. F-004: enforceConvergenceBreakerGate now takes isTakeoverCommand (Boolean(parsed.takeover||parsed.forceTakeover), safe since CLI_META_SCHEMA declares both as z.boolean() so zod already rejects non-boolean values before this point); while frozen it blocks story_advance AND any takeover-carrying command (smoke section 13 covers both branches plus the non-gated-command passthrough and the non-frozen takeover passthrough). Checklist title \"story_advance and takeover-command entry\" is delivered. Traced cli-engine.ts gate ordering (owner-lease gate runs before the breaker gate) and confirmed takeOverOwnerLease can still transfer the lease as a side effect before the breaker throws on a frozen story, but the actual mutating handler (fn()) never runs - this matches the documented design (breaker blocks the commands EFFECT, ownership bookkeeping is a separate existing mechanism) and is not a new regression from this diff. No new under- or over-triggering bugs found in the baseline/delta refactor.",
+      "createdAt": "2026-07-14T13:26:03.515Z",
+      "reviewRound": "2026-07-14T12:55:51.181Z",
+      "reviewRunId": "B-bbaf:RR-005",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/story-owner-lease.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c0ba59305dfb30e7505d6c9ed132326d2075d9d0a74ebb5d28dc2e18b3b57677"
     }
   ]
 }
