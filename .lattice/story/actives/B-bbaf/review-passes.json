@@ -398,6 +398,38 @@
         "scanEscalationReason": null
       },
       "_hash": "3ef50c21cb356fbdf586d188ee62073641de32a22ada5945daeeb2a5708bfb2a"
+    },
+    {
+      "id": "B-bbaf:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "Fresh concept-lane pass after main-merge (materialHash changed only from merging main in; git diff main...HEAD --stat unchanged story diff). Confirmed purely additive: git diff main...HEAD -- *.ts has ZERO minus-lines; no concept deleted/replaced. story_resume registered consistently across command-catalog.ts, command-policy.ts, config.ts, process-fact-levels.ts, handlers/story.ts, and reaches registry.ts:175 registerBatch(createStoryHandlers(ctx)). isCanonicalStoryId single definition (lifecycle-registry.ts) imported not duplicated. LATTICE_CONVERGENCE_* env names consistent between convergence-breaker.ts and its smoke test. New runtime artifacts consistently registered in runtime-artifact-registry.ts and .gitignore. No dangling references found. No blocker.",
+      "createdAt": "2026-07-14T18:20:01.963Z",
+      "reviewRound": "2026-07-14T18:17:55.045Z",
+      "reviewRunId": "B-bbaf:RR-022",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitignore",
+          "package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/handlers/story.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e14fe86de88a0119cc249c3a254888d678949d177f94e72517d2a1dd404599bf"
     }
   ]
 }
