@@ -1,0 +1,27 @@
+{
+  "storyId": "B-3b05",
+  "checkedAt": "2026-07-14T00:59:36.289Z",
+  "headHash": "a36923f1888bf0b8f2f4a9e7fabb79ee5a793ad4",
+  "materialHash": "e4daa2ace95fb6ca6566b37327d2b912fd3be140e2a5b8cb3f61aa0c73501781",
+  "storyFilesHash": "1c7431617f8aea07cf107554a63ab8f0b94e3f28ee63271a6ee9e5a1edc31633",
+  "reviewRound": "2026-07-14T00:46:23.555Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "packages/main/tests/milestone-status.test.mjs (rerun by this reviewer: ok milestone-status) adds a dedicated block covering the redesigned uncovered_required_milestones hint: desync scenario asserts per-row Diagnosis with real ledger status plus per-row lag framing and an evidence-first primary remedy (verification_evidence_add/batch naming the story id, the actual uncovered intent refs, and --help) printed before the caveated milestone_ledger_set secondary remedy; a non-lagging scenario asserts the lag framing and ledger-repair pointer are both absent; a done-status-without-evidence scenario asserts the message reports the real persisted status instead of a hardcoded planned claim; a mixed lagging/non-lagging scenario asserts the framing is computed per row and not suppressed by a non-lagging sibling; a mechanical command-policy assertion (against exported COMMAND_POLICIES, not prose) proves the primary remedy command is allowed in REVIEW/TEST/DONE while milestone_ledger_set stays PLAN-gated; a not_applicable+shrinkage-accepted scenario proves no hint noise; and an adversarial rerun proves gap ids/severities/messages/pass-fail/gap-count are byte-identical across runs for identical inputs (message-layer-only change). Also documented in .lattice/story/actives/B-3b05/evidence/transcript-diff.md with a live behavior-reviewer phase-legality probe against the running story."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "packages/main/src/tasks/review-pass-provenance-smoke.ts (rerun by this reviewer: npm run test:review-pass-provenance, 10/10 assertions pass) drives the REAL built CLI binary end to end: non-owner-session pass records writerSessionId/sessionSource and verifies with no flag; owner-session pass in default warn mode persists provenanceFlag=same_session_write plus a stderr warning naming both session ids; enforce mode (opt-in config) rejects the owner-session pass and persists nothing while a distinct session still passes; a real pre-change legacy record (no writerSessionId) still verifies via the legacy signature domain; absent/invalid config resolves to warn; tampering the persisted writerSessionId, or adding/stripping/flipping provenanceFlag (F-002), breaks verifyReviewPass against both locally-signed and real-CLI-persisted records; an explicit-env session id is recorded as sessionSource=explicit-env and a scrubbed env degrades to derived-ppid. Backed by a real-machine transcript at .lattice/story/actives/B-3b05/evidence/provenance-warn-transcript.md showing verbatim CLI stdout/stderr for the owner-session self-sign warn flag (with an explicit F-002 amendment note and recaptured tamper-failure verbatim output) and a cross-check in transcript-diff.md."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Both checklist features are backed by real-machine evidence (a rebuilt-dist logic-test suite for CHK-001, a real-CLI-spawning smoke test plus verbatim CLI transcripts for CHK-002), independently rerun green by this reviewer (milestone-status.test.mjs, test:review-pass-provenance 10/10, test:process-fact-contract). No documentation promises exist in this diff (CLAUDE.md and docs/*.md are untouched) and no TODO/FIXME/HACK is left in the changed source. All 5 round-1 findings (F-001..F-005) are resolved with concrete commit-bound evidence, including the F-002 signature-domain fix that binds provenanceFlag itself into the v3 domain so add/strip/flip tamper on the flag fails verification."
+  },
+  "_hash": "b34592708cec37184e92a78147d681e8416cfa72dad2697ac1661c6f941fd769"
+}
