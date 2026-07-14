@@ -1,92 +1,92 @@
 {
   "storyId": "B-bbaf",
-  "checkedAt": "2026-07-14T18:13:47.095Z",
-  "headHash": "8619a153456e552a2514b144c1469678bed79dca",
-  "materialHash": "86f1b5c00f74206f1e3dca2896a76cec37520a61620e5217db162c1e2bf30bad",
-  "storyFilesHash": "a750591c354fe0c40517519cfff4a9437e77c9afcea1f3eea5763f426e58ffec",
-  "reviewRound": "2026-07-14T17:29:22.567Z",
+  "checkedAt": "2026-07-14T19:39:13.969Z",
+  "headHash": "1404ae3ef5c48f70c0f0692d0fb0ca4c8c50150b",
+  "materialHash": "62cbcb0cc9c916405f827b13e14cdabbfc233fce8adfda02b4ad8dd32a225d7b",
+  "storyFilesHash": "5d1a9c7341809ed6263cc08a5eac7a9098c87f20071b8d548466b33f89cf4646",
+  "reviewRound": "2026-07-14T19:20:10.417Z",
   "agentId": "",
   "docsPromises": [
     {
-      "docPath": ".lattice/story/actives/B-bbaf/plan.md#CHK-003",
-      "promise": "enforceConvergenceBreakerGate hard-blocks story_advance and takeover-carrying commands at a single cli-engine.ts choke point, running AFTER enforceStoryOwnerLeaseGate",
-      "verifiedBy": "diff/grep + build + real-machine test run",
-      "evidence": "packages/main/src/cli-engine.ts:1215 calls enforceStoryOwnerLeaseGate(...) then line 1228 calls enforceConvergenceBreakerGate({...}); this is the only call site of enforceConvergenceBreakerGate in cli-engine.ts (grep confirmed). Re-verified against current HEAD 8619a153 (post process-fact-levels.ts registry line)."
+      "docPath": ".lattice/story/actives/B-bbaf/checklist.json#CHK-003 (story-spec promise; no CLAUDE.md/README changed in this diff)",
+      "promise": "enforceConvergenceBreakerGate is called at the cli-engine.ts choke point (after enforceStoryOwnerLeaseGate) and hard-blocks story_advance and any takeover-carrying command (--takeover/--forceTakeover) for a frozen story",
+      "verifiedBy": "diff/grep + read",
+      "evidence": "packages/main/src/cli-engine.ts diff: enforceConvergenceBreakerGate({ command: cmd, storyId: storyIdFromArgs(...), isTakeoverCommand: Boolean(parsed.takeover || parsed.forceTakeover), store, env: process.env }) called immediately after enforceStoryOwnerLeaseGate(cmd, parsed, store, activeStory, root); convergence-breaker.ts enforceConvergenceBreakerGate throws renderBreakerFreeze(...) when prior.frozen for both isAdvance and isTakeoverCommand paths."
     },
     {
-      "docPath": ".lattice/story/actives/B-bbaf/plan.md#CHK-003",
-      "promise": "story_resume is a human-only ack that clears a frozen breaker and is refused under autopilot or non-interactive sessions",
-      "verifiedBy": "diff/grep + real-machine unit coverage",
-      "evidence": "packages/main/src/handlers/story.ts createStoryResumeHandlers.story_resume calls isInteractiveAckAllowed(process.env, process.stdin.isTTY) and throws before mutation; requires ack===true and reason>=10 chars. Registered end-to-end: command-catalog.ts:277 schema (storyId/ack/reason), command-policy.ts:155 policy (storyScopedMutating, allowedPhases:all), config.ts:310 DEFAULT_PHASE_TOOLS, and (the one delta since the prior stale delivery-check) process-fact-levels.ts:50 registers story_resume as L2/story/handlers-story. All four registration points confirmed present via grep on current HEAD."
+      "docPath": ".lattice/story/actives/B-bbaf/checklist.json#CHK-003",
+      "promise": "story_resume is the human-only ack, refused under autopilot/non-interactive sessions, required to clear a freeze",
+      "verifiedBy": "diff/grep + read",
+      "evidence": "packages/main/src/handlers/story.ts story_resume() calls isInteractiveAckAllowed(process.env, process.stdin.isTTY) and throws before any state change when false; isInteractiveAckAllowed in convergence-breaker.ts refuses when LATTICE_AUTOPILOT/CI/LATTICE_NON_INTERACTIVE truthy or stdin is not a TTY. Requires --ack===true and --reason>=10 chars."
     },
     {
-      "docPath": ".lattice/story/actives/B-bbaf/plan.md#CHK-001..006",
-      "promise": "CHK-001 through CHK-006 each map to delivered code plus a real machine test; npm run test:convergence-breaker (15 sections) is the real-machine test and is wired into the aggregate npm test script",
-      "verifiedBy": "command execution performed in this review",
-      "evidence": "Ran npm --prefix packages/main run build (clean) and node packages/main/dist/tasks/convergence-breaker-smoke.js directly against current HEAD 8619a153: prints the PASS marker line and exits 0. Also ran the full aggregate `npm test` end-to-end in this review (all scripts including test:convergence-breaker) to completion with exit code 0, confirming the aggregate wiring claim on current material, not just the isolated script."
-    },
-    {
-      "docPath": "packages/main/src/core/convergence-breaker.ts#CONVERGENCE_ENV",
-      "promise": "Five env-tunable thresholds (MAX_ADVANCE=20, MAX_TAKEOVER=5, MIN_PASS_RATE=0.35, MIN_SAMPLE=10, MAX_GATE_REPEAT=2) are real, typo-safe, and ceiling-clamped",
-      "verifiedBy": "diff/grep + real-machine test run",
-      "evidence": "convergence-breaker.ts CONVERGENCE_ENV maps all 5 keys to literal env var names; resolveConvergenceThresholds/envNumber reject non-numeric/negative/zero/over-ceiling values, falling back to defaults. Smoke section 4 (re-ran in this review) asserts defaults and override/fallback boundaries."
-    },
-    {
-      "docPath": "packages/main/src/core/convergence-breaker.ts#renderBreakerFreeze",
-      "promise": "The freeze rejection message names each tripped counter and the story_resume command with its ack and reason flags",
+      "docPath": ".lattice/story/actives/B-bbaf/checklist.json#CHK-003",
+      "promise": "story_resume is registered end-to-end: command-catalog (schema), command-policy (ownershipClass storyScopedMutating, allowedPhases all), config.ts DEFAULT_PHASE_TOOLS (all phase), handlers/story.ts (implementation), process-fact-levels.ts (L2 story)",
       "verifiedBy": "diff/grep",
-      "evidence": "renderBreakerFreeze(storyId, reasons) renders FROZEN + tripped counters + the literal lattice story_resume command with --ack/--reason flags + the autopilot/non-interactive refusal note. Smoke sections 13/15 exercise the throw path."
+      "evidence": "5-file diff confirmed: cli/command-catalog.ts adds story_resume ToolDef (storyId/ack/reason schema); core/command-policy.ts adds story_resume policy entry; core/config.ts DEFAULT_PHASE_TOOLS[all] adds story_resume; core/process-fact-levels.ts adds story_resume L2/category story entry; handlers/story.ts createStoryResumeHandlers() implements story_resume()."
     },
     {
-      "docPath": "packages/main/src/core/runtime-artifact-registry.ts + .gitignore",
-      "promise": "breaker-state.json, takeover-count.json, gate-failure-counts.json are gitignored and materialHash-excluded",
-      "verifiedBy": "diff/grep + git check-ignore performed in this review",
-      "evidence": ".gitignore lines 55-57 add the three patterns; runtime-artifact-registry.ts registers matching regexp matchers with materialHash:exclude, volatile:true. Ran git check-ignore -v against all three live paths under .lattice/story/actives/B-bbaf/ in this review; all three confirmed ignored."
+      "docPath": ".lattice/story/actives/B-bbaf/checklist.json#CHK-001/CHK-004/CHK-005",
+      "promise": "CHK-001..006 map to delivered code and real tests via npm run test:convergence-breaker (15 sections), part of the aggregate npm test",
+      "verifiedBy": "diff/grep + real command execution",
+      "evidence": "package.json diff adds test:convergence-breaker script (node packages/main/dist/tasks/convergence-breaker-smoke.js) and appends it to the top-level test script. Independently re-ran on CURRENT material: node packages/main/dist/tasks/convergence-breaker-smoke.js exit 0, PASS output naming storm/4-signals/auto-recover/freeze/ack/healthy-control/gate-repeat/thresholds/autopilot-refusal/gitignore/F-003-rebaseline/collectBreakerCounters/enforce-gate/no-spurious-reset/canonical-id-guard. Independently re-ran the FULL npm test (42 scripts) on current material: exit 0, ending in test:convergence-breaker PASS."
     },
     {
-      "docPath": "packages/main/src/core/process-fact-levels.ts",
-      "promise": "story_resume is registered in the process-fact-levels registry (the sole delta since the last delivery review), completing its 4-point wiring (command-catalog + command-policy + config + process-fact-levels)",
-      "verifiedBy": "diff/grep performed in this review",
-      "evidence": "git diff main...HEAD -- packages/main/src/core/process-fact-levels.ts shows one added line: { name: story_resume, level: L2, category: story, owner: handlers/story, rationale: ...B-bbaf human-only ack... }. node scripts/verify-process-fact-contract.mjs (aggregate test:process-fact-contract) re-ran clean in this review with the registry entry present, printing Process fact contract verified. This was the only file changed since the prior stale delivery-check (materialHash b6a00baa2832 -> current 86f1b5c00f74 confirmed by comparing git diff main...HEAD file lists before/after this one commit)."
+      "docPath": ".lattice/story/actives/B-bbaf/checklist.json#CHK-004 / delivery instructions",
+      "promise": "5 env thresholds are real and tunable: LATTICE_CONVERGENCE_MAX_ADVANCE(20)/MAX_TAKEOVER(5)/MIN_PASS_RATE(0.35)/MIN_SAMPLE(10)/MAX_GATE_REPEAT(2), typo/negative/absurd-value safe",
+      "verifiedBy": "diff/grep + read",
+      "evidence": "packages/main/src/core/convergence-breaker.ts: CONVERGENCE_ENV maps all 5 env var names, DEFAULT_CONVERGENCE_THRESHOLDS sets the 5 defaults (20/5/0.35/10/2), envNumber() rejects non-finite/negative/zero(unless allowZero)/over-ceiling values and falls back to default (never NaN/Infinity), resolveConvergenceThresholds() wires all 5 through envNumber with CONVERGENCE_ENV_MAX ceilings."
     },
     {
-      "docPath": "packages/main/src/core/convergence-breaker.ts + cli-engine.ts + story-owner-lease.ts",
-      "promise": "Post-review hardening landed: owner-lease gate before breaker gate; gate-failure counter resets ONLY on successful story_advance; isCanonicalStoryId guards the breaker gate and both cli-engine counter call sites; all 13 findings (F-001..F-013) resolved",
-      "verifiedBy": "diff/grep + findings.json read + real-machine test run",
-      "evidence": "cli-engine.ts calls enforceStoryOwnerLeaseGate then enforceConvergenceBreakerGate in that order. story-owner-lease.ts bumpTakeoverCount is called at the one takeover write site. findings.json re-read in this review: all 13 findings (F-001 through F-013) show status=resolved, evidenceState=verified. Smoke section 15 covers the canonical-id guard rejection."
+      "docPath": ".lattice/story/actives/B-bbaf/checklist.json#CHK-003 / delivery instructions",
+      "promise": "renderBreakerFreeze names the tripped counters and points at the story_resume command as the next action",
+      "verifiedBy": "diff/grep + read",
+      "evidence": "renderBreakerFreeze(storyId, reasons) in convergence-breaker.ts builds a message including the reasons array (e.g. advance-count/takeover/pass-rate/gate-repeat strings) and a next-action line naming lattice story_resume --storyId=<id> --ack --reason=<why-it-is-safe>, plus the autopilot-refusal note."
+    },
+    {
+      "docPath": "material change: retired-authority-vocabulary-guard-smoke.ts + verify-process-fact-contract.mjs since last delivery-check",
+      "promise": "The only changes since the last (now-stale) delivery-check are two one-line pinned-fingerprint syncs for cli-engine.ts (no product-code change in those two files)",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff main...HEAD on both files shows exactly one changed line each: the PINNED_EXECUTABLE_SOURCE_FINGERPRINTS map entry and the closeout-trust-boundary allow-list entry for packages/main/src/cli-engine.ts, both updated from the old hash to the new hash matching cli-engine.ts after the CHK-003/CHK-006 wiring. Independently re-ran both guards on current material: node scripts/verify-process-fact-contract.mjs exit 0 (Process fact contract verified); node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js exit 0 (PASS)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-bbaf/findings.json",
+      "promise": "All 15 findings (F-001..F-015) across the 9-round cross-host review are resolved; 0 open",
+      "verifiedBy": "cli query",
+      "evidence": "lattice finding_list for B-bbaf returns 15 findings, all status=resolved, 0 with any other status; spot-checked F-001/F-002/F-003 resolvedReason text matches the corresponding code fix in convergence-breaker.ts/cli-engine.ts (shared BreakerStore Pick type, storyIdFromArgs resolver, delta-baselined signals)."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "npm run test:convergence-breaker re-ran against current HEAD 8619a153 in this review, PASS: sections 1/5/6 (healthy control, min-sample gate, malformed-input fail-open)."
+      "transcript": "npm run test:convergence-breaker sections 1/5/6 cover: healthy 8-advance control tripped=false; pass-rate min-sample gate (0/1 does not trip); malformed/missing counters fail open (no throw, tripped=false). Independently re-executed on current material, exit 0."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "re-ran in this review, PASS: sections 2/3/8 (auto-recover->freeze, no re-freeze on flat story, breaker-state round-trip)."
+      "transcript": "Smoke sections 1/2/3/8/10 cover: first pathological trip auto-recovers (autoRecoveriesSpent=1, advance proceeds); re-trip freezes; a story that trips once then goes quiet does not re-freeze; breaker-state round-trips through write/read; the three runtime files are registered material-hash-excluded + gitignored (F-008 pattern). Independently re-executed, exit 0."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "re-ran in this review, PASS: sections 13/9 (enforceConvergenceBreakerGate blocks frozen story_advance AND takeover commands, ack clears it; isInteractiveAckAllowed truth table)."
+      "transcript": "Smoke sections 9/13 cover: frozen story_advance throws /FROZEN/ via enforceConvergenceBreakerGate through a fake store; frozen takeover-carrying command also hard-blocked; ack (resumeBreakerState+writeBreakerState) clears the gate; isInteractiveAckAllowed refuses under LATTICE_AUTOPILOT/CI/no-TTY. Independently re-executed smoke, exit 0; this review session itself is non-interactive so story_resume's isInteractiveAckAllowed(process.env, process.stdin.isTTY) path was confirmed by code inspection to refuse (stdin not a TTY) rather than by a live invocation."
     },
     {
       "featureId": "CHK-004",
-      "transcript": "re-ran in this review, PASS: section 4 (threshold defaults, override, fallback boundary)."
+      "transcript": "Smoke section 4 covers: default maxAdvance=20; MAX_ADVANCE=5 override trips at 6 (not 5, strict >); abc/-1/1e9/empty env values all fall back to default with no NaN/Infinity. Independently re-executed, exit 0."
     },
     {
       "featureId": "CHK-005",
-      "transcript": "npm run test:convergence-breaker IS the CHK-005 deliverable; re-ran in this review, all 15 sections PASS, exit 0. Also ran the full aggregate npm test end-to-end (exit 0) confirming the chain wiring."
+      "transcript": "Smoke sections 1/2/3/9/10 replay the B-f458 signature (89 advances/131:31 pass/65 takeovers) tripping all four reasons and freezing on re-trip, plus the healthy 8-advance control never tripping, plus the autopilot-refusal and gitignored-state assertions. This is the top-level smoke file itself (packages/main/src/tasks/convergence-breaker-smoke.ts), independently re-executed on current material via node packages/main/dist/tasks/convergence-breaker-smoke.js, exit 0, single consolidated PASS line naming all covered behaviors."
     },
     {
       "featureId": "CHK-006",
-      "transcript": "re-ran in this review, PASS: sections 7/14 (gate-repeat digest/trip/reset, no spurious reset file)."
+      "transcript": "Smoke sections 7/14/15 cover: two failures with identical (command,reason) digest bump the counter to 2 and trip gate-repeat 2>=2; resetGateFailureCounts clears an existing counter and does not create a spurious empty file when nothing to clear (F-005); two DIFFERENT reasons stay at count=1 each; missing counter file reads as 0 (fail-open); gateFailureDigest never throws on malformed input; isCanonicalStoryId guard rejects non-canonical ids at the gate. cli-engine.ts wiring (bump on story_advance failure, reset on story_advance success only) independently re-read in the diff and matches the checklist's anti-defeat rationale. Independently re-executed smoke, exit 0."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Fresh-context re-verification against current material (HEAD 8619a153, post the single process-fact-levels.ts registry-line commit 477e6db2d2) confirms every promise from the prior delivery-check still holds and the one new delta (story_resume registered in PROCESS_FACT_LEVELS) is genuinely present and completes the 4-point command wiring. Re-ran build, the isolated convergence-breaker smoke (15 sections), the process-fact-contract verifier, and the FULL aggregate npm test end-to-end (all green, exit 0) rather than trusting cached evidence. All 13 findings (F-001-F-013) independently re-confirmed resolved+verified in findings.json. No TODO/FIXME/HACK found in the story diff. No promised-but-undelivered items found."
+    "summary": "Independently re-verified on CURRENT material (the two fingerprint-sync commits): all 7 diff-derived promises are delivered in code (choke-point wiring, story_resume 5-point registration + refusal, 5 env thresholds, renderBreakerFreeze message, and the fingerprint-sync claim itself), and all 6 checklist items have real-machine test coverage independently re-run (node packages/main/dist/tasks/convergence-breaker-smoke.js exit 0, scripts/verify-process-fact-contract.mjs exit 0, retired-authority-vocabulary-guard-smoke.js exit 0, full npm test 42 scripts exit 0). 15/15 findings resolved, 0 open, no TODO/FIXME in the diff, no CLAUDE.md/README changes to check for doc drift."
   },
-  "_hash": "3e4306ec31c21f9c4499f93af1a06fc34772433a3bb9bc4b992024930e76fa70"
+  "_hash": "9c1075a019c0fb251fa3edc93e4800b6e236fdbfe016ad2f3735572c79e489e2"
 }
