@@ -85,9 +85,9 @@
       "id": "CHK-003",
       "title": "Enforce the freeze at story_advance and takeover-command entry with a human-only ack resume",
       "context": "When frozen, hard-block mutating lifecycle/advance commands with a rejection that names the tripped counters and points at the authoritative next action (existing done_prepare --dryRun / proofstory gate-check). Clear only via a new resume/ack command that refuses under autopilot / non-interactive mode. Reuse the non-owner rejection gate pattern in core/story-owner-lease.ts + command-policy ownershipClass; do not weaken the single legitimate forceTakeover.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-14T12:54:04.583Z",
       "userSees": "A frozen story blocks story_advance with \"CONVERGENCE BREAKER: story <id> is FROZEN\" naming the tripped counters; story_resume --ack --reason clears it interactively; under LATTICE_AUTOPILOT=1 story_resume is refused with \"requires an interactive human session\".",
       "files": {
         "modify": [
@@ -275,6 +275,15 @@
       "timestamp": "2026-07-14T12:54:03.618Z",
       "phase": "DEV",
       "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented + smoke green + real-CLI verified (freeze blocks advance, non-interactive ack refused, gitignore enforced)"
+    },
+    {
+      "timestamp": "2026-07-14T12:54:04.583Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
       "action": "update",
       "from": "pending",
       "to": "done",
