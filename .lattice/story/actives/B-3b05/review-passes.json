@@ -266,6 +266,38 @@
         "scanEscalationReason": null
       },
       "_hash": "40d2a118d0760cb638fad98d7a81419b84c50a4e6cff1a9e3b42b18cda803385"
+    },
+    {
+      "id": "B-3b05:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Round 4 re-verification after main merge (B-fa65). No overlap between merged B-fa65 files and B-3b05-owned files; build/tests re-run clean; all prior findings remain resolved+verified; no adverse interaction found.",
+      "createdAt": "2026-07-14T02:19:42.386Z",
+      "reviewRound": "2026-07-14T02:16:27.574Z",
+      "reviewRunId": "B-3b05:RR-012",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/tasks/brief-output-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-pass-provenance.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/tasks/review-pass-provenance-smoke.ts",
+          "packages/main/tests/milestone-status.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "506e274b9b90aee5c322689f2998271708e8e4138db71f41ee8b599a5e7cc20d"
     }
   ]
 }
