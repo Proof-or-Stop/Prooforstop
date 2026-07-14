@@ -3268,6 +3268,49 @@
       ],
       "signatureTag": "concept-cleanup-live-smoke-transcript-residue",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f458:F-126",
+      "desc": "quality-cleanup: packages/main/src/tasks/review-assurance-floor-smoke.ts:854 and :859 still cast a concrete StoryStore value with `as any` after F-123 changed fakeDoneStore to return StoryStore. These casts now suppress type checking without bridging any real interface mismatch and contradict the repair goal of replacing the partial any-shaped store; pass the typed store directly to StoryMachineContext and getGuardFailureReason.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-14T05:36:14.510Z",
+      "reviewRound": "2026-07-14T05:21:57.764Z",
+      "reviewRunId": "B-f458:RR-136",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/closeout-trust.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/tasks/delivery-context-pack-smoke.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "packages/main/src/tasks/review-loop-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "6f21948e1daaed8f6bb676fb48c57b2e621cf2631edde84b61697fc563d90185",
+      "files": [
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+      ],
+      "signatureTag": "quality-cleanup-unnecessary-story-store-any",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
