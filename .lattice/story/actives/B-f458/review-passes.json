@@ -627,6 +627,47 @@
         "scanEscalationReason": null
       },
       "_hash": "34e465aa10c0dbd6b59aaba68563f10c1dda7df212515a2c7b0639fcca1bec89"
+    },
+    {
+      "id": "B-f458:RP-031",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage review passed: all 15 happy/edge/adversarial intents have one current pass evidence entry across exactly three command groups; npm test explicitly includes the five F-120 focused smokes, all five reran successfully on HEAD, and F-119 through F-124 are resolved with matching focused regressions.",
+      "createdAt": "2026-07-14T05:36:33.847Z",
+      "reviewRound": "2026-07-14T05:21:57.764Z",
+      "reviewRunId": "B-f458:RR-137",
+      "writerSessionId": "sess-1fcee20b20bb0e89",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/delivery-context-pack-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "packages/main/src/tasks/review-loop-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "7f7aa93ba623c4a8cfc7e5ff8602be89b7caa0bc4d6c3b705efe7ecfca634f90"
     }
   ]
 }
