@@ -119,6 +119,26 @@
       ],
       "signatureTag": "missing|ts|happy-happy-never",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bbaf:F-008",
+      "desc": "CHK-006:edge:0 evidence note claims \"Real-CLI verified: a successful mutation resets the counter\" for the cli-engine.ts integration wiring, but this wiring (bumpGateFailureCount called at the failure-catch site keyed by cmd+e.message, and resetGateFailureCounts called at the success site, cli-engine.ts ~1225 and ~1290) is never exercised through an actual command failure/success path in convergence-breaker-smoke.ts -- the smoke calls bumpGateFailureCount/resetGateFailureCounts directly with hand-picked strings (section 7), bypassing the real catch/success sites entirely. Combined with F-005 (the discovered resetGateFailureCounts unconditional-write regression), the actual wiring behavior has no automated regression coverage -- only the underlying pure digest/counter functions are tested.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-14T13:05:25.375Z",
+      "reviewRound": "2026-07-14T12:55:51.181Z",
+      "reviewRunId": "B-bbaf:RR-003",
+      "_hash": "8a12cee3db9952c56de0bfe07c3b989a79e49b22ad39092aed5c82835d5bd6a5",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/convergence-breaker.ts",
+        "packages/main/src/tasks/convergence-breaker-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|edge-evidence-note",
+      "signatureTagSource": "auto"
     }
   ]
 }
