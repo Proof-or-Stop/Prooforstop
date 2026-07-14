@@ -1,164 +1,88 @@
 {
   "storyId": "B-bbaf",
-  "checkedAt": "2026-07-14T05:22:15.698Z",
+  "checkedAt": "2026-07-14T05:44:06.502Z",
   "features": [
     {
-      "feature": "Pure convergence-breaker core (assessBreaker) deriving three read-only counters: advance-count, review pass-rate, takeover-frequency",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:story-lifecycle.md"
-    },
-    {
-      "feature": "assessBreaker fails open (tripped=false) and never throws on malformed/missing input",
+      "feature": "Derive advance-count counter read-only from story.events",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Pass-rate signal cannot trip below a min-sample review-run count",
+      "feature": "Derive review pass-rate counter read-only (review_pass_set/review_run_start)",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Takeover-frequency counter is sourced by bumping a tiny per-story counter inside the EXISTING takeover audit write (chosen design explicitly rejects scanning story.events/activity log on the hot path); this requires touching the takeover-audit write site (core/story-owner-lease.ts, which is where 'story-owner-lease-takeover' audit records are actually written per session-ownership-and-write-leases.md)",
-      "covered_by": "CHK-001,CHK-002",
+      "feature": "Derive takeover-frequency counter read-only",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "On a pathological signature, hard-stop the runaway loop",
+      "covered_by": "CHK-002,CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Auto-recover once so healthy autonomous work is unaffected (graduated, not human-ack-on-every-stall)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Escalate to a human-ack freeze only on re-trip after auto-recovery is spent",
+      "covered_by": "CHK-002,CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "milestone_ledger_set blocker-hint gap is out of scope for this story",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded[]: 'milestone_ledger_set blocker-hint gap ... owned by concurrent work'",
+      "source": "description"
+    },
+    {
+      "feature": "review_pass_set writer-identity validation gap is out of scope for this story",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded[]: 'review_pass_set writer-identity validation ... owned by concurrent work'",
+      "source": "description"
+    },
+    {
+      "feature": "Breaker/gate-failure runtime state persisted as a gitignored runtime artifact registered in runtime-artifact-registry.ts, never dirtying a DONE merge (F-008 pattern)",
+      "covered_by": "CHK-002,CHK-006",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:session-ownership-and-write-leases.md"
     },
     {
-      "feature": "Graduated one-shot auto-recovery: first pathological trip re-baselines the window and proceeds without a human",
-      "covered_by": "CHK-002",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "Re-trip after the one-shot auto-recovery budget is spent sets frozen=true (no further auto-recovery)",
-      "covered_by": "CHK-002",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "Breaker-state persisted as a gitignored runtime artifact, registered in core/runtime-artifact-registry.ts with a matching .gitignore glob (F-008 pattern), so it never dirties a DONE merge",
-      "covered_by": "CHK-002",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:lifecycle-artifact-scope.md"
-    },
-    {
-      "feature": "When frozen, hard-block mutating story_advance naming the tripped counters and the authoritative next action (done_prepare --dryRun)",
-      "covered_by": "CHK-003",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "When frozen, hard-block takeover-carrying commands (not just story_advance)",
-      "covered_by": "CHK-003",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "New story_resume --ack --reason command clears the freeze only in an interactive human session",
-      "covered_by": "CHK-003",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "story_resume refuses under autopilot/non-interactive mode (LATTICE_AUTOPILOT=1 / non-TTY) so a looping agent cannot self-ack",
-      "covered_by": "CHK-003",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "The single legitimate forceTakeover human-override path in story-owner-lease.ts remains unchanged/not weakened by the new breaker",
-      "covered_by": "CHK-003",
+      "feature": "The single legitimate forceTakeover human-override path must not be weakened by the new breaker/freeze enforcement",
+      "covered_by": "CHK-002,CHK-003",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:session-ownership-and-write-leases.md"
     },
     {
-      "feature": "A healthy converging story (6-10 advances) never trips the breaker and produces zero breaker output, behaving byte-identical to today",
-      "covered_by": "CHK-001,CHK-005",
+      "feature": "Fourth signal: repeated-identical-gate-failure counter, bumped at the existing cli-engine.ts failure-catch write site and reset on a successful story_advance",
+      "covered_by": "CHK-006",
       "status": "covered",
       "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "Env-tunable thresholds (LATTICE_CONVERGENCE_MAX_ADVANCE, MAX_TAKEOVER, MIN_PASS_RATE, MIN_SAMPLE) with typo-safe fallback and evidence-derived defaults, mirroring BURN_ALERT_ENV",
-      "covered_by": "CHK-004",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "Fourth signal 'repeated-identical-gate-failure' (same gate + same reason twice) as an independent counter with its own env-tunable 'repeat-failure ~2' threshold",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "decision.json INIT-002 resolution (confirmed via scope_question_resolve OQ-1): not read-only derivable (gate rejections are not persisted as events anywhere), deliberately not implemented as a separate counter, subsumed by advance-count + pass-rate",
-      "source": "description"
-    },
-    {
-      "feature": "Smoke test replays the B-f458 signature (89 advances / 131:31 pass / 65 takeovers) and asserts the breaker trips on each reason and freezes on re-trip",
-      "covered_by": "CHK-005",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "Smoke test asserts a healthy 8-advance converging control never trips",
-      "covered_by": "CHK-005",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "Smoke test is wired into package.json (test:convergence-breaker + aggregate npm test)",
-      "covered_by": "CHK-005",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "Smoke test asserts the autopilot self-ack refusal and the gitignored-state assertion",
-      "covered_by": "CHK-005",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "core/usage-burn-alert.ts host-session token-burn scanning is an orthogonal axis and is not modified by this story",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "scope-boundary.json excluded list: 'core/usage-burn-alert.ts host-session token-burn scanning (B-623a): an orthogonal axis, not modified'",
-      "source": "description"
-    },
-    {
-      "feature": "milestone_ledger_set blocker-hint gap (checklist can reach 5/5 while the milestone ledger stays unplanned)",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "scope-boundary.json excluded list: owned by concurrent work",
-      "source": "description"
-    },
-    {
-      "feature": "review_pass_set writer-identity validation (rapid self-authored passes with no writer-identity check)",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "scope-boundary.json excluded list: owned by concurrent work",
       "source": "description"
     }
   ],
   "readManifest": {
     "filesReadFully": [
+      "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
       "docs/requirements/decisions/lifecycle-artifact-scope.md",
       "docs/requirements/decisions/session-ownership-and-write-leases.md",
       "docs/requirements/decisions/story-lifecycle.md"
@@ -172,7 +96,6 @@
       "docs/requirements/decisions/authority-runner-session-evidence-envelope.md",
       "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
       "docs/requirements/decisions/authority-session-receipt-gate-execution.md",
-      "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
       "docs/requirements/decisions/cc-learnings.md",
       "docs/requirements/decisions/cell06-docker-server-execution-checklist.md",
       "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
@@ -279,14 +202,25 @@
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 22,
-    "covered": 18,
-    "excluded": 4,
+    "total": 11,
+    "covered": 9,
+    "excluded": 2,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "1d841a227f9a3414047a3d11b2a410f17bb19b3c86b4929b96f9834319386c9c",
-  "openQuestions": []
+  "_hash": "a23c1fdc15bc175f690dc630e34aac6596054d6dd869dc5290dfa673c77a8ba4",
+  "openQuestions": [
+    {
+      "id": "OQ-3",
+      "q": "Story description (index.json) still literally enumerates only THREE derived signals (\"advance-count / review-pass-rate / takeover-frequency counters\") but decision.json/plan.md/scope-boundary.json now commit to FOUR (adding the repeated-identical-gate-failure signal via CHK-006, per the INIT-002 premise reversal). scope-boundary.json's allowed[] array is already reconciled to four signals; only the story description text has not been synced.",
+      "evidence": "description: \"Add a circuit breaker that derives advance-count / review-pass-rate / takeover-frequency counters read-only from story.events...\" vs decision.json rationale: \"Chosen multi-signal-cheap-read: ... covers all FOUR B-f458 dimensions\" and scope-boundary.json allowed[3]: \"Pure core convergence-breaker deriving four read-only signals from story.events: total advance count, review pass-rate ..., takeover frequency, and repeated-identical-gate-failure\"",
+      "sourcePointers": [
+        ".lattice/story/actives/B-bbaf/index.json (description field, via story_get --detail=true)",
+        ".lattice/story/actives/B-bbaf/decision.json:29",
+        ".lattice/story/actives/B-bbaf/scope-boundary.json:9"
+      ]
+    }
+  ]
 }

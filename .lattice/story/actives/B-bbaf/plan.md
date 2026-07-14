@@ -1,11 +1,14 @@
 # Plan: B-bbaf Freeze runaway stories with a convergence + takeover circuit breaker
 
-Design of record is decision_set (chosen: multi-signal-cheap-read). All four death-loop
-signals were checked for a cheap read-only source; the "repeated-identical-gate-failure"
-signal is deliberately not a separate counter (gate rejections are not persisted as events)
-and is subsumed by advance-count + pass-rate.
+Design of record is decision_set (chosen: multi-signal-cheap-read). All FOUR death-loop
+signals have a cheap read-only per-story source (no hot-path activity-log scan): advance-count
+(story.events), pass-rate (review ledgers), takeover-frequency (per-story counter bumped in the
+existing takeover audit write), and repeated-identical-gate-failure (per-story counter bumped at
+the existing cli-engine failure write site, reset on advance — CHK-006). The gate-failure signal
+was originally excluded on a WRONG premise (that gate rejections are not persisted); they ARE
+persisted to activity.jsonl at cli-engine.ts:1256-1260, so it is included as the sharpest brake.
 
-## CHK-001: Pure convergence/takeover breaker core deriving three counters
+## CHK-001: Pure convergence/takeover breaker core deriving four signals
 
 **Owner**: lattice-implementer
 **DependsOn**: none
@@ -18,8 +21,8 @@ and is subsumed by advance-count + pass-rate.
 
 **DoneWhen**:
 - Exports a PURE `assessBreaker(inputs)` returning `{ tripped, reasons[], severity }`, no I/O (mirrors core/review-convergence.ts purity).
-- Inputs carry: advanceCount (from story.events action==='advance'), reviewRuns / reviewPasses counts (for pass-rate), takeoverCount (from the per-story counter of CHK-002), and resolved thresholds.
-- Pass-rate can only trip once reviewRuns >= min-sample (mirrors STALL_MIN_ROUNDS); advance and takeover trip on strict `>` their thresholds.
+- Inputs carry: advanceCount (from story.events action==='advance'), reviewRuns / reviewPasses counts (for pass-rate), takeoverCount (from the per-story counter of CHK-002), maxGateRepeat (from the per-story gate-failure counter of CHK-006), and resolved thresholds.
+- Pass-rate can only trip once reviewRuns >= min-sample (mirrors STALL_MIN_ROUNDS); advance, takeover, and gate-repeat trip on strict `>=`/`>` their thresholds.
 - On any malformed/missing input the function fails open (tripped=false) and never throws.
 
 ## CHK-002: Graduated freeze state with a one-shot auto-recovery budget (gitignored artifact)
@@ -72,14 +75,32 @@ and is subsumed by advance-count + pass-rate.
 
 **DoneWhen**:
 - `resolveConvergenceThresholds(env)` mirrors resolveBurnAlertThresholds: typo-safe fallback, per-variable sanity ceilings, no NaN/Infinity.
-- Env vars: LATTICE_CONVERGENCE_MAX_ADVANCE (default 20), LATTICE_CONVERGENCE_MAX_TAKEOVER (default 5), LATTICE_CONVERGENCE_MIN_PASS_RATE (default 0.35) + LATTICE_CONVERGENCE_MIN_SAMPLE (default 10).
-- Windowing basis (OQ-2 resolved): all counters are cumulative story-lifetime totals derived from persisted per-story state (advance events, review-run/pass ledger lengths, takeover counter) — NOT a wall-clock window. This is deterministic, clock-free, and matches core/review-convergence.ts's event-based counting. LATTICE_CONVERGENCE_MAX_TAKEOVER is therefore a lifetime ceiling; the auto-recovery re-baseline (CHK-002) is what gives a healthy long story headroom, not a rolling clock window.
-- Defaults derived from B-f458 (healthy 6-10 advances / ~1 takeover; storm 89 / 65 / ~9.5-24% pass-rate).
+- Env vars: LATTICE_CONVERGENCE_MAX_ADVANCE (default 20), LATTICE_CONVERGENCE_MAX_TAKEOVER (default 5), LATTICE_CONVERGENCE_MIN_PASS_RATE (default 0.35) + LATTICE_CONVERGENCE_MIN_SAMPLE (default 10), LATTICE_CONVERGENCE_MAX_GATE_REPEAT (default 2).
+- Windowing basis (OQ-2 resolved): all counters are cumulative story-lifetime totals derived from persisted per-story state (advance events, review-run/pass ledger lengths, takeover counter, gate-failure counter) — NOT a wall-clock window. This is deterministic, clock-free, and matches core/review-convergence.ts's event-based counting. LATTICE_CONVERGENCE_MAX_TAKEOVER is a lifetime ceiling; the auto-recovery re-baseline (CHK-002) gives a healthy long story headroom, and the gate-failure counter resets on a successful advance so only current repeats count.
+- Defaults derived from B-f458. CORRECTED figures (fixing the stale "<10%"): the storm was 89 advances / 65 takeovers; review pass-rate was ~23.7% overall (31 pass / 131 run_start), collapsing to ~9.5% in the post-16:00 window (42 run_start / 4 pass) — the sub-window figure, not the overall rate. Default MIN_PASS_RATE 0.35 sits safely above the ~24% overall storm rate.
+
+## CHK-006: Fourth signal — repeated-identical-gate-failure counter (bump at failure site, reset on advance)
+
+**Owner**: main-agent
+**DependsOn**: CHK-001
+**Files**:
+- Modify: packages/main/src/core/convergence-breaker.ts (readGateFailureCounts / bumpGateFailureCount / resetGateFailureCounts + gate-repeat signal in assessBreaker)
+- Modify: packages/main/src/cli-engine.ts (bump on the story-scoped failure catch at ~1256; reset on a successful story_advance)
+
+**Verify**:
+- Smoke: two `story_advance` failures with the same reason digest push the counter to 2 and assessBreaker trips gate-repeat; a successful advance resets to 0
+- Two failures with DIFFERENT reasons stay at 1 each and do not trip
+
+**DoneWhen**:
+- A per-story `gate-failure-counts.json` (gitignored, registered like breaker-state) maps digest(command + normalized error reason) -> `{ count, lastReason, lastAt }`, bumped at the cli-engine failure catch where `activeStory` + `cmd` + `error.message` are already in scope (no hot-path activity-log scan).
+- assessBreaker trips when the max per-key count `>=` LATTICE_CONVERGENCE_MAX_GATE_REPEAT (default 2), reasons name the command + digest.
+- A successful `story_advance` resets that story's gate-failure counts to empty (progress = fresh slate), so a recovered story is never frozen on stale repeats.
+- Missing/corrupt counter file fails open (count 0, never throws); the bump is best-effort and never breaks the failure catch path.
 
 ## CHK-005: Smoke test replaying the B-f458 signature plus a healthy control
 
 **Owner**: lattice-implementer
-**DependsOn**: CHK-001, CHK-002, CHK-003, CHK-004
+**DependsOn**: CHK-001, CHK-002, CHK-003, CHK-004, CHK-006
 **Files**:
 - Create: packages/main/src/tasks/convergence-breaker-smoke.ts
 - Modify: package.json (test:convergence-breaker script + include in `test`)
@@ -90,7 +111,8 @@ and is subsumed by advance-count + pass-rate.
 - Wired into the aggregate `npm test` script
 
 **DoneWhen**:
-- Synthetic story with 89 advances / 131 runs : 31 passes / 65 takeovers trips the breaker on each reason and freezes on re-trip; ack clears it.
-- A healthy 8-advance converging control never trips.
-- The autopilot self-ack refusal and the gitignored-state assertion both hold.
+- Synthetic story with 89 advances / 131 runs : 31 passes / 65 takeovers trips the breaker on each reason (advance, pass-rate, takeover, gate-repeat) and freezes on re-trip; ack clears it.
+- The gate-repeat signal trips at 2 same-reason failures and resets to 0 on a successful advance.
+- A healthy 8-advance converging control never trips (all four signals below threshold).
+- The autopilot self-ack refusal and the gitignored-state assertion (breaker-state.json AND gate-failure-counts.json) both hold.
 - Emits a stable `PASS convergence-breaker: ...` marker line for grep/CI.

@@ -26,7 +26,7 @@
     {
       "name": "multi-signal-cheap-read",
       "pros": [
-        "Covers all three B-f458 dimensions: advance-count (story.events), review pass-rate (per-story review-runs.json / review-passes.json), and takeover-frequency (a new tiny per-story counter bumped inside the EXISTING takeover audit write, so no hot-path activity-log scan).",
+        "Covers all FOUR B-f458 dimensions: advance-count (story.events), review pass-rate (per-story review-runs.json/review-passes.json), takeover-frequency (a tiny per-story counter bumped inside the EXISTING takeover audit write), and repeated-identical-gate-failure (a tiny per-story gate-failure counter bumped at the EXISTING cli-engine failure write site) -- all cheap per-story reads, no hot-path activity-log scan.",
         "Graduated freeze + one-shot auto-recovery keeps healthy and transient-stall stories unblocked; only a genuine dead-end reaches the human-ack freeze.",
         "Does not weaken the single legitimate forceTakeover; it only counts takeovers."
       ],
@@ -47,7 +47,7 @@
     }
   ],
   "chosen": "multi-signal-cheap-read",
-  "rationale": "Chosen multi-signal-cheap-read: it covers root causes 1 (takeover storm) and 2 (no convergence fuse) with only cheap per-story reads, because investigation showed the three data sources differ: advance count is in story.events, review pass-rate is in the per-story review-runs.json/review-passes.json ledgers, but takeover events live ONLY in the shared project activity log. Rather than scan that log on the hot path (option activity-log-scan), a tiny per-story takeover counter is bumped inside the takeover audit write that already happens, giving the breaker a cheap read. INIT-002 resolution: the proposed fourth signal 'repeated-identical-gate-failure' is NOT read-only derivable (gate rejections are not persisted as story events or anywhere else), so it is deliberately NOT implemented as a separate counter; that failure mode manifests as repeated advances with no new pass, which advance-count and review-pass-rate already capture. advance-count-only was rejected as too blunt for root cause 1.",
+  "rationale": "Chosen multi-signal-cheap-read: it covers root causes 1 (takeover storm) and 2 (no convergence fuse) with only cheap per-story reads. Investigation showed the data sources differ: advance count is in story.events; review pass-rate is in the per-story review-runs.json/review-passes.json ledgers; takeover events and command-failure reasons live in the shared project activity.jsonl. Rather than scan that log on the hot path (option activity-log-scan), cheap per-story counters are bumped at the writes that ALREADY happen: the takeover counter inside the takeover audit write, and the gate-failure counter at the cli-engine failure catch (cli-engine.ts:1256-1260, where activeStory + command + error.message are in scope and already written to activity.jsonl). INIT-002 CORRECTION (reversing the earlier exclusion): I previously claimed the fourth signal 'repeated-identical-gate-failure' was NOT read-only derivable because 'gate rejections are not persisted anywhere' -- that premise was WRONG; command failures with their reason ARE persisted to activity.jsonl at the failure site. The fourth signal is therefore INCLUDED (CHK-006) as a per-story gate-failure counter keyed by digest(command+reason), reset on a successful story_advance. It is the sharpest/earliest brake: it trips at 2 same-reason repeats, catching the B-f458 DEV<->REVIEW same-reason oscillation hours before advance-count reaches ~20, and is NOT merely subsumed by advance-count (which is blunt and only fires after ~20 total advances). advance-count-only was rejected as too blunt; activity-log-scan was rejected for hot-path cost.",
   "preMortem": [
     {
       "scenario": "The breaker false-positives on a legitimately long story and freezes healthy autonomous work.",
@@ -78,7 +78,13 @@
       "trigger": "0 passes out of 1 run reads as 0% pass-rate on the first review round.",
       "consequence": "A brand-new story is frozen before it ever had a chance to converge.",
       "mitigation": "A min-sample gate (pass-rate can only trip once there are >= N review runs, mirroring review-convergence.ts STALL_MIN_ROUNDS), so early low-sample rounds never trip."
+    },
+    {
+      "scenario": "A stale repeated-gate-failure count freezes a story that has since recovered.",
+      "trigger": "gate-failure counts from an earlier stuck phase persist after the story later advances cleanly.",
+      "consequence": "A now-healthy story is frozen on old repeats, blocking autonomous work the breaker should not touch.",
+      "mitigation": "The per-story gate-failure counter is RESET to zero on every successful story_advance (progress = fresh slate), so only CURRENT same-reason repeats can trip; fail-open on a missing/corrupt counter file."
     }
   ],
-  "timestamp": "2026-07-13T23:26:02.669Z"
+  "timestamp": "2026-07-14T05:37:26.271Z"
 }
