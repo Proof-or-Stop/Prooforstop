@@ -39,10 +39,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "desync scenario output contains milestone_ledger_set hint + desync prefix (re-recorded post-commit for fresh binding)",
-          "headHash": "d60e079013f7df7fe636c1792a5df2f52e90bfda",
-          "materialHash": "884c883e2d84d5cf00f6aa4996fd9ceecb0a281a1c3f7e3a00d785c3d499fa55",
-          "storyFilesHash": "21a4c750033563ef351d12c47253c450cfd1ff47ab309c2f81c0e279def6cc99",
-          "timestamp": "2026-07-13T23:51:47.437Z"
+          "headHash": "0700cd9b494dca18c8da8d2c588f93092d3c702a",
+          "materialHash": "456f86576bb4581dced7913028f514a5f35a0304f2ed041841dbf11172c3c581",
+          "storyFilesHash": "488ea4d95c90d4333e1e3aea81e24c3d818e43e5a0f5753cc510e7eda55b43c0",
+          "timestamp": "2026-07-14T00:12:54.878Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -51,10 +51,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "non-desync uncovered case has hint without desync claim; not_applicable and shrinkage rows produce no hint (re-recorded post-commit for fresh binding)",
-          "headHash": "d60e079013f7df7fe636c1792a5df2f52e90bfda",
-          "materialHash": "884c883e2d84d5cf00f6aa4996fd9ceecb0a281a1c3f7e3a00d785c3d499fa55",
-          "storyFilesHash": "21a4c750033563ef351d12c47253c450cfd1ff47ab309c2f81c0e279def6cc99",
-          "timestamp": "2026-07-13T23:51:47.437Z"
+          "headHash": "0700cd9b494dca18c8da8d2c588f93092d3c702a",
+          "materialHash": "456f86576bb4581dced7913028f514a5f35a0304f2ed041841dbf11172c3c581",
+          "storyFilesHash": "488ea4d95c90d4333e1e3aea81e24c3d818e43e5a0f5753cc510e7eda55b43c0",
+          "timestamp": "2026-07-14T00:12:54.878Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -63,10 +63,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "gap ids/severities/pass-fail byte-identical for identical fixtures pre/post (message-layer only proven; re-recorded post-commit for fresh binding)",
-          "headHash": "d60e079013f7df7fe636c1792a5df2f52e90bfda",
-          "materialHash": "884c883e2d84d5cf00f6aa4996fd9ceecb0a281a1c3f7e3a00d785c3d499fa55",
-          "storyFilesHash": "21a4c750033563ef351d12c47253c450cfd1ff47ab309c2f81c0e279def6cc99",
-          "timestamp": "2026-07-13T23:51:47.437Z"
+          "headHash": "0700cd9b494dca18c8da8d2c588f93092d3c702a",
+          "materialHash": "456f86576bb4581dced7913028f514a5f35a0304f2ed041841dbf11172c3c581",
+          "storyFilesHash": "488ea4d95c90d4333e1e3aea81e24c3d818e43e5a0f5753cc510e7eda55b43c0",
+          "timestamp": "2026-07-14T00:12:54.878Z"
         }
       ]
     },
@@ -114,10 +114,10 @@
           "command": "npm run test:review-pass-provenance",
           "result": "pass",
           "note": "records identity, verifies, no flag for non-owner session; warn-mode owner-session pass persists with same_session_write flag",
-          "headHash": "eec52586fe75a7d0c409e136bd9ff32380d99fe4",
-          "materialHash": "884c883e2d84d5cf00f6aa4996fd9ceecb0a281a1c3f7e3a00d785c3d499fa55",
-          "storyFilesHash": "21a4c750033563ef351d12c47253c450cfd1ff47ab309c2f81c0e279def6cc99",
-          "timestamp": "2026-07-14T00:10:48.062Z"
+          "headHash": "0700cd9b494dca18c8da8d2c588f93092d3c702a",
+          "materialHash": "456f86576bb4581dced7913028f514a5f35a0304f2ed041841dbf11172c3c581",
+          "storyFilesHash": "488ea4d95c90d4333e1e3aea81e24c3d818e43e5a0f5753cc510e7eda55b43c0",
+          "timestamp": "2026-07-14T00:12:54.878Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -126,10 +126,10 @@
           "command": "node packages/main/dist/cli.js review_pass_set (real CLI, owner-session LATTICE_SESSION_ID == story owner lease sessionId, default warn mode)",
           "result": "pass",
           "note": "real-machine CLI output shows the visible warn flag on owner-session self-sign attempt",
-          "headHash": "eec52586fe75a7d0c409e136bd9ff32380d99fe4",
-          "materialHash": "884c883e2d84d5cf00f6aa4996fd9ceecb0a281a1c3f7e3a00d785c3d499fa55",
-          "storyFilesHash": "21a4c750033563ef351d12c47253c450cfd1ff47ab309c2f81c0e279def6cc99",
-          "timestamp": "2026-07-14T00:10:48.062Z"
+          "headHash": "0700cd9b494dca18c8da8d2c588f93092d3c702a",
+          "materialHash": "456f86576bb4581dced7913028f514a5f35a0304f2ed041841dbf11172c3c581",
+          "storyFilesHash": "488ea4d95c90d4333e1e3aea81e24c3d818e43e5a0f5753cc510e7eda55b43c0",
+          "timestamp": "2026-07-14T00:12:54.878Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -138,10 +138,10 @@
           "command": "npm run test:review-pass-provenance",
           "result": "pass",
           "note": "legacy fixture verifies via legacy domain; absent/invalid config resolves to warn",
-          "headHash": "eec52586fe75a7d0c409e136bd9ff32380d99fe4",
-          "materialHash": "884c883e2d84d5cf00f6aa4996fd9ceecb0a281a1c3f7e3a00d785c3d499fa55",
-          "storyFilesHash": "21a4c750033563ef351d12c47253c450cfd1ff47ab309c2f81c0e279def6cc99",
-          "timestamp": "2026-07-14T00:10:48.062Z"
+          "headHash": "0700cd9b494dca18c8da8d2c588f93092d3c702a",
+          "materialHash": "456f86576bb4581dced7913028f514a5f35a0304f2ed041841dbf11172c3c581",
+          "storyFilesHash": "488ea4d95c90d4333e1e3aea81e24c3d818e43e5a0f5753cc510e7eda55b43c0",
+          "timestamp": "2026-07-14T00:12:54.878Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -150,10 +150,10 @@
           "command": "npm run test:review-pass-provenance",
           "result": "pass",
           "note": "enforce rejects naming both ids; writerSessionId tamper breaks signature; explicit-env spoof recorded with sessionSource=explicit-env",
-          "headHash": "eec52586fe75a7d0c409e136bd9ff32380d99fe4",
-          "materialHash": "884c883e2d84d5cf00f6aa4996fd9ceecb0a281a1c3f7e3a00d785c3d499fa55",
-          "storyFilesHash": "21a4c750033563ef351d12c47253c450cfd1ff47ab309c2f81c0e279def6cc99",
-          "timestamp": "2026-07-14T00:10:48.062Z"
+          "headHash": "0700cd9b494dca18c8da8d2c588f93092d3c702a",
+          "materialHash": "456f86576bb4581dced7913028f514a5f35a0304f2ed041841dbf11172c3c581",
+          "storyFilesHash": "488ea4d95c90d4333e1e3aea81e24c3d818e43e5a0f5753cc510e7eda55b43c0",
+          "timestamp": "2026-07-14T00:12:54.878Z"
         }
       ]
     }
