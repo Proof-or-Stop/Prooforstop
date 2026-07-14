@@ -245,7 +245,7 @@
       "desc": "12 of 18 must-priority verificationIntents (CHK-001:happy/edge/adversarial, CHK-003:adversarial, CHK-004:happy/edge/adversarial, CHK-005:happy/edge/adversarial, CHK-006:happy/adversarial) still carry verificationEvidence pinned to headHash=761b0aa7d7d0.../materialHash=626cd8dc... (timestamp 2026-07-14T15:45:39.987Z), which predates the current HEAD 6ca0a2a (specifically predates commit e4ef947383 test(cdr3): cover canonical-id guard rejection branch, which appended smoke section 15 to packages/main/src/tasks/convergence-breaker-smoke.ts and thereby changed the story materialHash). A fresh `lattice validate --story B-bbaf --json` run confirms this mechanically: verificationCoverage reports these 12 intentRefs as status=stale (only CHK-002 happy/edge/adversarial, CHK-003 happy/edge, and CHK-006:edge currently read status=covered). The underlying smoke assertions for these 12 intents are still functionally present and I independently reran `npm run test:convergence-breaker` on current disk state and it PASSES all 15 sections, so this is not a content/coverage regression -- it is stale evidence pinning that the lifecycle-readiness stale_verification_evidence gate (core/lifecycle-readiness.ts:617) will flag as blocking at DONE. DEV/owning agent must re-run verification_evidence_add (or the equivalent refresh) for these 12 intentRefs so their headHash/materialHash bind to current HEAD before DONE.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-14T16:27:50.506Z",
@@ -257,7 +257,11 @@
         ".lattice/story/actives/B-bbaf/checklist.json"
       ],
       "signatureTag": "missing|ts|priority-verificationintents-happy",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "recover_evidence rebound all 18 verificationEvidence rows (12 stale refreshed) to the current material after smoke section 15 (commit e4ef9473) was added; validate coverage is now current. Content/coverage was always present — this was an evidence-freshness pin update, not a coverage gap.",
+      "resolvedAt": "2026-07-14T16:41:50.588Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-bbaf:F-013",
