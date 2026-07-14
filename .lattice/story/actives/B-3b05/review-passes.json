@@ -57,6 +57,39 @@
         "scanEscalationReason": null
       },
       "_hash": "656c1379d3fd2e93e0ec8fd1349ca15a620ebb588d1e93f46e24e5f7a4a57af4"
+    },
+    {
+      "id": "B-3b05:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "CHK-002 (review_pass_set writer-session provenance) scope only: verified userSees against handlers/finding.ts (recordReviewPass) + core/review-pass-provenance.ts + core/finding-verify.ts (v3 signature domain) + core/types.ts + the real-machine transcript. Confirmed stdout AND stderr both carry the warn-mode flag naming both session ids (not swallowed); enforce mode rejects before persisting; legacy records verify via legacy domain; provenanceFlag is never read by any gate (grep across machine.ts/story-advance.ts/phase-gates.ts/review-run.ts confirms zero consumers). Ran npm run test:review-pass-provenance (7/7 pass) and npm run test:process-fact-contract (pass) live. Probed no-lease, distinct-session, owner-session warn, owner-session enforce, invalid config, explicit-env vs derived-ppid sessionSource -- all covered by review-pass-provenance-smoke.ts and consistent with userSees. No blocker found in CHK-002 scope. Separately filed 3 findings (B-3b05:F-003 high, F-004 medium, F-005 critical) against CHK-001's remediation-hint message accuracy/actionability -- this pass record does not cover CHK-001.",
+      "createdAt": "2026-07-14T00:27:02.109Z",
+      "reviewRound": "2026-07-14T00:13:46.358Z",
+      "reviewRunId": "B-3b05:RR-004",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3b05/background.md",
+          ".lattice/story/actives/B-3b05/evidence/provenance-warn-transcript.md",
+          ".lattice/story/actives/B-3b05/plan.md",
+          ".lattice/story/actives/B-3b05/scope-check.json",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/owner-session.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-pass-provenance.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/tasks/review-pass-provenance-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "packages/main/src/core/story-owner-lease.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fd09c95b92c73bcc4c4e02a1499947fecf5d0caff8ed13beae3b8f2267eafbc9"
     }
   ]
 }
