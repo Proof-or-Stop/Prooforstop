@@ -14,6 +14,7 @@ import {
   bumpGateFailureCount,
   resetGateFailureCounts,
 } from './core/convergence-breaker.js';
+import { isCanonicalStoryId } from './core/lifecycle-registry.js';
 import { appendActivityLog } from './core/activity-log.js';
 import { inferActivityRole } from './core/activity-role.js';
 import { isAbsolute, join } from 'path';
@@ -1245,7 +1246,7 @@ export async function runCli(opts?: {
       if (cmd === 'story_advance') {
         try {
           const sid = storyIdFromArgs(parsed, activeStory, { command: cmd, projectRoot: root });
-          if (sid) {
+          if (sid && isCanonicalStoryId(sid)) {
             const dir = store.storyDirPath(sid);
             if (existsSync(dir)) resetGateFailureCounts(dir);
           }
@@ -1312,7 +1313,10 @@ export async function runCli(opts?: {
       if (cmd === 'story_advance') {
         try {
           const sid = storyIdFromArgs(parsed, activeStory, { command: cmd, projectRoot: root });
-          if (sid) {
+          // Canonical-id guard (codex host-B round-3): a story_advance that FAILED
+          // the owner-lease gate's own path-traversal check reaches here, so never
+          // derive a path or write the counter from a non-canonical id.
+          if (sid && isCanonicalStoryId(sid)) {
             const dir = store.storyDirPath(sid);
             if (existsSync(dir)) bumpGateFailureCount(dir, cmd, e.message);
           }
