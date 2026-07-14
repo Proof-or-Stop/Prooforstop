@@ -38,11 +38,11 @@
           "file": "packages/main/tests/milestone-status.test.mjs",
           "command": "npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
-          "note": "desync scenario output contains milestone_ledger_set hint + desync prefix (re-recorded post-commit for fresh binding)",
-          "headHash": "0700cd9b494dca18c8da8d2c588f93092d3c702a",
-          "materialHash": "456f86576bb4581dced7913028f514a5f35a0304f2ed041841dbf11172c3c581",
-          "storyFilesHash": "488ea4d95c90d4333e1e3aea81e24c3d818e43e5a0f5753cc510e7eda55b43c0",
-          "timestamp": "2026-07-14T00:12:54.878Z"
+          "note": "Redesigned hint (F-001/F-003/F-004/F-005): desync fixture asserts per-row diagnosis with real status + per-row lag framing, evidence-first primary remedy (verification_evidence_add with story id + actual uncovered refs + --help) printed BEFORE milestone_ledger_set, and secondary remedy carrying FULL-REPLACE + PLAN-phase-only caveats with no fake-JSON template",
+          "headHash": "3826879dda96e8806315be75fde520ce5397f32d",
+          "materialHash": "0afa7e452cd01eaa1c1d1a0733851991d3863bf62c9a989e010eccfca3de8e7f",
+          "storyFilesHash": "77b142757411186c9cafdcb4e094d220a6cec9c532330d84230dcf29b34ac4ae",
+          "timestamp": "2026-07-14T00:35:51.162Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -50,11 +50,11 @@
           "file": "packages/main/tests/milestone-status.test.mjs",
           "command": "npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
-          "note": "non-desync uncovered case has hint without desync claim; not_applicable and shrinkage rows produce no hint (re-recorded post-commit for fresh binding)",
-          "headHash": "0700cd9b494dca18c8da8d2c588f93092d3c702a",
-          "materialHash": "456f86576bb4581dced7913028f514a5f35a0304f2ed041841dbf11172c3c581",
-          "storyFilesHash": "488ea4d95c90d4333e1e3aea81e24c3d818e43e5a0f5753cc510e7eda55b43c0",
-          "timestamp": "2026-07-14T00:12:54.878Z"
+          "note": "Redesigned hint edge coverage: non-lagging uncovered row gets accurate per-row diagnosis WITHOUT lag framing and WITHOUT milestone_ledger_set; done-status row without evidence prints status=done (never remain planned); mixed lagging+non-lagging set keeps lag framing on the lagging row only (per-row, no .every across rows); not_applicable + shrinkage rows produce no hint noise for either remedy command",
+          "headHash": "3826879dda96e8806315be75fde520ce5397f32d",
+          "materialHash": "0afa7e452cd01eaa1c1d1a0733851991d3863bf62c9a989e010eccfca3de8e7f",
+          "storyFilesHash": "77b142757411186c9cafdcb4e094d220a6cec9c532330d84230dcf29b34ac4ae",
+          "timestamp": "2026-07-14T00:35:51.162Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -62,11 +62,11 @@
           "file": "packages/main/tests/milestone-status.test.mjs",
           "command": "npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
-          "note": "gap ids/severities/pass-fail byte-identical for identical fixtures pre/post (message-layer only proven; re-recorded post-commit for fresh binding)",
-          "headHash": "0700cd9b494dca18c8da8d2c588f93092d3c702a",
-          "materialHash": "456f86576bb4581dced7913028f514a5f35a0304f2ed041841dbf11172c3c581",
-          "storyFilesHash": "488ea4d95c90d4333e1e3aea81e24c3d818e43e5a0f5753cc510e7eda55b43c0",
-          "timestamp": "2026-07-14T00:12:54.878Z"
+          "note": "Message-layer-only invariant re-proven post-redesign: gap ids/severities/pass-fail/gap-count byte-identical across reruns for identical inputs; plus mechanical command-policy assertion that the printed primary remedy (verification_evidence_add/batch) covers REVIEW/TEST/DONE while milestone_ledger_set stays PLAN-gated (asserted from exported COMMAND_POLICIES, not prose)",
+          "headHash": "3826879dda96e8806315be75fde520ce5397f32d",
+          "materialHash": "0afa7e452cd01eaa1c1d1a0733851991d3863bf62c9a989e010eccfca3de8e7f",
+          "storyFilesHash": "77b142757411186c9cafdcb4e094d220a6cec9c532330d84230dcf29b34ac4ae",
+          "timestamp": "2026-07-14T00:35:51.162Z"
         }
       ]
     },
