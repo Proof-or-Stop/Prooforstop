@@ -11,6 +11,7 @@
     "packages/main/src/core/config.ts",
     "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
     ".gitignore",
     "package.json"
   ],
@@ -24,8 +25,8 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "After merging main (B-f458, 606 commits), the retired-authority-vocabulary-guard-smoke whole-file fingerprint pin for cli-engine.ts no longer matches this story's reviewed cli-engine.ts edits, failing validate. Re-pin the fingerprint to the current approved source (same maintenance pattern as the existing B-f458 pin in that file).",
+  "scopeChangeReason": "The cli-engine.ts fingerprint is duplicated: retired-authority-vocabulary-guard-smoke.ts:359 (the pin map) AND verify-process-fact-contract.mjs:845 (a substring assertion checking the smoke file contains that literal). F-014 updated the first; F-015 requires updating the second to the same new fingerprint so process-fact-contract passes.",
   "acknowledgements": [],
   "createdAt": "2026-07-14T05:23:23.977Z",
-  "updatedAt": "2026-07-14T18:49:31.363Z"
+  "updatedAt": "2026-07-14T19:13:35.181Z"
 }
