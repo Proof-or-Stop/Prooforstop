@@ -56,6 +56,25 @@
       ],
       "signatureTag": "missing|mjs|quality-orphaned-test",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fa65:F-004",
+      "desc": "CHK-001:happy:1 (must, npm run test:brief-output green from inside a story worktree) is not currently reproducible. Re-ran node packages/main/tests/global-core-realpath.test.mjs (pass), npm --prefix packages/main run build (clean rebuild), then npm run test:brief-output from this worktree twice: both runs FAIL with AssertionError doctor brief under budget, got 20606 (budget 20000), at packages/main/dist/tasks/brief-output-smoke.js:380. Debug instrumentation on a copy of the smoke script (scratchpad only, no worktree files touched) shows the targeted fix itself is not regressing: the global-core-realpath check in the fixture doctor brief renders ✓ (pass) with no Relink or reinstall text (CONTAINS_RELINK=false). The overage instead comes from unrelated doctor brief growth on main since this story last recorded evidence: new sections now present in the brief (e.g. Host burn scan, lattice doctor health issues, Story metadata protection scan) push total bytes to 20606. The Host burn scan section in particular reads live state from the reviewing machine (~/.claude/projects, ~/.codex/sessions), making this specific assertion inherently non-deterministic across machines/time in addition to being over budget right now. Net effect: the CHK-001:happy:1 manual_transcript evidence (result=pass, recorded headHash 197dc3fd) no longer reflects the current worktree state (HEAD cf8866d), and the story acceptance signal (userSees: npm test completes green) does not currently hold when re-verified.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-14T01:47:22.200Z",
+      "reviewRound": "2026-07-14T01:39:27.283Z",
+      "reviewRunId": "B-fa65:RR-004",
+      "_hash": "ac41935b5fc9b58baace931f4ede72e4249dbd422e967807c3171e24a23d1de6",
+      "files": [
+        "packages/main/dist/tasks/brief-output-smoke.js",
+        "packages/main/src/core/runtime-environment-checks.ts"
+      ],
+      "signatureTag": "missing|js|happy-test-brief",
+      "signatureTagSource": "auto"
     }
   ]
 }
