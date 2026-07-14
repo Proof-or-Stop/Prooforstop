@@ -15,7 +15,28 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Single-check doctor fix: canonicalize non-self expected in checkGlobalCoreRealpath + regression tests; no budget or smoke changes.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "REVIEW findings require edits beyond the frozen single-file scope: F-003 wires tests/global-core-realpath.test.mjs into the executable npm test chain (root + packages/main script entries, mirroring the test:milestone-status sibling convention); F-004 makes the brief-output smoke doctor invocations deterministic by disabling the advisory host burn scan via its documented LATTICE_BURN_ALERT_RECENT_HOURS=0 switch (byte budget itself unchanged per excludedScope).",
+      "timestamp": "2026-07-14T01:50:51.232Z",
+      "paths": [
+        "package.json",
+        "packages/main/package.json",
+        "packages/main/src/tasks/brief-output-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "package.json",
+        "packages/main/package.json",
+        "packages/main/src/tasks/brief-output-smoke.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "eef8032d74c8f3a60b0d9ec7629eaf7478bf2d6d",
+      "materialHash": "06c2dc0ba7fd05ab8efd1468063e4809424d9a635930664756f4beb857a69bb6"
+    }
+  ],
   "createdAt": "2026-07-14T01:33:31.531Z",
-  "updatedAt": "2026-07-14T01:33:31.531Z"
+  "updatedAt": "2026-07-14T01:50:51.232Z"
 }

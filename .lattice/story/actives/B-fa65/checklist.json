@@ -53,13 +53,13 @@
           "intentRef": "CHK-001:happy:1",
           "kind": "manual_transcript",
           "file": "packages/main/dist/tasks/brief-output-smoke.js",
-          "command": "npm run test:brief-output",
+          "command": "npm run test:brief-output && npm test",
           "result": "pass",
-          "note": "Real machine, run from inside story worktree .worktrees/B-fa65 with the worktree-built dist: brief output smoke passed (doctor brief back under the 20000-byte budget; red-evidence failing command flipped green).",
-          "headHash": "197dc3fdb79a8fd9d8823dd202542f5c958fbcc5",
-          "materialHash": "9282c0c7e9b943afd1be76a517c44d96d5d6ef35a48e9b83f59f9d87ffacd166",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-14T01:39:19.035Z"
+          "note": "Real machine from .worktrees/B-fa65 at commit b9f2786fb5: brief output smoke passed (doctor budget deterministic after F-004 burn-scan env switch) and the FULL root npm test chain exits 0 — the story acceptance signal (npm test green from a story worktree) holds end-to-end.",
+          "headHash": "b9f2786fb59554c2601a9a4fe6cc6b6bd279ac2d",
+          "materialHash": "cfeccd416d4672bbbeb02d93e8b403179f0622ce635bf153186a616782bfc82a",
+          "storyFilesHash": "be2de60fc2d1d39bfc2dc7c7258a57583c858d31dd0ac5e77d5e013f27d57492",
+          "timestamp": "2026-07-14T01:54:13.746Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
