@@ -81,7 +81,7 @@
       "desc": "CHK-002:adversarial:0 evidence (\"breaker-state.json is gitignored: a DONE-style merge with the file present is not blocked by the dirty-tree/F-008 check\") only asserts static membership in a lookup table (findRuntimeArtifactEntry/isMaterialExcludedRuntimeArtifactPath/listRuntimeArtifactIgnorePatterns in smoke section 10), never an actual git-status/dirty-tree outcome. Real regression found by running the suite directly: resetGateFailureCounts() unconditionally writes gate-failure-counts.json (even an empty {}) on EVERY successful story-scoped mutating command (cli-engine.ts success path), not only after a real gate failure. The pre-existing validate.commands test packages/main/src/tasks/review-pass-discard-smoke.ts (unmodified by this story) now FAILS: `node packages/main/dist/tasks/review-pass-discard-smoke.js` throws AssertionError \"story_discard should leave the repo clean after committing discarded metadata\" with actual=\"?? .lattice/story/actives/B-drop/gate-failure-counts.json\" because that smoke builds its own synthetic .gitignore (lines 52-59) that does not include the new **/gate-failure-counts.json / **/breaker-state.json / **/takeover-count.json patterns. This is exactly the class of dirty-tree/F-008 breakage CHK-002:adversarial:0 claims is covered, and it is not — confirmed FAILING in the current tree.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-14T13:04:54.210Z",
@@ -94,7 +94,11 @@
         "packages/main/src/tasks/convergence-breaker-smoke.ts"
       ],
       "signatureTag": "missing|ts|adversarial-evidence-breaker",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "resetGateFailureCounts no longer writes a spurious empty file (only rewrites when the file exists and is non-empty); the bump is narrowed to story_advance failures (the phase gate). review-pass-discard-smoke now passes. Smoke section 14 asserts no spurious file. Fixed in 53c25c4.",
+      "resolvedAt": "2026-07-14T13:20:47.076Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-bbaf:F-006",
