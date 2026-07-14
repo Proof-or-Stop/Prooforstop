@@ -65,6 +65,31 @@
         "scanEscalationReason": null
       },
       "_hash": "0ae07332d5bb2b233c480f7125afd3cf196f9b8fcda314fd0164ca6b3105971a"
+    },
+    {
+      "id": "B-fa65:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 delta (commit b9f2786fb5): findMainWorktreeCoreRoot extracted as shared git-worktree-list-porcelain parser; verified genuine refactor not cosmetic. grep confirms exactly one remaining occurrence of the git worktree list --porcelain call in runtime-environment-checks.ts (inside the new helper) — old duplicated inline loop and its stale comment are fully gone, no residue in code/docs/tests. Both former call sites (resolveCanonicalSelfCoreRoot local-fallback, resolveCanonicalCoreRoot realpath-fallback) still call findMainWorktreeCoreRoot and each retains its own distinct fallback; helper not orphaned (2 call sites). test:global-core-realpath wiring verified working at root+package level (exit 0), plus validation-protocol-smoke and tsc build green. LATTICE_BURN_ALERT_RECENT_HOURS is a pre-existing documented env switch used consistently elsewhere, not fabricated. Historical decision.json/plan.md wording predates the fix and was already acknowledged superseded in F-002 resolvedReason (frozen PLAN artifact) — not new residue. No concept deletion/replacement issues found; no blocker.",
+      "createdAt": "2026-07-14T01:58:04.132Z",
+      "reviewRound": "2026-07-14T01:54:15.485Z",
+      "reviewRunId": "B-fa65:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fa65/findings.json",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/tests/global-core-realpath.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-fa65/decision.json",
+          ".lattice/story/actives/B-fa65/plan.md",
+          ".lattice/story/actives/B-fa65/review-passes.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/tasks/brief-output-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dc5d0720fe402d41e1e8dc249b502b76cd8430b94e7661163a349a2f608bb30b"
     }
   ]
 }
