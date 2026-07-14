@@ -45,6 +45,7 @@ import {
   writeFileSync,
 } from 'fs';
 import { appendActivityLog } from './activity-log.js';
+import { bumpTakeoverCount } from './convergence-breaker.js';
 import {
   deriveLocalSessionId,
   getSessionId,
@@ -819,6 +820,15 @@ export function takeOverOwnerLease(
       // missing audit line is reported by callers, not re-thrown here.
     }
   }
+
+  // B-bbaf CHK-002: bump the per-story takeover counter so the convergence
+  // breaker can read takeover frequency with an O(1) per-story read instead of
+  // scanning the shared activity log on the story_advance hot path. This runs at
+  // the ONE serialized takeover write site (a transfer just succeeded above), and
+  // is best-effort: a failed counter bump only DELAYS a takeover-storm trip
+  // because advance-count still catches the same runaway loop. The single
+  // legitimate forceTakeover is counted, never blocked here.
+  bumpTakeoverCount(storyDir);
 
   return {
     transferred: true,

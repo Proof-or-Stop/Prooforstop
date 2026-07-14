@@ -274,6 +274,11 @@ export const MAIN_TOOLS: ToolDef[] = [
     agent: z.string().optional().describe('Actor; INIT reviewer lanes may not directly change story-level scope fields.'),
     actor: z.string().optional().describe('Actor alias; INIT reviewer lanes may not directly change story-level scope fields.'),
   }},
+  { name: 'story_resume', description: 'Human-only ack that clears a convergence-breaker freeze (B-bbaf); refused under autopilot/non-interactive sessions', schema: {
+    storyId: z.string().describe('Story ID of the frozen story.'),
+    ack: z.boolean().optional().describe('Required: confirms a human is deliberately clearing the freeze.'),
+    reason: z.string().optional().describe('Required human explanation (>=10 chars) of why it is safe to continue.'),
+  }},
   { name: 'story_get', description: 'Read Story details; include all index.json fields in result.index', schema: {
     storyId: z.string().describe('Story ID'),
     detail: z.boolean().optional().describe('Attach all index.json fields (phase/priority/name/description/...) to result.index.'),

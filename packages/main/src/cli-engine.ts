@@ -9,6 +9,11 @@
 
 import { z, type ZodType } from 'zod';
 import { existsSync } from 'fs';
+import {
+  enforceConvergenceBreakerGate,
+  bumpGateFailureCount,
+  resetGateFailureCounts,
+} from './core/convergence-breaker.js';
 import { appendActivityLog } from './core/activity-log.js';
 import { inferActivityRole } from './core/activity-role.js';
 import { isAbsolute, join } from 'path';
@@ -1207,10 +1212,39 @@ export async function runCli(opts?: {
       // refused regardless of lease ownership.
       enforceExperimentArmRetrievalGate(cmd, root);
       enforceStoryOwnerLeaseGate(cmd, parsed, store, activeStory, root);
+      // B-bbaf CHK-003: convergence breaker gate — same single choke point as the
+      // owner lease gate, runs AFTER it so only the owner ever reaches the brake.
+      // Acts only on story_advance: an already-frozen or newly re-tripped runaway
+      // story is hard-blocked here (throws, surfaced as the command failure);
+      // healthy stories are byte-identical (nothing written, nothing thrown).
+      enforceConvergenceBreakerGate({
+        command: cmd,
+        storyId: (parsed.storyId as string) || activeStory?.storyId,
+        store,
+        env: process.env,
+      });
       let result = fn();
       if (result && typeof (result as any).then === 'function') result = await result;
       clearInterval(watchdog);
       log(`${cmd} done`);
+      // B-bbaf CHK-006: any SUCCESSFUL story-scoped mutating command is real
+      // progress, so reset that story's repeated-gate-failure counter. The
+      // gate-repeat signal exists to catch a genuine livelock — the SAME gate
+      // failing the SAME reason with NO progress in between (the B-f458 shape).
+      // Resetting on any successful mutation (not just story_advance) keeps
+      // benign, expected rejections during normal iteration — e.g. a premature
+      // story_advance that reports "checklist item(s) not done", which clears the
+      // moment you checklist_update the work — from ever accumulating toward a
+      // false freeze, while a true no-progress repeat still trips. Best-effort.
+      if (!isReadOnlyCommand(cmd, parsed)) {
+        try {
+          const sid = (parsed.storyId as string) || activeStory?.storyId;
+          if (sid) {
+            const dir = store.storyDirPath(sid);
+            if (existsSync(dir)) resetGateFailureCounts(dir);
+          }
+        } catch { /* best-effort: never fail a successful command on counter reset */ }
+      }
       if (shouldWriteActivityLog(cmd, parsed) || staleWarnings.length > 0) {
         writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: true, staleWarnings });
       }
@@ -1258,6 +1292,22 @@ export async function runCli(opts?: {
       log(`${cmd} failed: ${e.message}`);
       if (shouldWriteActivityLog(cmd, parsed) || staleWarnings.length > 0) {
         writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: false, error: e.message, staleWarnings });
+      }
+      // B-bbaf CHK-006: a story-scoped mutating command that FAILED is a gate
+      // rejection — bump this story's repeated-gate-failure counter, keyed by
+      // (command + normalized reason). The activeStory + cmd + e.message needed
+      // here are already in scope (and already written to activity.jsonl above),
+      // so this is an O(1) counter write, NOT a hot-path activity-log scan. The
+      // breaker trips when the same gate fails the same reason too many times.
+      // Best-effort: a failed counter bump never changes the command's outcome.
+      if (!isReadOnlyCommand(cmd, parsed)) {
+        try {
+          const sid = (parsed.storyId as string) || activeStory?.storyId;
+          if (sid) {
+            const dir = store.storyDirPath(sid);
+            if (existsSync(dir)) bumpGateFailureCount(dir, cmd, e.message);
+          }
+        } catch { /* best-effort */ }
       }
       // F-032: same self-gating applies on the error path — a read-only command
       // (e.g. a plain usage_sweep) that fails still appends NO story process event.
