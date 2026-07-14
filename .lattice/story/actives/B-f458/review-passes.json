@@ -920,6 +920,41 @@
       },
       "readDiagnostics": [],
       "_hash": "c561cf0d0181ac65f5efd2576a71731cec0bd3862a7249833a732f154ac40fab"
+    },
+    {
+      "id": "B-f458:RP-037",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 46 targeted coverage PASS for ac9f87fe8b: the sole semantic change corrects future-story decision prose from legacy evidence/transcript-diff.md to canonical evidence/live-smoke-transcript.json; it adds no product behavior or new acceptance intent. Existing 15 happy/edge/adversarial intent commands remain sufficient: npm test includes process-fact and closeout regressions, and focused edge/adversarial chains directly assert the canonical live-smoke artifact while retaining legacy compatibility only as a negative/fail-closed case. Zero coverage gaps and zero waivers. Existing evidence hashes are mechanically stale at storyFilesHash bfd70d5 versus current 5f81fc9 and must be rerun/refreshed by the owner as planned; no new verification command is required.",
+      "createdAt": "2026-07-14T15:39:19.675Z",
+      "reviewRound": "2026-07-14T15:36:22.281Z",
+      "reviewRunId": "B-f458:RR-144",
+      "writerSessionId": "sess-1fcee20b20bb0e89",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/cc-learnings.md",
+          "package.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/cc-learnings.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "3ea04428f162d92673a8af9362f7601ee2a03079e659c522c8b2812718b16908"
+      },
+      "readDiagnostics": [],
+      "_hash": "d43b4fdec2a8027608bca442c74b0de8dbcea8aba4d689ca89d2a6c67accb5f3"
     }
   ]
 }
