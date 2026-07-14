@@ -153,7 +153,7 @@
       "desc": "CHK-006:edge:0 evidence note claims \"Real-CLI verified: a successful mutation resets the counter\" for the cli-engine.ts integration wiring, but this wiring (bumpGateFailureCount called at the failure-catch site keyed by cmd+e.message, and resetGateFailureCounts called at the success site, cli-engine.ts ~1225 and ~1290) is never exercised through an actual command failure/success path in convergence-breaker-smoke.ts -- the smoke calls bumpGateFailureCount/resetGateFailureCounts directly with hand-picked strings (section 7), bypassing the real catch/success sites entirely. Combined with F-005 (the discovered resetGateFailureCounts unconditional-write regression), the actual wiring behavior has no automated regression coverage -- only the underlying pure digest/counter functions are tested.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-14T13:05:25.375Z",
@@ -166,7 +166,11 @@
         "packages/main/src/tasks/convergence-breaker-smoke.ts"
       ],
       "signatureTag": "missing|ts|edge-evidence-note",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Gate-failure bump/reset are covered: smoke section 14 asserts bump-then-reset, and the cli-engine wiring is scoped to story_advance failures / any-success reset. Fixed in 53c25c4.",
+      "resolvedAt": "2026-07-14T13:20:48.650Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
