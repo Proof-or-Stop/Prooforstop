@@ -90,6 +90,28 @@
         "scanEscalationReason": null
       },
       "_hash": "dc5d0720fe402d41e1e8dc249b502b76cd8430b94e7661163a349a2f608bb30b"
+    },
+    {
+      "id": "B-fa65:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round 2: re-verified F-001/F-002 fixes in commit b9f2786fb5. F-001 duplication removed via findMainWorktreeCoreRoot; resolveCanonicalCoreRoot byte-for-byte preserved; resolveCanonicalSelfCoreRoot micro-unification traced to sole consumer expectedSelfCoreRoot and proven consumer-equivalent (projectRoot pre-resolved). F-002 comment now factually matches checkGlobalCoreRealpath comparison semantics (globalRealpath always safeRealpath-resolved). No new issues; no blockers.",
+      "createdAt": "2026-07-14T01:58:07.904Z",
+      "reviewRound": "2026-07-14T01:54:15.485Z",
+      "reviewRunId": "B-fa65:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/tasks/brief-output-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-fa65/decision.json",
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e253351c9923548c8c46b03d7d22c093d906e4b307a3d3c6c925e3956481cf60"
     }
   ]
 }
