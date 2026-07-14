@@ -1,0 +1,23 @@
+{
+  "storyId": "B-fa65",
+  "checkedAt": "2026-07-14T02:03:47.292Z",
+  "headHash": "745ffe94d9d931c1313f1300bdff6b2f17c2a49a",
+  "materialHash": "cfeccd416d4672bbbeb02d93e8b403179f0622ce635bf153186a616782bfc82a",
+  "storyFilesHash": "be2de60fc2d1d39bfc2dc7c7258a57583c858d31dd0ac5e77d5e013f27d57492",
+  "reviewRound": "2026-07-14T01:54:15.485Z",
+  "agentId": "",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "packages/main/tests/global-core-realpath.test.mjs (node tests/global-core-realpath.test.mjs) re-run independently, passes: ok global-core-realpath. 3 real-git-repo scenarios, 5 assertions, no mocks: (1) worktree-built CLI + global symlinked to canonical main checkout -> globalCoreRealpath.status=pass (fix works); (2) global symlinked to an unrelated path while core runs from a worktree -> status != pass and resolves-to warning text survives (genuine drift still caught); (3) non-git corePackageRoot fallback -> matching global passes, differing global warns (pre-fix behavior preserved). Also independently rebuilt packages/main (tsc clean) and re-ran npm run test:brief-output (brief output smoke passed, deterministic doctor budget via LATTICE_BURN_ALERT_RECENT_HOURS=0) and node packages/main/dist/tasks/validation-protocol-smoke.js (self-project regression guard, passed). Confirmed via git diff b9f2786fb5..HEAD that only story-metadata files changed after the fix commit -- code matches what I rebuilt and tested. Re-ran test:global-core-realpath and test:brief-output a second time for determinism; identical pass output both times."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Pure bug-fix story (doctor global-core-realpath false-warn) with zero doc-promise surface -- no CLAUDE.md/docs/*.md changed in the diff, only story metadata .md (plan.md, evidence transcript), so docsPromises=[] is a legitimate outcome, not a missed scan. The single feature item CHK-001 has real, non-mocked test coverage across happy/adversarial/edge scenarios that I independently rebuilt and re-ran twice with identical passing output, plus two supporting smoke suites (brief-output, validation-protocol) also independently re-run green. No unresolved TODO/FIXME/HACK in the diff."
+  },
+  "_hash": "f48ced4eb47dbaadddf93484be4d1903d04f4ca513954d5a43e60e3e7561a70d"
+}
