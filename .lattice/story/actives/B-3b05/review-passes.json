@@ -111,6 +111,30 @@
         "scanEscalationReason": null
       },
       "_hash": "fdd04658f4ed703eb85e1a07f3e2cdd5624ab9cbc9355170183b13767aa3c36c"
+    },
+    {
+      "id": "B-3b05:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept-residue scan of the two fix commits (3826879dda proofstory.ts hint rework; 8cce2b89e9 F-002 v3 signature domain amendment). Grepped whole repo for deleted/renamed identifiers: ledgerDesynced, desyncPrefix, remediationHint (old single-var hint), old hardcoded phrase Ledger out of sync / remain planned, and the fake-JSON partial-update template. Zero residue outside archival finding/plan.md audit trail (findings.json + plan.md legitimately preserve pre-fix quoted text as historical review evidence, and milestone-status.test.mjs uses assert.doesNotMatch on the old phrases as regression guards, not stale expectations). New concept names (diagnosis/primaryRemedy/secondaryRemedy/rowLagsChecklist/rowMissingRefs) fully replace the old ones with no orphaned helper. For the v3 signature-domain amendment: process-fact-registry.ts and scripts/verify-process-fact-contract.mjs signature-description strings are byte-synced; grepped for the old flag-less v3 description string across .ts/.md/.json/.mjs — zero hits. provenanceFlag is consistently wired through types.ts, finding-verify.ts, handlers/finding.ts, review-pass-provenance.ts, and covered by add/strip/flip tamper assertions in review-pass-provenance-smoke.ts; no CLAUDE.md/decisions doc references this concept so nothing stale there either. No blocker found this round.",
+      "createdAt": "2026-07-14T00:49:37.659Z",
+      "reviewRound": "2026-07-14T00:46:23.555Z",
+      "reviewRunId": "B-3b05:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3b05/evidence/provenance-warn-transcript.md",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/tasks/review-pass-provenance-smoke.ts",
+          "packages/main/tests/milestone-status.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "72c6ead1bd9721893d1c5239418677926f695fafd9478ced79f3296041310855"
     }
   ]
 }
