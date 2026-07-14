@@ -17,6 +17,27 @@
       ],
       "signatureTag": "edge|ts|quality-proofstory-1701",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3b05:F-002",
+      "desc": "adversarial: review-pass provenance (B-3b05 CHK-002) persists `provenanceFlag: \"same_session_write\"` on ReviewPass records (packages/main/src/handlers/finding.ts:397) as part of what review-pass-provenance.ts:20 calls a \"durable per-session audit trail\", but `provenanceFlag` is NOT included in the versioned v3 signature payload in signReviewPass/verifyReviewPass (packages/main/src/core/finding-verify.ts:117-146 lists version, salt, storyId, id, agent, note, timestamp, reviewRound, reviewRunId, writerSessionId, sessionSource, readManifest/readLog/readDiagnostics -- no provenanceFlag). Only writerSessionId/sessionSource are tamper-protected. Reproduced directly against the built dist: signing a record with writerSessionId+sessionSource then adding provenanceFlag=same_session_write afterward still verifies true via verifyReviewPass -- i.e. provenanceFlag can be added, stripped, or flipped in the persisted review-passes.json post-write without invalidating _hash, silently erasing or fabricating self-sign evidence for the exact B-8038/B-3928/B-f458 self-sign detection problem this story exists to address. This is compounded by delivery evidence at .lattice/story/actives/B-3b05/evidence/provenance-warn-transcript.md:50, which explicitly (and incorrectly) claims the persisted record has writerSessionId, sessionSource, AND provenanceFlag \"all bound into the versioned `_hash` signature domain\" -- that claim is false for provenanceFlag and should be corrected, or provenanceFlag should be added to the v3 signature domain.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-14T00:22:07.291Z",
+      "reviewRound": "2026-07-14T00:13:46.358Z",
+      "reviewRunId": "B-3b05:RR-002",
+      "_hash": "9743b651256a8a5d5ab16ed3c1839f90f3b92b4273029057ece42d00a386eb4c",
+      "files": [
+        "packages/main/src/core/finding-verify.ts",
+        "packages/main/src/core/review-pass-provenance.ts",
+        "packages/main/src/handlers/finding.ts",
+        ".lattice/story/actives/B-3b05/evidence/provenance-warn-transcript.md"
+      ],
+      "signatureTag": "adversarial|ts|adversarial-review-pass",
+      "signatureTagSource": "auto"
     }
   ]
 }
