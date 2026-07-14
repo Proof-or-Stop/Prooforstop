@@ -143,11 +143,11 @@
           "kind": "logic_test",
           "command": "npm run test:convergence-breaker",
           "result": "pass",
-          "note": "Smoke section 8 asserts frozen breaker-state round-trips through write/readBreakerState and an already-frozen state stays frozen.",
-          "headHash": "761b0aa7d7d00f4f2b292f596b2eee54bd95ee95",
-          "materialHash": "626cd8dcc2974beac7f35f03be73ba49623dd9d69dcd39fc90fa379ecc1e1f06",
-          "storyFilesHash": "51cdefdededb72976563a7795eed6169d0844c1b92bc0a6cff23504586519aa9",
-          "timestamp": "2026-07-14T15:45:39.986Z"
+          "note": "Smoke section 10 asserts the three per-story runtime files (breaker-state/takeover-count/gate-failure-counts) are registered material-hash-excluded with ignore patterns (F-008 DONE-merge safety); section 8 asserts frozen breaker-state round-trips through write/readBreakerState.",
+          "headHash": "e4a42a68b7db71cfdc5faf6d8e7ca962716b9afe",
+          "materialHash": "b6a00baa28327d3e7885bc28dd42bc53ef8112a020c21ce8b212af4b51de3973",
+          "storyFilesHash": "10133e3b79ea4863e1afc9caeaff99f5fff2c6d59b8f9ba7ced5e5594fc80b17",
+          "timestamp": "2026-07-14T16:17:05.455Z"
         }
       ]
     },
