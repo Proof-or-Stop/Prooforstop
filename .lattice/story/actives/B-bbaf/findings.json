@@ -59,6 +59,26 @@
       "_hash": "d64f3f90feaebdaeae9912bbb38f77d8afd3aae8ccf536f35f99103a4f5d8d92",
       "signatureTag": "missing|unknown|promise-undelivered-title",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bbaf:F-005",
+      "desc": "CHK-002:adversarial:0 evidence (\"breaker-state.json is gitignored: a DONE-style merge with the file present is not blocked by the dirty-tree/F-008 check\") only asserts static membership in a lookup table (findRuntimeArtifactEntry/isMaterialExcludedRuntimeArtifactPath/listRuntimeArtifactIgnorePatterns in smoke section 10), never an actual git-status/dirty-tree outcome. Real regression found by running the suite directly: resetGateFailureCounts() unconditionally writes gate-failure-counts.json (even an empty {}) on EVERY successful story-scoped mutating command (cli-engine.ts success path), not only after a real gate failure. The pre-existing validate.commands test packages/main/src/tasks/review-pass-discard-smoke.ts (unmodified by this story) now FAILS: `node packages/main/dist/tasks/review-pass-discard-smoke.js` throws AssertionError \"story_discard should leave the repo clean after committing discarded metadata\" with actual=\"?? .lattice/story/actives/B-drop/gate-failure-counts.json\" because that smoke builds its own synthetic .gitignore (lines 52-59) that does not include the new **/gate-failure-counts.json / **/breaker-state.json / **/takeover-count.json patterns. This is exactly the class of dirty-tree/F-008 breakage CHK-002:adversarial:0 claims is covered, and it is not — confirmed FAILING in the current tree.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-14T13:04:54.210Z",
+      "reviewRound": "2026-07-14T12:55:51.181Z",
+      "reviewRunId": "B-bbaf:RR-003",
+      "_hash": "afa59eb62bdfe858972c732bf0c86aeb5bee5cc9f970df181e97bbe95a1eb8e1",
+      "files": [
+        "packages/main/src/core/convergence-breaker.ts",
+        "packages/main/src/tasks/review-pass-discard-smoke.ts",
+        "packages/main/src/tasks/convergence-breaker-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|adversarial-evidence-breaker",
+      "signatureTagSource": "auto"
     }
   ]
 }
