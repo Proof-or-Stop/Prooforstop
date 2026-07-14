@@ -9,6 +9,7 @@
     "packages/main/src/core/command-policy.ts",
     "packages/main/src/cli/command-catalog.ts",
     "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
     ".gitignore",
     "package.json"
   ],
@@ -22,8 +23,8 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "story_resume declares allowedPhases:all in command-policy, so it must also be registered in the phaseTools global '*' list in core/config.ts (a freeze can occur at story_advance in any phase; the ack must be available in every phase). Add config.ts to allowed scope.",
+  "scopeChangeReason": "story_resume (a new command) must be registered in PROCESS_FACT_LEVELS/PROCESS_FACT_REGISTRY (core/process-fact-levels.ts) or the full-suite process-fact-contract test fails at the DONE-required gate with MAIN_TOOLS-missing-from-registry + DEFAULT_PHASE_TOOLS phase-allowlist drift. Required wiring for the new command.",
   "acknowledgements": [],
   "createdAt": "2026-07-14T05:23:23.977Z",
-  "updatedAt": "2026-07-14T12:46:49.834Z"
+  "updatedAt": "2026-07-14T17:27:53.544Z"
 }
