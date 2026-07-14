@@ -30,7 +30,9 @@
     "packages/main/src/handlers/test.ts",
     "packages/main/src/handlers/test-story.ts",
     "packages/main/src/handlers/transition-effects.ts",
-    "package.json"
+    "package.json",
+    ".claude/agents/product-reviewer.md",
+    ".lattice-codex/agents/product-reviewer.md"
   ],
   "allowedCreate": [
     "packages/main/src/core/closeout-trust.ts",
@@ -44,20 +46,16 @@
     "packages/main/src/tasks/closeout-trust-smoke.ts"
   ],
   "protectedFiles": [
-    "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
-    ".lattice-codex/agents",
-    ".claude/agents"
+    "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
   ],
   "explicitExcludes": [
     "docs/story",
     "tests/fixtures",
     ".omx",
     ".lattice/story/actives/B-9188",
-    "packages/main/src/core/prompt-registry.ts",
-    ".lattice-codex/agents",
-    ".claude/agents"
+    "packages/main/src/core/prompt-registry.ts"
   ],
-  "scopeChangeReason": "Runtime artifact registry changes require the paired mechanical runtime-fact contract verifier. Add only scripts/verify-runtime-fact-contract.mjs to pin the sensitive review-round signer path semantics; no product scope expansion.",
+  "scopeChangeReason": "Verified critical finding F-125 requires the canonical product-reviewer prompt and both tracked Codex/Claude mirrors to use the same live-smoke transcript path. This reviewed expansion admits only those two exact mirror files; broader agent directories remain outside allowedModify.",
   "acknowledgements": [
     {
       "actor": "lattice-implementer",
@@ -268,5 +266,7 @@
     }
   ],
   "createdAt": "2026-07-13T08:24:04.138Z",
-  "updatedAt": "2026-07-14T05:42:10.934Z"
+  "updatedAt": "2026-07-14T12:52:35.889Z",
+  "fileRules": [],
+  "protectedAnchors": []
 }
