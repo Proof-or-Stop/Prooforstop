@@ -237,8 +237,36 @@
       "phase": "DEV",
       "headHash": "24f364f469e26bfb82e584da04315944175ef6a6",
       "materialHash": "b7e1d050e85ff291dfa533570f0f9c10ebff4e713ef07e9c13c5f1006a7cfc65"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required by verified critical F-125 to align the canonical live-smoke transcript path across active command policy, canonical product-reviewer template, Codex/Claude mirrors, and the mechanically verified prompt approval baseline; no reviewer semantics are broadened.",
+      "timestamp": "2026-07-14T05:42:10.934Z",
+      "paths": [
+        ".claude/agents/product-reviewer.md",
+        ".lattice-codex/agents/product-reviewer.md",
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/templates/agents/product-reviewer.md",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".claude/agents/product-reviewer.md",
+        ".lattice-codex/agents/product-reviewer.md",
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/templates/agents/product-reviewer.md",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+      ],
+      "affectedPathCount": 7,
+      "phase": "DEV",
+      "headHash": "a5621e382b6170a41fe6cd3c98e0c2a21d65328c",
+      "materialHash": "17a231595c17e76fa123b2c49783b6fd74d301bdf4a12dd8b2834feed8c49d39"
     }
   ],
   "createdAt": "2026-07-13T08:24:04.138Z",
-  "updatedAt": "2026-07-14T05:21:51.877Z"
+  "updatedAt": "2026-07-14T05:42:10.934Z"
 }
