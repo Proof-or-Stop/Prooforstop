@@ -72,6 +72,35 @@
         "scanEscalationReason": null
       },
       "_hash": "c0ba59305dfb30e7505d6c9ed132326d2075d9d0a74ebb5d28dc2e18b3b57677"
+    },
+    {
+      "id": "B-bbaf:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check: diff 1ac74ce~1..HEAD is purely additive plus small wiring edits; no concept deleted/renamed; no dangling refs; env-var and story_resume naming consistent across all sites. No blocker.",
+      "createdAt": "2026-07-14T13:28:24.570Z",
+      "reviewRound": "2026-07-14T12:55:51.181Z",
+      "reviewRunId": "B-bbaf:RR-007",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f45f7ef3cd8216e6a54ac0b9ea50de699a6b869c60ae40a64f9d8a615550ff1d"
     }
   ]
 }
