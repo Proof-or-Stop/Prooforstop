@@ -374,6 +374,30 @@
         "scanEscalationReason": null
       },
       "_hash": "fe3c041d76624123e051fb766eb7c6ccf5e8cd9b2ecde03f0b56d710afbc67af"
+    },
+    {
+      "id": "B-bbaf:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: fresh validate confirms all 18 must-priority verificationIntents (CHK-001..CHK-006 x happy/edge/adversarial) covered by verificationEvidence citing npm run test:convergence-breaker (15 sections, all pass), 0 stale, 0 missing. Only change since RP-011 was the story_resume registry-line addition (no test/coverage impact); no blocker.",
+      "createdAt": "2026-07-14T18:04:40.347Z",
+      "reviewRound": "2026-07-14T17:29:22.567Z",
+      "reviewRunId": "B-bbaf:RR-021",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bbaf/checklist.json",
+          ".lattice/story/actives/B-bbaf/findings.json",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3ef50c21cb356fbdf586d188ee62073641de32a22ada5945daeeb2a5708bfb2a"
     }
   ]
 }
