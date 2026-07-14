@@ -39,10 +39,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Redesigned hint (F-001/F-003/F-004/F-005): desync fixture asserts per-row diagnosis with real status + per-row lag framing, evidence-first primary remedy (verification_evidence_add with story id + actual uncovered refs + --help) printed BEFORE milestone_ledger_set, and secondary remedy carrying FULL-REPLACE + PLAN-phase-only caveats with no fake-JSON template",
-          "headHash": "f333323a4f6bd449e3a454c8405cf812cd0ba01c",
-          "materialHash": "e4daa2ace95fb6ca6566b37327d2b912fd3be140e2a5b8cb3f61aa0c73501781",
-          "storyFilesHash": "1c7431617f8aea07cf107554a63ab8f0b94e3f28ee63271a6ee9e5a1edc31633",
-          "timestamp": "2026-07-14T00:44:49.412Z"
+          "headHash": "b42dac871cb1d14bcc2bb99e9a6b94bb4c32b841",
+          "materialHash": "91ed4267f919abf4a98936ebfd7ac2f670b127bc20c24c70bd060fb55d3bb05f",
+          "storyFilesHash": "04d1983cf23be57f7d68e2b920fab5b14e4b746b86626d1d7b94fa84d476b096",
+          "timestamp": "2026-07-14T02:10:49.535Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -51,10 +51,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Redesigned hint edge coverage: non-lagging uncovered row gets accurate per-row diagnosis WITHOUT lag framing and WITHOUT milestone_ledger_set; done-status row without evidence prints status=done (never remain planned); mixed lagging+non-lagging set keeps lag framing on the lagging row only (per-row, no .every across rows); not_applicable + shrinkage rows produce no hint noise for either remedy command",
-          "headHash": "f333323a4f6bd449e3a454c8405cf812cd0ba01c",
-          "materialHash": "e4daa2ace95fb6ca6566b37327d2b912fd3be140e2a5b8cb3f61aa0c73501781",
-          "storyFilesHash": "1c7431617f8aea07cf107554a63ab8f0b94e3f28ee63271a6ee9e5a1edc31633",
-          "timestamp": "2026-07-14T00:44:49.412Z"
+          "headHash": "b42dac871cb1d14bcc2bb99e9a6b94bb4c32b841",
+          "materialHash": "91ed4267f919abf4a98936ebfd7ac2f670b127bc20c24c70bd060fb55d3bb05f",
+          "storyFilesHash": "04d1983cf23be57f7d68e2b920fab5b14e4b746b86626d1d7b94fa84d476b096",
+          "timestamp": "2026-07-14T02:10:49.535Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -63,10 +63,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs",
           "result": "pass",
           "note": "Message-layer-only invariant re-proven post-redesign: gap ids/severities/pass-fail/gap-count byte-identical across reruns for identical inputs; plus mechanical command-policy assertion that the printed primary remedy (verification_evidence_add/batch) covers REVIEW/TEST/DONE while milestone_ledger_set stays PLAN-gated (asserted from exported COMMAND_POLICIES, not prose)",
-          "headHash": "f333323a4f6bd449e3a454c8405cf812cd0ba01c",
-          "materialHash": "e4daa2ace95fb6ca6566b37327d2b912fd3be140e2a5b8cb3f61aa0c73501781",
-          "storyFilesHash": "1c7431617f8aea07cf107554a63ab8f0b94e3f28ee63271a6ee9e5a1edc31633",
-          "timestamp": "2026-07-14T00:44:49.412Z"
+          "headHash": "b42dac871cb1d14bcc2bb99e9a6b94bb4c32b841",
+          "materialHash": "91ed4267f919abf4a98936ebfd7ac2f670b127bc20c24c70bd060fb55d3bb05f",
+          "storyFilesHash": "04d1983cf23be57f7d68e2b920fab5b14e4b746b86626d1d7b94fa84d476b096",
+          "timestamp": "2026-07-14T02:10:49.535Z"
         }
       ]
     },
@@ -114,10 +114,10 @@
           "command": "npm run test:review-pass-provenance",
           "result": "pass",
           "note": "records identity, verifies, no flag for non-owner session; warn-mode owner-session pass persists with same_session_write flag; re-run green after F-002 fix binding provenanceFlag into the v3 signature domain",
-          "headHash": "8cce2b89e91c52f2bf9db8bf004e2aad5cb39a25",
-          "materialHash": "e4daa2ace95fb6ca6566b37327d2b912fd3be140e2a5b8cb3f61aa0c73501781",
-          "storyFilesHash": "1c7431617f8aea07cf107554a63ab8f0b94e3f28ee63271a6ee9e5a1edc31633",
-          "timestamp": "2026-07-14T00:44:38.223Z"
+          "headHash": "b42dac871cb1d14bcc2bb99e9a6b94bb4c32b841",
+          "materialHash": "91ed4267f919abf4a98936ebfd7ac2f670b127bc20c24c70bd060fb55d3bb05f",
+          "storyFilesHash": "04d1983cf23be57f7d68e2b920fab5b14e4b746b86626d1d7b94fa84d476b096",
+          "timestamp": "2026-07-14T02:10:49.535Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -126,10 +126,10 @@
           "command": "node packages/main/dist/cli.js review_pass_set (real CLI, owner-session LATTICE_SESSION_ID == story owner lease sessionId, default warn mode)",
           "result": "pass",
           "note": "real-machine CLI output shows the visible warn flag on owner-session self-sign attempt; transcript recaptured post-F-002 with corrected signature-domain claim (all three provenance fields hash-bound) and verbatim flag-tamper verify failures",
-          "headHash": "8cce2b89e91c52f2bf9db8bf004e2aad5cb39a25",
-          "materialHash": "e4daa2ace95fb6ca6566b37327d2b912fd3be140e2a5b8cb3f61aa0c73501781",
-          "storyFilesHash": "1c7431617f8aea07cf107554a63ab8f0b94e3f28ee63271a6ee9e5a1edc31633",
-          "timestamp": "2026-07-14T00:44:38.223Z"
+          "headHash": "b42dac871cb1d14bcc2bb99e9a6b94bb4c32b841",
+          "materialHash": "91ed4267f919abf4a98936ebfd7ac2f670b127bc20c24c70bd060fb55d3bb05f",
+          "storyFilesHash": "04d1983cf23be57f7d68e2b920fab5b14e4b746b86626d1d7b94fa84d476b096",
+          "timestamp": "2026-07-14T02:10:49.535Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -138,10 +138,10 @@
           "command": "npm run test:review-pass-provenance",
           "result": "pass",
           "note": "legacy fixture verifies via legacy domain; absent/invalid config resolves to warn; unchanged after the v3 domain amendment (no persisted flag-less v3 records existed)",
-          "headHash": "8cce2b89e91c52f2bf9db8bf004e2aad5cb39a25",
-          "materialHash": "e4daa2ace95fb6ca6566b37327d2b912fd3be140e2a5b8cb3f61aa0c73501781",
-          "storyFilesHash": "1c7431617f8aea07cf107554a63ab8f0b94e3f28ee63271a6ee9e5a1edc31633",
-          "timestamp": "2026-07-14T00:44:38.223Z"
+          "headHash": "b42dac871cb1d14bcc2bb99e9a6b94bb4c32b841",
+          "materialHash": "91ed4267f919abf4a98936ebfd7ac2f670b127bc20c24c70bd060fb55d3bb05f",
+          "storyFilesHash": "04d1983cf23be57f7d68e2b920fab5b14e4b746b86626d1d7b94fa84d476b096",
+          "timestamp": "2026-07-14T02:10:49.535Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -150,10 +150,10 @@
           "command": "npm run test:review-pass-provenance",
           "result": "pass",
           "note": "enforce rejects naming both ids; writerSessionId tamper breaks signature; explicit-env spoof recorded with sessionSource=explicit-env; F-002 flag-tamper detection: adding, stripping, or flipping provenanceFlag on a signed record (including the record the real CLI persisted) fails verifyReviewPass",
-          "headHash": "8cce2b89e91c52f2bf9db8bf004e2aad5cb39a25",
-          "materialHash": "e4daa2ace95fb6ca6566b37327d2b912fd3be140e2a5b8cb3f61aa0c73501781",
-          "storyFilesHash": "1c7431617f8aea07cf107554a63ab8f0b94e3f28ee63271a6ee9e5a1edc31633",
-          "timestamp": "2026-07-14T00:44:38.223Z"
+          "headHash": "b42dac871cb1d14bcc2bb99e9a6b94bb4c32b841",
+          "materialHash": "91ed4267f919abf4a98936ebfd7ac2f670b127bc20c24c70bd060fb55d3bb05f",
+          "storyFilesHash": "04d1983cf23be57f7d68e2b920fab5b14e4b746b86626d1d7b94fa84d476b096",
+          "timestamp": "2026-07-14T02:10:49.535Z"
         }
       ]
     }
