@@ -18,20 +18,14 @@
     "Freeze state is a gitignored runtime artifact (registry + .gitignore) so it never dirties the DONE merge (story-owner-lease.ts F-008 pattern).",
     "Do NOT weaken the single legitimate forceTakeover human-override path; exclude the milestone_ledger_set hint and review_pass_set writer-identity gaps (owned by concurrent work)."
   ],
-  "unknowns": [
-    "Exact enforcement insertion point: does the story_advance command handler in cli-engine.ts have a single pre-transition seam, and do takeover-carrying commands route through the same seam?",
-    "How is autopilot / non-interactive mode detected (LATTICE_AUTOPILOT env? a TTY check? an existing helper)? The ack refusal depends on it.",
-    "Windowing basis for takeover-frequency and pass-rate: wall-clock minutes vs a trailing count of events — which is already available cheaply from story.events?",
-    "Is the repeated-identical-gate-failure signal (INIT-002: same gate + same reason twice) derivable read-only from recorded events, or are gate rejections not persisted as events? If not derivable, that signal is scoped down and documented rather than faked.",
-    "Where breaker state should live so it is visible to both the advance handler and the resume command without a race with the owner lease."
-  ],
+  "unknowns": [],
   "touchpoints": [
-    "packages/main/src/core/convergence-breaker.ts (new pure core: signal derivation + assessBreaker decision fn)",
-    "packages/main/src/cli-engine.ts (story_advance / takeover-command pre-transition breaker check + rejection render)",
+    "packages/main/src/core/convergence-breaker.ts (new pure core + threshold resolver + state read/write)",
+    "packages/main/src/core/story-owner-lease.ts (bump the per-story takeover counter in the existing takeover audit write)",
+    "packages/main/src/cli-engine.ts (pre-transition breaker check at the enforceStoryOwnerLeaseGate choke point + rejection render)",
     "packages/main/src/core/runtime-artifact-registry.ts (register the gitignored breaker-state artifact)",
     "packages/main/src/registry.ts (new story_resume ack command)",
-    "packages/main/src/core/review-convergence.ts + core/story-owner-lease.ts (event-scan + rejection-gate patterns to reuse, not reimplement)",
     "packages/main/src/tasks/convergence-breaker-smoke.ts (new), .gitignore, package.json (test wiring)"
   ],
-  "timestamp": "2026-07-13T23:23:07.463Z"
+  "timestamp": "2026-07-13T23:41:10.605Z"
 }

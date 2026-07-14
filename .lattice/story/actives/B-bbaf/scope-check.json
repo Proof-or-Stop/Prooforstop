@@ -1,172 +1,164 @@
 {
   "storyId": "B-bbaf",
-  "checkedAt": "2026-07-13T23:37:10.917Z",
+  "checkedAt": "2026-07-14T05:22:15.698Z",
   "features": [
     {
       "feature": "Pure convergence-breaker core (assessBreaker) deriving three read-only counters: advance-count, review pass-rate, takeover-frequency",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+      "source": "decisions:story-lifecycle.md"
     },
     {
       "feature": "assessBreaker fails open (tripped=false) and never throws on malformed/missing input",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+      "source": "description"
     },
     {
       "feature": "Pass-rate signal cannot trip below a min-sample review-run count",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+      "source": "description"
     },
     {
-      "feature": "Takeover-frequency counter is sourced by bumping a tiny per-story counter inside the EXISTING takeover audit write (chosen design explicitly rejects scanning story.events/activity log on the hot path); this requires touching the takeover-audit write site (core/story-owner-lease.ts, which is where 'story-owner-lease-takeover' audit records are actually written per session-ownership-and-write-leases.md and the grep-confirmed source)",
-      "covered_by": null,
-      "status": "gap",
+      "feature": "Takeover-frequency counter is sourced by bumping a tiny per-story counter inside the EXISTING takeover audit write (chosen design explicitly rejects scanning story.events/activity log on the hot path); this requires touching the takeover-audit write site (core/story-owner-lease.ts, which is where 'story-owner-lease-takeover' audit records are actually written per session-ownership-and-write-leases.md)",
+      "covered_by": "CHK-001,CHK-002",
+      "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-bbaf/decision.json"
+      "source": "decisions:session-ownership-and-write-leases.md"
     },
     {
       "feature": "Graduated one-shot auto-recovery: first pathological trip re-baselines the window and proceeds without a human",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+      "source": "description"
     },
     {
       "feature": "Re-trip after the one-shot auto-recovery budget is spent sets frozen=true (no further auto-recovery)",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+      "source": "description"
     },
     {
       "feature": "Breaker-state persisted as a gitignored runtime artifact, registered in core/runtime-artifact-registry.ts with a matching .gitignore glob (F-008 pattern), so it never dirties a DONE merge",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+      "source": "decisions:lifecycle-artifact-scope.md"
     },
     {
       "feature": "When frozen, hard-block mutating story_advance naming the tripped counters and the authoritative next action (done_prepare --dryRun)",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+      "source": "description"
     },
     {
       "feature": "When frozen, hard-block takeover-carrying commands (not just story_advance)",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+      "source": "description"
     },
     {
       "feature": "New story_resume --ack --reason command clears the freeze only in an interactive human session",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+      "source": "description"
     },
     {
       "feature": "story_resume refuses under autopilot/non-interactive mode (LATTICE_AUTOPILOT=1 / non-TTY) so a looping agent cannot self-ack",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+      "source": "description"
     },
     {
       "feature": "The single legitimate forceTakeover human-override path in story-owner-lease.ts remains unchanged/not weakened by the new breaker",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-bbaf/scope-boundary.json"
+      "source": "decisions:session-ownership-and-write-leases.md"
     },
     {
       "feature": "A healthy converging story (6-10 advances) never trips the breaker and produces zero breaker output, behaving byte-identical to today",
       "covered_by": "CHK-001,CHK-005",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-bbaf/understanding.json"
+      "source": "description"
     },
     {
       "feature": "Env-tunable thresholds (LATTICE_CONVERGENCE_MAX_ADVANCE, MAX_TAKEOVER, MIN_PASS_RATE, MIN_SAMPLE) with typo-safe fallback and evidence-derived defaults, mirroring BURN_ALERT_ENV",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+      "source": "description"
     },
     {
       "feature": "Fourth signal 'repeated-identical-gate-failure' (same gate + same reason twice) as an independent counter with its own env-tunable 'repeat-failure ~2' threshold",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "decision.json INIT-002 resolution: not read-only derivable (gate rejections are not persisted as events anywhere), deliberately not implemented as a separate counter, subsumed by advance-count + pass-rate",
-      "source": ".lattice/story/actives/B-bbaf/decision.json"
+      "excluded_by": "decision.json INIT-002 resolution (confirmed via scope_question_resolve OQ-1): not read-only derivable (gate rejections are not persisted as events anywhere), deliberately not implemented as a separate counter, subsumed by advance-count + pass-rate",
+      "source": "description"
     },
     {
       "feature": "Smoke test replays the B-f458 signature (89 advances / 131:31 pass / 65 takeovers) and asserts the breaker trips on each reason and freezes on re-trip",
       "covered_by": "CHK-005",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+      "source": "description"
     },
     {
       "feature": "Smoke test asserts a healthy 8-advance converging control never trips",
       "covered_by": "CHK-005",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+      "source": "description"
     },
     {
       "feature": "Smoke test is wired into package.json (test:convergence-breaker + aggregate npm test)",
       "covered_by": "CHK-005",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+      "source": "description"
     },
     {
       "feature": "Smoke test asserts the autopilot self-ack refusal and the gitignored-state assertion",
       "covered_by": "CHK-005",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-bbaf/checklist.json"
+      "source": "description"
     },
     {
       "feature": "core/usage-burn-alert.ts host-session token-burn scanning is an orthogonal axis and is not modified by this story",
       "covered_by": null,
       "status": "excluded",
       "excluded_by": "scope-boundary.json excluded list: 'core/usage-burn-alert.ts host-session token-burn scanning (B-623a): an orthogonal axis, not modified'",
-      "source": ".lattice/story/actives/B-bbaf/scope-boundary.json"
+      "source": "description"
     },
     {
       "feature": "milestone_ledger_set blocker-hint gap (checklist can reach 5/5 while the milestone ledger stays unplanned)",
       "covered_by": null,
       "status": "excluded",
       "excluded_by": "scope-boundary.json excluded list: owned by concurrent work",
-      "source": ".lattice/story/actives/B-bbaf/scope-boundary.json"
+      "source": "description"
     },
     {
       "feature": "review_pass_set writer-identity validation (rapid self-authored passes with no writer-identity check)",
       "covered_by": null,
       "status": "excluded",
       "excluded_by": "scope-boundary.json excluded list: owned by concurrent work",
-      "source": ".lattice/story/actives/B-bbaf/scope-boundary.json"
+      "source": "description"
     }
   ],
   "readManifest": {
     "filesReadFully": [
-      ".lattice/story/actives/B-bbaf/background.md",
-      ".lattice/story/actives/B-bbaf/checklist.json",
-      ".lattice/story/actives/B-bbaf/decision.json",
-      ".lattice/story/actives/B-bbaf/execution-boundary.json",
-      ".lattice/story/actives/B-bbaf/index.json",
-      ".lattice/story/actives/B-bbaf/plan.md",
-      ".lattice/story/actives/B-bbaf/scope-boundary.json",
-      ".lattice/story/actives/B-bbaf/understanding.json",
       "docs/requirements/decisions/lifecycle-artifact-scope.md",
       "docs/requirements/decisions/session-ownership-and-write-leases.md",
       "docs/requirements/decisions/story-lifecycle.md"
@@ -288,38 +280,13 @@
   },
   "summary": {
     "total": 22,
-    "covered": 17,
+    "covered": 18,
     "excluded": 4,
-    "gaps": 1,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "1e3c99d40251d91d4c44834ca967378f6327ec6b517c6174f8c990515c27eac2",
-  "openQuestions": [
-    {
-      "id": "OQ-1",
-      "q": "scope-boundary.json (human-confirmed allowed scope) still lists a FOURTH breaker signal 'repeated-identical-gate-failure' plus its own 'repeat-failure ~2' env threshold as in-scope, but decision.json's INIT-002 resolution explicitly decided NOT to implement it as a separate counter (subsumed by advance-count + pass-rate), and checklist.json/plan.md contain zero trace of a fourth signal or a repeat-failure threshold. Should scope-boundary.json be amended to match the finalized decision (move this item to excluded, matching decision.json's rationale), or does the checklist need a fourth-signal item to satisfy the human-confirmed boundary as written?",
-      "evidence": "scope-boundary.json allowed[]: \"Pure core convergence-breaker deriving four read-only signals from story.events: total advance count, review pass-rate (pass_set/run_start), takeover frequency, and repeated-identical-gate-failure (same gate + same reason)\" and \"...min pass-rate + min-sample, repeat-failure ~2\" vs decision.json rationale: \"the proposed fourth signal 'repeated-identical-gate-failure' is NOT read-only derivable ... so it is deliberately NOT implemented as a separate counter\"",
-      "sourcePointers": [
-        ".lattice/story/actives/B-bbaf/decision.json",
-        "CHK-001",
-        "CHK-004"
-      ],
-      "resolution": "The fourth signal 'repeated-identical-gate-failure' is EXCLUDED (subsumed), reconciling the aspirational scope-boundary wording with the finalized decision.json INIT-002 resolution: gate rejections are not persisted as story events or anywhere else, so the signal is not read-only derivable and is deliberately NOT implemented as a separate counter; per decision.json it 'manifests as repeated advances with no new pass, which advance-count and review-pass-rate already capture.' The scope-boundary listed it as an aspirational fourth signal at INIT before the data-source investigation; no checklist/plan item implements it and none should. Treat the boundary entry as superseded by this resolution.",
-      "resolvedAt": "2026-07-13T23:39:04.038Z"
-    },
-    {
-      "id": "OQ-2",
-      "q": "What is the concrete windowing basis for the takeover-frequency and review-pass-rate signals — wall-clock minutes (e.g. 'takeover 65 in 60m') or a trailing count of events? understanding.json explicitly lists this as an unresolved unknown, but decision.json's rationale and plan.md's DoneWhen bullets only say 'over a window' without pinning down units, so the implementer has no concrete spec to build CHK-001/CHK-004 against.",
-      "evidence": "understanding.json unknowns[]: \"Windowing basis for takeover-frequency and pass-rate: wall-clock minutes vs a trailing count of events — which is already available cheaply from story.events?\"; the worked example in understanding.json's outcome field uses wall-clock framing ('takeover-frequency 7 in 60m > 5') but decision.json/plan.md never confirm or resolve this as the chosen mechanism.",
-      "sourcePointers": [
-        ".lattice/story/actives/B-bbaf/decision.json",
-        "CHK-002",
-        "CHK-004"
-      ],
-      "resolution": "Windowing basis resolved to CUMULATIVE story-lifetime totals derived from persisted per-story state (advance events from story.events, review-run/pass ledger lengths, and the per-story takeover counter), NOT a wall-clock window. Rationale: it is deterministic and clock-free (Date.now is avoided, matching core/review-convergence.ts and core/usage-burn-alert.ts pure-core discipline), and cheap to read on the story_advance hot path. The one-shot auto-recovery re-baseline (CHK-002) provides headroom for a legitimately long story instead of a rolling clock window, so a healthy story is never frozen for simply living a long time. plan.md CHK-004 DoneWhen now pins this.",
-      "resolvedAt": "2026-07-13T23:39:04.430Z"
-    }
-  ]
+  "_hash": "1d841a227f9a3414047a3d11b2a410f17bb19b3c86b4929b96f9834319386c9c",
+  "openQuestions": []
 }
