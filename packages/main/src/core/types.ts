@@ -685,6 +685,29 @@ export interface ReviewPass {
   readLog?: ReviewerReadLogEvidence;
   /** Signed diagnostics comparing readManifest to the mechanical read log. */
   readDiagnostics?: ReviewerReadDiagnostic[];
+  /**
+   * B-3b05: session id of the process that wrote this pass, resolved by
+   * getSessionIdentity() at write time. Part of the versioned signature domain:
+   * records carrying writerSessionId verify ONLY via the provenance-inclusive
+   * domain (no legacy fallback); records without it (pre-B-3b05 history) verify
+   * via the legacy domains. Coordination-level identity, not cryptographic.
+   */
+  writerSessionId?: string;
+  /**
+   * B-3b05: how writerSessionId was identified (explicit-env / host-adapter /
+   * generated-token / derived-ppid). Signed alongside writerSessionId so an
+   * explicit-env spoof stays a visible, audit-distinguishable claim.
+   */
+  sessionSource?: string;
+  /**
+   * B-3b05: audit-only flag — the writer session equals the story owner lease
+   * session at write time (subagent-or-self; not mechanically distinguishable
+   * per EXP-001/B-e71f). NOT consumed by any blocking gate. Signed into the
+   * provenance-inclusive domain (F-002): adding, stripping, or flipping the
+   * flag on an already-signed record breaks verification (absent ≡ '' in the
+   * signed payload).
+   */
+  provenanceFlag?: 'same_session_write';
   _hash?: string;
 }
 

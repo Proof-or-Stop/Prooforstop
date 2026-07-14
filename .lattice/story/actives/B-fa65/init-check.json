@@ -1,0 +1,32 @@
+{
+  "storyId": "B-fa65",
+  "checkedAt": "2026-07-14T01:31:53.926Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "low",
+      "desc": "index.json description carries over the parenthetical citation \"dev-memory 148297b\" (used to support the claim that worktree-built CLI is \"the documented story-development practice\") with no inline explanation of what that reference is or where a fresh reader could look it up. Grep confirms 148297b is a real memory-entry id used elsewhere in the repo (e.g. .lattice/story/actives/B-cc94/evidence/transcript-diff.md), so the underlying claim is not fabricated, but per Dimension 2 standalone-readability guidance, cross-references without a one-sentence explanation on first appearance should be avoided in story metadata a fresh reader consumes independently."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-14T01:31:03.551Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-14T01:31:53.926Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "low",
+          "desc": "index.json description carries over the parenthetical citation \"dev-memory 148297b\" (used to support the claim that worktree-built CLI is \"the documented story-development practice\") with no inline explanation of what that reference is or where a fresh reader could look it up. Grep confirms 148297b is a real memory-entry id used elsewhere in the repo (e.g. .lattice/story/actives/B-cc94/evidence/transcript-diff.md), so the underlying claim is not fabricated, but per Dimension 2 standalone-readability guidance, cross-references without a one-sentence explanation on first appearance should be avoided in story metadata a fresh reader consumes independently."
+        }
+      ]
+    }
+  ],
+  "_hash": "7ba411c91b5bee773186de3ec8721e2bc5b2caa28a771817f02368c2a7c10a5c"
+}

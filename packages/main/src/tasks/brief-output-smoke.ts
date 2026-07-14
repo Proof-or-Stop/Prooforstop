@@ -422,8 +422,14 @@ try {
   // ─────────────────────────────────────────────────────────────────────────
   // doctor (round 2)
   // ─────────────────────────────────────────────────────────────────────────
-  const docBrief = runCli(temp, ['doctor']);
-  const docFull = runCli(temp, ['doctor', '--full']);
+  // The advisory host burn scan streams the OPERATOR machine's live
+  // ~/.codex/sessions and ~/.claude/projects state, so its row count varies by
+  // machine and minute; with it enabled the byte-budget assertion below tests
+  // the reviewer's session history instead of the brief projection (B-fa65
+  // F-004). Disable it via its documented env switch for deterministic output.
+  const docEnv = { LATTICE_BURN_ALERT_RECENT_HOURS: '0' };
+  const docBrief = runCli(temp, ['doctor'], docEnv);
+  const docFull = runCli(temp, ['doctor', '--full'], docEnv);
   assert.match(docBrief, /→ Brief view\. Full diagnostics: lattice doctor --full/, 'doctor brief carries the --full hint');
   for (const section of ['Runtime artifacts:', 'Worktree scan:', 'Partial-DONE scan:', 'Validation scan:', 'Codex adapter scan:']) {
     assert.ok(docBrief.includes(section), `doctor brief keeps the ${section} section`);
@@ -439,9 +445,9 @@ try {
   }
   assert.ok(bytes(docBrief) < 20000, `doctor brief under budget, got ${bytes(docBrief)}`);
 
-  const docEnvFull = runCli(temp, ['doctor'], { LATTICE_BRIEF_OUTPUT: '0' });
+  const docEnvFull = runCli(temp, ['doctor'], { ...docEnv, LATTICE_BRIEF_OUTPUT: '0' });
   assert.match(docEnvFull, /fallback command discovery is advisory/, 'LATTICE_BRIEF_OUTPUT=0 restores full doctor on bare invocation');
-  const docEnvBrief = runCli(temp, ['doctor', '--brief'], { LATTICE_BRIEF_OUTPUT: '0' });
+  const docEnvBrief = runCli(temp, ['doctor', '--brief'], { ...docEnv, LATTICE_BRIEF_OUTPUT: '0' });
   assert.match(docEnvBrief, /→ Brief view\./, 'per-call --brief wins over LATTICE_BRIEF_OUTPUT=0 for doctor');
 
   const docJsonUnset = runJson<Record<string, unknown>>(temp, ['doctor', '--format=json']);

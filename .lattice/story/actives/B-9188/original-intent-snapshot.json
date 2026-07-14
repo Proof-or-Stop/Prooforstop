@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-9188",
+  "sourceText": "Pre-existing gap noted by the B-12a1 round-2 docs reviewer: scripts/verify-process-fact-contract.mjs requiredArtifactFacts list and packages/main/src/core/process-fact-registry.ts are missing milestone-closeout.json even though packages/main/src/core/store.ts writes it (writeJson at ~line 706, produced by the milestone-status handler at packages/main/src/handlers/milestone-status.ts:145). Verify the artifact is genuinely command-generated story metadata, then register it in both the process-fact registry and the contract script required list, with whatever smoke/contract assertion pattern the neighboring entries use. Unrelated to the scope-classifier registry (that was B-12a1 and the already-running follow-up).",
+  "normalizedOutcome": "milestone-closeout.json is registered as an unsigned artifact fact in packages/main/src/core/process-fact-registry.ts and listed in requiredArtifactFacts of scripts/verify-process-fact-contract.mjs, matching the neighboring milestone-ledger.json pattern, so the process-fact inventory reports it and the contract test catches future drift",
+  "acceptanceClaim": "npm run test:process-fact-contract passes with both registrations present and fails when the milestone-closeout registry entry is removed",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:3b3c3c353d53189bc538b689f6b184453fe45ae568c1f57d848d21bee09174c2",
+  "createdAt": "2026-07-13T08:24:12.037Z",
+  "updatedAt": "2026-07-13T08:24:12.037Z"
+}

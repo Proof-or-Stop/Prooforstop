@@ -1,0 +1,103 @@
+{
+  "storyId": "B-fa65",
+  "name": "doctor-worktree-realpath-false-warn",
+  "title": "Doctor global-core-realpath falsely warns in linked worktrees, blowing the brief byte budget and blocking every worktree DONE",
+  "description": "Priority high because this defect blocks the story_advance DONE gate for every in-flight worktree story: npm test is in the DONE-required command set (done_required_validate), and its test:brief-output suite fails from any story worktree. Root cause (verified against source and reproduced twice in .worktrees/B-3b05): checkGlobalCoreRealpath (packages/main/src/core/runtime-environment-checks.ts:223-245, surfaced via handlers/doctor.ts) sets expected = context.isSelfProject ? expectedSelfCoreRoot(context) : context.corePackageRoot. Only the self-project branch canonicalizes via resolveCanonicalSelfCoreRoot (lines 755-777, git worktree list --porcelain) - which is why a live doctor run with the GLOBAL CLI inside a worktree passes. The non-self branch compares the global @lattice/core realpath against the RUNNING CLI's own un-canonicalized corePackageRoot, so a WORKTREE-BUILT CLI (the documented story-development practice, dev-memory 148297b) evaluating a temp-fixture project - exactly what brief-output-smoke does - structurally always warns: global resolves to /Users/jek/Documents/Work/proofbound/packages/main, expected .worktrees/B-xxxx/packages/main, plus a Relink or reinstall repair hint. That warn block adds ~240 bytes and pushes the fixture doctor brief to 20239 bytes against the 20000-byte budget asserted by brief-output-smoke (from B-7c05), failing npm test and thereby the DONE gate repo-wide (main-built runs sit at ~19.9k, which is why this only surfaced now as unrelated main growth approached the budget line). Fix: canonicalize the non-self expected the same way the self branch does - resolve the canonical main-worktree packages/main of the repository CONTAINING corePackageRoot (git worktree list anchored at corePackageRoot, not projectRoot) and compare the global realpath against that; keep the genuine unrelated-path mismatch warn. Raising the smoke byte budget would hide the false warn and is rejected. Discovered while closing B-3b05 on 2026-07-14.",
+  "type": "bug",
+  "phase": "DONE",
+  "priority": "high",
+  "keywords": [
+    "doctor",
+    "global-core-realpath",
+    "worktree",
+    "brief-output-smoke",
+    "done_required_validate"
+  ],
+  "createdAt": "2026-07-14T01:14:23.648Z",
+  "startedAt": "2026-07-14T01:14:23.648Z",
+  "endedAt": "2026-07-14T02:09:07.467Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-14T01:14:23.971Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "9f8bf495-b234-42dc-9ecb-16d603a760d2",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-14T01:32:31.194Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "9f8bf495-b234-42dc-9ecb-16d603a760d2",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-14T01:32:48.779Z",
+      "branch": "story/B-fa65",
+      "user": "Harmonygo",
+      "sessionId": "9f8bf495-b234-42dc-9ecb-16d603a760d2",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-14T01:35:39.418Z",
+      "branch": "story/B-fa65",
+      "user": "Harmonygo",
+      "sessionId": "9f8bf495-b234-42dc-9ecb-16d603a760d2",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-14T01:39:27.283Z",
+      "branch": "story/B-fa65",
+      "user": "Harmonygo",
+      "sessionId": "9f8bf495-b234-42dc-9ecb-16d603a760d2",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-14T01:49:10.564Z",
+      "branch": "story/B-fa65",
+      "user": "Harmonygo",
+      "sessionId": "9f8bf495-b234-42dc-9ecb-16d603a760d2",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-14T01:54:15.485Z",
+      "branch": "story/B-fa65",
+      "user": "Harmonygo",
+      "sessionId": "9f8bf495-b234-42dc-9ecb-16d603a760d2",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-14T02:00:09.537Z",
+      "branch": "story/B-fa65",
+      "user": "Harmonygo",
+      "sessionId": "9f8bf495-b234-42dc-9ecb-16d603a760d2",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-14T02:09:07.468Z",
+      "branch": "story/B-fa65",
+      "user": "Harmonygo",
+      "sessionId": "9f8bf495-b234-42dc-9ecb-16d603a760d2",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-07-14T01:54:15.485Z"
+}

@@ -1,0 +1,23 @@
+{
+  "task": "Register the existing milestone-closeout.json story artifact in the process-fact inventory: add its artifact fact to packages/main/src/core/process-fact-registry.ts and its required-list line to scripts/verify-process-fact-contract.mjs",
+  "outcome": "npm run test:process-fact-contract asserts the artifact:milestone-closeout.json fact (path milestone-closeout.json, signed:false, consumer named) and fails if the registry entry is dropped; the process-fact inventory no longer under-reports this command-generated artifact",
+  "facts": [
+    "store.writeMilestoneCloseout persists milestone-closeout.json (packages/main/src/core/store.ts ~705)",
+    "The snapshot is produced by the DONE-time capture path in packages/main/src/handlers/milestone-status.ts (~145) via buildMilestoneCloseoutSnapshot; it is snapshot-only and never re-blocks DONE",
+    "milestone-closeout.json is already listed in lifecycle-registry.ts:616 and scope-contract-smoke.ts:265; milestone_closeout read command is L0 in process-fact-levels.ts:141",
+    "Every artifact-kind entry in PROCESS_FACT_REGISTRY is L4 with a consumerGate; the contract loop (verify-process-fact-contract.mjs ~3473) requires kind/path/signed match and a consumerGate for every requiredArtifactFacts entry",
+    "story_advance already maps to index.json in PROCESS_FACT_ARTIFACT_BY_COMMAND, so milestone-closeout needs its own map key; the contract script does not assert key==producerCommand"
+  ],
+  "constraints": [
+    "No behavior change to handlers/milestone-status.ts or core/store.ts",
+    "Follow the adjacent artifact:milestone-ledger.json pattern exactly ({ name, path, signed: false } in requiredArtifactFacts)",
+    "Consumer description must reflect snapshot-only read-side semantics (DONE-phase milestone_status / milestone_closeout frozen-snapshot read path)",
+    "npm run test:process-fact-contract must stay green and be non-vacuous for the new entry"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "timestamp": "2026-07-13T08:23:41.359Z"
+}

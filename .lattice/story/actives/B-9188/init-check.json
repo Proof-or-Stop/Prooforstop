@@ -1,0 +1,37 @@
+{
+  "storyId": "B-9188",
+  "checkedAt": "2026-07-13T08:21:15.077Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "low",
+      "desc": "index.json description and background.md both use the abbreviation/label \"L0\" (e.g. \"the read-only milestone_closeout command is registered in process-fact-levels.ts (L0 readiness-read)\") without expanding what the L0 level classification means anywhere in the story text. A standalone reader with no prior process-fact-levels.ts context cannot infer what L0 signifies from the text alone (verified process-fact-levels.ts:141 does use level: \"L0\" but the story text never defines the level scale). Not blocking: it does not affect understanding of what the two checklist items require."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-13T08:19:39.885Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "Checklist items lack explicit userSees fields. CHK-002 context adequately describes the observable pass/fail contract-test behavior, but adding a userSees with the exact expected test output line would strengthen traceability for future reviewers."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-13T08:21:15.077Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "low",
+          "desc": "index.json description and background.md both use the abbreviation/label \"L0\" (e.g. \"the read-only milestone_closeout command is registered in process-fact-levels.ts (L0 readiness-read)\") without expanding what the L0 level classification means anywhere in the story text. A standalone reader with no prior process-fact-levels.ts context cannot infer what L0 signifies from the text alone (verified process-fact-levels.ts:141 does use level: \"L0\" but the story text never defines the level scale). Not blocking: it does not affect understanding of what the two checklist items require."
+        }
+      ]
+    }
+  ],
+  "_hash": "3bc909cb05154085913b79e200e355bd17254082dfe92fb936b3d784024a9557"
+}

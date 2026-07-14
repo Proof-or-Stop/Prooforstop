@@ -1,0 +1,73 @@
+{
+  "principles": [
+    "Fix the check, not the guard that caught it (budget stays)",
+    "Canonicalization must mirror the proven self-branch mechanism (git worktree list)",
+    "Genuine mismatch detection must survive intact",
+    "Fail-safe fallbacks for non-git contexts"
+  ],
+  "drivers": [
+    "DONE-required npm test red from every story worktree",
+    "False Relink advice erodes doctor trust",
+    "Worktree builds are the documented dev practice (dev-memory 148297b)"
+  ],
+  "options": [
+    {
+      "name": "canonicalize-nonself-expected",
+      "pros": [
+        "Root-cause fix mirroring existing self-branch logic",
+        "Keeps budget guard and genuine warn",
+        "Small blast radius (one function)"
+      ],
+      "cons": [
+        "Adds a git invocation per doctor run in non-self contexts"
+      ]
+    },
+    {
+      "name": "raise-smoke-budget",
+      "pros": [
+        "One-line change"
+      ],
+      "cons": [
+        "Hides the false warn; erodes B-7c05 brief UX guard; warn still misleads operators"
+      ]
+    },
+    {
+      "name": "relink-global-per-worktree",
+      "pros": [
+        "No code change"
+      ],
+      "cons": [
+        "Contradicts documented practice; breaks other worktrees and main; manual toil per story"
+      ]
+    }
+  ],
+  "chosen": "canonicalize-nonself-expected",
+  "rationale": "Only the first option removes the structurally guaranteed false warn while preserving both the brief byte budget and genuine mismatch detection, and it reuses the exact canonicalization pattern already proven in the self-project branch.",
+  "preMortem": [
+    {
+      "scenario": "git worktree list fails in non-git or bare contexts and the new path crashes doctor",
+      "trigger": "doctor run in a directory without git or with a bare repo",
+      "consequence": "doctor unusable outside git repos",
+      "mitigation": "Fall back to the current un-canonicalized corePackageRoot on any git failure (behavior identical to today); edge intent covers non-git fallback"
+    },
+    {
+      "scenario": "Canonicalization masks a genuine mismatch (global pointing at a different clone of the same project)",
+      "trigger": "Two separate clones; global linked to clone A, running clone B worktree build",
+      "consequence": "Real drift goes unreported",
+      "mitigation": "Canonicalize via the repository CONTAINING corePackageRoot only — a different clone has a different repo root, so its canonical path differs and the warn still fires; adversarial test pins this"
+    },
+    {
+      "scenario": "Extra git invocation slows doctor in brief paths",
+      "trigger": "doctor called in tight loops or CI",
+      "consequence": "Perceptible latency regression",
+      "mitigation": "Single additional git worktree list only on the non-self branch, mirroring the cost already accepted on the self branch; no loop"
+    },
+    {
+      "scenario": "Self-branch behavior accidentally altered while refactoring shared helper",
+      "trigger": "Extracting a common canonicalizer changes expectedSelfCoreRoot semantics",
+      "consequence": "Regressions in the previously working self-project doctor",
+      "mitigation": "Edge intent asserts self-context output unchanged; keep expectedSelfCoreRoot call sites untouched or covered by tests"
+    }
+  ],
+  "timestamp": "2026-07-14T01:35:07.848Z"
+}

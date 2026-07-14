@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-3b05",
+  "state": "confirmed",
+  "ledgerHash": "sha256:14f9b1a71aa027be716cc285ed122980ce5849319bb2e3d1b05268b958caef13",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Milestone coverage gap output includes the exact milestone_ledger_set remediation command with desync framing when checklist coverage exists but ledger rows lag at planned",
+      "doneMeans": "Logic tests show the hint line in uncovered_required_milestones output for the desync scenario and prove gate pass/fail decisions are unchanged for identical inputs",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-001",
+      "claim": "review_pass_set persists writerSessionId/sessionSource in a versioned signed payload and validates writer session against the story owner lease session (warn default, enforce opt-in)",
+      "doneMeans": "Logic tests cover recording, warn flag on same-session writes, enforce rejection, legacy record verification; a real-machine transcript shows the visible warn flag on an owner-session self-sign attempt",
+      "requiredEvidence": [
+        "logic_test",
+        "manual_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:happy:1",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-13T23:28:45.939Z",
+  "updatedAt": "2026-07-13T23:28:46.416Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260713232721",
+    "acceptedInterpretationHash": "sha256:6cfb2d1d3163206917e5e860f59f2a841b545a2eb64ac7a5e6e0804b1182d65b",
+    "acceptedAt": "2026-07-13T23:28:46.416Z"
+  }
+}

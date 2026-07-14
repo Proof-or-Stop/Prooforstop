@@ -1,0 +1,56 @@
+{
+  "storyId": "B-3b05",
+  "changes": "packages/main/src/core/proofstory.ts: uncovered_required_milestones gap output now prints per-row Diagnosis (real status + missing intent refs + per-row lag framing) followed by an evidence-first primary remedy (lattice verification_evidence_add/batch, phase-legal everywhere the gap surfaces) and a caveated secondary remedy (lattice milestone_ledger_set — FULL-REPLACE + PLAN-phase-only). packages/main/src/handlers/finding.ts + core/finding-verify.ts + core/review-pass-provenance.ts (new) + core/config.ts + core/types.ts: review_pass_set resolves the writer session (getSessionIdentity), persists writerSessionId/sessionSource/provenanceFlag into the v3 signed payload, compares against the story owner lease session — warn default (visible ⚠ same_session_write naming both ids), reviewPassProvenance.mode=enforce opt-in rejects; legacy records verify via legacy domains. process-fact-registry.ts + scripts/verify-process-fact-contract.mjs synced. Tests: milestone-status.test.mjs redesigned-hint scenarios incl. mechanical phase-legality assertion; review-pass-provenance-smoke.ts 10 scenarios incl. add/strip/flip flag tamper.",
+  "usage": "Operators hitting an uncovered-milestones block read the printed Diagnosis and run the printed verification_evidence_add command in-phase. Review passes now carry signed writer-session provenance automatically; set reviewPassProvenance.mode=enforce in lattice.config.json on hosts with per-thread session separation to hard-reject owner-session self-signs.",
+  "expectedOutcome": "Desync case shows per-row diagnosis + copy-pastable phase-legal remedy; owner-session self-sign visibly warn-flagged naming both session ids (enforce mode rejects); tampering writerSessionId or provenanceFlag on a signed record breaks verification; legacy records unaffected.",
+  "actualTranscript": "Desync fixture prints the per-row Diagnosis + primary verification_evidence_add remedy + caveated milestone_ledger_set secondary (behavior R2 live-probed phase legality: Zod arg error not phase rejection; contrast probe confirms the PLAN-only caveat). provenance-warn-transcript.md shows real CLI ⚠ provenanceFlag=same_session_write with both ids and the recaptured tamper failure. Quality R2 empirical probe on rebuilt dist: ADD/STRIP/FLIP flag tamper all verify false. 10/10 provenance smoke, ok milestone-status, process-fact contract verified, lattice validate allPass 45/45. Full transcript: .lattice/story/actives/B-3b05/evidence/transcript-diff.md",
+  "outcomeDiff": "No divergence on the three acceptance surfaces. Design improved over the PLAN sketch after round-1 findings F-001..F-005 (all fixed + re-verified in round 2 by four lanes): the primary remedy became evidence-first because the gap predicate is evidence coverage, and the printed ledger command carries FULL-REPLACE + PLAN-only caveats.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Warn mode cannot distinguish a legitimate same-session subagent reviewer from an owner self-sign (EXP-001 mechanical indistinguishability); the flag records the fact neutrally and enforce mode is reserved for hosts with per-thread session separation (e.g. Codex multi-thread). Session ids stay coordination-level (sessionSource records explicit-env overrides for audit); cryptographic reviewer identity is a different trust model owned by other work. provenanceFlag is audit-only in this story — no blocking gate consumes it yet.",
+  "pitfalls": "1) finding_resolve is REVIEW-phase-only — resolve findings after re-entering REVIEW, not from DEV. 2) forceReviewer mounts do not survive a DEV round-trip; re-run reviewer_list forceReviewer after each REVIEW re-entry. 3) milestone_ledger_set full-replace + PLAN-only: updating row display status mid-lifecycle is not worth a PLAN bounce since the DONE gate reads evidence coverage, not row status. 4) Signature-domain changes must be amend-vs-new-version decided from evidence: we scanned every review-passes.json under worktree + main before amending v3 in place (zero persisted records carried the new fields). 5) Story-metadata merge conflicts (checklist/index/process-events) after main merge resolve with --ours (branch copies are strict supersets).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 388196
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 23649
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1293377
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 2870851
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 1445090
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 71077
+    }
+  },
+  "totalDurationMs": 6093045,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-14T00:56:39.429Z",
+  "updatedAt": "2026-07-14T00:56:39.429Z"
+}

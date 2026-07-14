@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-3b05",
+  "checkedAt": "2026-07-13T23:15:53.416Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "6beb185cc0b4f62ef2efa4ba937be3b6bf67359688d0ad8e5d794e533de1ea7f",
+  "executionBoundaryHash": "2fb8e60f6af6a05b9ab252d33e95e962697c60d84834410a627040d2719e6b28",
+  "freshnessHash": "d0fe3ef9c18f1fc62e1c7b715d83afd4ae16520e93972cd8ae7281a9398d4ad2",
+  "effectiveExcludedKeywords": [
+    "No changes to finding_add/review_run_start enforcement unless PLAN explicitly opts them into the same provenance treatment",
+    "No cryptographic reviewer identity (lease sessionId stays a coordination-level id per story-owner-lease.ts)",
+    "No fixes to the lease-takeover storm or autopilot loop convergence themselves (separate concerns; B-f458 forensics are evidence here, not scope)",
+    "No gate semantics change for problem (a) — message layer only"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "No changes to finding_add/review_run_start enforcement unless PLAN explicitly opts them into the same provenance treatment",
+      "source": "scopeBoundary.excluded",
+      "text": "No changes to finding_add/review_run_start enforcement unless PLAN explicitly opts them into the same provenance treatment",
+      "excluded": true
+    },
+    {
+      "keyword": "No cryptographic reviewer identity (lease sessionId stays a coordination-level id per story-owner-lease.ts)",
+      "source": "scopeBoundary.excluded",
+      "text": "No cryptographic reviewer identity (lease sessionId stays a coordination-level id per story-owner-lease.ts)",
+      "excluded": true
+    },
+    {
+      "keyword": "No fixes to the lease-takeover storm or autopilot loop convergence themselves (separate concerns; B-f458 forensics are evidence here, not scope)",
+      "source": "scopeBoundary.excluded",
+      "text": "No fixes to the lease-takeover storm or autopilot loop convergence themselves (separate concerns; B-f458 forensics are evidence here, not scope)",
+      "excluded": true
+    },
+    {
+      "keyword": "No gate semantics change for problem (a) — message layer only",
+      "source": "scopeBoundary.excluded",
+      "text": "No gate semantics change for problem (a) — message layer only",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "f3a4282010c6be0518ae1bf9ef0f18a8bc1f2d3b67f8952f86f167bfda74b17c"
+}

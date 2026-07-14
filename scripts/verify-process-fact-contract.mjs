@@ -183,7 +183,7 @@ const requiredArtifactFacts = [
   { name: 'artifact:delivery-check.json', path: 'delivery-check.json', signed: true, signaturePattern: /signDeliveryCheck\/recomputeDeliveryCheckHash/ },
   { name: 'artifact:review-runs.json', path: 'review-runs.json', signed: true, signaturePattern: /signReviewRun\/verifyReviewRun; .*ReviewRun\.storyFilesHash.*workspaceBinding\.bindingHash/ },
   { name: 'artifact:findings.json', path: 'findings.json', signed: true, signaturePattern: /signFinding\/verifyFinding; reviewRunId-inclusive records do not fall back to legacy signatures/ },
-  { name: 'artifact:review-passes.json', path: 'review-passes.json', signed: true, signaturePattern: /signReviewPass\/verifyReviewPass; reviewRunId-inclusive records do not fall back to legacy signatures/ },
+  { name: 'artifact:review-passes.json', path: 'review-passes.json', signed: true, signaturePattern: /signReviewPass\/verifyReviewPass; reviewRunId-inclusive records do not fall back to legacy signatures; writerSessionId-inclusive records bind writer session provenance \(writerSessionId \+ sessionSource \+ provenanceFlag, absent flag canonicalized to empty\) in a versioned domain with no legacy fallback/ },
   { name: 'artifact:review-loops.jsonl', path: 'review-loops.jsonl', signed: false },
   { name: 'artifact:draft-check.json', path: 'draft-check.json', signed: true, signaturePattern: /computeDraftCheckHash/ },
   { name: 'artifact:summary.json', path: 'summary.json', signed: false },
@@ -195,6 +195,7 @@ const requiredArtifactFacts = [
   { name: 'artifact:story-evidence-binding', path: 'story-evidence-binding', signed: false },
   { name: 'artifact:original-intent-snapshot.json', path: 'original-intent-snapshot.json', signed: false },
   { name: 'artifact:milestone-ledger.json', path: 'milestone-ledger.json', signed: false },
+  { name: 'artifact:milestone-closeout.json', path: 'milestone-closeout.json', signed: false },
   { name: 'artifact:slice-plan.json', path: 'slice-plan.json', signed: false },
   { name: 'artifact:parent-ledger-rollup.json', path: 'parent-ledger-rollup.json', signed: false },
   { name: 'artifact:closeout-write-receipts.jsonl', path: 'closeout-write-receipts.jsonl', signed: false, gateRequired: false },
@@ -5308,11 +5309,26 @@ const inventory = [
     files: [
       {
         relPath: 'packages/main/src/handlers/finding.ts',
-        patterns: ['review_pass_set', 'reviewRunId', 'assertCurrentReviewRunForEvidence', 'signReviewPass', { label: 'persistReviewPass/current durable write-read', any: ['persistReviewPass', 'writeReviewPasses'] }, 'withReviewPassLock', 'Review pass'],
+        patterns: ['review_pass_set', 'reviewRunId', 'assertCurrentReviewRunForEvidence', 'signReviewPass', { label: 'persistReviewPass/current durable write-read', any: ['persistReviewPass', 'writeReviewPasses'] }, 'withReviewPassLock', 'Review pass', 'writerSessionId', 'getSessionIdentity', 'evaluateReviewPassProvenance', 'readOwnerLease'],
       },
       {
         relPath: 'packages/main/src/cli-engine.ts',
         patterns: ['review_pass_set', 'reviewRunId: z.string()', 'note: z.string()'],
+      },
+      {
+        // B-3b05: writer-session provenance hardcoded fallback — warn is the
+        // hardcoded default (absent/invalid config never enforces), enforce is
+        // opt-in, and the same_session_write flag is audit-only.
+        relPath: 'packages/main/src/core/review-pass-provenance.ts',
+        patterns: ['same_session_write', 'resolveReviewPassProvenanceMode', 'evaluateReviewPassProvenance', "REVIEW_PASS_PROVENANCE_DEFAULT_MODE: ReviewPassProvenanceMode = 'warn'", "'enforce'"],
+      },
+      {
+        // B-3b05: provenance-inclusive records verify only via the versioned
+        // domain; records without writerSessionId keep the legacy domains.
+        // F-002: the provenanceFlag itself is signed (absent canonicalized to
+        // empty), so flag add/strip/flip breaks verification.
+        relPath: 'packages/main/src/core/finding-verify.ts',
+        patterns: ['writerSessionId', 'sessionSource', 'ReviewPassWriterProvenance', 'provenanceFlag', "provenanceFlag: provenance.provenanceFlag ?? ''"],
       },
     ],
   },

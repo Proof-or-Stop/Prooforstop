@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-fa65",
+  "allowedCommands": [
+    "git status/diff/log/add/commit/merge (local only)",
+    "lattice *",
+    "npm --prefix packages/main run build",
+    "npm install",
+    "npm run test:*",
+    "npm test",
+    "rg / grep read-only"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice",
+    "docs/story",
+    "packages/main/src",
+    "packages/main/tests"
+  ],
+  "excludedCommands": [
+    "git push"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Single-check doctor fix + tests; no remote writes.",
+  "createdAt": "2026-07-14T01:15:01.992Z",
+  "updatedAt": "2026-07-14T01:15:01.992Z",
+  "_hash": "a9215d18e19e12b7b7f20e8f9f752661fcf03ddf5e238cebf5ec03e1434174d4"
+}

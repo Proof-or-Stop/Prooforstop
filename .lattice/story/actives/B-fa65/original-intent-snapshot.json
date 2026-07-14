@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-fa65",
+  "sourceText": "Framework regression discovered 2026-07-14 while closing B-3b05: DONE-required npm test fails from every story worktree because doctor global-core-realpath falsely warns when a worktree-built CLI evaluates a fixture project, blowing the brief-output-smoke 20000-byte doctor budget (20239). Fix the check (canonicalize the non-self expected), not the budget.",
+  "normalizedOutcome": "npm test green from story worktrees; doctor via worktree-built CLI on fixture projects shows no global-core-realpath false warn; genuine unrelated-path mismatch still warns; brief budget assertion passes in both contexts",
+  "acceptanceClaim": "npm run test:brief-output passes from inside a story worktree (doctor brief under 20000 bytes with no global-core-realpath warn block), while a genuine global-CLI mismatch fixture still produces the warn",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:bd12cdee6486e2b39f19647c6ee8586d09e22b55aaf78933ada717fea0ff5b5c",
+  "createdAt": "2026-07-14T01:33:31.030Z",
+  "updatedAt": "2026-07-14T01:33:31.030Z"
+}

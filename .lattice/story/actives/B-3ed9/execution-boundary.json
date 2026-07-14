@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-3ed9",
+  "allowedCommands": [
+    "git status/diff/log/add/commit (local worktree only)",
+    "lattice checklist_update",
+    "lattice done_prepare",
+    "lattice story_advance",
+    "lattice validate",
+    "lattice verification_evidence_add",
+    "node packages/main/src/tasks/scope-contract-smoke.ts via tsx",
+    "npm --prefix packages/main run build",
+    "npm run test:*",
+    "npx tsc --noEmit",
+    "rg/grep read-only searches"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/tasks/scope-contract-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git push (remote publish is human-gated by pre-push hook)",
+    "rm -rf outside the story worktree"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Chore story: two-file source change (registry filename set + smoke coverage). Story metadata under .lattice/story/actives/B-3ed9/ is command-generated lifecycle metadata, not hand-edited. Post-merge CLI patch version bump happens on main after DONE per version discipline.",
+  "createdAt": "2026-07-13T08:23:16.190Z",
+  "updatedAt": "2026-07-13T08:23:16.190Z",
+  "_hash": "1bfc0ca0fcf528847e1ca7db37cc07cb19e6da6da5b39d316a17e36e3482f3bf"
+}

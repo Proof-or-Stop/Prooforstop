@@ -268,6 +268,21 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     producerCommand: 'milestone_ledger_add',
     consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates',
   },
+  // Deliberate key/producerCommand deviation: milestone_closeout_capture is NOT an
+  // invocable CLI command. The snapshot is written by the story_advance DONE-time
+  // capture in handlers/milestone-status, but story_advance already claims index.json
+  // in this map and the read-only milestone_closeout command is a consumer, not the
+  // producer. A synthetic unquoted key keeps this ref reachable from the
+  // artifact:milestone-closeout.json fact entry without attaching a false producer
+  // claim to any command fact (a 'runtime:'-style quoted key would not parse in
+  // verify-process-fact-contract.mjs key extraction).
+  milestone_closeout_capture: {
+    name: 'milestone-closeout.json',
+    path: 'milestone-closeout.json',
+    signed: false,
+    producerCommand: 'story_advance',
+    consumerGate: 'DONE-phase milestone_status and milestone_closeout snapshot-first read path (snapshot-only; never re-blocks DONE)',
+  },
   slice_plan_set: {
     name: 'slice-plan.json',
     path: 'slice-plan.json',
@@ -363,7 +378,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'review-passes.json',
     path: 'review-passes.json',
     signed: true,
-    signature: 'signReviewPass/verifyReviewPass; reviewRunId-inclusive records do not fall back to legacy signatures',
+    signature: 'signReviewPass/verifyReviewPass; reviewRunId-inclusive records do not fall back to legacy signatures; writerSessionId-inclusive records bind writer session provenance (writerSessionId + sessionSource + provenanceFlag, absent flag canonicalized to empty) in a versioned domain with no legacy fallback (B-3b05)',
     producerCommand: 'review_pass_set',
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
   },
@@ -976,6 +991,16 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.milestone_ledger_set,
     rationale: 'Milestone ledger makes multi-deliverable intent countable; candidate rows guide diagnostics and confirmed rows can be gate-consumed.',
+  },
+  {
+    name: 'artifact:milestone-closeout.json',
+    kind: 'artifact',
+    semantics: ['artifact', 'schema-contract', 'gate-evidence'],
+    level: 'L4',
+    producer: 'handlers/milestone-status',
+    consumerGate: 'DONE-phase milestone_status and milestone_closeout snapshot-first read path (snapshot-only; never re-blocks DONE)',
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.milestone_closeout_capture,
+    rationale: 'Milestone closeout snapshot freezes the DONE-time milestone report (schemaVersion-checked) so later reads stay stable without recomputing live freshness; it is written by the story_advance DONE capture in handlers/milestone-status and never re-gates DONE.',
   },
   {
     name: 'artifact:slice-plan.json',
