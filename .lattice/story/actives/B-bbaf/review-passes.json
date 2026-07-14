@@ -227,6 +227,37 @@
         "scanEscalationReason": null
       },
       "_hash": "e8cff9833970fbefe9a7454f42164ec825581e50ce5f6917f17a7eb8b34d1003"
+    },
+    {
+      "id": "B-bbaf:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Fresh quality-lane pass on current material after storyFilesHash change caused solely by a verificationEvidence NOTE correction (checklist.json note text + findings.json finding_resolve for F-010/F-011, test-coverage lane). Verified via git show on the 3 latest commits (1f4e3023d3, 17ac13445f, 711aead319) that only .lattice/story/actives/B-bbaf/{checklist.json,findings.json,process-metrics.json} changed -- zero production/source diff. Re-checked all changed source files for dead code, unnecessary as-any, empty catch blocks, shell/fn.ts isolation, and proof-metadata dual-surface issues; none found. Confirmed the one known non-blocker (resumeBreakerState unused priorState param at convergence-breaker.ts:342, tracked by follow-up task_a9610374) is unchanged and still non-blocking. No new blocking issues found.",
+      "createdAt": "2026-07-14T16:19:29.507Z",
+      "reviewRound": "2026-07-14T15:59:16.186Z",
+      "reviewRunId": "B-bbaf:RR-014",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bbaf/checklist.json",
+          ".lattice/story/actives/B-bbaf/findings.json",
+          "packages/main/src/core/convergence-breaker.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d2159c2e8464d03f0c32d3a3a6c8052119241d57c602ca8ade8e6fc9562f2521"
     }
   ]
 }
