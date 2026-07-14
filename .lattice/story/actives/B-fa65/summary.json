@@ -1,0 +1,56 @@
+{
+  "storyId": "B-fa65",
+  "changes": "packages/main/src/core/runtime-environment-checks.ts: checkGlobalCoreRealpath non-self branch now compares the global @lattice/core realpath against resolveCanonicalCoreRoot(corePackageRoot) — the canonical main-worktree packages/main of the repository containing the running core (shared parser findMainWorktreeCoreRoot extracted for both canonicalizers; realpath-normalized fallback on git failure). packages/main/tests/global-core-realpath.test.mjs: new 3-scenario regression suite (worktree pass / unrelated-path drift warns / non-git fallback), wired into the npm test chain via package.json x2 (test:global-core-realpath). packages/main/src/tasks/brief-output-smoke.ts: all six fixture doctor invocations disable the advisory host burn scan (LATTICE_BURN_ALERT_RECENT_HOURS=0) so the 20000-byte brief budget asserts deterministically; budget value unchanged.",
+  "usage": "lattice doctor run by a worktree-built CLI no longer false-warns on global-core-realpath; npm test (DONE-required) runs green from inside story worktrees; genuine global-CLI drift to an unrelated path still warns with the repair hint.",
+  "expectedOutcome": "npm test green from a story worktree; fixture doctor via worktree-built CLI shows pass with no Relink advice; unrelated-path drift still warns; brief budget deterministic.",
+  "actualTranscript": "npm test exit 0 from .worktrees/B-fa65 at b9f2786fb5 (34 suites incl. the new test:global-core-realpath and test:brief-output); node packages/main/tests/global-core-realpath.test.mjs → ok (3 scenarios incl. drift-warn and non-git fallback); validation-protocol-smoke → passed (self context unchanged); brief-output smoke re-run twice minutes apart, both passed (deterministic). Full transcript: .lattice/story/actives/B-fa65/evidence/transcript-diff.md",
+  "outcomeDiff": "No divergence on the three userSees surfaces. Review round 1 found four real defects (duplicated parser, inaccurate fallback comment, unwired regression test, environment-dependent byte budget from the live burn scan reading operator session dirs); all fixed in b9f2786fb5 and re-verified by four lanes in round 2 — the last one materially hardened the acceptance signal from time-dependent to deterministic.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The doctor brief byte budget is asserted with the advisory burn scan disabled in the smoke fixture; whether the burn scan section should be bounded in brief view for live operator runs is a design question owned by the burn-scan feature, tracked separately. The canonicalizer keys on a refs/heads/main worktree; repos whose canonical branch is not main fall back to the realpath-normalized core root (same comparison semantics as pre-fix).",
+  "pitfalls": "1) A byte-budget assertion over output containing live machine state (session dirs) is nondeterministic — my first green run was luck; the round-2 reviewer failing it minutes later exposed it. Disable environment-dependent sections in fixtures via their documented env switches. 2) The failing combination was worktree-BUILT CLI + non-self cwd; a live doctor probe with the global CLI passes, so reproduce with the exact binary the failing suite uses before concluding anything. 3) story_update exists for title/description/priority edits at INIT (background_set for background.md); checklist context edits invalidate scope-freeze — rerun scope_freeze_check before INIT_CHECK.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 1087223
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 17585
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 170639
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 532786
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 937333
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 42575
+    }
+  },
+  "totalDurationMs": 2788464,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-14T02:00:52.112Z",
+  "updatedAt": "2026-07-14T02:00:52.112Z"
+}
