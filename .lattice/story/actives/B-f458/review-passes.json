@@ -1000,6 +1000,40 @@
       },
       "readDiagnostics": [],
       "_hash": "3d968e16ed5de05babdcaf2e060a65ad4f13bf796105ee3433d3bf27236eb881"
+    },
+    {
+      "id": "B-f458:RP-039",
+      "agent": "lattice-review-quality",
+      "note": "Round-46 targeted quality PASS: ac9f87fe8b changes exactly one active future-DONE promise path from evidence/transcript-diff.md to the canonical evidence/live-smoke-transcript.json and records the associated DEV/scope acknowledgement metadata. The surrounding decision semantics, warning about type-aware waiver, formatting, and all runtime/product code are unchanged; diff --check is clean and no unintended behavior, dead code, type, I/O, or maintainability regression is introduced.",
+      "createdAt": "2026-07-14T15:40:20.726Z",
+      "reviewRound": "2026-07-14T15:36:22.281Z",
+      "reviewRunId": "B-f458:RR-146",
+      "writerSessionId": "sess-bf458-quality-r46",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/cc-learnings.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-f458/index.json",
+          ".lattice/story/actives/B-f458/process-metrics.json",
+          ".lattice/story/actives/B-f458/scope-contract.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/cc-learnings.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "3ea04428f162d92673a8af9362f7601ee2a03079e659c522c8b2812718b16908"
+      },
+      "readDiagnostics": [],
+      "_hash": "de979d3cbd04059fdd7395370e80deb9a475a69f37c088830b35b4f4f2fdcb2e"
     }
   ]
 }
