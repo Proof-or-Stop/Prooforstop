@@ -128,9 +128,9 @@
       "id": "CHK-004",
       "title": "Env-tunable thresholds with evidence-derived defaults",
       "context": "LATTICE_CONVERGENCE_MAX_ADVANCE (~20), LATTICE_CONVERGENCE_MIN_PASS_RATE + min-sample, LATTICE_CONVERGENCE_MAX_TAKEOVER per window. Mirror resolveBurnAlertThresholds env-resolver (typo-safe fallback, per-variable sanity ceilings). Derive defaults from B-f458: normal is 6-10 advances and ~1 takeover; the storm was 89 advances / 65 takeovers / pass-rate collapsing to <10%.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-14T12:54:05.614Z",
       "userSees": "With LATTICE_CONVERGENCE_MAX_ADVANCE=5 the fixture trips at 6 advances; unset uses the default 20; a garbage value (abc / -1 / 1e9) falls back to the default with no crash.",
       "files": {
         "modify": [
@@ -284,6 +284,15 @@
       "timestamp": "2026-07-14T12:54:04.583Z",
       "phase": "DEV",
       "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented + smoke green + real-CLI verified (freeze blocks advance, non-interactive ack refused, gitignore enforced)"
+    },
+    {
+      "timestamp": "2026-07-14T12:54:05.614Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
       "action": "update",
       "from": "pending",
       "to": "done",
