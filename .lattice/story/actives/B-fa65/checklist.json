@@ -44,10 +44,10 @@
           "command": "node packages/main/tests/global-core-realpath.test.mjs",
           "result": "pass",
           "note": "Scenario 1: real git repo + linked worktree fixture; corePackageRoot in the worktree, global symlinked to the canonical main checkout packages/main → globalCoreRealpath.status=pass (canonicalized expected).",
-          "headHash": "197dc3fdb79a8fd9d8823dd202542f5c958fbcc5",
-          "materialHash": "9282c0c7e9b943afd1be76a517c44d96d5d6ef35a48e9b83f59f9d87ffacd166",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-14T01:39:19.035Z"
+          "headHash": "83083164800e229484be2383c631de03aee1268f",
+          "materialHash": "cfeccd416d4672bbbeb02d93e8b403179f0622ce635bf153186a616782bfc82a",
+          "storyFilesHash": "be2de60fc2d1d39bfc2dc7c7258a57583c858d31dd0ac5e77d5e013f27d57492",
+          "timestamp": "2026-07-14T01:54:14.585Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -68,10 +68,10 @@
           "command": "node packages/main/tests/global-core-realpath.test.mjs && node packages/main/dist/tasks/validation-protocol-smoke.js",
           "result": "pass",
           "note": "Scenario 3: non-git corePackageRoot falls back to un-canonicalized behavior (matching global passes, differing global warns — unchanged). Self-context behavior unchanged: validation-protocol-smoke passes (exercises runRuntimeEnvironmentChecks self/external shapes).",
-          "headHash": "197dc3fdb79a8fd9d8823dd202542f5c958fbcc5",
-          "materialHash": "9282c0c7e9b943afd1be76a517c44d96d5d6ef35a48e9b83f59f9d87ffacd166",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-14T01:39:19.035Z"
+          "headHash": "83083164800e229484be2383c631de03aee1268f",
+          "materialHash": "cfeccd416d4672bbbeb02d93e8b403179f0622ce635bf153186a616782bfc82a",
+          "storyFilesHash": "be2de60fc2d1d39bfc2dc7c7258a57583c858d31dd0ac5e77d5e013f27d57492",
+          "timestamp": "2026-07-14T01:54:14.585Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -80,10 +80,10 @@
           "command": "node packages/main/tests/global-core-realpath.test.mjs",
           "result": "pass",
           "note": "Scenario 2: global symlinked to an unrelated path while core runs from a worktree → status not pass and the resolves-to warning text survives (genuine drift detection intact; different-clone case per decision preMortem 2).",
-          "headHash": "197dc3fdb79a8fd9d8823dd202542f5c958fbcc5",
-          "materialHash": "9282c0c7e9b943afd1be76a517c44d96d5d6ef35a48e9b83f59f9d87ffacd166",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-07-14T01:39:19.035Z"
+          "headHash": "83083164800e229484be2383c631de03aee1268f",
+          "materialHash": "cfeccd416d4672bbbeb02d93e8b403179f0622ce635bf153186a616782bfc82a",
+          "storyFilesHash": "be2de60fc2d1d39bfc2dc7c7258a57583c858d31dd0ac5e77d5e013f27d57492",
+          "timestamp": "2026-07-14T01:54:14.585Z"
         }
       ]
     }
