@@ -188,6 +188,35 @@
         "scanEscalationReason": null
       },
       "_hash": "29c0fc4c0271b977a0e2dc286639056b6caeed730301de18e82b97a674367def"
+    },
+    {
+      "id": "B-3b05:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Round4 post-merge concept residue check: no concept deletion/replacement found; only additive/refactor changes since RP-005. No blocker.",
+      "createdAt": "2026-07-14T02:19:00.672Z",
+      "reviewRound": "2026-07-14T02:16:27.574Z",
+      "reviewRunId": "B-3b05:RR-009",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/tasks/brief-output-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/review-pass-provenance.ts",
+          "packages/main/src/tasks/review-pass-provenance-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "182859eda1cd53dbd3d941f79bfb0f3945580a4564113757fcd3098347a257cc"
     }
   ]
 }
