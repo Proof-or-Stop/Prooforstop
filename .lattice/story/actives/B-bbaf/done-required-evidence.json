@@ -2,13 +2,13 @@
   "schema": "lattice.done-required-evidence",
   "version": 1,
   "storyId": "B-bbaf",
-  "status": "FAIL",
-  "startedAt": "2026-07-14T17:19:40.655Z",
-  "endedAt": "2026-07-14T17:21:35.303Z",
-  "durationMs": 114648,
-  "headHash": "a43a24dde9c87adc150c085520161d7b8d434a02",
-  "materialHash": "b6a00baa28327d3e7885bc28dd42bc53ef8112a020c21ce8b212af4b51de3973",
-  "storyFilesHash": "10133e3b79ea4863e1afc9caeaff99f5fff2c6d59b8f9ba7ced5e5594fc80b17",
+  "status": "PASS",
+  "startedAt": "2026-07-14T19:40:41.607Z",
+  "endedAt": "2026-07-14T19:45:17.249Z",
+  "durationMs": 275642,
+  "headHash": "f7dc4b27ac20ae75a828ab9766f8bece3885a206",
+  "materialHash": "62cbcb0cc9c916405f827b13e14cdabbfc233fce8adfda02b4ad8dd32a225d7b",
+  "storyFilesHash": "5d1a9c7341809ed6263cc08a5eac7a9098c87f20071b8d548466b33f89cf4646",
   "policyHash": "1f72cd38f6c94ed8e6fb8946919ac028e73770eb129ea0db75474982a61542dc",
   "commandSetHash": "a69129533543ffdeb071da3c66fd0b8a884d1ce93d136c87df6120b3cac9dd35",
   "receipts": [
@@ -39,14 +39,14 @@
       "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-bbaf",
       "status": "PASS",
       "exitCode": 0,
-      "durationMs": 39778,
-      "outputDigest": "d323d4255edfd452a6ea16f8e3b6e467d6bd4c3c0c4a3eac70172f49501f3e20",
-      "outputTail": "\n> @lattice/core@0.3.198 build\n> tsc\n\n",
-      "startedAt": "2026-07-14T17:19:40.655Z",
-      "endedAt": "2026-07-14T17:20:20.433Z",
-      "headHash": "a43a24dde9c87adc150c085520161d7b8d434a02",
-      "materialHash": "b6a00baa28327d3e7885bc28dd42bc53ef8112a020c21ce8b212af4b51de3973",
-      "storyFilesHash": "10133e3b79ea4863e1afc9caeaff99f5fff2c6d59b8f9ba7ced5e5594fc80b17"
+      "durationMs": 11761,
+      "outputDigest": "785e76a383026bc637843eebf4470cda2b7a506676b966581d4c038f09c13c5d",
+      "outputTail": "\n> @lattice/core@0.3.199 build\n> tsc\n\n",
+      "startedAt": "2026-07-14T19:40:41.607Z",
+      "endedAt": "2026-07-14T19:40:53.368Z",
+      "headHash": "f7dc4b27ac20ae75a828ab9766f8bece3885a206",
+      "materialHash": "62cbcb0cc9c916405f827b13e14cdabbfc233fce8adfda02b4ad8dd32a225d7b",
+      "storyFilesHash": "5d1a9c7341809ed6263cc08a5eac7a9098c87f20071b8d548466b33f89cf4646"
     },
     {
       "label": "root full test suite",
@@ -67,19 +67,17 @@
         "timeoutMs": 1200000
       },
       "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-bbaf",
-      "status": "FAIL",
-      "exitCode": 1,
-      "durationMs": 73918,
-      "outputDigest": "629acfeca0b6ba82d3264bf88f6e4e3f2b97512babbbd1cf0d233da0f52a5d57",
-      "outputTail": " Dev-memory (2):\n    - 9890b83 failure-mode/global: Old plan documents can mislead hosts after implementation is already DONE.\n      lesson: When a document describes future or plan-only work, do not conclude the task is undone from that document alone. First check current Lattice facts: session_brief, story phase/summary, convergence_check or gap_analyze, and concrete code/data evidence. Treat accepted outcome records, DONE summaries, current code, and fresh validation as stronger than stale planning prose.\n      reuse: Before telling the user a task is missing, search dev-memory for stale-doc or truth-first lessons and verify with live Lattice facts.\n    - a4d08a8 workflow/global: Canonical Lattice execution hosts are Codex CLI, Claude Code CLI, and Antigravity CLI.\n      lesson: Use exactly three current host labels for Lattice multi-host work: Codex CLI, Claude Code CLI, and Antigravity CLI. Antigravity CLI is launched with `agy`; the old Gemini CLI naming/semantics are deprecated and should not be used for new docs, host policies, verdict labels, or developer-facing instructions.\n      reuse: When host taxonomy, multi-host review, host verdicts, or CLI delegation names are needed, retrieve the canonical hosts memory: Codex CLI, Claude Code CLI, Antigravity CLI (`agy`), not Gemini CLI.\n  render: maxLines=60 omittedCount=0\n[1.0s] story_create done\n[0.1s] running story_create...\n⚠ Runtime memory STORY_INTAKE advisory only; it is not gate evidence and cannot satisfy DONE.\n## Memory Runtime Preflight\n  authority=non_authoritative gateEvidence=false\n  packDigest: e113685f5c80763b312e738d458b544b6ba41cd73b9a02474d9d5a6523cbca7e\n  topHitIds: 9890b83, a4d08a8\n  freshness: fresh\n  sourceDigests: project=none global=889ac11e70324e9d28e316839b209a85edc8e1492050106cb1a8c24c6a59d9a6 playbooks=none signatures=none\n  Dev-memory (2):\n    - 9890b83 failure-mode/global: Old plan documents can mislead hosts after implementation is already DONE.\n      lesson: When a document describes future or plan-only work, do not conclude the task is undone from that document alone. First check current Lattice facts: session_brief, story phase/summary, convergence_check or gap_analyze, and concrete code/data evidence. Treat accepted outcome records, DONE summaries, current code, and fresh validation as stronger than stale planning prose.\n      reuse: Before telling the user a task is missing, search dev-memory for stale-doc or truth-first lessons and verify with live Lattice facts.\n    - a4d08a8 workflow/global: Canonical Lattice execution hosts are Codex CLI, Claude Code CLI, and Antigravity CLI.\n      lesson: Use exactly three current host labels for Lattice multi-host work: Codex CLI, Claude Code CLI, and Antigravity CLI. Antigravity CLI is launched with `agy`; the old Gemini CLI naming/semantics are deprecated and should not be used for new docs, host policies, verdict labels, or developer-facing instructions.\n      reuse: When host taxonomy, multi-host review, host verdicts, or CLI delegation names are needed, retrieve the canonical hosts memory: Codex CLI, Claude Code CLI, Antigravity CLI (`agy`), not Gemini CLI.\n  render: maxLines=60 omittedCount=0\n⚠ 1 other stories were also created within the last 30 minutes:\n  - B-428d [INIT] Auto ledger story create\n[0.9s] story_create done\n[0.1s] running planner_draft...\n[0.1s] planner_draft done\n[0.1s] running planner_create_story...\n⚠ Runtime memory STORY_INTAKE advisory only; it is not gate evidence and cannot satisfy DONE.\n## Memory Runtime Preflight\n  authority=non_authoritative gateEvidence=false\n  packDigest: 87df35917ae73d7a1119a596c63dbded27ad79d0d3467319445fccc948af3e35\n  topHitIds: 9890b83, a4d08a8\n  freshness: fresh\n  sourceDigests: project=none global=889ac11e70324e9d28e316839b209a85edc8e1492050106cb1a8c24c6a59d9a6 playbooks=none signatures=none\n  Dev-memory (2):\n    - 9890b83 failure-mode/global: Old plan documents can mislead hosts after implementation is already DONE.\n...[truncated 21367 chars]",
-      "startedAt": "2026-07-14T17:20:20.785Z",
-      "endedAt": "2026-07-14T17:21:34.704Z",
-      "headHash": "a43a24dde9c87adc150c085520161d7b8d434a02",
-      "materialHash": "b6a00baa28327d3e7885bc28dd42bc53ef8112a020c21ce8b212af4b51de3973",
-      "storyFilesHash": "10133e3b79ea4863e1afc9caeaff99f5fff2c6d59b8f9ba7ced5e5594fc80b17"
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 262642,
+      "outputDigest": "5ee53beea0d0f43b60984dc7939740ea8b1dca4f77d3f6bc4f0e1c7b97a92e20",
+      "outputTail": "ecord (open loop)\n  ✓ gate message includes loopId\n  ✓ gate message includes decision and nextAction when iteration is latest\n  ✓ gate passes after resolved close\n  ✓ gate passes after blocked close (loop gate clears; other gates still apply separately)\n  ✓ gate passes after escalated close (loop gate clears; other gates still apply separately)\n  ✓ gate throws for open loop even if a different loop is resolved\n  ✓ gate fails closed when review loop records are unreadable\n\n[3] getGuardFailureReason TEST phase with open loop\n  ✓ returns Cannot enter TEST message with open_review_loop tag\n  ✓ shared verdict preserves iteration decision and nextAction diagnostics\n  ✓ returns null (no loop blocker) after resolved close — reviewer gate then controls\n  ✓ blocked close also clears loop gate message\n  ✓ returns fail-closed reason when review loop records are unreadable\n\n[4] Authority/receipt/production field absence\n  ✓ ReviewLoopStart has no authority/receipt/production fields\n  ✓ ReviewLoopIteration has no authority/receipt/production fields\n  ✓ ReviewLoopClose has no authority/receipt/production fields\n\n[5] Reflection context isolation\n  ✓ reusableLearning is stored in reflection only, not at top-level or in evaluation\n  ✓ DEFAULT_REVIEW_LOOP_POLICY has no auto-execution flags set true\n\n[6] Handler projection and duplicate loopId safety\n  ✓ review_loop_status JSON exposes active and latest fields\n  ✓ review_loop_start rejects duplicate explicit loopId\n  ✓ review_loop_start rejects placeholder rollbackRef hashes\n\nreview-loop-smoke: 39 passed, 0 failed\n\n> lattice@0.3.199 test:delivery-context-pack-smoke\n> npm --prefix packages/main run test:delivery-context-pack-smoke\n\n\n> @lattice/core@0.3.199 test:delivery-context-pack-smoke\n> node dist/tasks/delivery-context-pack-smoke.js\n\ndelivery_context_pack smoke passed\n\n> lattice@0.3.199 test:flow-stability-smoke\n> npm --prefix packages/main run test:flow-stability-smoke\n\n\n> @lattice/core@0.3.199 test:flow-stability-smoke\n> node dist/tasks/flow-stability-smoke.js\n\n✓ flow stability smoke passed\n\n> lattice@0.3.199 test:review-assurance-floor-smoke\n> npm --prefix packages/main run test:review-assurance-floor-smoke\n\n\n> @lattice/core@0.3.199 test:review-assurance-floor-smoke\n> node dist/tasks/review-assurance-floor-smoke.js\n\n  ✓ docs-only markdown is not overblocked\n  ✓ zero-review material code is blocked\n  ✓ one fresh local review round passes clean material code\n  ✓ stale local review evidence does not count\n  ✓ stale recovery placeholder commands are shell-safe without story or material bindings\n  ✓ stale recovery output truncates ignored verdict details\n  ✓ failure signals require sticky 3x1 local rounds\n  ✓ high-risk lifecycle gate work requires 3x2 or explicit degraded fallback\n  ✓ missing host readiness probe blocks non-human high-risk degraded fallback\n  ✓ temporary host unavailability also requires fresh insufficient-host proof\n  ✓ probe with reviewReadyHostCount below two permits high-risk degraded 3x1\n  ✓ probe with two executable canonical hosts blocks high-risk single-host fallback\n  ✓ explicit-human-approval remains lower assurance without host probe\n  ✓ forged local Authority completion fields remain non-authority\n  ✓ git diff classification detects material code without injected changedFiles\n  ✓ wrapper-root machine DONE guard uses resolved gitCwd\n\nreview-assurance-floor smoke passed (16 checks)\n\n> lattice@0.3.199 test:proofstory-intent-hardening-smoke\n> npm --prefix packages/main run test:proofstory-intent-hardening-smoke\n\n\n> @lattice/core@0.3.199 test:proofstory-intent-hardening-smoke\n> node dist/tasks/proofstory-intent-hardening-smoke.js\n\nProofStory intent hardening smoke passed\n\n> lattice@0.3.199 test:milestone-status\n> npm --prefix packages/main run test:milestone-status\n\n\n> @lattice/core@0.3.199 test:milestone-status\n> node tests/milestone-status.test.mjs\n\n[0.0s] running milestone_status...\n[0.1s] milestone_status done\n[0.0s] running checklist_update\n...[truncated 75140 chars]",
+      "startedAt": "2026-07-14T19:40:53.856Z",
+      "endedAt": "2026-07-14T19:45:16.499Z",
+      "headHash": "f7dc4b27ac20ae75a828ab9766f8bece3885a206",
+      "materialHash": "62cbcb0cc9c916405f827b13e14cdabbfc233fce8adfda02b4ad8dd32a225d7b",
+      "storyFilesHash": "5d1a9c7341809ed6263cc08a5eac7a9098c87f20071b8d548466b33f89cf4646"
     }
   ],
-  "reasons": [
-    "command-failed: FAIL root full test suite: npm test exitCode=1"
-  ]
+  "reasons": []
 }
