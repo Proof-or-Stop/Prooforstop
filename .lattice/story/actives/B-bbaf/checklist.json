@@ -45,10 +45,10 @@
           "command": "npm run test:convergence-breaker",
           "result": "pass",
           "note": "Smoke section 1 asserts assessBreaker on the healthy 8-advance control returns tripped=false/action=proceed.",
-          "headHash": "761b0aa7d7d00f4f2b292f596b2eee54bd95ee95",
-          "materialHash": "626cd8dcc2974beac7f35f03be73ba49623dd9d69dcd39fc90fa379ecc1e1f06",
-          "storyFilesHash": "51cdefdededb72976563a7795eed6169d0844c1b92bc0a6cff23504586519aa9",
-          "timestamp": "2026-07-14T15:45:39.986Z"
+          "headHash": "dbf5c3ed05f97a029c04c6974b53c09c858b4b21",
+          "materialHash": "b6a00baa28327d3e7885bc28dd42bc53ef8112a020c21ce8b212af4b51de3973",
+          "storyFilesHash": "10133e3b79ea4863e1afc9caeaff99f5fff2c6d59b8f9ba7ced5e5594fc80b17",
+          "timestamp": "2026-07-14T16:35:00.072Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -56,10 +56,10 @@
           "command": "npm run test:convergence-breaker",
           "result": "pass",
           "note": "Smoke section 5 asserts the pass-rate min-sample gate: 0/1 (below min-sample) never trips.",
-          "headHash": "761b0aa7d7d00f4f2b292f596b2eee54bd95ee95",
-          "materialHash": "626cd8dcc2974beac7f35f03be73ba49623dd9d69dcd39fc90fa379ecc1e1f06",
-          "storyFilesHash": "51cdefdededb72976563a7795eed6169d0844c1b92bc0a6cff23504586519aa9",
-          "timestamp": "2026-07-14T15:45:39.986Z"
+          "headHash": "dbf5c3ed05f97a029c04c6974b53c09c858b4b21",
+          "materialHash": "b6a00baa28327d3e7885bc28dd42bc53ef8112a020c21ce8b212af4b51de3973",
+          "storyFilesHash": "10133e3b79ea4863e1afc9caeaff99f5fff2c6d59b8f9ba7ced5e5594fc80b17",
+          "timestamp": "2026-07-14T16:35:00.072Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -67,10 +67,10 @@
           "command": "npm run test:convergence-breaker",
           "result": "pass",
           "note": "Smoke section 6 feeds malformed counters (NaN/undefined/null/string/Infinity); assessBreaker fails open (no trip, no throw).",
-          "headHash": "761b0aa7d7d00f4f2b292f596b2eee54bd95ee95",
-          "materialHash": "626cd8dcc2974beac7f35f03be73ba49623dd9d69dcd39fc90fa379ecc1e1f06",
-          "storyFilesHash": "51cdefdededb72976563a7795eed6169d0844c1b92bc0a6cff23504586519aa9",
-          "timestamp": "2026-07-14T15:45:39.986Z"
+          "headHash": "dbf5c3ed05f97a029c04c6974b53c09c858b4b21",
+          "materialHash": "b6a00baa28327d3e7885bc28dd42bc53ef8112a020c21ce8b212af4b51de3973",
+          "storyFilesHash": "10133e3b79ea4863e1afc9caeaff99f5fff2c6d59b8f9ba7ced5e5594fc80b17",
+          "timestamp": "2026-07-14T16:35:00.072Z"
         }
       ]
     },
@@ -222,10 +222,10 @@
           "command": "npm run test:convergence-breaker",
           "result": "pass",
           "note": "Smoke section 9 asserts the ack is refused under autopilot (LATTICE_AUTOPILOT), CI, and no-TTY; real-CLI verified story_resume is refused in this non-interactive session.",
-          "headHash": "761b0aa7d7d00f4f2b292f596b2eee54bd95ee95",
-          "materialHash": "626cd8dcc2974beac7f35f03be73ba49623dd9d69dcd39fc90fa379ecc1e1f06",
-          "storyFilesHash": "51cdefdededb72976563a7795eed6169d0844c1b92bc0a6cff23504586519aa9",
-          "timestamp": "2026-07-14T15:45:39.987Z"
+          "headHash": "dbf5c3ed05f97a029c04c6974b53c09c858b4b21",
+          "materialHash": "b6a00baa28327d3e7885bc28dd42bc53ef8112a020c21ce8b212af4b51de3973",
+          "storyFilesHash": "10133e3b79ea4863e1afc9caeaff99f5fff2c6d59b8f9ba7ced5e5594fc80b17",
+          "timestamp": "2026-07-14T16:35:00.072Z"
         }
       ]
     },
@@ -274,10 +274,10 @@
           "command": "npm run test:convergence-breaker",
           "result": "pass",
           "note": "Smoke section 4 asserts default maxAdvance=20 and override MAX_ADVANCE=5 trips at 6 advances, not 5.",
-          "headHash": "761b0aa7d7d00f4f2b292f596b2eee54bd95ee95",
-          "materialHash": "626cd8dcc2974beac7f35f03be73ba49623dd9d69dcd39fc90fa379ecc1e1f06",
-          "storyFilesHash": "51cdefdededb72976563a7795eed6169d0844c1b92bc0a6cff23504586519aa9",
-          "timestamp": "2026-07-14T15:45:39.987Z"
+          "headHash": "dbf5c3ed05f97a029c04c6974b53c09c858b4b21",
+          "materialHash": "b6a00baa28327d3e7885bc28dd42bc53ef8112a020c21ce8b212af4b51de3973",
+          "storyFilesHash": "10133e3b79ea4863e1afc9caeaff99f5fff2c6d59b8f9ba7ced5e5594fc80b17",
+          "timestamp": "2026-07-14T16:35:00.072Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -285,10 +285,10 @@
           "command": "npm run test:convergence-breaker",
           "result": "pass",
           "note": "Smoke section 4 asserts MAX_ADVANCE=5 boundary: 5 advances does not trip, 6 does (strict >).",
-          "headHash": "761b0aa7d7d00f4f2b292f596b2eee54bd95ee95",
-          "materialHash": "626cd8dcc2974beac7f35f03be73ba49623dd9d69dcd39fc90fa379ecc1e1f06",
-          "storyFilesHash": "51cdefdededb72976563a7795eed6169d0844c1b92bc0a6cff23504586519aa9",
-          "timestamp": "2026-07-14T15:45:39.987Z"
+          "headHash": "dbf5c3ed05f97a029c04c6974b53c09c858b4b21",
+          "materialHash": "b6a00baa28327d3e7885bc28dd42bc53ef8112a020c21ce8b212af4b51de3973",
+          "storyFilesHash": "10133e3b79ea4863e1afc9caeaff99f5fff2c6d59b8f9ba7ced5e5594fc80b17",
+          "timestamp": "2026-07-14T16:35:00.072Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -296,10 +296,10 @@
           "command": "npm run test:convergence-breaker",
           "result": "pass",
           "note": "Smoke section 4 asserts abc/-1/1e9/empty env values all fall back to the default with no NaN/Infinity.",
-          "headHash": "761b0aa7d7d00f4f2b292f596b2eee54bd95ee95",
-          "materialHash": "626cd8dcc2974beac7f35f03be73ba49623dd9d69dcd39fc90fa379ecc1e1f06",
-          "storyFilesHash": "51cdefdededb72976563a7795eed6169d0844c1b92bc0a6cff23504586519aa9",
-          "timestamp": "2026-07-14T15:45:39.987Z"
+          "headHash": "dbf5c3ed05f97a029c04c6974b53c09c858b4b21",
+          "materialHash": "b6a00baa28327d3e7885bc28dd42bc53ef8112a020c21ce8b212af4b51de3973",
+          "storyFilesHash": "10133e3b79ea4863e1afc9caeaff99f5fff2c6d59b8f9ba7ced5e5594fc80b17",
+          "timestamp": "2026-07-14T16:35:00.072Z"
         }
       ]
     },
@@ -352,10 +352,10 @@
           "command": "npm run test:convergence-breaker",
           "result": "pass",
           "note": "Smoke section 1 asserts the B-f458 storm (89/131:31/65) trips all four reasons; sections 2-3 cover freeze-on-re-trip.",
-          "headHash": "761b0aa7d7d00f4f2b292f596b2eee54bd95ee95",
-          "materialHash": "626cd8dcc2974beac7f35f03be73ba49623dd9d69dcd39fc90fa379ecc1e1f06",
-          "storyFilesHash": "51cdefdededb72976563a7795eed6169d0844c1b92bc0a6cff23504586519aa9",
-          "timestamp": "2026-07-14T15:45:39.987Z"
+          "headHash": "dbf5c3ed05f97a029c04c6974b53c09c858b4b21",
+          "materialHash": "b6a00baa28327d3e7885bc28dd42bc53ef8112a020c21ce8b212af4b51de3973",
+          "storyFilesHash": "10133e3b79ea4863e1afc9caeaff99f5fff2c6d59b8f9ba7ced5e5594fc80b17",
+          "timestamp": "2026-07-14T16:35:00.072Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -363,10 +363,10 @@
           "command": "npm run test:convergence-breaker",
           "result": "pass",
           "note": "Smoke section 1 asserts the healthy 8-advance converging control never trips.",
-          "headHash": "761b0aa7d7d00f4f2b292f596b2eee54bd95ee95",
-          "materialHash": "626cd8dcc2974beac7f35f03be73ba49623dd9d69dcd39fc90fa379ecc1e1f06",
-          "storyFilesHash": "51cdefdededb72976563a7795eed6169d0844c1b92bc0a6cff23504586519aa9",
-          "timestamp": "2026-07-14T15:45:39.987Z"
+          "headHash": "dbf5c3ed05f97a029c04c6974b53c09c858b4b21",
+          "materialHash": "b6a00baa28327d3e7885bc28dd42bc53ef8112a020c21ce8b212af4b51de3973",
+          "storyFilesHash": "10133e3b79ea4863e1afc9caeaff99f5fff2c6d59b8f9ba7ced5e5594fc80b17",
+          "timestamp": "2026-07-14T16:35:00.072Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -374,10 +374,10 @@
           "command": "npm run test:convergence-breaker",
           "result": "pass",
           "note": "Smoke sections 9-10 assert the autopilot ack refusal and the gitignored-artifact registration (breaker-state/takeover-count/gate-failure-counts material-excluded + ignore patterns).",
-          "headHash": "761b0aa7d7d00f4f2b292f596b2eee54bd95ee95",
-          "materialHash": "626cd8dcc2974beac7f35f03be73ba49623dd9d69dcd39fc90fa379ecc1e1f06",
-          "storyFilesHash": "51cdefdededb72976563a7795eed6169d0844c1b92bc0a6cff23504586519aa9",
-          "timestamp": "2026-07-14T15:45:39.987Z"
+          "headHash": "dbf5c3ed05f97a029c04c6974b53c09c858b4b21",
+          "materialHash": "b6a00baa28327d3e7885bc28dd42bc53ef8112a020c21ce8b212af4b51de3973",
+          "storyFilesHash": "10133e3b79ea4863e1afc9caeaff99f5fff2c6d59b8f9ba7ced5e5594fc80b17",
+          "timestamp": "2026-07-14T16:35:00.073Z"
         }
       ]
     },
@@ -430,10 +430,10 @@
           "command": "npm run test:convergence-breaker",
           "result": "pass",
           "note": "Smoke section 7 asserts two failures with identical (command,reason) digest bump the counter to 2 and assessBreaker trips gate-repeat 2>=2.",
-          "headHash": "761b0aa7d7d00f4f2b292f596b2eee54bd95ee95",
-          "materialHash": "626cd8dcc2974beac7f35f03be73ba49623dd9d69dcd39fc90fa379ecc1e1f06",
-          "storyFilesHash": "51cdefdededb72976563a7795eed6169d0844c1b92bc0a6cff23504586519aa9",
-          "timestamp": "2026-07-14T15:45:39.987Z"
+          "headHash": "dbf5c3ed05f97a029c04c6974b53c09c858b4b21",
+          "materialHash": "b6a00baa28327d3e7885bc28dd42bc53ef8112a020c21ce8b212af4b51de3973",
+          "storyFilesHash": "10133e3b79ea4863e1afc9caeaff99f5fff2c6d59b8f9ba7ced5e5594fc80b17",
+          "timestamp": "2026-07-14T16:35:00.073Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -452,10 +452,10 @@
           "command": "npm run test:convergence-breaker",
           "result": "pass",
           "note": "Smoke section 7 asserts a missing counter file reads as 0 (fail-open) and gateFailureDigest collapses volatile ids/timestamps/numbers to a stable key without throwing.",
-          "headHash": "761b0aa7d7d00f4f2b292f596b2eee54bd95ee95",
-          "materialHash": "626cd8dcc2974beac7f35f03be73ba49623dd9d69dcd39fc90fa379ecc1e1f06",
-          "storyFilesHash": "51cdefdededb72976563a7795eed6169d0844c1b92bc0a6cff23504586519aa9",
-          "timestamp": "2026-07-14T15:45:39.987Z"
+          "headHash": "dbf5c3ed05f97a029c04c6974b53c09c858b4b21",
+          "materialHash": "b6a00baa28327d3e7885bc28dd42bc53ef8112a020c21ce8b212af4b51de3973",
+          "storyFilesHash": "10133e3b79ea4863e1afc9caeaff99f5fff2c6d59b8f9ba7ced5e5594fc80b17",
+          "timestamp": "2026-07-14T16:35:00.073Z"
         }
       ]
     }
