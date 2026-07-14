@@ -199,6 +199,34 @@
         "scanEscalationReason": null
       },
       "_hash": "0523472d4645d2633bfdba5e75b0c89c4ca40e5020e3a435ee2f0fd80a484aa4"
+    },
+    {
+      "id": "B-bbaf:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed the sole change since last quality pass: smoke section 15 in convergence-breaker-smoke.ts (e4ef947383) exercising the isCanonicalStoryId guard rejection. Verified imports already present/unused-none, store-stub cast matches existing pattern (lines 266/279/297), assertions align with actual guard code, try/finally cleanup present, no empty-catch. Confirmed all 8 production files last changed at 761b0aa7d7, unchanged since prior quality pass. npm run build and npm run test:convergence-breaker both pass (15 sections). No new blocking issue found.",
+      "createdAt": "2026-07-14T16:10:47.228Z",
+      "reviewRound": "2026-07-14T15:59:16.186Z",
+      "reviewRunId": "B-bbaf:RR-012",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/handlers/story.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e8cff9833970fbefe9a7454f42164ec825581e50ce5f6917f17a7eb8b34d1003"
     }
   ]
 }
