@@ -225,7 +225,7 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
   const globalPackage = globalRoot ? resolveCorePackageCandidate(globalRoot) : null;
   const globalPackagePath = globalPackage?.path ?? null;
   const globalRealpath = globalPackage && globalPackage.exists ? safeRealpath(globalPackage.path) : null;
-  const expected = context.isSelfProject ? expectedSelfCoreRoot(context) : context.corePackageRoot;
+  const expected = context.isSelfProject ? expectedSelfCoreRoot(context) : resolveCanonicalCoreRoot(context.corePackageRoot);
   if (!globalPackage || !globalPackagePath || !globalRealpath) {
     return {
       status: statusForDrift(severity),
@@ -774,6 +774,31 @@ function resolveCanonicalSelfCoreRoot(projectRoot: string): string | null {
 
 function expectedSelfCoreRoot(context: RuntimeCheckContext): string {
   return context.canonicalSelfCoreRoot ?? join(context.projectRoot, 'packages', 'main');
+}
+
+// A worktree-built CLI evaluating a NON-self project must accept the global
+// package resolving to the canonical main checkout of the CLI's own repository:
+// linked worktrees are never relinked into `npm root -g`, so comparing against
+// the raw corePackageRoot makes the check structurally unpassable from any
+// story worktree (B-fa65). Canonicalize via `git worktree list` anchored at the
+// core root itself; a different clone has a different repository, so its
+// canonical path still differs from the global realpath and genuine drift
+// keeps warning. Any git failure falls back to today's un-canonicalized path.
+function resolveCanonicalCoreRoot(coreRoot: string): string {
+  const fallback = safeRealpath(coreRoot) ?? resolve(coreRoot);
+  const raw = runCommand('git', ['worktree', 'list', '--porcelain'], coreRoot);
+  if (!raw) return fallback;
+  const records = raw.split(/\n\s*\n/).map((record) => record.trim()).filter(Boolean);
+  for (const record of records) {
+    const lines = record.split(/\r?\n/);
+    const worktree = lines.find((line) => line.startsWith('worktree '))?.slice('worktree '.length).trim();
+    const branch = lines.find((line) => line.startsWith('branch '))?.slice('branch '.length).trim();
+    if (worktree && branch === 'refs/heads/main') {
+      const candidate = join(worktree, 'packages', 'main');
+      if (existsSync(candidate)) return safeRealpath(candidate) ?? resolve(candidate);
+    }
+  }
+  return fallback;
 }
 
 function readPackageJson(dir: string): any | null {
