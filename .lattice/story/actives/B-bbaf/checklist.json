@@ -167,9 +167,9 @@
       "id": "CHK-005",
       "title": "Smoke test replaying the B-f458 signature and a healthy control",
       "context": "Synthetic story.events with 89 advances / 131:31 pass / 65 takeovers -> assert the breaker trips on each reason, auto-recovers exactly once, freezes on re-trip, blocks mutating commands, and the human-ack path clears it; and a healthy 8-advance converging story never trips. Wire into the package.json test script like the other *-smoke suites.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-14T12:54:06.380Z",
       "userSees": "npm run test:convergence-breaker prints \"PASS convergence-breaker: B-f458 signature trips + freezes on re-trip + ack clears + healthy control never trips\" and exits 0.",
       "files": {
         "modify": [
@@ -293,6 +293,15 @@
       "timestamp": "2026-07-14T12:54:05.614Z",
       "phase": "DEV",
       "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented + smoke green + real-CLI verified (freeze blocks advance, non-interactive ack refused, gitignore enforced)"
+    },
+    {
+      "timestamp": "2026-07-14T12:54:06.380Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
       "action": "update",
       "from": "pending",
       "to": "done",
