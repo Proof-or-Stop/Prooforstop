@@ -74,6 +74,25 @@
       ],
       "signatureTag": "edge|ts|proofstory-1694-1697",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3b05:F-005",
+      "desc": "doc-promise-undelivered: CHK-001 userSees promises the operator sees a remediation line reading Fix: lattice milestone_ledger_set ... with the exact command shape printed inline, and background.md frames this as turning the B-f458 14-hour stall into a copy-paste fix. But the remediation command the gap message prints (proofstory.ts:1701, lattice milestone_ledger_set '{...}') is HARD-BLOCKED by the CLI phase gate everywhere this gap is actually surfaced. command-policy.ts:411 declares milestone_ledger_set allowedPhases: ['PLAN'] only; the uncovered_required_milestones gap this story adds a hint to is emitted by evaluateDoneIntentEquivalence, whose own CHK-001 context names its consumers as story_advance DONE output, done_prepare doneClosure step, milestone_status diagnostics -- all of which run in REVIEW/TEST/DONE, never PLAN. Reproduced live in THIS worktree (story B-3b05, phase=REVIEW): running `lattice milestone_ledger_set '{\"storyId\":\"B-3b05\",\"milestones\":[]}'` exits 1 with `Command \"milestone_ledger_set\" is not available in REVIEW phase ... Allowed phases: PLAN`. So an operator who copy-pastes the exact command the gap message prints (the story's stated goal) gets an immediate hard rejection in every realistic invocation context, right back to a dead end -- the opposite of the cheapest fix that turns a 14-hour stall into a copy-paste that the story commits to. This is not a pre-existing/unrelated issue: it is the new remediation hint text added by this diff (proofstory.ts lines 1675-1708) that makes the actionability promise; the command it prints was never checked against command-policy phase gating. Fix: either (a) route the hint through a phase-appropriate mechanism (e.g. say explicitly that PLAN must be reopened first, if that is genuinely required), or (b) if milestone ledger repair should be possible post-PLAN for this exact remediation purpose, extend milestone_ledger_set's allowedPhases (with the accompanying policy-review rigor documented in docs/requirements/decisions/milestone-ledger-status-review-findings.md M2.a), or (c) point at whatever command actually IS runnable in the gap's real invocation phases (e.g. verification_evidence_add, which this file confirms is the actual mechanism that clears uncovered_required_milestones -- see companion finding on evidenceCoversIntent) instead of milestone_ledger_set.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-07-14T00:26:06.676Z",
+      "reviewRound": "2026-07-14T00:13:46.358Z",
+      "reviewRunId": "B-3b05:RR-004",
+      "_hash": "961250a5ebb11254e2f62d4a4f408ec6484d145b381a57f9508f32ab525444fc",
+      "files": [
+        "packages/main/src/core/proofstory.ts",
+        "packages/main/src/core/command-policy.ts"
+      ],
+      "signatureTag": "missing|ts|promise-undelivered-usersees",
+      "signatureTagSource": "auto"
     }
   ]
 }
