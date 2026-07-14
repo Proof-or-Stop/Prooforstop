@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-fa65:F-001",
+      "desc": "quality-duplication: runtime-environment-checks.ts:791-800 (resolveCanonicalCoreRoot) duplicates the exact git-worktree-list-porcelain-parsing loop already implemented in resolveCanonicalSelfCoreRoot at runtime-environment-checks.ts:761-770 (identical 9-line block: split into records, find worktree/branch lines, match branch===refs/heads/main, build candidate=join(worktree,packages,main), return realpath if exists). This copies rather than shares the parsing logic the story explicitly set out to mirror. A future fix to the parsing (CRLF handling, detached-HEAD worktree rows, path separators) would need to land in two places and could silently drift apart since nothing enforces they stay in sync. Recommend extracting a shared helper (e.g. findMainBranchWorktreeRoot(anchorDir): string | null) that both functions call, each applying their own already-different fallback semantics on top.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-14T01:46:26.984Z",
+      "reviewRound": "2026-07-14T01:39:27.283Z",
+      "reviewRunId": "B-fa65:RR-002",
+      "_hash": "a40861fb3c07d8ace58e733545dba071180d651a72cb7e6f70abd7a80bbce3b0",
+      "files": [
+        "packages/main/src/core/runtime-environment-checks.ts"
+      ],
+      "signatureTag": "missing|ts|quality-duplication-runtime",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
