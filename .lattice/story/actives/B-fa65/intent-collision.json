@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-fa65",
+  "id": "IC-20260714013331",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Single fix in checkGlobalCoreRealpath (runtime-environment-checks.ts:223-245): canonicalize the non-self-project expected by resolving the canonical main-worktree packages/main of the repository containing corePackageRoot (git worktree list anchored at corePackageRoot), mirroring the existing self-branch resolveCanonicalSelfCoreRoot; keep the genuine unrelated-path warn and the repair hint for it; do not touch the smoke byte budget or relink anything. Regression tests for worktree-built-CLI-on-fixture pass, self-context unchanged, genuine mismatch still warns.",
+  "acceptedInterpretationHash": "sha256:817fd975484dd483866e0367060e8b7ee6687e98dfbd2e10114378e1e6aeea09",
+  "notes": "Interpretation latitude was only fix-the-check vs raise-the-budget vs relink; background records why the latter two are rejected.",
+  "createdAt": "2026-07-14T01:33:31.290Z",
+  "updatedAt": "2026-07-14T01:33:31.290Z"
+}
