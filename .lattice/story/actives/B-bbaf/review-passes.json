@@ -101,6 +101,37 @@
         "scanEscalationReason": null
       },
       "_hash": "f45f7ef3cd8216e6a54ac0b9ea50de699a6b869c60ae40a64f9d8a615550ff1d"
+    },
+    {
+      "id": "B-bbaf:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept-cleanup/deletion-completeness pass: verified this is purely additive (git diff main...HEAD -- *.ts has ZERO minus-lines in any source file; no deprecated/removed/renamed markers anywhere in the diff). Checked story_resume consistency across command-catalog.ts/command-policy.ts/config.ts/handlers/story.ts, LATTICE_CONVERGENCE_* env-name consistency in convergence-breaker.ts + smoke test, single isCanonicalStoryId definition in lifecycle-registry.ts reused (not duplicated) by cli-engine.ts and handlers/story.ts, and .gitignore additions matching runtime-artifact-registry.ts matchers. No dangling references found; no blocker.",
+      "createdAt": "2026-07-14T16:01:33.201Z",
+      "reviewRound": "2026-07-14T15:59:16.186Z",
+      "reviewRunId": "B-bbaf:RR-008",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitignore",
+          "package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/handlers/story.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-bbaf/plan.md",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0fcfa452233802a34ae4b796ba4d47a8d23d21f27a65749df1fa2927f43cdda1"
     }
   ]
 }
