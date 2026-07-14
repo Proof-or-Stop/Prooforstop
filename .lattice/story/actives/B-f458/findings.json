@@ -3220,7 +3220,7 @@
       "desc": "doc-promise-undelivered: concept-cleanup: F-121 transcript evidence replacement is incomplete. delivery_context_pack now actually checks evidence/live-smoke-transcript.json, but its handler contract comment, COMMAND_POLICIES reason, and PROCESS_FACT_LEVELS rationale still promise transcript-diff.md presence; the generated and mirrored product-reviewer prompts still request docs/story/actives/<storyId>/evidence/transcript-diff.md. The active policy/registry prose therefore describes an input the implementation no longer consumes, while the canonical input is omitted. Full-repository rg also finds the legacy path in lifecycle registries and decision docs without a local backward-compat marker, despite F-006 claiming the phantom transcript-diff policy was removed. Update active behavior descriptions/prompts to the canonical live-smoke artifact, and explicitly mark any intentionally retained lifecycle enum/path as legacy compatibility so it is not mistaken for current closeout evidence.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-14T05:33:29.929Z",
@@ -3267,7 +3267,11 @@
         ".claude/agents/product-reviewer.md"
       ],
       "signatureTag": "concept-cleanup-live-smoke-transcript-residue",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by a5621e382b and d56c6d5065. Active command policy, process/lifecycle facts, canonical product-reviewer template, Codex/Claude mirrors, prompt baseline/matrix, and mechanical verifier now use the canonical evidence/live-smoke-transcript.json contract; legacy lifecycle reference is explicitly compatibility-only. verify_codex completed without hard failures, process/prompt contracts passed, and the exact adversarial evidence command passed after the fingerprint was repinned.",
+      "resolvedAt": "2026-07-14T12:53:18.576Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f458:F-126",
