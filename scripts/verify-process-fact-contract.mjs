@@ -839,7 +839,7 @@ function assertCloseoutTrustBoundary() {
     'review executable structure before updating the pinned fingerprint',
     'b2c006a5becbd456a5728bb7615cf999cb514137383bc935b128073240899d98',
     'ccd079414da1e7aabbbc9afcd96a25ef37ae72d50d6817c340b37f152f711b06',
-    '2b3dfbe3073c3a8e2fa7e1c8bf93c84ec34ad63b56ed8cb59edce1aa563719d3',
+    '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844',
     'd252c161562e00797371438a52f16c889e10a0551673e24b62162978b7447c3e',
     '878828adf7881dc809bfca0e6e4daa506053fb6565aa1ec69c99626fef64f16a',
     '20149fa438b1ec78fc9c9713eb3cc4a890bc58a1d82e7a5fa0d588e9c4e7ee91',
