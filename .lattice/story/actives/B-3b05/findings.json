@@ -5,7 +5,7 @@
       "desc": "quality: proofstory.ts:1701 uncovered_required_milestones remediation hint template (`\"milestones\":[... update status/checklistRefs/verificationIntentRefs for: <ids> ...]`) implies a partial update of only the uncovered rows, but `milestone_ledger_set` is documented and implemented as full-replace (CLI help: \"Replace the story milestone ledger for multi-deliverable intent\"; buildMilestoneLedger in proofstory.ts:386-411 sets `milestones` directly from `args.milestones`, no merge with the existing ledger). An operator/agent that follows the hint literally and submits only the listed uncovered milestone rows will silently wipe every other row from the ledger (data loss of already-confirmed milestone state), and the hint itself is not literally copy-pasteable JSON (the `...` placeholders are invalid JSON syntax), contradicting the surrounding code comment at proofstory.ts:1679-1681 which frames it as turning the failure mode \"into a copy-paste\". The hint should either show the full-ledger-replace requirement explicitly or point at milestone_ledger_add (which does append/merge) for single-row remediation.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-14T00:21:51.768Z",
@@ -16,7 +16,11 @@
         "packages/main/src/core/proofstory.ts"
       ],
       "signatureTag": "edge|ts|quality-proofstory-1701",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 3826879dda: hint no longer prints a fake-JSON partial template; secondary remedy names milestone_ledger_set with explicit CAUTION that it FULL-REPLACES the ledger (re-submit the complete milestone list) and is PLAN-phase-only. Verified in redesigned milestone-status.test.mjs scenarios and actual fixture output.",
+      "resolvedAt": "2026-07-14T00:46:37.601Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3b05:F-002",
