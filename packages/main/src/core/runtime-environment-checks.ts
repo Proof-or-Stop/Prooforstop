@@ -225,7 +225,7 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
   const globalPackage = globalRoot ? resolveCorePackageCandidate(globalRoot) : null;
   const globalPackagePath = globalPackage?.path ?? null;
   const globalRealpath = globalPackage && globalPackage.exists ? safeRealpath(globalPackage.path) : null;
-  const expected = context.isSelfProject ? expectedSelfCoreRoot(context) : context.corePackageRoot;
+  const expected = context.isSelfProject ? expectedSelfCoreRoot(context) : resolveCanonicalCoreRoot(context.corePackageRoot);
   if (!globalPackage || !globalPackagePath || !globalRealpath) {
     return {
       status: statusForDrift(severity),
@@ -752,12 +752,14 @@ function describeCorePackageCandidate(candidate: CorePackageCandidate): string {
   return candidate.packageName;
 }
 
-function resolveCanonicalSelfCoreRoot(projectRoot: string): string | null {
-  const raw = runCommand('git', ['worktree', 'list', '--porcelain'], projectRoot);
-  if (!raw) {
-    const localCore = join(projectRoot, 'packages', 'main');
-    return existsSync(localCore) ? safeRealpath(localCore) : null;
-  }
+// Single source of truth for locating the refs/heads/main worktree's
+// packages/main via `git worktree list --porcelain` (F-001): both the
+// self-project and non-self canonicalizers parse identically and differ only
+// in their fallbacks. Returns null when git fails, no main-branch worktree is
+// listed, or the candidate directory does not exist.
+function findMainWorktreeCoreRoot(anchorDir: string): string | null {
+  const raw = runCommand('git', ['worktree', 'list', '--porcelain'], anchorDir);
+  if (!raw) return null;
   const records = raw.split(/\n\s*\n/).map((record) => record.trim()).filter(Boolean);
   for (const record of records) {
     const lines = record.split(/\r?\n/);
@@ -768,12 +770,33 @@ function resolveCanonicalSelfCoreRoot(projectRoot: string): string | null {
       if (existsSync(candidate)) return safeRealpath(candidate) ?? resolve(candidate);
     }
   }
+  return null;
+}
+
+function resolveCanonicalSelfCoreRoot(projectRoot: string): string | null {
+  const canonical = findMainWorktreeCoreRoot(projectRoot);
+  if (canonical) return canonical;
   const localCore = join(projectRoot, 'packages', 'main');
   return existsSync(localCore) ? safeRealpath(localCore) ?? resolve(localCore) : null;
 }
 
 function expectedSelfCoreRoot(context: RuntimeCheckContext): string {
   return context.canonicalSelfCoreRoot ?? join(context.projectRoot, 'packages', 'main');
+}
+
+// A worktree-built CLI evaluating a NON-self project must accept the global
+// package resolving to the canonical main checkout of the CLI's own repository:
+// linked worktrees are never relinked into `npm root -g`, so comparing against
+// the raw corePackageRoot makes the check structurally unpassable from any
+// story worktree (B-fa65). Canonicalize via `git worktree list` anchored at the
+// core root itself; a different clone has a different repository, so its
+// canonical path still differs from the global realpath and genuine drift
+// keeps warning. When git yields no main worktree the fallback is the
+// realpath-normalized core root — deliberately NOT the raw pre-fix path,
+// because the comparison target (globalRealpath) is itself realpath-resolved,
+// so symlink normalization must match on both sides (F-002).
+function resolveCanonicalCoreRoot(coreRoot: string): string {
+  return findMainWorktreeCoreRoot(coreRoot) ?? safeRealpath(coreRoot) ?? resolve(coreRoot);
 }
 
 function readPackageJson(dir: string): any | null {

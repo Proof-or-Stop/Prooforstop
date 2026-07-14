@@ -1,0 +1,253 @@
+{
+  "storyId": "B-3b05",
+  "checkedAt": "2026-07-13T23:41:31.998Z",
+  "features": [
+    {
+      "feature": "Append milestone_ledger_set remediation hint to uncovered_required_milestones gap output",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Desync framing when checklist coverage exists but ledger rows remain planned",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Message-layer only change: gate pass/fail semantics unchanged for CHK-001 inputs",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "review_pass_set persists writerSessionId + sessionSource in a versioned signature domain; legacy records without them still verify",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "review_pass_set validates writer session identity against the story owner lease session",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Same-session writes are warn-flagged by default with neutral same_session_write semantics (EXP-001/B-e71f framing)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Enforce mode is opt-in; provenance flag is not wired into any blocking gate in this story",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Cryptographic / unforgeable reviewer identity",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story background/decision.json explicitly scope the mechanism as a coordination-level deterrent, 'not cryptographic reviewer identity (out of scope)'; launch prompt lists this as an explicit exclusion",
+      "source": "description"
+    },
+    {
+      "feature": "Lease-takeover storm fixes",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Launch prompt and story background explicitly exclude storm-fix work; story is scoped to two message/provenance fixes only",
+      "source": "description"
+    },
+    {
+      "feature": "finding_add / review_run_start writer-identity enforcement",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-002 context notes these are only 'considered' (non-binding) and launch prompt explicitly excludes enforcement on these commands for this story",
+      "source": "description"
+    },
+    {
+      "feature": "review_pass_set remains reviewerWrite and exempt from the story owner lease (Command Classes table)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Signature-domain / gate-artifact changes must update process-fact-registry.ts and keep npm run test:process-fact-contract green",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "B-b550 milestone-ledger review M7 follow-up scope: add DONE/Authority/production-readiness disclaimer strings to milestone_status/milestone_closeout output, add Authority to milestone_status command-policy reason string, add negative-control tests (duplicate ledger rows, empty/all-not_applicable ledger, stale-only closeout report), and wire milestone-status.test.mjs into an aggregate suite runner",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "decisions:decisions/milestone-ledger-status-review-findings.md"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+      "docs/requirements/decisions/milestone-not-applicable-justification.md",
+      "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md",
+      "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md",
+      "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+      "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "docs/requirements/decisions/review-run-binding-race.md",
+      "docs/requirements/decisions/role-separation.md",
+      "docs/requirements/decisions/session-ownership-and-write-leases.md",
+      "docs/requirements/decisions/story-lifecycle.md",
+      "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md"
+    ],
+    "filesTriagedByName": [
+      "docs/requirements/decisions/annotation-system.md",
+      "docs/requirements/decisions/authority-client-role.md",
+      "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
+      "docs/requirements/decisions/authority-receipt-cross-repo-live-smoke.md",
+      "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+      "docs/requirements/decisions/authority-runner-session-evidence-envelope.md",
+      "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+      "docs/requirements/decisions/authority-session-receipt-gate-execution.md",
+      "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+      "docs/requirements/decisions/cc-learnings.md",
+      "docs/requirements/decisions/cell06-docker-server-execution-checklist.md",
+      "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+      "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+      "docs/requirements/decisions/cli-engine-english-translation-manifest.md",
+      "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+      "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md",
+      "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+      "docs/requirements/decisions/dev-memory.md",
+      "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+      "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+      "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+      "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+      "docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md",
+      "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+      "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+      "docs/requirements/decisions/framework.md",
+      "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+      "docs/requirements/decisions/host-neutral-observability-console.md",
+      "docs/requirements/decisions/host-overflow.md",
+      "docs/requirements/decisions/lattice-authority-customer-api-key-access.md",
+      "docs/requirements/decisions/lattice-authority-live-integration.md",
+      "docs/requirements/decisions/lattice-authority-m1-m16-generated-proof-and-live-e2e.md",
+      "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+      "docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md",
+      "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md",
+      "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+      "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+      "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+      "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md",
+      "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+      "docs/requirements/decisions/lattice-experiment-protocol.md",
+      "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+      "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+      "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+      "docs/requirements/decisions/lattice-parallel-wave.md",
+      "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+      "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "docs/requirements/decisions/lattice-unattended-completion-plan.md",
+      "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+      "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
+      "docs/requirements/decisions/lifecycle-artifact-scope.md",
+      "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+      "docs/requirements/decisions/multi-model-ablation-replication.md",
+      "docs/requirements/decisions/orchestrate-retirement.md",
+      "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+      "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+      "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md",
+      "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+      "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+      "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+      "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md",
+      "docs/requirements/decisions/project-vision.md",
+      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+      "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+      "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
+      "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+      "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
+      "docs/requirements/decisions/root-document-migration-guide.md",
+      "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+      "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+      "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+      "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+      "docs/requirements/decisions/stack-layering.md",
+      "docs/requirements/decisions/stash-split-execution-plan.md",
+      "docs/requirements/decisions/story-files-hash-material-drift.md",
+      "docs/requirements/decisions/test-fixture-spec.md",
+      "docs/requirements/decisions/test-intent-review.md",
+      "docs/requirements/decisions/test-runner-consolidation-plan.md",
+      "docs/requirements/decisions/testing-completeness.md",
+      "docs/requirements/decisions/testing-infra.md",
+      "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+      "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+      "docs/requirements/decisions/truth-source.md",
+      "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+      "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+      "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md",
+      "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md",
+      "docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+      "docs/requirements/decisions/usage-ledger-prototype-pollution-hardening.md",
+      "docs/requirements/decisions/verification-context-pack.md"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 13,
+    "covered": 9,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 1,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "c8267f0403cb681ac07bf992db4d1ee001d012fa12838dba9b7f76354a7f9159",
+  "openQuestions": [
+    {
+      "id": "OQ-1",
+      "q": "CHK-002 makes review_pass_set consume core/owner-session.ts getSessionIdentity() and the story-owner-lease read path to add writer-session provenance. owner-session-contract-execution-plan.md (B-a781, status 'execution plan; documentation only') requires 'two-host review evidence over the current version of this document' before 'any future story implements runtime code from this plan' or changes owner-lease/lifecycle/host-adapter/scope-guard code, and its reviewer 'should reject code work that cites this plan without fresh two-host review evidence'. Separately, session-ownership-and-write-leases.md's own Out-of-Scope section states that design does not solve 'reviewer identity attestation'. Does CHK-002 count as implementing runtime code from the owner-session-contract plan (triggering the two-host-review precondition), or is it a downstream consumer of the already-implemented session facade (per session-ownership-and-write-leases.md's 'B-9089 implements that runtime contract') and therefore exempt? And does CHK-002's warn/enforce provenance layer overstep the stated 'reviewer identity attestation' non-goal, or is it sufficiently distinct (coordination-level deterrent, not attestation) to stay compatible? None of this story's PLAN artifacts (understanding.json, decision.json, checklist, plan.md) cite or address either document.",
+      "evidence": "owner-session-contract-execution-plan.md: 'Before any future story implements runtime code from this plan, it must first record two-host review evidence over the current version of this document ... The implementation reviewer should reject code work that cites this plan without fresh two-host review evidence bound to the document version it implements.' session-ownership-and-write-leases.md Out of Scope: 'This design does not solve: ... reviewer identity attestation'.",
+      "sourcePointers": [
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md#two-host-review-evidence-before-implementation (lines 359-381: before any future story implements runtime code from this plan)",
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md#r1-r6 (lines 330-357: the plan runtime scope)",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md (lines 285-291: non-goals incl. reviewer identity attestation — require a stronger trust model and should be separate work)"
+      ],
+      "resolution": "No two-host precondition is triggered and no non-goal is overstepped, with one explicit boundary. (A) owner-session-contract-execution-plan.md gates stories that implement runtime code FROM that plan (its R1-R6: shared resolver, host adapters, generated-token fallback, core env-read cleanup): CHK-002 implements none of these — plan.md marks core/owner-session.ts as read-only import; we only CALL the existing exported getSessionIdentity() API and read the existing owner lease. Boundary written into this resolution: if DEV finds it must modify owner-session.ts resolver internals, that edit is out of scope for B-3b05 until the two-host review evidence over the current document version is recorded first. (B) session-ownership-and-write-leases.md lists reviewer identity attestation as a non-goal requiring a stronger trust model; CHK-002 stays inside the lease trust model — it compares two process-local coordination ids for equality, persists sessionSource with documented forgeability, uses neutral same_session_write semantics (decision preMortem 3), and claims deterrence + audit trail, never attestation. Code/doc wording must not use the word attestation for this flag.",
+      "resolvedAt": "2026-07-13T23:43:01.956Z"
+    },
+    {
+      "id": "OQ-2",
+      "q": "review-assurance-floor-execution-plan.md's Operational Rules state that 'Lifecycle, gate, Authority, review, and process-fact work remains high-risk and should use three rounds x two hosts (3x2), or an explicit degraded-single-host fallback when policy allows' -- worded categorically, not tied to a finding count. CHK-002 changes review_pass_set's signature domain (a REVIEW-phase gate/process-fact artifact). But the actually-implemented mechanism per story-lifecycle.md and three-round-two-host-review-escalation-execution-plan.md triggers 3x2 only when 'the first lifecycle REVIEW round records at least two countable reviewer problems' -- a finding-count threshold, not a code-category rule. Does the high-risk category language in review-assurance-floor-execution-plan.md mean CHK-002 should independently require 3x2 (or an explicit degraded-single-host fallback) at DONE regardless of REVIEW finding count, or does the finding-count threshold fully supersede/implement that categorical language for process-fact work? None of this story's PLAN artifacts mention review-escalation requirements or degraded-fallback eligibility.",
+      "evidence": "review-assurance-floor-execution-plan.md Operational Rules: 'Lifecycle, gate, Authority, review, and process-fact work remains high-risk and should use three rounds x two hosts, or an explicit degraded-single-host fallback when policy allows.' story-lifecycle.md Design Decisions: 'DONE requires review escalation only when the first lifecycle REVIEW round records at least two countable reviewer problems ... High-risk lifecycle, gate, Authority, or process-fact changes still use the 3-round path.'",
+      "sourcePointers": [
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md#operational-rules (line 70: Lifecycle, gate, Authority, review, and process-fact work remains high-risk and should use three rounds x two hosts)",
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md#chosen-approach (line 62)",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md (finding-count threshold mechanism, additive trigger)"
+      ],
+      "resolution": "Yes — the categorical rule applies to B-3b05 independent of finding count, and the story accepts it rather than contradicting it. review-assurance-floor-execution-plan.md Operational Rules: Lifecycle, gate, Authority, review, and process-fact work remains high-risk and should use three rounds x two hosts, or an explicit degraded-single-host fallback when policy allows. CHK-002 changes a process-fact artifact signature domain (review-passes.json) and CHK-001 touches gate output — squarely in that category. Operationally the DONE path already enforces this via the review-assurance floor in done_prepare/doneClosure; B-3b05 will satisfy it through the 3x2 quorum path (quorum_submit converting current-round signed passes from all active lanes into 3 rounds x 2 host verdicts, executed while the story is still in REVIEW so lanes can mint current passes — the B-9188 sequencing lesson). The finding-count-threshold escalation in story-lifecycle.md is a separate additive trigger, not a substitute; no plan change needed.",
+      "resolvedAt": "2026-07-13T23:43:02.484Z"
+    }
+  ]
+}

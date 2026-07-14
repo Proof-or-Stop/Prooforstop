@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-fa65",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Make the doctor global-core-realpath check linked-worktree-aware (pass/info when global resolves to the repo canonical main checkout from a linked worktree; keep genuine unrelated-path warn)",
+    "Regression tests for both contexts and the doctor-brief byte budget",
+    "Story metadata/evidence for B-fa65"
+  ],
+  "excluded": [
+    "No change to the brief-output-smoke 20000-byte budget itself",
+    "No per-worktree relinking of the global CLI",
+    "No removal of the genuine mismatch warn",
+    "No unrelated doctor checks"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Framework regression blocking DONE for all worktree stories, discovered while closing user-requested B-3b05 on 2026-07-14; fix-the-check direction recorded in story background after byte-level diff isolation.",
+  "createdAt": "2026-07-14T01:15:01.752Z",
+  "updatedAt": "2026-07-14T01:15:01.752Z",
+  "_hash": "0eef804b07d8083b1515ac72cdff22a92f98bb611f53074aa9c528ce01a36426"
+}

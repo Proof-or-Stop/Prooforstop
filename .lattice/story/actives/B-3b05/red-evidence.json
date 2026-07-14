@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-3b05",
+  "records": [
+    {
+      "id": "RED-20260713232912",
+      "trigger": "B-f458 incident: coverage gap output gives no remediation command; operators looped 14h/89 advances (tmp/bf458-forensics-2026-07-14/)",
+      "acceptanceTargetRef": "M1",
+      "baselineHeadHash": "f62b76e0b5ed51f3caa9a4a1fb310615c9bd2298",
+      "baselineMaterialHash": "9282c0c7e9b943afd1be76a517c44d96d5d6ef35a48e9b83f59f9d87ffacd166",
+      "observedFailure": "uncovered_required_milestones output (core/proofstory.ts ~1677-1679) names missing milestone ids only; the string milestone_ledger_set is absent from the whole file, so the desync case (checklist 5/5 done vs ledger rows planned) surfaces no repair command",
+      "failingCommand": "rg -q \"milestone_ledger_set\" packages/main/src/core/proofstory.ts",
+      "expectedGreenCommand": "rg -q \"milestone_ledger_set\" packages/main/src/core/proofstory.ts",
+      "greenRelation": {
+        "targetRef": "M1",
+        "relation": "same_acceptance",
+        "command": "rg -q \"milestone_ledger_set\" packages/main/src/core/proofstory.ts"
+      },
+      "note": "Red probe exits 1 today (hint string absent); flips to 0 once the remediation hint lands. Behavior-level coverage lands as CHK-001 logic tests.",
+      "createdAt": "2026-07-13T23:29:12.193Z"
+    },
+    {
+      "id": "RED-20260713232912",
+      "trigger": "B-8038 root cause per user audit; B-3928 self-signed rounds at 19-56s/entry; B-f458 inter-pass gaps down to 1-12s",
+      "acceptanceTargetRef": "M2",
+      "baselineHeadHash": "f62b76e0b5ed51f3caa9a4a1fb310615c9bd2298",
+      "baselineMaterialHash": "9282c0c7e9b943afd1be76a517c44d96d5d6ef35a48e9b83f59f9d87ffacd166",
+      "observedFailure": "review_pass_set (handlers/finding.ts:343-420) persists caller-supplied agent labels with no writer identity: writerSessionId/sessionSource do not exist in the handler, pass records, or signature domain, so an owner-session self-sign is accepted silently and indistinguishable in evidence records",
+      "failingCommand": "rg -q \"writerSessionId\" packages/main/src/handlers/finding.ts",
+      "expectedGreenCommand": "rg -q \"writerSessionId\" packages/main/src/handlers/finding.ts",
+      "greenRelation": {
+        "targetRef": "M2",
+        "relation": "same_acceptance",
+        "command": "rg -q \"writerSessionId\" packages/main/src/handlers/finding.ts"
+      },
+      "note": "Red probe exits 1 today (no provenance field anywhere in the handler); flips to 0 once the provenance layer lands. Behavior-level coverage lands as CHK-002 logic tests + real-machine warn-flag transcript.",
+      "createdAt": "2026-07-13T23:29:12.511Z"
+    }
+  ],
+  "createdAt": "2026-07-13T23:29:12.193Z",
+  "updatedAt": "2026-07-13T23:29:12.511Z"
+}

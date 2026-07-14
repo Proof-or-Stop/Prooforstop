@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-3b05",
+  "id": "IC-20260713232721",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Re-confirmation after milestone_ledger_set (per d6126f2 ordering): same accepted interpretation as ICL prior decision — (a) message-layer milestone_ledger_set remediation hint with desync framing in coverage gap output, zero gate semantics change; (b) review_pass_set provenance layer persisting writerSessionId + sessionSource into a versioned signature domain, compared against the story owner lease session, warn-flag default (neutral same_session_write semantics per EXP-001), enforce opt-in, legacy records keep verifying, no blocking-gate consumption of the flag in this story. This confirms the 2-row candidate ledger (M1 hint, M2 provenance) as the countable milestone coverage.",
+  "acceptedInterpretationHash": "sha256:6cfb2d1d3163206917e5e860f59f2a841b545a2eb64ac7a5e6e0804b1182d65b",
+  "notes": "Second collision pass recorded specifically to bind confirmedLedgerHash to the just-written candidate ledger (dev-memory d6126f2).",
+  "ledgerHashBeforeDecision": "sha256:14f9b1a71aa027be716cc285ed122980ce5849319bb2e3d1b05268b958caef13",
+  "confirmedLedgerHash": "sha256:14f9b1a71aa027be716cc285ed122980ce5849319bb2e3d1b05268b958caef13",
+  "createdAt": "2026-07-13T23:27:21.122Z",
+  "updatedAt": "2026-07-13T23:28:46.415Z"
+}

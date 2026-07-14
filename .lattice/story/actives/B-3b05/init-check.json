@@ -1,0 +1,25 @@
+{
+  "storyId": "B-3b05",
+  "checkedAt": "2026-07-13T23:18:07.138Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-13T23:16:57.680Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "Both CHK-001 and CHK-002 are missing the formal userSees field required by CLAUDE.md checklist format. The user-observable outcomes are well described in the background Conversational Texture section and in item contexts, but are not codified in the designated userSees field with precise expected output text. Recommend adding userSees with example terminal output (e.g. the exact remediation hint text for CHK-001, and the exact rejection/warning message for CHK-002) before PLAN."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-13T23:18:07.138Z",
+      "issues": []
+    }
+  ],
+  "_hash": "b043dffca7e1784adc89a7ad5e94ee69ce1c64119387847ca6c62ea9281ffdee"
+}

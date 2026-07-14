@@ -1,0 +1,65 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Align the AGENTS.md global-thin entrypoint",
+      "context": "Keep only Codex and AGENTS-specific instructions, point shared rules to .lattice/Lattice.md, and display the brand as `Proof-or-stop`.",
+      "relatedDocs": [
+        "AGENTS.md",
+        ".lattice/Lattice.md"
+      ],
+      "files": {
+        "modify": [
+          "AGENTS.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "AGENTS.md shows the heading `Proof-or-stop` and concise Codex/AGENTS entry guidance."
+    },
+    {
+      "id": "CHK-002",
+      "title": "Align the CLAUDE.md global-thin entrypoint",
+      "context": "Keep only Claude Code-specific instructions, point shared rules to .lattice/Lattice.md, and display the brand as `Proof-or-stop`.",
+      "relatedDocs": [
+        "CLAUDE.md",
+        ".lattice/Lattice.md"
+      ],
+      "files": {
+        "modify": [
+          "CLAUDE.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "CLAUDE.md shows the heading `Proof-or-stop For Claude Code` and concise Claude-specific entry guidance."
+    },
+    {
+      "id": "CHK-003",
+      "title": "Verify the two root entry documents",
+      "context": "Check formatting, required pointers, host-specific asset paths, absence of duplicated legacy lifecycle sections, and zero `Proofbound` occurrences in the two files.",
+      "relatedDocs": [
+        "AGENTS.md",
+        "CLAUDE.md"
+      ],
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "AGENTS.md",
+          "CLAUDE.md"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "Both root entry documents visibly use `Proof-or-stop` and contain no old `Proofbound` branding."
+    }
+  ]
+}

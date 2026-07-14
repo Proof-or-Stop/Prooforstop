@@ -131,6 +131,16 @@ export interface LatticeConfig {
   reproFirstPreflight?: ReproFirstPreflightConfig;
   proofStory?: ProofStoryConfig;
   lifecycleControl?: LifecycleControlConfig;
+  /**
+   * B-3b05: review_pass_set writer-session provenance validation. Default warn
+   * (hardcoded fallback for absent/invalid config — a same-session write is
+   * flagged `same_session_write` + stderr warning, never rejected). enforce is
+   * opt-in for hosts with genuine per-thread session separation and rejects
+   * owner-session writes of reviewer pass evidence.
+   */
+  reviewPassProvenance?: {
+    mode?: 'warn' | 'enforce';
+  };
   /** Runtime memory health diagnostics; advisory only, never gate evidence. */
   runtimeMemory?: {
     requiredClasses?: string[];

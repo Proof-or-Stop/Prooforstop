@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-fa65",
+  "records": [
+    {
+      "id": "RED-20260714013331",
+      "trigger": "DONE-required npm test fails from every story worktree (B-3b05 done_prepare blocked at validate 2026-07-14)",
+      "acceptanceTargetRef": "CHK-001:happy:1",
+      "baselineHeadHash": "197dc3fdb79a8fd9d8823dd202542f5c958fbcc5",
+      "baselineMaterialHash": "9282c0c7e9b943afd1be76a517c44d96d5d6ef35a48e9b83f59f9d87ffacd166",
+      "observedFailure": "From .worktrees/B-3b05 (worktree-built CLI), npm run test:brief-output fails: doctor brief under budget, got 20239 — the global-core-realpath warn block (global resolves to main checkout packages/main, expected .worktrees/B-3b05/packages/main, plus Relink or reinstall hint) adds ~240 bytes over the 20000 budget. Same suite green on the main checkout.",
+      "failingCommand": "npm run test:brief-output",
+      "expectedGreenCommand": "npm run test:brief-output",
+      "greenRelation": {
+        "targetRef": "CHK-001:happy:1",
+        "relation": "same_acceptance",
+        "command": "npm run test:brief-output"
+      },
+      "note": "Red reproduced twice (done_prepare validate + direct run) plus instrumented byte-level capture of the fixture doctor output isolating the warn block as the only meaningful delta vs main.",
+      "createdAt": "2026-07-14T01:33:31.824Z"
+    }
+  ],
+  "createdAt": "2026-07-14T01:33:31.824Z",
+  "updatedAt": "2026-07-14T01:33:31.824Z"
+}

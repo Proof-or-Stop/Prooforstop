@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-e514",
+  "allowedCommands": [
+    "git diff --check -- AGENTS.md CLAUDE.md",
+    "rg",
+    "wc -l -c AGENTS.md CLAUDE.md"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command"
+  ],
+  "allowedPaths": [
+    "AGENTS.md",
+    "CLAUDE.md"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "codex",
+  "confirmationNote": "Document-only execution boundary requested by the user.",
+  "createdAt": "2026-07-14T05:13:21.266Z",
+  "updatedAt": "2026-07-14T05:13:21.266Z",
+  "_hash": "5b6bbddb6e7e0cbd9dba610ca92557abaec94eeeeeb34b1cfd6a3266b5fc61ae"
+}
