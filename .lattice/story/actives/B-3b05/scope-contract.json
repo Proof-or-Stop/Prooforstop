@@ -1,0 +1,83 @@
+{
+  "storyId": "B-3b05",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/owner-session.ts",
+    "packages/main/src/core/story-owner-lease.ts",
+    "packages/main/src/core/flow-fact-policy.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/handlers/milestone-status.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/review-pass-provenance.ts",
+    "packages/main/tests/**"
+  ],
+  "allowedTest": [
+    "packages/main/tests/**",
+    "packages/main/src/tasks/**"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Two gate-behavior fixes: milestone coverage hint (proofstory.ts + surfacing paths) and review-pass writer-session provenance (finding.ts handler, types/signing in review-run.ts, session identity from owner-session/story-owner-lease, possible new provenance module + smoke tasks, contract script sync).",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "CHK-002 real implementation landing points: signReviewPass/verifyReviewPass versioned signature domains actually live in core/finding-verify.ts (plan.md guessed review-run.ts), and the opt-in reviewPassProvenance.mode config parsing lands in core/config.ts following the existing config-resolution pattern. Same change intent as the declared allowedModify set; no behavior outside CHK-002 scope.",
+      "timestamp": "2026-07-14T00:13:44.937Z",
+      "paths": [
+        "packages/main/src/core/finding-verify.ts",
+        "packages/main/src/core/config.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/finding-verify.ts",
+        "packages/main/src/core/config.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "20d2ee4b0f1852c70895ca7c7eadb430dd346f53",
+      "materialHash": "456f86576bb4581dced7913028f514a5f35a0304f2ed041841dbf11172c3c581"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Story-owned real-machine evidence transcript explicitly planned in plan.md CHK-002 Verify section and referenced by CHK-002:happy:1 manual_transcript verification evidence.",
+      "timestamp": "2026-07-14T00:13:45.225Z",
+      "paths": [
+        ".lattice/story/actives/B-3b05/evidence/provenance-warn-transcript.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-3b05/evidence/provenance-warn-transcript.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "20d2ee4b0f1852c70895ca7c7eadb430dd346f53",
+      "materialHash": "456f86576bb4581dced7913028f514a5f35a0304f2ed041841dbf11172c3c581"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Not story edits: these arrived via merging main into story/B-3b05 (parallel sessions auto-bumped CLI version 0.3.19x on main). Diff-vs-base artifacts of the required branch-synced-main discipline, byte-identical to current main.",
+      "timestamp": "2026-07-14T00:13:45.516Z",
+      "paths": [
+        "package.json",
+        "packages/main/package.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "package.json",
+        "packages/main/package.json"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "20d2ee4b0f1852c70895ca7c7eadb430dd346f53",
+      "materialHash": "456f86576bb4581dced7913028f514a5f35a0304f2ed041841dbf11172c3c581"
+    }
+  ],
+  "createdAt": "2026-07-13T23:27:44.145Z",
+  "updatedAt": "2026-07-14T00:13:45.516Z"
+}

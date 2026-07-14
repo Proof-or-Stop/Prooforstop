@@ -27,6 +27,7 @@
     "test:review-incremental-context-smoke": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
     "test:review-assurance-floor-storyfileshash-smoke": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
     "test:review-run-clean-tree-preflight": "node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js",
+    "test:review-pass-provenance": "node packages/main/dist/tasks/review-pass-provenance-smoke.js",
     "test:docs-drift-smoke": "node packages/main/dist/tasks/docs-drift-path-drift-smoke.js",
     "test:docs-drift-wrapper-root": "npm --prefix packages/main run test:docs-drift-wrapper-root",
     "test:managed-assets-wrapper-root": "npm --prefix packages/main run test:managed-assets-wrapper-root",

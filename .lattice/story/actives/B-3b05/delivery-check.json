@@ -1,0 +1,27 @@
+{
+  "storyId": "B-3b05",
+  "checkedAt": "2026-07-14T02:25:37.287Z",
+  "headHash": "6871118efd1db550579d4fce115f1ba6bf072644",
+  "materialHash": "91ed4267f919abf4a98936ebfd7ac2f670b127bc20c24c70bd060fb55d3bb05f",
+  "storyFilesHash": "04d1983cf23be57f7d68e2b920fab5b14e4b746b86626d1d7b94fa84d476b096",
+  "reviewRound": "2026-07-14T02:16:27.574Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independently re-run (second signing, post-merge-main head) node packages/main/tests/milestone-status.test.mjs -> ok milestone-status. The dedicated B-3b05 block asserts: per-row Diagnosis text using the REAL persisted ledger status (not a hardcoded planned claim, regresses F-003); per-row checklist-lag framing that is not suppressed by a non-lagging sibling in a mixed set (F-004); a primary remedy naming verification_evidence_add/batch with the story id, the actual uncovered intent refs, and a --help pointer, printed before a caveated secondary milestone_ledger_set remedy that spells out FULL-REPLACE + PLAN-phase-only (F-001/F-005); a mechanical command-policy assertion against exported COMMAND_POLICIES proving verification_evidence_add/batch are allowed in REVIEW/TEST/DONE while milestone_ledger_set stays PLAN-gated; a not_applicable+accepted-shrinkage scenario proving no hint noise; and an adversarial rerun proving gap ids/severities/messages/pass-fail/gap-count are byte-identical across runs (message-layer-only change). Diff-verified via git diff main...HEAD: only proofstory.ts message-construction code changed for this gap, no change to gap code/severity/decision logic. Confirmed via git diff that the B-3b05 owned code did not change between the pre-merge delivery signing and the current head (only an unrelated B-fa65 merge touched package.json, lattice-brand.ts, runtime-environment-checks.ts, none of which this checklist item depends on)."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Independently re-run (second signing, post-merge-main head) npm run test:review-pass-provenance (packages/main/src/tasks/review-pass-provenance-smoke.ts) -> all 10 assertions passed against the REAL built CLI binary: non-owner-session pass records writerSessionId+sessionSource and verifies with no flag; owner-session pass under default warn mode persists provenanceFlag=same_session_write plus a stderr warning naming both session ids (verified against .lattice/story/actives/B-3b05/evidence/provenance-warn-transcript.md, a verbatim CLI transcript with an explicit F-002 amendment note); enforce mode (opt-in config) rejects the owner-session pass and persists nothing while a distinct session still passes; a real pre-change legacy fixture (no writerSessionId) still verifies via the legacy signature domain; absent/invalid config resolves to warn; tampering writerSessionId, or adding/stripping/flipping provenanceFlag (F-002 fix), breaks verifyReviewPass against both locally-signed and real-CLI-persisted records. Also independently re-ran npm run test:process-fact-contract -> verified (registry entry plus inventory patterns for writerSessionId/getSessionIdentity/evaluateReviewPassProvenance/readOwnerLease/provenanceFlag all present). Rebuilt packages/main (npm --prefix packages/main run build) clean with zero tsc errors. Confirmed via git diff that the B-3b05 owned code (review-pass-provenance.ts, finding-verify.ts, finding.ts, types.ts, config.ts, process-fact-registry.ts) did not change between the pre-merge delivery signing and the current head."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Second signing after storyFilesHash drift from merging main (B-fa65 touched package.json, inside the B-3b05 diff scope). Independently confirmed via git diff a36923f188..HEAD and a09230b416..HEAD that zero B-3b05 owned source/test files changed across the merge -- only unrelated B-fa65 files and version-bump/script-registration lines in package.json. Independently re-ran milestone-status.test.mjs (ok), test:review-pass-provenance (10/10), test:process-fact-contract (verified), and packages/main build (clean) at the current merged head -- all green. All 5 round-1 findings (F-001..F-005, including 1 critical and 2 high) are resolved with commit-bound evidence, and round-4 re-review recorded a fresh pass from all 4 opt-in lanes (concept/behavior/test-coverage/quality) at the current reviewRound. No framework or docs/ markdown files are touched by this diff (only story-owned evidence transcripts and plan.md), so there are no docs promises to verify or waive. No TODO/FIXME/HACK found in the changed source. Evidence boundary respected: user approval is a non-mechanical signal kept separate from this machine-verified transcript and test record; this record reports only machine-verifiable evidence."
+  },
+  "_hash": "f2dd33693f407b504e4322b1797f9c43cf8334044938429bee2d6e1ca6113aba"
+}

@@ -93,6 +93,24 @@ export function verifyFinding(
   return f._hash === oldExpected;
 }
 
+/**
+ * B-3b05: writer-session provenance signed into NEW review pass records.
+ * Presence of provenance selects the version-3 domain; legacy records (no
+ * writerSessionId/sessionSource) keep verifying via their original domains.
+ */
+export interface ReviewPassWriterProvenance {
+  writerSessionId: string;
+  sessionSource: string;
+  /**
+   * B-3b05 F-002: the audit flag itself is part of the signed domain — a flag
+   * added, stripped, or flipped on an already-signed record must break
+   * verification. Canonical representation: absent and empty string both sign
+   * as '' (a no-flag record), so sign/verify stay symmetric for unflagged
+   * records.
+   */
+  provenanceFlag?: string;
+}
+
 export function signReviewPass(
   storyId: string,
   id: string,
@@ -104,7 +122,34 @@ export function signReviewPass(
   readManifest?: ReviewerReadManifest,
   readLog?: ReviewerReadLogEvidence,
   readDiagnostics?: ReviewerReadDiagnostic[],
+  provenance?: ReviewPassWriterProvenance,
 ): string {
+  if (provenance !== undefined) {
+    // Runtime re-validation (CLAUDE.md handler conventions): a provenance-domain
+    // signature must never bind an empty writer identity. The RAW values are
+    // hashed (no trimming/normalizing here) so any byte-level tamper of the
+    // persisted writerSessionId/sessionSource breaks verification.
+    if (typeof provenance.writerSessionId !== 'string' || provenance.writerSessionId.trim().length === 0) {
+      throw new Error('signReviewPass: provenance.writerSessionId must be a non-empty string');
+    }
+    return digestCanonicalJson({
+      version: 3,
+      salt: REVIEW_PASS_SALT,
+      storyId,
+      id,
+      agent,
+      note,
+      timestamp,
+      reviewRound,
+      reviewRunId,
+      writerSessionId: provenance.writerSessionId,
+      sessionSource: provenance.sessionSource ?? '',
+      provenanceFlag: provenance.provenanceFlag ?? '',
+      ...(readManifest !== undefined ? { readManifest: normalizeReviewerReadManifest(readManifest) } : {}),
+      ...(readLog !== undefined ? { readLog: normalizeReviewerReadLogEvidence(readLog) } : {}),
+      ...(readDiagnostics !== undefined ? { readDiagnostics: normalizeReviewerReadDiagnostics(readDiagnostics) } : {}),
+    });
+  }
   if (readManifest !== undefined || readLog !== undefined || readDiagnostics !== undefined) {
     return digestCanonicalJson({
       version: 2,
@@ -137,10 +182,47 @@ export function verifyReviewPass(
     readManifest?: ReviewerReadManifest;
     readLog?: ReviewerReadLogEvidence;
     readDiagnostics?: ReviewerReadDiagnostic[];
+    writerSessionId?: string;
+    sessionSource?: string;
+    provenanceFlag?: string;
   },
 ): boolean {
   if (!p._hash || !p.createdAt || !p.agent || !p.note) return false;
   const reviewRunId = p.reviewRunId?.trim() || '';
+  // B-3b05: provenance-inclusive records verify ONLY via the version-3 domain —
+  // no fallback to legacy domains (mirrors the reviewRunId rule). A record with
+  // sessionSource or provenanceFlag but no writerSessionId can only be a
+  // stripped/tampered new record, so it fails closed too (a legitimate flag is
+  // only ever written alongside a signed writer identity). Records with NONE of
+  // the three fields are pre-B-3b05 history and keep verifying via the legacy
+  // domains below (never fail-closed on history).
+  // F-002: provenanceFlag is bound into the v3 payload (absent ≡ '' — the same
+  // canonicalization signReviewPass applies), so add/strip/flip of the flag on
+  // an already-signed record breaks verification.
+  if (p.writerSessionId !== undefined || p.sessionSource !== undefined || p.provenanceFlag !== undefined) {
+    if (typeof p.writerSessionId !== 'string' || p.writerSessionId.trim().length === 0) return false;
+    try {
+      return p._hash === signReviewPass(
+        storyId,
+        p.id,
+        p.agent,
+        p.note,
+        p.createdAt,
+        p.reviewRound || '',
+        reviewRunId,
+        p.readManifest,
+        p.readLog,
+        p.readDiagnostics,
+        {
+          writerSessionId: p.writerSessionId,
+          sessionSource: p.sessionSource ?? '',
+          provenanceFlag: p.provenanceFlag ?? '',
+        },
+      );
+    } catch {
+      return false;
+    }
+  }
   if (p.readManifest !== undefined || p.readLog !== undefined || p.readDiagnostics !== undefined) {
     try {
       return p._hash === signReviewPass(

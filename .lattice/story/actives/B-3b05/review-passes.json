@@ -1,0 +1,303 @@
+{
+  "passes": [
+    {
+      "id": "B-3b05:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue sweep: CHK-001 (proofstory.ts remediation hint) and CHK-002 (finding-verify.ts v3 provenance signature domain, review-pass-provenance.ts, config.ts, types.ts, finding.ts, process-fact-registry.ts, verify-process-fact-contract.mjs) are purely additive - no concept was deleted or renamed, legacy v1/v2 signature domains and old gap message text are preserved as-is with new fields/branches added alongside. No blocker.",
+      "createdAt": "2026-07-14T00:17:08.478Z",
+      "reviewRound": "2026-07-14T00:13:46.358Z",
+      "reviewRunId": "B-3b05:RR-001",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/owner-session.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/review-pass-provenance.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/tests/milestone-status.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3b05/checklist.json",
+          ".lattice/story/actives/B-3b05/decision.json",
+          ".lattice/story/actives/B-3b05/evidence/provenance-warn-transcript.md",
+          ".lattice/story/actives/B-3b05/index.json",
+          ".lattice/story/actives/B-3b05/plan.md",
+          "packages/main/src/tasks/review-pass-provenance-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c41b0514ffc5c17bcb1e669e7b30a8c702b41b4b2486385fcb4ef778a143d14d"
+    },
+    {
+      "id": "B-3b05:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 7 must intents (CHK-001 happy/edge/adversarial via milestone-status.test.mjs desync/non-desync/byte-identical assertions; CHK-002 happy(2)/edge/adversarial via review-pass-provenance-smoke.ts + real-machine transcript) have concrete, currently-passing evidence. validate --json verificationCoverage: total=7 covered=7 missingRequired=0. Milestone ledger M1/M2 verificationIntentRefs match checklist intents exactly; both red-evidence green probes independently re-confirmed exit 0.",
+      "createdAt": "2026-07-14T00:19:59.146Z",
+      "reviewRound": "2026-07-14T00:13:46.358Z",
+      "reviewRunId": "B-3b05:RR-003",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3b05/evidence/provenance-warn-transcript.md",
+          ".lattice/story/actives/B-3b05/milestone-ledger.json",
+          ".lattice/story/actives/B-3b05/red-evidence.json",
+          "packages/main/src/tasks/review-pass-provenance-smoke.ts",
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/story/actives/B-3b05/checklist.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/finding.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "656c1379d3fd2e93e0ec8fd1349ca15a620ebb588d1e93f46e24e5f7a4a57af4"
+    },
+    {
+      "id": "B-3b05:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "CHK-002 (review_pass_set writer-session provenance) scope only: verified userSees against handlers/finding.ts (recordReviewPass) + core/review-pass-provenance.ts + core/finding-verify.ts (v3 signature domain) + core/types.ts + the real-machine transcript. Confirmed stdout AND stderr both carry the warn-mode flag naming both session ids (not swallowed); enforce mode rejects before persisting; legacy records verify via legacy domain; provenanceFlag is never read by any gate (grep across machine.ts/story-advance.ts/phase-gates.ts/review-run.ts confirms zero consumers). Ran npm run test:review-pass-provenance (7/7 pass) and npm run test:process-fact-contract (pass) live. Probed no-lease, distinct-session, owner-session warn, owner-session enforce, invalid config, explicit-env vs derived-ppid sessionSource -- all covered by review-pass-provenance-smoke.ts and consistent with userSees. No blocker found in CHK-002 scope. Separately filed 3 findings (B-3b05:F-003 high, F-004 medium, F-005 critical) against CHK-001's remediation-hint message accuracy/actionability -- this pass record does not cover CHK-001.",
+      "createdAt": "2026-07-14T00:27:02.109Z",
+      "reviewRound": "2026-07-14T00:13:46.358Z",
+      "reviewRunId": "B-3b05:RR-004",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3b05/background.md",
+          ".lattice/story/actives/B-3b05/evidence/provenance-warn-transcript.md",
+          ".lattice/story/actives/B-3b05/plan.md",
+          ".lattice/story/actives/B-3b05/scope-check.json",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/owner-session.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-pass-provenance.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/tasks/review-pass-provenance-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "packages/main/src/core/story-owner-lease.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fd09c95b92c73bcc4c4e02a1499947fecf5d0caff8ed13beae3b8f2267eafbc9"
+    },
+    {
+      "id": "B-3b05:RP-004",
+      "agent": "lattice-review-behavior",
+      "note": "Round 2 re-verification of F-003/F-004/F-005 fixes (commit 3826879dda) against rebuilt dist. (a) Copy-paste reachability: live CLI probe against current build — verification_evidence_add with intentionally missing --note failed on Zod arg validation (note: expected string, received undefined), NOT a phase rejection, and appears in REVIEW phaseTools allow-list; confirms the primary printed remedy is not phase-walled in REVIEW (F-005 fixed). Contrast probe: milestone_ledger_set in REVIEW correctly returned Command not available in REVIEW phase / Allowed phases: PLAN, confirming the secondary remedys PLAN-only caveat is accurate, not misleading. (b) done-status row without evidence: source scenario 2b (milestone-status.test.mjs:2666-2688) and its passing assertion show message text M-done-noev [status=done; ...] with assert.doesNotMatch(/remain planned/) — true persisted status is reported, hardcoded remain planned claim is gone (F-003 fixed). (c) mixed multi-row fixture: scenario 2c (lines 2693-2718) asserts lag framing appears on the lagging row (M-mix-lag) only and assert.doesNotMatch on the non-lagging siblings diagnosis substring, i.e. lag framing is computed per-row not suppressed by .every() (F-004 fixed). Also reran node packages/main/tests/milestone-status.test.mjs live -> ok milestone-status, and npm run test:process-fact-contract -> Process fact contract verified. No blocker found in CHK-001 scope for round 2.",
+      "createdAt": "2026-07-14T00:49:37.048Z",
+      "reviewRound": "2026-07-14T00:46:23.555Z",
+      "reviewRunId": "B-3b05:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3b05/background.md",
+          ".lattice/story/actives/B-3b05/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fdd04658f4ed703eb85e1a07f3e2cdd5624ab9cbc9355170183b13767aa3c36c"
+    },
+    {
+      "id": "B-3b05:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept-residue scan of the two fix commits (3826879dda proofstory.ts hint rework; 8cce2b89e9 F-002 v3 signature domain amendment). Grepped whole repo for deleted/renamed identifiers: ledgerDesynced, desyncPrefix, remediationHint (old single-var hint), old hardcoded phrase Ledger out of sync / remain planned, and the fake-JSON partial-update template. Zero residue outside archival finding/plan.md audit trail (findings.json + plan.md legitimately preserve pre-fix quoted text as historical review evidence, and milestone-status.test.mjs uses assert.doesNotMatch on the old phrases as regression guards, not stale expectations). New concept names (diagnosis/primaryRemedy/secondaryRemedy/rowLagsChecklist/rowMissingRefs) fully replace the old ones with no orphaned helper. For the v3 signature-domain amendment: process-fact-registry.ts and scripts/verify-process-fact-contract.mjs signature-description strings are byte-synced; grepped for the old flag-less v3 description string across .ts/.md/.json/.mjs — zero hits. provenanceFlag is consistently wired through types.ts, finding-verify.ts, handlers/finding.ts, review-pass-provenance.ts, and covered by add/strip/flip tamper assertions in review-pass-provenance-smoke.ts; no CLAUDE.md/decisions doc references this concept so nothing stale there either. No blocker found this round.",
+      "createdAt": "2026-07-14T00:49:37.659Z",
+      "reviewRound": "2026-07-14T00:46:23.555Z",
+      "reviewRunId": "B-3b05:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3b05/evidence/provenance-warn-transcript.md",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/tasks/review-pass-provenance-smoke.ts",
+          "packages/main/tests/milestone-status.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "72c6ead1bd9721893d1c5239418677926f695fafd9478ced79f3296041310855"
+    },
+    {
+      "id": "B-3b05:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 re-verify F-001/F-002 both fixed; tamper add/strip/flip re-probed against rebuilt dist all fail closed; tests + tsc + process-fact-contract green; no new dead code/as-any/empty-catch in delta.",
+      "createdAt": "2026-07-14T00:51:07.110Z",
+      "reviewRound": "2026-07-14T00:46:23.555Z",
+      "reviewRunId": "B-3b05:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3b05/evidence/provenance-warn-transcript.md",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/tasks/review-pass-provenance-smoke.ts",
+          "packages/main/tests/milestone-status.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/review-pass-provenance.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a1d37b2c0e29549b422565ba90e4b0cda88c3f73b7834cf25954741b1ab7aa29"
+    },
+    {
+      "id": "B-3b05:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 2): re-audited 7/7 must intents across CHK-001/CHK-002 after F-001/F-003/F-004/F-005 (hint redesign, commit 3826879dda) and F-002 (provenanceFlag signing, commit 8cce2b89e9); all evidence re-recorded/refreshed at current head, notes accurately describe the new assertions, corrected manual_transcript matches its claim, npm run test:review-pass-provenance + milestone-status.test.mjs + test:process-fact-contract + full lattice validate all green. No blocker.",
+      "createdAt": "2026-07-14T00:54:32.650Z",
+      "reviewRound": "2026-07-14T00:46:23.555Z",
+      "reviewRunId": "B-3b05:RR-008",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3b05/evidence/provenance-warn-transcript.md",
+          "docs/story/actives/B-3b05/checklist.json",
+          "packages/main/src/tasks/review-pass-provenance-smoke.ts",
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "29c0fc4c0271b977a0e2dc286639056b6caeed730301de18e82b97a674367def"
+    },
+    {
+      "id": "B-3b05:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Round4 post-merge concept residue check: no concept deletion/replacement found; only additive/refactor changes since RP-005. No blocker.",
+      "createdAt": "2026-07-14T02:19:00.672Z",
+      "reviewRound": "2026-07-14T02:16:27.574Z",
+      "reviewRunId": "B-3b05:RR-009",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/tasks/brief-output-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/review-pass-provenance.ts",
+          "packages/main/src/tasks/review-pass-provenance-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "182859eda1cd53dbd3d941f79bfb0f3945580a4564113757fcd3098347a257cc"
+    },
+    {
+      "id": "B-3b05:RP-009",
+      "agent": "lattice-review-behavior",
+      "note": "Round 4 re-verify after main merge (B-fa65 doctor realpath work): merge delta (lattice-brand.ts, runtime-environment-checks.ts, brief-output-smoke.ts, global-core-realpath.test.mjs, package.json/lockfiles) does not touch B-3b05 behavior surfaces (proofstory.ts hint output, review-pass.ts provenance) per git diff/stat inspection. Rebuilt packages/main (tsc build exit 0) then re-ran both userSees checks at head 1a62496: (a) node packages/main/tests/milestone-status.test.mjs -> ok milestone-status (exit 0); (b) npm run test:review-pass-provenance -> all 10 assertions pass incl warn-mode stderr naming both ids and enforce-mode rejection (exit 0). No blocker; non-destructive re-runs only.",
+      "createdAt": "2026-07-14T02:19:33.296Z",
+      "reviewRound": "2026-07-14T02:16:27.574Z",
+      "reviewRunId": "B-3b05:RR-011",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/review-pass-provenance-smoke.ts",
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/tasks/brief-output-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cc6690bfd40652b497fa83b8c228537732ff0639be3d2e3116322e10f129e902"
+    },
+    {
+      "id": "B-3b05:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 4, post B-fa65 merge): re-audited 7/7 must intents across CHK-001/CHK-002 at current head (merge commit b42dac871c, ancestor of HEAD via 2 metadata-only commits, materialHash/storyFilesHash unchanged). Merge delta touches none of the 7 evidence files. Directly re-ran the suites: milestone-status.test.mjs -> ok; test:review-pass-provenance -> 10/10 pass; test:process-fact-contract -> verified. Manual transcript content-checked and matches its claim. All 5 prior findings resolved/verified. No blocker.",
+      "createdAt": "2026-07-14T02:19:36.513Z",
+      "reviewRound": "2026-07-14T02:16:27.574Z",
+      "reviewRunId": "B-3b05:RR-010",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3b05/evidence/provenance-warn-transcript.md",
+          ".lattice/story/actives/B-3b05/review-passes.json",
+          ".lattice/story/actives/B-3b05/review-runs.json"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/tasks/brief-output-smoke.ts",
+          "packages/main/src/tasks/review-pass-provenance-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "40d2a118d0760cb638fad98d7a81419b84c50a4e6cff1a9e3b42b18cda803385"
+    },
+    {
+      "id": "B-3b05:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Round 4 re-verification after main merge (B-fa65). No overlap between merged B-fa65 files and B-3b05-owned files; build/tests re-run clean; all prior findings remain resolved+verified; no adverse interaction found.",
+      "createdAt": "2026-07-14T02:19:42.386Z",
+      "reviewRound": "2026-07-14T02:16:27.574Z",
+      "reviewRunId": "B-3b05:RR-012",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/tasks/brief-output-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-pass-provenance.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/tasks/review-pass-provenance-smoke.ts",
+          "packages/main/tests/milestone-status.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "506e274b9b90aee5c322689f2998271708e8e4138db71f41ee8b599a5e7cc20d"
+    }
+  ]
+}

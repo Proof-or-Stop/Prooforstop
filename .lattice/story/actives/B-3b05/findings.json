@@ -1,0 +1,118 @@
+{
+  "findings": [
+    {
+      "id": "B-3b05:F-001",
+      "desc": "quality: proofstory.ts:1701 uncovered_required_milestones remediation hint template (`\"milestones\":[... update status/checklistRefs/verificationIntentRefs for: <ids> ...]`) implies a partial update of only the uncovered rows, but `milestone_ledger_set` is documented and implemented as full-replace (CLI help: \"Replace the story milestone ledger for multi-deliverable intent\"; buildMilestoneLedger in proofstory.ts:386-411 sets `milestones` directly from `args.milestones`, no merge with the existing ledger). An operator/agent that follows the hint literally and submits only the listed uncovered milestone rows will silently wipe every other row from the ledger (data loss of already-confirmed milestone state), and the hint itself is not literally copy-pasteable JSON (the `...` placeholders are invalid JSON syntax), contradicting the surrounding code comment at proofstory.ts:1679-1681 which frames it as turning the failure mode \"into a copy-paste\". The hint should either show the full-ledger-replace requirement explicitly or point at milestone_ledger_add (which does append/merge) for single-row remediation.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-14T00:21:51.768Z",
+      "reviewRound": "2026-07-14T00:13:46.358Z",
+      "reviewRunId": "B-3b05:RR-002",
+      "_hash": "d569696f7a3f5d1ebe2da52bfda4bea80317c9e7c5ee2e159b64f9c43b5e751e",
+      "files": [
+        "packages/main/src/core/proofstory.ts"
+      ],
+      "signatureTag": "edge|ts|quality-proofstory-1701",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 3826879dda: hint no longer prints a fake-JSON partial template; secondary remedy names milestone_ledger_set with explicit CAUTION that it FULL-REPLACES the ledger (re-submit the complete milestone list) and is PLAN-phase-only. Verified in redesigned milestone-status.test.mjs scenarios and actual fixture output.",
+      "resolvedAt": "2026-07-14T00:46:37.601Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3b05:F-002",
+      "desc": "adversarial: review-pass provenance (B-3b05 CHK-002) persists `provenanceFlag: \"same_session_write\"` on ReviewPass records (packages/main/src/handlers/finding.ts:397) as part of what review-pass-provenance.ts:20 calls a \"durable per-session audit trail\", but `provenanceFlag` is NOT included in the versioned v3 signature payload in signReviewPass/verifyReviewPass (packages/main/src/core/finding-verify.ts:117-146 lists version, salt, storyId, id, agent, note, timestamp, reviewRound, reviewRunId, writerSessionId, sessionSource, readManifest/readLog/readDiagnostics -- no provenanceFlag). Only writerSessionId/sessionSource are tamper-protected. Reproduced directly against the built dist: signing a record with writerSessionId+sessionSource then adding provenanceFlag=same_session_write afterward still verifies true via verifyReviewPass -- i.e. provenanceFlag can be added, stripped, or flipped in the persisted review-passes.json post-write without invalidating _hash, silently erasing or fabricating self-sign evidence for the exact B-8038/B-3928/B-f458 self-sign detection problem this story exists to address. This is compounded by delivery evidence at .lattice/story/actives/B-3b05/evidence/provenance-warn-transcript.md:50, which explicitly (and incorrectly) claims the persisted record has writerSessionId, sessionSource, AND provenanceFlag \"all bound into the versioned `_hash` signature domain\" -- that claim is false for provenanceFlag and should be corrected, or provenanceFlag should be added to the v3 signature domain.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-14T00:22:07.291Z",
+      "reviewRound": "2026-07-14T00:13:46.358Z",
+      "reviewRunId": "B-3b05:RR-002",
+      "_hash": "9743b651256a8a5d5ab16ed3c1839f90f3b92b4273029057ece42d00a386eb4c",
+      "files": [
+        "packages/main/src/core/finding-verify.ts",
+        "packages/main/src/core/review-pass-provenance.ts",
+        "packages/main/src/handlers/finding.ts",
+        ".lattice/story/actives/B-3b05/evidence/provenance-warn-transcript.md"
+      ],
+      "signatureTag": "adversarial|ts|adversarial-review-pass",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 8cce2b89e9: provenanceFlag bound into the v3 signReviewPass/verifyReviewPass payload (absent canonicalized to empty string; flag-only records fail closed). v3 amended in place, justified by full scan of every review-passes.json under worktree + main story trees: zero persisted records carry the new fields (B-3b05 RP-001/002/003 are v2 readManifest records from global CLI 0.3.196), so no history breaks. Tamper scenarios (add/strip/flip flag) fail verification against both locally-signed and real-CLI-persisted records; regenerated provenance-warn-transcript.md carries an explicit F-002 amendment note correcting the earlier false all-bound claim. process-fact contract synced and green.",
+      "resolvedAt": "2026-07-14T00:46:59.266Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3b05:F-003",
+      "desc": "proofstory.ts:1685-1705 (evaluateDoneIntentEquivalence, uncovered_required_milestones): the desync framing and remediation hint are decoupled from the actual ledger row status and from what actually clears the gap, so the message can be both factually wrong and actively misleading. (1) ledgerDesynced (line 1694) never reads row.status, only checklistRefs coverage; normalizeMilestone (same file) lets milestone_ledger_set/_add set status to ANY of planned|covered|done|not_applicable independent of evidence coverage, so a row already marked status=done/covered but still uncovered (evidence missing) hits the desync branch and the message hardcodes \"remain planned\" (line 1699) even though the persisted status is done/covered — reproduced against the built dist: checklist item done, milestone.status=done, verificationIntentRefs with no covering evidence -> gap.message contains \"ledger row(s) M-x remain planned\" while M-x.status===done. (2) The suggested fix text \"update status/checklistRefs/verificationIntentRefs\" via milestone_ledger_set (line 1701) is itself the wrong remedy for the dominant real cause: coverage is decided purely by refs.every(ref => evidenceCoversIntent(evidence, ref)) (line ~1653); milestone.status and checklistRefs play no role in clearing this gap (status only matters for the separate not_applicable exemption). Reproduced: adding verification_evidence_add for the checklist items intent while leaving the ledger row untouched (status still planned) clears the gap outright, with zero calls to milestone_ledger_set. An operator who follows the hint literally (runs milestone_ledger_set to flip status without adding evidence) will see the gap persist and be confused — reproducing the exact 14-hour-stall failure mode this story was built to eliminate. Fix: (a) derive the status word in the desync message from the actual row.status instead of hardcoding \"remain planned\"; (b) when verificationIntentRefs is non-empty but uncovered, have the hint point at verification_evidence_add as the primary remedy, reserving the milestone_ledger_set refs edit for the refs.length===0 case.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-07-14T00:22:53.854Z",
+      "reviewRound": "2026-07-14T00:13:46.358Z",
+      "reviewRunId": "B-3b05:RR-004",
+      "_hash": "249851848d6368c26cf6b084b32ee42524723cb3953984507efbe5016f9821fc",
+      "files": [
+        "packages/main/src/core/proofstory.ts"
+      ],
+      "signatureTag": "edge|ts|proofstory-1685-1705",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 3826879dda: per-row Diagnosis prints each uncovered row actual status and its missing-evidence refs; primary remedy is evidence-first (verification_evidence_add/batch with the actual uncovered intent refs), matching the real gap predicate refs.every(evidenceCoversIntent); ledger correction demoted to only-if-row-needs-correction secondary. New test scenario: done-status row without evidence reports its true status, never claims planned.",
+      "resolvedAt": "2026-07-14T00:46:59.898Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3b05:F-004",
+      "desc": "proofstory.ts:1694-1697 (evaluateDoneIntentEquivalence): the desync check is all-or-nothing across the WHOLE uncoveredRows set (uncoveredRows.every(...)), not per-row. So when a single uncovered_required_milestones gap mixes genuinely-desynced rows (checklist all done, ledger lagging) with even one non-desynced row (its checklistRef not yet done), the desync prefix is suppressed for ALL rows in that gap, including the ones that ARE desynced. Reproduced against the built dist with 5 milestones in one gap (mirroring the B-f458 shape: 5 ledger rows in one story) where 4/5 have fully-done checklistRefs and 1/5 does not: gap.message contains no \"Ledger out of sync\" text at all, silently hiding the desync diagnostic for the 4 genuinely-lagging rows. This is spec-compliant per plan.md CHK-001 literal wording (\"when every listed milestone points at ALL done\"), so not a deviation from the written plan, but it is an untested boundary that materially weakens the fix for the realistic multi-milestone-gap case the story cites as its motivating incident. No existing test in packages/main/tests/milestone-status.test.mjs exercises a mixed desynced/non-desynced uncovered set (only uniform all-desynced or all-non-desynced fixtures exist). Fix suggestion: compute ledgerDesynced per-row and only prefix the message with the rows that are individually desynced (or list both desynced and non-desynced ids separately), instead of gating the whole message on every() across the full uncovered set.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-07-14T00:23:06.376Z",
+      "reviewRound": "2026-07-14T00:13:46.358Z",
+      "reviewRunId": "B-3b05:RR-004",
+      "_hash": "7f8a41d292709957d06548718bdd1a61753aa5f0b0c798589961ab92293cf024",
+      "files": [
+        "packages/main/src/core/proofstory.ts"
+      ],
+      "signatureTag": "edge|ts|proofstory-1694-1697",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 3826879dda: lag/desync framing computed per row (each uncovered milestone gets its own checklistRefs-all-done evaluation); whole-set .every() suppression removed. New mixed-fixture test: lag framing appears on the lagging row only.",
+      "resolvedAt": "2026-07-14T00:47:00.658Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3b05:F-005",
+      "desc": "doc-promise-undelivered: CHK-001 userSees promises the operator sees a remediation line reading Fix: lattice milestone_ledger_set ... with the exact command shape printed inline, and background.md frames this as turning the B-f458 14-hour stall into a copy-paste fix. But the remediation command the gap message prints (proofstory.ts:1701, lattice milestone_ledger_set '{...}') is HARD-BLOCKED by the CLI phase gate everywhere this gap is actually surfaced. command-policy.ts:411 declares milestone_ledger_set allowedPhases: ['PLAN'] only; the uncovered_required_milestones gap this story adds a hint to is emitted by evaluateDoneIntentEquivalence, whose own CHK-001 context names its consumers as story_advance DONE output, done_prepare doneClosure step, milestone_status diagnostics -- all of which run in REVIEW/TEST/DONE, never PLAN. Reproduced live in THIS worktree (story B-3b05, phase=REVIEW): running `lattice milestone_ledger_set '{\"storyId\":\"B-3b05\",\"milestones\":[]}'` exits 1 with `Command \"milestone_ledger_set\" is not available in REVIEW phase ... Allowed phases: PLAN`. So an operator who copy-pastes the exact command the gap message prints (the story's stated goal) gets an immediate hard rejection in every realistic invocation context, right back to a dead end -- the opposite of the cheapest fix that turns a 14-hour stall into a copy-paste that the story commits to. This is not a pre-existing/unrelated issue: it is the new remediation hint text added by this diff (proofstory.ts lines 1675-1708) that makes the actionability promise; the command it prints was never checked against command-policy phase gating. Fix: either (a) route the hint through a phase-appropriate mechanism (e.g. say explicitly that PLAN must be reopened first, if that is genuinely required), or (b) if milestone ledger repair should be possible post-PLAN for this exact remediation purpose, extend milestone_ledger_set's allowedPhases (with the accompanying policy-review rigor documented in docs/requirements/decisions/milestone-ledger-status-review-findings.md M2.a), or (c) point at whatever command actually IS runnable in the gap's real invocation phases (e.g. verification_evidence_add, which this file confirms is the actual mechanism that clears uncovered_required_milestones -- see companion finding on evidenceCoversIntent) instead of milestone_ledger_set.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-07-14T00:26:06.676Z",
+      "reviewRound": "2026-07-14T00:13:46.358Z",
+      "reviewRunId": "B-3b05:RR-004",
+      "_hash": "961250a5ebb11254e2f62d4a4f408ec6484d145b381a57f9508f32ab525444fc",
+      "files": [
+        "packages/main/src/core/proofstory.ts",
+        "packages/main/src/core/command-policy.ts"
+      ],
+      "signatureTag": "missing|ts|promise-undelivered-usersees",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 3826879dda: the primary remedy printed by the gap is now verification_evidence_add/batch — phase-legal in every phase where uncovered_required_milestones surfaces (mechanical test asserts COMMAND_POLICIES allowedPhases covers REVIEW/TEST/DONE); milestone_ledger_set relegated to secondary with explicit PLAN-phase-only caveat (return the story to PLAN first). Copy-pasting the printed primary command no longer hits a phase wall.",
+      "resolvedAt": "2026-07-14T00:47:01.195Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-3b05",
+  "phase": "TEST",
+  "generatedAt": "2026-07-14T02:30:59.239Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "4073cc40a5bfe32d4958bc7017cf7106c4478625a164f3d9b915b31b60df9ae3",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:14f9b1a71aa027be716cc285ed122980ce5849319bb2e3d1b05268b958caef13"
+    },
+    "groups": {
+      "completed": [
+        "M1",
+        "M2"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "095f2a1cafcd818f1dfe59d35f6f13c9cec7a137",
+    "materialHash": "91ed4267f919abf4a98936ebfd7ac2f670b127bc20c24c70bd060fb55d3bb05f",
+    "storyFilesHash": "04d1983cf23be57f7d68e2b920fab5b14e4b746b86626d1d7b94fa84d476b096"
+  },
+  "rows": [
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Milestone coverage gap output includes the exact milestone_ledger_set remediation command with desync framing when checklist coverage exists but ledger rows lag at planned",
+      "acceptance": "Logic tests show the hint line in uncovered_required_milestones output for the desync scenario and prove gate pass/fail decisions are unchanged for identical inputs",
+      "evidence": [
+        "CHK-001:happy:0 [pass/logic_test] npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs file=packages/main/tests/milestone-status.test.mjs note=Redesigned hint (F-001/F-003/F-004/F-005): desync fixture asserts per-row diagnosis with real status + per-row lag framing, evidence-first primary remedy (verification_evidence_add with story id + actual uncovered refs + --help) printed BEFORE milestone_ledger_set, and secondary remedy carrying FULL-REPLACE + PLAN-phase-only caveats with no fake-JSON template",
+        "CHK-001:edge:0 [pass/logic_test] npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs file=packages/main/tests/milestone-status.test.mjs note=Redesigned hint edge coverage: non-lagging uncovered row gets accurate per-row diagnosis WITHOUT lag framing and WITHOUT milestone_ledger_set; done-status row without evidence prints status=done (never remain planned); mixed lagging+non-lagging set keeps lag framing on the lagging row only (per-row, no .every across rows); not_applicable + shrinkage rows produce no hint noise for either remedy command",
+        "CHK-001:adversarial:0 [pass/logic_test] npm --prefix packages/main run build && node packages/main/tests/milestone-status.test.mjs file=packages/main/tests/milestone-status.test.mjs note=Message-layer-only invariant re-proven post-redesign: gap ids/severities/pass-fail/gap-count byte-identical across reruns for identical inputs; plus mechanical command-policy assertion that the printed primary remedy (verification_evidence_add/batch) covers REVIEW/TEST/DONE while milestone_ledger_set stays PLAN-gated (asserted from exported COMMAND_POLICIES, not prose)"
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "review_pass_set persists writerSessionId/sessionSource in a versioned signed payload and validates writer session against the story owner lease session (warn default, enforce opt-in)",
+      "acceptance": "Logic tests cover recording, warn flag on same-session writes, enforce rejection, legacy record verification; a real-machine transcript shows the visible warn flag on an owner-session self-sign attempt",
+      "evidence": [
+        "CHK-002:happy:0 [pass/logic_test] npm run test:review-pass-provenance file=packages/main/src/tasks/review-pass-provenance-smoke.ts note=records identity, verifies, no flag for non-owner session; warn-mode owner-session pass persists with same_session_write flag; re-run green after F-002 fix binding provenanceFlag into the v3 signature domain",
+        "CHK-002:happy:1 [pass/manual_transcript] node packages/main/dist/cli.js review_pass_set (real CLI, owner-session LATTICE_SESSION_ID == story owner lease sessionId, default warn mode) file=.lattice/story/actives/B-3b05/evidence/provenance-warn-transcript.md note=real-machine CLI output shows the visible warn flag on owner-session self-sign attempt; transcript recaptured post-F-002 with corrected signature-domain claim (all three provenance fields hash-bound) and verbatim flag-tamper verify failures",
+        "CHK-002:edge:0 [pass/logic_test] npm run test:review-pass-provenance file=packages/main/src/tasks/review-pass-provenance-smoke.ts note=legacy fixture verifies via legacy domain; absent/invalid config resolves to warn; unchanged after the v3 domain amendment (no persisted flag-less v3 records existed)",
+        "CHK-002:adversarial:0 [pass/logic_test] npm run test:review-pass-provenance file=packages/main/src/tasks/review-pass-provenance-smoke.ts note=enforce rejects naming both ids; writerSessionId tamper breaks signature; explicit-env spoof recorded with sessionSource=explicit-env; F-002 flag-tamper detection: adding, stripping, or flipping provenanceFlag on a signed record (including the record the real CLI persisted) fails verifyReviewPass"
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}

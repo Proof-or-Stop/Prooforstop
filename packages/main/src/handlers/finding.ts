@@ -21,6 +21,9 @@ import { computeProcessMetrics } from '../core/process-metrics.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
 import { isPassOnlyReviewFindingRecord } from '../core/flow-fact-policy.js';
 import { assertCurrentReviewRunForEvidence, captureReviewRunSnapshot, resolveReviewRunLane } from '../core/review-run.js';
+import { getSessionIdentity } from '../core/owner-session.js';
+import { readOwnerLease } from '../core/story-owner-lease.js';
+import { evaluateReviewPassProvenance, resolveReviewPassProvenanceMode } from '../core/review-pass-provenance.js';
 import { assertCandidateReadBinding, digestCandidateRoutingValue } from '../core/candidate-spec-routing.js';
 import { currentStoryRoutingInput } from './candidate-spec-routing.js';
 import { loadConfig } from '../core/config.js';
@@ -361,6 +364,27 @@ function recordReviewPass(
     if (readEvidence.readDiagnostics && readEvidence.readDiagnostics.length > 0) {
       throw new Error(`${command}: mechanical reviewer read evidence does not match readManifest: ${formatReadDiagnostics(readEvidence.readDiagnostics)}`);
     }
+    // B-3b05 CHK-002: writer-session provenance. Resolve the writing session
+    // identity, compare it against the current story owner lease session, and
+    // persist writerSessionId + sessionSource into the versioned signature
+    // domain. Enforce mode rejects BEFORE anything is persisted; warn mode
+    // (default) flags + warns; no lease → record identity only. The flag is
+    // AUDIT-ONLY — canPassReviewGuard and every other blocking gate ignore it.
+    const writerIdentity = getSessionIdentity();
+    const ownerLease = readOwnerLease(ctx.store.storyDirPath(storyId));
+    const provenanceMode = resolveReviewPassProvenanceMode(loadConfig(ctx.root).reviewPassProvenance);
+    const provenance = evaluateReviewPassProvenance({
+      command,
+      writer: writerIdentity,
+      leaseSessionId: ownerLease?.sessionId ?? null,
+      mode: provenanceMode,
+    });
+    if (provenance.rejection) {
+      throw new Error(provenance.rejection);
+    }
+    if (provenance.warning) {
+      process.stderr.write(`⚠ ${provenance.warning}\n`);
+    }
     const pass = {
       id,
       agent,
@@ -368,6 +392,9 @@ function recordReviewPass(
       createdAt,
       reviewRound,
       reviewRunId,
+      writerSessionId: provenance.writerSessionId,
+      sessionSource: provenance.sessionSource,
+      ...(provenance.provenanceFlag ? { provenanceFlag: provenance.provenanceFlag } : {}),
       readManifest: readEvidence.readManifest,
       ...(readEvidence.readLog ? { readLog: readEvidence.readLog } : {}),
       ...(readEvidence.readDiagnostics ? { readDiagnostics: readEvidence.readDiagnostics } : {}),
@@ -382,6 +409,13 @@ function recordReviewPass(
         readEvidence.readManifest,
         readEvidence.readLog,
         readEvidence.readDiagnostics,
+        {
+          writerSessionId: provenance.writerSessionId,
+          sessionSource: provenance.sessionSource,
+          // F-002: the audit flag is signed too (absent canonicalizes to '') —
+          // adding/stripping/flipping it post-write breaks verification.
+          provenanceFlag: provenance.provenanceFlag,
+        },
       ),
     };
     data.passes.push(pass);
@@ -393,6 +427,9 @@ function recordReviewPass(
       || persistedPass._hash !== pass._hash
       || persistedPass.agent !== agent
       || persistedPass.reviewRunId !== reviewRunId
+      || persistedPass.writerSessionId !== provenance.writerSessionId
+      || persistedPass.sessionSource !== provenance.sessionSource
+      || persistedPass.provenanceFlag !== provenance.provenanceFlag
       || !persistedPass.readManifest
       || (readEvidence.readLog && persistedPass.readLog?.digest !== readEvidence.readLog.digest)
     ) {
@@ -415,7 +452,12 @@ function recordReviewPass(
       console.warn(`[process-events] append failed for ${storyId}:`, (e as Error).message);
     }
     const commitHint = autoCommitStoryMetadata(ctx.root, storyId, 'review_pass_set');
-    return `Review pass ${id} recorded by ${agent}${commitHint}`;
+    // B-3b05: the same-session flag must be visible in the SAME output the
+    // operator reads, not only on stderr.
+    const provenanceHint = provenance.provenanceFlag
+      ? `\n⚠ provenanceFlag=${provenance.provenanceFlag}: writer session ${provenance.writerSessionId} (source=${provenance.sessionSource}) equals story owner lease session ${ownerLease?.sessionId} — subagent-or-self, not mechanically distinguishable (EXP-001); audit-only, no gate consumes it`
+      : '';
+    return `Review pass ${id} recorded by ${agent}${provenanceHint}${commitHint}`;
   });
 }
 
