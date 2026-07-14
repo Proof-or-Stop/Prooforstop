@@ -4,7 +4,7 @@
   "title": "Actionable milestone-ledger desync hint in coverage gates + review_pass_set writer-provenance validation",
   "description": "Two gate-behavior defects from the user's 2026-07-14 framework audit, with forensic evidence archived at tmp/bf458-forensics-2026-07-14/ (71MB: EVIDENCE.md, 926-entry activity.jsonl, story-metadata snapshots, 13 Codex rollout mirrors, token trajectories). (a) Ledger-checklist desync gives no remediation hint: in B-f458 (window 2026-07-13T08:20Z-22:36Z, ~14h) the story-metadata snapshot shows checklist 5/5 done while all 5 milestone-ledger rows (M4.C1.1-M4.C1.5) stayed status=planned; the DONE-path gate kept emitting uncovered_required_milestones (core/proofstory.ts ~1678: 'Required milestone(s) lack passing verification evidence...') which names WHAT is missing but not HOW to fix it - the string milestone_ledger_set appears nowhere in proofstory.ts messaging. Agents cycled DEV->REVIEW x41 / REVIEW->DEV x39 (89 story_advance total vs a normal 6-10) without ever finding the one-line remedy. Fix: append the exact milestone_ledger_set repair command to the milestone coverage gap output, and when checklist/evidence coverage exists while ledger rows lag at planned, say explicitly that the ledger is out of sync. (b) Gates do not verify evidence provenance (user cites this as the root cause of B-8038 'Implement bounded multi-host keyword candidate-spec routing end to end' — a DONE story whose review evidence the audit traced back to owner-session self-signed passes; still unfixed): review_pass_set (packages/main/src/handlers/finding.ts:343-420) enforces review-run binding, readManifest, and durable persistence, but the agent field is a caller-supplied label with no writer-identity check - the owner session stamping agent='lattice-review-*' is accepted. the audit of B-3928 (a separate DONE story, 'M0 Proof-or-Stop prompt baseline inventory and lockfile') shows two review rounds self-signed at 19-56 seconds per entry; the B-f458 snapshot shows inter-pass gaps down to 1-12 seconds, and 131 review_run_start produced only ~31 review_pass_set (78% churn) amid 65 owner-lease takeovers + 238 takeover-flagged commands from 3 concurrent Codex threads racing the lease. Fix: record the writing session identity on each review pass and validate writer session != story owner lease session (readManifest was layer 1; provenance validation is layer 2), rollout and mechanism decided in PLAN within documented limits: story-owner-lease sessionId is a process-local coordination id (not forgery-proof), and EXP-001 (B-e71f) proved main-agent vs subagent are mechanically indistinguishable in Bash.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "keywords": [
     "milestone-ledger",
@@ -142,6 +142,15 @@
       "timestamp": "2026-07-14T02:16:28.900Z",
       "reviewer": "behavior",
       "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-14T02:20:40.313Z",
+      "branch": "story/B-3b05",
+      "user": "Harmonygo",
+      "sessionId": "9f8bf495-b234-42dc-9ecb-16d603a760d2",
       "agent": "main"
     }
   ],
