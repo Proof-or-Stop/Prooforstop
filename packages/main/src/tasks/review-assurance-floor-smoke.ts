@@ -6,8 +6,11 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
+import { signReviewPass } from '../core/finding-verify.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { resetConfigCache } from '../core/config.js';
+import { signReviewRun } from '../core/review-run.js';
+import { StoryStore } from '../core/store.js';
 import {
   canFinishGuard,
   getGuardFailureReason,
@@ -22,7 +25,8 @@ import {
   type ReviewAssuranceFloorReport,
 } from '../core/review-assurance-floor.js';
 import { canonicalReviewHostLauncherSpec, type CanonicalReviewHost } from '../core/host-execution-readiness.js';
-import type { BugData, Finding, ProcessEvent, StoryInfo } from '../core/types.js';
+import { computeActiveReviewers } from '../handlers/reviewer-list.js';
+import type { BugData, Finding, ProcessEvent, ReviewRun, StoryInfo } from '../core/types.js';
 
 const STORY_ID = 'B-review-assurance-floor';
 const REVIEW_ROUND = '2026-06-19T10:00:00.000Z';
@@ -254,31 +258,81 @@ function deliveryCheck(storyId: string, headHash: string, materialHash: string, 
   };
 }
 
-function fakeDoneStore(metadataRoot: string, headHash: string, materialHash: string) {
+function fakeDoneStore(metadataRoot: string, gitRoot: string, headHash: string, materialHash: string): StoryStore {
+  const store = new StoryStore(metadataRoot);
   const smokeStory = story({
     currentReviewRound: REVIEW_ROUND,
     riskSignals: [],
     worktree: undefined,
   });
   const signedDeliveryCheck = deliveryCheck(STORY_ID, headHash, materialHash);
-  return {
-    readTestEvidence: () => ({ result: 'PASS', output: 'smoke validation passed' }),
-    readBugs: () => ({ bugs: [] }),
-    readDeliveryCheck: () => signedDeliveryCheck,
-    readStory: () => smokeStory,
-    readFindings: () => ({ findings: [] }),
-    readProcessEvents: () => [verdict('round-1', 'codex-a', materialHash)],
-    readUnderstanding: () => ({
-      task: 'Wrapper root smoke',
-      outcome: 'DONE guard uses resolved git cwd',
-      facts: [],
-      constraints: [],
-      unknowns: [],
-      touchpoints: ['packages/main/src/index.ts'],
-      timestamp: '2026-06-19T11:45:00.000Z',
-    }),
-    storyDirPath: () => join(metadataRoot, '.lattice/story/actives', STORY_ID),
-  };
+  const storyFilesHash = currentStoryFilesHash(gitRoot, 'HEAD', metadataRoot);
+  assert.ok(storyFilesHash, 'wrapper gitRoot must have a storyFilesHash');
+
+  store.writeStory(STORY_ID, smokeStory);
+  store.writeChecklist(STORY_ID, { items: [] });
+  store.writeTestEvidence(STORY_ID, {
+    command: 'review-assurance-floor-smoke',
+    output: 'smoke validation passed',
+    result: 'PASS',
+    timestamp: '2026-06-19T11:50:00.000Z',
+    headHash,
+    materialHash,
+    storyFilesHash,
+  });
+  store.writeBugs(STORY_ID, { bugs: [] });
+  store.writeDeliveryCheck(STORY_ID, signedDeliveryCheck);
+  store.writeFindings(STORY_ID, { findings: [] });
+  store.writeUnderstanding(STORY_ID, {
+    task: 'Wrapper root smoke',
+    outcome: 'DONE guard uses resolved git cwd',
+    facts: [],
+    constraints: [],
+    unknowns: [],
+    touchpoints: ['packages/main/src/index.ts'],
+    timestamp: '2026-06-19T11:45:00.000Z',
+  });
+
+  const reviewers = computeActiveReviewers(smokeStory, store.readChecklist(STORY_ID), null, ['packages/main/src/index.ts']);
+  const runs: ReviewRun[] = reviewers.map((reviewer, index) => {
+    const agent = `lattice-review-${reviewer.name}`;
+    const run: ReviewRun = {
+      reviewRunId: `${STORY_ID}:RR-${index + 1}`,
+      storyId: STORY_ID,
+      agent,
+      lane: agent,
+      reviewRound: REVIEW_ROUND,
+      startedAt: `2026-06-19T11:${String(index).padStart(2, '0')}:00.000Z`,
+      headHash,
+      materialHash,
+      storyFilesHash,
+      promptHash: `prompt-${reviewer.name}`,
+    };
+    run._hash = signReviewRun(
+      run.storyId, run.reviewRunId, run.agent, run.lane, run.reviewRound,
+      run.startedAt, run.headHash, run.materialHash, run.promptHash,
+      undefined, undefined, run.storyFilesHash,
+    );
+    return run;
+  });
+  store.writeReviewRuns(STORY_ID, { runs });
+  store.writeReviewPasses(STORY_ID, { passes: runs.map((run, index) => {
+    const id = `RP-${index + 1}`;
+    const note = `${run.lane} wrapper-root smoke pass`;
+    const createdAt = `2026-06-19T11:${String(index + 10).padStart(2, '0')}:00.000Z`;
+    return {
+      id,
+      agent: run.agent,
+      note,
+      createdAt,
+      reviewRound: run.reviewRound,
+      reviewRunId: run.reviewRunId,
+      _hash: signReviewPass(STORY_ID, id, run.agent, note, createdAt, run.reviewRound, run.reviewRunId),
+    };
+  }) });
+  const { timestamp: _timestamp, ...hostVerdict } = verdict('round-1', 'codex-a', materialHash);
+  store.appendProcessEvent(STORY_ID, hostVerdict);
+  return store;
 }
 
 let passed = 0;
@@ -794,7 +848,7 @@ try {
       const wrapperMaterialHash = currentMaterialHash(wrapper.gitRoot);
       assert.ok(wrapperHeadHash, 'wrapper gitRoot must have a git HEAD');
       assert.ok(wrapperMaterialHash, 'wrapper gitRoot must have a material hash');
-      const store = fakeDoneStore(wrapper.metadataRoot, wrapperHeadHash, wrapperMaterialHash);
+      const store = fakeDoneStore(wrapper.metadataRoot, wrapper.gitRoot, wrapperHeadHash, wrapperMaterialHash);
       const context: StoryMachineContext = {
         storyId: STORY_ID,
         store: store as any,

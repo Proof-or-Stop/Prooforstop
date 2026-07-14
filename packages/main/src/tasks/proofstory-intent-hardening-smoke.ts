@@ -31,7 +31,7 @@ import {
 } from '../core/machine.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, MilestoneLedgerData, StoryInfo, StoryPhase, StorySummaryData } from '../core/types.js';
-import { computeIntentRequestHash } from '../core/proofstory.js';
+import { computeIntentRequestHash, computeMilestoneLedgerHash } from '../core/proofstory.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
@@ -1430,7 +1430,7 @@ try {
     schemaVersion: 'proofstory.milestone_ledger.v1',
     storyId,
     state: 'confirmed',
-    ledgerHash: `sha256:confirmed-${storyId}`,
+    ledgerHash: computeMilestoneLedgerHash(milestones as unknown as MilestoneLedgerData['milestones']),
     milestones,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),

@@ -4,13 +4,13 @@ import type { StoryStore } from './store.js';
 import { createHash } from 'crypto';
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
-import type { Finding, ScopeFreezeCheckData, ScopeFreezeIssue, StoryInfo, ScopeContractData, WorkflowProfile } from './types.js';
+import type { Finding, ReviewLoopIteration, ScopeFreezeCheckData, ScopeFreezeIssue, StoryInfo, ScopeContractData, WorkflowProfile } from './types.js';
 import { resolveAuditConfig } from './audit-config.js';
 import { evaluateDecompositionGate, computeWriteSet, type ParallelDecompositionBlock } from './parallel-decomposition.js';
 import { safeReadScopeContract } from './lattice-parallel-wave.js';
 import { TERMINAL_PHASES } from './parallel-policy.js';
 import { REQUIRED_INIT_CHECK_AGENTS, blockingInitCheckIssues, missingRequiredInitCheckAgents, recomputeInitCheckHash } from './init-check-gate.js';
-import { listActiveLoops } from './review-loop.js';
+import { deriveLatestLoopRecord, listActiveLoops } from './review-loop.js';
 import { evaluateDeliveryCheckFreshness } from './delivery-check-hash.js';
 import { getBlockingVerificationEvidenceIssues } from './verification.js';
 import { normalizeLegacyPhase } from './phase-flow.js';
@@ -611,7 +611,7 @@ export function canReenterDevGuard(context: StoryMachineContext): boolean {
 
 export interface ReviewVerdict {
   ok: boolean;
-  code?: 'review_loop' | 'review_round_missing' | 'review_evidence_missing' | 'review_evidence_invalid' | 'review_lane_missing' | 'review_quorum' | 'review_finding_blocking' | 'review_verdict_error';
+  code?: 'open_review_loop' | 'review_loop_record_error' | 'review_round_missing' | 'review_evidence_missing' | 'review_evidence_invalid' | 'review_lane_missing' | 'review_quorum' | 'review_finding_blocking' | 'review_verdict_error';
   message?: string;
 }
 
@@ -621,10 +621,23 @@ export function evaluateReviewVerdict(context: StoryMachineContext): ReviewVerdi
     const loopRecords = context.store.readReviewLoopRecords(context.storyId);
     const activeLoops = listActiveLoops(loopRecords);
     if (activeLoops.length > 0) {
-      return { ok: false, code: 'review_loop', message: `active review loop(s): ${activeLoops.join(', ')}` };
+      const details = activeLoops.map((loopId) => {
+        const latest = deriveLatestLoopRecord(loopRecords, loopId);
+        const parts = [`loopId=${loopId}`];
+        if (latest?.event === 'iteration') {
+          const iteration = latest as ReviewLoopIteration;
+          parts.push(`decision=${iteration.decision}`);
+          const nextAction = Object.entries(iteration.nextAction ?? {})
+            .filter(([, value]) => value != null)
+            .map(([key, value]) => `${key}=${String(value)}`);
+          if (nextAction.length > 0) parts.push(`nextAction={${nextAction.join(', ')}}`);
+        }
+        return parts.join(', ');
+      });
+      return { ok: false, code: 'open_review_loop', message: `active review loop(s): ${details.join('; ')}` };
     }
   } catch (error) {
-    return { ok: false, code: 'review_loop', message: `review loop records unreadable: ${error instanceof Error ? error.message : String(error)}` };
+    return { ok: false, code: 'review_loop_record_error', message: `review loop records unreadable: ${error instanceof Error ? error.message : String(error)}` };
   }
   try {
     const config = loadConfig(context.projectRoot);
@@ -672,7 +685,21 @@ export function evaluateReviewVerdict(context: StoryMachineContext): ReviewVerdi
           e => findingAgentMatchesReviewer(e.agent, reviewer.name),
         ));
         if (missing.length > 0) {
-          return { ok: false, code: 'review_lane_missing', message: `missing required reviewer lane(s): ${missing.map(row => row.name).join(', ')}` };
+          const expected = optIn.map(row => row.name);
+          const covered = expected.filter(name => currentRoundReviewerEvidence.some(
+            evidence => findingAgentMatchesReviewer(evidence.agent, name),
+          ));
+          const agentsSeen = [...new Set(currentRoundReviewerEvidence.map(evidence => evidence.agent))];
+          return {
+            ok: false,
+            code: 'review_lane_missing',
+            message: [
+              `Expected ${expected.length} reviewers (opt-in: ${expected.join(',')})`,
+              `Covered ${covered.length}/${expected.length}`,
+              `Missing: ${missing.map(row => row.name).join(',')}`,
+              `Reviewer agents seen: ${agentsSeen.length > 0 ? agentsSeen.join(',') : '(none)'}`,
+            ].join('; '),
+          };
         }
 
         // B-1fca CHK-002: quorum gate for round 1
