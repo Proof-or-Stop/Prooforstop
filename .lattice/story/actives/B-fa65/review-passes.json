@@ -112,6 +112,32 @@
         "scanEscalationReason": null
       },
       "_hash": "e253351c9923548c8c46b03d7d22c093d906e4b307a3d3c6c925e3956481cf60"
+    },
+    {
+      "id": "B-fa65:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Round-2 delta review of commit b9f2786fb5 (F-001..F-004 fix). Step1 symbol extraction on git diff main...HEAD yielded 0 exported (export-keyword) symbols relevant to docs (the 3 refactored functions are module-private, zero README/CLAUDE.md/docs hits, fallback-2 module README scan also found none). Verified comment claims against code: (1) F-001 findMainWorktreeCoreRoot is the single shared git-worktree-list parser for both canonicalizers, fallbacks stay distinct; (2) F-002 comment correctly states the resolveCanonicalCoreRoot fallback is realpath-normalized by design matching globalRealpath (safeRealpath-resolved at runtime-environment-checks.ts:227); fallback expression itself unchanged, only the prior wrong (un-canonicalized) comment was corrected; (3) F-004 comment matches usage-burn-alert.ts/doctor.ts: LATTICE_BURN_ALERT_RECENT_HOURS=0 sets recentHours=0 (allowZero) so burnDisabled=true skips sweepCodexSessions/sweepClaudeProjects entirely, matching command-catalog.ts/process-fact-levels.ts n=0-disables docs; ran npm run test:brief-output, passes. Confirmed no README/CLAUDE.md/docs/**/*.md describes brief-output-smoke as exercising the live burn scan (grep clean). No inconsistencies found; no blockers.",
+      "createdAt": "2026-07-14T01:58:18.509Z",
+      "reviewRound": "2026-07-14T01:54:15.485Z",
+      "reviewRunId": "B-fa65:RR-008",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/brief-output-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e9a4c3f9e8b278ecf2cd015c76c28dd1aeb73bf23632ffce0fc8765ec60a9496"
     }
   ]
 }
