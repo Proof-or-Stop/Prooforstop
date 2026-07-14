@@ -33,6 +33,30 @@
         "scanEscalationReason": null
       },
       "_hash": "c41b0514ffc5c17bcb1e669e7b30a8c702b41b4b2486385fcb4ef778a143d14d"
+    },
+    {
+      "id": "B-3b05:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 7 must intents (CHK-001 happy/edge/adversarial via milestone-status.test.mjs desync/non-desync/byte-identical assertions; CHK-002 happy(2)/edge/adversarial via review-pass-provenance-smoke.ts + real-machine transcript) have concrete, currently-passing evidence. validate --json verificationCoverage: total=7 covered=7 missingRequired=0. Milestone ledger M1/M2 verificationIntentRefs match checklist intents exactly; both red-evidence green probes independently re-confirmed exit 0.",
+      "createdAt": "2026-07-14T00:19:59.146Z",
+      "reviewRound": "2026-07-14T00:13:46.358Z",
+      "reviewRunId": "B-3b05:RR-003",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3b05/evidence/provenance-warn-transcript.md",
+          ".lattice/story/actives/B-3b05/milestone-ledger.json",
+          ".lattice/story/actives/B-3b05/red-evidence.json",
+          "packages/main/src/tasks/review-pass-provenance-smoke.ts",
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/story/actives/B-3b05/checklist.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/finding.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "656c1379d3fd2e93e0ec8fd1349ca15a620ebb588d1e93f46e24e5f7a4a57af4"
     }
   ]
 }
