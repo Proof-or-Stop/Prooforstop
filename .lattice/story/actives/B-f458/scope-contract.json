@@ -263,10 +263,29 @@
       "phase": "DEV",
       "headHash": "a5621e382b6170a41fe6cd3c98e0c2a21d65328c",
       "materialHash": "17a231595c17e76fa123b2c49783b6fd74d301bdf4a12dd8b2834feed8c49d39"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Verified critical finding F-127 requires correcting one still-active future DONE-gate promise from the retired transcript-diff path to the canonical live-smoke transcript artifact; no decision semantics beyond the artifact pathname change.",
+      "timestamp": "2026-07-14T15:35:46.261Z",
+      "paths": [
+        "docs/requirements/decisions/cc-learnings.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/cc-learnings.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "e05cafcb9b6218522b928e1b685dcb482668e398",
+      "materialHash": "79d4302157c99a416b4eb2d29984806de8730213608c6f30243f1de0cddd1085",
+      "anchors": [
+        "ccLearningsFutureDoneArtifact"
+      ]
     }
   ],
   "createdAt": "2026-07-13T08:24:04.138Z",
-  "updatedAt": "2026-07-14T12:52:35.889Z",
+  "updatedAt": "2026-07-14T15:35:46.261Z",
   "fileRules": [],
   "protectedAnchors": []
 }
