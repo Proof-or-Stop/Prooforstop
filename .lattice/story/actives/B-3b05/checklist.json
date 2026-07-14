@@ -74,9 +74,9 @@
       "id": "CHK-002",
       "title": "review_pass_set records writer session identity and validates it against the story owner lease session",
       "context": "review_pass_set (packages/main/src/handlers/finding.ts:343-420) accepts caller-supplied agent labels with zero writer-identity validation (B-8038 root cause per user audit; B-3928 ('M0 Proof-or-Stop prompt baseline inventory and lockfile', DONE) shows owner self-signing two rounds at 19-56s/entry; B-f458 snapshot shows inter-pass gaps of 1-12s amid 131 run_start vs ~31 pass_set churn and 65 lease takeovers). Layer on provenance: persist the writing session id (story-owner-lease session identity source) into each review pass record and its signature domain, and reject or warn-flag passes whose writer session equals the story owner lease session. PLAN decides mechanism + rollout mode (shadow/warn/enforce) within documented limits: lease sessionId is process-local coordination, not forgery-proof (story-owner-lease.ts header), and EXP-001 (B-e71f) proved main-vs-subagent mechanical indistinguishability in Bash. Consider finding_add and review_run_start for the same treatment or record-only audit fields; gate consumption changes must keep the two-layer flow-fact contract (npm run test:process-fact-contract).",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-13T23:53:48.606Z",
-      "endTime": null,
+      "endTime": "2026-07-14T00:11:21.806Z",
       "userSees": "A review pass written from the story owner lease session prints and persists a visible flag, e.g.: ⚠ provenance: writer session sess-xxxx equals story owner lease session (same_session_write: subagent-or-self, not mechanically distinguishable; EXP-001). In opt-in enforce mode the same call is rejected with a provenance error naming both session ids. Every new pass record carries writerSessionId + sessionSource in its signed payload",
       "verificationIntent": {
         "happy": [
