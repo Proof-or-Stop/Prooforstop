@@ -518,6 +518,33 @@
         "scanEscalationReason": null
       },
       "_hash": "a6c51a752c94be71f96358d82e322d767878afada7006d8c7c53a7b1242e2f2f"
+    },
+    {
+      "id": "B-bbaf:RP-019",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: fresh validate on current HEAD (c49bb8b9ea, post F-014 cli-engine.ts fingerprint re-pin AND post F-015 verify-process-fact-contract.mjs literal sync) confirms all 18 must-priority verificationIntents (CHK-001..CHK-006 x happy/edge/adversarial) covered by verificationEvidence citing npm run test:convergence-breaker; validate --json reports status=pass, verificationCoverage total=18 required=18 covered=18 missingRequired=0, 0 stale, 0 failing commands (45/45 pass). Independently re-ran npm run test:convergence-breaker (15 sections) directly: PASS. Read convergence-breaker-smoke.ts in full and confirmed each of the 15 sections concretely matches its cited intentRef (section1/5/6->CHK-001; section1/2/10->CHK-002; section13->CHK-003; section4->CHK-004; section1/9/10->CHK-005; section7/14/15->CHK-006), matching the F-010/F-011 note corrections already applied. bug_list is empty (0 open findings); all F-001..F-015 show status=resolved/verified in findings.json. No blocker.",
+      "createdAt": "2026-07-14T19:28:44.663Z",
+      "reviewRound": "2026-07-14T19:20:10.417Z",
+      "reviewRunId": "B-bbaf:RR-030",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bbaf/checklist.json",
+          ".lattice/story/actives/B-bbaf/findings.json",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8880472fc0eeee77a7644ad2e56b875a90fe88cc20ece1ff209d74552420c5fe"
     }
   ]
 }
