@@ -1,93 +1,92 @@
 {
   "storyId": "B-bbaf",
-  "checkedAt": "2026-07-14T17:05:39.207Z",
-  "headHash": "42fbebf0b89f0a56f59db2a29e51ead5c9b807c9",
-  "materialHash": "b6a00baa28327d3e7885bc28dd42bc53ef8112a020c21ce8b212af4b51de3973",
-  "storyFilesHash": "10133e3b79ea4863e1afc9caeaff99f5fff2c6d59b8f9ba7ced5e5594fc80b17",
-  "reviewRound": "2026-07-14T15:59:16.186Z",
-  "agentId": "lattice-review-delivery",
+  "checkedAt": "2026-07-14T18:13:47.095Z",
+  "headHash": "8619a153456e552a2514b144c1469678bed79dca",
+  "materialHash": "86f1b5c00f74206f1e3dca2896a76cec37520a61620e5217db162c1e2bf30bad",
+  "storyFilesHash": "a750591c354fe0c40517519cfff4a9437e77c9afcea1f3eea5763f426e58ffec",
+  "reviewRound": "2026-07-14T17:29:22.567Z",
+  "agentId": "",
   "docsPromises": [
     {
       "docPath": ".lattice/story/actives/B-bbaf/plan.md#CHK-003",
-      "promise": "enforceConvergenceBreakerGate hard-blocks story_advance and takeover-carrying commands at a single cli-engine.ts choke point, running AFTER enforceStoryOwnerLeaseGate so only a validated, owner-held storyId reaches the breaker",
-      "status": "verified",
+      "promise": "enforceConvergenceBreakerGate hard-blocks story_advance and takeover-carrying commands at a single cli-engine.ts choke point, running AFTER enforceStoryOwnerLeaseGate",
       "verifiedBy": "diff/grep + build + real-machine test run",
-      "evidence": "packages/main/src/cli-engine.ts lines 1213-1234 call enforceStoryOwnerLeaseGate(cmd, parsed, store, activeStory, root) immediately followed by enforceConvergenceBreakerGate(command, storyId derived via storyIdFromArgs, isTakeoverCommand from parsed.takeover or parsed.forceTakeover, store, env). convergence-breaker.ts enforceConvergenceBreakerGate throws renderBreakerFreeze() when prior.frozen (blocking both story_advance and any takeover-carrying command) or when a fresh assessBreaker() call on story_advance returns action=freeze. This is the only call site of enforceConvergenceBreakerGate in cli-engine.ts (grep confirmed) and sits at the single documented CLI choke point; the source comment states it runs at the same single CLI choke point as enforceStoryOwnerLeaseGate."
+      "evidence": "packages/main/src/cli-engine.ts:1215 calls enforceStoryOwnerLeaseGate(...) then line 1228 calls enforceConvergenceBreakerGate({...}); this is the only call site of enforceConvergenceBreakerGate in cli-engine.ts (grep confirmed). Re-verified against current HEAD 8619a153 (post process-fact-levels.ts registry line)."
     },
     {
       "docPath": ".lattice/story/actives/B-bbaf/plan.md#CHK-003",
       "promise": "story_resume is a human-only ack that clears a frozen breaker and is refused under autopilot or non-interactive sessions",
-      "status": "verified",
       "verifiedBy": "diff/grep + real-machine unit coverage",
-      "evidence": "packages/main/src/handlers/story.ts createStoryResumeHandlers.story_resume calls isInteractiveAckAllowed(process.env, process.stdin.isTTY) and throws before any state mutation when false; requires args.ack===true and a trimmed reason of at least 10 characters. Registered end-to-end via createStoryHandlers to command-catalog.ts story_resume schema (storyId/ack/reason) to command-policy.ts story_resume policy (ownershipClass storyScopedMutating, allowedPhases all) to config.ts DEFAULT_PHASE_TOOLS TEST-phase entry, with a comment stating allowedPhases all because a freeze can occur in any phase. convergence-breaker-smoke.ts section 9 asserts the isInteractiveAckAllowed truth table: TTY with no autopilot allowed, no TTY refused, LATTICE_AUTOPILOT=1 refused even at a TTY, CI=true refused, falsey autopilot allowed."
+      "evidence": "packages/main/src/handlers/story.ts createStoryResumeHandlers.story_resume calls isInteractiveAckAllowed(process.env, process.stdin.isTTY) and throws before mutation; requires ack===true and reason>=10 chars. Registered end-to-end: command-catalog.ts:277 schema (storyId/ack/reason), command-policy.ts:155 policy (storyScopedMutating, allowedPhases:all), config.ts:310 DEFAULT_PHASE_TOOLS, and (the one delta since the prior stale delivery-check) process-fact-levels.ts:50 registers story_resume as L2/story/handlers-story. All four registration points confirmed present via grep on current HEAD."
     },
     {
       "docPath": ".lattice/story/actives/B-bbaf/plan.md#CHK-001..006",
-      "promise": "CHK-001 through CHK-006 each map to delivered code plus a real machine test; npm run test:convergence-breaker (packages/main/src/tasks/convergence-breaker-smoke.ts, 15 sections) is the real-machine test and is wired into the aggregate npm test script",
-      "status": "verified",
+      "promise": "CHK-001 through CHK-006 each map to delivered code plus a real machine test; npm run test:convergence-breaker (15 sections) is the real-machine test and is wired into the aggregate npm test script",
       "verifiedBy": "command execution performed in this review",
-      "evidence": "Ran npm run build in packages/main: compiles clean. Ran npm run test:convergence-breaker directly in this review against current HEAD (42fbebf0): prints the PASS convergence-breaker marker line covering storm trips 4 signals, auto-recover to freeze to ack, healthy control clean, gate-repeat digest/reset, thresholds, autopilot refusal, gitignored state, F-003 takeover re-baseline, collectBreakerCounters derivation, enforce-gate frozen-block plus takeover-block, no-spurious-reset, canonical-id guard rejection, and exits 0. package.json test aggregate script chain ends with test:convergence-breaker; package.json scripts.test:convergence-breaker runs node packages/main/dist/tasks/convergence-breaker-smoke.js. checklist.json shows all 6 CHK items status done with per-item happy/edge/adversarial verificationEvidence citing specific smoke sections 1 through 15 at materialHash b6a00baa28327d3e7885bc28dd42bc53ef8112a020c21ce8b212af4b51de3973 matching current material."
+      "evidence": "Ran npm --prefix packages/main run build (clean) and node packages/main/dist/tasks/convergence-breaker-smoke.js directly against current HEAD 8619a153: prints the PASS marker line and exits 0. Also ran the full aggregate `npm test` end-to-end in this review (all scripts including test:convergence-breaker) to completion with exit code 0, confirming the aggregate wiring claim on current material, not just the isolated script."
     },
     {
       "docPath": "packages/main/src/core/convergence-breaker.ts#CONVERGENCE_ENV",
-      "promise": "Five env-tunable thresholds (LATTICE_CONVERGENCE_MAX_ADVANCE default 20, LATTICE_CONVERGENCE_MAX_TAKEOVER default 5, LATTICE_CONVERGENCE_MIN_PASS_RATE default 0.35, LATTICE_CONVERGENCE_MIN_SAMPLE default 10, LATTICE_CONVERGENCE_MAX_GATE_REPEAT default 2) are real, typo-safe, and ceiling-clamped",
-      "status": "verified",
+      "promise": "Five env-tunable thresholds (MAX_ADVANCE=20, MAX_TAKEOVER=5, MIN_PASS_RATE=0.35, MIN_SAMPLE=10, MAX_GATE_REPEAT=2) are real, typo-safe, and ceiling-clamped",
       "verifiedBy": "diff/grep + real-machine test run",
-      "evidence": "convergence-breaker.ts CONVERGENCE_ENV maps all 5 keys to the literal env var names; resolveConvergenceThresholds and envNumber reject non-numeric, negative, zero-without-allowZero, and over-ceiling values (CONVERGENCE_ENV_MAX), falling back to DEFAULT_CONVERGENCE_THRESHOLDS. Smoke section 4 (ran directly in this review) asserts default maxAdvance=20, an env override to 5, and abc/-1/1e9/empty/whitespace all falling back to 20 with the exact 5-vs-6-advance boundary."
+      "evidence": "convergence-breaker.ts CONVERGENCE_ENV maps all 5 keys to literal env var names; resolveConvergenceThresholds/envNumber reject non-numeric/negative/zero/over-ceiling values, falling back to defaults. Smoke section 4 (re-ran in this review) asserts defaults and override/fallback boundaries."
     },
     {
       "docPath": "packages/main/src/core/convergence-breaker.ts#renderBreakerFreeze",
-      "promise": "The user-facing freeze rejection message names each tripped counter and the story_resume command with its ack and reason flags",
-      "status": "verified",
+      "promise": "The freeze rejection message names each tripped counter and the story_resume command with its ack and reason flags",
       "verifiedBy": "diff/grep",
-      "evidence": "renderBreakerFreeze(storyId, reasons) in convergence-breaker.ts renders Convergence breaker FROZEN for the story id, then Tripped counters followed by the reasons list, then the literal lattice story_resume command with --ack and --reason flags, and notes the ack is refused under autopilot or non-interactive sessions. Smoke section 13 exercises the throw path matching /FROZEN/ and section 15 covers the canonical-id guard around the same gate."
+      "evidence": "renderBreakerFreeze(storyId, reasons) renders FROZEN + tripped counters + the literal lattice story_resume command with --ack/--reason flags + the autopilot/non-interactive refusal note. Smoke sections 13/15 exercise the throw path."
     },
     {
       "docPath": "packages/main/src/core/runtime-artifact-registry.ts + .gitignore",
-      "promise": "The three new per-story runtime artifacts (breaker-state.json, takeover-count.json, gate-failure-counts.json) are gitignored and materialHash-excluded so they never dirty a DONE merge or perturb gate evidence",
-      "status": "verified",
+      "promise": "breaker-state.json, takeover-count.json, gate-failure-counts.json are gitignored and materialHash-excluded",
       "verifiedBy": "diff/grep + git check-ignore performed in this review",
-      "evidence": ".gitignore adds patterns for breaker-state.json, takeover-count.json, and gate-failure-counts.json (lines 55-57); runtime-artifact-registry.ts registers matching regexp matchers with materialHash exclude, volatile true, repairableTrackedArtifact true. Ran git check-ignore -v against all three live paths under .lattice/story/actives/B-bbaf/ in this review; all three confirmed ignored by the new .gitignore lines. Smoke section 10 asserts findRuntimeArtifactEntry, isMaterialExcludedRuntimeArtifactPath, and listRuntimeArtifactIgnorePatterns for all three files."
+      "evidence": ".gitignore lines 55-57 add the three patterns; runtime-artifact-registry.ts registers matching regexp matchers with materialHash:exclude, volatile:true. Ran git check-ignore -v against all three live paths under .lattice/story/actives/B-bbaf/ in this review; all three confirmed ignored."
+    },
+    {
+      "docPath": "packages/main/src/core/process-fact-levels.ts",
+      "promise": "story_resume is registered in the process-fact-levels registry (the sole delta since the last delivery review), completing its 4-point wiring (command-catalog + command-policy + config + process-fact-levels)",
+      "verifiedBy": "diff/grep performed in this review",
+      "evidence": "git diff main...HEAD -- packages/main/src/core/process-fact-levels.ts shows one added line: { name: story_resume, level: L2, category: story, owner: handlers/story, rationale: ...B-bbaf human-only ack... }. node scripts/verify-process-fact-contract.mjs (aggregate test:process-fact-contract) re-ran clean in this review with the registry entry present, printing Process fact contract verified. This was the only file changed since the prior stale delivery-check (materialHash b6a00baa2832 -> current 86f1b5c00f74 confirmed by comparing git diff main...HEAD file lists before/after this one commit)."
     },
     {
       "docPath": "packages/main/src/core/convergence-breaker.ts + cli-engine.ts + story-owner-lease.ts",
-      "promise": "Post-review hardening (genuine cross-host Codex review) landed: the owner-lease gate runs before the breaker gate; the gate-failure counter resets ONLY on a successful story_advance and not on any mutation; isCanonicalStoryId guards the breaker gate and both cli-engine counter call sites; smoke section 15 covers the canonical-id guard rejection",
-      "status": "verified",
-      "verifiedBy": "diff/grep + real-machine test run",
-      "evidence": "cli-engine.ts calls enforceStoryOwnerLeaseGate then enforceConvergenceBreakerGate in that order, with an inline comment documenting the codex host-B round-1 and round-2 rationale for the ordering. The success-path counter reset and the failure-path counter bump in cli-engine.ts are both scoped to a story_advance-only check with an isCanonicalStoryId(sid) guard before deriving store.storyDirPath(sid). convergence-breaker.ts enforceConvergenceBreakerGate itself also calls isCanonicalStoryId(storyId) as defense-in-depth before deriving storyDir. Smoke section 15 (F-009) drives five non-canonical ids through enforceConvergenceBreakerGate and asserts storyDirPath is never called, plus a canonical control id that does reach storyDirPath. All 13 findings (F-001 through F-013) recorded in findings.json show status resolved and evidenceState verified, and a full-3x2 cross-host quorum is recorded in review-passes.json and review-runs.json."
+      "promise": "Post-review hardening landed: owner-lease gate before breaker gate; gate-failure counter resets ONLY on successful story_advance; isCanonicalStoryId guards the breaker gate and both cli-engine counter call sites; all 13 findings (F-001..F-013) resolved",
+      "verifiedBy": "diff/grep + findings.json read + real-machine test run",
+      "evidence": "cli-engine.ts calls enforceStoryOwnerLeaseGate then enforceConvergenceBreakerGate in that order. story-owner-lease.ts bumpTakeoverCount is called at the one takeover write site. findings.json re-read in this review: all 13 findings (F-001 through F-013) show status=resolved, evidenceState=verified. Smoke section 15 covers the canonical-id guard rejection."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "npm run test:convergence-breaker ran in this review and passed: section 1 (healthy 8-advance control proceeds; B-f458 storm 89/131:31/65 trips all 4 signals), section 5 (pass-rate min-sample gate: 0 of 1 never trips), section 6 (malformed/NaN/Infinity input fails open, no throw)."
+      "transcript": "npm run test:convergence-breaker re-ran against current HEAD 8619a153 in this review, PASS: sections 1/5/6 (healthy control, min-sample gate, malformed-input fail-open)."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "npm run test:convergence-breaker ran in this review and passed: section 2 (first trip auto-recovers with autoRecoveriesSpent=1, re-trip freezes, an already-frozen state stays frozen), section 3 (a story that trips once then stops growing does not re-freeze), section 8 (breaker-state.json write/read round-trip, frozen state persists)."
+      "transcript": "re-ran in this review, PASS: sections 2/3/8 (auto-recover->freeze, no re-freeze on flat story, breaker-state round-trip)."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "npm run test:convergence-breaker ran in this review and passed: section 13 (enforceConvergenceBreakerGate integration: healthy advance writes no state, a frozen story_advance AND a frozen takeover-carrying command both throw matching FROZEN, and an ack via resumeBreakerState clears it so the gate proceeds again), section 9 (isInteractiveAckAllowed truth table)."
+      "transcript": "re-ran in this review, PASS: sections 13/9 (enforceConvergenceBreakerGate blocks frozen story_advance AND takeover commands, ack clears it; isInteractiveAckAllowed truth table)."
     },
     {
       "featureId": "CHK-004",
-      "transcript": "npm run test:convergence-breaker ran in this review and passed: section 4 (default maxAdvance=20; LATTICE_CONVERGENCE_MAX_ADVANCE=5 override trips at 6 advances but not 5; abc/-1/1e9/empty/whitespace values all fall back to the default with no NaN or Infinity)."
+      "transcript": "re-ran in this review, PASS: section 4 (threshold defaults, override, fallback boundary)."
     },
     {
       "featureId": "CHK-005",
-      "transcript": "npm run test:convergence-breaker is itself the CHK-005 deliverable; ran directly in this review against current HEAD (42fbebf0), all 15 sections pass, it prints the stable PASS marker line and exits 0. package.json wires test:convergence-breaker into the aggregate npm test chain."
+      "transcript": "npm run test:convergence-breaker IS the CHK-005 deliverable; re-ran in this review, all 15 sections PASS, exit 0. Also ran the full aggregate npm test end-to-end (exit 0) confirming the chain wiring."
     },
     {
       "featureId": "CHK-006",
-      "transcript": "npm run test:convergence-breaker ran in this review and passed: section 7 (two identical command-and-reason-digest failures bump the counter to 2 and trip gate-repeat 2>=2; two different reasons stay at 1 each; a missing counter file fails open to 0), section 14 (resetGateFailureCounts never creates a spurious empty file when none exists, and clears an existing non-empty map)."
+      "transcript": "re-ran in this review, PASS: sections 7/14 (gate-repeat digest/trip/reset, no spurious reset file)."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Independently re-verified against current material (post-hardening commit 42fbebf0, materialHash b6a00baa2832...): all 6 checklist items map to delivered, wired code; the single cli-engine.ts choke point runs the breaker gate strictly after the owner-lease gate; gate-failure reset is scoped to a successful story_advance only; isCanonicalStoryId guards all 3 relevant call sites; and smoke section 15 covers the guard rejection exactly as claimed. Re-ran npm run build and npm run test:convergence-breaker directly in this review (15 sections, PASS) rather than trusting the prior stale delivery-check. No TODO/FIXME/HACK found in the story diff. All 13 findings (F-001 through F-013) are resolved and verified in findings.json. No promised-but-undelivered items found; the human-approval / non-mechanical user-value signal is not itself assessed here and is out of this delivery check's scope."
+    "summary": "Fresh-context re-verification against current material (HEAD 8619a153, post the single process-fact-levels.ts registry-line commit 477e6db2d2) confirms every promise from the prior delivery-check still holds and the one new delta (story_resume registered in PROCESS_FACT_LEVELS) is genuinely present and completes the 4-point command wiring. Re-ran build, the isolated convergence-breaker smoke (15 sections), the process-fact-contract verifier, and the FULL aggregate npm test end-to-end (all green, exit 0) rather than trusting cached evidence. All 13 findings (F-001-F-013) independently re-confirmed resolved+verified in findings.json. No TODO/FIXME/HACK found in the story diff. No promised-but-undelivered items found."
   },
-  "_hash": "65047065fa642dd3cd7a83f9fcde2915c1b21c294bd4bc72bb0fa8ba494ffdb5"
+  "_hash": "3e4306ec31c21f9c4499f93af1a06fc34772433a3bb9bc4b992024930e76fa70"
 }
