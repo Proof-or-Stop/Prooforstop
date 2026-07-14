@@ -24,7 +24,7 @@
       "desc": "quality: packages/main/src/cli-engine.ts:1222,1241,1305 the new convergence-breaker call sites extract the target storyId via the raw cast (parsed.storyId as string) || activeStory?.storyId instead of reusing storyIdFromArgs, which is already imported into this exact file (see line 52/882/1074/1114) and is used by enforceStoryOwnerLeaseGate (packages/main/src/cli/ownership-gate.ts:242) at the same choke point one line above. storyIdFromArgs is type-safe (typeof-narrows args.storyId, no unchecked cast) and also resolves the --story alias and the autopilot-run-id fallback; the new inline cast does neither. Net effect: a command that supplies the story via --story (accepted by the owner-lease gate) silently resolves to no storyId for the breaker gate/gate-failure counters, so enforceConvergenceBreakerGate no-ops (storyId is falsy, early return at convergence-breaker.ts:520) and the reset/bump blocks skip their sid branch too -- an inconsistency between the two gates that share the same choke point, and an unsafe cast where a safe, already-imported helper does the same job correctly.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-14T13:03:03.327Z",
@@ -32,7 +32,11 @@
       "reviewRunId": "B-bbaf:RR-001",
       "_hash": "51bba8f7ca8c16471fc1c4074fa7da7ebb0938767685480f373159f06dc51b5f",
       "signatureTag": "missing|unknown|quality-packages-main",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "All breaker call sites (gate + reset + bump) now resolve storyId via storyIdFromArgs, the same resolver the owner-lease gate uses; a --story alias / autopilot-run-id can no longer bypass the breaker. Fixed in 53c25c4.",
+      "resolvedAt": "2026-07-14T13:20:45.287Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-bbaf:F-003",
