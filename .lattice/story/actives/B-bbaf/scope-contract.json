@@ -10,6 +10,7 @@
     "packages/main/src/cli/command-catalog.ts",
     "packages/main/src/core/config.ts",
     "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
     ".gitignore",
     "package.json"
   ],
@@ -23,8 +24,8 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "story_resume (a new command) must be registered in PROCESS_FACT_LEVELS/PROCESS_FACT_REGISTRY (core/process-fact-levels.ts) or the full-suite process-fact-contract test fails at the DONE-required gate with MAIN_TOOLS-missing-from-registry + DEFAULT_PHASE_TOOLS phase-allowlist drift. Required wiring for the new command.",
+  "scopeChangeReason": "After merging main (B-f458, 606 commits), the retired-authority-vocabulary-guard-smoke whole-file fingerprint pin for cli-engine.ts no longer matches this story's reviewed cli-engine.ts edits, failing validate. Re-pin the fingerprint to the current approved source (same maintenance pattern as the existing B-f458 pin in that file).",
   "acknowledgements": [],
   "createdAt": "2026-07-14T05:23:23.977Z",
-  "updatedAt": "2026-07-14T17:27:53.544Z"
+  "updatedAt": "2026-07-14T18:49:31.363Z"
 }
