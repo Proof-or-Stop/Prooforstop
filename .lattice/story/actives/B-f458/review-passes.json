@@ -1,0 +1,1039 @@
+{
+  "passes": [
+    {
+      "id": "B-f458:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-3 coverage PASS: npm run test:closeout-trust passes after build. The smoke executes every closeout writer/path through real handlers and asserts manual artifact+receipt co-commit rejection with a wrong Ed25519 key, mismatched private-key rejection, old-round key rejection, signer rotation with signer-scoped sequence reset, missing-key fail-closed guidance, replay/copy/reorder rejection, and wrapper-root autoCommit plus receipt validation. All 15 happy/edge/adversarial intents have passing evidence bound to 065b7dde13 and storyFilesHash 70f0205.",
+      "createdAt": "2026-07-13T09:58:41.024Z",
+      "reviewRound": "2026-07-13T09:54:55.250Z",
+      "reviewRunId": "B-f458:RR-009",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "87c2657491764a98ee8e2f14d86b28ba2f9f2572842b72e4164bbc5ce880f31e"
+    },
+    {
+      "id": "B-f458:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final coverage PASS: build plus test:closeout-trust, test:process-fact-contract, and test:runtime-fact-contract all exit 0. Exact revised userSees lines are emitted. The real wrapper-root regression proves coherent same-UID forged receipts remain audit telemetry but cannot authorize review retention; a fresh post-closeout snapshot succeeds; committed unknown wrapper metadata fails; replay/copy/reorder and material/scope/round negatives remain covered. No receiptSigner/writerSignature/private-key claims remain. All 15 revised intent evidence records pass and bind storyFilesHash 4de5ef4.",
+      "createdAt": "2026-07-13T10:19:05.432Z",
+      "reviewRound": "2026-07-13T10:16:45.271Z",
+      "reviewRunId": "B-f458:RR-012",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9e46f1e82141c88d7ac3820a099c79ad22e5c021d8de7f7183ed1fbf04c0faf7"
+    },
+    {
+      "id": "B-f458:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final XState coverage PASS: build and closeout/process/runtime contracts exit 0. closeout-trust-smoke starts a real TEST actor, proves stale post-closeout reviewer evidence blocks FINISH in TEST with [stale_closeout_review], then records a fresh run/pass and proves FINISH reaches DONE. Receipt registry is L1 unsigned audit-only with no consumerGate or gate-evidence semantics. All 15 intent evidence records pass and bind current storyFilesHash c5dc793.",
+      "createdAt": "2026-07-13T10:29:03.685Z",
+      "reviewRound": "2026-07-13T10:27:30.896Z",
+      "reviewRunId": "B-f458:RR-015",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "60b5a6db74014f91e6dfc9bbf8e3c8882064d130d7f07d9d55982c3c2d06cdc9"
+    },
+    {
+      "id": "B-f458:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Persisted lifecycle coverage PASS: build plus closeout/process/runtime contracts exit 0. The smoke commits a real REVIEW snapshot and canonical REVIEW-to-TEST index delta, accepts that exact persisted lifecycle shape, then commits an extra title mutation and rejects it. Separately, a true XState TEST actor blocks FINISH after closeout under stale review and reaches DONE only after a fresh run/pass. Receipt remains L1 audit-only. All 15 evidence records pass and bind storyFilesHash ca890b7.",
+      "createdAt": "2026-07-13T10:38:25.505Z",
+      "reviewRound": "2026-07-13T10:36:52.850Z",
+      "reviewRunId": "B-f458:RR-018",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e01c855b45833477303a759dc4f8bb00ebd589223b639fd6057bce2dc8493314"
+    },
+    {
+      "id": "B-f458:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage re-review PASS at story material 65b1228: focused build plus closeout trust, process-fact contract, and runtime-fact contract all exited 0. Persisted REVIEW-to-TEST succeeds without user; mutations across user/sessionId/agent/timestamp/branch remain audit-only; malformed provenance types and stable-field tamper fail closed; real committed lifecycle and XState post-closeout paths verify stale review blocks and a fresh signed run/pass permits completion; DONE independently re-runs REVIEW-to-TEST preflight. All 15 verification intents retain passing evidence bound to current storyFilesHash.",
+      "createdAt": "2026-07-13T10:48:43.652Z",
+      "reviewRound": "2026-07-13T10:47:07.635Z",
+      "reviewRunId": "B-f458:RR-021",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f277c2cd5f9444021695079c54fb62e0d9b8c501ef2f7498d5a811a316fd2b07"
+    },
+    {
+      "id": "B-f458:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "No blocking quality issue: env-only git identity and all audit-string mutations are authorization-neutral, malformed audit types and stable-field tampering fail closed, and DONE reuses the read-only REVIEW preflight after machine/scope/guard checks without recursion or phase mutation. Focused closeout-trust smoke, flow-stability smoke, and process-fact contract all passed.",
+      "createdAt": "2026-07-13T10:50:03.080Z",
+      "reviewRound": "2026-07-13T10:47:07.635Z",
+      "reviewRunId": "B-f458:RR-022",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/review-preflight.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5015b83fd75bf6f3ff01c1e4116a3805fc44fceadaa39f8bd4e82b786b79900b"
+    },
+    {
+      "id": "B-f458:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "PASS: evaluateReviewVerdict is the shared phase-agnostic authority for REVIEW→TEST and TEST→DONE boolean/reason paths. Manual TEST phase bypasses with no reviewer evidence, missing required lanes/quorum, or an open verified high finding are blocked; fresh current signed reviewer passes allow DONE. Closeout freshness and same-UID audit-only semantics remain fail-closed. Build, closeout-trust smoke, review-escalation freshness-root smoke, and process-fact contract all pass.",
+      "createdAt": "2026-07-13T11:02:57.247Z",
+      "reviewRound": "2026-07-13T11:01:19.517Z",
+      "reviewRunId": "B-f458:RR-023",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6d3053a908d2113f6ad2892b53bf45d760dcceec00a4226e2055249d0ecda6c2"
+    },
+    {
+      "id": "B-f458:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "PASS: reviewer-required lifecycle verdict fails closed on missing currentReviewRound before legacy evidence compatibility in both REVIEW→TEST and TEST→DONE. Unsigned legacy-shaped, tampered, missing-reviewRunId, and unknown-run passes cannot satisfy DONE; valid signed current-round passes still work. Reviewer-optional policy compatibility remains intact. Build, closeout-trust, review-escalation freshness-root, review-incremental-context, and process-fact contract tests pass.",
+      "createdAt": "2026-07-13T11:13:09.776Z",
+      "reviewRound": "2026-07-13T11:11:32.543Z",
+      "reviewRunId": "B-f458:RR-026",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "24679570a664ea33805ec20553de61288fbaf9b5903bedf9e3d3e8070d313cc0"
+    },
+    {
+      "id": "B-f458:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "No blocking quality issue: reviewer-required lifecycle verdict now rejects missing currentReviewRound before any legacy evidence validation; tampered signature, missing reviewRunId, and unknown run bindings remain invalid with matching FINISH/reason behavior. Wrapper-root uses a real round and passes, while incremental-context legitimate returning/first-time/rename cases remain intact and missing-round synthetic gate cases fail closed. Focused closeout, wrapper freshness, incremental context, and process-fact checks passed.",
+      "createdAt": "2026-07-13T11:13:12.982Z",
+      "reviewRound": "2026-07-13T11:11:32.543Z",
+      "reviewRunId": "B-f458:RR-028",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bbe24fa8882e44896be526772c0983c6cef34b23e82f8e379a216f7a0edbf0aa"
+    },
+    {
+      "id": "B-f458:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage re-review PASS at story material 9f7af86. Real XState FINISH attacks now fail closed for missing currentReviewRound with unsigned legacy-shaped pass, tampered current-round pass, missing reviewRunId, and unknown review run; the complete current signed run/pass set still reaches DONE. Wrapper-root DONE fixture now binds round-1, incremental-context missing-round behavior is fail-closed, and build plus closeout, wrapper-root escalation, incremental, process-fact, and runtime-fact suites all exit 0. All 15 verification intents pass and bind the current storyFilesHash.",
+      "createdAt": "2026-07-13T11:13:20.543Z",
+      "reviewRound": "2026-07-13T11:11:32.543Z",
+      "reviewRunId": "B-f458:RR-027",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/closeout-trust-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "45635adacc408510fbfdbe24206d7d0d682a6ef27a88d3cb4bdbcef59ee34c62"
+    },
+    {
+      "id": "B-f458:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage re-review PASS at story material 8c92521. The configured retired-authority-vocabulary guard command now exits 0 after build. Producer and validator share one canonical exact local-only claims contract; the precise all-false object validates, any true claim is rejected, and extra claims are rejected. Closeout lifecycle, wrapper-root escalation, incremental-context, process-fact, and runtime-fact suites all pass. All 15 verification intents retain passing evidence bound to the current storyFilesHash.",
+      "createdAt": "2026-07-13T11:25:25.427Z",
+      "reviewRound": "2026-07-13T11:23:40.844Z",
+      "reviewRunId": "B-f458:RR-030",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/baseline-contracts.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/handlers/delivery-context-pack.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "92bc3f77b9089d4ecc533f6edb7eff6dfdd32f36286df397ec474663aaca089e"
+    },
+    {
+      "id": "B-f458:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "PASS: local-only delivery claims are centralized in baseline-contracts with one exact key set, canonical all-false object, and exact validator. The producer and closeout trust validator reuse that contract; extra keys and true values are rejected. No retired-vocabulary guard/allowlist changes or key obfuscation were introduced, and closeout trust semantics remain fail-closed. Build, retired authority vocabulary guard, closeout-trust smoke, and process-fact contract pass.",
+      "createdAt": "2026-07-13T11:25:26.186Z",
+      "reviewRound": "2026-07-13T11:23:40.844Z",
+      "reviewRunId": "B-f458:RR-029",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/baseline-contracts.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/handlers/delivery-context-pack.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7828e985ee457b83d89482c262e5daff5b10753dceb057d5b59191d856090315"
+    },
+    {
+      "id": "B-f458:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage re-review PASS for F-022 at story material 30e73f2. The retired-vocabulary guard directly catches retired field tokens and its unapproved indirect-import positive control catches an arbitrary compatibility-module consumer; approved callers are constrained by exact imports, call counts, and direct-use shapes. Exact all-false claims validate while true and extra-field mutations reject. Build, configured vocabulary guard, closeout lifecycle, wrapper-root escalation, incremental-context, process-fact, and runtime-fact suites all exit 0. All 15 verification intents pass and bind the current storyFilesHash.",
+      "createdAt": "2026-07-13T11:35:24.793Z",
+      "reviewRound": "2026-07-13T11:33:21.403Z",
+      "reviewRunId": "B-f458:RR-033",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/legacy-delivery-claims-compat.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/baseline-contracts.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/handlers/delivery-context-pack.ts",
+          "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "44492a860af3ce38e36ed82b826e88339e53d88632b08f58765fdb644e013a07"
+    },
+    {
+      "id": "B-f458:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "PASS: the retired-vocabulary guard now blocks true two-hop compatibility leaks through approved importers using exact symbol occurrence/call/direct-use constraints plus a transitive exporter graph. Positive controls cover named alias, namespace, dynamic import, require, direct and default re-export, local alias, property assignment, object escape, spread, and a real approved-exporter to unapproved-consumer chain. Production build, retired authority vocabulary guard, closeout-trust smoke, and process-fact contract all pass without false positives.",
+      "createdAt": "2026-07-13T11:45:57.619Z",
+      "reviewRound": "2026-07-13T11:43:56.938Z",
+      "reviewRunId": "B-f458:RR-035",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/legacy-delivery-claims-compat.ts",
+          "packages/main/src/handlers/delivery-context-pack.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "02d684f4a2698b6475f8ad79f31d1526d933e34c6fefd69de0e881b888667312"
+    },
+    {
+      "id": "B-f458:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage re-review PASS at story material ece10af. The guard attack matrix covers namespace, aliased named, dynamic, require, direct re-export, approved-caller alias/property/default/export escapes, and occurrence/call-count drift. A true two-hop positive control patches an approved producer to re-export the compatibility constructor and verifies a second consumer is rejected by the graph scanner. Build, configured retired-vocabulary guard, closeout lifecycle, process-fact, and runtime-fact suites all exit 0. All 15 verification intents pass and bind the current storyFilesHash.",
+      "createdAt": "2026-07-13T11:46:09.167Z",
+      "reviewRound": "2026-07-13T11:43:56.938Z",
+      "reviewRunId": "B-f458:RR-036",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/legacy-delivery-claims-compat.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "932696c18dff313068e5c87f062db5b7becd87a430f789eea5065a74203da98e"
+    },
+    {
+      "id": "B-f458:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "Current-round coverage PASS for F-025 at story material 5f21567. The retired-vocabulary guard uses executable TypeScript AST/module-graph controls: Unicode-escaped compatibility identifiers in an exported wrapper are decoded and taint a real downstream consumer; no-substitution template-literal dynamic import is detected; namespace, alias, require, quoted import, direct re-export, and approved-callsite escape controls remain covered. The unchanged repository is the negative control and the configured guard exits 0. Build, closeout lifecycle, process-fact, and runtime-fact suites pass; the process contract pins AST creation, template parsing, Unicode wrapper and downstream-consumer facts. All 15 verification intents pass and bind current storyFilesHash.",
+      "createdAt": "2026-07-13T11:56:59.924Z",
+      "reviewRound": "2026-07-13T11:55:12.031Z",
+      "reviewRunId": "B-f458:RR-038",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/legacy-delivery-claims-compat.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8a1662d7e7d5daf538d2d77abd60186d553c2b8d563deb75d83d93fa1f4ff6a7"
+    },
+    {
+      "id": "B-f458:RP-017",
+      "agent": "lattice-review-test-coverage",
+      "note": "Current-round coverage PASS for F-026/F-027 at story material a22f46a. Approved compatibility authority now comes only from exact AST bindings and parent/argument call-site shapes; metric-preserving comment/string padding cannot authorize exported wrappers, and real downstream consumers are tainted. Executable module-load controls cover concatenated and statically interpolated import/require, unresolved compatibility interpolation, two-argument import options, plus the prior namespace/alias/re-export cases; unrelated import(pluginPath) remains a clean negative control. Build, configured retired-vocabulary guard, closeout lifecycle, process-fact, and runtime-fact suites pass. All 15 verification intents pass and bind current storyFilesHash.",
+      "createdAt": "2026-07-13T12:08:14.879Z",
+      "reviewRound": "2026-07-13T12:06:13.134Z",
+      "reviewRunId": "B-f458:RR-043",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/legacy-delivery-claims-compat.ts",
+          "packages/main/src/handlers/delivery-context-pack.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "79a49c937cdfe508c67a9599a1a7c77aa0cfb038d089deaf4e2742716e7654b7"
+    },
+    {
+      "id": "B-f458:RP-018",
+      "agent": "lattice-review-test-coverage",
+      "note": "Current-round coverage PASS for F-028/F-029/F-030 at story material f4b384b. Executable controls verify TypeChecker symbol identity for const path chains and require/module.require/createRequire aliases, canonical full call-site ancestry, relocation of approved-shaped constructor calls into exported objects, and taint propagation to downstream property and destructuring consumers. Same-name shadowed constructor parameters and unrelated unresolved plugin/compatPluginPath loads remain clean negatives. Build, configured retired-vocabulary guard, closeout lifecycle, process-fact, and runtime-fact suites pass; process contract pins the new symbol, loader, ancestry, downstream, and negative-control facts. All 15 verification intents pass and bind current storyFilesHash.",
+      "createdAt": "2026-07-13T12:20:57.710Z",
+      "reviewRound": "2026-07-13T12:19:02.442Z",
+      "reviewRunId": "B-f458:RR-048",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/legacy-delivery-claims-compat.ts",
+          "packages/main/src/handlers/delivery-context-pack.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "28c9b58179826678d89532bfc691e77d5879746b622d41180290aad147dff2fa"
+    },
+    {
+      "id": "B-f458:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "Concept PASS at aa86b4d950: TypeChecker declaration identity replaces text matching; approved calls require canonical function/variable anchors plus exact parent/argument shape; relocated/shadowed/exported flows and downstream graph reachability have explicit controls; bounded const-string propagation and bound require/module.require/createRequire loaders cover F-028 while unrelated identifiers remain clean. Existing build, retired vocabulary guard, process-fact contract, and closeout smoke pass. Full npm test progressed through these checks but later failed the separate brief-output doctor-size budget (20331), which is not evidence against this concept contract and remains for the owner/test lane.",
+      "createdAt": "2026-07-13T12:22:59.196Z",
+      "reviewRound": "2026-07-13T12:19:02.442Z",
+      "reviewRunId": "B-f458:RR-046",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+          "packages/main/src/handlers/delivery-context-pack.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5feac02e86b4877bf076fda4e51378fa07da0ed6f6b4923608c9f834dd75e872"
+    },
+    {
+      "id": "B-f458:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "Concept PASS at 238958b265/cc1c319cd0: compatibility use is a finite structural proof over exactly four full AST parent chains and TypeChecker-bound import references; any other binding use taints the importer and downstream graph. Nonliteral loaders fail closed except four explicit file/function/argument allowlist entries, while literal/const paths and require/createRequire bindings are deterministically resolved. Doctor brief preserves burn counts, bounded actionable samples, advisory semantics, and an explicit --full route; doctor --full and JSON retain complete detail. Full npm test exits 0, including brief-output and process contract; fresh build plus retired-vocabulary guard also pass.",
+      "createdAt": "2026-07-13T12:45:00.576Z",
+      "reviewRound": "2026-07-13T12:40:44.967Z",
+      "reviewRunId": "B-f458:RR-049",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/brief-output-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c9cad26f8ad39f7bfa4045913038c2659d470bc64033d61b57879d6dae2ea33b"
+    },
+    {
+      "id": "B-f458:RP-021",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: F-031 exact full AST-parent-chain controls reject assignment/comma wrappers and exported-container mutation while symbol-identity shadow negative remains clean; F-032 namespace createRequire plus wrapper/property/destructure loaders are caught by fail-closed nonliteral-load policy, and the four exact registered benign loader sites remain clean. Process-fact contract pins all new executable controls. Doctor brief is bounded to three one-line findings under the 20k budget and --full restores per-session remediation detail. Fresh build, guard smoke, 21-case burn smoke, brief-output smoke, process-fact contract, and complete npm test all passed. All 15 checklist evidence records are pass and bind current storyFilesHash 285aefea91fc96464bf10ca050bbc9ca47484143ab82b232b3702155175bcf96.",
+      "createdAt": "2026-07-13T12:46:41.998Z",
+      "reviewRound": "2026-07-13T12:40:44.967Z",
+      "reviewRunId": "B-f458:RR-051",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/brief-output-smoke.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "14536695a3ec416ea6e6e4f52fc800da136cc511e19254ec3a95012f0460bcbc"
+    },
+    {
+      "id": "B-f458:RP-022",
+      "agent": "lattice-review-concept",
+      "note": "Concept PASS at 57a7d2cf68/6a615f7: deterministic TypeScript printer (LF, removeComments) plus SHA-256 binds normalized executable AST while intentionally excluding comments/formatting trivia. Three compatibility importers are unconditionally fingerprint-checked; four benign nonliteral-loader exemptions require their full-source fingerprint before file/function/argument matching. Importer drift reports algorithm plus expected/got and review guidance; loader drift reports the exact loader line/expression and current algorithm hash. Process-fact contract pins the algorithm token and all seven hashes. Doctor brief/full/JSON behavior remains intact. Full npm test exits 0; fresh build and retired-vocabulary guard pass.",
+      "createdAt": "2026-07-13T13:01:11.530Z",
+      "reviewRound": "2026-07-13T12:56:50.330Z",
+      "reviewRunId": "B-f458:RR-052",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/brief-output-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9439dafdfff870a588e9bb02ebe9d3b0a81c3f2c731fb96f99bc157a8c0883ba"
+    },
+    {
+      "id": "B-f458:RP-023",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS coverage at f454260efc / current metadata HEAD db641d6: F-042/F-043 are closed by recursive all-scope TypeChecker symbol tracking with exact nested/local eval, vm, AsyncFunction, bind, destructure, reassignment positives and declaration-identity shadow negatives. The real function-local fixture-executors AsyncFunction site is the sixth exact whole-source fingerprint exemption and process contract pins implementation, controls, path, hash, and exemption cardinality. Prior executable-root, symlink-cycle, URL-variant, compatibility-loader, and fingerprint boundaries remain covered. Build, retired-authority guard, process-fact contract, brief-output and full npm test passed. Doctor completed with only pre-existing repository runtime/version/asset diagnostics unrelated to this story. All 15 verification intents have pass evidence bound to storyFilesHash 0a7d258bacee19de2973f12f07df1bda06e7a993c88a949f66f742ba655ce9e9.",
+      "createdAt": "2026-07-13T13:52:14.520Z",
+      "reviewRound": "2026-07-13T13:47:49.809Z",
+      "reviewRunId": "B-f458:RR-063",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/fixture-executors.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ffa3723bfd4658e076527e82c1111999d98eee349ce3a6bd20c8390c3778fdbc"
+    },
+    {
+      "id": "B-f458:RP-024",
+      "agent": "lattice-review-concept",
+      "note": "Concept review verified direct constructor-destructure propagation, TypeChecker symbol-provenance global/shadow handling across loop/case/catch/block scopes, named/default/namespace imported callable controls, precise noncallable negatives, and bounded Program/LanguageService reuse. No additional concept blocker beyond independently recorded F-056.",
+      "createdAt": "2026-07-13T15:04:17.150Z",
+      "reviewRound": "2026-07-13T14:58:04.668Z",
+      "reviewRunId": "B-f458:RR-074",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete change diff and focused implementation/control sections; the generated guard file is intentionally large, so unrelated unchanged sections were name-triaged."
+      },
+      "_hash": "2c92c14dfbd86fb2a3f791340fac7f9cfe6fbccd4acbad11915f6dc588f29c90"
+    },
+    {
+      "id": "B-f458:RP-025",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage PASS at implementation 160fd58752 / signed storyFilesHash c76dcfc: F-058/F-060 array and object rest provenance covers declaration, assignment, parameter, omitted, nested, nonliteral, unknown fail-closed and local noncallable negatives; F-059 computed keys cover literal/template/numeric/enum/const-chain eval, vm, constructor, unresolved dangerous and precise local negatives. All exact control labels and provenance helpers are pinned by verify-process-fact-contract. Program contract asserts one baseline Program, one LanguageService, unchanged-version object identity and bounded roots/requests/distinct identities. Prior six-exemption boundary remains exact. Independent build, guard (PASS; wall 24.53s), process fact contract, brief output and full npm test all pass; 15/15 verification evidence entries pass/current. Doctor has only existing environment/runtime diagnostics.",
+      "createdAt": "2026-07-13T15:47:14.602Z",
+      "reviewRound": "2026-07-13T15:39:54.030Z",
+      "reviewRunId": "B-f458:RR-082",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete implementation diff and the full changed provenance/control/process-pin sections; unchanged portions of the two large files were triaged by name, and no decisions-document escalation was needed for this focused coverage rerun."
+      },
+      "_hash": "b1dde76f15c4d1c8ec160109f094092fc664716aca3bbbab3aa0088615ff8293"
+    },
+    {
+      "id": "B-f458:RP-026",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage PASS: 439ba331bf executes and process-pins dangerous and safe controls for require aliases, module.require, static and dynamic specifiers, createRequire, parameter-propagated loaders, and ESM named/default/namespace imports. Shared-program positive and negative loops genuinely assert each case. Build, retired-authority guard, process-fact contract, brief-output smoke, and the full serial npm test suite all pass; no in-boundary coverage blocker remains.",
+      "createdAt": "2026-07-13T17:45:35.419Z",
+      "reviewRound": "2026-07-13T17:37:55.183Z",
+      "reviewRunId": "B-f458:RR-101",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete implementation diff and full changed provenance/control/process-pin sections; unchanged portions of the two large files were triaged by name, and no decisions-document escalation was needed for this focused coverage rerun."
+      },
+      "_hash": "6776c20744d409783892bf9a039ce76a6adf69057266875e1339ce56fff79a83"
+    },
+    {
+      "id": "B-f458:RP-027",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage PASS (strictly contract-bounded to 3115d67a5d): F106-F109 are represented by four positive controls (safe-named object member eval, safe-named namespace re-export with benign payload, parameter eval callsite, and danger-dominates merged callsites) plus two exact local-safe negatives. Both negatives are included in DYNAMIC_PROVENANCE_REACHABILITY_LABELS and the guard proves the exact reachability count of 17. The process-fact contract pins all six labels plus DYNAMIC_CODE_UNAPPROVED_ONLY_LABELS, trustedRuntimeDeclaration, exactSafe, localCallableDeclarations, bindLocalCallArguments, and the candidate-filter removals. Clean build and focused production-path guard passed under the hard 800 build budget: builds=678 cacheHits=2 fullAnalysis=1115 astCandidates=451 reachability=17; process-fact contract also passed. No open findings remain.",
+      "createdAt": "2026-07-13T20:23:42.090Z",
+      "reviewRound": "2026-07-13T20:20:44.390Z",
+      "reviewRunId": "B-f458:RR-120",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete 3115d67a5d diff and the full changed control, reachability, execution, instrumentation, and process-pin sections. The assignment was strictly contract-bounded, so unrelated decisions-document escalation was neither necessary nor permitted."
+      },
+      "_hash": "839ec64b40b10f7ed02629866837ac9f89b3a141c5ff49a359f01a2ce1105015"
+    },
+    {
+      "id": "B-f458:RP-028",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage PASS (strictly contract-bounded to e9c08fdc20/F116-F118): full-vector spread call/apply/computed-bind each have fail-closed positives and local-safe negatives; mixed invocation proves danger-wins; chained bind with unknown spread is covered in both safe-then-eval and eval-then-safe orders. The three safe full-vector controls are included in exact full-analysis reachability. Process pins cover every new label plus NormalizedInvocation, argumentVectorValueAt, dropArgumentVectorPrefix, projectInvocationArguments, and concatenateArgumentVectors. Clean build and guard passed with the requested metrics: builds=727, cacheHits=2, fullAnalysis=1164, astCandidates=466, reachability=34; process-fact contract passed. No open findings remain.",
+      "createdAt": "2026-07-13T22:20:10.502Z",
+      "reviewRound": "2026-07-13T22:08:13.099Z",
+      "reviewRunId": "B-f458:RR-130",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the complete e9c08fdc20 diff and all changed full-vector projection, nested-bind, control, reachability, instrumentation, and process-pin sections. The assignment was strictly contract-bounded; no unrelated decisions-document escalation was needed."
+      },
+      "_hash": "aa7a717496f3936f758c4b58aad433272700fd6e51c1f35a386899055f91fb3e"
+    },
+    {
+      "id": "B-f458:RP-029",
+      "agent": "lattice-review-quality",
+      "note": "Contract-bounded quality review of e9c08fdc20 and current HEAD: whole-vector call/apply/bind projection, nested bind unknown-tail danger-wins merge, safe controls/precision, hard-800 instrumentation/cache, and six exact whole-source exemptions were audited. Build, focused retired-authority guard smoke, and process-fact contract all pass; no blocking correctness or quality finding identified.",
+      "createdAt": "2026-07-13T22:21:07.002Z",
+      "reviewRound": "2026-07-13T22:08:13.099Z",
+      "reviewRunId": "B-f458:RR-131",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d07629abd85c0dd38865a676d92de79710a265d241f97267f76c54744786cba1"
+    },
+    {
+      "id": "B-f458:RP-030",
+      "agent": "lattice-review-concept",
+      "note": "Contract-bounded concept review found no blocker after verifying full-vector call/apply/bind projection, nested-bind unknown-tail danger-wins merging, six exact executable exemptions, and hard-800 instrumentation; build, focused guard, process contract, and full npm suite pass.",
+      "createdAt": "2026-07-13T22:23:08.943Z",
+      "reviewRound": "2026-07-13T22:08:13.099Z",
+      "reviewRunId": "B-f458:RR-129",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "34e465aa10c0dbd6b59aaba68563f10c1dda7df212515a2c7b0639fcca1bec89"
+    },
+    {
+      "id": "B-f458:RP-031",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage review passed: all 15 happy/edge/adversarial intents have one current pass evidence entry across exactly three command groups; npm test explicitly includes the five F-120 focused smokes, all five reran successfully on HEAD, and F-119 through F-124 are resolved with matching focused regressions.",
+      "createdAt": "2026-07-14T05:36:33.847Z",
+      "reviewRound": "2026-07-14T05:21:57.764Z",
+      "reviewRunId": "B-f458:RR-137",
+      "writerSessionId": "sess-1fcee20b20bb0e89",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/delivery-context-pack-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "packages/main/src/tasks/review-loop-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "7f7aa93ba623c4a8cfc7e5ff8602be89b7caa0bc4d6c3b705efe7ecfca634f90"
+    },
+    {
+      "id": "B-f458:RP-032",
+      "agent": "lattice-review-concept",
+      "note": "Round 44 concept review found no blocker: canonical live-smoke transcript usage is complete across active handler, policies, process facts, and product-reviewer prompts; legacy transcript-diff residue is explicitly compatibility-scoped, and retired delivery claims remain quarantined behind exact importer/call-shape/fingerprint guards.",
+      "createdAt": "2026-07-14T12:55:46.398Z",
+      "reviewRound": "2026-07-14T12:52:57.477Z",
+      "reviewRunId": "B-f458:RR-138",
+      "writerSessionId": "sess-1fcee20b20bb0e89",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/legacy-delivery-claims-compat.ts",
+          "packages/main/src/handlers/delivery-context-pack.ts",
+          "packages/main/templates/agents/product-reviewer.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/product-reviewer.md",
+          ".lattice-codex/agents/product-reviewer.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "d1255697225cf7021fc31c30c51586477974edbcfef94d355a055523d245c896"
+      },
+      "readDiagnostics": [],
+      "_hash": "43e5613c4f5d807bc4f96e1d7cba26b6a1de9345c651c1e803d764568e0c52db"
+    },
+    {
+      "id": "B-f458:RP-033",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final recovery coverage review passed: all 15 happy/edge/adversarial intents retain one non-failing logic-test evidence row with no waiver or uncovered ref; evidence is rebound to storyFilesHash 4383b4b after a5621e382b/d56c6d5065, and the changed canonical live-smoke transcript contract plus fingerprint pins are exercised by fresh retired-authority and process-fact contract passes.",
+      "createdAt": "2026-07-14T12:56:17.041Z",
+      "reviewRound": "2026-07-14T12:52:57.477Z",
+      "reviewRunId": "B-f458:RR-140",
+      "writerSessionId": "sess-1fcee20b20bb0e89",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/product-reviewer.md",
+          ".lattice-codex/agents/product-reviewer.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/templates/agents/product-reviewer.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/delivery-context-pack.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "61942a4f6b6729dc3fe14fbc286b4dd422d787d8da9d6e3eaba0000fff630fcc"
+    },
+    {
+      "id": "B-f458:RP-034",
+      "agent": "lattice-review-quality",
+      "note": "Final round-44 quality review found no blocking or advisory implementation issues. Reviewed a5621e382b and d56c6d5065: F-126 removes both unnecessary StoryStore any casts; canonical live-smoke transcript wording and mirrored prompts match the handler; process-fact/prompt baseline verifiers, review-assurance-floor smoke (16 checks), and retired-authority vocabulary guard all pass; fingerprint repin is limited to the reviewed constant rename.",
+      "createdAt": "2026-07-14T12:56:47.819Z",
+      "reviewRound": "2026-07-14T12:52:57.477Z",
+      "reviewRunId": "B-f458:RR-139",
+      "writerSessionId": "sess-1fcee20b20bb0e89",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/product-reviewer.md",
+          ".lattice-codex/agents/product-reviewer.md",
+          "packages/main/templates/agents/product-reviewer.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/delivery-context-pack.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "d3adb594d3bfa311acd2acbeb1e7cc4d9111d7623787f0f361fce909cb35c345"
+    },
+    {
+      "id": "B-f458:RP-035",
+      "agent": "lattice-review-test-coverage",
+      "note": "Post-merge round 45 coverage PASS: verified 15/15 unique happy, edge, and adversarial intent bindings across CHK-001..CHK-005, with zero gaps and zero waivers. All evidence is pass and bound to current materialHash 79d4302/storyFilesHash bfd70d5. Existing routine validation is PASS (45/45), DONE-required evidence is PASS for build plus root npm test, and the merged root test chain includes global-core-realpath plus B-f458 closeout/process/runtime/brief focused regressions.",
+      "createdAt": "2026-07-14T15:30:21.402Z",
+      "reviewRound": "2026-07-14T15:27:09.855Z",
+      "reviewRunId": "B-f458:RR-141",
+      "writerSessionId": "sess-1fcee20b20bb0e89",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/package.json",
+          "packages/main/src/tasks/brief-output-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "7cb8de19a97b8627f81ea5198a17398e8cafd6c87358ed7647fccced6dbca34b"
+    },
+    {
+      "id": "B-f458:RP-036",
+      "agent": "lattice-review-quality",
+      "note": "Post-merge quality PASS: reviewed the exact 21 main-merge product files and all B-f458 changed-file interactions, including the seven overlapping merge surfaces and package.json conflict resolution. No correctness-impacting dead code, new production as-any, swallowed error, I/O-layer violation, or prompt/runtime mismatch found. Combined TypeScript build passed; git diff --check is clean; 15/15 verificationEvidence is PASS and bound to merge 1efce226 with current materialHash 79d4302/storyFilesHash bfd70d5.",
+      "createdAt": "2026-07-14T15:34:01.890Z",
+      "reviewRound": "2026-07-14T15:27:09.855Z",
+      "reviewRunId": "B-f458:RR-142",
+      "writerSessionId": "sess-bf458-quality-r45",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/legacy-delivery-claims-compat.ts",
+          "packages/main/src/core/review-pass-provenance.ts"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/product-reviewer.md",
+          ".lattice-codex/agents/product-reviewer.md",
+          "CHANGELOG.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "package-lock.json",
+          "package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/done-prepare-validation-reuse.ts",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/review-scope-binding.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/handlers/delivery-check.ts",
+          "packages/main/src/handlers/delivery-context-pack.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/evaluate.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/summary.ts",
+          "packages/main/src/handlers/test-story.ts",
+          "packages/main/src/handlers/test.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/brief-output-smoke.ts",
+          "packages/main/src/tasks/review-pass-provenance-smoke.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts",
+          "packages/main/templates/agents/product-reviewer.md",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/milestone-status.test.mjs",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "c561cf0d0181ac65f5efd2576a71731cec0bd3862a7249833a732f154ac40fab"
+    },
+    {
+      "id": "B-f458:RP-037",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 46 targeted coverage PASS for ac9f87fe8b: the sole semantic change corrects future-story decision prose from legacy evidence/transcript-diff.md to canonical evidence/live-smoke-transcript.json; it adds no product behavior or new acceptance intent. Existing 15 happy/edge/adversarial intent commands remain sufficient: npm test includes process-fact and closeout regressions, and focused edge/adversarial chains directly assert the canonical live-smoke artifact while retaining legacy compatibility only as a negative/fail-closed case. Zero coverage gaps and zero waivers. Existing evidence hashes are mechanically stale at storyFilesHash bfd70d5 versus current 5f81fc9 and must be rerun/refreshed by the owner as planned; no new verification command is required.",
+      "createdAt": "2026-07-14T15:39:19.675Z",
+      "reviewRound": "2026-07-14T15:36:22.281Z",
+      "reviewRunId": "B-f458:RR-144",
+      "writerSessionId": "sess-1fcee20b20bb0e89",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/cc-learnings.md",
+          "package.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/cc-learnings.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "3ea04428f162d92673a8af9362f7601ee2a03079e659c522c8b2812718b16908"
+      },
+      "readDiagnostics": [],
+      "_hash": "d43b4fdec2a8027608bca442c74b0de8dbcea8aba4d689ca89d2a6c67accb5f3"
+    },
+    {
+      "id": "B-f458:RP-038",
+      "agent": "lattice-review-concept",
+      "note": "Targeted post-F-127 concept review passed. Commit ac9f87fe8b changes the stale future DONE artifact reference to canonical evidence/live-smoke-transcript.json while preserving explicit future-story and type-aware-waiver wording. Repository-wide residue scan found evidence/transcript-diff.md only in explicitly documented legacy lifecycle-classification compatibility and its positive/negative regression controls; active producer, consumer, command policy, process-fact checks, transition hint, and all three product-reviewer prompts consistently use live-smoke-transcript.json. No promised-but-undelivered command or behavior was introduced by this documentation-only correction.",
+      "createdAt": "2026-07-14T15:39:52.927Z",
+      "reviewRound": "2026-07-14T15:36:22.281Z",
+      "reviewRunId": "B-f458:RR-145",
+      "writerSessionId": "sess-1fcee20b20bb0e89",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".claude/agents/product-reviewer.md",
+          ".lattice-codex/agents/product-reviewer.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/delivery-context-pack.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/templates/agents/product-reviewer.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Targeted repository-wide concept residue scan was required to verify that the F-127 replacement leaves the retired transcript-diff path only in explicit legacy compatibility documentation and regression controls."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "d1255697225cf7021fc31c30c51586477974edbcfef94d355a055523d245c896"
+      },
+      "readDiagnostics": [],
+      "_hash": "3d968e16ed5de05babdcaf2e060a65ad4f13bf796105ee3433d3bf27236eb881"
+    },
+    {
+      "id": "B-f458:RP-039",
+      "agent": "lattice-review-quality",
+      "note": "Round-46 targeted quality PASS: ac9f87fe8b changes exactly one active future-DONE promise path from evidence/transcript-diff.md to the canonical evidence/live-smoke-transcript.json and records the associated DEV/scope acknowledgement metadata. The surrounding decision semantics, warning about type-aware waiver, formatting, and all runtime/product code are unchanged; diff --check is clean and no unintended behavior, dead code, type, I/O, or maintainability regression is introduced.",
+      "createdAt": "2026-07-14T15:40:20.726Z",
+      "reviewRound": "2026-07-14T15:36:22.281Z",
+      "reviewRunId": "B-f458:RR-146",
+      "writerSessionId": "sess-bf458-quality-r46",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/cc-learnings.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-f458/index.json",
+          ".lattice/story/actives/B-f458/process-metrics.json",
+          ".lattice/story/actives/B-f458/scope-contract.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/cc-learnings.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "3ea04428f162d92673a8af9362f7601ee2a03079e659c522c8b2812718b16908"
+      },
+      "readDiagnostics": [],
+      "_hash": "de979d3cbd04059fdd7395370e80deb9a475a69f37c088830b35b4f4f2fdcb2e"
+    }
+  ]
+}

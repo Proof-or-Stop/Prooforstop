@@ -60,6 +60,7 @@ import {
   evaluateReviewCompleteness,
   type ProofStoryDiagnosticInput,
 } from '../core/proofstory.js';
+import { readTrustedProofStoryScopeArtifacts } from '../core/closeout-trust.js';
 
 type ScopeLifecycleRow = {
   id?: string;
@@ -112,13 +113,14 @@ function proofStoryDiagnosticInput(store: StoryStore, storyId: string, root?: st
   } catch {
     checklist = { items: [] };
   }
+  const trusted = readTrustedProofStoryScopeArtifacts(store, storyId);
   return {
     story: store.readStory(storyId),
     checklist,
     originalIntentSnapshot: store.readOriginalIntentSnapshot(storyId),
-    milestoneLedger: store.readMilestoneLedger(storyId),
-    slicePlan: store.readProofStorySlicePlan(storyId),
-    parentLedgerRollup: store.readProofStoryParentLedgerRollup(storyId),
+    milestoneLedger: trusted.ledger,
+    slicePlan: trusted.slicePlan,
+    parentLedgerRollup: trusted.parentRollup,
     proofStoryContract: store.readProofStoryContract(storyId),
     intentCollision: store.readIntentCollision(storyId),
     scopeContract: store.readScopeContract(storyId),

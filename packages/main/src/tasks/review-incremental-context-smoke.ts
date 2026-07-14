@@ -32,7 +32,7 @@
  *       fixture stories and asserts the actual gate semantics:
  *         - Round 1 (roundCount<=1): blocks unless ALL opt-in reviewers have a
  *           valid current-round verdict + quorum.
- *         - Round 2+ (roundCount>=2): passes with >=1 valid current-round receipt.
+ *         - Missing currentReviewRound: pass-shaped legacy evidence fails closed.
  *         - A current-round INVALID (stale/unknown-run) binding blocks — in ALL
  *           rounds, before the round split.
  *         - A verified open blocking finding (after round decay) blocks.
@@ -43,10 +43,10 @@
  *
  * Determinism: cases (a)–(c) drive a synthetic StoryStore over a real temp git
  * repo (so the rename-aware diff is exercised against actual git). Case (d) uses
- * git-free synthetic stores: with currentReviewRound UNSET, evidence run-binding
- * validation short-circuits to valid (no git / freshness machinery), and with it
- * SET + an unknown reviewRunId the binding is invalid — both deterministic and
- * independent of the host git state.
+ * git-free synthetic stores: with currentReviewRound UNSET, the lifecycle verdict
+ * fails closed before legacy evidence compatibility can activate; with it SET + an
+ * unknown reviewRunId the binding is invalid. Both are deterministic and independent
+ * of the host git state.
  */
 
 import { strict as assert } from 'node:assert';
@@ -429,8 +429,8 @@ function runIncrementalCases(): void {
  *
  * It is a real (single-commit) git repo on `main` so the incremental helper's
  * git calls succeed — the gate semantics under test here do NOT depend on git
- * content (currentReviewRound is unset / bound to an unknown run, so no freshness
- * machinery runs); the repo only lets reviewIncrementalContext run without
+ * content (currentReviewRound is unset / bound to an unknown run, so no successful
+ * freshness path runs); the repo only lets reviewIncrementalContext run without
  * throwing while we prove it writes nothing and never changes the gate outcome.
  */
 function buildBalancedProjectRoot(): string {
@@ -452,9 +452,8 @@ function runGateUnchangedCase(): void {
     const storyId = 'B-f675';
     const BASELINE_REVIEWERS = ['concept', 'quality', 'test-coverage'];
 
-    // (d.1) Round 1 — ALL opt-in reviewers + quorum present => gate PASSES.
-    // currentReviewRound UNSET so run-binding validation short-circuits to valid
-    // (no git). Provide a signed pass for each baseline reviewer lane.
+    // (d.1) Round 1 — pass-shaped evidence without currentReviewRound fails closed,
+    // even when every opt-in lane is represented.
     {
       const story = reviewStory(storyId, 1, undefined);
       const passes = BASELINE_REVIEWERS.map((short, i) =>
@@ -462,11 +461,11 @@ function runGateUnchangedCase(): void {
       );
       const store = buildFixtureStore({ story, passes });
       const outcome = assertGateUnchangedByHelper(store, projectRoot, storyId, '(d.1) round-1 full opt-in + quorum');
-      assert.equal(outcome, true, '(d.1) Round 1 with ALL opt-in reviewers + quorum must PASS the gate');
-      console.log(`${MARKER} (d.1) ROUND 1 full opt-in + quorum -> gate PASS; identical with/without helper`);
+      assert.equal(outcome, false, '(d.1) missing currentReviewRound must block pass-shaped reviewer evidence');
+      console.log(`${MARKER} (d.1) ROUND 1 missing currentReviewRound -> gate BLOCK; identical with/without helper`);
     }
 
-    // (d.2) Round 1 — MISSING one opt-in reviewer (test-coverage) => gate BLOCKS.
+    // (d.2) Round 1 — missing round plus incomplete lane-shaped evidence also blocks.
     {
       const story = reviewStory(storyId, 1, undefined);
       const passes = ['concept', 'quality'].map((short, i) =>
@@ -474,18 +473,19 @@ function runGateUnchangedCase(): void {
       );
       const store = buildFixtureStore({ story, passes });
       const outcome = assertGateUnchangedByHelper(store, projectRoot, storyId, '(d.2) round-1 missing opt-in reviewer');
-      assert.equal(outcome, false, '(d.2) Round 1 missing an opt-in reviewer must BLOCK the gate');
-      console.log(`${MARKER} (d.2) ROUND 1 missing opt-in reviewer (test-coverage) -> gate BLOCK; identical with/without helper`);
+      assert.equal(outcome, false, '(d.2) Round 1 missing currentReviewRound must BLOCK incomplete lane-shaped evidence');
+      console.log(`${MARKER} (d.2) ROUND 1 missing currentReviewRound + incomplete lanes -> gate BLOCK; identical with/without helper`);
     }
 
-    // (d.3) Round 2 — >=1 valid current-round receipt => gate PASSES.
+    // (d.3) Round 2 — a pass-shaped receipt still cannot compensate for a missing
+    // currentReviewRound.
     {
       const story = reviewStory(storyId, 2, undefined);
       const passes = [signedPass(storyId, 'RP-1', 'lattice-review-concept', ts(20))];
       const store = buildFixtureStore({ story, passes });
       const outcome = assertGateUnchangedByHelper(store, projectRoot, storyId, '(d.3) round-2 single valid receipt');
-      assert.equal(outcome, true, '(d.3) Round 2+ with >=1 valid current-round receipt must PASS the gate');
-      console.log(`${MARKER} (d.3) ROUND 2+ single valid receipt -> gate PASS; identical with/without helper`);
+      assert.equal(outcome, false, '(d.3) Round 2+ missing currentReviewRound must BLOCK the gate');
+      console.log(`${MARKER} (d.3) ROUND 2+ missing currentReviewRound -> gate BLOCK; identical with/without helper`);
     }
 
     // (d.4) INVALID (unknown-run) current-round binding BLOCKS — in BOTH rounds.
@@ -512,10 +512,8 @@ function runGateUnchangedCase(): void {
       console.log(`${MARKER} (d.4) INVALID current-round binding (round ${rounds}) -> gate BLOCK; identical with/without helper`);
     }
 
-    // (d.5) VERIFIED OPEN BLOCKING FINDING blocks (after round decay).
-    // currentReviewRound UNSET => the critical open finding is a valid evidence
-    // record with no run binding required; isFindingBlocking(critical) is true in
-    // every round, so blocking.length>0 => gate BLOCKS.
+    // (d.5) A critical finding-shaped record also cannot exploit missing-round
+    // legacy compatibility; the lifecycle verdict blocks before trusting it.
     {
       const story = reviewStory(storyId, 1, undefined);
       const passes = BASELINE_REVIEWERS.map((short, i) =>
@@ -526,8 +524,8 @@ function runGateUnchangedCase(): void {
       );
       const store = buildFixtureStore({ story, passes, findings: [finding] });
       const outcome = assertGateUnchangedByHelper(store, projectRoot, storyId, '(d.5) verified open blocking finding');
-      assert.equal(outcome, false, '(d.5) a verified open critical finding must BLOCK the gate');
-      console.log(`${MARKER} (d.5) VERIFIED OPEN BLOCKING FINDING (critical) -> gate BLOCK; identical with/without helper`);
+      assert.equal(outcome, false, '(d.5) missing currentReviewRound must block critical finding-shaped evidence');
+      console.log(`${MARKER} (d.5) CRITICAL FINDING with missing currentReviewRound -> gate BLOCK; identical with/without helper`);
     }
   } finally {
     resetConfigCache();
@@ -538,7 +536,7 @@ function runGateUnchangedCase(): void {
 function run(): void {
   runIncrementalCases();
   runGateUnchangedCase();
-  console.log(`\n${MARKER} PASS — incremental context is correct for returning/first-timer/rename (cases a–c), and canPassReviewGuard is behaviorally IDENTICAL with vs without the incremental helper across all gate branches (round-1 opt-in+quorum, round-2+ single receipt, invalid-binding-blocks-all-rounds, verified-open-blocking-finding), with the helper proven to write nothing to the store (case d).`);
+  console.log(`\n${MARKER} PASS — incremental context is correct for returning/first-timer/rename (cases a–c), and canPassReviewGuard is behaviorally IDENTICAL with vs without the incremental helper across missing-round and invalid-binding fail-closed branches, with the helper proven to write nothing to the store (case d).`);
 }
 
 const isDirectRun = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];

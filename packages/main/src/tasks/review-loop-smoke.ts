@@ -375,6 +375,18 @@ console.log('\n[3] getGuardFailureReason TEST phase with open loop');
       assert.match(reason!, /loopId=L-gfr/);
     });
 
+    test('shared verdict preserves iteration decision and nextAction diagnostics', () => {
+      const store = makeStore(root, 'B-gfr-iteration');
+      store.appendReviewLoopRecord('B-gfr-iteration', makeStart('L-gfr-iteration', 'B-gfr-iteration'));
+      store.appendReviewLoopRecord('B-gfr-iteration', makeIteration('L-gfr-iteration', 'B-gfr-iteration', 'revise'));
+      const reason = getGuardFailureReason('B-gfr-iteration', store, 'TEST', root);
+      assert.ok(reason, 'should return a reason string');
+      assert.match(reason!, /\[open_review_loop\]/);
+      assert.match(reason!, /loopId=L-gfr-iteration/);
+      assert.match(reason!, /decision=revise/);
+      assert.match(reason!, /nextAction=\{nextPrompt=Focus on mock clock/);
+    });
+
     test('returns null (no loop blocker) after resolved close — reviewer gate then controls', () => {
       // After loop close, the loop gate disappears. The reviewer gate will
       // then return its own message (no findings/passes). We verify the

@@ -103,6 +103,8 @@ import { canFinishGuard, getGuardFailureReason } from '../core/machine.js';
 import { buildDoneChecklist, type DoneCheckRow } from '../core/done-oracle.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
+import { signReviewPass } from '../core/finding-verify.js';
+import { signReviewRun } from '../core/review-run.js';
 import { realpathSync } from 'node:fs';
 import type {
   ChecklistData,
@@ -110,6 +112,7 @@ import type {
   DocsPromise,
   ProcessEvent,
   RealMachineTest,
+  ReviewRun,
   StoryInfo,
 } from '../core/types.js';
 
@@ -413,6 +416,7 @@ function story(): StoryInfo {
       createdAt: now,
       startedAt: now,
       endedAt: null,
+      currentReviewRound: 'round-1',
       // NO worktree binding -> configured-git-root branch resolves to the subdir.
     };
     const storeChecklist: ChecklistData = {
@@ -665,6 +669,7 @@ function story(): StoryInfo {
       createdAt: now,
       startedAt: now,
       endedAt: null,
+      currentReviewRound: 'round-1',
       // NO worktree binding -> configured-git-root branch resolves to the subdir.
     };
     store.writeStory(DONE_STORY_ID, doneStory);
@@ -725,12 +730,58 @@ function story(): StoryInfo {
       checkedAt: now,
       headHash,
       materialHash,
-      reviewRound: '',
+      reviewRound: 'round-1',
       agentId: 'lattice-review-delivery',
       docsPromises,
       realMachineTests,
       closingSelfCheck,
-      _hash: signDeliveryCheck(DONE_STORY_ID, docsPromises, realMachineTests, closingSelfCheck, '', materialHash),
+      _hash: signDeliveryCheck(DONE_STORY_ID, docsPromises, realMachineTests, closingSelfCheck, 'round-1', materialHash),
+    });
+
+    // Seed the baseline opt-in reviewer lanes with current-round, signed passes.
+    // The DONE-ready fixture must satisfy the same authoritative reviewer verdict
+    // as REVIEW→TEST; otherwise it would rely on the historical DONE bypass.
+    const reviewerAgents = [
+      'lattice-review-concept',
+      'lattice-review-quality',
+      'lattice-review-test-coverage',
+    ];
+    const reviewRuns: ReviewRun[] = reviewerAgents.map((agent, index) => {
+      const reviewRunId = `${DONE_STORY_ID}:RR-${String(index + 1).padStart(3, '0')}`;
+      const startedAt = new Date(Date.parse(now) + index).toISOString();
+      return {
+        reviewRunId,
+        storyId: DONE_STORY_ID,
+        agent,
+        lane: agent,
+        reviewRound: 'round-1',
+        startedAt,
+        headHash,
+        materialHash,
+        storyFilesHash,
+        promptHash: 'wrapper-root-done-review',
+        _hash: signReviewRun(
+          DONE_STORY_ID, reviewRunId, agent, agent, 'round-1', startedAt,
+          headHash, materialHash, 'wrapper-root-done-review', undefined, undefined, storyFilesHash,
+        ),
+      };
+    });
+    store.writeReviewRuns(DONE_STORY_ID, { runs: reviewRuns });
+    store.writeReviewPasses(DONE_STORY_ID, {
+      passes: reviewRuns.map((reviewRun, index) => {
+        const id = `RP-${String(index + 1).padStart(3, '0')}`;
+        const note = `DONE-ready pass for ${reviewRun.agent}.`;
+        const createdAt = new Date(Date.parse(now) + reviewerAgents.length + index).toISOString();
+        return {
+          id,
+          agent: reviewRun.agent,
+          note,
+          createdAt,
+          reviewRound: reviewRun.reviewRound,
+          reviewRunId: reviewRun.reviewRunId,
+          _hash: signReviewPass(DONE_STORY_ID, id, reviewRun.agent, note, createdAt, reviewRun.reviewRound, reviewRun.reviewRunId),
+        };
+      }),
     });
 
     // ── Make escalation REQUIRED via an explicit valid high-risk policy event.

@@ -12,6 +12,7 @@ import {
 } from '../core/review-run.js';
 import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
 import { computeReviewScopeBinding } from '../core/review-scope-binding.js';
+import { readTrustedProofStoryScopeArtifacts } from '../core/closeout-trust.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
 import { loadConfig } from '../core/config.js';
 import {
@@ -132,11 +133,14 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
       let scopeBinding: ReviewScopeBinding | undefined;
       if (contract) {
         const diffPack = buildScopeDiffPack(signedWorkspaceRoot);
+        const trusted = readTrustedProofStoryScopeArtifacts(store, args.storyId);
         scopeBinding = computeReviewScopeBinding({
           contract,
           diffPack,
           reviewedIntentRefs: args.reviewedIntentRefs,
           projectRoot: signedWorkspaceRoot,
+          ledger: trusted.ledger,
+          slicePlan: trusted.slicePlan,
         }) ?? undefined;
       }
 

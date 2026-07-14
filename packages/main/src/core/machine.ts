@@ -4,14 +4,13 @@ import type { StoryStore } from './store.js';
 import { createHash } from 'crypto';
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
-import type { Finding, ScopeFreezeCheckData, ScopeFreezeIssue, StoryInfo, ScopeContractData, WorkflowProfile } from './types.js';
+import type { Finding, ReviewLoopIteration, ScopeFreezeCheckData, ScopeFreezeIssue, StoryInfo, ScopeContractData, WorkflowProfile } from './types.js';
 import { resolveAuditConfig } from './audit-config.js';
 import { evaluateDecompositionGate, computeWriteSet, type ParallelDecompositionBlock } from './parallel-decomposition.js';
 import { safeReadScopeContract } from './lattice-parallel-wave.js';
 import { TERMINAL_PHASES } from './parallel-policy.js';
 import { REQUIRED_INIT_CHECK_AGENTS, blockingInitCheckIssues, missingRequiredInitCheckAgents, recomputeInitCheckHash } from './init-check-gate.js';
-import { listActiveLoops, deriveLatestLoopRecord } from './review-loop.js';
-import type { ReviewLoopIteration } from './types.js';
+import { deriveLatestLoopRecord, listActiveLoops } from './review-loop.js';
 import { evaluateDeliveryCheckFreshness } from './delivery-check-hash.js';
 import { getBlockingVerificationEvidenceIssues } from './verification.js';
 import { normalizeLegacyPhase } from './phase-flow.js';
@@ -46,6 +45,7 @@ import {
   renderProofStoryDiagnosticReport,
   type ProofStoryDiagnosticInput,
 } from './proofstory.js';
+import { readTrustedProofStoryScopeArtifacts } from './closeout-trust.js';
 
 /**
  * Resolve effective blocking severities with round decay.
@@ -131,13 +131,14 @@ function proofStoryDiagnosticInput(store: StoryStore, storyId: string): ProofSto
   } catch {
     checklist = { items: [] };
   }
+  const trusted = readTrustedProofStoryScopeArtifacts(store, storyId);
   return {
     story: store.readStory(storyId),
     checklist,
     originalIntentSnapshot: store.readOriginalIntentSnapshot(storyId),
-    milestoneLedger: store.readMilestoneLedger(storyId),
-    slicePlan: store.readProofStorySlicePlan(storyId),
-    parentLedgerRollup: store.readProofStoryParentLedgerRollup(storyId),
+    milestoneLedger: trusted.ledger,
+    slicePlan: trusted.slicePlan,
+    parentLedgerRollup: trusted.parentRollup,
     proofStoryContract: store.readProofStoryContract(storyId),
     intentCollision: store.readIntentCollision(storyId),
     scopeContract: store.readScopeContract(storyId),
@@ -608,27 +609,62 @@ export function canReenterDevGuard(context: StoryMachineContext): boolean {
   }
 }
 
-export function canPassReviewGuard(context: StoryMachineContext): boolean {
+export interface ReviewVerdict {
+  ok: boolean;
+  code?: 'open_review_loop' | 'review_loop_record_error' | 'review_round_missing' | 'review_evidence_missing' | 'review_evidence_invalid' | 'review_lane_missing' | 'review_quorum' | 'review_finding_blocking' | 'review_verdict_error';
+  message?: string;
+}
+
+/** Read-only, phase-agnostic reviewer verdict shared by REVIEW→TEST and TEST→DONE. */
+export function evaluateReviewVerdict(context: StoryMachineContext): ReviewVerdict {
   try {
-    // B-7a34 CHK-003: open review loop blocks REVIEW→TEST (fail-closed).
     const loopRecords = context.store.readReviewLoopRecords(context.storyId);
-    if (listActiveLoops(loopRecords).length > 0) return false;
-  } catch {
-    return false;
+    const activeLoops = listActiveLoops(loopRecords);
+    if (activeLoops.length > 0) {
+      const details = activeLoops.map((loopId) => {
+        const latest = deriveLatestLoopRecord(loopRecords, loopId);
+        const parts = [`loopId=${loopId}`];
+        if (latest?.event === 'iteration') {
+          const iteration = latest as ReviewLoopIteration;
+          parts.push(`decision=${iteration.decision}`);
+          const nextAction = Object.entries(iteration.nextAction ?? {})
+            .filter(([, value]) => value != null)
+            .map(([key, value]) => `${key}=${String(value)}`);
+          if (nextAction.length > 0) parts.push(`nextAction={${nextAction.join(', ')}}`);
+        }
+        return parts.join(', ');
+      });
+      return { ok: false, code: 'open_review_loop', message: `active review loop(s): ${details.join('; ')}` };
+    }
+  } catch (error) {
+    return { ok: false, code: 'review_loop_record_error', message: `review loop records unreadable: ${error instanceof Error ? error.message : String(error)}` };
   }
   try {
     const config = loadConfig(context.projectRoot);
     const story = context.store.readStory(context.storyId);
     const policy = resolveWorkflowPolicy(config, story);
 
-    // If policy doesn't require reviewer, skip finding checks entirely
-    if (!policy.review.requireReviewer) return true;
+    if (!policy.review.requireReviewer) return { ok: true };
+    if (!story.currentReviewRound) {
+      return {
+        ok: false,
+        code: 'review_round_missing',
+        message: 'reviewer-required lifecycle transition has no currentReviewRound; unsigned legacy-shaped evidence is not admissible',
+      };
+    }
 
     const findings = context.store.readFindings(context.storyId);
     const reviewPasses = context.store.readReviewPasses(context.storyId);
-    if ((!findings.findings || findings.findings.length === 0) && (!reviewPasses.passes || reviewPasses.passes.length === 0)) return false;
+    if ((!findings.findings || findings.findings.length === 0) && (!reviewPasses.passes || reviewPasses.passes.length === 0)) {
+      return { ok: false, code: 'review_evidence_missing', message: 'reviewer not run (no findings or review pass)' };
+    }
     const evidenceState = collectReviewerEvidenceState(context.store, context.storyId, context.projectRoot);
-    if (evidenceState.invalid.length > 0) return false;
+    if (evidenceState.invalid.length > 0) {
+      return { ok: false, code: 'review_evidence_invalid', message: evidenceState.invalid.slice(0, 5).map(issue => issue.message).join('; ') };
+    }
+    if (evidenceState.valid.length === 0) {
+      return { ok: false, code: 'review_evidence_missing', message: 'no valid current-round lattice-review-* finding or pass' };
+    }
 
     // Check for reviewer-produced finding if policy requires it
     if (policy.review.requireReviewerFinding) {
@@ -648,7 +684,23 @@ export function canPassReviewGuard(context: StoryMachineContext): boolean {
         const missing = optIn.filter(reviewer => !currentRoundReviewerEvidence.some(
           e => findingAgentMatchesReviewer(e.agent, reviewer.name),
         ));
-        if (missing.length > 0) return false;
+        if (missing.length > 0) {
+          const expected = optIn.map(row => row.name);
+          const covered = expected.filter(name => currentRoundReviewerEvidence.some(
+            evidence => findingAgentMatchesReviewer(evidence.agent, name),
+          ));
+          const agentsSeen = [...new Set(currentRoundReviewerEvidence.map(evidence => evidence.agent))];
+          return {
+            ok: false,
+            code: 'review_lane_missing',
+            message: [
+              `Expected ${expected.length} reviewers (opt-in: ${expected.join(',')})`,
+              `Covered ${covered.length}/${expected.length}`,
+              `Missing: ${missing.map(row => row.name).join(',')}`,
+              `Reviewer agents seen: ${agentsSeen.length > 0 ? agentsSeen.join(',') : '(none)'}`,
+            ].join('; '),
+          };
+        }
 
         // B-1fca CHK-002: quorum gate for round 1
         const quorum = evaluateReviewerQuorum({
@@ -656,10 +708,14 @@ export function canPassReviewGuard(context: StoryMachineContext): boolean {
           evidence: buildQuorumEvidence(evidenceState.valid),
           profile: policy.profile as 'light' | 'balanced' | 'strict',
         });
-        if (!quorum.ok) return false;
+        if (!quorum.ok) {
+          return { ok: false, code: 'review_quorum', message: quorum.blocking.join('; ') };
+        }
       } else {
         // Round 2+: require at least 1 reviewer finding or pass receipt
-        if (currentRoundReviewerEvidence.length === 0) return false;
+        if (currentRoundReviewerEvidence.length === 0) {
+          return { ok: false, code: 'review_evidence_missing', message: `Round ${roundCount} has no current reviewer finding/pass` };
+        }
       }
     }
 
@@ -672,10 +728,21 @@ export function canPassReviewGuard(context: StoryMachineContext): boolean {
       .map((e) => e.finding)
       .filter((finding): finding is Finding => !!finding)
       .filter((f) => isFindingBlocking(f, effectiveBlockingSeverities, roundCount));
-    return blocking.length === 0;
-  } catch {
-    return false;
+    if (blocking.length > 0) {
+      return {
+        ok: false,
+        code: 'review_finding_blocking',
+        message: `${blocking.length} open blocking finding(s): ${blocking.map(f => `${f.id} [${f.severity}] ${f.desc}`).join('; ')}`,
+      };
+    }
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, code: 'review_verdict_error', message: error instanceof Error ? error.message : String(error) };
   }
+}
+
+export function canPassReviewGuard(context: StoryMachineContext): boolean {
+  return evaluateReviewVerdict(context).ok;
 }
 
 export function canFinishGuard(context: StoryMachineContext): boolean {
@@ -709,6 +776,11 @@ export function canFinishGuard(context: StoryMachineContext): boolean {
   if (unverified.length > 0) {
     return false;
   }
+
+  // Reconsume the exact phase-agnostic REVIEW verdict. A hand-edited TEST
+  // phase cannot bypass reviewer presence, required lanes/quorum, review-loop,
+  // current bindings, or open blocking findings.
+  if (!evaluateReviewVerdict(context).ok) return false;
 
   const reviewEscalation = evaluateReviewEscalation({
     projectRoot: context.projectRoot,
@@ -1081,112 +1153,8 @@ export function getGuardFailureReason(
   }
 
   if (targetPhase === 'TEST') {
-    // B-7a34 CHK-003: review loop gate — checked first, highest priority.
-    // Open loop always blocks regardless of reviewer/finding state.
-    try {
-      const loopRecords = store.readReviewLoopRecords(storyId);
-      const activeLoops = listActiveLoops(loopRecords);
-      if (activeLoops.length > 0) {
-        const details = activeLoops.map(loopId => {
-          const latest = deriveLatestLoopRecord(loopRecords, loopId);
-          const parts: string[] = [`loopId=${loopId}`];
-          if (latest && latest.event === 'iteration') {
-            const iter = latest as ReviewLoopIteration;
-            parts.push(`decision=${iter.decision}`);
-            if (iter.nextAction) {
-              const naEntries = Object.entries(iter.nextAction)
-                .filter(([, v]) => v != null)
-                .map(([k, v]) => `${k}=${String(v)}`);
-              if (naEntries.length > 0) parts.push(`nextAction={${naEntries.join(', ')}}`);
-            }
-          }
-          return `  [open_loop] ${parts.join(', ')}`;
-        });
-        return (
-          `Cannot enter TEST: active review loop(s) block REVIEW→TEST [open_review_loop]\n` +
-          `${details.join('\n')}\n` +
-          `→ 关闭所有 open loop（review_loop_close --status=resolved）后确保 trigger refs 已 resolved，再重跑 story_advance --phase=TEST`
-        );
-      }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      return `Cannot enter TEST: review loop records could not be read [review_loop_record_error]\n  - ${msg}\n→ 修复 review-loops evidence 后重跑 story_advance --phase=TEST`;
-    }
-
-    const config = loadConfig(projectRoot);
-    const story = store.readStory(storyId);
-    const policy = resolveWorkflowPolicy(config, story);
-
-    // If policy doesn't require reviewer, skip finding checks
-    if (!policy.review.requireReviewer) {
-      // no review gate — pass through
-    } else {
-      try {
-        const findings = store.readFindings(storyId);
-        const reviewPasses = store.readReviewPasses(storyId);
-        if ((!findings.findings || findings.findings.length === 0) && (!reviewPasses.passes || reviewPasses.passes.length === 0)) {
-          return `Cannot enter TEST: reviewer not run (no findings or review pass)\n→ Start reviewers per opt-in results (see lattice reviewer_list); when no issues, use review_pass_set to record pass`;
-        }
-        const evidenceState = collectReviewerEvidenceState(store, storyId, projectRoot ?? process.cwd());
-        if (evidenceState.invalid.length > 0) {
-          return `Cannot enter TEST: reviewer evidence has invalid/expired review run bindings:\n${evidenceState.invalid.slice(0, 5).map(issue => `  - ${issue.message}`).join('\n')}`;
-        }
-        if (policy.review.requireReviewerFinding) {
-          const currentRound = story.currentReviewRound;
-          const currentRoundReviewerEvidence = evidenceState.valid.map((e) => ({ agent: e.agent, kind: e.kind }));
-
-          const { roundCount: rc } = resolveEffectiveBlockingSeverities(store, storyId, policy);
-          if (rc <= 1) {
-            // Round 1: require findings from every opt-in reviewer (same source as reviewer_list).
-            let checklist: { items: unknown[] } = { items: [] };
-            try { checklist = store.readChecklist(storyId); } catch {}
-            let decision = null;
-            try { decision = store.readDecision(storyId); } catch {}
-            const understanding = store.readUnderstanding(storyId);
-            const touchpoints = understanding?.touchpoints
-              ?? detectMdTouchpointsFromGit(projectRoot ?? process.cwd());
-            const optIn = computeActiveReviewers(story, checklist, decision, touchpoints);
-            const missing = optIn.filter(reviewer => !currentRoundReviewerEvidence.some(
-              e => findingAgentMatchesReviewer(e.agent, reviewer.name),
-            ));
-            if (missing.length > 0) {
-              const names = optIn.map(r => r.name).join(',');
-              const missingNames = missing.map(r => r.name).join(',');
-              const presentAgents = Array.from(new Set(currentRoundReviewerEvidence.map(e => e.agent))).join(', ') || 'none';
-              return `Cannot enter TEST: Expected ${optIn.length} reviewers (opt-in: ${names}); currently ${currentRoundReviewerEvidence.length} reviewer evidence covers ${optIn.length - missing.length} reviewer(s) (Missing: ${missingNames}; agents seen: ${presentAgents})\n→ Start the missing lattice-review-* agents in parallel; when no issues, use review_pass_set`;
-            }
-
-            // B-1fca CHK-002: quorum diagnostics for round 1 disputes/missing lanes
-            const quorumR1 = evaluateReviewerQuorum({
-              activeReviewers: optIn.map(r => r.name),
-              evidence: buildQuorumEvidence(currentRoundReviewerEvidence),
-              profile: policy.profile as 'light' | 'balanced' | 'strict',
-            });
-            if (!quorumR1.ok) {
-              return `Cannot enter TEST: Reviewer quorum not met (Round 1):\n${quorumR1.blocking.map(m => `  - ${m}`).join('\n')}\n→ Re-run the corresponding reviewer after fixing reviewer dispute; when no issues, use review_pass_set`;
-            }
-          } else {
-            if (currentRoundReviewerEvidence.length === 0) {
-              return currentRound
-                ? `Cannot enter TEST: Round ${rc} current review round (${currentRound}) has no reviewer finding/pass; please start the corresponding lattice-review-* agents`
-                : `Cannot enter TEST: findings all come from main agent (reviewer not run)\n→ Start lattice-review-* subagent`;
-            }
-          }
-        }
-        const { effectiveBlockingSeverities, roundCount } = resolveEffectiveBlockingSeverities(store, storyId, policy);
-
-        // B-3fad CHK-001: evidenceState dimension — only verified (or legacy missing-field) open findings block.
-        const blocking = evidenceState.valid
-          .map((e) => e.finding)
-          .filter((finding): finding is Finding => !!finding)
-          .filter((f) => isFindingBlocking(f, effectiveBlockingSeverities, roundCount));
-        if (blocking.length > 0) {
-          return `Cannot enter TEST: ${blocking.length} blocking finding(s) open (Round ${roundCount}, blocking: ${effectiveBlockingSeverities.join('/')}):\n${blocking.map(f => `  - ${f.id} [${f.severity}] ${f.desc}`).join('\n')}\n→ After fixing, finding_resolve, or to confirm not fixing use finding_dismiss (reason ≥10 characters required)`;
-        }
-      } catch {
-        return `Cannot enter TEST: reviewer not run (no findings.json)\n→ Start reviewers per opt-in results (see lattice reviewer_list)`;
-      }
-    }
+    const verdict = evaluateReviewVerdict({ storyId, store, projectRoot: projectRoot ?? process.cwd(), ...(gitCwd ? { gitCwd } : {}) });
+    if (!verdict.ok) return `Cannot enter TEST: ${verdict.message} [${verdict.code}]`;
   }
 
   if (targetPhase === 'DONE') {
@@ -1235,6 +1203,21 @@ export function getGuardFailureReason(
       return `Cannot enter DONE: ${unverifiedPromises.length} docsPromise entries unverified and not waived: ${names}. [unverified_promise] → Use delivery_waiver_add to write a waiver or re-run reviewer → Run story_advance DEV to rework and fill in`;
     }
 
+    const reviewVerdict = evaluateReviewVerdict({
+      storyId,
+      store,
+      projectRoot: projectRoot ?? process.cwd(),
+      ...(gitCwd ? { gitCwd } : {}),
+    });
+    if (!reviewVerdict.ok) {
+      // Keep the established closeout-freshness tag stable while all other
+      // reviewer verdict failures expose their shared machine-readable code.
+      if (reviewVerdict.code === 'review_evidence_invalid') {
+        return `Cannot enter DONE: ${reviewVerdict.message}. [stale_closeout_review] → Return to DEV/REVIEW and record current reviewer evidence before TEST`;
+      }
+      return `Cannot enter DONE: ${reviewVerdict.message}. [${reviewVerdict.code}] → Return to DEV/REVIEW and record current reviewer evidence before TEST`;
+    }
+
     const reviewEscalation = evaluateReviewEscalation({
       projectRoot: projectRoot ?? process.cwd(),
       gitCwd: gitCwd ?? resolveGitCwd({
@@ -1264,6 +1247,7 @@ export function getGuardFailureReason(
     if (!reviewAssuranceFloor.ok) {
       return formatReviewAssuranceFloorFailure(reviewAssuranceFloor);
     }
+
   }
 
   return null;

@@ -3,6 +3,7 @@ import type { HandlerContext } from './context.js';
 import type { TestEvidenceData } from '../core/types.js';
 import { currentMaterialHash } from '../core/evidence-freshness.js';
 import { execSync } from 'child_process';
+import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 
 export function createTestHandlers(ctx: HandlerContext) {
   const { store } = ctx;
@@ -32,7 +33,10 @@ export function createTestHandlers(ctx: HandlerContext) {
         ...(materialHash ? { materialHash } : {}),
       };
       store.writeTestEvidence(args.storyId, data);
-      return `Test evidence updated (${args.result})`;
+      const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'test_add', {
+        closeoutArtifactPaths: ['test-evidence.json'],
+      });
+      return `Test evidence updated (${args.result})${commitHint}`;
     },
 
     test_list(args: { storyId: string }): TestEvidenceData | { _empty: true; _mode: 'latest_snapshot'; _hint: string } | { _mode: 'latest_snapshot'; latest: TestEvidenceData; _hint: string } | null {

@@ -10,6 +10,12 @@ import {
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import type { ChecklistData } from '../core/types.js';
+import { validatePersistedDeliveryContextPack } from '../core/closeout-trust.js';
+import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
+import {
+  createLegacyLocalOnlyDeliveryClaims,
+  type LegacyLocalOnlyDeliveryClaims,
+} from '../core/legacy-delivery-claims-compat.js';
 
 /**
  * P6 — `delivery_context_pack`: the delivery-review CONTEXT PRODUCER for the
@@ -20,7 +26,7 @@ import type { ChecklistData } from '../core/types.js';
  * Default (no --write) is READ-ONLY: it gathers and prints the structured
  * delivery context pack the delivery reviewer needs — the delivery-scoped git
  * diff vs main, the docs-promises (from plan.md + checklist userSees), the
- * real-machine test refs (transcript-diff.md presence, story smoke/test files,
+ * real-machine test refs (evidence/live-smoke-transcript.json presence, story smoke/test files,
  * verificationEvidence commands), the validation + review-round state, and the
  * CURRENT delivery-check + metadata-waiver status CONSUMED from the existing V1
  * StoryReadinessReport deliveryCheckRef (it never invents a new readiness
@@ -40,7 +46,7 @@ import type { ChecklistData } from '../core/types.js';
 
 const READINESS_TARGET = 'DONE' as const;
 const PACK_ARTIFACT = 'evidence/delivery-context-pack.json';
-const TRANSCRIPT_DIFF_REL = 'evidence/transcript-diff.md';
+const LIVE_SMOKE_TRANSCRIPT_REL = 'evidence/live-smoke-transcript.json';
 const DIFF_SUMMARY_MAX = 4000;
 
 interface DeliveryContextPackArgs {
@@ -65,7 +71,7 @@ interface DeliveryDocsPromise {
 }
 
 interface DeliveryRealMachineTests {
-  /** Whether evidence/transcript-diff.md exists in the story dir. */
+  /** Whether the canonical evidence/live-smoke-transcript.json exists. */
   transcriptDiff: boolean;
   /** Story-declared smoke/test files from checklist files.test. */
   testFiles: string[];
@@ -99,7 +105,7 @@ export interface DeliveryContextPackReport {
   diff: DeliveryDiff;
   /** Docs-promises authored in plan.md + checklist userSees. */
   docsPromises: DeliveryDocsPromise[];
-  /** Real-machine test refs (transcript-diff presence, test files, evidence commands). */
+  /** Real-machine test refs (canonical live-smoke transcript presence, test files, evidence commands). */
   realMachineTests: DeliveryRealMachineTests;
   candidateRouting: {
     artifactDigest: string;
@@ -125,11 +131,7 @@ export interface DeliveryContextPackReport {
     persisted: boolean;
     artifactPath: string | null;
   };
-  claims: {
-    authorityDone: false;
-    fullAuthorityDone: false;
-    productionDone: false;
-  };
+  claims: LegacyLocalOnlyDeliveryClaims;
 }
 
 /** The persisted artifact shape (a subset of the report — no transient mode/write echo). */
@@ -145,7 +147,7 @@ interface PersistedDeliveryContextPackArtifact {
   deliveryCheck: { status: DeliveryCheckStatus['status']; ref: Record<string, unknown> | null };
   waiver: { status: 'surfaced' | 'none' };
   isSigner: false;
-  claims: { authorityDone: false; fullAuthorityDone: false; productionDone: false };
+  claims: LegacyLocalOnlyDeliveryClaims;
 }
 
 function wantsJson(args: DeliveryContextPackArgs): boolean {
@@ -279,9 +281,9 @@ function userSeesDocsPromises(checklist: ChecklistData): DeliveryDocsPromise[] {
   return promises;
 }
 
-/** Real-machine test refs: transcript-diff presence + story test files + evidence commands. */
+/** Real-machine test refs: canonical live-smoke transcript presence + story test files + evidence commands. */
 function realMachineTests(ctx: HandlerContext, storyId: string, checklist: ChecklistData): DeliveryRealMachineTests {
-  const transcriptDiff = existsSync(ctx.store.storyFilePath(storyId, TRANSCRIPT_DIFF_REL));
+  const transcriptDiff = existsSync(ctx.store.storyFilePath(storyId, LIVE_SMOKE_TRANSCRIPT_REL));
 
   const testFiles = new Set<string>();
   const evidenceCommands = new Set<string>();
@@ -352,7 +354,7 @@ function persistArtifact(artifactPath: string, artifact: PersistedDeliveryContex
   const tmpPath = `${artifactPath}.tmp-${process.pid}-${Date.now()}`;
   try {
     writeFileSync(tmpPath, serialized, 'utf8');
-    JSON.parse(readFileSync(tmpPath, 'utf8'));
+    validatePersistedDeliveryContextPack(JSON.parse(readFileSync(tmpPath, 'utf8')), artifact.storyId);
     renameSync(tmpPath, artifactPath);
   } finally {
     try {
@@ -376,7 +378,7 @@ function toPersistable(report: DeliveryContextPackReport): PersistedDeliveryCont
     deliveryCheck: { status: report.deliveryCheck.status, ref: report.deliveryCheck.ref },
     waiver: { status: report.waiver.status },
     isSigner: false,
-    claims: { authorityDone: false, fullAuthorityDone: false, productionDone: false },
+    claims: createLegacyLocalOnlyDeliveryClaims(),
   };
 }
 
@@ -406,7 +408,7 @@ export function renderDeliveryContextPackReport(report: DeliveryContextPackRepor
   }
 
   lines.push('', 'Real-machine tests:');
-  lines.push(`  transcript-diff.md present: ${report.realMachineTests.transcriptDiff}`);
+  lines.push(`  live-smoke-transcript.json present: ${report.realMachineTests.transcriptDiff}`);
   lines.push(`  test files: ${report.realMachineTests.testFiles.length === 0 ? '(none declared)' : report.realMachineTests.testFiles.join(', ')}`);
   lines.push(`  evidence commands: ${report.realMachineTests.evidenceCommands.length === 0 ? '(none recorded)' : report.realMachineTests.evidenceCommands.join(' | ')}`);
   lines.push('', 'Candidate routing:');
@@ -505,13 +507,16 @@ export function createDeliveryContextPackHandlers(ctx: HandlerContext): Record<s
       deliveryReadinessRow: deliveryRow,
       isSigner: false,
       write: { requested: wantsWrite(args), persisted: false, artifactPath: null },
-      claims: { authorityDone: false, fullAuthorityDone: false, productionDone: false },
+      claims: createLegacyLocalOnlyDeliveryClaims(),
     };
 
     // --write: persist the SAME structured pack (ownership/scope gated by the CLI
     // gate). This NEVER writes delivery-check.json and NEVER signs.
     if (wantsWrite(args)) {
       persistArtifact(artifactPath, toPersistable(report));
+      autoCommitStoryMetadata(ctx.root, args.storyId, 'delivery_context_pack', {
+        closeoutArtifactPaths: ['evidence/delivery-context-pack.json'],
+      });
       report.mode = { runCommands: false, writeEvidence: true };
       report.write = { requested: true, persisted: true, artifactPath };
     }

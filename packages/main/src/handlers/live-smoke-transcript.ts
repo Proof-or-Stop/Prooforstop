@@ -11,6 +11,7 @@ import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash } fro
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import type { ChecklistData } from '../core/types.js';
+import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 
 /**
  * P5 (B-9b5e) — `live_smoke_transcript`: the explicit live-smoke transcript
@@ -441,6 +442,9 @@ export function createLiveSmokeTranscriptHandlers(ctx: HandlerContext): Record<s
     let persisted = false;
     if (writeRequested) {
       persistArtifact(artifactPath, args.storyId, expected, actual, gitCwd, ctx.root);
+      autoCommitStoryMetadata(ctx.root, args.storyId, 'live_smoke_transcript', {
+        closeoutArtifactPaths: [TRANSCRIPT_ARTIFACT],
+      });
       persisted = true;
     }
 

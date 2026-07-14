@@ -1,0 +1,20 @@
+{
+  "storyId": "B-f458",
+  "expected": "User runs the M4.C1 contract verifier and sees `PASS closeout artifact classifications: closed policy set verified`; adding an unknown trusted path or wrong writer makes the command exit non-zero with the exact path.",
+  "actual": {
+    "command": "node packages/main/dist/tasks/closeout-trust-smoke.js",
+    "exitCode": 0,
+    "stdout": "PASS closeout artifact classifications: closed policy set verified\nPASS composite scope digest: semantic scope facts bound\nPASS trusted closeout artifacts: schema and embedded hashes verified\nPASS local closeout requires fresh review before TEST retention\nPASS metadata-only review retention is fail-closed\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-13T22:37:40.524Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "b376e1a24c8f0919968a7cbbce823a6bfda222b0",
+  "materialHash": "a4c59713a334cdab21142bb79fe39f0e99c1a1c36020c32e44ebd0f9ae5a3613"
+}

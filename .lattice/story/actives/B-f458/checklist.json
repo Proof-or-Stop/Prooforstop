@@ -8,10 +8,80 @@
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M4---CLI-Mediated-Story-Artifact-Discipline",
         "docs/requirements/decisions/lifecycle-artifact-scope.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
-      "userSees": "User runs the M4.C1 contract verifier and sees `PASS closeout artifact classifications: closed set and canonical writer provenance verified`; adding an unknown trusted path or wrong writer makes the command exit non-zero with the exact path."
+      "status": "done",
+      "startTime": "2026-07-13T08:37:36.211Z",
+      "endTime": "2026-07-13T14:04:23.947Z",
+      "userSees": "User runs the M4.C1 contract verifier and sees `PASS closeout artifact classifications: closed policy set verified`; adding an unknown trusted path or wrong writer makes the command exit non-zero with the exact path.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "The M4.C1 contract verifier enumerates the closed set of scope-defining and closeout-evidence artifact paths, preserves the existing scope-contract class, and reports the canonical writer policy for every registered path without treating local same-UID telemetry as authority.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "The verifier rejects an unknown lifecycle artifact path and a known path paired with a non-canonical command, exits non-zero, and names the offending path and writer.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "A path cannot become registered through prefix, basename, traversal, symlink, alias, or broad-whitelist matching; milestone-closeout-only ownership remains excluded unless B-9188 has merged and registered it canonically; locally mintable receipts never prove writer authority.",
+            "type": "logic"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm test",
+          "result": "pass",
+          "note": "Full npm test suite passed at implementation commit 1e9684f531 after F-070/F-071/F-072/F-073 destructuring and spread provenance hardening.",
+          "headHash": "a1d77ce59ede52d1ca88b2bba2d5812685675408",
+          "materialHash": "420e4a6df93e253f3f361142f3e53e43e90d62f62111958443b28d3299a83103",
+          "storyFilesHash": "5f81fc9894f48c6c3c6feca8e66400c1a78b8a71a66f7eca71165e68311c746f",
+          "timestamp": "2026-07-14T15:55:59.094Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/brief-output-smoke.js",
+          "result": "pass",
+          "note": "Closeout trust, runtime fact, and brief-output regression checks passed at implementation commit 1e9684f531.",
+          "headHash": "a1d77ce59ede52d1ca88b2bba2d5812685675408",
+          "materialHash": "420e4a6df93e253f3f361142f3e53e43e90d62f62111958443b28d3299a83103",
+          "storyFilesHash": "5f81fc9894f48c6c3c6feca8e66400c1a78b8a71a66f7eca71165e68311c746f",
+          "timestamp": "2026-07-14T15:55:59.094Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node scripts/verify-process-fact-contract.mjs && node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "Adversarial checks passed at implementation commit 1e9684f531: known-key any/unknown fallback, own-enumerable ordered spread override, finite typed and symbol spread provenance, true nested array rest declaration/assignment/parameter controls, and four reserved-name negative matrix; process-fact pins match the controls.",
+          "headHash": "a1d77ce59ede52d1ca88b2bba2d5812685675408",
+          "materialHash": "420e4a6df93e253f3f361142f3e53e43e90d62f62111958443b28d3299a83103",
+          "storyFilesHash": "5f81fc9894f48c6c3c6feca8e66400c1a78b8a71a66f7eca71165e68311c746f",
+          "timestamp": "2026-07-14T15:55:59.094Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -21,10 +91,84 @@
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M4---CLI-Mediated-Story-Artifact-Discipline",
         "docs/requirements/decisions/story-files-hash-material-drift.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
-      "userSees": "User sees `PASS composite scope digest: semantic scope facts bound`; changing acknowledgement content/provenance, milestone ledger, or slice plan changes the digest and blocks metadata-only review retention until signed re-attestation."
+      "endTime": "2026-07-13T14:04:25.641Z",
+      "userSees": "User sees `PASS composite scope digest: semantic scope facts bound`; changing acknowledgement content/provenance, milestone ledger, or slice plan changes the digest and blocks metadata-only review retention until signed re-attestation.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:0",
+            "desc": "The composite scope-defining digest deterministically binds the normalized scope acknowledgement content, its canonical writer provenance, the milestone ledger, and the slice plan, and identical semantic inputs reproduce the same digest.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:edge:0",
+            "desc": "Changing any one bound input—acknowledgement content, acknowledgement provenance, milestone ledger, or slice plan—changes the composite digest and blocks metadata-only review retention pending fresh signed re-attestation.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:0",
+            "desc": "Reordering keys, rewriting only an embedded claimed digest, replaying an old acknowledgement with different provenance, or substituting an unbound ledger/plan cannot preserve or spoof the composite digest.",
+            "type": "logic"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/guard-session.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/review-scope-binding.ts",
+          "packages/main/src/core/done-prepare-validation-reuse.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/review-run.ts"
+        ],
+        "create": [
+          "packages/main/src/core/closeout-trust.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm test",
+          "result": "pass",
+          "note": "Full npm test suite passed at implementation commit 1e9684f531 after F-070/F-071/F-072/F-073 destructuring and spread provenance hardening.",
+          "headHash": "a1d77ce59ede52d1ca88b2bba2d5812685675408",
+          "materialHash": "420e4a6df93e253f3f361142f3e53e43e90d62f62111958443b28d3299a83103",
+          "storyFilesHash": "5f81fc9894f48c6c3c6feca8e66400c1a78b8a71a66f7eca71165e68311c746f",
+          "timestamp": "2026-07-14T15:55:59.094Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/brief-output-smoke.js",
+          "result": "pass",
+          "note": "Closeout trust, runtime fact, and brief-output regressions passed at implementation commit 1e9684f531.",
+          "headHash": "a1d77ce59ede52d1ca88b2bba2d5812685675408",
+          "materialHash": "420e4a6df93e253f3f361142f3e53e43e90d62f62111958443b28d3299a83103",
+          "storyFilesHash": "5f81fc9894f48c6c3c6feca8e66400c1a78b8a71a66f7eca71165e68311c746f",
+          "timestamp": "2026-07-14T15:55:59.094Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node scripts/verify-process-fact-contract.mjs && node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "Adversarial checks passed at implementation commit 1e9684f531: known-key any/unknown fallback, own-enumerable ordered spread override, finite typed and symbol spread provenance, true nested array rest declaration/assignment/parameter controls, and four reserved-name negative matrix; process-fact pins match the controls.",
+          "headHash": "a1d77ce59ede52d1ca88b2bba2d5812685675408",
+          "materialHash": "420e4a6df93e253f3f361142f3e53e43e90d62f62111958443b28d3299a83103",
+          "storyFilesHash": "5f81fc9894f48c6c3c6feca8e66400c1a78b8a71a66f7eca71165e68311c746f",
+          "timestamp": "2026-07-14T15:55:59.094Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -34,10 +178,82 @@
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M4---CLI-Mediated-Story-Artifact-Discipline",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
-      "userSees": "User sees `PASS trusted closeout artifacts: schema and embedded hashes verified`; a malformed ledger/plan/rollup/delivery-context artifact or forged embedded hash is rejected with a named artifact error."
+      "endTime": "2026-07-13T14:04:27.127Z",
+      "userSees": "User sees `PASS trusted closeout artifacts: schema and embedded hashes verified`; a malformed ledger/plan/rollup/delivery-context artifact or forged embedded hash is rejected with a named artifact error.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:happy:0",
+            "desc": "Before trust-boundary use, valid milestone-ledger, slice-plan, parent-rollup, and delivery-context artifacts pass their runtime schemas and independently recomputed ledgerHash, planHash, and rollupHash checks.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:edge:0",
+            "desc": "Each artifact class fails closed with a named artifact and reason when required fields are missing, types/versions are invalid, or its recomputed embedded hash differs from the persisted claim.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:adversarial:0",
+            "desc": "An attacker cannot gain trust by changing payload and embedded hash together under a non-canonical schema, using duplicate/extra ambiguity, cross-story substitution, stale provenance, or a structurally plausible but semantically invalid delivery context.",
+            "type": "logic"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/delivery-context-pack.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "packages/main/src/tasks/delivery-context-pack-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm test",
+          "result": "pass",
+          "note": "Full npm test suite passed at implementation commit 1e9684f531 after F-070/F-071/F-072/F-073 hardening.",
+          "headHash": "a1d77ce59ede52d1ca88b2bba2d5812685675408",
+          "materialHash": "420e4a6df93e253f3f361142f3e53e43e90d62f62111958443b28d3299a83103",
+          "storyFilesHash": "5f81fc9894f48c6c3c6feca8e66400c1a78b8a71a66f7eca71165e68311c746f",
+          "timestamp": "2026-07-14T15:55:59.094Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/brief-output-smoke.js",
+          "result": "pass",
+          "note": "Closeout trust, runtime fact, and brief-output regressions passed at implementation commit 1e9684f531.",
+          "headHash": "a1d77ce59ede52d1ca88b2bba2d5812685675408",
+          "materialHash": "420e4a6df93e253f3f361142f3e53e43e90d62f62111958443b28d3299a83103",
+          "storyFilesHash": "5f81fc9894f48c6c3c6feca8e66400c1a78b8a71a66f7eca71165e68311c746f",
+          "timestamp": "2026-07-14T15:55:59.094Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node scripts/verify-process-fact-contract.mjs && node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "Adversarial checks passed at implementation commit 1e9684f531: known-key any/unknown fallback, own-enumerable ordered spread override, finite typed and symbol spread provenance, true nested array rest controls, and four-name negative matrix; process pins match.",
+          "headHash": "a1d77ce59ede52d1ca88b2bba2d5812685675408",
+          "materialHash": "420e4a6df93e253f3f361142f3e53e43e90d62f62111958443b28d3299a83103",
+          "storyFilesHash": "5f81fc9894f48c6c3c6feca8e66400c1a78b8a71a66f7eca71165e68311c746f",
+          "timestamp": "2026-07-14T15:55:59.094Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -47,10 +263,88 @@
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#M4---CLI-Mediated-Story-Artifact-Discipline",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
-      "userSees": "User runs the TEST roll-up regression and sees `PASS canonical closeout write retained TEST`; the paired source/docs/scope mutations visibly route back to DEV/REVIEW."
+      "endTime": "2026-07-13T14:04:28.497Z",
+      "userSees": "User runs the TEST roll-up regression and sees `PASS local closeout requires fresh review before TEST retention`; same-UID forged receipts and paired source/docs/scope mutations fail closed, while a fresh post-closeout review can continue TEST.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-004:happy:0",
+            "desc": "In TEST, a local canonical parent_ledger_rollup_set emits causal audit telemetry but cannot retain pre-closeout review authority; after a fresh post-closeout review over unchanged product/material diff and composite scope digest, the story can continue TEST.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-004:edge:0",
+            "desc": "Paired mutations to a source, test, or documentation file, or to any semantic scope fact, remain distinguishable from closeout-only metadata and require the appropriate DEV/REVIEW path; closeout-only metadata still requires fresh review.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-004:adversarial:0",
+            "desc": "A same-UID manual writer, wrong writer, malformed/hash-forged/unknown-path receipt, or mixed rollup-plus-material change cannot use locally mintable causal telemetry as canonical-writer authority or suppress re-review.",
+            "type": "cli"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/delivery-check.ts",
+          "packages/main/src/handlers/evaluate.ts",
+          "packages/main/src/handlers/summary.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm test",
+          "result": "pass",
+          "note": "Full npm test suite passed at implementation commit 1e9684f531 after F-070/F-071/F-072/F-073 hardening.",
+          "headHash": "a1d77ce59ede52d1ca88b2bba2d5812685675408",
+          "materialHash": "420e4a6df93e253f3f361142f3e53e43e90d62f62111958443b28d3299a83103",
+          "storyFilesHash": "5f81fc9894f48c6c3c6feca8e66400c1a78b8a71a66f7eca71165e68311c746f",
+          "timestamp": "2026-07-14T15:55:59.094Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/brief-output-smoke.js",
+          "result": "pass",
+          "note": "Closeout trust, runtime fact, and brief-output regressions passed at implementation commit 1e9684f531.",
+          "headHash": "a1d77ce59ede52d1ca88b2bba2d5812685675408",
+          "materialHash": "420e4a6df93e253f3f361142f3e53e43e90d62f62111958443b28d3299a83103",
+          "storyFilesHash": "5f81fc9894f48c6c3c6feca8e66400c1a78b8a71a66f7eca71165e68311c746f",
+          "timestamp": "2026-07-14T15:55:59.094Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node scripts/verify-process-fact-contract.mjs && node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "Adversarial checks passed at implementation commit 1e9684f531: known-key any/unknown fallback, own-enumerable ordered spread override, finite typed and symbol spread provenance, true nested array rest controls, and four-name negative matrix; process pins match.",
+          "headHash": "a1d77ce59ede52d1ca88b2bba2d5812685675408",
+          "materialHash": "420e4a6df93e253f3f361142f3e53e43e90d62f62111958443b28d3299a83103",
+          "storyFilesHash": "5f81fc9894f48c6c3c6feca8e66400c1a78b8a71a66f7eca71165e68311c746f",
+          "timestamp": "2026-07-14T15:55:59.094Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -60,10 +354,101 @@
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#Cross-Cutting-Validation-Matrix",
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
-      "userSees": "User runs the M4.C1 regression suite and sees `PASS metadata-only review retention is fail-closed`; unknown paths, changed material/scope, missing provenance, malformed hashes, TEST acknowledgement, and new-round pass reuse are all rejected."
+      "endTime": "2026-07-13T14:04:29.874Z",
+      "userSees": "User runs the M4.C1 regression suite and sees `PASS metadata-only review retention is fail-closed`; unknown paths, changed material/scope, missing provenance, malformed hashes, same-UID forged receipts, TEST acknowledgement, and stale review reuse are all rejected, while a fresh post-closeout review succeeds.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-005:happy:0",
+            "desc": "Metadata-only review acceptance succeeds only for a fresh review snapshot taken after the closeout artifacts exist, with every changed path registered, product/material diff and composite scope digest unchanged, and all persisted schemas/recomputed hashes valid; local causal receipts alone never retain an earlier review.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-005:edge:0",
+            "desc": "The regression suite independently negates each condition—unknown path, changed product/material file, changed scope fact/digest, missing or invalid schema/hash, stale pre-closeout review, and TEST scope_contract_acknowledge—and every case fails closed.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-005:adversarial:0",
+            "desc": "A pass from an earlier review round or pre-closeout snapshot is never inherited, and a same-UID actor cannot make locally minted causal receipts authoritative even when artifact bytes, HEAD, storyFilesHash, command name, or chain fields appear coherent.",
+            "type": "logic"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/done-prepare-validation-reuse.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/delivery-check.ts",
+          "packages/main/src/handlers/evaluate.ts",
+          "packages/main/src/handlers/summary.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/closeout-trust-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "command": "npm test",
+          "result": "pass",
+          "note": "Full npm test suite passed at implementation commit 1e9684f531 after F-070/F-071/F-072/F-073 hardening.",
+          "headHash": "a1d77ce59ede52d1ca88b2bba2d5812685675408",
+          "materialHash": "420e4a6df93e253f3f361142f3e53e43e90d62f62111958443b28d3299a83103",
+          "storyFilesHash": "5f81fc9894f48c6c3c6feca8e66400c1a78b8a71a66f7eca71165e68311c746f",
+          "timestamp": "2026-07-14T15:55:59.094Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/brief-output-smoke.js",
+          "result": "pass",
+          "note": "Closeout trust, runtime fact, and brief-output regressions passed at implementation commit 1e9684f531.",
+          "headHash": "a1d77ce59ede52d1ca88b2bba2d5812685675408",
+          "materialHash": "420e4a6df93e253f3f361142f3e53e43e90d62f62111958443b28d3299a83103",
+          "storyFilesHash": "5f81fc9894f48c6c3c6feca8e66400c1a78b8a71a66f7eca71165e68311c746f",
+          "timestamp": "2026-07-14T15:55:59.094Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node scripts/verify-process-fact-contract.mjs && node packages/main/dist/tasks/usage-burn-alert-smoke.js",
+          "result": "pass",
+          "note": "Adversarial checks passed at implementation commit 1e9684f531: known-key any/unknown fallback, own-enumerable ordered spread override, finite typed and symbol spread provenance, true nested array rest controls, and four-name negative matrix; process pins match.",
+          "headHash": "a1d77ce59ede52d1ca88b2bba2d5812685675408",
+          "materialHash": "420e4a6df93e253f3f361142f3e53e43e90d62f62111958443b28d3299a83103",
+          "storyFilesHash": "5f81fc9894f48c6c3c6feca8e66400c1a78b8a71a66f7eca71165e68311c746f",
+          "timestamp": "2026-07-14T15:55:59.094Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-13T08:37:36.211Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Required lattice-implementer has started M4.C1 implementation.",
+      "agent": "lattice-implementer"
     }
   ]
 }

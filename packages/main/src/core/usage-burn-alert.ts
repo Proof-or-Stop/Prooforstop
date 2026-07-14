@@ -292,6 +292,8 @@ export function renderBurnFindingBlock(f: BurnAlertFinding): string[] {
 export interface RenderHostBurnScanOptions {
   /** True when the scan was skipped via LATTICE_BURN_ALERT_RECENT_HOURS=0. */
   disabled: boolean;
+  /** Keep actionable counts and a bounded sample; doctor --full retains every detail line. */
+  brief?: boolean;
 }
 
 /** The `lattice doctor` section. */
@@ -313,6 +315,20 @@ export function renderHostBurnScan(
   );
   if (evaluation.findings.length === 0) {
     lines.push(`  ✓ no host sessions over burn thresholds (${evaluation.scanned} scanned)`);
+    return lines;
+  }
+  if (opts.brief) {
+    for (const finding of evaluation.findings.slice(0, 3)) {
+      const tokens = finding.burnInputTokens === null ? 'unknown' : `~${fmt(finding.burnInputTokens)}`;
+      lines.push(`  ✗ BURN ALERT ${finding.host} ${finding.sessionId} (${finding.originLabel}) ${tokens} input tokens; tripped: ${finding.reasons.join(', ')}`);
+    }
+    if (evaluation.findings.length > 3) {
+      lines.push(`  ... and ${evaluation.findings.length - 3} more over threshold (use lattice doctor --full for every session detail)`);
+    }
+    lines.push(
+      `  → ${evaluation.findings.length} session(s) over burn thresholds out of ${evaluation.scanned} scanned. ` +
+        'Close/restart long-lived sessions; use lattice doctor --full for every session detail; advisory only, never gate evidence.',
+    );
     return lines;
   }
   for (const f of evaluation.findings) lines.push(...renderBurnFindingBlock(f));
