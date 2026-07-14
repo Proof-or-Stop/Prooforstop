@@ -492,6 +492,32 @@
         "scanEscalationReason": null
       },
       "_hash": "01fd83d5d485acc81c9fe7c4cdc8ef401c96f57fa8e47fd524c2dece96c6e446"
+    },
+    {
+      "id": "B-bbaf:RP-018",
+      "agent": "lattice-review-concept",
+      "note": "Fresh concept pass on current material. Verified against last concept run RR-027 (head 2ed84ddb): git diff 2ed84ddb..HEAD (excluding .lattice) shows exactly one line changed in scripts/verify-process-fact-contract.mjs — the hardcoded cli-engine.ts fingerprint literal 878828ad...f64f16a synced to f8a151cb...5bae, resolving F-015 (test-script-only, no source/concept change). Confirmed: (1) the new literal matches the PINNED_EXECUTABLE_SOURCE_FINGERPRINTS entry in retired-authority-vocabulary-guard-smoke.ts:359 exactly, so no drift remains between the two duplicated copies; (2) node scripts/verify-process-fact-contract.mjs now exits 0 (Process fact contract verified) confirming the fix is real; (3) grep for both old and new hash literals across the repo shows the old value 878828ad... only appears in historical .lattice findings/review-passes records (audit trail, not code) and the new value appears consistently in both live source copies. Re-verified story_resume concept has zero dangling references and is consistent across command-catalog.ts (CLI schema), command-policy.ts (storyScopedMutating/allowedPhases:all), config.ts (DEFAULT_PHASE_TOOLS all-phase entry), process-fact-levels.ts (L2/story), handlers/story.ts (impl), and convergence-breaker.ts (freeze-message hint) — no old/stale naming found. No concept was deleted or replaced by this diff. No blocker.",
+      "createdAt": "2026-07-14T19:22:08.053Z",
+      "reviewRound": "2026-07-14T19:20:10.417Z",
+      "reviewRunId": "B-bbaf:RR-029",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "a6c51a752c94be71f96358d82e322d767878afada7006d8c7c53a7b1242e2f2f"
     }
   ]
 }
