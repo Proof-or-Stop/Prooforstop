@@ -2,9 +2,9 @@
   "storyId": "B-bbaf",
   "name": "convergence-takeover-circuit-breaker",
   "title": "Freeze runaway stories with a convergence + takeover circuit breaker and graduated human ack",
-  "description": "B-f458 burned ~14 hours in a non-converging death loop (89 advances, 131:31 review run/pass, 65 lease takeovers) because the framework has soft convergence advisories but no hard brake. Add a circuit breaker that derives advance-count / review-pass-rate / takeover-frequency counters read-only from story.events and, on a pathological signature, hard-stops the runaway loop; it auto-recovers once so healthy autonomous work is unaffected, and only escalates to a human-ack freeze on re-trip. Scope is death-loop root causes 1 (takeover storm) and 2 (no convergence fuse); the milestone_ledger_set blocker-hint and review_pass_set writer-identity gaps are owned by concurrent stories and excluded.",
+  "description": "B-f458 burned ~14 hours in a non-converging death loop (89 advances, 131:31 review run/pass, 65 lease takeovers) because the framework has soft convergence advisories but no hard brake. Add a circuit breaker that derives FOUR read-only per-story signals — advance-count and review-pass-rate (from story.events and the review ledgers), takeover-frequency (a per-story counter bumped in the existing lease takeover audit write), and repeated-identical-gate-failure (a per-story counter bumped at the existing cli-engine failure write site and reset on a successful advance) — and, on a pathological signature, hard-stops the runaway loop at story_advance. It auto-recovers once so healthy autonomous work is unaffected, and only escalates to a human-ack freeze on re-trip. Scope is death-loop root causes 1 (takeover storm) and 2 (no convergence fuse); the milestone_ledger_set blocker-hint and review_pass_set writer-identity gaps are owned by concurrent stories and excluded.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "circuit-breaker",
@@ -24,7 +24,7 @@
   ],
   "createdAt": "2026-07-13T23:14:06.362Z",
   "startedAt": "2026-07-13T23:14:06.362Z",
-  "endedAt": null,
+  "endedAt": "2026-07-14T19:50:11.511Z",
   "events": [
     {
       "phase": "INIT",
@@ -43,11 +43,187 @@
       "user": "Harmonygo",
       "sessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-13T23:21:38.418Z",
+      "branch": "story/B-bbaf",
+      "user": "Harmonygo",
+      "sessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-14T05:24:26.278Z",
+      "branch": "story/B-bbaf",
+      "user": "Harmonygo",
+      "sessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-14T05:33:49.070Z",
+      "branch": "story/B-bbaf",
+      "user": "Harmonygo",
+      "sessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-14T05:47:48.109Z",
+      "branch": "story/B-bbaf",
+      "user": "Harmonygo",
+      "sessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-14T12:55:51.181Z",
+      "branch": "story/B-bbaf",
+      "user": "Harmonygo",
+      "sessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-14T13:44:22.054Z",
+      "branch": "story/B-bbaf",
+      "user": "Harmonygo",
+      "sessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-14T15:59:03.887Z",
+      "branch": "story/B-bbaf",
+      "user": "Harmonygo",
+      "sessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-14T15:59:16.186Z",
+      "branch": "story/B-bbaf",
+      "user": "Harmonygo",
+      "sessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-14T16:58:53.563Z",
+      "branch": "story/B-bbaf",
+      "user": "Harmonygo",
+      "sessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-14T17:27:28.195Z",
+      "branch": "story/B-bbaf",
+      "user": "Harmonygo",
+      "sessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-14T17:29:22.567Z",
+      "branch": "story/B-bbaf",
+      "user": "Harmonygo",
+      "sessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-14T18:06:23.173Z",
+      "branch": "story/B-bbaf",
+      "user": "Harmonygo",
+      "sessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-14T18:17:48.743Z",
+      "branch": "story/B-bbaf",
+      "user": "Harmonygo",
+      "sessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-14T18:17:55.045Z",
+      "branch": "story/B-bbaf",
+      "user": "Harmonygo",
+      "sessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-14T18:49:29.306Z",
+      "branch": "story/B-bbaf",
+      "user": "Harmonygo",
+      "sessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-14T19:04:02.701Z",
+      "branch": "story/B-bbaf",
+      "user": "Harmonygo",
+      "sessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-14T19:13:34.263Z",
+      "branch": "story/B-bbaf",
+      "user": "Harmonygo",
+      "sessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-14T19:20:10.417Z",
+      "branch": "story/B-bbaf",
+      "user": "Harmonygo",
+      "sessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-14T19:30:34.660Z",
+      "branch": "story/B-bbaf",
+      "user": "Harmonygo",
+      "sessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-14T19:50:11.511Z",
+      "branch": "story/B-bbaf",
+      "user": "Harmonygo",
+      "sessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-bbaf",
-    "branch": "story/B-bbaf",
-    "createdAt": "2026-07-13T23:20:57.754Z"
-  }
+  "currentReviewRound": "2026-07-14T19:20:10.417Z"
 }

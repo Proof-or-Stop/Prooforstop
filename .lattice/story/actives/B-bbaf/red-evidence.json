@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-bbaf",
+  "records": [
+    {
+      "id": "RED-20260714054738",
+      "trigger": "No convergence circuit breaker exists: a runaway story (B-f458: 89 advances / 131:31 review / 65 takeovers) burns ~14h with no hard brake.",
+      "acceptanceTargetRef": "sha256:5a9a0550ee7cf6e41a542cac247fe3319a7eb254b5845afdea34d1f4445d3585",
+      "baselineHeadHash": "afbb244eabb7b918a0ff1780e5689e652e583e59",
+      "baselineMaterialHash": "9282c0c7e9b943afd1be76a517c44d96d5d6ef35a48e9b83f59f9d87ffacd166",
+      "observedFailure": "On baseline HEAD the breaker core is absent: importing core/convergence-breaker.js throws 'Cannot find module', so assessBreaker cannot trip on the B-f458 pathological signature and nothing stops the loop (exit 1).",
+      "failingCommand": "node --input-type=module -e \"import(\\\"./packages/main/dist/core/convergence-breaker.js\\\").then(m=>{const r=m.assessBreaker({advanceCount:89,reviewRunCount:131,reviewPassCount:31,takeoverCount:65,maxGateRepeat:3},m.resolveConvergenceThresholds({}),{autoRecoveriesSpent:1});process.exit(r.tripped?0:1)}).catch(e=>{process.exit(1)})\"",
+      "expectedGreenCommand": "node --input-type=module -e \"import(\\\"./packages/main/dist/core/convergence-breaker.js\\\").then(m=>{const r=m.assessBreaker({advanceCount:89,reviewRunCount:131,reviewPassCount:31,takeoverCount:65,maxGateRepeat:3},m.resolveConvergenceThresholds({}),{autoRecoveriesSpent:1});process.exit(r.tripped?0:1)}).catch(e=>{process.exit(1)})\"",
+      "greenRelation": {
+        "targetRef": "sha256:5a9a0550ee7cf6e41a542cac247fe3319a7eb254b5845afdea34d1f4445d3585",
+        "relation": "same_acceptance",
+        "command": "node --input-type=module -e \"import(\\\"./packages/main/dist/core/convergence-breaker.js\\\").then(m=>{const r=m.assessBreaker({advanceCount:89,reviewRunCount:131,reviewPassCount:31,takeoverCount:65,maxGateRepeat:3},m.resolveConvergenceThresholds({}),{autoRecoveriesSpent:1});process.exit(r.tripped?0:1)}).catch(e=>{process.exit(1)})\""
+      },
+      "note": "RED: module-not-found on baseline afbb244. After implementing convergence-breaker.ts + building, the SAME command asserts assessBreaker returns tripped=true for the B-f458 fixture (exit 0).",
+      "createdAt": "2026-07-14T05:47:38.954Z"
+    }
+  ],
+  "createdAt": "2026-07-14T05:47:38.954Z",
+  "updatedAt": "2026-07-14T05:47:38.954Z"
+}

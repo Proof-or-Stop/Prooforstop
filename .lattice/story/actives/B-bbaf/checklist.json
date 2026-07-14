@@ -4,41 +4,528 @@
       "id": "CHK-001",
       "title": "Pure convergence/takeover breaker core deriving three counters from story.events",
       "context": "New core/convergence-breaker.ts. Read-only derive: (a) total story_advance count, (b) review pass-rate = review_pass_set/review_run_start over a windowed min-sample, (c) takeover frequency = lease-takeover events / takeover-flagged commands over a window. Pure decision fn assessBreaker(inputs) -> {tripped, reasons[], severity}. No I/O; mirror the purity discipline and event-scanning of core/review-convergence.ts (reuse resolveReviewRoundCount, do not reimplement round logic).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-14T12:54:02.701Z",
+      "userSees": "The new smoke prints: assessBreaker returns tripped=true reasons=[advance-count 89>20, pass-rate 31/131=24%<35%, takeover 65>5] for the B-f458 fixture, and tripped=false for the healthy 8-advance converging fixture.",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/convergence-breaker.ts"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A healthy converging story (8 advances, passing reviews, no takeover storm) yields assessBreaker tripped=false",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Pass-rate cannot trip below the min-sample review-run count (0 of 1 runs reads as insufficient sample, not 0%)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A malformed or missing review ledger makes assessBreaker fail open (tripped=false) and never throws",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm run test:convergence-breaker",
+          "result": "pass",
+          "note": "Smoke section 1 asserts assessBreaker on the healthy 8-advance control returns tripped=false/action=proceed.",
+          "headHash": "c49bb8b9eaf946117e1a74f9b6dcd20dfe23b6fe",
+          "materialHash": "62cbcb0cc9c916405f827b13e14cdabbfc233fce8adfda02b4ad8dd32a225d7b",
+          "storyFilesHash": "5d1a9c7341809ed6263cc08a5eac7a9098c87f20071b8d548466b33f89cf4646",
+          "timestamp": "2026-07-14T19:20:13.317Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm run test:convergence-breaker",
+          "result": "pass",
+          "note": "Smoke section 5 asserts the pass-rate min-sample gate: 0/1 (below min-sample) never trips.",
+          "headHash": "c49bb8b9eaf946117e1a74f9b6dcd20dfe23b6fe",
+          "materialHash": "62cbcb0cc9c916405f827b13e14cdabbfc233fce8adfda02b4ad8dd32a225d7b",
+          "storyFilesHash": "5d1a9c7341809ed6263cc08a5eac7a9098c87f20071b8d548466b33f89cf4646",
+          "timestamp": "2026-07-14T19:20:13.317Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run test:convergence-breaker",
+          "result": "pass",
+          "note": "Smoke section 6 feeds malformed counters (NaN/undefined/null/string/Infinity); assessBreaker fails open (no trip, no throw).",
+          "headHash": "c49bb8b9eaf946117e1a74f9b6dcd20dfe23b6fe",
+          "materialHash": "62cbcb0cc9c916405f827b13e14cdabbfc233fce8adfda02b4ad8dd32a225d7b",
+          "storyFilesHash": "5d1a9c7341809ed6263cc08a5eac7a9098c87f20071b8d548466b33f89cf4646",
+          "timestamp": "2026-07-14T19:20:13.317Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Graduated freeze state with a one-shot auto-recovery budget, persisted as a gitignored runtime artifact",
       "context": "Persist per-story breaker state (tripped reasons + counter snapshot + auto-recovery budget) under .lattice/story/actives/<id>/, registered in core/runtime-artifact-registry.ts with a matching .gitignore glob so it is never tracked (follow the story-owner-lease.ts F-008 dirty-write-prevention pattern). First trip -> auto-recover once (re-baseline the window, no human). Re-trip with budget exhausted -> frozen.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-14T12:54:03.618Z",
+      "userSees": "After a first trip the breaker-state file shows autoRecoveriesSpent=1 and the story still advances; after a re-trip it shows frozen=true. git status never lists breaker-state.json.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          ".gitignore"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "First pathological trip writes state, spends the one-shot budget (autoRecoveriesSpent=1), and the advance proceeds",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A re-trip after the budget is spent flips frozen=true instead of auto-recovering again",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "breaker-state.json is gitignored: a DONE-style merge with the file present is not blocked by the dirty-tree/F-008 check",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm run test:convergence-breaker",
+          "result": "pass",
+          "note": "Smoke section 1 asserts the first pathological trip returns action=auto-recover with autoRecoveriesSpent=1 and re-baselines (advanceBaseline=89); section 2 asserts a re-trip then freezes.",
+          "headHash": "c49bb8b9eaf946117e1a74f9b6dcd20dfe23b6fe",
+          "materialHash": "62cbcb0cc9c916405f827b13e14cdabbfc233fce8adfda02b4ad8dd32a225d7b",
+          "storyFilesHash": "5d1a9c7341809ed6263cc08a5eac7a9098c87f20071b8d548466b33f89cf4646",
+          "timestamp": "2026-07-14T19:20:13.317Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm run test:convergence-breaker",
+          "result": "pass",
+          "note": "Smoke section 2 asserts the graduated path: first trip auto-recovers, a re-trip within the fresh window freezes (frozen=true), an already-frozen state stays frozen; section 3 asserts a story that trips once then goes quiet does NOT re-freeze.",
+          "headHash": "c49bb8b9eaf946117e1a74f9b6dcd20dfe23b6fe",
+          "materialHash": "62cbcb0cc9c916405f827b13e14cdabbfc233fce8adfda02b4ad8dd32a225d7b",
+          "storyFilesHash": "5d1a9c7341809ed6263cc08a5eac7a9098c87f20071b8d548466b33f89cf4646",
+          "timestamp": "2026-07-14T19:20:13.317Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run test:convergence-breaker",
+          "result": "pass",
+          "note": "Smoke section 10 asserts the three per-story runtime files (breaker-state/takeover-count/gate-failure-counts) are registered material-hash-excluded with ignore patterns (F-008 DONE-merge safety); section 8 asserts frozen breaker-state round-trips through write/readBreakerState.",
+          "headHash": "c49bb8b9eaf946117e1a74f9b6dcd20dfe23b6fe",
+          "materialHash": "62cbcb0cc9c916405f827b13e14cdabbfc233fce8adfda02b4ad8dd32a225d7b",
+          "storyFilesHash": "5d1a9c7341809ed6263cc08a5eac7a9098c87f20071b8d548466b33f89cf4646",
+          "timestamp": "2026-07-14T19:20:13.317Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Enforce the freeze at story_advance and takeover-command entry with a human-only ack resume",
       "context": "When frozen, hard-block mutating lifecycle/advance commands with a rejection that names the tripped counters and points at the authoritative next action (existing done_prepare --dryRun / proofstory gate-check). Clear only via a new resume/ack command that refuses under autopilot / non-interactive mode. Reuse the non-owner rejection gate pattern in core/story-owner-lease.ts + command-policy ownershipClass; do not weaken the single legitimate forceTakeover.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-14T12:54:04.583Z",
+      "userSees": "A frozen story blocks story_advance with \"CONVERGENCE BREAKER: story <id> is FROZEN\" naming the tripped counters; story_resume --ack --reason clears it interactively; under LATTICE_AUTOPILOT=1 story_resume is refused with \"requires an interactive human session\".",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A frozen story rejects story_advance with a message naming the tripped counters and the authoritative next action",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "story_resume --ack --reason=... in an interactive session clears the freeze and the next advance proceeds",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "story_resume under a simulated autopilot/non-interactive env is refused so a looping agent cannot self-ack",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm run test:convergence-breaker",
+          "result": "pass",
+          "note": "Smoke section 13 invokes enforceConvergenceBreakerGate through a fake store: a frozen story_advance throws /FROZEN/ (hard-block); real-CLI verified during DEV that the rejection surfaces before the checklist gate.",
+          "headHash": "c49bb8b9eaf946117e1a74f9b6dcd20dfe23b6fe",
+          "materialHash": "62cbcb0cc9c916405f827b13e14cdabbfc233fce8adfda02b4ad8dd32a225d7b",
+          "storyFilesHash": "5d1a9c7341809ed6263cc08a5eac7a9098c87f20071b8d548466b33f89cf4646",
+          "timestamp": "2026-07-14T19:20:13.317Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm run test:convergence-breaker",
+          "result": "pass",
+          "note": "Smoke section 13 asserts a frozen takeover-carrying command is also hard-blocked and that after resumeBreakerState+writeBreakerState the gate proceeds again (ack clears); section 9 asserts isInteractiveAckAllowed interactive-vs-refused branches.",
+          "headHash": "c49bb8b9eaf946117e1a74f9b6dcd20dfe23b6fe",
+          "materialHash": "62cbcb0cc9c916405f827b13e14cdabbfc233fce8adfda02b4ad8dd32a225d7b",
+          "storyFilesHash": "5d1a9c7341809ed6263cc08a5eac7a9098c87f20071b8d548466b33f89cf4646",
+          "timestamp": "2026-07-14T19:20:13.317Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run test:convergence-breaker",
+          "result": "pass",
+          "note": "Smoke section 9 asserts the ack is refused under autopilot (LATTICE_AUTOPILOT), CI, and no-TTY; real-CLI verified story_resume is refused in this non-interactive session.",
+          "headHash": "c49bb8b9eaf946117e1a74f9b6dcd20dfe23b6fe",
+          "materialHash": "62cbcb0cc9c916405f827b13e14cdabbfc233fce8adfda02b4ad8dd32a225d7b",
+          "storyFilesHash": "5d1a9c7341809ed6263cc08a5eac7a9098c87f20071b8d548466b33f89cf4646",
+          "timestamp": "2026-07-14T19:20:13.317Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Env-tunable thresholds with evidence-derived defaults",
       "context": "LATTICE_CONVERGENCE_MAX_ADVANCE (~20), LATTICE_CONVERGENCE_MIN_PASS_RATE + min-sample, LATTICE_CONVERGENCE_MAX_TAKEOVER per window. Mirror resolveBurnAlertThresholds env-resolver (typo-safe fallback, per-variable sanity ceilings). Derive defaults from B-f458: normal is 6-10 advances and ~1 takeover; the storm was 89 advances / 65 takeovers / pass-rate collapsing to <10%.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-14T12:54:05.614Z",
+      "userSees": "With LATTICE_CONVERGENCE_MAX_ADVANCE=5 the fixture trips at 6 advances; unset uses the default 20; a garbage value (abc / -1 / 1e9) falls back to the default with no crash.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/convergence-breaker.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Default thresholds resolve to advance ~20, takeover ~5/window, and a min pass-rate with a min-sample gate",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "An env override (e.g. LATTICE_CONVERGENCE_MAX_ADVANCE) changes the effective threshold",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A typo / negative / absurdly-large env value falls back to the default and never yields NaN or Infinity",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm run test:convergence-breaker",
+          "result": "pass",
+          "note": "Smoke section 4 asserts default maxAdvance=20 and override MAX_ADVANCE=5 trips at 6 advances, not 5.",
+          "headHash": "c49bb8b9eaf946117e1a74f9b6dcd20dfe23b6fe",
+          "materialHash": "62cbcb0cc9c916405f827b13e14cdabbfc233fce8adfda02b4ad8dd32a225d7b",
+          "storyFilesHash": "5d1a9c7341809ed6263cc08a5eac7a9098c87f20071b8d548466b33f89cf4646",
+          "timestamp": "2026-07-14T19:20:13.317Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "npm run test:convergence-breaker",
+          "result": "pass",
+          "note": "Smoke section 4 asserts MAX_ADVANCE=5 boundary: 5 advances does not trip, 6 does (strict >).",
+          "headHash": "c49bb8b9eaf946117e1a74f9b6dcd20dfe23b6fe",
+          "materialHash": "62cbcb0cc9c916405f827b13e14cdabbfc233fce8adfda02b4ad8dd32a225d7b",
+          "storyFilesHash": "5d1a9c7341809ed6263cc08a5eac7a9098c87f20071b8d548466b33f89cf4646",
+          "timestamp": "2026-07-14T19:20:13.317Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run test:convergence-breaker",
+          "result": "pass",
+          "note": "Smoke section 4 asserts abc/-1/1e9/empty env values all fall back to the default with no NaN/Infinity.",
+          "headHash": "c49bb8b9eaf946117e1a74f9b6dcd20dfe23b6fe",
+          "materialHash": "62cbcb0cc9c916405f827b13e14cdabbfc233fce8adfda02b4ad8dd32a225d7b",
+          "storyFilesHash": "5d1a9c7341809ed6263cc08a5eac7a9098c87f20071b8d548466b33f89cf4646",
+          "timestamp": "2026-07-14T19:20:13.317Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
       "title": "Smoke test replaying the B-f458 signature and a healthy control",
       "context": "Synthetic story.events with 89 advances / 131:31 pass / 65 takeovers -> assert the breaker trips on each reason, auto-recovers exactly once, freezes on re-trip, blocks mutating commands, and the human-ack path clears it; and a healthy 8-advance converging story never trips. Wire into the package.json test script like the other *-smoke suites.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-14T12:54:06.380Z",
+      "userSees": "npm run test:convergence-breaker prints \"PASS convergence-breaker: B-f458 signature trips + freezes on re-trip + ack clears + healthy control never trips\" and exits 0.",
+      "files": {
+        "modify": [
+          "package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Replaying the B-f458 signature (89 advances / 131:31 pass / 65 takeovers) trips the breaker on each reason and freezes on re-trip",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A healthy 8-advance converging control story never trips the breaker",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The autopilot self-ack refusal and the gitignored-state assertion both hold in the smoke",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "command": "npm run test:convergence-breaker",
+          "result": "pass",
+          "note": "Smoke section 1 asserts the B-f458 storm (89/131:31/65) trips all four reasons; sections 2-3 cover freeze-on-re-trip.",
+          "headHash": "c49bb8b9eaf946117e1a74f9b6dcd20dfe23b6fe",
+          "materialHash": "62cbcb0cc9c916405f827b13e14cdabbfc233fce8adfda02b4ad8dd32a225d7b",
+          "storyFilesHash": "5d1a9c7341809ed6263cc08a5eac7a9098c87f20071b8d548466b33f89cf4646",
+          "timestamp": "2026-07-14T19:20:13.317Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "command": "npm run test:convergence-breaker",
+          "result": "pass",
+          "note": "Smoke section 1 asserts the healthy 8-advance converging control never trips.",
+          "headHash": "c49bb8b9eaf946117e1a74f9b6dcd20dfe23b6fe",
+          "materialHash": "62cbcb0cc9c916405f827b13e14cdabbfc233fce8adfda02b4ad8dd32a225d7b",
+          "storyFilesHash": "5d1a9c7341809ed6263cc08a5eac7a9098c87f20071b8d548466b33f89cf4646",
+          "timestamp": "2026-07-14T19:20:13.317Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run test:convergence-breaker",
+          "result": "pass",
+          "note": "Smoke sections 9-10 assert the autopilot ack refusal and the gitignored-artifact registration (breaker-state/takeover-count/gate-failure-counts material-excluded + ignore patterns).",
+          "headHash": "c49bb8b9eaf946117e1a74f9b6dcd20dfe23b6fe",
+          "materialHash": "62cbcb0cc9c916405f827b13e14cdabbfc233fce8adfda02b4ad8dd32a225d7b",
+          "storyFilesHash": "5d1a9c7341809ed6263cc08a5eac7a9098c87f20071b8d548466b33f89cf4646",
+          "timestamp": "2026-07-14T19:20:13.317Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-006",
+      "title": "Fourth signal: repeated-identical-gate-failure counter (bump at failure site, reset on advance)",
+      "context": "INIT-002 REVERSAL. My PLAN decision.json wrongly claimed gate rejections are 'not persisted anywhere', so I excluded this signal. That premise is FALSE: cli-engine.ts:1256-1260 already writes {command, success:false, error.message} to activity.jsonl on any command failure, with activeStory + cmd + error all in scope at that catch site. So the signal IS read-only derivable. Implement it the SAME cheap way as the takeover counter (NO hot-path activity-log scan): at the cli-engine failure catch, when a story-scoped command fails, bump a per-story gate-failure-counts.json keyed by digest(command + normalized error reason) -> {count,lastReason,lastAt}; on a SUCCESSFUL story_advance, reset that story's gate-failure-counts. assessBreaker (CHK-001) reads the max per-key count and trips when >= LATTICE_CONVERGENCE_MAX_GATE_REPEAT (CHK-004, default ~2). Sharpest/earliest brake: catches the B-f458 DEV<->REVIEW same-reason oscillation at 2 repeats, hours before advance-count reaches ~20. Evidence note: B-f458 pass-rate was ~23.7% overall (31/131), ~9.5% post-16:00 (42/4) -- correcting the stale '<10%' in CHK-004.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-bbaf/background.md"
+      ],
+      "userSees": "The smoke prints: after two story_advance failures with the same reason digest, gate-failure-counts.json shows count=2 and assessBreaker returns tripped=true reason='gate-repeat story_advance/<digest> 2>=2'; a successful story_advance resets the counter to 0.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Two story_advance failures with identical (command,reason) digest bump gate-failure-counts.json to count=2; assessBreaker trips with the gate-repeat reason.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A successful story_advance resets the per-story gate-failure counter to 0; two failures with DIFFERENT reasons stay at count=1 each and do not trip.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Missing/corrupt gate-failure-counts.json fails open (count=0, never throws); a malformed error message still yields a stable digest and never crashes the failure catch path.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-14T12:54:07.032Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "logic_test",
+          "command": "npm run test:convergence-breaker",
+          "result": "pass",
+          "note": "Smoke section 7 asserts two failures with identical (command,reason) digest bump the counter to 2 and assessBreaker trips gate-repeat 2>=2.",
+          "headHash": "c49bb8b9eaf946117e1a74f9b6dcd20dfe23b6fe",
+          "materialHash": "62cbcb0cc9c916405f827b13e14cdabbfc233fce8adfda02b4ad8dd32a225d7b",
+          "storyFilesHash": "5d1a9c7341809ed6263cc08a5eac7a9098c87f20071b8d548466b33f89cf4646",
+          "timestamp": "2026-07-14T19:20:13.317Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "command": "npm run test:convergence-breaker",
+          "result": "pass",
+          "note": "Smoke section 7 asserts resetGateFailureCounts clears an existing counter and two DIFFERENT reasons stay at count=1 each (no trip); section 14 asserts reset creates no spurious empty file. Reset is wired in cli-engine.ts to fire ONLY on a successful story_advance (not any mutation) so a runaway cannot defeat gate-repeat via a no-op success; the cli-engine catch/success call sites are exercised via real-CLI verification during DEV. Section 15 covers the isCanonicalStoryId guard rejection at the gate.",
+          "headHash": "c49bb8b9eaf946117e1a74f9b6dcd20dfe23b6fe",
+          "materialHash": "62cbcb0cc9c916405f827b13e14cdabbfc233fce8adfda02b4ad8dd32a225d7b",
+          "storyFilesHash": "5d1a9c7341809ed6263cc08a5eac7a9098c87f20071b8d548466b33f89cf4646",
+          "timestamp": "2026-07-14T19:20:13.317Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run test:convergence-breaker",
+          "result": "pass",
+          "note": "Smoke section 7 asserts a missing counter file reads as 0 (fail-open) and gateFailureDigest collapses volatile ids/timestamps/numbers to a stable key without throwing.",
+          "headHash": "c49bb8b9eaf946117e1a74f9b6dcd20dfe23b6fe",
+          "materialHash": "62cbcb0cc9c916405f827b13e14cdabbfc233fce8adfda02b4ad8dd32a225d7b",
+          "storyFilesHash": "5d1a9c7341809ed6263cc08a5eac7a9098c87f20071b8d548466b33f89cf4646",
+          "timestamp": "2026-07-14T19:20:13.317Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-14T05:36:44.175Z",
+      "phase": "PLAN",
+      "itemId": "CHK-006",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "INIT-002 reversal: gate failures ARE persisted (cli-engine.ts:1256-1260 -> activity.jsonl); add the 4th signal as its own item with a cheap per-story counter before DEV, per user directive.",
+      "addedTitle": "Fourth signal: repeated-identical-gate-failure counter (bump at failure site, reset on advance)",
+      "addedContext": "INIT-002 REVERSAL. My PLAN decision.json wrongly claimed gate rejections are 'not persisted anywhere', so I excluded this signal. That premise is FALSE: cli-engine.ts:1256-1260 already writes {command, success:false, error.message} to activity.jsonl on any command failure, with activeStory + cmd + error all in scope at that catch site. So the signal IS read-only derivable. Implement it the SAME cheap way as the takeover counter (NO hot-path activity-log scan): at the cli-engine failure catch, when a story-scoped command fails, bump a per-story gate-failure-counts.json keyed by digest(command + normalized error reason) -> {count,lastReason,lastAt}; on a SUCCESSFUL story_advance, reset that story's gate-failure-counts. assessBreaker (CHK-001) reads the max per-key count and trips when >= LATTICE_CONVERGENCE_MAX_GATE_REPEAT (CHK-004, default ~2). Sharpest/earliest brake: catches the B-f458 DEV<->REVIEW same-reason oscillation at 2 repeats, hours before advance-count reaches ~20. Evidence note: B-f458 pass-rate was ~23.7% overall (31/131), ~9.5% post-16:00 (42/4) -- correcting the stale '<10%' in CHK-004."
+    },
+    {
+      "timestamp": "2026-07-14T12:54:02.701Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented + smoke green + real-CLI verified (freeze blocks advance, non-interactive ack refused, gitignore enforced)"
+    },
+    {
+      "timestamp": "2026-07-14T12:54:03.618Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented + smoke green + real-CLI verified (freeze blocks advance, non-interactive ack refused, gitignore enforced)"
+    },
+    {
+      "timestamp": "2026-07-14T12:54:04.583Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented + smoke green + real-CLI verified (freeze blocks advance, non-interactive ack refused, gitignore enforced)"
+    },
+    {
+      "timestamp": "2026-07-14T12:54:05.614Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented + smoke green + real-CLI verified (freeze blocks advance, non-interactive ack refused, gitignore enforced)"
+    },
+    {
+      "timestamp": "2026-07-14T12:54:06.380Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented + smoke green + real-CLI verified (freeze blocks advance, non-interactive ack refused, gitignore enforced)"
+    },
+    {
+      "timestamp": "2026-07-14T12:54:07.032Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented + smoke green + real-CLI verified (freeze blocks advance, non-interactive ack refused, gitignore enforced)"
     }
   ]
 }

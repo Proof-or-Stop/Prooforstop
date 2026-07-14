@@ -65,6 +65,28 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     repairableTrackedArtifact: true,
   },
   {
+    // B-bbaf CHK-002/006: the convergence-breaker runtime state — breaker-state.json
+    // (graduated freeze + auto-recovery budget), takeover-count.json (per-story
+    // takeover counter), and gate-failure-counts.json (repeated-identical-gate-
+    // failure counter) — are process/diagnostic metadata, NOT story evidence.
+    // They live under the git-tracked .lattice/story/actives/<id>/ subtree, so
+    // they MUST be ignored: an un-ignored breaker-state would surface as a dirty
+    // write and could block the DONE `git merge story/<id>` (the F-008 failure
+    // mode, exactly as for owner-lease.json above). materialHash-excluded so a
+    // freeze/bump never perturbs currentMaterialHash and invalidates gate evidence.
+    id: 'runtime-convergence-breaker-state',
+    description: 'Per-story convergence-breaker runtime state (freeze state + takeover/gate-failure counters) under .lattice/story/actives/<id>/.',
+    matchers: [
+      { kind: 'regexp', value: rx(String.raw`(?:^|/)breaker-state\.json$`) },
+      { kind: 'regexp', value: rx(String.raw`(?:^|/)takeover-count\.json$`) },
+      { kind: 'regexp', value: rx(String.raw`(?:^|/)gate-failure-counts\.json$`) },
+    ],
+    ignorePatterns: ['**/breaker-state.json', '**/takeover-count.json', '**/gate-failure-counts.json'],
+    materialHash: 'exclude',
+    volatile: true,
+    repairableTrackedArtifact: true,
+  },
+  {
     id: 'legacy-activity-log',
     description: 'Legacy top-level activity log retained for compatibility reads.',
     matchers: [{ kind: 'exact', value: 'docs/story/activity.jsonl' }],

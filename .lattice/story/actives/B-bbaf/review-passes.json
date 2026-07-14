@@ -1,0 +1,582 @@
+{
+  "passes": [
+    {
+      "id": "B-bbaf:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Re-verified F-001 and F-002 resolutions against HEAD 53c25c4 diff vs 1ac74ce; tsc/build clean; convergence-breaker smoke passes; no dead code / unsafe casts / IO-purity breach in the baseline refactor.",
+      "createdAt": "2026-07-14T13:23:51.422Z",
+      "reviewRound": "2026-07-14T12:55:51.181Z",
+      "reviewRunId": "B-bbaf:RR-004",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/story.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "05e3b468b66a507adb1021eecaf9f01d48c960820fb049d6f2b678607c97c960"
+    },
+    {
+      "id": "B-bbaf:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-verified F-005/F-006/F-007/F-008 test-coverage fixes at HEAD 53c25c4: resetGateFailureCounts guards existsSync+non-empty before rewrite (bump narrowed to story_advance failures in cli-engine.ts:1311), review-pass-discard-smoke.js now passes cleanly, smoke section 14 asserts no spurious gate-failure-counts.json is created. Smoke section 13 genuinely invokes enforceConvergenceBreakerGate (the real cli-engine.ts choke-point fn) via a fake store matching the real StoryStore shape: healthy proceeds with no state write, non-gated command ignored, frozen story_advance throws FROZEN, frozen takeover-carrying command also throws FROZEN, ack via resumeBreakerState clears and the gate proceeds again. Smoke section 12 genuinely invokes collectBreakerCounters against a store shape (readStory/readReviewRuns/readReviewPasses), asserting advanceCount filters only action===advance events and review ledger lengths drive run/pass counts, plus fail-open to zeros when the store throws. npm run test:convergence-breaker passes (14 sections). No blocker; coverage of the four re-review targets is genuine integration coverage, not re-testing of pure helpers alone.",
+      "createdAt": "2026-07-14T13:25:49.718Z",
+      "reviewRound": "2026-07-14T12:55:51.181Z",
+      "reviewRunId": "B-bbaf:RR-006",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7fd4c21ce6d67eca44062e23f0e35433e4a2b7b23324297d2d448d63415f7fab"
+    },
+    {
+      "id": "B-bbaf:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "Re-verified F-003 and F-004 fixes against committed code (HEAD content identical to 53c25c4; only Lattice bookkeeping commits sit on top). F-003: BreakerState now carries advanceBaseline/takeoverBaseline/reviewRunBaseline/reviewPassBaseline; assessBreaker measures every signal as a delta over these baselines; baselinesFrom() re-baselines ALL four on both auto-recovery and resumeBreakerState (human ack). Hand-traced smoke section 11 (F-003 regression) line by line against assessBreaker: after auto-recovery from the STORM fixture (takeoverBaseline=65), a quiet continuation with unchanged takeoverCount=65 correctly does not re-trip (delta=0), while a genuine continued storm (takeoverCount=71, delta=6>5) correctly re-freezes with reason takeover 6>5 - confirms a lifetime-elevated-but-static counter can no longer permanently re-freeze a recovered story, and a real continuing storm still freezes. Rebuilt dist from current src and ran npm run test:convergence-breaker fresh (not a stale-dist artifact) - PASS. F-004: enforceConvergenceBreakerGate now takes isTakeoverCommand (Boolean(parsed.takeover||parsed.forceTakeover), safe since CLI_META_SCHEMA declares both as z.boolean() so zod already rejects non-boolean values before this point); while frozen it blocks story_advance AND any takeover-carrying command (smoke section 13 covers both branches plus the non-gated-command passthrough and the non-frozen takeover passthrough). Checklist title \"story_advance and takeover-command entry\" is delivered. Traced cli-engine.ts gate ordering (owner-lease gate runs before the breaker gate) and confirmed takeOverOwnerLease can still transfer the lease as a side effect before the breaker throws on a frozen story, but the actual mutating handler (fn()) never runs - this matches the documented design (breaker blocks the commands EFFECT, ownership bookkeeping is a separate existing mechanism) and is not a new regression from this diff. No new under- or over-triggering bugs found in the baseline/delta refactor.",
+      "createdAt": "2026-07-14T13:26:03.515Z",
+      "reviewRound": "2026-07-14T12:55:51.181Z",
+      "reviewRunId": "B-bbaf:RR-005",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/story-owner-lease.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c0ba59305dfb30e7505d6c9ed132326d2075d9d0a74ebb5d28dc2e18b3b57677"
+    },
+    {
+      "id": "B-bbaf:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check: diff 1ac74ce~1..HEAD is purely additive plus small wiring edits; no concept deleted/renamed; no dangling refs; env-var and story_resume naming consistent across all sites. No blocker.",
+      "createdAt": "2026-07-14T13:28:24.570Z",
+      "reviewRound": "2026-07-14T12:55:51.181Z",
+      "reviewRunId": "B-bbaf:RR-007",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f45f7ef3cd8216e6a54ac0b9ea50de699a6b869c60ae40a64f9d8a615550ff1d"
+    },
+    {
+      "id": "B-bbaf:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept-cleanup/deletion-completeness pass: verified this is purely additive (git diff main...HEAD -- *.ts has ZERO minus-lines in any source file; no deprecated/removed/renamed markers anywhere in the diff). Checked story_resume consistency across command-catalog.ts/command-policy.ts/config.ts/handlers/story.ts, LATTICE_CONVERGENCE_* env-name consistency in convergence-breaker.ts + smoke test, single isCanonicalStoryId definition in lifecycle-registry.ts reused (not duplicated) by cli-engine.ts and handlers/story.ts, and .gitignore additions matching runtime-artifact-registry.ts matchers. No dangling references found; no blocker.",
+      "createdAt": "2026-07-14T16:01:33.201Z",
+      "reviewRound": "2026-07-14T15:59:16.186Z",
+      "reviewRunId": "B-bbaf:RR-008",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitignore",
+          "package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/handlers/story.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-bbaf/plan.md",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0fcfa452233802a34ae4b796ba4d47a8d23d21f27a65749df1fa2927f43cdda1"
+    },
+    {
+      "id": "B-bbaf:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Quality-lane review of git diff main...HEAD. Checked dead code, type safety, I/O isolation, canonical-id guards, fail-open discipline. Only known non-blocker: resumeBreakerState unused priorState param (accepted, task_a9610374 filed). Build+smoke both pass. No fresh blocking findings.",
+      "createdAt": "2026-07-14T16:03:39.474Z",
+      "reviewRound": "2026-07-14T15:59:16.186Z",
+      "reviewRunId": "B-bbaf:RR-009",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitignore",
+          "package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "4616a9b866e6f2565f445e5397e683f8f22aacd4dc3565b9b78af20391878bfc"
+    },
+    {
+      "id": "B-bbaf:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Fresh concept-lane pass after smoke section 15 addition (F-009 coverage fix). Change since last concept pass is purely additive: git diff main...HEAD -- *.ts has ZERO minus-lines in any source file. Verified: (1) isCanonicalStoryId single definition at lifecycle-registry.ts:651, imported not duplicated by convergence-breaker.ts and all other call sites; new smoke section 15 exercises this single guard via enforceConvergenceBreakerGate. (2) story_resume named consistently across command-policy.ts, config.ts, command-catalog.ts, handlers/story.ts (createStoryResumeHandlers merged into createStoryHandlers export via spread), convergence-breaker.ts freeze message. (3) LATTICE_CONVERGENCE_MAX_ADVANCE/_MAX_TAKEOVER/_MIN_PASS_RATE/_MIN_SAMPLE/_MAX_GATE_REPEAT spelled identically across convergence-breaker.ts ENV_KEYS map, convergence-breaker-smoke.ts, plan.md, checklist.json, delivery-check.json. No dangling references, no deprecated/removed markers, no orphaned exports. No blocker.",
+      "createdAt": "2026-07-14T16:10:16.401Z",
+      "reviewRound": "2026-07-14T15:59:16.186Z",
+      "reviewRunId": "B-bbaf:RR-011",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/delivery-context-pack.ts",
+          "packages/main/src/handlers/init-preflight.ts",
+          "packages/main/src/handlers/lifecycle-orchestrate.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/handlers/playbook-runtime-memory.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/handlers/reviewer-batch.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0523472d4645d2633bfdba5e75b0c89c4ca40e5020e3a435ee2f0fd80a484aa4"
+    },
+    {
+      "id": "B-bbaf:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed the sole change since last quality pass: smoke section 15 in convergence-breaker-smoke.ts (e4ef947383) exercising the isCanonicalStoryId guard rejection. Verified imports already present/unused-none, store-stub cast matches existing pattern (lines 266/279/297), assertions align with actual guard code, try/finally cleanup present, no empty-catch. Confirmed all 8 production files last changed at 761b0aa7d7, unchanged since prior quality pass. npm run build and npm run test:convergence-breaker both pass (15 sections). No new blocking issue found.",
+      "createdAt": "2026-07-14T16:10:47.228Z",
+      "reviewRound": "2026-07-14T15:59:16.186Z",
+      "reviewRunId": "B-bbaf:RR-012",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/handlers/story.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e8cff9833970fbefe9a7454f42164ec825581e50ce5f6917f17a7eb8b34d1003"
+    },
+    {
+      "id": "B-bbaf:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Fresh quality-lane pass on current material after storyFilesHash change caused solely by a verificationEvidence NOTE correction (checklist.json note text + findings.json finding_resolve for F-010/F-011, test-coverage lane). Verified via git show on the 3 latest commits (1f4e3023d3, 17ac13445f, 711aead319) that only .lattice/story/actives/B-bbaf/{checklist.json,findings.json,process-metrics.json} changed -- zero production/source diff. Re-checked all changed source files for dead code, unnecessary as-any, empty catch blocks, shell/fn.ts isolation, and proof-metadata dual-surface issues; none found. Confirmed the one known non-blocker (resumeBreakerState unused priorState param at convergence-breaker.ts:342, tracked by follow-up task_a9610374) is unchanged and still non-blocking. No new blocking issues found.",
+      "createdAt": "2026-07-14T16:19:29.507Z",
+      "reviewRound": "2026-07-14T15:59:16.186Z",
+      "reviewRunId": "B-bbaf:RR-014",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bbaf/checklist.json",
+          ".lattice/story/actives/B-bbaf/findings.json",
+          "packages/main/src/core/convergence-breaker.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d2159c2e8464d03f0c32d3a3a6c8052119241d57c602ca8ade8e6fc9562f2521"
+    },
+    {
+      "id": "B-bbaf:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Fresh concept-lane pass after 5 verificationEvidence notes were corrected to cite accurate smoke section numbers (no source/code change; git diff main...HEAD -- *.ts still shows ZERO minus-lines in any source file — purely additive convergence-breaker feature). Re-verified: (1) isCanonicalStoryId has a single definition at lifecycle-registry.ts:651, imported (not duplicated) by convergence-breaker.ts and cli-engine.ts. (2) story_resume is consistently wired end-to-end: command-catalog.ts schema, command-policy.ts policy entry, config.ts DEFAULT_PHASE_TOOLS allowedPhases:all entry, handlers/story.ts createStoryResumeHandlers spread into createStoryHandlers, and createStoryHandlers registered in registry.ts via registerBatch — confirmed with tsc --noEmit clean. (3) LATTICE_CONVERGENCE_MAX_ADVANCE/_MAX_TAKEOVER/_MIN_PASS_RATE/_MIN_SAMPLE/_MAX_GATE_REPEAT spelled identically across convergence-breaker.ts CONVERGENCE_ENV map, convergence-breaker-smoke.ts, plan.md, checklist.json, delivery-check.json. (4) new runtime artifacts (breaker-state.json, takeover-count.json, gate-failure-counts.json) registered consistently in runtime-artifact-registry.ts and .gitignore. (5) convergence-breaker-smoke.ts auto-discovered by run-all-smokes.ts glob (*-smoke.ts under dist/tasks), plus package.json test chain + test:convergence-breaker script wire it explicitly — no orphaned test file. No concept deletion/rename in this diff; no dangling references found; no blocker.",
+      "createdAt": "2026-07-14T16:19:56.508Z",
+      "reviewRound": "2026-07-14T15:59:16.186Z",
+      "reviewRunId": "B-bbaf:RR-015",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitignore",
+          "package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-bbaf/checklist.json",
+          ".lattice/story/actives/B-bbaf/delivery-check.json",
+          ".lattice/story/actives/B-bbaf/plan.md",
+          ".lattice/story/actives/B-bbaf/review-passes.json",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6bf6b8d884166e8153a96476a379d46309f14b94bdb13508d29b1e07e3bc2332"
+    },
+    {
+      "id": "B-bbaf:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 18 required verificationIntents (happy/edge/adversarial across CHK-001..CHK-006) covered by valid, fresh verificationEvidence (npm run test:convergence-breaker, 15-section smoke, all pass, 0 stale rows post-recover_evidence). validate --json confirms verificationCoverage total=18 required=18 covered=18 missingRequired=0, overall status=pass. All 13 prior findings (F-001..F-013) resolved, 0 open. No blocker.",
+      "createdAt": "2026-07-14T16:54:32.093Z",
+      "reviewRound": "2026-07-14T15:59:16.186Z",
+      "reviewRunId": "B-bbaf:RR-018",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bbaf/checklist.json",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/handlers/story.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cd16e9c1accfd0c27738492fb0f62e633dfd861f11228eabd626a47447ad69ea"
+    },
+    {
+      "id": "B-bbaf:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Fresh concept-lane pass on current material. Only change since last concept pass is one additive line in process-fact-levels.ts registering story_resume (level L2, category story, owner handlers/story) for the process-fact-contract test. Verified single, non-duplicated entry and consistent story_resume registration across command-catalog.ts (schema/help), command-policy.ts (storyScopedMutating/allowedPhases all), config.ts (DEFAULT_PHASE_TOOLS TEST-phase entry with rationale), handlers/story.ts (createStoryResumeHandlers spread into createStoryHandlers), and process-fact-levels.ts. git diff main...HEAD has zero minus-lines in any *.ts source file (purely additive); no concept deleted or renamed; no dangling references to story_resume found anywhere in the repo outside the five expected wiring sites plus convergence-breaker.ts freeze-message strings and story metadata/docs. No blocker.",
+      "createdAt": "2026-07-14T17:31:28.503Z",
+      "reviewRound": "2026-07-14T17:29:22.567Z",
+      "reviewRunId": "B-bbaf:RR-019",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/story.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "20c07658d1259af1bf40c7e468981b23ad6f1d0c87abe1779bab98bdab33a5bb"
+    },
+    {
+      "id": "B-bbaf:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Fresh quality-lane pass on current material (head 17fe231). Diff since last quality pass is exactly one registry line in packages/main/src/core/process-fact-levels.ts:50 adding story_resume (L2, category story) - correctly mirrors the story_update pattern immediately above it and matches its storyScopedMutating command-policy.ts:155 classification and config.ts:310 all-phases allowlist entry. No dead code, no unsafe any casts, no empty catch blocks introduced. No bridge/shell I/O isolation concerns. No proof/receipt/job/run metadata semantics touched. Verified npm run build (tsc clean) and node scripts/verify-process-fact-contract.mjs both pass on current HEAD. Known accepted non-blocker (resumeBreakerState unused priorState param, follow-up task_a9610374) is pre-existing and unchanged by this diff. No new blocking issues found.",
+      "createdAt": "2026-07-14T17:31:47.556Z",
+      "reviewRound": "2026-07-14T17:29:22.567Z",
+      "reviewRunId": "B-bbaf:RR-020",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fe3c041d76624123e051fb766eb7c6ccf5e8cd9b2ecde03f0b56d710afbc67af"
+    },
+    {
+      "id": "B-bbaf:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: fresh validate confirms all 18 must-priority verificationIntents (CHK-001..CHK-006 x happy/edge/adversarial) covered by verificationEvidence citing npm run test:convergence-breaker (15 sections, all pass), 0 stale, 0 missing. Only change since RP-011 was the story_resume registry-line addition (no test/coverage impact); no blocker.",
+      "createdAt": "2026-07-14T18:04:40.347Z",
+      "reviewRound": "2026-07-14T17:29:22.567Z",
+      "reviewRunId": "B-bbaf:RR-021",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bbaf/checklist.json",
+          ".lattice/story/actives/B-bbaf/findings.json",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3ef50c21cb356fbdf586d188ee62073641de32a22ada5945daeeb2a5708bfb2a"
+    },
+    {
+      "id": "B-bbaf:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "Fresh concept-lane pass after main-merge (materialHash changed only from merging main in; git diff main...HEAD --stat unchanged story diff). Confirmed purely additive: git diff main...HEAD -- *.ts has ZERO minus-lines; no concept deleted/replaced. story_resume registered consistently across command-catalog.ts, command-policy.ts, config.ts, process-fact-levels.ts, handlers/story.ts, and reaches registry.ts:175 registerBatch(createStoryHandlers(ctx)). isCanonicalStoryId single definition (lifecycle-registry.ts) imported not duplicated. LATTICE_CONVERGENCE_* env names consistent between convergence-breaker.ts and its smoke test. New runtime artifacts consistently registered in runtime-artifact-registry.ts and .gitignore. No dangling references found. No blocker.",
+      "createdAt": "2026-07-14T18:20:01.963Z",
+      "reviewRound": "2026-07-14T18:17:55.045Z",
+      "reviewRunId": "B-bbaf:RR-022",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitignore",
+          "package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/handlers/story.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e14fe86de88a0119cc249c3a254888d678949d177f94e72517d2a1dd404599bf"
+    },
+    {
+      "id": "B-bbaf:RP-016",
+      "agent": "lattice-review-quality",
+      "note": "Fresh quality pass on current material after merge branch main into story/B-bbaf. Confirmed the story own code is byte-identical to the prior reviewed pass: diffed 4867069153 (pre-merge story tip) against 3f96d5074a (current HEAD) for all touched source files -- only package.json differs (test-chain union, correctly keeps both main additions and test:convergence-breaker, verified against both merge parents) plus doc-string-only prose updates in command-policy.ts/process-fact-levels.ts that came from main (live-smoke-transcript rename, new closeout-trust entries), not from this story. Re-ran npm run build (clean), npm run test:convergence-breaker (PASS, all 15 sections), and node scripts/verify-process-fact-contract.mjs (verified) on current HEAD. No dead code, no unnecessary as any, no empty catch blocks silently swallowing meaningful errors (all catch sites in convergence-breaker.ts are documented fail-open-by-design, consistent with the pure-core/fail-open contract). No shell-bypasses-bridge issue applies (no bridge.ts pattern in this diff). No proof/receipt/job/run-metadata dual-authoring issue applies (this diff is story_advance/gate breaker state, not proof/receipt metadata). Known accepted non-blocker carried forward unchanged: resumeBreakerState(priorState, counters) declares an unused priorState parameter (core/convergence-breaker.ts) -- tracked in follow-up task_a9610374, not newly introduced or changed by the merge.",
+      "createdAt": "2026-07-14T18:21:15.849Z",
+      "reviewRound": "2026-07-14T18:17:55.045Z",
+      "reviewRunId": "B-bbaf:RR-023",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bbaf/plan.md",
+          "package.json",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/story-owner-lease.ts"
+        ],
+        "filesTriagedByName": [
+          ".gitignore",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fa27b2dc0c7f3a4aa28a21f46dcc3ff4dd5d7e7e7cb431169c99cb2d11fcd0b5"
+    },
+    {
+      "id": "B-bbaf:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Fresh concept pass on current material. Only change since prior concept pass is a 1-line fingerprint re-pin in retired-authority-vocabulary-guard-smoke.ts (commit 1c527eccd5, re-pin after main merge, B-bbaf F-014) — verified test-only: recomputed the canonical AST fingerprint for cli-engine.ts locally (typescript printer removeComments + sha256) and it matches the new pinned value f8a151cb9d24125a0ad95e51db3fddd31235b1c7a5ac0a6a37f5dca7abbd5bae exactly, so the re-pin reflects real reviewed code, not a bypass. No concept was deleted or replaced by this diff: convergence-breaker.ts and the story_resume additions in handlers/story.ts are net-new (git diff shows zero removed lines in both files). Verified story_resume concept is consistently wired with no dangling references across command-catalog.ts (tool schema), command-policy.ts (storyScopedMutating/allowedPhases:all), config.ts (DEFAULT_PHASE_TOOLS all-phase entry), process-fact-levels.ts (L2/story), handlers/story.ts (impl), and convergence-breaker.ts (freeze-message CLI hint). grep found no stale/old naming for this concept. No blocker.",
+      "createdAt": "2026-07-14T19:06:48.385Z",
+      "reviewRound": "2026-07-14T19:04:02.701Z",
+      "reviewRunId": "B-bbaf:RR-027",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "01fd83d5d485acc81c9fe7c4cdc8ef401c96f57fa8e47fd524c2dece96c6e446"
+    },
+    {
+      "id": "B-bbaf:RP-018",
+      "agent": "lattice-review-concept",
+      "note": "Fresh concept pass on current material. Verified against last concept run RR-027 (head 2ed84ddb): git diff 2ed84ddb..HEAD (excluding .lattice) shows exactly one line changed in scripts/verify-process-fact-contract.mjs — the hardcoded cli-engine.ts fingerprint literal 878828ad...f64f16a synced to f8a151cb...5bae, resolving F-015 (test-script-only, no source/concept change). Confirmed: (1) the new literal matches the PINNED_EXECUTABLE_SOURCE_FINGERPRINTS entry in retired-authority-vocabulary-guard-smoke.ts:359 exactly, so no drift remains between the two duplicated copies; (2) node scripts/verify-process-fact-contract.mjs now exits 0 (Process fact contract verified) confirming the fix is real; (3) grep for both old and new hash literals across the repo shows the old value 878828ad... only appears in historical .lattice findings/review-passes records (audit trail, not code) and the new value appears consistently in both live source copies. Re-verified story_resume concept has zero dangling references and is consistent across command-catalog.ts (CLI schema), command-policy.ts (storyScopedMutating/allowedPhases:all), config.ts (DEFAULT_PHASE_TOOLS all-phase entry), process-fact-levels.ts (L2/story), handlers/story.ts (impl), and convergence-breaker.ts (freeze-message hint) — no old/stale naming found. No concept was deleted or replaced by this diff. No blocker.",
+      "createdAt": "2026-07-14T19:22:08.053Z",
+      "reviewRound": "2026-07-14T19:20:10.417Z",
+      "reviewRunId": "B-bbaf:RR-029",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "a6c51a752c94be71f96358d82e322d767878afada7006d8c7c53a7b1242e2f2f"
+    },
+    {
+      "id": "B-bbaf:RP-019",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: fresh validate on current HEAD (c49bb8b9ea, post F-014 cli-engine.ts fingerprint re-pin AND post F-015 verify-process-fact-contract.mjs literal sync) confirms all 18 must-priority verificationIntents (CHK-001..CHK-006 x happy/edge/adversarial) covered by verificationEvidence citing npm run test:convergence-breaker; validate --json reports status=pass, verificationCoverage total=18 required=18 covered=18 missingRequired=0, 0 stale, 0 failing commands (45/45 pass). Independently re-ran npm run test:convergence-breaker (15 sections) directly: PASS. Read convergence-breaker-smoke.ts in full and confirmed each of the 15 sections concretely matches its cited intentRef (section1/5/6->CHK-001; section1/2/10->CHK-002; section13->CHK-003; section4->CHK-004; section1/9/10->CHK-005; section7/14/15->CHK-006), matching the F-010/F-011 note corrections already applied. bug_list is empty (0 open findings); all F-001..F-015 show status=resolved/verified in findings.json. No blocker.",
+      "createdAt": "2026-07-14T19:28:44.663Z",
+      "reviewRound": "2026-07-14T19:20:10.417Z",
+      "reviewRunId": "B-bbaf:RR-030",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bbaf/checklist.json",
+          ".lattice/story/actives/B-bbaf/findings.json",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8880472fc0eeee77a7644ad2e56b875a90fe88cc20ece1ff209d74552420c5fe"
+    },
+    {
+      "id": "B-bbaf:RP-020",
+      "agent": "lattice-review-quality",
+      "note": "Fresh quality-lane pass on current material (head 16deefd). F-015 CONFIRMED RESOLVED: both fingerprint copies pinned to f8a151cb..., process-fact-contract + guard-smoke + convergence-breaker 15-section suite + full npm test all pass (exit 0). No new blocking issues; unused priorState param in resumeBreakerState reconfirmed as pre-accepted (task_a9610374).",
+      "createdAt": "2026-07-14T19:29:24.184Z",
+      "reviewRound": "2026-07-14T19:20:10.417Z",
+      "reviewRunId": "B-bbaf:RR-028",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitignore",
+          "package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "b7097a7b23eabb75354c40b191c13f14f5fe933ac0ff979062cce340c84b4483"
+    }
+  ]
+}

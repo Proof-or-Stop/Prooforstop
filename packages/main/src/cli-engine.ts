@@ -9,6 +9,12 @@
 
 import { z, type ZodType } from 'zod';
 import { existsSync } from 'fs';
+import {
+  enforceConvergenceBreakerGate,
+  bumpGateFailureCount,
+  resetGateFailureCounts,
+} from './core/convergence-breaker.js';
+import { isCanonicalStoryId } from './core/lifecycle-registry.js';
 import { appendActivityLog } from './core/activity-log.js';
 import { inferActivityRole } from './core/activity-role.js';
 import { isAbsolute, join } from 'path';
@@ -1207,10 +1213,45 @@ export async function runCli(opts?: {
       // refused regardless of lease ownership.
       enforceExperimentArmRetrievalGate(cmd, root);
       enforceStoryOwnerLeaseGate(cmd, parsed, store, activeStory, root);
+      // B-bbaf CHK-003: convergence breaker gate — runs AFTER the owner-lease gate
+      // (which owns the canonical-storyId / path-traversal guard and the ownership
+      // check) so the breaker only ever derives a story path and writes state for a
+      // validated, owner-held story. Ordering rationale re codex host-B round-1 #1
+      // (a frozen --forceTakeover transfers the lease before the breaker throws):
+      // that is by design and benign — the lease transfer only moves OWNERSHIP; the
+      // command's actual EFFECT (fn()) is still blocked by the freeze, so no
+      // progress happens until a human ack, and the freeze holds for the new owner
+      // too. Reordering the breaker ahead of the lease gate was rejected because it
+      // let a NON-OWNER wedge breaker state and bypassed the canonical-id guard
+      // (codex host-B round-2). Gates story_advance and takeover-carrying commands
+      // only; all others return immediately. F-002: storyId via storyIdFromArgs.
+      enforceConvergenceBreakerGate({
+        command: cmd,
+        storyId: storyIdFromArgs(parsed, activeStory, { command: cmd, projectRoot: root }),
+        isTakeoverCommand: Boolean(parsed.takeover || parsed.forceTakeover),
+        store,
+        env: process.env,
+      });
       let result = fn();
       if (result && typeof (result as any).then === 'function') result = await result;
       clearInterval(watchdog);
       log(`${cmd} done`);
+      // B-bbaf CHK-006: a SUCCESSFUL story_advance is real progress THROUGH the
+      // gate, so reset that story's repeated-gate-failure counter. Scoped to
+      // story_advance specifically (codex host-B #3): resetting on ANY successful
+      // mutation would let a runaway defeat the gate-repeat signal entirely — fail
+      // story_advance, run any trivial no-op mutation to reset, repeat forever. A
+      // successful advance is the ONLY event that means the same gate is no longer
+      // failing, so it is the only legitimate reset. Best-effort.
+      if (cmd === 'story_advance') {
+        try {
+          const sid = storyIdFromArgs(parsed, activeStory, { command: cmd, projectRoot: root });
+          if (sid && isCanonicalStoryId(sid)) {
+            const dir = store.storyDirPath(sid);
+            if (existsSync(dir)) resetGateFailureCounts(dir);
+          }
+        } catch { /* best-effort: never fail a successful command on counter reset */ }
+      }
       if (shouldWriteActivityLog(cmd, parsed) || staleWarnings.length > 0) {
         writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: true, staleWarnings });
       }
@@ -1258,6 +1299,28 @@ export async function runCli(opts?: {
       log(`${cmd} failed: ${e.message}`);
       if (shouldWriteActivityLog(cmd, parsed) || staleWarnings.length > 0) {
         writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: false, error: e.message, staleWarnings });
+      }
+      // B-bbaf CHK-006: a FAILED story_advance is a phase-GATE rejection — bump
+      // this story's repeated-gate-failure counter, keyed by (command + normalized
+      // reason). Scoped to story_advance specifically: that is "the gate" the user's
+      // discipline names (the DEV<->REVIEW phase gate where checklist/proofstory/
+      // phase gates all fire), and the same-reason oscillation is the livelock
+      // shape. Other command failures are not counted (they are noise, not a gate
+      // livelock, and would pollute per-story runtime state on every failed helper).
+      // The cmd + e.message here are already in scope (and already written to
+      // activity.jsonl above), so this is an O(1) counter write, not a scan.
+      // Best-effort: a failed counter bump never changes the command's outcome.
+      if (cmd === 'story_advance') {
+        try {
+          const sid = storyIdFromArgs(parsed, activeStory, { command: cmd, projectRoot: root });
+          // Canonical-id guard (codex host-B round-3): a story_advance that FAILED
+          // the owner-lease gate's own path-traversal check reaches here, so never
+          // derive a path or write the counter from a non-canonical id.
+          if (sid && isCanonicalStoryId(sid)) {
+            const dir = store.storyDirPath(sid);
+            if (existsSync(dir)) bumpGateFailureCount(dir, cmd, e.message);
+          }
+        } catch { /* best-effort */ }
       }
       // F-032: same self-gating applies on the error path — a read-only command
       // (e.g. a plain usage_sweep) that fails still appends NO story process event.

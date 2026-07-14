@@ -307,6 +307,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'learning_validate',  // B-a2e3: read-only / advisory Experience Layer referential re-validation (valid-rate / drift-rate vs HEAD); declared allowedPhases:all readOnly in command-policy; writes nothing / no persist; no gate reads it
     'learning_effectiveness',  // B-c06a: read-only / advisory Experience Layer effectiveness metric (per-story hint predictive value + ON/OFF arm comparison); declared allowedPhases:all readOnly in command-policy; writes nothing / no persist; no gate reads it
     'learning_scan',  // B-4eb6: out-of-band Experience Layer ③.1 maintenance WRITER; derives + persists the advisory finding-signals cache under .lattice/learning/ for the Phase 1.5 hint loader; declared allowedPhases:all mainSharedMutating in command-policy; reads findings via store ports; no gate reads it
+    'story_resume',  // B-bbaf CHK-003: human-only ack that clears a convergence-breaker freeze; a freeze can occur at story_advance in ANY phase, so the ack must be available in every phase (declared allowedPhases:all storyScopedMutating in command-policy; refused under autopilot/non-interactive)
   ],
   INIT: [
     'dev_start', // B-804c CHK-001 / B-da89: INIT is a valid worktree bootstrap entry; reconcile config with command-policy + worktree handler 4-phase set

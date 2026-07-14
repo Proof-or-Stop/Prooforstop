@@ -1,0 +1,32 @@
+{
+  "storyId": "B-bbaf",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/story-owner-lease.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/handlers/story.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    ".gitignore",
+    "package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/convergence-breaker.ts",
+    "packages/main/src/tasks/convergence-breaker-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/**/*.test.ts",
+    "packages/main/test/**"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "The cli-engine.ts fingerprint is duplicated: retired-authority-vocabulary-guard-smoke.ts:359 (the pin map) AND verify-process-fact-contract.mjs:845 (a substring assertion checking the smoke file contains that literal). F-014 updated the first; F-015 requires updating the second to the same new fingerprint so process-fact-contract passes.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-14T05:23:23.977Z",
+  "updatedAt": "2026-07-14T19:13:35.181Z"
+}

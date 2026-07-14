@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-bbaf",
+  "sourceText": "Problem #2 (no-convergence circuit breaker): the framework happily processed 89 story_advance events and a 131:29 review run_start/pass ratio, burning for 8+ hours after 16:00 with zero convergence (evidence B-f458: 14h, 89 advances, 65 takeovers). Add a circuit breaker: when advance>N or pass-rate<threshold or takeover>M, freeze the story and require human ack instead of burning indefinitely.",
+  "normalizedOutcome": "When a runaway story crosses a pathological threshold (cumulative advances, review pass-rate, or takeover count), the framework freezes the story: the operator sees a rejection at story_advance naming the tripped counters and the resume command, and the story cannot advance until a human explicitly acks/resumes. A healthy story (6-10 advances, ~1 takeover) is never frozen, and the first trip auto-recovers once so a legitimately long story is not blocked.",
+  "acceptanceClaim": "A story that trips the convergence breaker a second time is frozen and story_advance is rejected until a human runs the resume/ack command; the ack command refuses under autopilot/non-interactive mode; a healthy story never trips.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:5a9a0550ee7cf6e41a542cac247fe3319a7eb254b5845afdea34d1f4445d3585",
+  "createdAt": "2026-07-14T05:23:22.717Z",
+  "updatedAt": "2026-07-14T05:23:22.717Z"
+}

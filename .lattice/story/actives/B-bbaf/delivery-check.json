@@ -1,0 +1,92 @@
+{
+  "storyId": "B-bbaf",
+  "checkedAt": "2026-07-14T19:39:13.969Z",
+  "headHash": "1404ae3ef5c48f70c0f0692d0fb0ca4c8c50150b",
+  "materialHash": "62cbcb0cc9c916405f827b13e14cdabbfc233fce8adfda02b4ad8dd32a225d7b",
+  "storyFilesHash": "5d1a9c7341809ed6263cc08a5eac7a9098c87f20071b8d548466b33f89cf4646",
+  "reviewRound": "2026-07-14T19:20:10.417Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-bbaf/checklist.json#CHK-003 (story-spec promise; no CLAUDE.md/README changed in this diff)",
+      "promise": "enforceConvergenceBreakerGate is called at the cli-engine.ts choke point (after enforceStoryOwnerLeaseGate) and hard-blocks story_advance and any takeover-carrying command (--takeover/--forceTakeover) for a frozen story",
+      "verifiedBy": "diff/grep + read",
+      "evidence": "packages/main/src/cli-engine.ts diff: enforceConvergenceBreakerGate({ command: cmd, storyId: storyIdFromArgs(...), isTakeoverCommand: Boolean(parsed.takeover || parsed.forceTakeover), store, env: process.env }) called immediately after enforceStoryOwnerLeaseGate(cmd, parsed, store, activeStory, root); convergence-breaker.ts enforceConvergenceBreakerGate throws renderBreakerFreeze(...) when prior.frozen for both isAdvance and isTakeoverCommand paths."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-bbaf/checklist.json#CHK-003",
+      "promise": "story_resume is the human-only ack, refused under autopilot/non-interactive sessions, required to clear a freeze",
+      "verifiedBy": "diff/grep + read",
+      "evidence": "packages/main/src/handlers/story.ts story_resume() calls isInteractiveAckAllowed(process.env, process.stdin.isTTY) and throws before any state change when false; isInteractiveAckAllowed in convergence-breaker.ts refuses when LATTICE_AUTOPILOT/CI/LATTICE_NON_INTERACTIVE truthy or stdin is not a TTY. Requires --ack===true and --reason>=10 chars."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-bbaf/checklist.json#CHK-003",
+      "promise": "story_resume is registered end-to-end: command-catalog (schema), command-policy (ownershipClass storyScopedMutating, allowedPhases all), config.ts DEFAULT_PHASE_TOOLS (all phase), handlers/story.ts (implementation), process-fact-levels.ts (L2 story)",
+      "verifiedBy": "diff/grep",
+      "evidence": "5-file diff confirmed: cli/command-catalog.ts adds story_resume ToolDef (storyId/ack/reason schema); core/command-policy.ts adds story_resume policy entry; core/config.ts DEFAULT_PHASE_TOOLS[all] adds story_resume; core/process-fact-levels.ts adds story_resume L2/category story entry; handlers/story.ts createStoryResumeHandlers() implements story_resume()."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-bbaf/checklist.json#CHK-001/CHK-004/CHK-005",
+      "promise": "CHK-001..006 map to delivered code and real tests via npm run test:convergence-breaker (15 sections), part of the aggregate npm test",
+      "verifiedBy": "diff/grep + real command execution",
+      "evidence": "package.json diff adds test:convergence-breaker script (node packages/main/dist/tasks/convergence-breaker-smoke.js) and appends it to the top-level test script. Independently re-ran on CURRENT material: node packages/main/dist/tasks/convergence-breaker-smoke.js exit 0, PASS output naming storm/4-signals/auto-recover/freeze/ack/healthy-control/gate-repeat/thresholds/autopilot-refusal/gitignore/F-003-rebaseline/collectBreakerCounters/enforce-gate/no-spurious-reset/canonical-id-guard. Independently re-ran the FULL npm test (42 scripts) on current material: exit 0, ending in test:convergence-breaker PASS."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-bbaf/checklist.json#CHK-004 / delivery instructions",
+      "promise": "5 env thresholds are real and tunable: LATTICE_CONVERGENCE_MAX_ADVANCE(20)/MAX_TAKEOVER(5)/MIN_PASS_RATE(0.35)/MIN_SAMPLE(10)/MAX_GATE_REPEAT(2), typo/negative/absurd-value safe",
+      "verifiedBy": "diff/grep + read",
+      "evidence": "packages/main/src/core/convergence-breaker.ts: CONVERGENCE_ENV maps all 5 env var names, DEFAULT_CONVERGENCE_THRESHOLDS sets the 5 defaults (20/5/0.35/10/2), envNumber() rejects non-finite/negative/zero(unless allowZero)/over-ceiling values and falls back to default (never NaN/Infinity), resolveConvergenceThresholds() wires all 5 through envNumber with CONVERGENCE_ENV_MAX ceilings."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-bbaf/checklist.json#CHK-003 / delivery instructions",
+      "promise": "renderBreakerFreeze names the tripped counters and points at the story_resume command as the next action",
+      "verifiedBy": "diff/grep + read",
+      "evidence": "renderBreakerFreeze(storyId, reasons) in convergence-breaker.ts builds a message including the reasons array (e.g. advance-count/takeover/pass-rate/gate-repeat strings) and a next-action line naming lattice story_resume --storyId=<id> --ack --reason=<why-it-is-safe>, plus the autopilot-refusal note."
+    },
+    {
+      "docPath": "material change: retired-authority-vocabulary-guard-smoke.ts + verify-process-fact-contract.mjs since last delivery-check",
+      "promise": "The only changes since the last (now-stale) delivery-check are two one-line pinned-fingerprint syncs for cli-engine.ts (no product-code change in those two files)",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff main...HEAD on both files shows exactly one changed line each: the PINNED_EXECUTABLE_SOURCE_FINGERPRINTS map entry and the closeout-trust-boundary allow-list entry for packages/main/src/cli-engine.ts, both updated from the old hash to the new hash matching cli-engine.ts after the CHK-003/CHK-006 wiring. Independently re-ran both guards on current material: node scripts/verify-process-fact-contract.mjs exit 0 (Process fact contract verified); node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js exit 0 (PASS)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-bbaf/findings.json",
+      "promise": "All 15 findings (F-001..F-015) across the 9-round cross-host review are resolved; 0 open",
+      "verifiedBy": "cli query",
+      "evidence": "lattice finding_list for B-bbaf returns 15 findings, all status=resolved, 0 with any other status; spot-checked F-001/F-002/F-003 resolvedReason text matches the corresponding code fix in convergence-breaker.ts/cli-engine.ts (shared BreakerStore Pick type, storyIdFromArgs resolver, delta-baselined signals)."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm run test:convergence-breaker sections 1/5/6 cover: healthy 8-advance control tripped=false; pass-rate min-sample gate (0/1 does not trip); malformed/missing counters fail open (no throw, tripped=false). Independently re-executed on current material, exit 0."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Smoke sections 1/2/3/8/10 cover: first pathological trip auto-recovers (autoRecoveriesSpent=1, advance proceeds); re-trip freezes; a story that trips once then goes quiet does not re-freeze; breaker-state round-trips through write/read; the three runtime files are registered material-hash-excluded + gitignored (F-008 pattern). Independently re-executed, exit 0."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Smoke sections 9/13 cover: frozen story_advance throws /FROZEN/ via enforceConvergenceBreakerGate through a fake store; frozen takeover-carrying command also hard-blocked; ack (resumeBreakerState+writeBreakerState) clears the gate; isInteractiveAckAllowed refuses under LATTICE_AUTOPILOT/CI/no-TTY. Independently re-executed smoke, exit 0; this review session itself is non-interactive so story_resume's isInteractiveAckAllowed(process.env, process.stdin.isTTY) path was confirmed by code inspection to refuse (stdin not a TTY) rather than by a live invocation."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Smoke section 4 covers: default maxAdvance=20; MAX_ADVANCE=5 override trips at 6 (not 5, strict >); abc/-1/1e9/empty env values all fall back to default with no NaN/Infinity. Independently re-executed, exit 0."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Smoke sections 1/2/3/9/10 replay the B-f458 signature (89 advances/131:31 pass/65 takeovers) tripping all four reasons and freezing on re-trip, plus the healthy 8-advance control never tripping, plus the autopilot-refusal and gitignored-state assertions. This is the top-level smoke file itself (packages/main/src/tasks/convergence-breaker-smoke.ts), independently re-executed on current material via node packages/main/dist/tasks/convergence-breaker-smoke.js, exit 0, single consolidated PASS line naming all covered behaviors."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "Smoke sections 7/14/15 cover: two failures with identical (command,reason) digest bump the counter to 2 and trip gate-repeat 2>=2; resetGateFailureCounts clears an existing counter and does not create a spurious empty file when nothing to clear (F-005); two DIFFERENT reasons stay at count=1 each; missing counter file reads as 0 (fail-open); gateFailureDigest never throws on malformed input; isCanonicalStoryId guard rejects non-canonical ids at the gate. cli-engine.ts wiring (bump on story_advance failure, reset on story_advance success only) independently re-read in the diff and matches the checklist's anti-defeat rationale. Independently re-executed smoke, exit 0."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Independently re-verified on CURRENT material (the two fingerprint-sync commits): all 7 diff-derived promises are delivered in code (choke-point wiring, story_resume 5-point registration + refusal, 5 env thresholds, renderBreakerFreeze message, and the fingerprint-sync claim itself), and all 6 checklist items have real-machine test coverage independently re-run (node packages/main/dist/tasks/convergence-breaker-smoke.js exit 0, scripts/verify-process-fact-contract.mjs exit 0, retired-authority-vocabulary-guard-smoke.js exit 0, full npm test 42 scripts exit 0). 15/15 findings resolved, 0 open, no TODO/FIXME in the diff, no CLAUDE.md/README changes to check for doc drift."
+  },
+  "_hash": "9c1075a019c0fb251fa3edc93e4800b6e236fdbfe016ad2f3735572c79e489e2"
+}
