@@ -314,7 +314,7 @@
       "desc": "quality: packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:359 re-pinned the PINNED_EXECUTABLE_SOURCE_FINGERPRINTS entry for cli-engine.ts from 878828adf7...f64f16a to f8a151cb9d...5bae to fix F-014, but scripts/verify-process-fact-contract.mjs:845 independently hardcodes the OLD literal hash 878828adf7881dc809bfca0e6e4daa506053fb6565aa1ec69c99626fef64f16a as a required substring inside a for-of token-membership assertion loop over the same smoke-test source text (see scripts/verify-process-fact-contract.mjs:788-845, retiredVocabularyGuardText.includes(token)). That companion literal was NOT updated in this diff. Reproduced: `node scripts/verify-process-fact-contract.mjs` on the current committed HEAD (c4f0daee91) exits 1 with 'Process fact contract failed: - retired vocabulary guard must enforce narrow compatibility usage: 878828adf7881dc809bfca0e6e4daa506053fb6565aa1ec69c99626fef64f16a'; reverting only the smoke file to its pre-1c527eccd5 content makes the same script exit 0 (\"Process fact contract verified\"), isolating the regression to this one-line pin change. Since test:process-fact-contract is wired into the top-level `npm test` aggregate (package.json line 15/93), this is a currently-broken, reproducible CI-relevant check, not a stale/flaky evidence issue. Fix: update scripts/verify-process-fact-contract.mjs:845 to the new fingerprint value (or better, derive the check from the live PINNED_EXECUTABLE_SOURCE_FINGERPRINTS map instead of a duplicated hardcoded literal so the two files cannot drift again).",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-14T19:12:03.224Z",
@@ -322,7 +322,11 @@
       "reviewRunId": "B-bbaf:RR-026",
       "_hash": "17c98d799b1f29f701e64ef8e24f6f9c38a8a47123685a893867346905fa2f44",
       "signatureTag": "missing|unknown|quality-packages-main",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Synced the duplicated cli-engine.ts fingerprint literal at scripts/verify-process-fact-contract.mjs:845 to f8a151cb... (committed). verify-process-fact-contract.mjs passes, retired-authority-vocabulary-guard passes, and the full npm test passes end-to-end (0 errors, 42 scripts). Only two files hardcoded the fingerprint (grep-confirmed), both now synced.",
+      "resolvedAt": "2026-07-14T19:23:24.562Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
