@@ -162,6 +162,32 @@
         "scanEscalationReason": null
       },
       "_hash": "a1d37b2c0e29549b422565ba90e4b0cda88c3f73b7834cf25954741b1ab7aa29"
+    },
+    {
+      "id": "B-3b05:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 2): re-audited 7/7 must intents across CHK-001/CHK-002 after F-001/F-003/F-004/F-005 (hint redesign, commit 3826879dda) and F-002 (provenanceFlag signing, commit 8cce2b89e9); all evidence re-recorded/refreshed at current head, notes accurately describe the new assertions, corrected manual_transcript matches its claim, npm run test:review-pass-provenance + milestone-status.test.mjs + test:process-fact-contract + full lattice validate all green. No blocker.",
+      "createdAt": "2026-07-14T00:54:32.650Z",
+      "reviewRound": "2026-07-14T00:46:23.555Z",
+      "reviewRunId": "B-3b05:RR-008",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3b05/evidence/provenance-warn-transcript.md",
+          "docs/story/actives/B-3b05/checklist.json",
+          "packages/main/src/tasks/review-pass-provenance-smoke.ts",
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "29c0fc4c0271b977a0e2dc286639056b6caeed730301de18e82b97a674367def"
     }
   ]
 }
