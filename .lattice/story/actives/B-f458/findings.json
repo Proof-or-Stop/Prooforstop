@@ -3214,6 +3214,60 @@
       "resolvedAt": "2026-07-14T05:22:19.237Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f458:F-125",
+      "desc": "doc-promise-undelivered: concept-cleanup: F-121 transcript evidence replacement is incomplete. delivery_context_pack now actually checks evidence/live-smoke-transcript.json, but its handler contract comment, COMMAND_POLICIES reason, and PROCESS_FACT_LEVELS rationale still promise transcript-diff.md presence; the generated and mirrored product-reviewer prompts still request docs/story/actives/<storyId>/evidence/transcript-diff.md. The active policy/registry prose therefore describes an input the implementation no longer consumes, while the canonical input is omitted. Full-repository rg also finds the legacy path in lifecycle registries and decision docs without a local backward-compat marker, despite F-006 claiming the phantom transcript-diff policy was removed. Update active behavior descriptions/prompts to the canonical live-smoke artifact, and explicitly mark any intentionally retained lifecycle enum/path as legacy compatibility so it is not mistaken for current closeout evidence.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-14T05:33:29.929Z",
+      "reviewRound": "2026-07-14T05:21:57.764Z",
+      "reviewRunId": "B-f458:RR-135",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".claude/agents/product-reviewer.md",
+          ".lattice-codex/agents/product-reviewer.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/delivery-context-pack.ts",
+          "packages/main/src/tasks/delivery-context-pack-smoke.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "packages/main/src/tasks/review-loop-smoke.ts",
+          "packages/main/templates/agents/product-reviewer.md"
+        ],
+        "scanEscalationReason": "Reviewed the complete 24f364f469 seven-file repair diff and grep-scanned the full repository for transcript-diff.md, live-smoke-transcript.json, open_review_loop, and review_loop_record_error residues. The relevant concept family was bounded by F-119 through F-124; no unrelated decisions-directory escalation was needed."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "7eb5d2b854238a74a956248faf9425f8cfe4e39d849b6a56a3456c23f5495e04",
+      "files": [
+        "packages/main/src/handlers/delivery-context-pack.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/src/core/lifecycle-registry.ts",
+        "packages/main/templates/agents/product-reviewer.md",
+        ".lattice-codex/agents/product-reviewer.md",
+        ".claude/agents/product-reviewer.md"
+      ],
+      "signatureTag": "concept-cleanup-live-smoke-transcript-residue",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
