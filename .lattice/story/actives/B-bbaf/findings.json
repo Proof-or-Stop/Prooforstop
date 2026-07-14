@@ -177,7 +177,7 @@
       "desc": "CHK-006:edge:0 verificationEvidence note still claims \"Real-CLI verified: a successful mutation resets the counter\", but on the CURRENT material (post codex round-2/round-3 fixes at 4fd982a5d8/761b0aa7d7) the cli-engine.ts wiring was deliberately narrowed so ONLY a successful story_advance resets gate-failure-counts (any other successful mutation no longer resets it, closing a defeat vector where a runaway agent could fail story_advance then run a trivial no-op mutation to reset the brake). No test anywhere -- convergence-breaker-smoke.ts section 7/14 or elsewhere -- exercises the actual cli-engine.ts catch/success call sites (lines ~1213-1251, ~1311-1321); they only call resetGateFailureCounts/bumpGateFailureCount directly with hand-picked strings, bypassing the real command-dispatch wiring entirely (this reopens the same gap findings F-008 originally raised, but for the NEW narrower behavior, which is untested in either direction: no assertion that story_advance success resets, and no assertion that a different successful command does NOT reset). Additionally, the isCanonicalStoryId guard added at the same two cli-engine.ts call sites plus the defense-in-depth check in enforceConvergenceBreakerGate (core/convergence-breaker.ts) has zero automated coverage: convergence-breaker-smoke.ts section 13 only ever passes storyId=\"B-gate\", which IS canonical, so the guard rejection branch (a non-canonical/path-traversal id causing an early no-op return, no file written, no throw) is never exercised. Neither property has a declared verificationIntent or evidence on the current material.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-14T16:05:16.806Z",
@@ -190,7 +190,11 @@
         "packages/main/src/tasks/convergence-breaker-smoke.ts"
       ],
       "signatureTag": "missing|ts|edge-verificationevidence-note",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added smoke section 15 exercising the isCanonicalStoryId guard rejection branch (non-canonical/path-traversal storyIds never reach storyDirPath; canonical control does). Corrected the CHK-006:edge:0 evidence note to describe the narrowed story_advance-only reset semantics accurately. Committed in the test(cdr3) F-009 commit.",
+      "resolvedAt": "2026-07-14T16:07:48.303Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
