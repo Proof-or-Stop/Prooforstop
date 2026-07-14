@@ -3325,7 +3325,7 @@
       "desc": "concept-cleanup: canonical transcript migration is incomplete: docs/requirements/decisions/cc-learnings.md:829 still promises the retired evidence/transcript-diff.md as a future mandatory DONE artifact, while active producer/consumer contracts and reviewer prompts use evidence/live-smoke-transcript.json and the only retained old-path use is explicitly legacy scope-classification compatibility. The stale learning record can direct future hosts back to the non-canonical hand-authored path and contradicts the current closeout trust boundary.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-14T15:30:52.498Z",
@@ -3373,7 +3373,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "missing|md|concept-cleanup-canonical",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by ac9f87fe8b: the still-active future DONE-gate promise in cc-learnings.md now names canonical evidence/live-smoke-transcript.json; the retired evidence/transcript-diff.md occurrence is removed from that document while the type-aware waiver warning remains. Exact repository scan confirms the corrected line.",
+      "resolvedAt": "2026-07-14T15:36:48.745Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
