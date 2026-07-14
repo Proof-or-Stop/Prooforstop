@@ -90,6 +90,27 @@
         "scanEscalationReason": null
       },
       "_hash": "fd09c95b92c73bcc4c4e02a1499947fecf5d0caff8ed13beae3b8f2267eafbc9"
+    },
+    {
+      "id": "B-3b05:RP-004",
+      "agent": "lattice-review-behavior",
+      "note": "Round 2 re-verification of F-003/F-004/F-005 fixes (commit 3826879dda) against rebuilt dist. (a) Copy-paste reachability: live CLI probe against current build — verification_evidence_add with intentionally missing --note failed on Zod arg validation (note: expected string, received undefined), NOT a phase rejection, and appears in REVIEW phaseTools allow-list; confirms the primary printed remedy is not phase-walled in REVIEW (F-005 fixed). Contrast probe: milestone_ledger_set in REVIEW correctly returned Command not available in REVIEW phase / Allowed phases: PLAN, confirming the secondary remedys PLAN-only caveat is accurate, not misleading. (b) done-status row without evidence: source scenario 2b (milestone-status.test.mjs:2666-2688) and its passing assertion show message text M-done-noev [status=done; ...] with assert.doesNotMatch(/remain planned/) — true persisted status is reported, hardcoded remain planned claim is gone (F-003 fixed). (c) mixed multi-row fixture: scenario 2c (lines 2693-2718) asserts lag framing appears on the lagging row (M-mix-lag) only and assert.doesNotMatch on the non-lagging siblings diagnosis substring, i.e. lag framing is computed per-row not suppressed by .every() (F-004 fixed). Also reran node packages/main/tests/milestone-status.test.mjs live -> ok milestone-status, and npm run test:process-fact-contract -> Process fact contract verified. No blocker found in CHK-001 scope for round 2.",
+      "createdAt": "2026-07-14T00:49:37.048Z",
+      "reviewRound": "2026-07-14T00:46:23.555Z",
+      "reviewRunId": "B-3b05:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3b05/background.md",
+          ".lattice/story/actives/B-3b05/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fdd04658f4ed703eb85e1a07f3e2cdd5624ab9cbc9355170183b13767aa3c36c"
     }
   ]
 }
