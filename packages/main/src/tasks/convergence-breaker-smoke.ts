@@ -339,4 +339,34 @@ const HEALTHY: BreakerCounters = {
   }
 }
 
-console.log('PASS convergence-breaker: storm trips 4 signals + auto-recover->freeze->ack, healthy control clean, gate-repeat digest/reset, thresholds, autopilot refusal, gitignored state, F-003 takeover re-baseline, collectBreakerCounters derivation, enforce-gate frozen-block + takeover-block, no-spurious-reset');
+// ── 15. F-009: canonical-id guard rejects a non-canonical storyId ─────────────
+// The breaker gate must never derive a story path from a path-traversal / non-
+// canonical id, even if a direct caller supplies one (in production the owner-
+// lease gate validates first, but this is the breaker's own defense-in-depth).
+{
+  const dir = mkdtempSync(join(tmpdir(), 'cbreaker-guard-'));
+  try {
+    let storyDirCalledWith: string | null = null;
+    const store = {
+      // If the guard fails, storyDirPath would be called with the evil id.
+      storyDirPath: (id: string) => { storyDirCalledWith = id; return dir; },
+      readStory: (_id: string) => ({ events: [] }),
+      readReviewRuns: (_id: string) => ({ runs: [] }),
+      readReviewPasses: (_id: string) => ({ passes: [] }),
+    } as unknown as import('../core/store.js').StoryStore;
+
+    for (const evil of ['../../outside', 'a/b', '..', 'B-bad/../../x', 'B bad']) {
+      storyDirCalledWith = null;
+      // Must NOT throw and must NOT derive a path from the non-canonical id.
+      enforceConvergenceBreakerGate({ command: 'story_advance', storyId: evil, isTakeoverCommand: false, store, env: {} });
+      assert.equal(storyDirCalledWith, null, `non-canonical storyId ${JSON.stringify(evil)} is rejected before storyDirPath`);
+    }
+    // A canonical id is NOT rejected by the guard (control): storyDirPath is reached.
+    enforceConvergenceBreakerGate({ command: 'story_advance', storyId: 'B-canon1', isTakeoverCommand: false, store, env: {} });
+    assert.equal(storyDirCalledWith, 'B-canon1', 'a canonical storyId passes the guard and derives its path');
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+console.log('PASS convergence-breaker: storm trips 4 signals + auto-recover->freeze->ack, healthy control clean, gate-repeat digest/reset, thresholds, autopilot refusal, gitignored state, F-003 takeover re-baseline, collectBreakerCounters derivation, enforce-gate frozen-block + takeover-block, no-spurious-reset, canonical-id guard rejection');
