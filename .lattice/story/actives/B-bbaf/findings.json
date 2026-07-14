@@ -105,7 +105,7 @@
       "desc": "CHK-003:happy:0, CHK-003:edge:0, CHK-003:adversarial:0 all lack automated coverage of the actual enforcement seam. `enforceConvergenceBreakerGate` (the function cli-engine.ts wires at its single choke point, cli-engine.ts:1220) and the `story_resume` handler (handlers/story.ts:30) are never imported or invoked anywhere in convergence-breaker-smoke.ts (grep confirms). The smoke only exercises the lower-level pure/IO helpers directly: assessBreaker (section 1-6), isInteractiveAckAllowed (section 9), and readBreakerState/writeBreakerState round-trip (section 8) -- never the enforcement function that actually throws to block story_advance, nor the story_resume command handler that actually clears a freeze. Every CHK-003 evidence note leans on a \"real-CLI verified\" manual step (node dist/cli.js story_advance while frozen; interactive story_resume run) that is not recorded as manual_transcript evidence and is not reproducible or regression-protected -- so the story's core enforcement/refusal wiring (the reason this story exists, per the B-f458 death loop) has zero automated test.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-14T13:05:04.288Z",
@@ -119,7 +119,11 @@
         "packages/main/src/tasks/convergence-breaker-smoke.ts"
       ],
       "signatureTag": "missing|ts|happy-edge-adversarial",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Smoke section 13 now invokes enforceConvergenceBreakerGate through a fake store: healthy proceeds writing no state, frozen story_advance AND frozen takeover command both throw, ack clears and the gate proceeds again. Fixed in 53c25c4.",
+      "resolvedAt": "2026-07-14T13:20:47.640Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-bbaf:F-007",
