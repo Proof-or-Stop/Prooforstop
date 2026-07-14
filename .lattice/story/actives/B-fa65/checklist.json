@@ -4,9 +4,88 @@
       "id": "CHK-001",
       "title": "Make the doctor global-core-realpath check linked-worktree-aware",
       "context": "checkGlobalCoreRealpath (packages/main/src/core/runtime-environment-checks.ts:223-245, surfaced via handlers/doctor.ts): the non-self-project branch compares the global @lattice/core realpath against the running CLI's own corePackageRoot without canonicalization, so a worktree-built CLI evaluating a fixture/temp project always warns (expected=.worktrees/B-xxxx/packages/main vs global=canonical main checkout). Fix: canonicalize the non-self expected via the repository containing corePackageRoot (git worktree list anchored at corePackageRoot, mirroring resolveCanonicalSelfCoreRoot lines 755-777); keep the genuine unrelated-path warn. Regression tests: worktree-built-CLI + fixture context passes with no warn and doctor brief returns under the 20000-byte brief-output-smoke budget; a genuinely mismatched global path still warns. Acceptance signal: npm test green from inside a story worktree.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-14T01:39:19.631Z",
+      "userSees": "Inside a story worktree, npm test completes green (test:brief-output passes with doctor brief under 20000 bytes); lattice doctor evaluated by a worktree-built CLI on a fixture project shows ✓ global-core-realpath with no Relink or reinstall advice; a genuinely mismatched global path still shows the ⚠ warn",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Worktree-built CLI + fixture project: global-core-realpath passes (canonicalized expected = canonical main checkout) and brief-output-smoke doctor budget assertion passes",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Real machine: npm run test:brief-output green from inside a story worktree",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Self-project context behavior unchanged (expectedSelfCoreRoot path still used); non-git or detached contexts fall back safely without crash",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Genuine mismatch (global resolving to an unrelated path outside the repo containing corePackageRoot) still warns with the repair hint",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/global-core-realpath.test.mjs",
+          "command": "node packages/main/tests/global-core-realpath.test.mjs",
+          "result": "pass",
+          "note": "Scenario 1: real git repo + linked worktree fixture; corePackageRoot in the worktree, global symlinked to the canonical main checkout packages/main → globalCoreRealpath.status=pass (canonicalized expected).",
+          "headHash": "83083164800e229484be2383c631de03aee1268f",
+          "materialHash": "cfeccd416d4672bbbeb02d93e8b403179f0622ce635bf153186a616782bfc82a",
+          "storyFilesHash": "be2de60fc2d1d39bfc2dc7c7258a57583c858d31dd0ac5e77d5e013f27d57492",
+          "timestamp": "2026-07-14T01:54:14.585Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/dist/tasks/brief-output-smoke.js",
+          "command": "npm run test:brief-output && npm test",
+          "result": "pass",
+          "note": "Real machine from .worktrees/B-fa65 at commit b9f2786fb5: brief output smoke passed (doctor budget deterministic after F-004 burn-scan env switch) and the FULL root npm test chain exits 0 — the story acceptance signal (npm test green from a story worktree) holds end-to-end.",
+          "headHash": "b9f2786fb59554c2601a9a4fe6cc6b6bd279ac2d",
+          "materialHash": "cfeccd416d4672bbbeb02d93e8b403179f0622ce635bf153186a616782bfc82a",
+          "storyFilesHash": "be2de60fc2d1d39bfc2dc7c7258a57583c858d31dd0ac5e77d5e013f27d57492",
+          "timestamp": "2026-07-14T01:54:13.746Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/global-core-realpath.test.mjs",
+          "command": "node packages/main/tests/global-core-realpath.test.mjs && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Scenario 3: non-git corePackageRoot falls back to un-canonicalized behavior (matching global passes, differing global warns — unchanged). Self-context behavior unchanged: validation-protocol-smoke passes (exercises runRuntimeEnvironmentChecks self/external shapes).",
+          "headHash": "83083164800e229484be2383c631de03aee1268f",
+          "materialHash": "cfeccd416d4672bbbeb02d93e8b403179f0622ce635bf153186a616782bfc82a",
+          "storyFilesHash": "be2de60fc2d1d39bfc2dc7c7258a57583c858d31dd0ac5e77d5e013f27d57492",
+          "timestamp": "2026-07-14T01:54:14.585Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/global-core-realpath.test.mjs",
+          "command": "node packages/main/tests/global-core-realpath.test.mjs",
+          "result": "pass",
+          "note": "Scenario 2: global symlinked to an unrelated path while core runs from a worktree → status not pass and the resolves-to warning text survives (genuine drift detection intact; different-clone case per decision preMortem 2).",
+          "headHash": "83083164800e229484be2383c631de03aee1268f",
+          "materialHash": "cfeccd416d4672bbbeb02d93e8b403179f0622ce635bf153186a616782bfc82a",
+          "storyFilesHash": "be2de60fc2d1d39bfc2dc7c7258a57583c858d31dd0ac5e77d5e013f27d57492",
+          "timestamp": "2026-07-14T01:54:14.585Z"
+        }
+      ]
     }
   ]
 }
