@@ -27,7 +27,7 @@
       "desc": "adversarial: review-pass provenance (B-3b05 CHK-002) persists `provenanceFlag: \"same_session_write\"` on ReviewPass records (packages/main/src/handlers/finding.ts:397) as part of what review-pass-provenance.ts:20 calls a \"durable per-session audit trail\", but `provenanceFlag` is NOT included in the versioned v3 signature payload in signReviewPass/verifyReviewPass (packages/main/src/core/finding-verify.ts:117-146 lists version, salt, storyId, id, agent, note, timestamp, reviewRound, reviewRunId, writerSessionId, sessionSource, readManifest/readLog/readDiagnostics -- no provenanceFlag). Only writerSessionId/sessionSource are tamper-protected. Reproduced directly against the built dist: signing a record with writerSessionId+sessionSource then adding provenanceFlag=same_session_write afterward still verifies true via verifyReviewPass -- i.e. provenanceFlag can be added, stripped, or flipped in the persisted review-passes.json post-write without invalidating _hash, silently erasing or fabricating self-sign evidence for the exact B-8038/B-3928/B-f458 self-sign detection problem this story exists to address. This is compounded by delivery evidence at .lattice/story/actives/B-3b05/evidence/provenance-warn-transcript.md:50, which explicitly (and incorrectly) claims the persisted record has writerSessionId, sessionSource, AND provenanceFlag \"all bound into the versioned `_hash` signature domain\" -- that claim is false for provenanceFlag and should be corrected, or provenanceFlag should be added to the v3 signature domain.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-14T00:22:07.291Z",
@@ -41,7 +41,11 @@
         ".lattice/story/actives/B-3b05/evidence/provenance-warn-transcript.md"
       ],
       "signatureTag": "adversarial|ts|adversarial-review-pass",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 8cce2b89e9: provenanceFlag bound into the v3 signReviewPass/verifyReviewPass payload (absent canonicalized to empty string; flag-only records fail closed). v3 amended in place, justified by full scan of every review-passes.json under worktree + main story trees: zero persisted records carry the new fields (B-3b05 RP-001/002/003 are v2 readManifest records from global CLI 0.3.196), so no history breaks. Tamper scenarios (add/strip/flip flag) fail verification against both locally-signed and real-CLI-persisted records; regenerated provenance-warn-transcript.md carries an explicit F-002 amendment note correcting the earlier false all-bound claim. process-fact contract synced and green.",
+      "resolvedAt": "2026-07-14T00:46:59.266Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3b05:F-003",
