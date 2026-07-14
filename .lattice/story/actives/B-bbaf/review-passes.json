@@ -161,6 +161,44 @@
         "scanEscalationReason": null
       },
       "_hash": "4616a9b866e6f2565f445e5397e683f8f22aacd4dc3565b9b78af20391878bfc"
+    },
+    {
+      "id": "B-bbaf:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Fresh concept-lane pass after smoke section 15 addition (F-009 coverage fix). Change since last concept pass is purely additive: git diff main...HEAD -- *.ts has ZERO minus-lines in any source file. Verified: (1) isCanonicalStoryId single definition at lifecycle-registry.ts:651, imported not duplicated by convergence-breaker.ts and all other call sites; new smoke section 15 exercises this single guard via enforceConvergenceBreakerGate. (2) story_resume named consistently across command-policy.ts, config.ts, command-catalog.ts, handlers/story.ts (createStoryResumeHandlers merged into createStoryHandlers export via spread), convergence-breaker.ts freeze message. (3) LATTICE_CONVERGENCE_MAX_ADVANCE/_MAX_TAKEOVER/_MIN_PASS_RATE/_MIN_SAMPLE/_MAX_GATE_REPEAT spelled identically across convergence-breaker.ts ENV_KEYS map, convergence-breaker-smoke.ts, plan.md, checklist.json, delivery-check.json. No dangling references, no deprecated/removed markers, no orphaned exports. No blocker.",
+      "createdAt": "2026-07-14T16:10:16.401Z",
+      "reviewRound": "2026-07-14T15:59:16.186Z",
+      "reviewRunId": "B-bbaf:RR-011",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/delivery-context-pack.ts",
+          "packages/main/src/handlers/init-preflight.ts",
+          "packages/main/src/handlers/lifecycle-orchestrate.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/handlers/playbook-runtime-memory.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/handlers/reviewer-batch.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0523472d4645d2633bfdba5e75b0c89c4ca40e5020e3a435ee2f0fd80a484aa4"
     }
   ]
 }
