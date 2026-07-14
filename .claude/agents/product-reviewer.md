@@ -45,7 +45,7 @@ The main agent will provide:
 - `storyId`
 - `understanding.outcome`
 - `summary` / output from the `story_advance DONE` phase
-- If available, `docs/story/actives/<storyId>/evidence/transcript-diff.md`
+- If available, `docs/story/actives/<storyId>/evidence/live-smoke-transcript.json`
 
 ## Review criteria
 

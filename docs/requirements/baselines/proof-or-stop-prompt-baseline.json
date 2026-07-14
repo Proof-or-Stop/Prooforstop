@@ -63,7 +63,7 @@
       },
       {
         "role": "product-reviewer",
-        "templateHash": "1251d330e719dfae4d25708f9e06eee76a97aee2f084acf0abb3fe8b2d4446a2"
+        "templateHash": "22301c95c459aba6d0df1941619823fde9d1d89a944121c846dced952483703e"
       },
       {
         "role": "test-case-reviewer",
@@ -80,7 +80,7 @@
     "schemaVersion": "lattice.prompt-registry.v1",
     "source": "@lattice/core/templates/agents",
     "agentCount": 16,
-    "materialHash": "d4786055c461f437d85bb7754ddf5feaaa75d8df80656208cfb6f9e4e6170d2a",
+    "materialHash": "08e4db7c1936c1ff27815be454adca059a3cf205195af1787ff3160ed9f23be8",
     "roles": [
       {
         "role": "implementation-reviewer",
@@ -190,8 +190,8 @@
         "role": "product-reviewer",
         "file": "product-reviewer.md",
         "relPath": "templates/agents/product-reviewer.md",
-        "templateHash": "1251d330e719dfae4d25708f9e06eee76a97aee2f084acf0abb3fe8b2d4446a2",
-        "bytes": 3253,
+        "templateHash": "22301c95c459aba6d0df1941619823fde9d1d89a944121c846dced952483703e",
+        "bytes": 3261,
         "lines": 91
       },
       {
@@ -296,8 +296,8 @@
       },
       {
         "role": "product-reviewer",
-        "sha256": "fc570fa80439fe4507c09351d3a8c300503b2037ce5998f39240fcb7f20ba1cb",
-        "bytes": 3254,
+        "sha256": "a8ddfba1b2ad9595f79c26aa967cff32d42d0c7c64d3cd1fa3fa8813fe693e27",
+        "bytes": 3262,
         "lines": 92
       },
       {
@@ -620,7 +620,7 @@
         {
           "role": "product-reviewer",
           "relPath": "templates/agents/product-reviewer.md",
-          "templateHash": "1251d330e719dfae4d25708f9e06eee76a97aee2f084acf0abb3fe8b2d4446a2"
+          "templateHash": "22301c95c459aba6d0df1941619823fde9d1d89a944121c846dced952483703e"
         },
         {
           "role": "test-case-reviewer",
@@ -1666,7 +1666,7 @@
         {
           "role": "product-reviewer",
           "classification": "read-only-reference",
-          "excerpt": "- If available, `docs/story/actives/<storyId>/evidence/transcript-diff.md`"
+          "excerpt": "- If available, `docs/story/actives/<storyId>/evidence/live-smoke-transcript.json`"
         }
       ],
       "exactWrites": [
@@ -1966,13 +1966,13 @@
         "note": "Registered direct story-file write instruction to replace with CLI-mediated writes in later milestones."
       },
       {
-        "id": "5282e6199b392b03",
+        "id": "9aaa90a8209bb2f3",
         "role": "product-reviewer",
         "line": 48,
         "references": [
           "docs/story/actives/"
         ],
-        "excerpt": "- If available, `docs/story/actives/<storyId>/evidence/transcript-diff.md`",
+        "excerpt": "- If available, `docs/story/actives/<storyId>/evidence/live-smoke-transcript.json`",
         "classification": "read-only-reference",
         "grandfathered": true,
         "note": "Exact code-reviewed current story-file reference."

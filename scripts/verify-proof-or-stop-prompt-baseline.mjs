@@ -86,7 +86,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'product-reviewer',
-    templateHash: '1251d330e719dfae4d25708f9e06eee76a97aee2f084acf0abb3fe8b2d4446a2',
+    templateHash: '22301c95c459aba6d0df1941619823fde9d1d89a944121c846dced952483703e',
   },
   {
     role: 'test-case-reviewer',
@@ -196,7 +196,7 @@ const DIRECT_STORY_REFERENCE_ALLOWLIST = [
   {
     role: 'product-reviewer',
     classification: 'read-only-reference',
-    excerpt: '- If available, `docs/story/actives/<storyId>/evidence/transcript-diff.md`',
+    excerpt: '- If available, `docs/story/actives/<storyId>/evidence/live-smoke-transcript.json`',
   },
 ];
 const DIRECT_STORY_POLICY_RULE =

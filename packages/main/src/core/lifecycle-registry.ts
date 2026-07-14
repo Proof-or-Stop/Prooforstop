@@ -337,6 +337,8 @@ export const LIFECYCLE_ARTIFACTS = [
   'parent-ledger-rollup.json',
   'closeout-write-receipts.jsonl',
   'process-events.jsonl',
+  // Legacy scope-classification compatibility only. Current transcript producers
+  // and consumers use evidence/live-smoke-transcript.json.
   'evidence/transcript-diff.md',
   'evidence/live-smoke-transcript.json',
   'evidence/delivery-context-pack.json',
@@ -397,6 +399,8 @@ export const LIFECYCLE_PHASE_ARTIFACTS = {
     consumes: ['candidate-spec-set.json', 'checklist.json', 'findings.json', 'review-passes.json', 'review-runs.json'],
   },
   TEST: {
+    // transcript-diff.md remains recognized only for legacy story compatibility;
+    // live-smoke-transcript.json is the canonical current evidence artifact.
     produces: ['candidate-spec-set.json', 'test-evidence.json', 'delivery-check.json', 'eval-evidence.json', 'summary.json', 'done-required-evidence.json', 'evidence/transcript-diff.md', 'evidence/live-smoke-transcript.json'],
     consumes: ['candidate-spec-set.json', 'test-evidence.json', 'findings.json'],
   },

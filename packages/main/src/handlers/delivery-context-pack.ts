@@ -26,7 +26,7 @@ import {
  * Default (no --write) is READ-ONLY: it gathers and prints the structured
  * delivery context pack the delivery reviewer needs — the delivery-scoped git
  * diff vs main, the docs-promises (from plan.md + checklist userSees), the
- * real-machine test refs (transcript-diff.md presence, story smoke/test files,
+ * real-machine test refs (evidence/live-smoke-transcript.json presence, story smoke/test files,
  * verificationEvidence commands), the validation + review-round state, and the
  * CURRENT delivery-check + metadata-waiver status CONSUMED from the existing V1
  * StoryReadinessReport deliveryCheckRef (it never invents a new readiness
@@ -46,7 +46,7 @@ import {
 
 const READINESS_TARGET = 'DONE' as const;
 const PACK_ARTIFACT = 'evidence/delivery-context-pack.json';
-const TRANSCRIPT_DIFF_REL = 'evidence/live-smoke-transcript.json';
+const LIVE_SMOKE_TRANSCRIPT_REL = 'evidence/live-smoke-transcript.json';
 const DIFF_SUMMARY_MAX = 4000;
 
 interface DeliveryContextPackArgs {
@@ -105,7 +105,7 @@ export interface DeliveryContextPackReport {
   diff: DeliveryDiff;
   /** Docs-promises authored in plan.md + checklist userSees. */
   docsPromises: DeliveryDocsPromise[];
-  /** Real-machine test refs (transcript-diff presence, test files, evidence commands). */
+  /** Real-machine test refs (canonical live-smoke transcript presence, test files, evidence commands). */
   realMachineTests: DeliveryRealMachineTests;
   candidateRouting: {
     artifactDigest: string;
@@ -281,9 +281,9 @@ function userSeesDocsPromises(checklist: ChecklistData): DeliveryDocsPromise[] {
   return promises;
 }
 
-/** Real-machine test refs: transcript-diff presence + story test files + evidence commands. */
+/** Real-machine test refs: canonical live-smoke transcript presence + story test files + evidence commands. */
 function realMachineTests(ctx: HandlerContext, storyId: string, checklist: ChecklistData): DeliveryRealMachineTests {
-  const transcriptDiff = existsSync(ctx.store.storyFilePath(storyId, TRANSCRIPT_DIFF_REL));
+  const transcriptDiff = existsSync(ctx.store.storyFilePath(storyId, LIVE_SMOKE_TRANSCRIPT_REL));
 
   const testFiles = new Set<string>();
   const evidenceCommands = new Set<string>();

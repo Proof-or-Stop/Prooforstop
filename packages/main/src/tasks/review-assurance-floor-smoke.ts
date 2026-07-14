@@ -851,12 +851,12 @@ try {
       const store = fakeDoneStore(wrapper.metadataRoot, wrapper.gitRoot, wrapperHeadHash, wrapperMaterialHash);
       const context: StoryMachineContext = {
         storyId: STORY_ID,
-        store: store as any,
+        store,
         projectRoot: wrapper.metadataRoot,
         gitCwd: wrapper.gitRoot,
       };
       assert.equal(canFinishGuard(context), true);
-      assert.equal(getGuardFailureReason(STORY_ID, store as any, 'DONE', wrapper.metadataRoot), null);
+      assert.equal(getGuardFailureReason(STORY_ID, store, 'DONE', wrapper.metadataRoot), null);
     } finally {
       rmSync(wrapper.metadataRoot, { recursive: true, force: true });
     }

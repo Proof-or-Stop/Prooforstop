@@ -756,6 +756,28 @@ function assertCloseoutTrustBoundary() {
   }
   const deliveryText = read('packages/main/src/handlers/delivery-context-pack.ts');
   assert(deliveryText.includes('validatePersistedDeliveryContextPack(JSON.parse'), 'delivery-context-pack writer must validate the persisted shape before rename');
+  const canonicalTranscriptPath = 'evidence/live-smoke-transcript.json';
+  for (const contractPath of [
+    'packages/main/src/handlers/delivery-context-pack.ts',
+    commandPolicyPath,
+    processFactLevelRegistryPath,
+  ]) {
+    const contractText = read(contractPath);
+    assert(contractText.includes(canonicalTranscriptPath), `${contractPath}: delivery context contract must name ${canonicalTranscriptPath}`);
+    assert(!contractText.includes('transcript-diff.md presence'), `${contractPath}: active delivery context contract must not name legacy transcript-diff.md presence`);
+  }
+  for (const promptPath of [
+    'packages/main/templates/agents/product-reviewer.md',
+    '.lattice-codex/agents/product-reviewer.md',
+    '.claude/agents/product-reviewer.md',
+  ]) {
+    const promptText = read(promptPath);
+    assert(promptText.includes(`docs/story/actives/<storyId>/${canonicalTranscriptPath}`), `${promptPath}: product-reviewer must consume the canonical live-smoke transcript`);
+    assert(!promptText.includes('evidence/transcript-diff.md'), `${promptPath}: product-reviewer must not consume the legacy transcript-diff path`);
+  }
+  const lifecycleTranscriptText = read(lifecycleRegistryPath);
+  assert(lifecycleTranscriptText.includes("'evidence/transcript-diff.md'") && lifecycleTranscriptText.includes("'evidence/live-smoke-transcript.json'"), `${lifecycleRegistryPath}: retain legacy scope compatibility beside the canonical transcript artifact`);
+  assert(lifecycleTranscriptText.includes('Legacy scope-classification compatibility only'), `${lifecycleRegistryPath}: legacy transcript-diff recognition must be explicitly compatibility-only`);
   const legacyDeliveryClaimsText = read('packages/main/src/core/legacy-delivery-claims-compat.ts');
   for (const token of ['createLegacyLocalOnlyDeliveryClaims', 'isExactLegacyLocalOnlyDeliveryClaims']) {
     assert(legacyDeliveryClaimsText.includes(token), `dedicated delivery compatibility module must retain ${token}`);
