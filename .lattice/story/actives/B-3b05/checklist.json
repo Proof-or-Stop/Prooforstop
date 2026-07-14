@@ -105,7 +105,57 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-pass-provenance-smoke.ts",
+          "command": "npm run test:review-pass-provenance",
+          "result": "pass",
+          "note": "records identity, verifies, no flag for non-owner session; warn-mode owner-session pass persists with same_session_write flag",
+          "headHash": "eec52586fe75a7d0c409e136bd9ff32380d99fe4",
+          "materialHash": "884c883e2d84d5cf00f6aa4996fd9ceecb0a281a1c3f7e3a00d785c3d499fa55",
+          "storyFilesHash": "21a4c750033563ef351d12c47253c450cfd1ff47ab309c2f81c0e279def6cc99",
+          "timestamp": "2026-07-14T00:10:48.062Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "file": ".lattice/story/actives/B-3b05/evidence/provenance-warn-transcript.md",
+          "command": "node packages/main/dist/cli.js review_pass_set (real CLI, owner-session LATTICE_SESSION_ID == story owner lease sessionId, default warn mode)",
+          "result": "pass",
+          "note": "real-machine CLI output shows the visible warn flag on owner-session self-sign attempt",
+          "headHash": "eec52586fe75a7d0c409e136bd9ff32380d99fe4",
+          "materialHash": "884c883e2d84d5cf00f6aa4996fd9ceecb0a281a1c3f7e3a00d785c3d499fa55",
+          "storyFilesHash": "21a4c750033563ef351d12c47253c450cfd1ff47ab309c2f81c0e279def6cc99",
+          "timestamp": "2026-07-14T00:10:48.062Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-pass-provenance-smoke.ts",
+          "command": "npm run test:review-pass-provenance",
+          "result": "pass",
+          "note": "legacy fixture verifies via legacy domain; absent/invalid config resolves to warn",
+          "headHash": "eec52586fe75a7d0c409e136bd9ff32380d99fe4",
+          "materialHash": "884c883e2d84d5cf00f6aa4996fd9ceecb0a281a1c3f7e3a00d785c3d499fa55",
+          "storyFilesHash": "21a4c750033563ef351d12c47253c450cfd1ff47ab309c2f81c0e279def6cc99",
+          "timestamp": "2026-07-14T00:10:48.062Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-pass-provenance-smoke.ts",
+          "command": "npm run test:review-pass-provenance",
+          "result": "pass",
+          "note": "enforce rejects naming both ids; writerSessionId tamper breaks signature; explicit-env spoof recorded with sessionSource=explicit-env",
+          "headHash": "eec52586fe75a7d0c409e136bd9ff32380d99fe4",
+          "materialHash": "884c883e2d84d5cf00f6aa4996fd9ceecb0a281a1c3f7e3a00d785c3d499fa55",
+          "storyFilesHash": "21a4c750033563ef351d12c47253c450cfd1ff47ab309c2f81c0e279def6cc99",
+          "timestamp": "2026-07-14T00:10:48.062Z"
+        }
+      ]
     }
   ]
 }
