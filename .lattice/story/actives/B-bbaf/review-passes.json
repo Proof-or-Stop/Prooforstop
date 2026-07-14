@@ -1,0 +1,27 @@
+{
+  "passes": [
+    {
+      "id": "B-bbaf:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Re-verified F-001 and F-002 resolutions against HEAD 53c25c4 diff vs 1ac74ce; tsc/build clean; convergence-breaker smoke passes; no dead code / unsafe casts / IO-purity breach in the baseline refactor.",
+      "createdAt": "2026-07-14T13:23:51.422Z",
+      "reviewRound": "2026-07-14T12:55:51.181Z",
+      "reviewRunId": "B-bbaf:RR-004",
+      "writerSessionId": "0dd218ce-37cd-4274-a30b-67eefe20046f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/story.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "05e3b468b66a507adb1021eecaf9f01d48c960820fb049d6f2b678607c97c960"
+    }
+  ]
+}
