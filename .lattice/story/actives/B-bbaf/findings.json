@@ -5,7 +5,7 @@
       "desc": "quality: packages/main/src/core/convergence-breaker.ts:512-537 enforceConvergenceBreakerGate declares opts.store as a narrow Pick<StoryStore, readStory|readReviewRuns|readReviewPasses|storyDirPath>, then at line 537 calls collectBreakerCounters(opts.store as StoryStore, ...) with an unnecessary/unsafe cast back to the full StoryStore class. This defeats the point of the narrower Pick: if collectBreakerCounters later calls another StoryStore method not present in the Pick, TypeScript will not catch the mismatch (the cast hides it) and the failure only surfaces at runtime. Fix: give collectBreakerCounters the same narrow Pick type (or a shared exported alias) so the cast can be removed. Note enforceConvergenceBreakerGate itself has zero direct test coverage in tasks/convergence-breaker-smoke.ts (only the pure assessBreaker and standalone I/O helpers are exercised there), so this cast is unverified by the new smoke.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-14T13:02:53.928Z",
@@ -13,7 +13,11 @@
       "reviewRunId": "B-bbaf:RR-001",
       "_hash": "1ad3e5afbf8cf8f7d31d67358c680b865519fb9cd345343f125b09f8b2f1d161",
       "signatureTag": "missing|unknown|quality-packages-main",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Shared BreakerStore Pick type added; collectBreakerCounters + enforceConvergenceBreakerGate use it, removing the as-StoryStore cast. Fixed in 53c25c4.",
+      "resolvedAt": "2026-07-14T13:20:44.605Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-bbaf:F-002",
