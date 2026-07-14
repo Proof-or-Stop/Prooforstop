@@ -171,6 +171,26 @@
       "resolvedAt": "2026-07-14T13:20:48.650Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-bbaf:F-009",
+      "desc": "CHK-006:edge:0 verificationEvidence note still claims \"Real-CLI verified: a successful mutation resets the counter\", but on the CURRENT material (post codex round-2/round-3 fixes at 4fd982a5d8/761b0aa7d7) the cli-engine.ts wiring was deliberately narrowed so ONLY a successful story_advance resets gate-failure-counts (any other successful mutation no longer resets it, closing a defeat vector where a runaway agent could fail story_advance then run a trivial no-op mutation to reset the brake). No test anywhere -- convergence-breaker-smoke.ts section 7/14 or elsewhere -- exercises the actual cli-engine.ts catch/success call sites (lines ~1213-1251, ~1311-1321); they only call resetGateFailureCounts/bumpGateFailureCount directly with hand-picked strings, bypassing the real command-dispatch wiring entirely (this reopens the same gap findings F-008 originally raised, but for the NEW narrower behavior, which is untested in either direction: no assertion that story_advance success resets, and no assertion that a different successful command does NOT reset). Additionally, the isCanonicalStoryId guard added at the same two cli-engine.ts call sites plus the defense-in-depth check in enforceConvergenceBreakerGate (core/convergence-breaker.ts) has zero automated coverage: convergence-breaker-smoke.ts section 13 only ever passes storyId=\"B-gate\", which IS canonical, so the guard rejection branch (a non-canonical/path-traversal id causing an early no-op return, no file written, no throw) is never exercised. Neither property has a declared verificationIntent or evidence on the current material.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-14T16:05:16.806Z",
+      "reviewRound": "2026-07-14T15:59:16.186Z",
+      "reviewRunId": "B-bbaf:RR-010",
+      "_hash": "5c4ea7a8d90859cb3590e75256c4446e48cc462cbe54c662ff348d1ec87a3145",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/convergence-breaker.ts",
+        "packages/main/src/tasks/convergence-breaker-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|edge-verificationevidence-note",
+      "signatureTagSource": "auto"
     }
   ]
 }
