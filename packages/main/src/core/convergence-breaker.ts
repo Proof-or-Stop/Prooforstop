@@ -143,10 +143,27 @@ export interface BreakerCounters {
   maxGateRepeat: number;
 }
 
-/** Persisted graduated-freeze state (breaker-state.json). */
+/**
+ * Persisted graduated-freeze state (breaker-state.json).
+ *
+ * F-003 fix: EVERY count-based signal is measured RELATIVE to a baseline, not
+ * against its lifetime-cumulative value. An auto-recovery / human ack re-baselines
+ * ALL of them to the current counts, giving each signal a fresh window. Without
+ * this, a lifetime-monotonic counter like takeoverCount (which nothing ever
+ * decrements) would re-trip on every assessment after the one auto-recovery was
+ * spent — permanently alternating advance→freeze→ack→advance→freeze even for a
+ * fully healthy, converging story. (Pass-rate self-heals as a ratio, but is
+ * baselined too so a recovered story is judged only on its NEW reviews.)
+ */
 export interface BreakerState {
-  /** advanceCount value the advance signal is measured RELATIVE to (re-baselined on auto-recovery). */
+  /** advanceCount the advance signal is measured RELATIVE to (re-baselined on recovery/ack). */
   advanceBaseline: number;
+  /** takeoverCount the takeover signal is measured RELATIVE to (re-baselined on recovery/ack). */
+  takeoverBaseline: number;
+  /** reviewRunCount the pass-rate window starts from (re-baselined on recovery/ack). */
+  reviewRunBaseline: number;
+  /** reviewPassCount the pass-rate window starts from (re-baselined on recovery/ack). */
+  reviewPassBaseline: number;
   /** How many one-shot auto-recoveries have been consumed (budget is AUTO_RECOVERY_BUDGET). */
   autoRecoveriesSpent: number;
   /** When true, story_advance is hard-blocked until a human ack. */
@@ -182,10 +199,23 @@ function num(v: unknown): number {
 function normalizeState(prior: Partial<BreakerState> | null | undefined): BreakerState {
   return {
     advanceBaseline: num(prior?.advanceBaseline),
+    takeoverBaseline: num(prior?.takeoverBaseline),
+    reviewRunBaseline: num(prior?.reviewRunBaseline),
+    reviewPassBaseline: num(prior?.reviewPassBaseline),
     autoRecoveriesSpent: num(prior?.autoRecoveriesSpent),
     frozen: prior?.frozen === true,
     trippedReasons: Array.isArray(prior?.trippedReasons) ? prior!.trippedReasons.slice() : [],
     counterSnapshot: prior?.counterSnapshot,
+  };
+}
+
+/** All count-based signals re-baselined to the current counts (fresh window). */
+function baselinesFrom(counters: BreakerCounters): Pick<BreakerState, 'advanceBaseline' | 'takeoverBaseline' | 'reviewRunBaseline' | 'reviewPassBaseline'> {
+  return {
+    advanceBaseline: num(counters.advanceCount),
+    takeoverBaseline: num(counters.takeoverCount),
+    reviewRunBaseline: num(counters.reviewRunCount),
+    reviewPassBaseline: num(counters.reviewPassCount),
   };
 }
 
@@ -195,17 +225,19 @@ function normalizeState(prior: Partial<BreakerState> | null | undefined): Breake
  * graduated action is. Never throws; on any malformed input it fails open
  * (tripped=false, action='proceed').
  *
- * Signals (all cheap cumulative counts):
- *   - advance:   advanceCount - state.advanceBaseline  >  maxAdvance   (strict >)
- *   - takeover:  takeoverCount                          >  maxTakeover  (strict >)
- *   - pass-rate: reviewRunCount >= minSample AND passRate < minPassRate (strict <)
- *   - gate-repeat: maxGateRepeat                        >= maxGateRepeat (>=; the
- *     user's "same reason twice" discipline is inclusive at the threshold)
+ * Signals (all measured as a DELTA over the state baseline — see BreakerState):
+ *   - advance:   advanceCount - advanceBaseline      >  maxAdvance   (strict >)
+ *   - takeover:  takeoverCount - takeoverBaseline     >  maxTakeover  (strict >)
+ *   - pass-rate: runDelta >= minSample AND passDelta/runDelta < minPassRate (strict <),
+ *     where runDelta/passDelta are the review runs/passes SINCE the baseline
+ *   - gate-repeat: maxGateRepeat                       >= maxGateRepeat (>=; the
+ *     user's "same reason twice" discipline is inclusive at the threshold). The
+ *     gate-failure counter is reset on progress, so it carries no baseline here.
  *
  * Graduated action when ANY signal fires:
  *   - already frozen                     -> 'freeze' (stays frozen)
- *   - autoRecoveriesSpent < budget (1)   -> 'auto-recover': re-baseline the
- *     advance window, spend one recovery, advance PROCEEDS.
+ *   - autoRecoveriesSpent < budget (1)   -> 'auto-recover': re-baseline ALL
+ *     signals to the current counts, spend one recovery, advance PROCEEDS.
  *   - budget exhausted                   -> 'freeze': advance is hard-blocked
  *     until a human ack.
  */
@@ -229,15 +261,20 @@ export function assessBreaker(
       reasons.push(`advance-count ${advanceDelta}>${thresholds.maxAdvance}`);
     }
 
-    if (takeoverCount > thresholds.maxTakeover) {
-      reasons.push(`takeover ${takeoverCount}>${thresholds.maxTakeover}`);
+    const takeoverDelta = takeoverCount - state.takeoverBaseline;
+    if (takeoverDelta > thresholds.maxTakeover) {
+      reasons.push(`takeover ${takeoverDelta}>${thresholds.maxTakeover}`);
     }
 
-    const passRate = reviewRunCount > 0 ? reviewPassCount / reviewRunCount : null;
-    if (passRate !== null && reviewRunCount >= thresholds.minSample && passRate < thresholds.minPassRate) {
+    // Pass-rate over the reviews SINCE the baseline (F-003: a recovered story is
+    // judged only on its new reviews, so an old low ratio cannot re-freeze it).
+    const runDelta = reviewRunCount - state.reviewRunBaseline;
+    const passDelta = reviewPassCount - state.reviewPassBaseline;
+    const passRate = runDelta > 0 ? passDelta / runDelta : null;
+    if (passRate !== null && runDelta >= thresholds.minSample && passRate < thresholds.minPassRate) {
       const pct = Math.round(passRate * 100);
       const minPct = Math.round(thresholds.minPassRate * 100);
-      reasons.push(`pass-rate ${reviewPassCount}/${reviewRunCount}=${pct}%<${minPct}%`);
+      reasons.push(`pass-rate ${passDelta}/${runDelta}=${pct}%<${minPct}%`);
     }
 
     if (maxGateRepeat >= thresholds.maxGateRepeat && thresholds.maxGateRepeat > 0) {
@@ -265,12 +302,12 @@ export function assessBreaker(
     }
 
     if (state.autoRecoveriesSpent < AUTO_RECOVERY_BUDGET) {
-      // First trip: re-baseline the advance window to now and spend one recovery.
-      // The advance PROCEEDS; the next trip will freeze.
+      // First trip: re-baseline EVERY signal to now and spend one recovery. The
+      // advance PROCEEDS; only a genuine re-trip within the fresh window freezes.
       return {
         tripped: true, reasons, passRate, action: 'auto-recover',
         nextState: {
-          advanceBaseline: advanceCount,
+          ...baselinesFrom(counterSnapshot),
           autoRecoveriesSpent: state.autoRecoveriesSpent + 1,
           frozen: false,
           trippedReasons: reasons,
@@ -294,16 +331,18 @@ export function assessBreaker(
 }
 
 /**
- * Clear a freeze on human ack: reset the auto-recovery budget, re-baseline the
- * advance window to now, drop the frozen flag and tripped reasons. PURE — the
- * caller resets the on-disk gate-failure counter separately.
+ * Clear a freeze on human ack: reset the auto-recovery budget, re-baseline ALL
+ * signals to the current counts (F-003: including takeover, which is otherwise
+ * lifetime-monotonic and would immediately re-freeze), drop the frozen flag and
+ * tripped reasons. PURE — the caller resets the on-disk gate-failure counter
+ * separately.
  */
 export function resumeBreakerState(
   priorState: Partial<BreakerState> | null | undefined,
-  counters: Pick<BreakerCounters, 'advanceCount'>,
+  counters: BreakerCounters,
 ): BreakerState {
   return {
-    advanceBaseline: num(counters?.advanceCount),
+    ...baselinesFrom(counters),
     autoRecoveriesSpent: 0,
     frozen: false,
     trippedReasons: [],
@@ -450,9 +489,24 @@ export function bumpGateFailureCount(storyDir: string, command: string, reason: 
   }
 }
 
-/** Reset the gate-failure counter (progress = fresh slate); called on a successful advance. */
+/**
+ * Reset the gate-failure counter (progress = fresh slate); called on every
+ * successful story-scoped mutation. F-005: this must NOT create a file when
+ * there is nothing to clear — an unconditional write of `{}` on every successful
+ * command left a stray untracked gate-failure-counts.json that dirtied the tree
+ * in contexts whose .gitignore predates this artifact (breaking a pre-existing
+ * story_discard smoke). So only rewrite when the file actually exists AND holds
+ * a non-empty map. Best-effort: an existing empty map is left untouched.
+ */
 export function resetGateFailureCounts(storyDir: string): void {
-  writeJsonFile(join(storyDir, GATE_FAILURE_FILE), {});
+  try {
+    const file = join(storyDir, GATE_FAILURE_FILE);
+    if (!existsSync(file)) return;
+    if (Object.keys(readGateFailureCounts(storyDir)).length === 0) return;
+    writeJsonFile(file, {});
+  } catch {
+    // best-effort: never fail a successful command on counter reset
+  }
 }
 
 /** The largest same-(command,reason) repeat count currently recorded. */
@@ -472,8 +526,15 @@ function nowIso(): string {
 
 // ── Store collector (reads the four signals; fail-open) ──────────────────────
 
+/**
+ * The narrow slice of StoryStore the breaker reads. F-001: collector and gate
+ * share this type so no `as StoryStore` cast is needed (which would defeat the
+ * Pick and hide a future signature mismatch at compile time).
+ */
+export type BreakerStore = Pick<StoryStore, 'readStory' | 'readReviewRuns' | 'readReviewPasses' | 'storyDirPath'>;
+
 export function collectBreakerCounters(
-  store: StoryStore,
+  store: BreakerStore,
   storyId: string,
   storyDir: string,
 ): BreakerCounters {
@@ -483,6 +544,12 @@ export function collectBreakerCounters(
     advanceCount = (story.events ?? []).filter(e => e.action === 'advance').length;
   } catch { advanceCount = 0; }
 
+  // Pass-rate is review_pass_set / review_run_start — the two review LEDGERS, not
+  // the REVIEW-round count. CHK-001's context suggested reusing
+  // resolveReviewRoundCount (which counts REVIEW/advance events = rounds), but that
+  // is the wrong denominator here: the B-f458 signature is 131 run_start vs 31
+  // pass_set, a ledger ratio, not a round count. So we read the ledgers directly
+  // (still no round-logic reimplementation — there is none to reuse for this).
   let reviewRunCount = 0;
   try { reviewRunCount = (store.readReviewRuns(storyId).runs ?? []).length; } catch { reviewRunCount = 0; }
 
@@ -502,20 +569,27 @@ export function collectBreakerCounters(
  * a thin function cli-engine.ts calls at its single command choke point so the
  * enforcement logic (and its throw) lives in ONE testable place, not scattered.
  *
- * It acts ONLY on story_advance. An already-frozen story is hard-blocked
- * immediately (human ack required). Otherwise it assesses the four signals: a
- * first pathological trip AUTO-RECOVERS (state persisted, advance proceeds); a
- * re-trip FREEZES (state persisted, throws). Healthy stories are byte-identical
- * to today — no state is written and nothing is thrown. Fail-open: any resolution
- * error returns silently so the breaker never wedges a healthy command.
+ * CHK-003 covers TWO gated entries (per the checklist title "story_advance and
+ * takeover-command entry"): while a story is FROZEN, both `story_advance` AND any
+ * takeover-carrying command (--takeover / --forceTakeover) are hard-blocked, so a
+ * frozen runaway cannot keep seizing leases to extend the storm. Only a human ack
+ * (story_resume) clears it. ASSESSMENT for a new trip happens only on
+ * story_advance (the progress action); a takeover command is gated by an existing
+ * freeze but never itself triggers a new assessment. Healthy stories are
+ * byte-identical to today — no state written, nothing thrown. Fail-open: any
+ * resolution error returns silently so the breaker never wedges a healthy command.
  */
 export function enforceConvergenceBreakerGate(opts: {
   command: string;
   storyId: string | null | undefined;
-  store: Pick<StoryStore, 'readStory' | 'readReviewRuns' | 'readReviewPasses' | 'storyDirPath'>;
+  /** True when the command carries --takeover / --forceTakeover. */
+  isTakeoverCommand: boolean;
+  store: BreakerStore;
   env: Record<string, string | undefined>;
 }): void {
-  if (opts.command !== 'story_advance') return;
+  const isAdvance = opts.command === 'story_advance';
+  // Only story_advance and takeover-carrying commands are gated by the breaker.
+  if (!isAdvance && !opts.isTakeoverCommand) return;
   const storyId = opts.storyId;
   if (!storyId) return;
 
@@ -529,12 +603,17 @@ export function enforceConvergenceBreakerGate(opts: {
 
   const prior = readBreakerState(storyDir);
 
-  // Already frozen: block every advance until a human ack, without re-assessing.
+  // Already frozen: block every gated entry (advance OR takeover) until a human
+  // ack, without re-assessing.
   if (prior?.frozen) {
     throw new Error(renderBreakerFreeze(storyId, prior.trippedReasons ?? []));
   }
 
-  const counters = collectBreakerCounters(opts.store as StoryStore, storyId, storyDir);
+  // A takeover command on a non-frozen story is allowed through untouched; only
+  // story_advance runs the signal assessment below.
+  if (!isAdvance) return;
+
+  const counters = collectBreakerCounters(opts.store, storyId, storyDir);
   const thresholds = resolveConvergenceThresholds(opts.env);
   const assessment = assessBreaker(counters, thresholds, prior);
 

@@ -1214,12 +1214,17 @@ export async function runCli(opts?: {
       enforceStoryOwnerLeaseGate(cmd, parsed, store, activeStory, root);
       // B-bbaf CHK-003: convergence breaker gate — same single choke point as the
       // owner lease gate, runs AFTER it so only the owner ever reaches the brake.
-      // Acts only on story_advance: an already-frozen or newly re-tripped runaway
-      // story is hard-blocked here (throws, surfaced as the command failure);
-      // healthy stories are byte-identical (nothing written, nothing thrown).
+      // Gates story_advance and takeover-carrying commands: an already-frozen or
+      // newly re-tripped runaway story is hard-blocked here (throws, surfaced as
+      // the command failure); healthy stories are byte-identical (nothing written,
+      // nothing thrown). F-002: resolve storyId via storyIdFromArgs (the SAME
+      // resolver the owner-lease gate uses one line above) so a --story alias or
+      // autopilot-run-id cannot silently bypass the breaker while the lease gate
+      // still enforces.
       enforceConvergenceBreakerGate({
         command: cmd,
-        storyId: (parsed.storyId as string) || activeStory?.storyId,
+        storyId: storyIdFromArgs(parsed, activeStory, { command: cmd, projectRoot: root }),
+        isTakeoverCommand: Boolean(parsed.takeover || parsed.forceTakeover),
         store,
         env: process.env,
       });
@@ -1238,7 +1243,7 @@ export async function runCli(opts?: {
       // false freeze, while a true no-progress repeat still trips. Best-effort.
       if (!isReadOnlyCommand(cmd, parsed)) {
         try {
-          const sid = (parsed.storyId as string) || activeStory?.storyId;
+          const sid = storyIdFromArgs(parsed, activeStory, { command: cmd, projectRoot: root });
           if (sid) {
             const dir = store.storyDirPath(sid);
             if (existsSync(dir)) resetGateFailureCounts(dir);
@@ -1293,16 +1298,19 @@ export async function runCli(opts?: {
       if (shouldWriteActivityLog(cmd, parsed) || staleWarnings.length > 0) {
         writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: false, error: e.message, staleWarnings });
       }
-      // B-bbaf CHK-006: a story-scoped mutating command that FAILED is a gate
-      // rejection — bump this story's repeated-gate-failure counter, keyed by
-      // (command + normalized reason). The activeStory + cmd + e.message needed
-      // here are already in scope (and already written to activity.jsonl above),
-      // so this is an O(1) counter write, NOT a hot-path activity-log scan. The
-      // breaker trips when the same gate fails the same reason too many times.
+      // B-bbaf CHK-006: a FAILED story_advance is a phase-GATE rejection — bump
+      // this story's repeated-gate-failure counter, keyed by (command + normalized
+      // reason). Scoped to story_advance specifically: that is "the gate" the user's
+      // discipline names (the DEV<->REVIEW phase gate where checklist/proofstory/
+      // phase gates all fire), and the same-reason oscillation is the livelock
+      // shape. Other command failures are not counted (they are noise, not a gate
+      // livelock, and would pollute per-story runtime state on every failed helper).
+      // The cmd + e.message here are already in scope (and already written to
+      // activity.jsonl above), so this is an O(1) counter write, not a scan.
       // Best-effort: a failed counter bump never changes the command's outcome.
-      if (!isReadOnlyCommand(cmd, parsed)) {
+      if (cmd === 'story_advance') {
         try {
-          const sid = (parsed.storyId as string) || activeStory?.storyId;
+          const sid = storyIdFromArgs(parsed, activeStory, { command: cmd, projectRoot: root });
           if (sid) {
             const dir = store.storyDirPath(sid);
             if (existsSync(dir)) bumpGateFailureCount(dir, cmd, e.message);

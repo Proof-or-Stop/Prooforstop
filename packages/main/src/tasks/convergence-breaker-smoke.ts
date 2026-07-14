@@ -30,6 +30,8 @@ import {
   writeBreakerState,
   bumpTakeoverCount,
   readTakeoverCount,
+  collectBreakerCounters,
+  enforceConvergenceBreakerGate,
   type BreakerCounters,
 } from '../core/convergence-breaker.js';
 import {
@@ -188,11 +190,13 @@ const HEALTHY: BreakerCounters = {
     const round = readBreakerState(dir);
     assert.ok(round && round.frozen === true, 'frozen state round-trips');
 
-    // Ack clears it.
-    const resumed = resumeBreakerState(round, { advanceCount: 200 });
+    // Ack clears it and re-baselines ALL signals to the current counts.
+    const resumed = resumeBreakerState(round, { ...STORM, advanceCount: 200 });
     assert.equal(resumed.frozen, false, 'resume clears frozen');
     assert.equal(resumed.autoRecoveriesSpent, 0, 'resume restores the recovery budget');
-    assert.equal(resumed.advanceBaseline, 200, 'resume re-baselines to current advances');
+    assert.equal(resumed.advanceBaseline, 200, 'resume re-baselines advance to current');
+    assert.equal(resumed.takeoverBaseline, 65, 'resume re-baselines takeover to current');
+    assert.equal(resumed.reviewRunBaseline, 131, 'resume re-baselines review runs to current');
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
@@ -220,4 +224,119 @@ const HEALTHY: BreakerCounters = {
   }
 }
 
-console.log('PASS convergence-breaker: storm trips 4 signals + auto-recover->freeze->ack, healthy control clean, gate-repeat digest/reset, thresholds, autopilot refusal, gitignored state');
+// ── 11. F-003 regression: takeover (and pass-rate) re-baseline on recovery ────
+// A lifetime-monotonic takeoverCount that stays elevated after the one auto-
+// recovery must NOT permanently re-freeze a story that has otherwise gone quiet.
+{
+  // Storm trips (takeover 65>5 among others) and auto-recovers -> baselines set
+  // to the current counts (incl. takeoverBaseline=65).
+  const recovered = assessBreaker(STORM, T, null);
+  assert.equal(recovered.action, 'auto-recover');
+  assert.equal(recovered.nextState.takeoverBaseline, 65, 'takeover baseline captured on recovery');
+  assert.equal(recovered.nextState.reviewRunBaseline, 131, 'review-run baseline captured on recovery');
+
+  // Now the story goes quiet: SAME elevated takeoverCount, no new takeovers, a
+  // couple more advances, reviews now passing. It must NOT re-freeze.
+  const quiet: BreakerCounters = { advanceCount: 91, reviewRunCount: 135, reviewPassCount: 134, takeoverCount: 65, maxGateRepeat: 0 };
+  const next = assessBreaker(quiet, T, recovered.nextState);
+  assert.equal(next.tripped, false, 'F-003: unchanged elevated takeoverCount does not re-trip after recovery');
+  assert.equal(next.action, 'proceed');
+
+  // But if the takeover storm genuinely CONTINUES (>maxTakeover new takeovers past
+  // the baseline), it freezes (budget already spent).
+  const moreStorm: BreakerCounters = { ...quiet, takeoverCount: 65 + 6 };
+  const refroze = assessBreaker(moreStorm, T, recovered.nextState);
+  assert.equal(refroze.action, 'freeze', 'a genuine continued takeover storm still freezes after recovery');
+  assert.match(refroze.reasons.join(' '), /takeover 6>5/, 'takeover reason reports the DELTA past baseline');
+}
+
+// ── 12. F-007: collectBreakerCounters derives counters from a real store shape ─
+{
+  const dir = mkdtempSync(join(tmpdir(), 'cbreaker-store-'));
+  try {
+    bumpTakeoverCount(dir); // takeover-count.json = 1
+    const fakeStore = {
+      storyDirPath: (_id: string) => dir,
+      readStory: (_id: string) => ({ events: [
+        { action: 'create' }, { action: 'advance' }, { action: 'advance' },
+        { action: 'discard' }, { action: 'advance' },
+      ] }),
+      readReviewRuns: (_id: string) => ({ runs: [{}, {}, {}, {}] }),
+      readReviewPasses: (_id: string) => ({ passes: [{}] }),
+    } as unknown as import('../core/store.js').StoryStore;
+    const c = collectBreakerCounters(fakeStore, 'B-test', dir);
+    assert.equal(c.advanceCount, 3, 'advanceCount = # of action==="advance" events (not create/discard)');
+    assert.equal(c.reviewRunCount, 4, 'reviewRunCount = review-runs ledger length');
+    assert.equal(c.reviewPassCount, 1, 'reviewPassCount = review-passes ledger length');
+    assert.equal(c.takeoverCount, 1, 'takeoverCount = per-story counter');
+
+    // A store whose reads throw must fail open to zeros (never throw).
+    const throwingStore = {
+      storyDirPath: (_id: string) => dir,
+      readStory: () => { throw new Error('boom'); },
+      readReviewRuns: () => { throw new Error('boom'); },
+      readReviewPasses: () => { throw new Error('boom'); },
+    } as unknown as import('../core/store.js').StoryStore;
+    const z = collectBreakerCounters(throwingStore, 'B-test', dir);
+    assert.equal(z.advanceCount, 0, 'store read errors fail open to 0 advances');
+    assert.equal(z.reviewRunCount, 0, 'store read errors fail open to 0 runs');
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+// ── 13. F-006: enforceConvergenceBreakerGate integration (frozen blocks, ack) ──
+{
+  const dir = mkdtempSync(join(tmpdir(), 'cbreaker-gate-'));
+  try {
+    const store = {
+      storyDirPath: (_id: string) => dir,
+      readStory: (_id: string) => ({ events: [] }),
+      readReviewRuns: (_id: string) => ({ runs: [] }),
+      readReviewPasses: (_id: string) => ({ passes: [] }),
+    } as unknown as import('../core/store.js').StoryStore;
+    const base = { command: 'story_advance', store, env: {}, isTakeoverCommand: false, storyId: 'B-gate' };
+
+    // Healthy story: gate does not throw and writes NO state file (byte-identical).
+    enforceConvergenceBreakerGate(base);
+    assert.equal(readBreakerState(dir), null, 'healthy advance writes no breaker-state');
+
+    // A non-advance, non-takeover command is ignored entirely.
+    enforceConvergenceBreakerGate({ ...base, command: 'summary_set' });
+    assert.equal(readBreakerState(dir), null, 'non-gated command untouched');
+
+    // Plant a frozen state: story_advance is hard-blocked.
+    writeBreakerState(dir, { advanceBaseline: 0, takeoverBaseline: 0, reviewRunBaseline: 0, reviewPassBaseline: 0, autoRecoveriesSpent: 1, frozen: true, trippedReasons: ['takeover 65>5'] });
+    assert.throws(() => enforceConvergenceBreakerGate(base), /FROZEN/, 'frozen story_advance is hard-blocked');
+    // F-004: a takeover-carrying command is ALSO blocked while frozen.
+    assert.throws(() => enforceConvergenceBreakerGate({ ...base, command: 'story_reconcile', isTakeoverCommand: true }), /FROZEN/, 'frozen takeover command is hard-blocked');
+    // A plain read-ish non-gated command still passes.
+    enforceConvergenceBreakerGate({ ...base, command: 'summary_set', isTakeoverCommand: false });
+
+    // Ack clears it: the gate then proceeds again.
+    const cleared = resumeBreakerState(readBreakerState(dir), collectBreakerCounters(store, 'B-gate', dir));
+    writeBreakerState(dir, cleared);
+    enforceConvergenceBreakerGate(base); // must not throw
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+// ── 14. F-005: resetGateFailureCounts never creates a spurious empty file ──────
+{
+  const dir = mkdtempSync(join(tmpdir(), 'cbreaker-reset-'));
+  try {
+    // No file yet -> reset must be a no-op (not create an empty {} file).
+    resetGateFailureCounts(dir);
+    assert.equal(existsSync(join(dir, 'gate-failure-counts.json')), false, 'reset does not create a file when none exists');
+    // With real content -> reset clears to empty.
+    bumpGateFailureCount(dir, 'story_advance', 'some gate reason');
+    assert.equal(maxGateFailureCount(readGateFailureCounts(dir)), 1, 'bump created a count');
+    resetGateFailureCounts(dir);
+    assert.equal(maxGateFailureCount(readGateFailureCounts(dir)), 0, 'reset cleared the counts');
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+console.log('PASS convergence-breaker: storm trips 4 signals + auto-recover->freeze->ack, healthy control clean, gate-repeat digest/reset, thresholds, autopilot refusal, gitignored state, F-003 takeover re-baseline, collectBreakerCounters derivation, enforce-gate frozen-block + takeover-block, no-spurious-reset');
