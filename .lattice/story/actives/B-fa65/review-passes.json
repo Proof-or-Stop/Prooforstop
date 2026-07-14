@@ -138,6 +138,29 @@
         "scanEscalationReason": null
       },
       "_hash": "e9a4c3f9e8b278ecf2cd015c76c28dd1aeb73bf23632ffce0fc8765ec60a9496"
+    },
+    {
+      "id": "B-fa65:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review round 2 passed: F-004 fix verified — LATTICE_BURN_ALERT_RECENT_HOURS=0 now disables the live host session sweep in every doctor invocation inside brief-output-smoke.ts, removing the environment-dependent input that caused the round-1 20606-byte overflow. All 4 must intents have valid non-fail evidence; re-ran non-destructively and all pass, including full lattice validate exit 0.",
+      "createdAt": "2026-07-14T01:59:32.550Z",
+      "reviewRound": "2026-07-14T01:54:15.485Z",
+      "reviewRunId": "B-fa65:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/brief-output-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/package.json",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "23cb593d106a6c28610fd66a96cd00683552c93142cd37ca94e8a661ac045b32"
     }
   ]
 }
