@@ -132,11 +132,11 @@
           "kind": "logic_test",
           "command": "npm run test:convergence-breaker",
           "result": "pass",
-          "note": "Smoke section 3 asserts a story that trips once then stops growing does NOT freeze after auto-recovery.",
-          "headHash": "761b0aa7d7d00f4f2b292f596b2eee54bd95ee95",
-          "materialHash": "626cd8dcc2974beac7f35f03be73ba49623dd9d69dcd39fc90fa379ecc1e1f06",
-          "storyFilesHash": "51cdefdededb72976563a7795eed6169d0844c1b92bc0a6cff23504586519aa9",
-          "timestamp": "2026-07-14T15:45:39.986Z"
+          "note": "Smoke section 2 asserts the graduated path: first trip auto-recovers, a re-trip within the fresh window freezes (frozen=true), an already-frozen state stays frozen; section 3 asserts a story that trips once then goes quiet does NOT re-freeze.",
+          "headHash": "418380f8c83ea021c53bb6d6c451acde2960595b",
+          "materialHash": "b6a00baa28327d3e7885bc28dd42bc53ef8112a020c21ce8b212af4b51de3973",
+          "storyFilesHash": "10133e3b79ea4863e1afc9caeaff99f5fff2c6d59b8f9ba7ced5e5594fc80b17",
+          "timestamp": "2026-07-14T16:17:04.029Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
