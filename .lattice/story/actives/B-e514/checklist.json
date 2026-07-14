@@ -1,0 +1,62 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Align the AGENTS.md global-thin entrypoint",
+      "context": "Keep only Codex and AGENTS-specific instructions and point shared rules to .lattice/Lattice.md.",
+      "relatedDocs": [
+        "AGENTS.md",
+        ".lattice/Lattice.md"
+      ],
+      "files": {
+        "modify": [
+          "AGENTS.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Align the CLAUDE.md global-thin entrypoint",
+      "context": "Keep only Claude Code-specific instructions and point shared rules to .lattice/Lattice.md.",
+      "relatedDocs": [
+        "CLAUDE.md",
+        ".lattice/Lattice.md"
+      ],
+      "files": {
+        "modify": [
+          "CLAUDE.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Verify the two root entry documents",
+      "context": "Check formatting, required pointers, host-specific asset paths, and absence of duplicated legacy lifecycle sections.",
+      "relatedDocs": [
+        "AGENTS.md",
+        "CLAUDE.md"
+      ],
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "AGENTS.md",
+          "CLAUDE.md"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
