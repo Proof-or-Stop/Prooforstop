@@ -1,0 +1,80 @@
+{
+  "storyId": "B-bbaf",
+  "checkedAt": "2026-07-14T13:52:40.520Z",
+  "headHash": "1d5c9b2b92c1f3a35c9e2c7282ada5f160bf6422",
+  "materialHash": "24fb20ac1a62f09876e161d4cafb5cd29889d135ef7abbb5fcc98dee3b4179bd",
+  "storyFilesHash": "2f364a42da36d5b871f02b9a166b40290ac9689136ee6c46513bf0e99d761e18",
+  "reviewRound": "2026-07-14T12:55:51.181Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-bbaf/plan.md#CHK-003",
+      "promise": "enforceConvergenceBreakerGate hard-blocks story_advance and takeover-carrying commands at a single cli-engine.ts choke point when a story is frozen or newly re-trips",
+      "verifiedBy": "diff/grep",
+      "evidence": "packages/main/src/cli-engine.ts imports enforceConvergenceBreakerGate from core/convergence-breaker.ts and calls it immediately after enforceStoryOwnerLeaseGate, passing storyId resolved via the same storyIdFromArgs resolver, isTakeoverCommand from parsed.takeover/forceTakeover; convergence-breaker.ts:enforceConvergenceBreakerGate throws renderBreakerFreeze() when prior.frozen or a fresh assessBreaker() call returns action=freeze"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-bbaf/plan.md#CHK-003",
+      "promise": "story_resume is a human-only ack that clears a frozen breaker and is refused under autopilot/non-interactive sessions",
+      "verifiedBy": "diff/grep + real-CLI (checklist verificationEvidence)",
+      "evidence": "packages/main/src/handlers/story.ts createStoryResumeHandlers.story_resume calls isInteractiveAckAllowed(process.env, process.stdin.isTTY) and throws when false; requires args.ack===true and reason.length>=10; registered via createStoryHandlers -> command-catalog.ts story_resume schema + command-policy.ts story_resume policy + config.ts DEFAULT_PHASE_TOOLS entry (all phases). CHK-003 checklist verificationEvidence records real-CLI: frozen story_advance hard-blocked, story_resume refused in non-interactive session, story_resume succeeds interactively."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-bbaf/plan.md#CHK-001..006",
+      "promise": "CHK-001..006 each map to delivered code plus a real machine test, with npm run test:convergence-breaker (packages/main/src/tasks/convergence-breaker-smoke.ts) as the real-machine test wired into the aggregate npm test",
+      "verifiedBy": "diff/grep + command execution",
+      "evidence": "checklist.json shows all 6 items status=done with per-item happy/edge/adversarial verificationEvidence citing npm run test:convergence-breaker sections 1-10; package.json test:convergence-breaker script added and appended to the aggregate test script chain; ran npm run test:convergence-breaker directly in this review and got PASS convergence-breaker: storm trips 4 signals + auto-recover->freeze->ack, healthy control clean, gate-repeat digest/reset, thresholds, autopilot refusal, gitignored state, F-003 takeover re-baseline, collectBreakerCounters derivation, enforce-gate frozen-block + takeover-block, no-spurious-reset"
+    },
+    {
+      "docPath": "packages/main/src/core/convergence-breaker.ts#CONVERGENCE_ENV",
+      "promise": "Four env-tunable thresholds (LATTICE_CONVERGENCE_MAX_ADVANCE, LATTICE_CONVERGENCE_MAX_TAKEOVER, LATTICE_CONVERGENCE_MIN_PASS_RATE, LATTICE_CONVERGENCE_MIN_SAMPLE) plus LATTICE_CONVERGENCE_MAX_GATE_REPEAT are real, typo-safe, and documented with evidence-derived defaults",
+      "verifiedBy": "diff/grep",
+      "evidence": "convergence-breaker.ts CONVERGENCE_ENV maps all 5 keys to real env var names; resolveConvergenceThresholds() + envNumber() apply per-variable sanity ceilings (CONVERGENCE_ENV_MAX) and fall back to DEFAULT_CONVERGENCE_THRESHOLDS (maxAdvance:20, maxTakeover:5, minPassRate:0.35, minSample:10, maxGateRepeat:2) on NaN/negative/zero-without-allowZero/over-ceiling; each default is documented inline with the B-f458 forensic numbers it derives from; CHK-004 smoke section 4 asserts default + override + typo-fallback behavior"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-bbaf/understanding.json#outcome",
+      "promise": "Product-acceptance: the user-facing rejection message names the tripped counters and the story_resume command, and this was demonstrated on the real CLI during DEV (not just in the smoke harness)",
+      "verifiedBy": "diff/grep + checklist real-CLI evidence",
+      "evidence": "renderBreakerFreeze(storyId, reasons) in convergence-breaker.ts renders exactly this pattern: Tripped counters: <list>, plus the literal story_resume command with --ack and --reason flags, and notes the ack is refused under autopilot; CHK-003 checklist verificationEvidence explicitly states real-CLI verified: a frozen story_advance is hard-blocked with the tripped-counter message before the checklist gate, and real-CLI verified story_resume is refused in this non-interactive session, and real-CLI verified story_resume returns the resume summary path"
+    },
+    {
+      "docPath": "packages/main/src/core/runtime-artifact-registry.ts + .gitignore",
+      "promise": "The three new per-story runtime artifacts (breaker-state.json, takeover-count.json, gate-failure-counts.json) are gitignored and materialHash-excluded so they never dirty a DONE merge or perturb gate evidence",
+      "verifiedBy": "diff/grep + git check-ignore",
+      "evidence": ".gitignore adds three glob patterns for breaker-state.json, takeover-count.json, gate-failure-counts.json; runtime-artifact-registry.ts registers matching regexp matchers with materialHash exclude, volatile true; ran git check-ignore -v against all three live paths under .lattice/story/actives/B-bbaf/ in this review and all three were confirmed ignored by .gitignore lines 55-57"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm run test:convergence-breaker section 1 (healthy control proceed + B-f458 storm all-4-signals trip), section 5 (pass-rate min-sample gate), section 6 (malformed-input fail-open, no throw). Ran directly: PASS."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm run test:convergence-breaker section 2 (first trip auto-recovers, re-trip freezes), section 3 (quiet-story does not re-freeze after recovery), section 8 (frozen state round-trips write/read, stays frozen)."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "npm run test:convergence-breaker section 8-9 (resumeBreakerState clears freeze, isInteractiveAckAllowed truth table) plus checklist-recorded real-CLI runs: frozen story_advance hard-blocked pre-checklist-gate, story_resume refused non-interactively, story_resume succeeds interactively and returns the resume summary."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "npm run test:convergence-breaker section 4: default maxAdvance=20 boundary (5 no-trip / 6 trip), LATTICE_CONVERGENCE_MAX_ADVANCE=5 override, and abc/-1/1e9/empty env values all fall back to default with no NaN/Infinity."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "npm run test:convergence-breaker is itself CHK-005 deliverable; sections 1-10 replay the B-f458 storm (89 advance/131 run:31 pass/65 takeover) tripping all four reasons, freeze-on-re-trip, healthy 8-advance control clean, autopilot ack refusal, and gitignored-artifact registration assertions. Wired into aggregate npm test in package.json. Ran directly in this review: PASS."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "npm run test:convergence-breaker section 7: two identical-(command,reason)-digest failures bump counter to 2 and trip gate-repeat 2>=2; resetGateFailureCounts clears it on a successful mutation; two different reasons stay at 1 each (no trip); missing counter file fail-opens to 0. Checklist notes real-CLI verified reset-on-success."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 6 checklist items map to delivered, wired code: enforceConvergenceBreakerGate is called at the single cli-engine.ts choke point after the owner-lease gate; story_resume is registered end-to-end (handler + catalog + policy + phase config) and independently refuses under autopilot/non-interactive; all 5 env thresholds are real, typo-safe, and documented inline with B-f458-derived defaults; the 3 new runtime artifacts are gitignored and materialHash-excluded (confirmed live with git check-ignore). The real-machine test (npm run test:convergence-breaker, 10 sections) was re-run independently in this review and passed, and is wired into the aggregate npm test script. No TODO/FIXME/HACK found in the story diff. No promised-but-undelivered items found."
+  },
+  "_hash": "21925d411bbf908a811283e960e92249846d3551760779695128ce199417b2eb"
+}
