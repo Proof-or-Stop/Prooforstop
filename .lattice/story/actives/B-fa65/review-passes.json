@@ -1,0 +1,26 @@
+{
+  "passes": [
+    {
+      "id": "B-fa65:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round; diff only adds resolveCanonicalCoreRoot() helper and swaps one line in checkGlobalCoreRealpath from raw corePackageRoot to canonicalized value. No symbol deleted/renamed; existing helpers untouched. New test file and story metadata are additive only. Concept residue check completed, no blocker.",
+      "createdAt": "2026-07-14T01:40:44.331Z",
+      "reviewRound": "2026-07-14T01:39:27.283Z",
+      "reviewRunId": "B-fa65:RR-001",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/tests/global-core-realpath.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-fa65/checklist.json",
+          ".lattice/story/actives/B-fa65/decision.json",
+          ".lattice/story/actives/B-fa65/index.json",
+          ".lattice/story/actives/B-fa65/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "962001fe83705061ee19d39913ba34207f829d45318700023193899ba40cbb4f"
+    }
+  ]
+}
