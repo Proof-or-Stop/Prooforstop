@@ -34,6 +34,7 @@ import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from '
 import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import type { StoryStore } from './store.js';
+import { isCanonicalStoryId } from './lifecycle-registry.js';
 
 // ── Thresholds + env resolver ────────────────────────────────────────────────
 
@@ -602,6 +603,10 @@ export function enforceConvergenceBreakerGate(opts: {
   if (!isAdvance && !opts.isTakeoverCommand) return;
   const storyId = opts.storyId;
   if (!storyId) return;
+  // Defense-in-depth (codex host-B round-2 #2): never derive a story path from a
+  // non-canonical id. In production the owner-lease gate's path-traversal guard
+  // already ran first, but this keeps the breaker self-safe for any direct caller.
+  if (!isCanonicalStoryId(storyId)) return;
 
   let storyDir: string;
   try {

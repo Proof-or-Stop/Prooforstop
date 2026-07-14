@@ -1211,16 +1211,19 @@ export async function runCli(opts?: {
       // before the lease gate so a control-arm violation is recorded and
       // refused regardless of lease ownership.
       enforceExperimentArmRetrievalGate(cmd, root);
-      // B-bbaf CHK-003: convergence breaker gate — runs BEFORE the owner-lease
-      // gate (codex host-B #1) so a FROZEN story's takeover-carrying command is
-      // rejected BEFORE enforceStoryOwnerLeaseGate can transfer the lease and bump
-      // the takeover counter. A frozen story is frozen for every session, so
-      // gating ahead of the ownership check is correct; healthy stories are
-      // byte-identical (nothing written, nothing thrown). It gates story_advance
-      // and takeover-carrying commands only; all other commands return immediately.
-      // F-002: resolve storyId via storyIdFromArgs (the SAME resolver the owner-
-      // lease gate uses below) so a --story alias or autopilot-run-id cannot
-      // silently bypass the breaker while the lease gate still enforces.
+      enforceStoryOwnerLeaseGate(cmd, parsed, store, activeStory, root);
+      // B-bbaf CHK-003: convergence breaker gate — runs AFTER the owner-lease gate
+      // (which owns the canonical-storyId / path-traversal guard and the ownership
+      // check) so the breaker only ever derives a story path and writes state for a
+      // validated, owner-held story. Ordering rationale re codex host-B round-1 #1
+      // (a frozen --forceTakeover transfers the lease before the breaker throws):
+      // that is by design and benign — the lease transfer only moves OWNERSHIP; the
+      // command's actual EFFECT (fn()) is still blocked by the freeze, so no
+      // progress happens until a human ack, and the freeze holds for the new owner
+      // too. Reordering the breaker ahead of the lease gate was rejected because it
+      // let a NON-OWNER wedge breaker state and bypassed the canonical-id guard
+      // (codex host-B round-2). Gates story_advance and takeover-carrying commands
+      // only; all others return immediately. F-002: storyId via storyIdFromArgs.
       enforceConvergenceBreakerGate({
         command: cmd,
         storyId: storyIdFromArgs(parsed, activeStory, { command: cmd, projectRoot: root }),
@@ -1228,7 +1231,6 @@ export async function runCli(opts?: {
         store,
         env: process.env,
       });
-      enforceStoryOwnerLeaseGate(cmd, parsed, store, activeStory, root);
       let result = fn();
       if (result && typeof (result as any).then === 'function') result = await result;
       clearInterval(watchdog);
