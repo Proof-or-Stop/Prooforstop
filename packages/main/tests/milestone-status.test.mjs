@@ -2545,13 +2545,18 @@ function assertEvidenceRefShape(evidenceRef) {
 }
 
 {
-  // B-3b05 CHK-001: the uncovered_required_milestones gap message carries an
-  // actionable milestone_ledger_set remediation hint (message-layer ONLY — gap
-  // code, severity, pass/fail decision, and gap count are byte-identical to the
-  // pre-hint behavior for identical inputs). Desync framing (the B-f458 case:
-  // checklist done, ledger rows lagging at planned) prefixes the hint; a plain
-  // uncovered milestone gets the hint WITHOUT the desync claim; not_applicable
-  // and accepted-shrinkage rows produce no hint noise at all.
+  // B-3b05 CHK-001 (reworked for findings F-001/F-003/F-004/F-005): the
+  // uncovered_required_milestones gap message carries a per-row diagnosis
+  // (real row status + per-row checklist-lag framing) and an evidence-first
+  // remediation hint (message-layer ONLY — gap code, severity, pass/fail
+  // decision, and gap count are byte-identical to the pre-hint behavior for
+  // identical inputs). The PRIMARY remedy names verification_evidence_add,
+  // which is phase-legal everywhere the gap surfaces (F-005); the SECONDARY
+  // remedy names milestone_ledger_set only for genuine ledger lag, with both
+  // the FULL-REPLACE and PLAN-phase-only caveats spelled out (F-001).
+  // A lagging row's framing is computed per row, never suppressed by a
+  // non-lagging sibling (F-004), and the message never hardcodes
+  // "remain planned" for a row whose persisted status differs (F-003).
   const structuralStory = (storyId) => ({
     ...story(storyId),
     phase: 'TEST',
@@ -2596,18 +2601,45 @@ function assertEvidenceRefShape(evidenceRef) {
   const desyncReport = evaluateDoneIntentEquivalence(desyncInput, 'enforce');
   const desyncGap = desyncReport.gaps.find((g) => g.code === 'uncovered_required_milestones');
   assert.ok(desyncGap, 'the desync fixture still yields an uncovered_required_milestones gap');
-  assert.match(desyncGap.message, /milestone_ledger_set/, 'the desync gap message names the milestone_ledger_set repair command');
-  assert.match(desyncGap.message, /lattice milestone_ledger_set --help/, 'the desync gap message points at the command help');
+  // Per-row diagnosis (F-003/F-004): each row prints its REAL status and its
+  // own checklist-lag framing.
   assert.match(
     desyncGap.message,
-    /Ledger out of sync: checklist coverage exists but ledger row\(s\) M-ds-1, M-ds-2 remain planned\./,
-    'the desync gap message carries the explicit ledger-out-of-sync framing naming every lagging row',
+    /M-ds-1 \[status=planned; checklistRefs all done — row lags delivered checklist coverage; missing passing evidence for CHK-DS-1:happy:0\]/,
+    'row M-ds-1 gets a per-row diagnosis with real status, lag framing, and its uncovered refs',
   );
-  assert.match(desyncGap.message, /"storyId":"B-hint-desync"/, 'the command shape is copy-pastable for THIS story');
-  assert.match(desyncGap.message, /M-ds-1, M-ds-2/, 'the hint names the affected milestone ids');
+  assert.match(
+    desyncGap.message,
+    /M-ds-2 \[status=planned; checklistRefs all done — row lags delivered checklist coverage; missing passing evidence for CHK-DS-2:happy:0\]/,
+    'row M-ds-2 gets its own per-row diagnosis',
+  );
+  assert.doesNotMatch(desyncGap.message, /remain planned/, 'the hardcoded "remain planned" claim is gone (F-003)');
+  // Primary remedy (F-005): evidence-first, names the phase-legal command with
+  // the story id and the actual uncovered refs, and points at --help.
+  assert.match(desyncGap.message, /verification_evidence_add/, 'the primary remedy names verification_evidence_add');
+  assert.match(desyncGap.message, /verification_evidence_batch_add/, 'the primary remedy offers the batch variant');
+  assert.match(desyncGap.message, /lattice verification_evidence_add --help/, 'the primary remedy points at the command help');
+  assert.match(desyncGap.message, /allowed in every phase/, 'the primary remedy states it is phase-legal everywhere the gap surfaces');
+  assert.match(desyncGap.message, /CHK-DS-1:happy:0, CHK-DS-2:happy:0/, 'the primary remedy names the actual uncovered intent refs');
+  assert.match(desyncGap.message, /on story B-hint-desync/, 'the primary remedy names THIS story');
+  assert.ok(
+    desyncGap.message.indexOf('verification_evidence_add') < desyncGap.message.indexOf('milestone_ledger_set'),
+    'the phase-legal evidence command LEADS; the PLAN-only ledger command follows (F-005)',
+  );
+  // Secondary remedy (F-001): genuine ledger lag exists, so milestone_ledger_set
+  // is named — with BOTH caveats and a --help pointer, and with NO fake-JSON
+  // partial-update template.
+  assert.match(desyncGap.message, /milestone_ledger_set/, 'genuine ledger lag still surfaces the ledger repair command');
+  assert.match(desyncGap.message, /lattice milestone_ledger_set --help/, 'the secondary remedy points at the command help');
+  assert.match(desyncGap.message, /FULL-REPLACES the ledger \(re-submit the complete milestone list/, 'the full-replace caveat is explicit (F-001)');
+  assert.match(desyncGap.message, /PLAN-phase-only \(return the story to PLAN first\)/, 'the PLAN-phase-only caveat is explicit (F-005)');
+  assert.doesNotMatch(desyncGap.message, /"milestones":\[\.\.\./, 'no invalid-JSON partial-update template survives (F-001)');
+  assert.match(desyncGap.message, /M-ds-1, M-ds-2/, 'the gap still names the affected milestone ids');
 
-  // Scenario 2 (non-desync uncovered): the referenced checklist item is NOT
-  // done, so checklist coverage does not exist — hint present, desync claim absent.
+  // Scenario 2 (non-lagging uncovered): the referenced checklist item is NOT
+  // done, so checklist coverage does not exist — evidence-first remedy present,
+  // lag framing absent, and NO milestone_ledger_set pointer (nothing about this
+  // row is a ledger problem; refs are bound, evidence is simply missing).
   const plainChecklist = {
     items: [
       checklistItem('CHK-PLAIN', 'in_progress', [], intent('plain uncovered row')),
@@ -2621,9 +2653,94 @@ function assertEvidenceRefShape(evidenceRef) {
     'enforce',
   );
   const plainGap = plainReport.gaps.find((g) => g.code === 'uncovered_required_milestones');
-  assert.ok(plainGap, 'the non-desync fixture still yields an uncovered_required_milestones gap');
-  assert.match(plainGap.message, /milestone_ledger_set/, 'a plain uncovered milestone still gets the repair-command hint');
-  assert.doesNotMatch(plainGap.message, /Ledger out of sync/, 'a non-desync uncovered milestone must NOT claim ledger desync');
+  assert.ok(plainGap, 'the non-lagging fixture still yields an uncovered_required_milestones gap');
+  assert.match(
+    plainGap.message,
+    /M-plain \[status=planned; checklistRefs not all done; missing passing evidence for CHK-PLAIN:happy:0\]/,
+    'a non-lagging uncovered row gets an accurate per-row diagnosis without the lag framing',
+  );
+  assert.match(plainGap.message, /verification_evidence_add/, 'a plain uncovered milestone still gets the evidence-first remedy');
+  assert.doesNotMatch(plainGap.message, /row lags delivered checklist coverage/, 'a non-lagging uncovered milestone must NOT claim ledger lag');
+  assert.doesNotMatch(plainGap.message, /milestone_ledger_set/, 'no ledger-repair pointer when no row lags and all rows have bound refs');
+
+  // Scenario 2b (F-003 regression): a row already persisted as status=done but
+  // WITHOUT covering evidence — the message must reflect the real status, not
+  // claim the row is planned; the lag framing applies (checklistRefs all done)
+  // and the evidence-first remedy still leads.
+  const doneStatusChecklist = {
+    items: [
+      checklistItem('CHK-DONE-NOEV', 'done', [], intent('done-status row without evidence')),
+    ],
+  };
+  const doneStatusLedger = ledger([
+    milestone({ id: 'M-done-noev', checklistRefs: ['CHK-DONE-NOEV'], verificationIntentRefs: ['CHK-DONE-NOEV:happy:0'], status: 'done' }),
+  ], 'B-hint-done-status');
+  const doneStatusReport = evaluateDoneIntentEquivalence(
+    doneEquivalenceInput('B-hint-done-status', doneStatusChecklist, doneStatusLedger),
+    'enforce',
+  );
+  const doneStatusGap = doneStatusReport.gaps.find((g) => g.code === 'uncovered_required_milestones');
+  assert.ok(doneStatusGap, 'a done-status row without evidence is still uncovered (status plays no role in coverage)');
+  assert.match(
+    doneStatusGap.message,
+    /M-done-noev \[status=done; checklistRefs all done — row lags delivered checklist coverage; missing passing evidence for CHK-DONE-NOEV:happy:0\]/,
+    'the diagnosis prints the REAL persisted status (done), not a hardcoded planned claim',
+  );
+  assert.doesNotMatch(doneStatusGap.message, /remain planned/, 'a done-status row is never described as planned (F-003)');
+  assert.match(doneStatusGap.message, /verification_evidence_add/, 'the evidence-first remedy leads for the done-status row too');
+
+  // Scenario 2c (F-004 regression): a MIXED uncovered set — one genuinely
+  // lagging row plus one non-lagging row in the SAME gap. The lag framing must
+  // appear for the lagging row only; the non-lagging sibling must not suppress
+  // it (per-row computation, no .every() across rows).
+  const mixedChecklist = {
+    items: [
+      checklistItem('CHK-MIX-DONE', 'done', [], intent('mixed lagging row')),
+      checklistItem('CHK-MIX-WIP', 'in_progress', [], intent('mixed fresh row')),
+    ],
+  };
+  const mixedLedger = ledger([
+    milestone({ id: 'M-mix-lag', checklistRefs: ['CHK-MIX-DONE'], verificationIntentRefs: ['CHK-MIX-DONE:happy:0'], status: 'planned' }),
+    milestone({ id: 'M-mix-fresh', checklistRefs: ['CHK-MIX-WIP'], verificationIntentRefs: ['CHK-MIX-WIP:happy:0'], status: 'planned' }),
+  ], 'B-hint-mixed');
+  const mixedReport = evaluateDoneIntentEquivalence(
+    doneEquivalenceInput('B-hint-mixed', mixedChecklist, mixedLedger),
+    'enforce',
+  );
+  const mixedGap = mixedReport.gaps.find((g) => g.code === 'uncovered_required_milestones');
+  assert.ok(mixedGap, 'the mixed fixture yields a single uncovered_required_milestones gap');
+  const mixLagDiag = mixedGap.message.match(/M-mix-lag \[[^\]]*\]/)?.[0];
+  const mixFreshDiag = mixedGap.message.match(/M-mix-fresh \[[^\]]*\]/)?.[0];
+  assert.ok(mixLagDiag, 'the lagging row has a per-row diagnosis');
+  assert.ok(mixFreshDiag, 'the non-lagging row has a per-row diagnosis');
+  assert.match(mixLagDiag, /row lags delivered checklist coverage/, 'the genuinely-lagging row keeps its lag framing in a mixed set (F-004)');
+  assert.doesNotMatch(mixFreshDiag, /row lags delivered checklist coverage/, 'the non-lagging row does NOT get the lag framing');
+  assert.match(mixedGap.message, /milestone_ledger_set/, 'the secondary ledger remedy appears because at least one row genuinely lags');
+  assert.match(mixedGap.message, /CHK-MIX-DONE:happy:0, CHK-MIX-WIP:happy:0/, 'the primary remedy aggregates uncovered refs across all rows');
+
+  // F-005 mechanical phase-legality check: the PRIMARY remedy command printed
+  // by the hint must not be phase-gated out of the phases where this gap
+  // surfaces (REVIEW/TEST/DONE via story_advance DONE / done_prepare /
+  // milestone_status). Assert against the exported command-policy map, not
+  // prose. milestone_ledger_set is asserted PLAN-only — which is exactly why
+  // the hint text demotes it to a secondary remedy with a return-to-PLAN caveat.
+  const { COMMAND_POLICIES } = await import(join(distRoot, 'core/command-policy.js'));
+  const gapSurfacePhases = ['REVIEW', 'TEST', 'DONE'];
+  const phasesCover = (allowedPhases) =>
+    allowedPhases === 'all' || gapSurfacePhases.every((phase) => (allowedPhases ?? []).includes(phase));
+  assert.ok(
+    phasesCover(COMMAND_POLICIES.verification_evidence_add.allowedPhases),
+    'verification_evidence_add (the printed primary remedy) is allowed in REVIEW/TEST/DONE per command-policy',
+  );
+  assert.ok(
+    phasesCover(COMMAND_POLICIES.verification_evidence_batch_add.allowedPhases),
+    'verification_evidence_batch_add (the printed batch variant) is allowed in REVIEW/TEST/DONE per command-policy',
+  );
+  assert.equal(
+    phasesCover(COMMAND_POLICIES.milestone_ledger_set.allowedPhases),
+    false,
+    'milestone_ledger_set stays PLAN-gated — confirming it must not be the primary printed remedy (F-005)',
+  );
 
   // Scenario 3 (quiet rows): a justified not_applicable row plus an
   // accepted-shrinkage row produce NO hint noise — no uncovered gap exists, and
@@ -2661,7 +2778,12 @@ function assertEvidenceRefShape(evidenceRef) {
   assert.equal(
     quietReport.gaps.some((g) => /milestone_ledger_set/.test(g.message)),
     false,
-    'no gap message mentions the repair command when nothing is uncovered (no hint noise)',
+    'no gap message mentions the ledger repair command when nothing is uncovered (no hint noise)',
+  );
+  assert.equal(
+    quietReport.gaps.some((g) => /verification_evidence_add/.test(g.message)),
+    false,
+    'no gap message mentions the evidence remedy when nothing is uncovered (no hint noise)',
   );
 
   // Adversarial (message-layer only): for identical inputs the gap ids,

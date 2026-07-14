@@ -1673,36 +1673,70 @@ export function evaluateDoneIntentEquivalence(
     ));
   }
   if (uncoveredRequiredMilestoneIds.length > 0) {
-    // B-3b05 CHK-001: message-layer remediation hint ONLY. The gap's code,
-    // severity, artifact, pass/fail decision, and gap-count semantics are
-    // byte-identical to the pre-hint behavior for identical inputs — only the
-    // human-readable message grows. The hint turns the B-f458 failure mode
-    // (14 hours / 89 story_advance transitions with no repair pointer) into a
-    // copy-paste: it names the exact repair command (milestone_ledger_set),
-    // the affected milestone ids, and the command shape. not_applicable and
-    // accepted-shrinkage rows `continue` before reaching the uncovered set,
-    // so they never produce hint noise.
+    // B-3b05 CHK-001 (reworked for review findings F-001/F-003/F-004/F-005):
+    // message-layer remediation hint ONLY. The gap's code, severity, artifact,
+    // pass/fail decision, and gap-count semantics are byte-identical to the
+    // pre-hint behavior for identical inputs — only the human-readable message
+    // grows. The message honors four constraints:
+    // - F-005: the FIRST command the hint names must be phase-legal everywhere
+    //   this gap actually surfaces (REVIEW/TEST/DONE via story_advance DONE,
+    //   done_prepare, milestone_status). verification_evidence_add /
+    //   verification_evidence_batch_add are allowedPhases:'all' in
+    //   command-policy.ts; milestone_ledger_set is PLAN-only, so it is demoted
+    //   to a secondary remedy carrying an explicit return-to-PLAN caveat.
+    // - F-003: what actually clears this gap is passing verification evidence
+    //   for the uncovered verificationIntentRefs (the refs.every(
+    //   evidenceCoversIntent) predicate above) — ledger row status plays no
+    //   role. The evidence remedy therefore leads, and the per-row diagnosis
+    //   prints each row's REAL persisted status instead of hardcoding
+    //   "remain planned".
+    // - F-004: the lag framing ("row lags delivered checklist coverage") is
+    //   computed and rendered PER ROW — one non-desynced sibling must not
+    //   suppress the framing for genuinely lagging rows.
+    // - F-001: no fake-JSON partial-update template. milestone_ledger_set is
+    //   named with BOTH of its sharp edges spelled out (FULL-REPLACE semantics
+    //   and PLAN-phase-only availability) plus a --help pointer.
+    // not_applicable and accepted-shrinkage rows `continue` before reaching
+    // the uncovered set, so they never produce hint noise.
     const uncoveredIdList = uncoveredRequiredMilestoneIds.join(', ');
     const checklistStatusById = new Map(input.checklist.items.map((item) => [item.id, item.status]));
     const uncoveredIdSet = new Set(uncoveredRequiredMilestoneIds);
     const uncoveredRows = (ledger?.milestones ?? []).filter((row) => uncoveredIdSet.has(row.id));
-    // Desync framing (the B-f458 case): every uncovered row points at checklist
-    // items that ALL exist and are ALL status=done — checklist coverage exists,
-    // the ledger rows just lag behind. Empty or unresolvable checklistRefs do
-    // NOT count as desync: "checklist coverage exists" must be literally true
-    // before the message claims it.
-    const ledgerDesynced = uncoveredRows.length > 0 && uncoveredRows.every((row) =>
+    // Per-row lag check: "checklist coverage exists" must be literally true for
+    // THIS row — empty or unresolvable checklistRefs do NOT count as lagging.
+    const rowLagsChecklist = (row: MilestoneLedgerItem): boolean =>
       row.checklistRefs.length > 0
-      && row.checklistRefs.every((ref) => checklistStatusById.get(ref) === 'done'),
-    );
-    const desyncPrefix = ledgerDesynced
-      ? `Ledger out of sync: checklist coverage exists but ledger row(s) ${uncoveredIdList} remain planned. `
+      && row.checklistRefs.every((ref) => checklistStatusById.get(ref) === 'done');
+    const rowMissingRefs = (row: MilestoneLedgerItem): string[] =>
+      row.verificationIntentRefs.filter((ref) => !evidenceCoversIntent(evidence, ref));
+    const diagnosis = uncoveredRows.map((row) => {
+      const missing = rowMissingRefs(row);
+      const refsNote = row.verificationIntentRefs.length === 0
+        ? 'no verificationIntentRefs bound'
+        : `missing passing evidence for ${missing.join(', ')}`;
+      const checklistNote = rowLagsChecklist(row)
+        ? 'checklistRefs all done — row lags delivered checklist coverage'
+        : (row.checklistRefs.length === 0 ? 'no checklistRefs' : 'checklistRefs not all done');
+      return `${row.id} [status=${row.status}; ${checklistNote}; ${refsNote}]`;
+    }).join(' | ');
+    const allMissingRefs = [...new Set(uncoveredRows.flatMap((row) => rowMissingRefs(row)))];
+    // Primary remedy: recording passing evidence for the uncovered refs is the
+    // mechanism that clears this gap, and the command is legal in every phase.
+    const primaryRemedy = allMissingRefs.length > 0
+      ? ` → Fix (primary, allowed in every phase): record passing verification evidence for uncovered intent ref(s) ${allMissingRefs.join(', ')} on story ${input.story.storyId} — lattice verification_evidence_add (or lattice verification_evidence_batch_add for several at once); see lattice verification_evidence_add --help.`
       : '';
-    const remediationHint = `${desyncPrefix}→ Fix: lattice milestone_ledger_set '{"storyId":"${input.story.storyId}","milestones":[... update status/checklistRefs/verificationIntentRefs for: ${uncoveredIdList} ...]}' (see lattice milestone_ledger_set --help)`;
+    // Secondary remedy: only when at least one row genuinely lags delivered
+    // checklist coverage (ledger-lag correction) or has no verificationIntentRefs
+    // bound at all (the refs edit is the only fix). Named with both caveats.
+    const anyRowLags = uncoveredRows.some((row) => rowLagsChecklist(row));
+    const anyRowUnbound = uncoveredRows.some((row) => row.verificationIntentRefs.length === 0);
+    const secondaryRemedy = (anyRowLags || anyRowUnbound)
+      ? ' → Only if a ledger row itself needs correction: lattice milestone_ledger_set (see lattice milestone_ledger_set --help) — CAUTION: it FULL-REPLACES the ledger (re-submit the complete milestone list, not just the rows above) and it is PLAN-phase-only (return the story to PLAN first).'
+      : '';
     gaps.push(gap(
       'uncovered_required_milestones',
       'milestone-ledger.json',
-      `Required milestone(s) lack passing verification evidence and no confirmed shrinkage decision removes them: ${uncoveredIdList}. ${remediationHint}`,
+      `Required milestone(s) lack passing verification evidence and no confirmed shrinkage decision removes them: ${uncoveredIdList}. Diagnosis: ${diagnosis}.${primaryRemedy}${secondaryRemedy}`,
       undefined,
       'fail',
     ));
