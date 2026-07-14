@@ -47,6 +47,7 @@ export const PROCESS_FACT_LEVELS = [
   { name: 'story_create', level: 'L1', category: 'story', owner: 'handlers/story-create', rationale: 'Creates the initial story envelope and schema-normalized inputs before gate evidence exists.' },
   { name: 'story_advance', level: 'L4', category: 'lifecycle', owner: 'handlers/story-advance', rationale: 'Moves lifecycle phase and invokes phase guards before writing the transition.', gateConsumer: 'storyMachine phase guards and story_advance preflight gates' },
   { name: 'story_update', level: 'L2', category: 'story', owner: 'handlers/story', rationale: 'Mutates story metadata under CLI schema control without serving as gate evidence.' },
+  { name: 'story_resume', level: 'L2', category: 'story', owner: 'handlers/story', rationale: 'B-bbaf human-only ack that clears a convergence-breaker freeze; writes local breaker-state runtime metadata under CLI schema control without serving as gate evidence. Refused under autopilot/non-interactive.' },
   { name: 'story_get', level: 'L0', category: 'story-read', owner: 'handlers/story-query', rationale: 'Reads one story and does not persist process facts.' },
   { name: 'story_list', level: 'L0', category: 'story-read', owner: 'handlers/story-query', rationale: 'Lists stories and does not persist process facts.' },
   { name: 'story_resolve', level: 'L0', category: 'story-read', owner: 'handlers/story-resolve', rationale: 'Resolves story phase and authoritative cwd for planned steps without persisting process facts.' },
