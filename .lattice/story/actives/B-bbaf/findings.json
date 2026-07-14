@@ -62,7 +62,7 @@
       "desc": "doc-promise-undelivered: CHK-003 title promises Enforce the freeze at story_advance AND takeover-command entry, and its context says When frozen, hard-block mutating lifecycle/advance commands (plural). The delivered enforceConvergenceBreakerGate (packages/main/src/core/convergence-breaker.ts:512-550) is wired into cli-engine.ts:1220 with an early return if (opts.command !== story_advance) return; -- it is the ONLY choke point call site (confirmed by grepping frozen/readBreakerState/enforceConvergenceBreakerGate across packages/main/src). A takeover / --forceTakeover (core/story-owner-lease.ts:754-831) is NOT blocked when a story is frozen -- takeOverOwnerLease only bumps the takeover counter (bumpTakeoverCount at line 831) and otherwise proceeds normally, and every other mutating command (checklist_update, verification_evidence_add, dev_start, review_run_start, etc.) also proceeds unaffected by a frozen breaker state. So a frozen story is blocked ONLY from advancing phase; the agent (or a looping/runaway session) can still freely take over the lease and keep running any other mutating command indefinitely. This narrows the hard brake described by the checklist title/context (and undercuts the death-loop defense somewhat, since the B-f458 incident involved both story_advance spam AND 65 takeovers) to a phase-transition-only block. userSees for CHK-003 does not itself claim takeover-blocking, so this is not a runtime hazard on its own, but the checklist title/context commitment is not delivered by the code. Recommend either narrowing the checklist title/context to match delivered scope, or extending enforceConvergenceBreakerGate to also block takeover/forceTakeover (and other story-scoped mutating commands) while frozen.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-07-14T13:04:05.408Z",
@@ -70,7 +70,11 @@
       "reviewRunId": "B-bbaf:RR-002",
       "_hash": "d64f3f90feaebdaeae9912bbb38f77d8afd3aae8ccf536f35f99103a4f5d8d92",
       "signatureTag": "missing|unknown|promise-undelivered-title",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "enforceConvergenceBreakerGate now also hard-blocks takeover-carrying commands (--takeover/--forceTakeover) while frozen, delivering CHK-003's 'story_advance and takeover-command entry'. Smoke section 13 asserts it. Fixed in 53c25c4.",
+      "resolvedAt": "2026-07-14T13:20:46.463Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-bbaf:F-005",
