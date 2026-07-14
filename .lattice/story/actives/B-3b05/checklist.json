@@ -113,11 +113,11 @@
           "file": "packages/main/src/tasks/review-pass-provenance-smoke.ts",
           "command": "npm run test:review-pass-provenance",
           "result": "pass",
-          "note": "records identity, verifies, no flag for non-owner session; warn-mode owner-session pass persists with same_session_write flag",
-          "headHash": "0700cd9b494dca18c8da8d2c588f93092d3c702a",
-          "materialHash": "456f86576bb4581dced7913028f514a5f35a0304f2ed041841dbf11172c3c581",
-          "storyFilesHash": "488ea4d95c90d4333e1e3aea81e24c3d818e43e5a0f5753cc510e7eda55b43c0",
-          "timestamp": "2026-07-14T00:12:54.878Z"
+          "note": "records identity, verifies, no flag for non-owner session; warn-mode owner-session pass persists with same_session_write flag; re-run green after F-002 fix binding provenanceFlag into the v3 signature domain",
+          "headHash": "8cce2b89e91c52f2bf9db8bf004e2aad5cb39a25",
+          "materialHash": "e4daa2ace95fb6ca6566b37327d2b912fd3be140e2a5b8cb3f61aa0c73501781",
+          "storyFilesHash": "1c7431617f8aea07cf107554a63ab8f0b94e3f28ee63271a6ee9e5a1edc31633",
+          "timestamp": "2026-07-14T00:44:38.223Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -125,11 +125,11 @@
           "file": ".lattice/story/actives/B-3b05/evidence/provenance-warn-transcript.md",
           "command": "node packages/main/dist/cli.js review_pass_set (real CLI, owner-session LATTICE_SESSION_ID == story owner lease sessionId, default warn mode)",
           "result": "pass",
-          "note": "real-machine CLI output shows the visible warn flag on owner-session self-sign attempt",
-          "headHash": "0700cd9b494dca18c8da8d2c588f93092d3c702a",
-          "materialHash": "456f86576bb4581dced7913028f514a5f35a0304f2ed041841dbf11172c3c581",
-          "storyFilesHash": "488ea4d95c90d4333e1e3aea81e24c3d818e43e5a0f5753cc510e7eda55b43c0",
-          "timestamp": "2026-07-14T00:12:54.878Z"
+          "note": "real-machine CLI output shows the visible warn flag on owner-session self-sign attempt; transcript recaptured post-F-002 with corrected signature-domain claim (all three provenance fields hash-bound) and verbatim flag-tamper verify failures",
+          "headHash": "8cce2b89e91c52f2bf9db8bf004e2aad5cb39a25",
+          "materialHash": "e4daa2ace95fb6ca6566b37327d2b912fd3be140e2a5b8cb3f61aa0c73501781",
+          "storyFilesHash": "1c7431617f8aea07cf107554a63ab8f0b94e3f28ee63271a6ee9e5a1edc31633",
+          "timestamp": "2026-07-14T00:44:38.223Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -137,11 +137,11 @@
           "file": "packages/main/src/tasks/review-pass-provenance-smoke.ts",
           "command": "npm run test:review-pass-provenance",
           "result": "pass",
-          "note": "legacy fixture verifies via legacy domain; absent/invalid config resolves to warn",
-          "headHash": "0700cd9b494dca18c8da8d2c588f93092d3c702a",
-          "materialHash": "456f86576bb4581dced7913028f514a5f35a0304f2ed041841dbf11172c3c581",
-          "storyFilesHash": "488ea4d95c90d4333e1e3aea81e24c3d818e43e5a0f5753cc510e7eda55b43c0",
-          "timestamp": "2026-07-14T00:12:54.878Z"
+          "note": "legacy fixture verifies via legacy domain; absent/invalid config resolves to warn; unchanged after the v3 domain amendment (no persisted flag-less v3 records existed)",
+          "headHash": "8cce2b89e91c52f2bf9db8bf004e2aad5cb39a25",
+          "materialHash": "e4daa2ace95fb6ca6566b37327d2b912fd3be140e2a5b8cb3f61aa0c73501781",
+          "storyFilesHash": "1c7431617f8aea07cf107554a63ab8f0b94e3f28ee63271a6ee9e5a1edc31633",
+          "timestamp": "2026-07-14T00:44:38.223Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -149,11 +149,11 @@
           "file": "packages/main/src/tasks/review-pass-provenance-smoke.ts",
           "command": "npm run test:review-pass-provenance",
           "result": "pass",
-          "note": "enforce rejects naming both ids; writerSessionId tamper breaks signature; explicit-env spoof recorded with sessionSource=explicit-env",
-          "headHash": "0700cd9b494dca18c8da8d2c588f93092d3c702a",
-          "materialHash": "456f86576bb4581dced7913028f514a5f35a0304f2ed041841dbf11172c3c581",
-          "storyFilesHash": "488ea4d95c90d4333e1e3aea81e24c3d818e43e5a0f5753cc510e7eda55b43c0",
-          "timestamp": "2026-07-14T00:12:54.878Z"
+          "note": "enforce rejects naming both ids; writerSessionId tamper breaks signature; explicit-env spoof recorded with sessionSource=explicit-env; F-002 flag-tamper detection: adding, stripping, or flipping provenanceFlag on a signed record (including the record the real CLI persisted) fails verifyReviewPass",
+          "headHash": "8cce2b89e91c52f2bf9db8bf004e2aad5cb39a25",
+          "materialHash": "e4daa2ace95fb6ca6566b37327d2b912fd3be140e2a5b8cb3f61aa0c73501781",
+          "storyFilesHash": "1c7431617f8aea07cf107554a63ab8f0b94e3f28ee63271a6ee9e5a1edc31633",
+          "timestamp": "2026-07-14T00:44:38.223Z"
         }
       ]
     }
