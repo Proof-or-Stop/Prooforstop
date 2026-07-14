@@ -93,6 +93,16 @@ export function verifyFinding(
   return f._hash === oldExpected;
 }
 
+/**
+ * B-3b05: writer-session provenance signed into NEW review pass records.
+ * Presence of provenance selects the version-3 domain; legacy records (no
+ * writerSessionId/sessionSource) keep verifying via their original domains.
+ */
+export interface ReviewPassWriterProvenance {
+  writerSessionId: string;
+  sessionSource: string;
+}
+
 export function signReviewPass(
   storyId: string,
   id: string,
@@ -104,7 +114,33 @@ export function signReviewPass(
   readManifest?: ReviewerReadManifest,
   readLog?: ReviewerReadLogEvidence,
   readDiagnostics?: ReviewerReadDiagnostic[],
+  provenance?: ReviewPassWriterProvenance,
 ): string {
+  if (provenance !== undefined) {
+    // Runtime re-validation (CLAUDE.md handler conventions): a provenance-domain
+    // signature must never bind an empty writer identity. The RAW values are
+    // hashed (no trimming/normalizing here) so any byte-level tamper of the
+    // persisted writerSessionId/sessionSource breaks verification.
+    if (typeof provenance.writerSessionId !== 'string' || provenance.writerSessionId.trim().length === 0) {
+      throw new Error('signReviewPass: provenance.writerSessionId must be a non-empty string');
+    }
+    return digestCanonicalJson({
+      version: 3,
+      salt: REVIEW_PASS_SALT,
+      storyId,
+      id,
+      agent,
+      note,
+      timestamp,
+      reviewRound,
+      reviewRunId,
+      writerSessionId: provenance.writerSessionId,
+      sessionSource: provenance.sessionSource ?? '',
+      ...(readManifest !== undefined ? { readManifest: normalizeReviewerReadManifest(readManifest) } : {}),
+      ...(readLog !== undefined ? { readLog: normalizeReviewerReadLogEvidence(readLog) } : {}),
+      ...(readDiagnostics !== undefined ? { readDiagnostics: normalizeReviewerReadDiagnostics(readDiagnostics) } : {}),
+    });
+  }
   if (readManifest !== undefined || readLog !== undefined || readDiagnostics !== undefined) {
     return digestCanonicalJson({
       version: 2,
@@ -137,10 +173,38 @@ export function verifyReviewPass(
     readManifest?: ReviewerReadManifest;
     readLog?: ReviewerReadLogEvidence;
     readDiagnostics?: ReviewerReadDiagnostic[];
+    writerSessionId?: string;
+    sessionSource?: string;
   },
 ): boolean {
   if (!p._hash || !p.createdAt || !p.agent || !p.note) return false;
   const reviewRunId = p.reviewRunId?.trim() || '';
+  // B-3b05: provenance-inclusive records verify ONLY via the version-3 domain —
+  // no fallback to legacy domains (mirrors the reviewRunId rule). A record with
+  // sessionSource but no writerSessionId can only be a stripped/tampered new
+  // record, so it fails closed too. Records with NEITHER field are pre-B-3b05
+  // history and keep verifying via the legacy domains below (never fail-closed
+  // on history).
+  if (p.writerSessionId !== undefined || p.sessionSource !== undefined) {
+    if (typeof p.writerSessionId !== 'string' || p.writerSessionId.trim().length === 0) return false;
+    try {
+      return p._hash === signReviewPass(
+        storyId,
+        p.id,
+        p.agent,
+        p.note,
+        p.createdAt,
+        p.reviewRound || '',
+        reviewRunId,
+        p.readManifest,
+        p.readLog,
+        p.readDiagnostics,
+        { writerSessionId: p.writerSessionId, sessionSource: p.sessionSource ?? '' },
+      );
+    } catch {
+      return false;
+    }
+  }
   if (p.readManifest !== undefined || p.readLog !== undefined || p.readDiagnostics !== undefined) {
     try {
       return p._hash === signReviewPass(
