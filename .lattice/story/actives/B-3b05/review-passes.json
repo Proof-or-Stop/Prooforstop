@@ -1,0 +1,38 @@
+{
+  "passes": [
+    {
+      "id": "B-3b05:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue sweep: CHK-001 (proofstory.ts remediation hint) and CHK-002 (finding-verify.ts v3 provenance signature domain, review-pass-provenance.ts, config.ts, types.ts, finding.ts, process-fact-registry.ts, verify-process-fact-contract.mjs) are purely additive - no concept was deleted or renamed, legacy v1/v2 signature domains and old gap message text are preserved as-is with new fields/branches added alongside. No blocker.",
+      "createdAt": "2026-07-14T00:17:08.478Z",
+      "reviewRound": "2026-07-14T00:13:46.358Z",
+      "reviewRunId": "B-3b05:RR-001",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/owner-session.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/review-pass-provenance.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/tests/milestone-status.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3b05/checklist.json",
+          ".lattice/story/actives/B-3b05/decision.json",
+          ".lattice/story/actives/B-3b05/evidence/provenance-warn-transcript.md",
+          ".lattice/story/actives/B-3b05/index.json",
+          ".lattice/story/actives/B-3b05/plan.md",
+          "packages/main/src/tasks/review-pass-provenance-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c41b0514ffc5c17bcb1e669e7b30a8c702b41b4b2486385fcb4ef778a143d14d"
+    }
+  ]
+}
