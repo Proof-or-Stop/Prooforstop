@@ -1,0 +1,21 @@
+{
+  "storyId": "B-fa65",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/runtime-environment-checks.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/tests/**",
+    "packages/main/src/tasks/**"
+  ],
+  "allowedTest": [
+    "packages/main/tests/**",
+    "packages/main/src/tasks/**"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Single-check doctor fix: canonicalize non-self expected in checkGlobalCoreRealpath + regression tests; no budget or smoke changes.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-14T01:33:31.531Z",
+  "updatedAt": "2026-07-14T01:33:31.531Z"
+}

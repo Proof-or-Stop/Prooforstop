@@ -35,7 +35,57 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/global-core-realpath.test.mjs",
+          "command": "node packages/main/tests/global-core-realpath.test.mjs",
+          "result": "pass",
+          "note": "Scenario 1: real git repo + linked worktree fixture; corePackageRoot in the worktree, global symlinked to the canonical main checkout packages/main → globalCoreRealpath.status=pass (canonicalized expected).",
+          "headHash": "197dc3fdb79a8fd9d8823dd202542f5c958fbcc5",
+          "materialHash": "9282c0c7e9b943afd1be76a517c44d96d5d6ef35a48e9b83f59f9d87ffacd166",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-14T01:39:19.035Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/dist/tasks/brief-output-smoke.js",
+          "command": "npm run test:brief-output",
+          "result": "pass",
+          "note": "Real machine, run from inside story worktree .worktrees/B-fa65 with the worktree-built dist: brief output smoke passed (doctor brief back under the 20000-byte budget; red-evidence failing command flipped green).",
+          "headHash": "197dc3fdb79a8fd9d8823dd202542f5c958fbcc5",
+          "materialHash": "9282c0c7e9b943afd1be76a517c44d96d5d6ef35a48e9b83f59f9d87ffacd166",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-14T01:39:19.035Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/global-core-realpath.test.mjs",
+          "command": "node packages/main/tests/global-core-realpath.test.mjs && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Scenario 3: non-git corePackageRoot falls back to un-canonicalized behavior (matching global passes, differing global warns — unchanged). Self-context behavior unchanged: validation-protocol-smoke passes (exercises runRuntimeEnvironmentChecks self/external shapes).",
+          "headHash": "197dc3fdb79a8fd9d8823dd202542f5c958fbcc5",
+          "materialHash": "9282c0c7e9b943afd1be76a517c44d96d5d6ef35a48e9b83f59f9d87ffacd166",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-14T01:39:19.035Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/global-core-realpath.test.mjs",
+          "command": "node packages/main/tests/global-core-realpath.test.mjs",
+          "result": "pass",
+          "note": "Scenario 2: global symlinked to an unrelated path while core runs from a worktree → status not pass and the resolves-to warning text survives (genuine drift detection intact; different-clone case per decision preMortem 2).",
+          "headHash": "197dc3fdb79a8fd9d8823dd202542f5c958fbcc5",
+          "materialHash": "9282c0c7e9b943afd1be76a517c44d96d5d6ef35a48e9b83f59f9d87ffacd166",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-14T01:39:19.035Z"
+        }
+      ]
     }
   ]
 }
