@@ -231,6 +231,32 @@
         "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
       },
       "_hash": "455ed065e6fa32e492b9f91937b71839865fd087247279a813b3dad92e4a5bff"
+    },
+    {
+      "id": "B-c163:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Incremental BUG-014 coverage PASS. review_incremental_context limited material change to retired-authority-vocabulary-guard-smoke.ts. Diff is exactly one fingerprint replacement for cli-engine.ts; guard algorithm, approved compatibility surfaces, positive cases, extensive negative controls, and fail-closed diagnostics are byte-unchanged. After rebuilding current dist, the exact guard smoke passed with builds=733, fullAnalysis=1169, astCandidates=460, reachability=34, proving the new canonical AST fingerprint matches current cli-engine structure without weakening negatives.",
+      "createdAt": "2026-07-15T23:00:23.209Z",
+      "reviewRound": "2026-07-15T22:55:48.933Z",
+      "reviewRunId": "B-c163:RR-033",
+      "writerSessionId": "review-bc163-coverage-r7",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "798c1504cc047ce5972fa3d11454edd63616a44848895ac022bc247b138a1a16",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "_hash": "604797cfc5e98a4d23c80766bad1661385851bc3b64cb1c4be3e20a9a9529ec1"
     }
   ]
 }
