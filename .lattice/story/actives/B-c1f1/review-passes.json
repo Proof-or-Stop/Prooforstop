@@ -199,6 +199,41 @@
       },
       "readDiagnostics": [],
       "_hash": "50ba72b8c79bfb7a9a814d72f8da17844e6ce6de027597906c13819a068e717c"
+    },
+    {
+      "id": "B-c1f1:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Targeted final quality review of F-021 found no blocker. The plan assigns three exact live artifact IDs and path templates to the runtime artifact registry, binds process-gate semantics by ID, rejects tracked dirt and all HEAD/input digest drift, confines the only process-evidence live exclusions to validated untracked/gitignored templates, separates committed archival evidence from same-HEAD live consumption, and requires an executable clean-HEAD persist/restart/reload chain plus unrelated-commit, tracked-dirty, out-of-template, tracked-live, and valid-runtime-write controls. The future chain therefore does not self-invalidate while material changes remain fail-closed.",
+      "createdAt": "2026-07-15T13:34:03.305Z",
+      "reviewRound": "2026-07-15T13:31:08.401Z",
+      "reviewRunId": "B-c1f1:RR-026",
+      "writerSessionId": "sess-5593716d3b6d0282",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "8191a2407ea88108a5c48247dab5e82da1b634ea72ee3f8689873e0f861a93ad"
+      },
+      "readDiagnostics": [],
+      "_hash": "d04c9b50f843c474c4b210d79c99a7c3314b8254bc4f7047705d07a86d69951a"
     }
   ]
 }
