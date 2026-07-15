@@ -693,7 +693,7 @@
       "desc": "External CI secret-file parent-swap rejection is promised but not mechanically specified. The provider clause walks components through retained descriptors and rechecks only the final file identity after read (line 280), while the required fixture says a parent swap must fail before key bytes are returned (line 517). Retained descriptors prevent redirection, but they do not by themselves detect that an already-opened parent was renamed/replaced in the approved path. Require a second descriptor-relative walk from the pinned filesystem/volume root after the read, compare every parent and final file identity to the first walk, and return no key bytes on any mismatch (or weaken the test to safety-without-redirection). Without this, a conforming implementation can satisfy the prose walk yet cannot meet the stated rejection assertion.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-15T13:58:53.944Z",
@@ -704,7 +704,11 @@
         "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
       ],
       "signatureTag": "missing|md|external-secret-file",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added a second independent root-anchored no-follow walk after read and before return, comparing every recorded parent and final file identity; mismatch discards bytes and fails closed.",
+      "resolvedAt": "2026-07-15T14:04:35.610Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c1f1:F-031",
