@@ -13,7 +13,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-15T11:59:26.241Z",
-      "endTime": "2026-07-15T13:56:30.485Z",
+      "endTime": "2026-07-15T14:03:56.158Z",
       "verificationIntent": {
         "happy": [
           {
@@ -62,54 +62,54 @@
           "command": "rg -n \"Proof-or-stop Thin Entrypoint Contract Migration Execution Plan|Story 1 — Contract tests|Story 9 — Legacy fallback retirement\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
           "result": "pass",
           "note": "Complete plan remains present.",
-          "headHash": "71d5e27b1e69c2f8b9b32836179b11beee8e1ef6",
-          "materialHash": "a1f0854a50c04bf5d9379c0ee7f28189a5cc5affc0347ad8469e41f3e7edd572",
-          "storyFilesHash": "4c8bc4657650af728a6b3026a8f842d596b2d0f07a0d269cbc16a98ef945e389",
-          "timestamp": "2026-07-15T13:56:31.010Z"
+          "headHash": "c99f621966b8f705896941dd3482b5c5f577c828",
+          "materialHash": "c50eff3bec6e0fefb07f8c9d046292a3baf44ee35ed5a1dfb963d088e4fb3b6d",
+          "storyFilesHash": "0aff0c508bd84bbecdb2d8aa1c28c9eea30069b6d7aaccc8b20c31f26cc923a3",
+          "timestamp": "2026-07-15T14:03:56.590Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "docs_check",
           "command": "rg -n \"CODEX.md|AGY.md|anti-regression ceilings|OMX prohibition\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
           "result": "pass",
-          "note": "Host/local boundaries remain explicit.",
-          "headHash": "71d5e27b1e69c2f8b9b32836179b11beee8e1ef6",
-          "materialHash": "a1f0854a50c04bf5d9379c0ee7f28189a5cc5affc0347ad8469e41f3e7edd572",
-          "storyFilesHash": "4c8bc4657650af728a6b3026a8f842d596b2d0f07a0d269cbc16a98ef945e389",
-          "timestamp": "2026-07-15T13:56:31.478Z"
+          "note": "Boundaries remain explicit.",
+          "headHash": "c99f621966b8f705896941dd3482b5c5f577c828",
+          "materialHash": "c50eff3bec6e0fefb07f8c9d046292a3baf44ee35ed5a1dfb963d088e4fb3b6d",
+          "storyFilesHash": "0aff0c508bd84bbecdb2d8aa1c28c9eea30069b6d7aaccc8b20c31f26cc923a3",
+          "timestamp": "2026-07-15T14:03:56.975Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
           "kind": "logic_test",
-          "command": "rg -n \"human-only pending-key|ActiveSigningKeyRef|approved secret-mount root|Endpoint-only.*forbidden\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "command": "rg -n \"second independent.*no-follow|ordered parent|discard.*buffer|stable file ID\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
           "result": "pass",
-          "note": "Pending preflight cannot sign and external CI secret paths use component-wise no-follow traversal.",
-          "headHash": "71d5e27b1e69c2f8b9b32836179b11beee8e1ef6",
-          "materialHash": "a1f0854a50c04bf5d9379c0ee7f28189a5cc5affc0347ad8469e41f3e7edd572",
-          "storyFilesHash": "4c8bc4657650af728a6b3026a8f842d596b2d0f07a0d269cbc16a98ef945e389",
-          "timestamp": "2026-07-15T13:56:31.914Z"
+          "note": "CI secret reads revalidate full parent and target identity before returning bytes.",
+          "headHash": "c99f621966b8f705896941dd3482b5c5f577c828",
+          "materialHash": "c50eff3bec6e0fefb07f8c9d046292a3baf44ee35ed5a1dfb963d088e4fb3b6d",
+          "storyFilesHash": "0aff0c508bd84bbecdb2d8aa1c28c9eea30069b6d7aaccc8b20c31f26cc923a3",
+          "timestamp": "2026-07-15T14:03:57.586Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "manual_transcript",
           "command": "sed -n '/^```tsv$/,/^```$/p' docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md | sed '1d;$d' | tail -n +2 | wc -l",
           "result": "pass",
-          "note": "Frozen baseline 600x7 unchanged.",
-          "headHash": "71d5e27b1e69c2f8b9b32836179b11beee8e1ef6",
-          "materialHash": "a1f0854a50c04bf5d9379c0ee7f28189a5cc5affc0347ad8469e41f3e7edd572",
-          "storyFilesHash": "4c8bc4657650af728a6b3026a8f842d596b2d0f07a0d269cbc16a98ef945e389",
-          "timestamp": "2026-07-15T13:56:32.358Z"
+          "note": "Frozen baseline remains 600x7.",
+          "headHash": "c99f621966b8f705896941dd3482b5c5f577c828",
+          "materialHash": "c50eff3bec6e0fefb07f8c9d046292a3baf44ee35ed5a1dfb963d088e4fb3b6d",
+          "storyFilesHash": "0aff0c508bd84bbecdb2d8aa1c28c9eea30069b6d7aaccc8b20c31f26cc923a3",
+          "timestamp": "2026-07-15T14:03:58.303Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
           "kind": "logic_test",
-          "command": "rg -n \"Pending-key preflight separation|External CI secret-file component safety|parent swap|autopilot\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "command": "rg -n \"parent-directory replacement|final regular-file replacement|never returns attacker\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
           "result": "pass",
-          "note": "Fixtures cover preflight separation and CI parent-chain attacks.",
-          "headHash": "71d5e27b1e69c2f8b9b32836179b11beee8e1ef6",
-          "materialHash": "a1f0854a50c04bf5d9379c0ee7f28189a5cc5affc0347ad8469e41f3e7edd572",
-          "storyFilesHash": "4c8bc4657650af728a6b3026a8f842d596b2d0f07a0d269cbc16a98ef945e389",
-          "timestamp": "2026-07-15T13:56:32.806Z"
+          "note": "Race fixtures cover parent and final-target replacement.",
+          "headHash": "c99f621966b8f705896941dd3482b5c5f577c828",
+          "materialHash": "c50eff3bec6e0fefb07f8c9d046292a3baf44ee35ed5a1dfb963d088e4fb3b6d",
+          "storyFilesHash": "0aff0c508bd84bbecdb2d8aa1c28c9eea30069b6d7aaccc8b20c31f26cc923a3",
+          "timestamp": "2026-07-15T14:03:58.665Z"
         }
       ]
     },
