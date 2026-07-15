@@ -102,7 +102,7 @@
       "desc": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:153 and :226 — HIGH verification-coverage gap: CHK-001 adversarial:0 requires a repository cross-check proving every behavior-affecting CLAUDE.md/AGENTS.md consumer is assigned or justified, and adversarial:1 requires simulated stale-link/conflicting-command/red-test/partial-template/B-e514 failure cases. The recorded evidence only greps for a preselected filename/heading list, so it cannot detect omitted consumers or exercise any failure case. An independent scan found packages/main/src/tasks/deprecated-gc-smoke.ts:66 still asserting the old CLAUDE.md audit-trigger contract without an explicit inventory assignment or exclusion. Replace the two grep-only evidence records with an actual classified consumer scan plus concrete fail-closed scenario checks (or narrow the intents with an explicit justified boundary) before coverage can pass.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-15T12:08:35.947Z",
@@ -110,7 +110,11 @@
       "reviewRunId": "B-c1f1:RR-003",
       "_hash": "06c9da4c91edec3ef13ab68a577aa9708e6911988c2307a297570a2fd5de15b6",
       "signatureTag": "adversarial|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added a real B-c1f1 bounded tracked-text scan baseline with 600 hit lines across 134 files and zero unclassified under a documented conservative classifier, assigned deprecated-gc-smoke.ts:66, and added five concrete failure exercises with setup, expected failure, recovery and owner.",
+      "resolvedAt": "2026-07-15T12:17:47.646Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
