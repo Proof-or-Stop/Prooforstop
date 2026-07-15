@@ -60,6 +60,27 @@
       ],
       "signatureTag": "missing|ts|intents-marked-covered",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c163:F-004",
+      "desc": "Malformed or unreadable existing done-required evidence aborts the recovery path instead of being classified stale and replaced. evaluateDoneRequiredPreRunReuse calls evaluateDoneRequiredEvidence without a containment boundary (done-prepare-validation-reuse.ts:97), while StoryStore deliberately rethrows JSON parse/read errors for this artifact (store.ts:236-241). Both direct done_required_validate (done-required-validation.ts:46) and done_prepare validate=false/validate=true invoke that evaluator before they can execute or report structured status. A truncated JSON file therefore throws out of the command; even a valid JSON object with missing arrays can trigger TypeErrors in the canonical evaluator. This violates the fail-closed-but-convergent contract: malformed evidence must yield existingEvidenceBasis=stale with a refusal reason, validate=false must remain observation-only, and validate=true/direct validation must be able to run once and overwrite bad evidence. Catch artifact/evaluator shape/read failures in the pre-run reuse wrapper, return reusable=false/stale with a stable malformed-or-unreadable reason, and ensure execution does not depend on parsing prior evidence.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T19:29:16.388Z",
+      "reviewRound": "2026-07-15T19:24:16.796Z",
+      "reviewRunId": "B-c163:RR-008",
+      "_hash": "6b9012af35d76c48bd9ad9b1a9587f48421bc5c6dbe5456d71d7613595618794",
+      "files": [
+        "packages/main/src/core/done-prepare-validation-reuse.ts",
+        "packages/main/src/core/store.ts",
+        "packages/main/src/handlers/done-required-validation.ts",
+        "packages/main/src/handlers/done-prepare.ts"
+      ],
+      "signatureTag": "error-handling|ts|malformed-prior-evidence-deadlock",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
