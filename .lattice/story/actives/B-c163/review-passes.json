@@ -172,6 +172,37 @@
         "scanEscalationReason": null
       },
       "_hash": "2ea99fa8ad571bc44f8e8534e98a27d26c2f4436fdd218076b84eb24819957ac"
+    },
+    {
+      "id": "B-c163:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Final quality review PASS. F-013 ceiling isolation is correct: non-max command/idle/phase/retry rows use a 120000ms outer watchdog and 60000ms harness ceiling, while only explicit max rows retain tight max values. Recorded evidence contains three complete focused sequences with substantial load variance and all PASS. Independent reviewer rerun of done-required-validation, done-prepare-closure-heartbeat, validate-progress-heartbeat, command-catalog, and process-fact contract also passed end-to-end. DryRun omission, phase-owned SIGKILL versus caller-shorter timeout preservation, child reap/wrapper restore, structured JSON/nonzero exits, cleanup and context semantics remain correct.",
+      "createdAt": "2026-07-15T22:38:05.880Z",
+      "reviewRound": "2026-07-15T22:32:04.933Z",
+      "reviewRunId": "B-c163:RR-031",
+      "writerSessionId": "review-bc163-quality-final",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "79abffc292067a079d27d34045a074eb3035c6cb6e484cdadabaed3d3c9541f2",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "_hash": "ae6a02c6a55716df5ef5bb5543153033ffb3b176381efc3cbb2a3fdb3f8d9928"
     }
   ]
 }
