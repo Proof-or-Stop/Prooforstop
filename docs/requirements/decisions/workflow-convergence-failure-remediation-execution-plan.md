@@ -45,8 +45,8 @@ Two failures reproduced again while preparing this document:
   add the single `itemId`, confirming the hint/cardinality mismatch;
 - coverage and docs reviewers in configured `shadow` mode were stopped on
   generic-token truncation/cutoff ambiguity until they recorded an explicit
-  full-scan reason; one route expanded from 8 candidates to the 130-file
-  requirements corpus and another produced 117 candidates.
+  full-scan reason; routing expanded from an 8-candidate set to a full-corpus
+  demand, and the committed full-scan artifact materialized 117 candidates.
 
 | ID | Confirmed behavior | Primary evidence | Operational effect |
 |---|---|---|---|
