@@ -148,7 +148,7 @@
       "desc": "Round-2 smokes pass, but the 28 must refs are still not assertion-specific and several safety cases remain unproved. The CHK-002 evidence map is shifted: happy:1 points to reuse-disabled execution (the edge:0 requirement), edge:0 points to validate=false (edge:1), edge:1 to canonical mutations (adversarial:0), edge:2 to lineage, edge:3 to malformed evidence, and adversarial:2 to generic output fields. More importantly, done-prepare-closure-heartbeat-smoke.ts:326-345 does not exercise actual exact-HEAD versus trusted-descendant reuse separately; reuse disabled only asserts a progress line, not disposition=executed or evidence refresh. done-required-validation-smoke.ts:429-655 lacks independent evidence-schema mutation, proof-admissibility failure mutation, non-ancestor HEAD, and metadata-like-outside-allowlist cases required by CHK-002 adversarial:0/2. The timeout matrices at validate-progress-heartbeat-smoke.ts:277-399 use wide timing margins rather than just-before/just-after command/phase/idle/max races; descendant ESRCH is asserted only for command timeout, while CHK-003 adversarial:0 requires descendant-tree termination separately for command, phase, idle, and max. No test emits heartbeat concurrently with abort/exit/error or asserts no post-terminal heartbeat/duplicate evidence. Add the missing matrix rows/race instrumentation, assert disabled-reuse terminal fields and refreshed receipt, and remap each verificationEvidence intentRef to its actual assertion before accepting coverage.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-15T20:00:42.604Z",
@@ -161,7 +161,11 @@
         "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
       ],
       "signatureTag": "missing|ts|round-smokes-pass",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: audit each of 28 must intent refs against its actual assertion; CHK-002 mappings were shifted and exact/descendant actual reuse, disabled receipt refresh, independent schema/proof/nonancestor/outside-allowlist, deterministic boundary seams, multi-layer descendant cleanup, and concurrent terminal ordering were missing. Root cause: command-level PASS evidence was mapped by theme rather than assertion identity. Fix: added separate actual done_prepare exact-head and trusted-descendant reuse, disabled-reuse executed/refreshed receipt assertions, independent schema/proof-admissibility/nonancestor/outside-allowlist rows, deterministic future/expired deadline seams, command-start concurrent abort ordering with no late heartbeat/duplicate evidence, and real command/phase/idle/max descendant ESRCH plus immediate rerun where children exist. Pure in-process closeout phases spawn no child and are precisely documented/evidenced as not applicable rather than fake ESRCH. ReproTest: node packages/main/dist/tasks/done-required-validation-smoke.js; node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js; node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js; node packages/main/dist/tasks/command-catalog-smoke.js; node scripts/verify-process-fact-contract.mjs. All PASS at REVIEW HEAD 2d5b5a6; complete evidence is correctly remapped 9/9, 10/10, 9/9.",
+      "resolvedAt": "2026-07-15T20:20:52.163Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
