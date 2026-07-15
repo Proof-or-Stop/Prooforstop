@@ -472,6 +472,24 @@
       ],
       "signatureTag": "missing|md|freshness-coverage-omits",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c1f1:F-021",
+      "desc": "Snapshot freshness is specified in a self-invalidating way. Lines 215-234 require the extraction snapshot and every dependent review/readiness artifact to share one exact sourceRevision with cleanTree:true, and any changed HEAD or dirty tree stales all prior evidence. But producing or persisting the required review evidence necessarily changes repository state under the current lifecycle: this signed review_run_start alone makes the tracked .lattice/story/actives/B-c1f1/review-runs.json dirty; committing such evidence changes HEAD, while leaving it uncommitted violates cleanTree. The plan therefore defines no stable state in which a persisted/reloadable FactReadinessArtifact can pass. Specify a non-self-invalidating persistence boundary (for example, an explicitly scoped material snapshot plus narrowly excluded/generated evidence paths, an atomic envelope with pre-write revision semantics, or verifiable out-of-tree signed storage), while ensuring unrelated code/doc commits and dirty tracked files still stale the artifact. Add an executable end-to-end fixture that extracts at a clean revision, persists review/readiness evidence, reloads it, and passes without self-staling, plus the existing unrelated-change stale cases. Without this, Stories 3/6 can implement every listed digest field yet never converge.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T13:26:09.781Z",
+      "reviewRound": "2026-07-15T13:23:16.275Z",
+      "reviewRunId": "B-c1f1:RR-022",
+      "_hash": "4b26d93967db8729b9c2e931095f63eadd8784ce5965133cdcda4df3434af907",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|snapshot-evidence-self-invalidates",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
