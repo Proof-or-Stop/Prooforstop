@@ -566,14 +566,14 @@
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
           "verdict": "success",
-          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
-          "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
+          "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
           "result": "pass",
-          "note": "RED/GREEN proof: a SIGTERM-resistant sync child made the old phase wrapper wait 5041ms; phase-bounded execFileSync/execSync now use SIGKILL, all three consecutive closure smokes passed within the 120ms phase deadline envelope, and immediate post-timeout sync calls prove child reap plus wrapper restore without leakage.",
-          "headHash": "47eb0924532c96d681201808078a7c6de7e56f12",
-          "materialHash": "0166642dc26ee1c7d917ad668e71e5d1686d2a7190abfa5dd527b5467f097b27",
-          "storyFilesHash": "1b57cbbdf812fbcefc1c40327f2db9138d81dd66c8a8a8a8892b6c505b1a5092",
-          "timestamp": "2026-07-15T20:52:25.159Z"
+          "note": "Combined original+focused cleanup coverage, PASS in three consecutive focused rounds after build: validate-progress forces command, phase, CLI idle, and CLI max termination, verifies spawned descendant ESRCH for command/idle/max paths, no post-terminal heartbeat, released locks/timers, and immediate reruns; closure smoke adds SIGTERM-resistant synchronous execFileSync/execSync children, phase-controlled SIGKILL, bounded return, child reap, wrapper restore, no story-evidence mutation, and immediate post-timeout sync execution. This preserves the original multi-layer descendant proof and the newer sync SIGTERM regression in one evidence row.",
+          "headHash": "2ba6e1cc29708cfdd9f347a00dd44dffbb8328cd",
+          "materialHash": "9461512ba9d71dff9d2eb1d3f7bc9bc4c1efd3bdd6f66dd4a8c62489cdf5cb72",
+          "storyFilesHash": "15d277dcb5e8fb1f46445861c06e1e2e5a29136ef9c882a47d4ba6f85b10ac70",
+          "timestamp": "2026-07-15T22:29:10.629Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
