@@ -1,0 +1,55 @@
+{
+  "storyId": "B-c1f1",
+  "changes": "新增 Proof-or-stop 薄入口契约迁移执行方案，并在 requirements NAV 中登记入口；方案定义分层权威、机械注册表、红绿测试、九个后续 Story、回滚顺序与 B-e514 根文档唯一写入责任。",
+  "usage": "从 docs/requirements/NAV.md 打开执行方案，按 Story 1 至 9 的依赖顺序实施；根 AGENTS.md 与 CLAUDE.md 的收薄统一由 B-e514 执行，其他 Story 不并行修改根入口。",
+  "expectedOutcome": "用户能看到明确的 Proof-or-stop 标题、现状扫描清单、目标架构、逐 Story 执行顺序、验收门禁、回滚方案以及宿主中立的入口策略。",
+  "actualTranscript": "现场 smoke 命令退出码为 0，输出了执行方案的精确 H1 标题，并确认 docs/requirements/NAV.md 存在指向该方案的有效链接。",
+  "outcomeDiff": "文档执行方案的可观察结果与预期一致；根入口迁移和运行时代码调整按约定留给后续 Story，本 Story 未冒充已经完成实施。",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "本 Story 仅完成可执行迁移方案与导航登记，没有修改 AGENTS.md、CLAUDE.md、.lattice/Lattice.md 或任何运行时消费者。",
+  "pitfalls": "不得在 canonical docs、registry、audit 和 reviewer consumer 就绪前提前收薄根入口；B-e514 是根文档唯一写入者，避免并行冲突和契约断链。",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 97825
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 7418
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 461415
+    },
+    "DEV": {
+      "count": 12,
+      "durationMs": 4144281
+    },
+    "REVIEW": {
+      "count": 12,
+      "durationMs": 9821965
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 6554335
+    }
+  },
+  "totalDurationMs": 21088107,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-15T17:40:58.469Z",
+  "updatedAt": "2026-07-15T17:40:58.469Z"
+}
