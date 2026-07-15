@@ -515,14 +515,15 @@
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
+          "verdict": "success",
           "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
           "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
           "result": "pass",
-          "note": "Explicit idle and max below/above defaults remain authoritative; heartbeat refreshes idle only and max is attributed timeoutLayer=max.",
-          "headHash": "a03361c1df5dd49b607b4186d3ce0461548bec43",
-          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
-          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
-          "timestamp": "2026-07-15T20:17:39.173Z"
+          "note": "Explicit max remains authoritative, including non-divisible 1005ms max / 251ms watchdog polling: named deadline propagation returns result=timed_out, timeoutLayer=max, stale basis and exit 1 rather than generic validation failure, then immediately reruns successfully.",
+          "headHash": "d0c6262dbad8140daae2c82d18c88bc14381fd2a",
+          "materialHash": "0208749d1dcd92d80156a40ac21ec0115192e69eff29e9713a657e827527255b",
+          "storyFilesHash": "bc532b89794e474d93fe5793fe4fe48c99b3b519389a94ff6e8bb8ff1ef5c2a1",
+          "timestamp": "2026-07-15T20:31:54.720Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
