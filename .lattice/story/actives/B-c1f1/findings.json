@@ -460,7 +460,7 @@
       "desc": "Freshness coverage omits two invalidation states promised by the contract. The plan states that every artifact is bound to an exact sourceRevision with cleanTree:true and that a changed HEAD or dirty tree makes it stale, but the required dual-read and failure-exercise fixtures only mutate a selected document byte or registry/view/selector fields. An implementation could therefore reuse a passing readiness artifact after an unrelated committed HEAD change or with an unrelated dirty tracked file and still satisfy every listed executable fixture. Add explicit real-harness cases for (1) an unrelated tracked commit that changes HEAD while selected document and registry bytes remain unchanged, and (2) an unrelated dirty tracked file at the same HEAD; both must reject/stale the prior snapshot, and only a fresh clean extraction/review bound to the new exact HEAD may recover.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-15T13:25:23.992Z",
@@ -471,7 +471,11 @@
         "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
       ],
       "signatureTag": "missing|md|freshness-coverage-omits",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added real-harness freshness cases for unrelated committed HEAD change and unrelated tracked dirty state, plus control showing a validated runtime evidence write does not stale; recovery requires new chain or cleaning.",
+      "resolvedAt": "2026-07-15T13:31:27.535Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c1f1:F-021",
