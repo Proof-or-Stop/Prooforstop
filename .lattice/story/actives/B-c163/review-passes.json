@@ -36,6 +36,26 @@
         "scanEscalationReason": null
       },
       "_hash": "a701ab59fbfbd33f26cfb906ab563cec84f8406ce5033b44f32c80a8e79f733c"
+    },
+    {
+      "id": "B-c163:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-4 targeted coverage PASS. F-009 exact arithmetic now asserts direct derived max and exact done_prepare totals for required/no-policy, validate true/false, six unique phase overrides, and global overrides; omission of any enabled phase fails. CHK-002 exact-head evidence is correctly scoped to evaluator coverage, trusted metadata descendant to actual done_prepare integration, and affected structured timeout mappings no longer overclaim. Independently reran all three affected smokes; all passed.",
+      "createdAt": "2026-07-15T20:37:51.948Z",
+      "reviewRound": "2026-07-15T20:34:31.035Z",
+      "reviewRunId": "B-c163:RR-020",
+      "writerSessionId": "review-bc163-coverage-r4",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f8647b5f65bcc2f333f6762cd59226754ee21b78ea1302607a19880a0066a729"
     }
   ]
 }
