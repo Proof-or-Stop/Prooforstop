@@ -286,6 +286,52 @@
       },
       "readDiagnostics": [],
       "_hash": "b2a6342d1bad7928aaea50c5bed1168aa37847d771043b0a047110f4a716a0c6"
+    },
+    {
+      "id": "B-9f8a:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-4 unchanged-material coverage quorum: fully reread the current execution plan, reran all ten verificationEvidence commands, confirmed 10 unique refs covering 3 happy, 3 edge, and 4 adversarial intents, and found content coverage complete with no blocker. Candidate-routing shadow defect remains separately recorded in F-005/F-006 and is not treated as content evidence.",
+      "createdAt": "2026-07-15T13:54:25.433Z",
+      "reviewRound": "2026-07-15T13:52:43.551Z",
+      "reviewRunId": "B-9f8a:RR-011",
+      "writerSessionId": "sess-854478e4496c885d",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "ae638bbb1c547c461bb271e68d2b737a10eb712838fe158e47ac6f654919c2df"
+      },
+      "readDiagnostics": [],
+      "_hash": "bc803a9c165648330a78d749c916ee84583b00e4d48b40aaeadc9a3131a47e0c"
     }
   ]
 }
