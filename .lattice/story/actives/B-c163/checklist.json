@@ -62,6 +62,11 @@
             "desc": "Invoke unrelated ordinary CLI commands and both DONE-required entry paths; only done_required_validate and done_prepare validation receive the command-specific derived default max, unrelated commands retain the generic max, and positive LATTICE_MAX_TIMEOUT_MS overrides both. WHY: verifies command-specific CLI max derivation without globally weakening watchdog safety.",
             "type": "logic",
             "priority": "must"
+          },
+          {
+            "desc": "For done_prepare with validation enabled, compute its command-level default CLI max from the complete legal end-to-end closeout budget: the routine validate commands sequential budget plus every enabled closeout phase budget, including the derived DONE-required phase and any selected phase-specific or global phase overrides; the default max is not shorter than that total, while an explicit positive LATTICE_MAX_TIMEOUT_MS may intentionally terminate earlier and is attributed as max. WHY: prevents the top-level watchdog from preempting a legal multi-phase done_prepare run.",
+            "type": "logic",
+            "priority": "must"
           }
         ],
         "adversarial": [
