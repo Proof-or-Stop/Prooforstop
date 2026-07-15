@@ -234,6 +234,38 @@
       },
       "readDiagnostics": [],
       "_hash": "d04c9b50f843c474c4b210d79c99a7c3314b8254bc4f7047705d07a86d69951a"
+    },
+    {
+      "id": "B-c1f1:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted coverage pass: F-020/F-021 now have executable restart, unrelated-commit, tracked-dirty, and validated-runtime-write controls with explicit failure/recovery ownership. Independently verified Appendix A is one 600-row x 7-field nonempty TSV with unique path:line keys and matching SHA-256; NAV reports 115 decision files, 102 unique live links, 13 intentional omissions, zero dead links, and exactly one active-plan link.",
+      "createdAt": "2026-07-15T13:34:48.021Z",
+      "reviewRound": "2026-07-15T13:31:08.401Z",
+      "reviewRunId": "B-c1f1:RR-027",
+      "writerSessionId": "sess-5593716d3b6d0282",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "8191a2407ea88108a5c48247dab5e82da1b634ea72ee3f8689873e0f861a93ad"
+      },
+      "readDiagnostics": [],
+      "_hash": "7a7f37c4f96a9fbb9d599bb08bda74d574aa218506c3b262418878b303492e8a"
     }
   ]
 }
