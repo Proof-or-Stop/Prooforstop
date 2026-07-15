@@ -1,0 +1,44 @@
+{
+  "storyId": "B-c163",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/cli-engine.ts",
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+    "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+    "packages/main/src/core/done-prepare-validation-reuse.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "packages/main/src/handlers/done-required-validation.ts",
+    "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/done-required-timeout-budget.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+    "packages/main/src/tasks/command-catalog-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/done-required-validation-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/core/story-machine.ts"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/core/candidate-spec-routing.ts",
+    "packages/main/src/core/host-execution-readiness.ts",
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/core/owner-session.ts",
+    "packages/main/src/core/scope-path-classifier.ts",
+    "packages/main/src/core/scope-diff-pack.ts"
+  ],
+  "scopeChangeReason": "Final Workstream A scope including all six canonical docs and process-fact verification.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-15T19:01:11.957Z",
+  "updatedAt": "2026-07-15T19:01:11.957Z"
+}
