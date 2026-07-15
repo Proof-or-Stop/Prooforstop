@@ -344,6 +344,24 @@
       "resolvedAt": "2026-07-15T13:06:39.650Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-015",
+      "desc": "Canonical/legacy provenance alias can falsely satisfy readiness. The registry initially contains root CLAUDE.md as a canonical host entrypoint (lines 136-149), while Story 3 also scans the same root CLAUDE.md as legacy fallback (lines 411-415). With no explicit source-view or managed-region boundary, the full legacy lifecycle body can be extracted once with canonical provenance and again with legacy provenance; the rule at line 201 then treats every such fingerprint as canonically represented, making the legacy-only set empty and potentially authorizing Story 7 before facts were actually migrated. Define disjoint extraction semantics: before B-e514 cutover, detailed facts from the legacy root body must receive fallback-only provenance, while canonical root extraction is limited to declared thin-entrypoint constraint slots/managed regions (or separate registry records/selectors). Add a fixture where one physical path participates in host discovery and fallback scanning and prove its legacy-only detailed fact still blocks readiness.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T13:08:07.951Z",
+      "reviewRound": "2026-07-15T13:06:08.764Z",
+      "reviewRunId": "B-c1f1:RR-015",
+      "_hash": "415345097857748e151eb85916ccb24004e693ae105e4a314b8e1cc13d23e308",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|canonical-legacy-provenance",
+      "signatureTagSource": "auto"
     }
   ]
 }
