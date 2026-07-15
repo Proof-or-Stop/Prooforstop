@@ -372,7 +372,7 @@
       "desc": "docs/requirements/NAV.md declares 115 decision files but links only 102 of them. A deterministic comparison of git ls-files docs/requirements/decisions/*.md against NAV decision targets reports 13 omissions (including newly active plans such as proof-or-stop-agent-prompt-consolidation-execution-plan.md and proof-or-stop-evidence-instrument-replay-execution-plan.md). The B-c1f1 plan link is present exactly once and its active-authority label is correct, but the navigation count is not backed by a complete index, so readers cannot reach all claimed decision authorities. Update NAV to include every tracked decision document exactly once (or change the count/claim to a truthful explicitly partial index), then rerun the set comparison.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-15T13:10:36.183Z",
@@ -383,7 +383,11 @@
         "docs/requirements/NAV.md"
       ],
       "signatureTag": "doc-promise-undelivered|md|docs-requirements-declares",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "NAV now explicitly states it is a curated non-exhaustive navigation; 115 is labeled as direct-directory inventory count. Deterministic comparison shows 102 unique curated links, 13 intentionally unlinked, zero duplicates/dead links/extras.",
+      "resolvedAt": "2026-07-15T13:15:45.346Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
