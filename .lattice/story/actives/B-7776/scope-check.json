@@ -1,0 +1,78 @@
+{
+  "storyId": "B-7776",
+  "checkedAt": "2026-07-15T12:01:51.152Z",
+  "features": [
+    {
+      "feature": "Remove the unused priorState parameter so resumeBreakerState exposes a counter-only reset contract, and update all three internal call sites.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7776/background.md; .lattice/story/actives/B-7776/checklist.json"
+    },
+    {
+      "feature": "Preserve human-ack resume semantics: clear frozen/trippedReasons/counterSnapshot, restore autoRecoveriesSpent to 0, and re-baseline every signal from current counters.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7776/understanding.json; .lattice/story/actives/B-7776/checklist.json"
+    },
+    {
+      "feature": "Verify representative nonzero counters retain the full intended reset behavior.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7776/checklist.json verificationIntent.happy"
+    },
+    {
+      "feature": "Verify the zero-counter boundary and compile/smoke coverage for missed legacy two-argument calls.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7776/checklist.json verificationIntent.edge/adversarial"
+    },
+    {
+      "feature": "Observe and report repeated assurance cascades, stale-evidence loops, or other non-converging workflow behavior encountered while processing this small maintenance story.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7776/background.md; .lattice/story/actives/B-7776/checklist.json context"
+    },
+    {
+      "feature": "Do not change thresholds, lifecycle/gate policy, or public CLI behavior.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The understanding constraints explicitly limit this to an internal API-shape cleanup with no behavior or policy change.",
+      "source": ".lattice/story/actives/B-7776/understanding.json"
+    },
+    {
+      "feature": "Do not expand implementation beyond core/convergence-breaker.ts, handlers/story.ts, and tasks/convergence-breaker-smoke.ts.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The checklist file boundary and understanding constraints freeze the three-file maintenance scope.",
+      "source": ".lattice/story/actives/B-7776/understanding.json; .lattice/story/actives/B-7776/checklist.json"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-7776/background.md",
+      ".lattice/story/actives/B-7776/checklist.json",
+      ".lattice/story/actives/B-7776/decision.json",
+      ".lattice/story/actives/B-7776/understanding.json",
+      "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "docs/requirements/decisions/story-lifecycle.md"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 7,
+    "covered": 5,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "f5a73f863541b8fdceab934a467465a7d8dad06d9f31014d4ffe4ff039ac0069",
+  "openQuestions": []
+}

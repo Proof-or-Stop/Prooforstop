@@ -1,0 +1,59 @@
+{
+  "principles": [
+    "API signatures should expose real data dependencies.",
+    "A maintenance refactor must preserve observable behaviour.",
+    "Verification effort should be proportional but mechanically recorded."
+  ],
+  "drivers": [
+    "The unused parameter falsely implies prior-state-dependent reset logic.",
+    "The helper and all callers are internal.",
+    "Existing smoke assertions already encode the intended reset contract."
+  ],
+  "options": [
+    {
+      "name": "A: Remove the parameter",
+      "pros": [
+        "Makes dependency explicit",
+        "Small mechanical call-site update",
+        "No supported public API impact"
+      ],
+      "cons": [
+        "Touches three call expressions"
+      ]
+    },
+    {
+      "name": "B: Retain it as _priorState",
+      "pros": [
+        "Avoids call-site edits"
+      ],
+      "cons": [
+        "Keeps a fake dependency",
+        "Encourages future incorrect assumptions",
+        "Requires explanatory debt"
+      ]
+    }
+  ],
+  "chosen": "A: Remove the parameter",
+  "rationale": "The reset is intentionally derived only from current counters, and the handler independently keeps prior state for authorization and audit text. Removing the parameter is the smallest honest representation of the contract.",
+  "preMortem": [
+    {
+      "scenario": "A caller is missed",
+      "trigger": "TypeScript compilation reports an argument-count mismatch or rg finds a two-argument call",
+      "consequence": "Build fails or misleading usage remains",
+      "mitigation": "Use rg before and after editing, then run the package build."
+    },
+    {
+      "scenario": "Reset semantics accidentally change",
+      "trigger": "Focused smoke fails baseline, frozen, or recovery-budget assertions",
+      "consequence": "Human ack no longer opens a fresh convergence window",
+      "mitigation": "Change only the signature/calls and run convergence-breaker-smoke."
+    },
+    {
+      "scenario": "Workflow churns on stale evidence",
+      "trigger": "A phase gate repeatedly requests evidence already recorded at the same HEAD",
+      "consequence": "A trivial refactor enters an assurance loop",
+      "mitigation": "Follow each gate hint once, capture exact blocker output, and avoid self-classifying freshness."
+    }
+  ],
+  "timestamp": "2026-07-15T11:59:18.573Z"
+}

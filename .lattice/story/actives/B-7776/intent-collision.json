@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-7776",
+  "id": "IC-20260715120235",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "This is a narrow internal API refactor: remove only the unused priorState parameter and update its three internal calls while preserving reset semantics. Separately observe and report lifecycle friction; do not turn those observations into additional framework code changes in this story.",
+  "acceptedInterpretationHash": "sha256:169865ac62035f1f04d453f8098e7ebc243e002e6a514cf6cbf85f0f2fa1e3b8",
+  "notes": "The user asked both for the cleanup and for observation of process loops. The accepted interpretation delivers the code cleanup and records workflow anomalies without expanding implementation scope.",
+  "createdAt": "2026-07-15T12:02:35.147Z",
+  "updatedAt": "2026-07-15T12:02:35.147Z"
+}

@@ -20,9 +20,87 @@
           "tasks/convergence-breaker-smoke.ts"
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-15T12:04:55.879Z",
+      "endTime": "2026-07-15T12:05:08.862Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Invoke the counter-only resumeBreakerState with representative current breaker counters after a frozen incident -> the returned state re-baselines every counter to those current values, clears frozen/trippedReasons/counterSnapshot, and restores autoRecoveriesSpent to 0; WHY: preserves the intentional human-ack reset behaviour while making the API contract truthful.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Invoke the counter-only reset with zero-valued current counters -> every baseline remains 0 and all reset fields still return to their clean defaults; WHY: proves the implementation derives the resumed state from counters without needing persisted prior-state data, including the lower boundary.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Build and run the convergence-breaker smoke after converting all production and smoke call sites to the one-argument counter-only signature -> TypeScript accepts no missed legacy two-argument call and the human-ack regression assertions pass; WHY: catches a silently retained misleading call site or an accidental change to resume semantics.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/convergence-breaker-smoke.js",
+          "result": "pass",
+          "note": "Representative frozen-state resume resets all flags and re-baselines advance, takeover, review-run, and review-pass counters from current counters.",
+          "headHash": "8a702e035373a159e6a3d7658c626c9b82b047f3",
+          "materialHash": "7598ff0a5097f19b3e2afa369b226a782add597d88499f56534ab48b82bc3c05",
+          "storyFilesHash": "8489b6cba080f2be37c531d5f8f58f49b3e785296f148a0d4c491e91939383c8",
+          "timestamp": "2026-07-15T12:05:09.090Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/convergence-breaker-smoke.js",
+          "result": "pass",
+          "note": "An explicit zero-counter assertion proves all baselines and reset fields are clean without prior state.",
+          "headHash": "8a702e035373a159e6a3d7658c626c9b82b047f3",
+          "materialHash": "7598ff0a5097f19b3e2afa369b226a782add597d88499f56534ab48b82bc3c05",
+          "storyFilesHash": "8489b6cba080f2be37c531d5f8f58f49b3e785296f148a0d4c491e91939383c8",
+          "timestamp": "2026-07-15T12:05:09.318Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/convergence-breaker-smoke.js",
+          "result": "pass",
+          "note": "TypeScript build accepts all single-argument call sites and the focused convergence-breaker smoke passes.",
+          "headHash": "8a702e035373a159e6a3d7658c626c9b82b047f3",
+          "materialHash": "7598ff0a5097f19b3e2afa369b226a782add597d88499f56534ab48b82bc3c05",
+          "storyFilesHash": "8489b6cba080f2be37c531d5f8f58f49b3e785296f148a0d4c491e91939383c8",
+          "timestamp": "2026-07-15T12:05:09.584Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-15T12:04:55.879Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementation and focused verification are in progress; correcting the lifecycle status before committing."
+    },
+    {
+      "timestamp": "2026-07-15T12:05:08.862Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation committed at 8a702e0353 and all must verification intents passed."
     }
   ]
 }

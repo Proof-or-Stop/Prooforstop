@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-7776",
+  "sourceText": "那现在就开个story处理一下吧，这个问题很简单，正好再看看处理过程中，还会不会触发其他的死循环或者流程问题。问题上下文：resumeBreakerState(priorState, counters) 从不读取 priorState，行为正确但参数误导。",
+  "normalizedOutcome": "resumeBreakerState 只接收 counters，三个内部调用点同步更新，现有 human-ack 重置行为通过 smoke 验证；story 生命周期中遇到的重复阻塞或流程异常被如实记录。",
+  "acceptanceClaim": "源码和所有调用点不再存在 resumeBreakerState 的 priorState 参数，构建与 convergence-breaker smoke 均通过。",
+  "keyRequirementIds": [
+    "REQ-001",
+    "REQ-002"
+  ],
+  "requestHash": "sha256:60284339f368ac8181798ee9599c5edb5c6f245231804f953b8d62bf175cfea1",
+  "createdAt": "2026-07-15T12:02:29.055Z",
+  "updatedAt": "2026-07-15T12:02:29.055Z"
+}

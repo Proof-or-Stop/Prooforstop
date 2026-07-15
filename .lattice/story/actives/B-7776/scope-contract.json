@@ -1,0 +1,31 @@
+{
+  "storyId": "B-7776",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/convergence-breaker.ts",
+    "packages/main/src/handlers/story.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/convergence-breaker-smoke.ts"
+  ],
+  "protectedFiles": [
+    "package.json",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts"
+  ],
+  "explicitExcludes": [
+    "docs/**",
+    "packages/main/tests/fixtures/**",
+    "packages/main/src/core/machine.ts"
+  ],
+  "scopeChangeReason": "Remove unreliable per-file anchor rules after the semantic classifier attributed the signature and call-site hunks to generic tokens; retain exact path allowlists and global protected anchors.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-15T12:02:49.069Z",
+  "updatedAt": "2026-07-15T12:05:38.100Z",
+  "fileRules": [],
+  "protectedAnchors": [
+    "assessBreaker",
+    "isInteractiveAckAllowed"
+  ]
+}

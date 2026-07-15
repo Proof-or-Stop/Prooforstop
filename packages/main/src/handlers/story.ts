@@ -55,7 +55,7 @@ function createStoryResumeHandlers(ctx: HandlerContext) {
       }
 
       const counters = collectBreakerCounters(store, storyId, storyDir);
-      const next = resumeBreakerState(prior, counters);
+      const next = resumeBreakerState(counters);
       writeBreakerState(storyDir, next);
       resetGateFailureCounts(storyDir);
 
