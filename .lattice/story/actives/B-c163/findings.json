@@ -53,7 +53,7 @@
       "desc": "All 28 must intents are marked covered by four smoke commands, but the assertions exercise only a small subset. Budget tests use one 1,200,000ms command: no 290,000+1,200,000 sequence, default-timeout command, malformed/non-positive inputs, unrelated CLI max, LATTICE_MAX_TIMEOUT_MS, or phase/max race; phase-timeout JSON does not assert disposition/result/refusalReasons/timeoutLayer. Reuse tests call the evaluator only and never exercise done_prepare default reuse, reuseFreshDoneRequired=false, fresh/stale/missing validate=false immutability, structured failure/timeout/block outputs, malformed/unreadable evidence, full lineage matrix, or TOCTOU. Direct-handler tests run an instant child and synchronous throwing sink only: no silent heartbeat past idle, real direct CLI watchdog, explicit idle/max, passing and failing rejected sinks, boundary ordering, descendant cleanup, lock reacquisition, or late-heartbeat race. Add table-driven budget tests and hermetic real-CLI fixtures per omitted intent, then bind each evidence ref to assertions that actually exist.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-15T19:28:24.619Z",
@@ -67,7 +67,11 @@
         "packages/main/src/tasks/command-catalog-smoke.ts"
       ],
       "signatureTag": "missing|ts|intents-marked-covered",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: compare all 28 must intent descriptions with their former smoke assertions; budget, reuse, malformed evidence, real CLI watchdog, process-tree cleanup, and sink rejection paths were absent. Root cause: broad command-level evidence was recorded without assertion-specific coverage. Fix: added table-driven arithmetic and override tests, real runValidationCommand overflow/fallback tests, actual done_prepare reuse/validate=false matrices, malformed evidence recovery, per-commit lineage and TOCTOU tests, real direct command/idle/max and routine done_prepare idle/max subprocesses, descendant kill plus immediate rerun, and sync/async progress-sink containment. ReproTest: node packages/main/dist/tasks/done-required-validation-smoke.js; node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js; node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js; node packages/main/dist/tasks/command-catalog-smoke.js; node scripts/verify-process-fact-contract.mjs. All PASS at HEAD a6cefb0; checklist evidence is assertion-specific and complete at 9/9, 10/10, 9/9.",
+      "resolvedAt": "2026-07-15T19:57:45.658Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c163:F-004",
