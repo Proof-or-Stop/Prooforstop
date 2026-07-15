@@ -305,6 +305,25 @@
       ],
       "signatureTag": "missing-docs-manifest-schema-underproves-classification",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-c1f1:F-014",
+      "desc": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:294-302 and Appendix A — HIGH: the baseline classifies all 72 hits from this document as neutral-fixture / B-c1f1 planning evidence, but the document declares itself an active implementation plan (line 5) and NAV labels it active migration-planning authority. Many of those rows are current behavior-affecting requirements rather than quoted defects or neutral fixtures—for example the host contracts at lines 23-27, precedence at lines 58-66, and managed-ownership rules around lines 111-122. This also contradicts line 259, which limits the retired-authority allowlist to quoted defect examples in this plan, not the entire plan. The manifest therefore reaches 0 unclassified by neutralizing an active authority source, so successor Stories could omit or allowlist its live requirements. Add a disposition/category capable of retaining active migration authority (or classify individual live rows as behavior-affecting with an owner), reserve neutral-fixture only for actual quoted examples/history, regenerate totals/digest, and refresh CHK-001 adversarial evidence.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-15T12:31:33.751Z",
+      "reviewRound": "2026-07-15T12:26:50.422Z",
+      "reviewRunId": "B-c1f1:RR-012",
+      "_hash": "59ca901cab087f24e2c9241b827f0a182ca91a59defecefaddf36a3b14eafa35",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+        "docs/requirements/NAV.md"
+      ],
+      "signatureTag": "adversarial|docs|active-plan-neutralized-as-fixture",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
