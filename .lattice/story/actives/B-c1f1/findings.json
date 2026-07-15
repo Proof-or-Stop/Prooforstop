@@ -269,6 +269,24 @@
       ],
       "signatureTag": "adversarial|md|source-independent-fingerprint",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c1f1:F-012",
+      "desc": "The F-008 baseline appendix contradicts the plan’s own manifest contract. Lines 212-214 require every row to contain path:line, matched phrase, consumer category, behavioral/non-behavioral status, target authority, owning Story, and disposition, but Appendix A’s TSV header at line 531 contains only path:line, category, disposition, and a combined owner/target field. The missing matched phrase and behavioral status prevent independent review of why a line was classified, and the combined final column cannot establish both target authority and owner. Regenerate the appendix with all required columns (or explicitly revise the contract with an equally inspectable representation), recompute its digest/totals, and refresh the adversarial evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T12:29:04.850Z",
+      "reviewRound": "2026-07-15T12:26:50.422Z",
+      "reviewRunId": "B-c1f1:RR-010",
+      "_hash": "5c02725b9feb0dbfacc8d9a71ba1462c86032907a5af10ede9881a46d296dfe2",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|baseline-appendix-contradicts",
+      "signatureTagSource": "auto"
     }
   ]
 }
