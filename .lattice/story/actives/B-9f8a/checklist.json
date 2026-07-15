@@ -13,8 +13,8 @@
         "docs/guide-scope-guard.md",
         "docs/requirements/decisions/role-separation.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-15T13:21:39.716Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
@@ -74,6 +74,18 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-15T13:21:39.716Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Drafted the execution plan and am completing verification and commit.",
+      "agent": "main-agent"
     }
   ]
 }

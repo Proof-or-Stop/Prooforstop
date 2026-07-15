@@ -1,0 +1,25 @@
+{
+  "storyId": "B-9f8a",
+  "mode": "enforce",
+  "allowedModify": [],
+  "allowedCreate": [
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+  ],
+  "allowedTest": [],
+  "protectedFiles": [
+    "packages/main/src/**",
+    "lattice.config.json",
+    "package.json"
+  ],
+  "explicitExcludes": [
+    "docs/story/**",
+    "tests/fixtures/**",
+    ".omx/**",
+    "Proof-or-Stop-*.docx",
+    "Proof-or-Stop-*.pdf"
+  ],
+  "scopeChangeReason": "Documentation-only deliverable requested by the user.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-15T13:17:42.017Z",
+  "updatedAt": "2026-07-15T13:17:42.017Z"
+}

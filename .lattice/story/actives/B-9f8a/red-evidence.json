@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-9f8a",
+  "records": [
+    {
+      "id": "RED-20260715131744",
+      "trigger": "The requested execution-plan Markdown does not yet exist.",
+      "acceptanceTargetRef": "CHK-001:happy:0",
+      "baselineHeadHash": "756938d42ae47907eecc0cd050accffc23a58de1",
+      "baselineMaterialHash": "c31fb13e51ebf1ffd177fb6d5159de2adf4d5c834874bfdfb3ef9a97a0ddb6ea",
+      "observedFailure": "rg cannot find the requested document or its required heading because the file is absent at the baseline HEAD.",
+      "failingCommand": "rg -n \"^# Workflow Convergence Failure Remediation Execution Plan\" docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+      "expectedGreenCommand": "rg -n \"^# Workflow Convergence Failure Remediation Execution Plan\" docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+      "greenRelation": {
+        "targetRef": "CHK-001:happy:0",
+        "relation": "same_acceptance",
+        "command": "rg -n \"^# Workflow Convergence Failure Remediation Execution Plan\" docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+      },
+      "note": "Docs-only red/green relation; the green proof will additionally validate all required sections and references.",
+      "createdAt": "2026-07-15T13:17:44.349Z"
+    }
+  ],
+  "createdAt": "2026-07-15T13:17:44.349Z",
+  "updatedAt": "2026-07-15T13:17:44.349Z"
+}

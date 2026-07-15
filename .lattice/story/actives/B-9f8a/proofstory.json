@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-9f8a",
+  "diagnosticOnly": false,
+  "hardeningLevel": "standard",
+  "triggerReasons": [
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:016c9aa8f9b8e8e56b974a35b902962ca0febd4ef84aedebbc0f9d440db7ae74",
+  "acceptanceBindings": [
+    {
+      "id": "AB-EXEC-DOC-001",
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:happy:1",
+        "CHK-001:happy:2",
+        "CHK-001:edge:0",
+        "CHK-001:edge:1",
+        "CHK-001:edge:2",
+        "CHK-001:adversarial:0",
+        "CHK-001:adversarial:1",
+        "CHK-001:adversarial:2",
+        "CHK-001:adversarial:3"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "The new decision document exists and contains the evidence table, five cohesive workstreams, dependency order, verification matrix, risk controls, rollback, and explicit non-goals.",
+      "note": "The complete document is accepted only when all ten independent content and regression checks pass."
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "Documentation-only ProofStory acceptance envelope for the umbrella execution plan.",
+  "createdAt": "2026-07-15T13:19:08.789Z",
+  "updatedAt": "2026-07-15T13:19:08.789Z"
+}
