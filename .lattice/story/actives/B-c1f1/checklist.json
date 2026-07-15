@@ -13,7 +13,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The execution-plan decision document exists and gives an implementable target architecture for Codex CLI, Claude Code CLI, and Antigravity CLI (agy), separating host-discovery entrypoints, .lattice/Lattice.md navigation, the operational runbook projection, normative decision sources, and CLI/registry/gate mechanical authority; it also inventories current CLAUDE.md consumers and defines test-first sequencing, compatibility, rollback, implementation Story slices, and B-e514 convergence. WHY: proves the requested plan is complete enough to execute without inventing missing architecture during implementation.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The plan treats AGENTS.md and CLAUDE.md size budgets as anti-regression ceilings rather than fill targets, preserves repository-local hard constraints such as the OMX ban without forcing them into universal generated templates, and does not propose CODEX.md or AGY.md as new host protocols. WHY: covers the boundary between shared generated assets, repository-local policy, and actual host discovery conventions.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "The plan explicitly defines precedence and non-duplication across AGENTS.md, CLAUDE.md, .lattice/Lattice.md, the runbook, normative decision docs, and mechanical registries/gates, including how Claude obtains shared rules without copying a second long root contract. WHY: prevents thin-entrypoint migration from creating a third drifting source of truth.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Cross-check the plan inventory against repository references to CLAUDE.md/AGENTS.md and canonical-document path arrays; every behavior-affecting audit, docs-drift, reviewer, template, sync, trigger, managed-asset, and verifier consumer found is either assigned to a migration slice or explicitly justified out of scope. WHY: catches a cosmetically thin root document that leaves hidden Claude-first mechanical contracts active.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Challenge the rollout by simulating stale links, conflicting runbook commands, failed red tests, rollback after partial template migration, and B-e514 remaining blocked at TEST; the plan must specify fail-closed detection and a safe recovery/order of operations without declaring the old contract retired early. WHY: prevents an irreversible documentation cutover or false convergence when canonical consumers disagree.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
