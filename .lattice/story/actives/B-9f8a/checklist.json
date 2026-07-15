@@ -15,7 +15,65 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Inspect the delivered Markdown decision document and map the six confirmed diagnoses to exactly five cohesive implementation workstreams: DONE timeout/receipt reuse; unattended host liveness plus candidate-routing specificity; typed dispatch; owner-session identity; canonical scope paths plus semantic anchors. Each workstream states evidence-backed root cause, adopted/modified/rejected remedy, implementation boundary, dependencies, rollout/rollback, and positive acceptance criteria. WHY: the umbrella plan must be directly decomposable into independent stories without combining unrelated runtime changes.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Cross-check the document citations and source-of-truth statements against all checklist relatedDocs: done-prepare automation and heartbeat/review assurance, multi-host candidate routing, owner-session contract and write leases, scope-guard guide, and role separation. The document distinguishes existing canonical policy from proposed changes and does not supersede those sources accidentally. WHY: implementation stories must consume authoritative contracts instead of stale diagnostic prose.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Review the document end to end and confirm one internally consistent landing order, dependency graph, priority rationale, ownership boundary, shared terminology, and explicit non-goals; confirm it remains documentation-only and makes no claim that runtime behavior is already fixed. WHY: the plan must be auditable and safe to execute incrementally.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "For DONE-required validation with multiple sequential commands, verify the plan rejects an outer timeout derived only from max(command timeout) and specifies either no redundant outer deadline or sum(effective command deadlines)+bounded grace, while fresh-receipt reuse remains bound to current HEAD/material/story-files/policy/command set. WHY: a superficially larger timeout must not preserve deterministic failure or weaken evidence freshness.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "For unattended routing, verify the plan treats launcherSupport=unverified as ineligible for unattended execution, separates probe timeout from real host-process liveness, preserves explicit relatedDocs/typed risk signals when filtering generic tokens, and keeps shadow mode advisory rather than enforce-blocking. WHY: fixing stalls and over-scan must not hide authoritative documents or silently change configured mode semantics.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "For owner identity and scope normalization, verify the plan requires stable per-task and per-agent/role identity rather than a repo-wide token, and requires an explicit canonical path base plus traversal/symlink containment and legacy migration. WHY: the fixes must not collapse reviewer/implementer identities or broaden write scope.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Challenge the dispatch workstream with verification-intent, test-intent, unknown, story-level reviewer, and item-level reviewer inputs. Acceptance must require an explicit fail-closed agent-type registry, schema-valid prompts, current verification-intent naming, and no fallback of unknown/reviewer roles to implementer instructions. WHY: prefix patches alone can continue role pollution and unauthorized status/commit guidance.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Challenge the scope-anchor workstream with if/for/while/switch blocks, local const declarations, methods, nested functions, protected anchors, repo-relative versus package-relative paths, .. traversal, and symlink escape. Acceptance must prefer AST-based declaration anchors (regex exclusion only as stopgap), preserve protected-anchor fail-closed behavior, and version parsing/hash semantics so old evidence becomes explicitly stale rather than silently reinterpreted. WHY: eliminating false positives must not introduce false negatives or evidence ambiguity.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Review every workstream for regression controls and negative acceptance cases: true child-process hangs still terminate and clean up; stale or mismatched DONE receipts are rejected; high-specificity routing still finds explicit documents; reviewer evidence cannot be self-attested; independent sessions still conflict correctly; genuine out-of-scope/protected-anchor writes still block. WHY: each convenience fix must preserve existing safety gates.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Attempt to interpret the umbrella plan as authorization to implement all five workstreams in one story, change runtime behavior in this documentation story, use host=fake as a production remedy, hard-code an unexplained 40% corpus threshold, or use CODEX_THREAD_ID/repo token as sole owner identity. The document must explicitly reject these readings in non-goals and story slicing. WHY: known tempting shortcuts would recreate cost imbalance or weaken role/evidence separation.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
