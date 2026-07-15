@@ -13,7 +13,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-15T11:59:26.241Z",
-      "endTime": "2026-07-15T13:22:51.536Z",
+      "endTime": "2026-07-15T13:30:43.728Z",
       "verificationIntent": {
         "happy": [
           {
@@ -62,10 +62,10 @@
           "command": "rg -n \"Proof-or-stop Thin Entrypoint Contract Migration Execution Plan|Story 1 — Contract tests|Story 9 — Legacy fallback retirement\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
           "result": "pass",
           "note": "Complete architecture and ordered implementation plan remain present.",
-          "headHash": "3da3cb165ef2ddaa24f25f74c13d2f54a898a1be",
-          "materialHash": "1f739ed80703978797abc649a880a998cc453b5fc1ead632943f3eb289120fd3",
-          "storyFilesHash": "a7b975883f176184db4653ca6dee7b8dc43ec641e24f8496f00849fe56308731",
-          "timestamp": "2026-07-15T13:22:52.093Z"
+          "headHash": "aed3d1508f50a027416c9b020444f5f76c2cbb46",
+          "materialHash": "9e2b1aaff2ab5cc6ee243175bbdf0c071db7aa189664b9115609dcb04bb4b9dd",
+          "storyFilesHash": "174f193dc0314194c5566809278f9a65e35dc9bad3fc45e363960c095f6c3ee0",
+          "timestamp": "2026-07-15T13:30:44.344Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -73,21 +73,21 @@
           "command": "rg -n \"CODEX.md|AGY.md|anti-regression ceilings|OMX prohibition\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
           "result": "pass",
           "note": "Host and local policy boundaries remain explicit.",
-          "headHash": "3da3cb165ef2ddaa24f25f74c13d2f54a898a1be",
-          "materialHash": "1f739ed80703978797abc649a880a998cc453b5fc1ead632943f3eb289120fd3",
-          "storyFilesHash": "a7b975883f176184db4653ca6dee7b8dc43ec641e24f8496f00849fe56308731",
-          "timestamp": "2026-07-15T13:22:52.718Z"
+          "headHash": "aed3d1508f50a027416c9b020444f5f76c2cbb46",
+          "materialHash": "9e2b1aaff2ab5cc6ee243175bbdf0c071db7aa189664b9115609dcb04bb4b9dd",
+          "storyFilesHash": "174f193dc0314194c5566809278f9a65e35dc9bad3fc45e363960c095f6c3ee0",
+          "timestamp": "2026-07-15T13:30:44.873Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
           "kind": "logic_test",
-          "command": "rg -n \"AGENTS.md canonical view|CLAUDE.md canonical view|sourceRevision|viewDefinitionDigest|selectorDigest|allowedClaimSlots\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "command": "rg -n \"thin_entrypoint_fact_extraction|thin_entrypoint_review_evidence|thin_entrypoint_readiness|materialClean|archival only\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
           "result": "pass",
-          "note": "Both roots use disjoint source views and semantic evidence is bound to source and selector snapshots.",
-          "headHash": "3da3cb165ef2ddaa24f25f74c13d2f54a898a1be",
-          "materialHash": "1f739ed80703978797abc649a880a998cc453b5fc1ead632943f3eb289120fd3",
-          "storyFilesHash": "a7b975883f176184db4653ca6dee7b8dc43ec641e24f8496f00849fe56308731",
-          "timestamp": "2026-07-15T13:22:53.397Z"
+          "note": "Live evidence uses exact untracked registry paths and cannot self-invalidate the material HEAD; committed evidence is archival only.",
+          "headHash": "aed3d1508f50a027416c9b020444f5f76c2cbb46",
+          "materialHash": "9e2b1aaff2ab5cc6ee243175bbdf0c071db7aa189664b9115609dcb04bb4b9dd",
+          "storyFilesHash": "174f193dc0314194c5566809278f9a65e35dc9bad3fc45e363960c095f6c3ee0",
+          "timestamp": "2026-07-15T13:30:46.018Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -95,21 +95,21 @@
           "command": "sed -n '/^```tsv$/,/^```$/p' docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md | sed '1d;$d' | tail -n +2 | wc -l",
           "result": "pass",
           "note": "Frozen baseline remains 600x7 with documented digest.",
-          "headHash": "3da3cb165ef2ddaa24f25f74c13d2f54a898a1be",
-          "materialHash": "1f739ed80703978797abc649a880a998cc453b5fc1ead632943f3eb289120fd3",
-          "storyFilesHash": "a7b975883f176184db4653ca6dee7b8dc43ec641e24f8496f00849fe56308731",
-          "timestamp": "2026-07-15T13:22:54.107Z"
+          "headHash": "aed3d1508f50a027416c9b020444f5f76c2cbb46",
+          "materialHash": "9e2b1aaff2ab5cc6ee243175bbdf0c071db7aa189664b9115609dcb04bb4b9dd",
+          "storyFilesHash": "174f193dc0314194c5566809278f9a65e35dc9bad3fc45e363960c095f6c3ee0",
+          "timestamp": "2026-07-15T13:30:46.404Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
           "kind": "logic_test",
-          "command": "rg -n \"required.*all markers are absent|empty-if-all-absent|partial marker|Fact-snapshot freshness|provenance laundering\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "command": "rg -n \"Evidence persistence and restart|Material freshness boundaries|unrelated tracked file|fresh process|provenance laundering\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
           "result": "pass",
-          "note": "Executable fixtures cover marker absence/partial states, provenance laundering, and stale source/selector snapshots.",
-          "headHash": "3da3cb165ef2ddaa24f25f74c13d2f54a898a1be",
-          "materialHash": "1f739ed80703978797abc649a880a998cc453b5fc1ead632943f3eb289120fd3",
-          "storyFilesHash": "a7b975883f176184db4653ca6dee7b8dc43ec641e24f8496f00849fe56308731",
-          "timestamp": "2026-07-15T13:22:54.554Z"
+          "note": "E2E restart and unrelated HEAD/dirty/runtime-write fixtures cover persistence and freshness boundaries.",
+          "headHash": "aed3d1508f50a027416c9b020444f5f76c2cbb46",
+          "materialHash": "9e2b1aaff2ab5cc6ee243175bbdf0c071db7aa189664b9115609dcb04bb4b9dd",
+          "storyFilesHash": "174f193dc0314194c5566809278f9a65e35dc9bad3fc45e363960c095f6c3ee0",
+          "timestamp": "2026-07-15T13:30:46.776Z"
         }
       ]
     },
