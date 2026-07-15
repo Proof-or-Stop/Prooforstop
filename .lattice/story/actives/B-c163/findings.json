@@ -279,6 +279,25 @@
       ],
       "signatureTag": "missing|ts|dryrun-sigterm-resistant",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c163:F-013",
+      "desc": "The real CLI timeout matrix is flaky under the full focused sequence: running build -> done-prepare-closure-heartbeat -> validate-progress-heartbeat failed with `max !== command` at the command-timeout row, while immediately rerunning validate-progress-heartbeat alone passed. The row at validate-progress-heartbeat-smoke.ts:280 gives the command only 180ms but caps the entire CLI at 5000ms; under load, post-command evidence/git/CLI settlement can cross that outer cap, allowing the max watchdog to overwrite the intended command classification before output. This makes a required regression nondeterministic and can block REVIEW/TEST despite correct runtime behavior. Give command/phase attribution rows a much wider outer max and matching harness ceiling (well above worst observed process startup/evidence commit time), reserving tight max only for the explicit max row; optionally assert elapsed diagnostics on failure. Re-run the exact combined sequence repeatedly to demonstrate stability.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T20:58:51.748Z",
+      "reviewRound": "2026-07-15T20:54:04.151Z",
+      "reviewRunId": "B-c163:RR-026",
+      "_hash": "67224a06d80d4f13157b05e521b61fcd5245597e8f6acb6f62e8ef89f3217844",
+      "files": [
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+        "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts"
+      ],
+      "signatureTag": "test-reliability|ts|outer-max-overrides-command-row",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
