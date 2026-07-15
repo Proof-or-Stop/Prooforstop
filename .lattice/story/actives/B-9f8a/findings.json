@@ -29,6 +29,45 @@
       "_hash": "37847fe2c719a7e4dd8c21ee27a9eee8b95c1d2f66e74791a55819c42647117c",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9f8a:F-003",
+      "desc": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md:119-122 treats removing the DONE-required phase deadline as an equally valid implementation choice, but the cited canonical heartbeat plan requires every heartbeating closure phase to retain an independent hard wall-clock deadline (done-prepare-heartbeat-review-assurance-ux-execution-plan.md:186-190). Because section 4 says canonical subsystem documents win, this branch is not implementation-ready as written: either select the sum(effective sequential deadlines)+bounded grace design, or explicitly require updating/superseding the canonical deadline contract before removal. Severity medium: an implementer following option one can violate the current fail-closed liveness policy.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T13:26:35.688Z",
+      "reviewRound": "2026-07-15T13:23:30.569Z",
+      "reviewRunId": "B-9f8a:RR-001",
+      "_hash": "73281412f63f19f2e4f6915b561943fc80dc15846c1444b76a07c4c33280cbba",
+      "files": [
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+        "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md"
+      ],
+      "signatureTag": "spec-boundary|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9f8a:F-004",
+      "desc": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md:297 says Workstream D will complete unfinished slices of the canonical owner-session contract, but session-ownership-and-write-leases.md:5-15 records the rollout as fully implemented by B-9089 and lines 27-34 already describe the active adapter/generated-token/derived-ppid chain. Reframe D as a regression repair to the shipped adapter/fallback behavior, identify the precise missing Codex task/agent propagation, and require a canonical contract update/new decision if taskIdentity+agentOrRoleIdentity changes the existing single-session-id semantics. Severity medium: the stale implementation status obscures whether the workstream is bug repair or a new identity-policy change.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T13:26:35.689Z",
+      "reviewRound": "2026-07-15T13:23:30.569Z",
+      "reviewRunId": "B-9f8a:RR-001",
+      "_hash": "09c20111710eaebb8c6f5f725c7414cfeff8c075fee3f1eef4537c29112b21f3",
+      "files": [
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md",
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md"
+      ],
+      "signatureTag": "doc-code-drift|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
