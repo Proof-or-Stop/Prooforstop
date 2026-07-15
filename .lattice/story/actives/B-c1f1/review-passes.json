@@ -73,6 +73,37 @@
       },
       "readDiagnostics": [],
       "_hash": "453aa6fc4188a7ddc4aef23444d68d8f20b913cac8390fb52bf00843b5fb4430"
+    },
+    {
+      "id": "B-c1f1:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "PASS targeted F-010..F-014 remediation at df311437cf. The plan now specifies schemaVersion=1, finite extractor patterns, source-independent factId, claimSlot-scoped conflicts, complementary/opposing fixtures, unparsedFact fail-closed behavior, and an injected fingerprint collision seam. Independent checks confirmed 600 seven-field rows, digest a6f8c5256a10a8356480898e99c1c12e9d53cedabf5078a7f801f714ff04d4a0, 134 files, exact path:line parity with the frozen scan, and 15/70/511/4 disposition totals. No quality blocker found.",
+      "createdAt": "2026-07-15T13:09:13.300Z",
+      "reviewRound": "2026-07-15T13:06:08.764Z",
+      "reviewRunId": "B-c1f1:RR-013",
+      "writerSessionId": "sess-5593716d3b6d0282",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "8191a2407ea88108a5c48247dab5e82da1b634ea72ee3f8689873e0f861a93ad"
+      },
+      "readDiagnostics": [],
+      "_hash": "371fb887b3b1ee5297c106ed2547273584dd95bd648ac78b1d0feec754ef4bc0"
     }
   ]
 }
