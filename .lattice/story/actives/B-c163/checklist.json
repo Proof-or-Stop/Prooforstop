@@ -203,7 +203,7 @@
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-15T19:30:58.283Z",
       "endTime": "2026-07-15T20:32:05.486Z",
       "userSees": "done_prepare reports disposition “reused”, “executed”, or “skipped_explicitly”; JSON separately reports result, refusalReasons, timeoutLayer, and existingEvidenceBasis “fresh|stale|missing”.",
@@ -756,6 +756,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Round 4 F-008/F-009/F-010 implementation committed, full target suite passed, and only affected verification evidence refs were refreshed."
+    },
+    {
+      "timestamp": "2026-07-15T20:40:27.926Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "F-011: prevent unobserved validation context from being fabricated in closeout timeout output"
     }
   ]
 }
