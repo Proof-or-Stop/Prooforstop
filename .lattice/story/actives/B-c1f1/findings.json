@@ -78,7 +78,7 @@
       "desc": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:153-207,246-327 — HIGH: the consumer inventory and eight Story slices do not explicitly assign migration of active normative decision documents that still make CLAUDE.md/AGENTS.md process-authority destinations. Concrete current conflicts include story-lifecycle.md:78 (points to a CLAUDE.md hard-gate section), story-lifecycle.md:114 (requires a CLAUDE.md summary), and root-markdown-migration-execution-solution.md:32,75 (routes active operational instruction into AGENTS.md/CLAUDE.md). These are active authority statements, not implementation comments, and the proposed local Markdown link/anchor verifier will not catch their plain-text authority phrases. Add an explicit pre-cutover slice covering affected normative docs plus a retired-authority vocabulary assertion; otherwise the final canonical hierarchy can pass while its own decision sources remain contradictory and route readers back to the deprecated contract.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-15T12:08:27.247Z",
@@ -91,7 +91,11 @@
         "docs/requirements/decisions/root-markdown-migration-execution-solution.md"
       ],
       "signatureTag": "missing|docs|active-normative-claude-first-authority-unassigned",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Added explicit pre-cutover normative-document migration and a retired-authority vocabulary guard that catches prose authority assignments even when all links are valid.",
+      "resolvedAt": "2026-07-15T12:17:46.375Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c1f1:F-005",
