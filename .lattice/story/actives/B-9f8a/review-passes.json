@@ -161,6 +161,50 @@
         "scanEscalationReason": null
       },
       "_hash": "6c380b9ba068f60526d7bd7b89aac23c017c35e7b53edd7cdeb62b324f7ba128"
+    },
+    {
+      "id": "B-9f8a:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 targeted re-review verified F-001 and F-002 are fully corrected: Workstream A retains an independent derived sum-plus-grace phase deadline with per-command deadlines, and Workstream D is framed as a shipped B-9089 regression repair with mandatory fresh two-host review before implementation. No remaining quality blocker in the targeted changes. Candidate digest omitted under configured shadow semantics because the dispatch artifact became stale after review_run_start and demanded the known generic-token full-corpus escalation; no full-corpus read is claimed.",
+      "createdAt": "2026-07-15T13:35:43.727Z",
+      "reviewRound": "2026-07-15T13:33:42.668Z",
+      "reviewRunId": "B-9f8a:RR-006",
+      "writerSessionId": "sess-854478e4496c885d",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md"
+        ],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "463a63879e3d816f236604ceb21448d3f4fef8284c887ffdb53a4a64cc938069"
+      },
+      "readDiagnostics": [],
+      "_hash": "5334825afb2bad228557c97e63251fa34935b530da0ff67fcf1c41a34d981fb0"
     }
   ]
 }
