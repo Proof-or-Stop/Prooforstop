@@ -97,6 +97,7 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     assert.ok(artifact.candidateSpecSet.includes('docs/requirements/decisions/legacy-login.md'));
     assert.ok(artifact.candidateSpecSet.length <= 8);
     assert.ok(artifact.queryGroups.length <= 10);
+    assert.equal(artifact.queryFiltering.maxDocumentFrequencyRatio, 0.4);
     assert.equal(JSON.stringify(artifact).includes('Rotating credentials safely'), false, 'artifact must not contain document bodies');
 
     const store = new StoryStore(root);
@@ -216,6 +217,7 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     const truncatedRoute = routeCandidateSpecs({
       projectRoot: root, storyId: story.storyId, corpus: first,
       seeds: buildKeywordSeeds({ storyId: story.storyId, title: 'decision' }), rawHitsPerGroup: 1,
+      maxDocumentFrequencyRatio: 1,
     });
     assert.equal(truncatedRoute.requiresEscalation, true, 'ranking-affecting truncation must require an explicit escalation decision');
     assert.ok(truncatedRoute.escalationReasons.includes('ranking_affecting_query_truncation'));
@@ -235,9 +237,27 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     assert.match(pendingCliText, /BLOCKED_PENDING_ESCALATION/);
     assert.match(pendingCliText, /fullScanReason/);
 
+    const frequencyFilteredRoute = routeCandidateSpecs({
+      projectRoot: root,
+      storyId: story.storyId,
+      corpus: first,
+      seeds: buildKeywordSeeds({
+        storyId: story.storyId,
+        title: 'decision auth session',
+        relatedDocs: ['docs/requirements/decisions/auth-session.md'],
+      }),
+      rawHitsPerGroup: 1,
+    });
+    assert.ok(frequencyFilteredRoute.queryFiltering.filteredTerms.some(term => term.term === 'decision' && term.documentCount === first.entries.length));
+    assert.ok(!frequencyFilteredRoute.escalationReasons.includes('ranking_affecting_query_truncation'), 'overbroad terms must not trigger ranking truncation');
+    assert.equal(frequencyFilteredRoute.fullScan, false);
+    assert.ok(frequencyFilteredRoute.candidateSpecSet.includes('docs/requirements/decisions/auth-session.md'), 'explicit relatedDocs bypass frequency filtering');
+    assert.match(renderCandidateSpecRouteText(frequencyFilteredRoute, first.entries.length, []), /queryFiltering=maxDocumentFrequencyRatio=0\.4 filtered=.*decision:3/);
+
     const resolvedTruncation = routeCandidateSpecs({
       projectRoot: root, storyId: story.storyId, corpus: first,
       seeds: buildKeywordSeeds({ storyId: story.storyId, title: 'decision' }), rawHitsPerGroup: 1,
+      maxDocumentFrequencyRatio: 1,
       forceFullScanReason: 'common decision term truncated bounded ranking; reviewer approved tool-driven corpus scan',
     });
     const resolvedManifest = {
@@ -267,10 +287,17 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
 
     const weakCoverage = routeCandidateSpecs({
       projectRoot: root, storyId: story.storyId, corpus: first,
-      seeds: buildKeywordSeeds({ storyId: story.storyId, relatedDocs: ['docs/requirements/decisions/noise.md'] }),
+      seeds: buildKeywordSeeds({ storyId: story.storyId, title: 'legacy login' }),
     });
     assert.ok(weakCoverage.escalationReasons.includes('weak_source_class_coverage'));
     assert.equal(weakCoverage.fullScan, false);
+
+    const explicitRelatedOnly = routeCandidateSpecs({
+      projectRoot: root, storyId: story.storyId, corpus: first,
+      seeds: buildKeywordSeeds({ storyId: story.storyId, relatedDocs: ['docs/requirements/decisions/noise.md'] }),
+    });
+    assert.equal(explicitRelatedOnly.requiresEscalation, false, 'an explicit relatedDoc is a strong source and must not require a second weaker source class');
+    assert.deepEqual(explicitRelatedOnly.candidateSpecSet, ['docs/requirements/decisions/noise.md']);
 
     const hostDisagreement = routeCandidateSpecs({
       projectRoot: root, storyId: story.storyId, corpus: first, seeds: seedsA, hostDisagreement: true,

@@ -49,6 +49,7 @@ export function renderCandidateSpecRouteText(
     `hosts=${attempts.map(attempt => `${attempt.host}:${attempt.status}`).join(',') || 'disabled'}`,
     `requiresEscalation=${artifact.requiresEscalation}`,
     `escalationReasons=${artifact.escalationReasons.join(',') || 'none'}`,
+    `queryFiltering=maxDocumentFrequencyRatio=${artifact.queryFiltering.maxDocumentFrequencyRatio} filtered=${artifact.queryFiltering.filteredTerms.map(term => `${term.term}:${term.documentCount}`).join(',') || 'none'}`,
   ];
   if (artifact.requiresEscalation && !artifact.fullScan) {
     lines.push('status=BLOCKED_PENDING_ESCALATION');
@@ -207,6 +208,7 @@ export function createCandidateSpecRoutingHandlers(
         candidateBudget: config.candidateSpecRouting?.candidateBudget,
         queryGroupBudget: config.candidateSpecRouting?.queryGroupBudget,
         rawHitsPerGroup: config.candidateSpecRouting?.rawHitsPerGroup,
+        maxDocumentFrequencyRatio: config.candidateSpecRouting?.maxDocumentFrequencyRatio,
         forceFullScanReason: args.fullScanReason,
         storyInputDigest: digestCandidateRoutingValue(input),
         ...snapshot,

@@ -612,6 +612,7 @@ function assertProofStoryProgressiveBoundary() {
   assert(handlerText.includes('slice_plan_set') && handlerText.includes('parent_ledger_rollup_set'), 'handlers/proofstory.ts: slice plan and parent roll-up writers must be implemented');
   assert(read('packages/main/src/handlers/story-review.ts').includes('ProofStory advisory diagnostics') || read('packages/main/src/handlers/story-review.ts').includes('ProofStory Diagnostics'), 'story-review.ts: story_review must surface ProofStory advisory diagnostics');
   assert(read('packages/main/src/core/candidate-spec-routing.ts').includes('candidate routing escalation is unresolved'), 'candidate routing: gate binding must fail closed on unresolved requiresEscalation');
+  assert(read('packages/main/src/core/candidate-spec-routing.ts').includes('DEFAULT_MAX_QUERY_DOCUMENT_FREQUENCY_RATIO'), 'candidate routing: generic query terms must use the recorded document-frequency filter');
   assert(read('packages/main/src/handlers/story-dispatch.ts').includes('STOP — candidate routing escalation is unresolved'), 'candidate routing: PLAN/REVIEW dispatch must render unresolved escalation and resolution action');
   assert(read('packages/main/src/handlers/candidate-spec-routing.ts').includes('BLOCKED_PENDING_ESCALATION'), 'candidate routing: CLI text must prominently render pending escalation');
   assert(!storyAdvanceText.includes('../core/proofstory') && !storyAdvanceText.includes('./proofstory'), 'story-advance.ts: ProofStory must not be wired through the thin story_advance handler');

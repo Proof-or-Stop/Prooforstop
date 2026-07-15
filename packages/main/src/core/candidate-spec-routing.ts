@@ -13,6 +13,13 @@ export const DEFAULT_QUERY_GROUP_BUDGET = 10;
 export const DEFAULT_RAW_HITS_PER_GROUP = 50;
 export const DEFAULT_HOST_TERM_BUDGET = 20;
 export const DEFAULT_HOST_AMBIGUITY_BUDGET = 5;
+/**
+ * Terms present in more than this share of the requirements corpus are not
+ * useful ranking signals. They are recorded in the artifact, but excluded
+ * from bounded queries so generic repository/path vocabulary cannot force a
+ * full-corpus escalation. Exact relatedDocs remain direct candidates.
+ */
+export const DEFAULT_MAX_QUERY_DOCUMENT_FREQUENCY_RATIO = 0.4;
 
 const SHA256 = (value: string | Buffer): string => createHash('sha256').update(value).digest('hex');
 const CONTROL = /[\u0000-\u001f\u007f]/;
@@ -133,6 +140,10 @@ export interface CandidateSpecSetArtifact {
   candidateSpecSet: string[];
   candidateBasis: Record<string, CandidateReason[]>;
   queryGroups: string[][];
+  queryFiltering: {
+    maxDocumentFrequencyRatio: number;
+    filteredTerms: Array<{ term: string; documentCount: number; documentFrequencyRatio: number }>;
+  };
   budgets: { candidates: number; queryGroups: number; rawHitsPerGroup: number };
   ambiguitySignals: string[];
   requiresEscalation: boolean;
@@ -451,6 +462,7 @@ export function routeCandidateSpecs(args: {
   candidateBudget?: number;
   queryGroupBudget?: number;
   rawHitsPerGroup?: number;
+  maxDocumentFrequencyRatio?: number;
   forceFullScanReason?: string | null;
   hostDisagreement?: boolean;
   riskSignals?: string[];
@@ -462,10 +474,43 @@ export function routeCandidateSpecs(args: {
   const candidateBudget = args.candidateBudget ?? DEFAULT_CANDIDATE_BUDGET;
   const queryGroupBudget = args.queryGroupBudget ?? DEFAULT_QUERY_GROUP_BUDGET;
   const rawHitsPerGroup = args.rawHitsPerGroup ?? DEFAULT_RAW_HITS_PER_GROUP;
+  const configuredDocumentFrequencyRatio = args.maxDocumentFrequencyRatio;
+  const maxDocumentFrequencyRatio = typeof configuredDocumentFrequencyRatio === 'number'
+    && Number.isFinite(configuredDocumentFrequencyRatio)
+    && configuredDocumentFrequencyRatio > 0
+    && configuredDocumentFrequencyRatio <= 1
+    ? configuredDocumentFrequencyRatio
+    : DEFAULT_MAX_QUERY_DOCUMENT_FREQUENCY_RATIO;
   const proposals = args.proposals ?? [];
-  const queryGroups = buildQueryGroups(args.seeds.seeds, proposals, queryGroupBudget);
+  const unfilteredQueryGroups = buildQueryGroups(args.seeds.seeds, proposals, queryGroupBudget);
   const reasonMap = new Map<string, CandidateReason[]>();
   const entryByPath = new Map(args.corpus.entries.map(entry => [entry.path, entry]));
+  const searchableByPath = new Map(args.corpus.entries.map(entry => [
+    entry.path,
+    searchable(entry, readFileSync(join(args.projectRoot, entry.path), 'utf8')),
+  ]));
+  const queryTerms = [...new Set([
+    ...unfilteredQueryGroups.flat(),
+    ...proposals.flatMap(proposal => proposal.terms.map(term => normalizeKeyword(term.term))),
+  ])].sort((left, right) => left.localeCompare(right, 'en'));
+  const documentCounts = new Map(queryTerms.map(term => [
+    term,
+    args.corpus.entries.filter(entry => searchableByPath.get(entry.path)?.includes(term)).length,
+  ]));
+  const isOverbroadTerm = (term: string): boolean => {
+    if (args.corpus.entries.length === 0) return false;
+    return (documentCounts.get(term) ?? 0) / args.corpus.entries.length > maxDocumentFrequencyRatio;
+  };
+  const filteredTerms = queryTerms
+    .filter(isOverbroadTerm)
+    .map(term => ({
+      term,
+      documentCount: documentCounts.get(term) ?? 0,
+      documentFrequencyRatio: (documentCounts.get(term) ?? 0) / Math.max(args.corpus.entries.length, 1),
+    }));
+  const queryGroups = unfilteredQueryGroups
+    .map(group => group.filter(term => !isOverbroadTerm(term)))
+    .filter(group => group.length > 0);
   const related = new Set(args.seeds.seeds.filter(seed => seed.source === 'relatedDoc').map(seed => seed.term.split('#')[0]));
   let truncated = false;
 
@@ -476,7 +521,7 @@ export function routeCandidateSpecs(args: {
     const hits: Array<{ entry: CorpusIndexEntry; body: string }> = [];
     for (const entry of args.corpus.entries) {
       const body = readFileSync(join(args.projectRoot, entry.path), 'utf8');
-      const haystack = searchable(entry, body);
+      const haystack = searchableByPath.get(entry.path) ?? searchable(entry, body);
       if (group.every(term => haystack.includes(term))) hits.push({ entry, body });
     }
     if (hits.length > rawHitsPerGroup) truncated = true;
@@ -496,8 +541,9 @@ export function routeCandidateSpecs(args: {
   for (const proposal of proposals) {
     for (const term of proposal.terms) {
       const normalized = normalizeKeyword(term.term);
+      if (isOverbroadTerm(normalized)) continue;
       for (const entry of args.corpus.entries) {
-        if (!searchable(entry, readFileSync(join(args.projectRoot, entry.path), 'utf8')).includes(normalized)) continue;
+        if (!searchableByPath.get(entry.path)?.includes(normalized)) continue;
         const reasons = reasonMap.get(entry.path) ?? [];
         reasons.push({ kind: term.kind === 'negative-control' ? 'negative-control' : 'host', term: normalized, source: proposal.host, points: term.kind === 'negative-control' ? -25 : 4 });
         reasonMap.set(entry.path, reasons);
@@ -513,7 +559,9 @@ export function routeCandidateSpecs(args: {
 
   const ambiguitySignals: string[] = [];
   if (ranked.length === 0) ambiguitySignals.push('zero_candidates');
-  if (ranked.length > 0 && new Set(ranked.flatMap(candidate => candidate.reasons.map(reason => reason.kind))).size < 2) ambiguitySignals.push('weak_source_class_coverage');
+  const rankedReasonKinds = new Set(ranked.flatMap(candidate => candidate.reasons.map(reason => reason.kind)));
+  const hasExplicitRelatedDoc = ranked.some(candidate => candidate.reasons.some(reason => reason.kind === 'related-doc'));
+  if (ranked.length > 0 && rankedReasonKinds.size < 2 && !hasExplicitRelatedDoc) ambiguitySignals.push('weak_source_class_coverage');
   if (truncated) ambiguitySignals.push('query_results_truncated');
   const cutoffTie = ranked.length > candidateBudget && ranked[candidateBudget - 1]?.score === ranked[candidateBudget]?.score;
   if (cutoffTie) ambiguitySignals.push('candidate_cutoff_tie');
@@ -552,6 +600,7 @@ export function routeCandidateSpecs(args: {
     candidateSpecSet: candidates.map(candidate => candidate.path),
     candidateBasis: Object.fromEntries(candidates.map(candidate => [candidate.path, candidate.reasons])),
     queryGroups,
+    queryFiltering: { maxDocumentFrequencyRatio, filteredTerms },
     budgets: { candidates: candidateBudget, queryGroups: queryGroupBudget, rawHitsPerGroup },
     ambiguitySignals,
     requiresEscalation,

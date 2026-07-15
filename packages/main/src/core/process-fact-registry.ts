@@ -201,7 +201,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'candidate-spec-set.json',
     path: 'candidate-spec-set.json',
     signed: true,
-    signature: 'artifactDigest over proofbound.candidate-spec-set.v1 canonical fields and freshness bindings',
+    signature: 'artifactDigest over proofbound.candidate-spec-set.v1 canonical fields, document-frequency query filtering, and freshness bindings',
     producerCommand: 'candidate_spec_route',
     consumerGate: 'scope_check_save and reviewer read-evidence candidate routing gate',
   },

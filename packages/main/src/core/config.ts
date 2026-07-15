@@ -87,6 +87,7 @@ export interface LatticeConfig {
     candidateBudget?: number;
     queryGroupBudget?: number;
     rawHitsPerGroup?: number;
+    maxDocumentFrequencyRatio?: number;
   };
   storyPrefix: string;
   flows: LatticeFlowConfig;
@@ -460,6 +461,7 @@ const DEFAULT_CONFIG: LatticeConfig = {
     candidateBudget: 8,
     queryGroupBudget: 10,
     rawHitsPerGroup: 50,
+    maxDocumentFrequencyRatio: 0.4,
   },
   storyPrefix: 'B',
   flows: {
