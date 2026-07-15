@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-0571",
+  "allowedCommands": [
+    "git add*",
+    "git commit*",
+    "git diff*",
+    "git log*",
+    "git show*",
+    "git status*",
+    "lattice *",
+    "node packages/main/dist/tasks/*",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run *",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "coverage-reviewer",
+    "exec_command",
+    "lattice-review-scope-plan",
+    "lattice-review-story-init",
+    "product-reviewer",
+    "reviewer",
+    "verification-intent"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/done-prepare-validation-reuse.ts",
+    "packages/main/src/core/done-required-timeout-budget.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/handlers/done-required-validation.ts",
+    "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+    "packages/main/src/tasks/done-required-validation-smoke.ts",
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git checkout --*",
+    "git push*",
+    "git reset --hard*",
+    "omx *"
+  ],
+  "excludedTools": [
+    "omx",
+    "remote host execution",
+    "remote publish"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "packages/main/src/core/candidate-spec-routing.ts",
+    "packages/main/src/core/host-execution-readiness.ts",
+    "packages/main/src/core/owner-session.ts",
+    "packages/main/src/core/scope-diff-pack.ts",
+    "packages/main/src/core/scope-path-classifier.ts",
+    "packages/main/src/handlers/story-dispatch.ts",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Complete Workstream A boundary, including shared timeout-budget core, command-specific CLI absolute-max coordination, dedicated reuse switch schema, and canonical status doc.",
+  "createdAt": "2026-07-15T18:47:48.871Z",
+  "updatedAt": "2026-07-15T18:47:48.871Z",
+  "_hash": "5babedda52796a38c0e0075bb8deb6781e03759267aab40166df9b260ebe65f5"
+}

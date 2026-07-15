@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-0571",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Coordinate DONE-related CLI absolute max with the derived legal inner budget while preserving explicit overrides",
+    "Direct done_required_validate heartbeat/liveness bridge",
+    "Focused regression tests and canonical Workstream A status documentation",
+    "Strict pre-run reuse of current DONE-required PASS evidence",
+    "Workstream A / C1 only: DONE-required phase budget derivation"
+  ],
+  "excluded": [
+    "Candidate routing changes beyond already-landed bootstrap commit eb839537ad",
+    "Host readiness and external execution watchdog changes",
+    "Owner session identity",
+    "Remote publish or release",
+    "Scope path canonicalization and AST semantic anchors",
+    "Typed dispatch registry"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User approved executing the recommended bootstrap order; INIT reviewer identified CLI absolute-max coordination as required to fulfill the unchanged legal-long-suite promise.",
+  "createdAt": "2026-07-15T18:47:48.218Z",
+  "updatedAt": "2026-07-15T18:47:48.218Z",
+  "_hash": "1d0a28a053a85224bc5f27f71cfd39d84727a5fccd0b24e4565b257f3746de6f"
+}

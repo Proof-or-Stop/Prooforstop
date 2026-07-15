@@ -4,7 +4,7 @@
   "title": "Make DONE-required validation converge without redundant reruns or false timeouts",
   "description": "Implement Workstream A from workflow-convergence-failure-remediation-execution-plan.md on current main: derive the DONE-required phase deadline from sequential command budgets plus bounded grace, reuse only structurally fresh DONE-required PASS evidence through an independent switch, and bridge direct done_required_validate progress to CLI liveness without weakening per-command, phase, idle, maximum, cleanup, or proof-admissibility bounds.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "createdAt": "2026-07-15T18:44:23.081Z",
   "startedAt": "2026-07-15T18:44:23.081Z",
@@ -18,6 +18,20 @@
       "user": "Harmonygo",
       "sessionId": "codex-wa-v2",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-15T18:48:38.406Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-v2",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-0571",
+    "branch": "story/B-0571",
+    "createdAt": "2026-07-15T18:48:36.111Z"
+  }
 }

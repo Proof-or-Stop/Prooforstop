@@ -3,7 +3,7 @@
     {
       "id": "CHK-001",
       "title": "Derive the DONE-required phase deadline from sequential command budgets",
-      "context": "Replace the unrelated 240-second default for the DONE-required closeout phase with sum(effective ordered command timeouts) plus bounded orchestration grace. Preserve global/per-phase overrides, per-command attribution, cleanup, human/JSON budget source, and a non-repeating timeout hint.",
+      "context": "Replace the unrelated 240-second DONE-required phase default with sum(effective ordered command timeouts) plus bounded grace in one shared timeout-budget core. Coordinate the default CLI absolute max for done_required_validate and done_prepare so it cannot be shorter than the legal derived inner work; an explicit LATTICE_MAX_TIMEOUT_MS remains authoritative. Preserve global/per-phase overrides, per-command attribution, cleanup, human/JSON budget source, and a non-repeating timeout hint.",
       "relatedDocs": [
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#6-workstream-a--done-required-validation-convergence",
         "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#timeout-model",
@@ -11,12 +11,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "done_prepare prints “DONE-required validation budget: <N>ms (derived)” and either completes the legal suite or names the bounded timeout and a changed next action.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/cli-engine.ts",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "create": [
+          "packages/main/src/core/done-required-timeout-budget.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-002",
       "title": "Reuse structurally fresh DONE-required evidence during done_prepare",
-      "context": "Before spawning done_required_validate, consume canonical freshness/admissibility checks plus metadata-only HEAD lineage. Reuse only a current PASS receipt; expose an independently disableable switch and human/JSON reused/executed/refusal classification. validate:false never manufactures evidence.",
+      "context": "Before spawning done_required_validate, consume canonical freshness/admissibility checks plus metadata-only HEAD lineage. Add reuseFreshDoneRequired (default true) as an independent switch; false forces execution when validate=true. validate:false always records skipped_explicitly and neither reuses, executes, nor manufactures evidence. Human/JSON expose disposition executed|reused|skipped_explicitly, result pass|failed|timed_out|blocked|not_run, refusalReasons, and timeoutLayer.",
       "relatedDocs": [
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#62-required-design",
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
@@ -24,12 +39,24 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "done_prepare prints “DONE-required validation: reused” or “DONE-required validation: executed”, and JSON reports the same disposition plus refusal reasons.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/core/done-prepare-validation-reuse.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-003",
       "title": "Keep long active DONE-required commands alive without weakening timeout safety",
-      "context": "Bridge direct done_required_validate progress/heartbeat through ctx.log so active silent commands survive the CLI idle watchdog. Preserve command timeoutMs, outer deadline, absolute max, JSON stdout isolation, process-tree cleanup, validation-lock cleanup, and existing idle/max overrides.",
+      "context": "Bridge direct done_required_validate progress/heartbeat through ctx.log so active silent commands survive the CLI idle watchdog. Preserve command timeoutMs, derived outer deadline, coordinated absolute max, JSON stdout isolation, process-tree cleanup, validation-lock cleanup, and explicit LATTICE_IDLE_TIMEOUT_MS/LATTICE_MAX_TIMEOUT_MS overrides.",
       "relatedDocs": [
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#63-acceptance",
         "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
@@ -37,7 +64,18 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "direct done_required_validate prints periodic “validate heartbeat” progress and ends with PASS or one attributed bounded failure while --json remains a single parseable result.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-required-validation.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ]
+      }
     }
   ]
 }
