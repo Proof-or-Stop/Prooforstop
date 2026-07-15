@@ -40,7 +40,13 @@ Two failures reproduced again while preparing this document:
   instructions, so the reviewer had to use `testintent_handoff`;
 - separate shells in the same Codex task and worktree derived different
   `ppid`-based session ids and rejected the owner as foreign until the existing
-  `LATTICE_SESSION_ID` was reused.
+  `LATTICE_SESSION_ID` was reused;
+- concept, quality, and docs reviewers were rejected at story level and had to
+  add the single `itemId`, confirming the hint/cardinality mismatch;
+- coverage and docs reviewers in configured `shadow` mode were stopped on
+  generic-token truncation/cutoff ambiguity until they recorded an explicit
+  full-scan reason; one route expanded from 8 candidates to the 130-file
+  requirements corpus and another produced 117 candidates.
 
 | ID | Confirmed behavior | Primary evidence | Operational effect |
 |---|---|---|---|
