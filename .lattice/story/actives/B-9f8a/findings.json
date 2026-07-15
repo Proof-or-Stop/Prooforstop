@@ -83,6 +83,21 @@
       "_hash": "96341eddbd1e1622ecc00f2358cf032500a2f14ea940065609705ae060cb60dc",
       "signatureTag": "edge|unknown|coverage-evidence-intents",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9f8a:F-006",
+      "desc": "Round-2 targeted coverage re-review confirms the corrected document satisfies all 10 current verification intents and every verificationEvidence command passes, but review_pass_set still cannot legally persist a pass: after reusing the existing explicit fullScanReason on the current material, candidateSpecSet expanded to the full requirements corpus and the writer demanded roughly 120 additional candidate full reads unrelated to the targeted corrections. I will not fabricate readEvents for unread documents. This is a current-round recurrence of B-9f8a:F-005, not a document-content defect. WHY: configured shadow routing is acting as an enforce blocker and makes a targeted documentation re-review require full-corpus assurance.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-15T13:36:59.376Z",
+      "reviewRound": "2026-07-15T13:33:42.668Z",
+      "reviewRunId": "B-9f8a:RR-007",
+      "_hash": "82c674a04bae90dd491ebfac0f8efd296544e8ac241b0619dd2b5bed7e492745",
+      "signatureTag": "edge|unknown|round-targeted-coverage",
+      "signatureTagSource": "auto"
     }
   ]
 }
