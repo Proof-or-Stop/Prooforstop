@@ -388,6 +388,24 @@
       "resolvedAt": "2026-07-15T13:15:45.346Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-017",
+      "desc": "The source-view contract is still under-specified for the pre-cutover full AGENTS.md. The registry says it covers both root entrypoints and Story 6 says canonical provenance from root entrypoints is accepted only from allowed thin slots, but only CLAUDE.md receives explicit canonical managed-slot + disjoint legacy-complement views and a pre-cutover empty-canonical rule. The current AGENTS.md is also a giant detailed contract; without an equally explicit AGENTS selector/slot mapping, an implementation can register it as whole-document canonical (laundering detailed lifecycle facts by path) or treat its outer lattice block as canonical despite the plan forbidding that. Specify AGENTS thin slot names and allowed claimSlots, its legacy complement, empty-if-all-absent behavior before Story 7/8, and same-path disjointness/provenance fixtures. Story 6 readiness must require detailed pre-cutover AGENTS facts to be fallback-only and backed by real canonical counterparts, exactly as for CLAUDE.md.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T13:17:07.573Z",
+      "reviewRound": "2026-07-15T13:15:29.476Z",
+      "reviewRunId": "B-c1f1:RR-017",
+      "_hash": "d457414ffff5aa238f236fc998820a2f089445c0ddb11a4f72717d026f9125bf",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "spec-boundary|md|source-view-contract",
+      "signatureTagSource": "auto"
     }
   ]
 }
