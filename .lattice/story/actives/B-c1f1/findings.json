@@ -615,7 +615,7 @@
       "desc": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:212-257,300,478,504-505 — F-023 closes verifier-side trust (tracked public-key registry, Ed25519 verification, rotation status) but never defines the signing-side private-key lifecycle. Story 1 is required to emit signed extraction/review/readiness artifacts and the restart/fresh-init fixtures require those artifacts to survive a fresh process, yet the plan does not name the private-key store/provider, bootstrap behavior for a new repository, permission/ignore requirements, signer/key selection, public-key enrollment transaction, missing/mismatched-key failure, or rotation/recovery of the private half. The existing authority-signing.ts primitives accept an in-memory private key and do not provide storage, while the plan explicitly says private material is absent from the tracked registry. An implementer therefore must invent a security-critical provisioning design, and a fresh init or restart cannot deterministically satisfy the claimed signing/reload contract. Specify one canonical local private-key provider and lifecycle (including fresh-init enrollment and atomic trusted-public-registry binding, restrictive storage/ignore rules, startup lookup and fail-closed diagnostics, rotation/revocation/recovery, and fixtures proving restart plus missing/wrong/private-public mismatch behavior) before Story 1 is executable.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-15T13:44:17.627Z",
@@ -628,7 +628,11 @@
         "packages/main/src/core/runtime-artifact-registry.ts"
       ],
       "signatureTag": "spec-boundary|md|private-key-provisioning-lifecycle",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Defined human/bootstrap private-key generation, secure local/OS/CI providers, startup checks, non-export, two-step rotation and loss recovery fixtures.",
+      "resolvedAt": "2026-07-15T13:50:01.214Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
