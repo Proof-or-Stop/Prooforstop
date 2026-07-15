@@ -202,7 +202,7 @@
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-15T19:30:58.283Z",
       "endTime": "2026-07-15T19:46:13.208Z",
       "userSees": "done_prepare reports disposition “reused”, “executed”, or “skipped_explicitly”; JSON separately reports result, refusalReasons, timeoutLayer, and existingEvidenceBasis “fresh|stale|missing”.",
@@ -658,6 +658,15 @@
       "timestamp": "2026-07-15T20:03:01.734Z",
       "phase": "DEV",
       "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Round 3 findings F-005/F-006/F-007 require implementation and assertion-specific evidence corrections."
+    },
+    {
+      "timestamp": "2026-07-15T20:03:02.657Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
       "action": "update",
       "from": "done",
       "to": "in_progress",
