@@ -424,6 +424,24 @@
       ],
       "signatureTag": "missing|md|plan-defines-fail",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c1f1:F-019",
+      "desc": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:182-198,470 — HIGH: the semantic readiness rule requires one complete run at the same HEAD, but FactProvenance cannot prove which source snapshot or selector contract produced a fact. It records viewId, path, lineRange, anchor, role/host, and rawTextHash only; it has no repository revision/source blob digest and no digest/version of the view definition (including allowedClaimSlots and marker selector). A cached or combined result can therefore retain an unchanged statement hash after the file or selector registry changes and still appear current, so legacy-only/conflict emptiness is not mechanically bound to the asserted HEAD. Add source revision/blob (or equivalent full-content digest) plus a registry/view-definition digest to provenance/readiness artifacts, and require focused stale-provenance fixtures for both a document change and selector/allowed-slot change.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T13:19:47.200Z",
+      "reviewRound": "2026-07-15T13:15:29.476Z",
+      "reviewRunId": "B-c1f1:RR-018",
+      "_hash": "b1680f8cbe5bb02ada82a230d35c66dacb08e9c9f54a2a52ec6aa71572ea9000",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|semantic-provenance-not-snapshot-bound",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
