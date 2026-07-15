@@ -1,3 +1,5 @@
+import { accessSync, constants, existsSync, realpathSync } from 'node:fs';
+import { delimiter, isAbsolute, join, resolve } from 'node:path';
 import { loadConfig } from './config.js';
 import { resolveDoneRequiredPolicy } from './done-required-validation.js';
 import { resolveCommandTimeoutMs } from './validation-executor.js';
@@ -43,6 +45,7 @@ export type LiveSmokeCaptureBudgetSource =
   | 'fixed-arbitrary-command'
   | 'derived-done-required-command'
   | 'derived-done-prepare-command'
+  | 'inherited-cli-max'
   | 'bounded-env-override';
 
 export interface LiveSmokeCaptureBudget {
@@ -108,15 +111,68 @@ export function donePreparePhaseBudget(root: string, phaseEnv: string, derived?:
   return derived ?? { timeoutMs: DEFAULT_DONE_PREPARE_PHASE_TIMEOUT_MS, source: 'default' };
 }
 
-function recognizedLiveSmokeCommand(command: string): 'done_required_validate' | 'done_prepare' | null {
+function safeRealpath(path: string): string | null {
+  try {
+    accessSync(path, process.platform === 'win32' ? constants.F_OK : constants.X_OK);
+    return realpathSync(path);
+  } catch {
+    return null;
+  }
+}
+
+function executableOnInheritedPath(name: string, root: string, env: NodeJS.ProcessEnv): string | null {
+  const pathValue = process.platform === 'win32' ? env.Path ?? env.PATH ?? '' : env.PATH ?? '';
+  const names = process.platform === 'win32' ? [name, `${name}.cmd`, `${name}.exe`] : [name];
+  for (const rawDir of pathValue.split(delimiter)) {
+    const dir = isAbsolute(rawDir || '.') ? (rawDir || '.') : resolve(root, rawDir || '.');
+    for (const candidateName of names) {
+      const candidate = join(dir, candidateName);
+      if (existsSync(candidate)) return safeRealpath(candidate);
+    }
+  }
+  return null;
+}
+
+function trustedLatticeExecutable(root: string, executable: string, env: NodeJS.ProcessEnv): boolean {
+  const resolvedExecutable = executable === 'lattice'
+    ? executableOnInheritedPath(executable, root, env)
+    : safeRealpath(isAbsolute(executable) ? executable : resolve(root, executable));
+  if (!resolvedExecutable) return false;
+
+  const activeEntrypoint = process.argv[1]
+    ? safeRealpath(isAbsolute(process.argv[1]) ? process.argv[1] : resolve(root, process.argv[1]))
+    : null;
+  const verifiedGlobalEntrypoint = activeEntrypoint && /[\\/]node_modules[\\/]@lattice[\\/]core[\\/]dist[\\/]cli\.js$/.test(activeEntrypoint)
+    ? activeEntrypoint
+    : null;
+  const candidates = [
+    verifiedGlobalEntrypoint,
+    join(root, 'packages', 'main', 'dist', 'cli.js'),
+    join(root, 'bin', 'lattice.js'),
+  ].flatMap((candidate) => {
+    if (!candidate) return [];
+    const resolved = safeRealpath(isAbsolute(candidate) ? candidate : resolve(root, candidate));
+    return resolved ? [resolved] : [];
+  });
+  return candidates.includes(resolvedExecutable);
+}
+
+function recognizedLiveSmokeCommand(
+  root: string,
+  command: string,
+  env: NodeJS.ProcessEnv,
+): 'done_required_validate' | 'done_prepare' | null {
   const trimmed = command.trim();
   // A wider budget is reserved for one direct Lattice closeout command. Shell
-  // composition/substitution stays on the fixed arbitrary-command ceiling.
+  // composition/substitution and executable-affecting inline environment stay
+  // on the fixed arbitrary-command ceiling. LATTICE_SESSION_ID is the sole
+  // inert inline assignment needed by the owner-lease workflow.
   if (!trimmed || /[;&|<>\n\r`]|\$\(/.test(trimmed)) return null;
   const match = trimmed.match(
-    /^(?:[A-Za-z_][A-Za-z0-9_]*=(?:"[^"]*"|'[^']*'|[^\s]+)\s+)*lattice\s+(done_required_validate|done_prepare)(?:\s|$)/,
+    /^(?:LATTICE_SESSION_ID=[A-Za-z0-9_.:-]+\s+)?([^\s]+)\s+(done_required_validate|done_prepare)(?:\s|$)/,
   );
-  return match?.[1] === 'done_required_validate' || match?.[1] === 'done_prepare' ? match[1] : null;
+  if (!match || !trustedLatticeExecutable(root, match[1], env)) return null;
+  return match[2] === 'done_required_validate' || match[2] === 'done_prepare' ? match[2] : null;
 }
 
 /**
@@ -129,7 +185,7 @@ export function liveSmokeCaptureBudget(
   command: string,
   env: NodeJS.ProcessEnv = process.env,
 ): LiveSmokeCaptureBudget {
-  const recognizedCommand = recognizedLiveSmokeCommand(command);
+  const recognizedCommand = recognizedLiveSmokeCommand(root, command, env);
   let legalTimeoutMs = DEFAULT_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
   let source: LiveSmokeCaptureBudgetSource = 'fixed-arbitrary-command';
   if (recognizedCommand === 'done_required_validate') {
@@ -139,6 +195,17 @@ export function liveSmokeCaptureBudget(
     const validate = !/(?:^|\s)--validate(?:=|\s+)false(?:\s|$)/.test(command);
     legalTimeoutMs = commandCliMaxBudget(root, recognizedCommand, { validate }).timeoutMs;
     source = 'derived-done-prepare-command';
+  }
+
+  // The outer CLI watchdog treats an inherited positive LATTICE_MAX_TIMEOUT_MS
+  // as authoritative. Mirror that exact clamped budget for a trusted closeout
+  // capture so the outer process never terminates first. It may only LOWER the
+  // fixed ceiling for an arbitrary/untrusted command.
+  const inheritedMax = positiveInt(env.LATTICE_MAX_TIMEOUT_MS);
+  if (inheritedMax !== undefined) {
+    const inheritedLegalTimeoutMs = recognizedCommand ? inheritedMax : Math.min(legalTimeoutMs, inheritedMax);
+    if (inheritedLegalTimeoutMs !== legalTimeoutMs || recognizedCommand) source = 'inherited-cli-max';
+    legalTimeoutMs = inheritedLegalTimeoutMs;
   }
 
   const override = positiveInt(env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS);
