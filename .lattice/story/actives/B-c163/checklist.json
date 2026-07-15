@@ -192,6 +192,59 @@
           "packages/main/src/tasks/done-required-validation-smoke.ts",
           "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run direct done_required_validate with an active command silent longer than default idle but within command, derived phase, and max budgets; periodic validate heartbeat reaches ctx.log, resets CLI liveness, and the command ends PASS. WHY: reproduces and prevents the observed false idle kill.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run direct done_required_validate --json for the same heartbeat-producing command; stdout contains exactly one parseable result object with disposition=executed/result=pass, while progress uses logging/stderr and never contaminates JSON. WHY: preserves machine-readable output.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Set explicit LATTICE_IDLE_TIMEOUT_MS and LATTICE_MAX_TIMEOUT_MS above and below derived defaults; both remain authoritative, heartbeat only refreshes idle activity, and max expiry is classified timeoutLayer=max rather than phase/command. WHY: proves liveness does not weaken explicit safety bounds.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Verify done_prepare and direct CLI progress bridges use the same JSON-safe formatter without duplicate heartbeat lines or result records; frequently noisy and completely silent commands both settle once. WHY: covers reporter composition boundaries.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Complete just before and just after command, derived phase, idle, and max boundaries; each run yields one stable result and attributes the earliest controlling bound without contradictory result/refusalReasons/timeoutLayer fields. WHY: exercises deadline ordering.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Use a progress sink that throws, closes, or rejects writes while the validation command independently passes and fails; sink errors are contained as diagnostic-only, never change command PASS/FAIL, never replace evidence, and do not produce an unhandled rejection. WHY: keeps observability failure outside assurance semantics.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Hang a child that spawns descendants and trigger command, phase, idle, and max termination separately; each path kills the process tree, clears heartbeat/deadline timers, releases the validation lock, and permits an immediate subsequent validation. WHY: verifies cleanup across every timeout layer.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Emit heartbeat concurrently with abort/exit/error events at the deadline; no heartbeat occurs after terminal output, no double resolve/reject or duplicate evidence write occurs, and lock/process cleanup remains idempotent. WHY: catches event-loop deadline races.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Keep the heartbeat timer alive while the child is genuinely wedged; per-command, derived phase, and explicit absolute max still terminate it with result=timed_out and correct timeoutLayer. WHY: proves heartbeat is liveness reporting, not deadline extension.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
       }
     }
   ]
