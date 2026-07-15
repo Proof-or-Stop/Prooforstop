@@ -125,6 +125,48 @@
         "bindingHash": "22718379b20a4182d85e343bc451f3cbb71197356285d34774ba7d4d9d2293ce"
       },
       "_hash": "275c33b6a3d811e70ecfbe6f1173fc903aaabf58a1ca88e3e1e4dcaa2ab30e8e"
+    },
+    {
+      "reviewRunId": "B-7776:RR-004",
+      "storyId": "B-7776",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-07-15T12:05:39.733Z",
+      "startedAt": "2026-07-15T12:09:46.300Z",
+      "headHash": "c2268494e9ec366580e1590396783ed05db71282",
+      "materialHash": "7598ff0a5097f19b3e2afa369b226a782add597d88499f56534ab48b82bc3c05",
+      "storyFilesHash": "8489b6cba080f2be37c531d5f8f58f49b3e785296f148a0d4c491e91939383c8",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "b13fc2fb4413950fd1e79a5b01844e7d5116a5034bd03de91521867742a0daa2",
+        "diffPackHash": "bb1e260547b1bda5f4cd3ec53bd8e8cdce5cbfea8c01f4b1dc484fb136f6f0a4",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "29595cd746ded1486fb470b0302d1775d388f0d65e33052adc948878d9f9e5c1",
+          "4a4118571b575e6be481a5aec5024ddf2309f5a40328f0da738b4980eda5ce18",
+          "de91771d95a5b08b0cf72f68811bec09adaf2c13458259a107f4a4e4faf35bb2",
+          "f9085d4503ec3e0c7aeeab11fec561f981b6d0389df7f1db680361579d13599b"
+        ],
+        "bindingHash": "d57b9c9f264e95c830c1761a47a95361cc490f1b7d2b227d4593e3e39922b085"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-7776",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-7776",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-7776",
+        "workspaceMode": "story-worktree",
+        "headHash": "c2268494e9ec366580e1590396783ed05db71282",
+        "materialHash": "7598ff0a5097f19b3e2afa369b226a782add597d88499f56534ab48b82bc3c05",
+        "storyFilesHash": "8489b6cba080f2be37c531d5f8f58f49b3e785296f148a0d4c491e91939383c8",
+        "bindingHash": "5ec438f8d5d9639a12374e597465fc1e88a6e84d1840f134e6af3861b33f4dbc"
+      },
+      "_hash": "17b474b1109506dab09d4595577edaeded2c1a4c148663a52c0c946312e38706"
     }
   ]
 }
