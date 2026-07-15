@@ -498,6 +498,25 @@
       "resolvedAt": "2026-07-15T13:31:30.898Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-022",
+      "desc": "The new live-evidence confinement contract is not implementable against the registry architecture it names. The plan says only the three exact templates may be ignored and that a copied file outside them must fail, but runtime-artifact-registry.ts currently has an earlier first-match `runtime-cache` prefix for all `.lattice/runtime/`; findRuntimeArtifactEntry uses Array.find. Therefore an exact entry added after that prefix is unreachable, while an invalid sibling/copy still resolves to the broad materialHash-excluded runtime-cache entry. Story 1 must explicitly replace/narrow the broad prefix for this namespace or define deterministic specificity/typed lookup semantics, and the fixtures must prove both exact entries win and an unregistered sibling under `.lattice/runtime/evidence/thin-entrypoint/` is not accepted or cleanliness-excluded. Otherwise `processEvidence: true` and exact path confinement are prose-only.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T13:33:22.381Z",
+      "reviewRound": "2026-07-15T13:31:08.401Z",
+      "reviewRunId": "B-c1f1:RR-025",
+      "_hash": "70dc182c4b1a178e5541cd985b33bc259bb0a0db83e013e70294a7ab7c2f57b9",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+        "packages/main/src/core/runtime-artifact-registry.ts"
+      ],
+      "signatureTag": "spec-boundary|md|live-evidence-confinement",
+      "signatureTagSource": "auto"
     }
   ]
 }
