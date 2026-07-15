@@ -11,9 +11,9 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-15T11:59:26.241Z",
-      "endTime": null,
+      "endTime": "2026-07-15T12:04:26.539Z",
       "verificationIntent": {
         "happy": [
           {
@@ -54,7 +54,64 @@
           "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
         ],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Proof-or-stop Thin Entrypoint Contract Migration Execution Plan\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "The exact plan heading exists in the authored decision and the NAV entry resolves to it; the document includes target architecture, consumers, test matrix, staged rollout, rollback, and B-e514 convergence.",
+          "headHash": "0a3c01284163341654809c8a35c79981b99ad5cb",
+          "materialHash": "004d1736c869e082656ccde18df7ec331c1ae0b78d63b7937af3903054d40ebf",
+          "storyFilesHash": "a957a74c30c6f1717fb86d3399e3feb6b4cb04ed7324763c6b35e589a46bfc5a",
+          "timestamp": "2026-07-15T12:04:26.856Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Budgets are anti-regression ceilings|OMX prohibition|No CODEX.md|No AGY.md\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "result": "pass",
+          "note": "The plan treats budgets as ceilings, keeps OMX repository-local, and explicitly rejects invented CODEX.md and AGY.md contracts.",
+          "headHash": "0a3c01284163341654809c8a35c79981b99ad5cb",
+          "materialHash": "004d1736c869e082656ccde18df7ec331c1ae0b78d63b7937af3903054d40ebf",
+          "storyFilesHash": "a957a74c30c6f1717fb86d3399e3feb6b4cb04ed7324763c6b35e589a46bfc5a",
+          "timestamp": "2026-07-15T12:04:27.075Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "docs_check",
+          "command": "rg -n \"Target hierarchy and precedence|Normative facts versus operational projection|Shared Canonical-Document Registry\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "result": "pass",
+          "note": "The plan defines non-duplicating precedence among host entrypoints, the .lattice guide, operational runbook, normative decisions, and mechanical registries.",
+          "headHash": "0a3c01284163341654809c8a35c79981b99ad5cb",
+          "materialHash": "004d1736c869e082656ccde18df7ec331c1ae0b78d63b7937af3903054d40ebf",
+          "storyFilesHash": "a957a74c30c6f1717fb86d3399e3feb6b4cb04ed7324763c6b35e589a46bfc5a",
+          "timestamp": "2026-07-15T12:04:27.308Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"init-assets.ts|managed-assets.ts|claude-md-sync.ts|handlers/audit.ts|audit-trigger.ts|audit-scan.ts|review-preflight.ts|transition-effects.ts|lattice-review-story-init.md|lattice-review-docs.md|verify-process-fact-contract.mjs|verify-entrypoints.mjs|handlers/aux-doc.ts|rollout-check.ts\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "result": "pass",
+          "note": "Named consumer checks cover generation/managed assets, sync, audit, preflight, lifecycle hints, reviewer prompts, verifiers, and discovery; the plan also requires a fresh scan and classification of new hits per implementation Story.",
+          "headHash": "0a3c01284163341654809c8a35c79981b99ad5cb",
+          "materialHash": "004d1736c869e082656ccde18df7ec331c1ae0b78d63b7937af3903054d40ebf",
+          "storyFilesHash": "a957a74c30c6f1717fb86d3399e3feb6b4cb04ed7324763c6b35e589a46bfc5a",
+          "timestamp": "2026-07-15T12:04:27.568Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "docs_check",
+          "command": "rg -n \"Story 1|Story 2|Story 3|Story 4|Story 5|Story 6|Story 7|Story 8|Dual-read is mandatory|Rollback and Failure Recovery\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "result": "pass",
+          "note": "Eight ordered Stories, mandatory dual-read compatibility, per-slice rollback, failed-red handling, partial-template recovery, and B-e514 TEST convergence are explicitly documented.",
+          "headHash": "0a3c01284163341654809c8a35c79981b99ad5cb",
+          "materialHash": "004d1736c869e082656ccde18df7ec331c1ae0b78d63b7937af3903054d40ebf",
+          "storyFilesHash": "a957a74c30c6f1717fb86d3399e3feb6b4cb04ed7324763c6b35e589a46bfc5a",
+          "timestamp": "2026-07-15T12:04:27.794Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
