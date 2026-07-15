@@ -455,6 +455,25 @@
       },
       "readDiagnostics": [],
       "_hash": "4aba94324bca590c4abdb9c8e27e8b8d172e4e639276933876fbfe8033ad85ea"
+    },
+    {
+      "id": "B-c1f1:RP-015",
+      "agent": "lattice-review-quality",
+      "note": "PASS: commit 084a2a69c6 closes F-032 without scope expansion. Story 6 readiness now replays both external-secret parent-swap and final regular-file replacement races, and mechanically requires a second independent root-anchored full parent/final identity comparison with discard-before-return on mismatch. The wording matches the provider contract and focused failure matrix; no blocking quality finding remains.",
+      "createdAt": "2026-07-15T14:11:30.619Z",
+      "reviewRound": "2026-07-15T14:09:16.983Z",
+      "reviewRunId": "B-c1f1:RR-042",
+      "writerSessionId": "sess-5593716d3b6d0282",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "8eaf8144641306e94a78e842b955625c724fde170e97373ed3d65048e04ec149"
     }
   ]
 }
