@@ -4,7 +4,7 @@
   "title": "Define the host-neutral thin-entrypoint contract migration plan",
   "description": "Create an executable documentation-only plan for migrating Proof-or-stop root agent documents and their mechanical consumers from a Claude-first contract to host-neutral thin entrypoints, a canonical guide, a verified operational runbook, and normative decision sources. The plan must define sequencing, red/green tests, compatibility, rollback, implementation Story boundaries, and convergence for B-e514 without changing runtime behavior in this Story.",
   "type": "chore",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "riskSignals": [
     {
@@ -24,6 +24,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-07bc482a401d5422",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-15T11:51:09.054Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-07bc482a401d5422",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-c1f1",
+    "branch": "story/B-c1f1",
+    "createdAt": "2026-07-15T11:51:05.584Z"
+  }
 }

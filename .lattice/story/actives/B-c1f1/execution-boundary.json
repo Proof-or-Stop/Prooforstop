@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-c1f1",
+  "allowedCommands": [
+    "find *",
+    "git add*",
+    "git commit*",
+    "git diff*",
+    "git status*",
+    "lattice *",
+    "node scripts/verify-entrypoints.mjs",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build",
+    "npm test",
+    "rg *",
+    "sed *",
+    "wc *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "lattice"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+    "docs/requirements/NAV.md"
+  ],
+  "excludedCommands": [
+    "git clean*",
+    "git push*",
+    "git reset*",
+    "git restore*",
+    "lattice check --apply*",
+    "lattice check --upgrade*"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".lattice/Lattice.md",
+    ".omx",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/story",
+    "packages/main/src",
+    "packages/main/templates",
+    "scripts",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Documentation-only planning Story. Read-only inspection of referenced source and docs is permitted; writes are restricted to the two allowed documentation paths.",
+  "createdAt": "2026-07-15T11:50:56.126Z",
+  "updatedAt": "2026-07-15T11:50:56.126Z",
+  "_hash": "8418368031fff4191348ecb06c6d12d35b970a40e810c83ef53673312d29491b"
+}

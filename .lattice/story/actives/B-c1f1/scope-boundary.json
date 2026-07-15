@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-c1f1",
+  "mode": "custom",
+  "allowed": [
+    "Create docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+    "Document target host discovery architecture, canonical source hierarchy, migration inventory, red/green tests, implementation Story slices, rollback, and B-e514 convergence",
+    "Update docs/requirements/NAV.md to register the new decision and count"
+  ],
+  "excluded": [
+    "Implement or complete the migration described by the plan",
+    "Modify .lattice/Lattice.md or create docs/dev/lattice-agent-runbook.md",
+    "Modify AGENTS.md or CLAUDE.md",
+    "Modify B-e514 artifacts or lifecycle state",
+    "Modify runtime code, templates, managed assets, prompts, audit, verifier scripts, or tests"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User explicitly requested an execution plan after reviewing the thin-entrypoint proposal; this Story authors the plan only.",
+  "createdAt": "2026-07-15T11:50:55.403Z",
+  "updatedAt": "2026-07-15T11:50:55.403Z",
+  "_hash": "8205dfaac985710dcbe5c5064b55664da7f80530d5ee3ea7ccdd7c70ba911f70"
+}
