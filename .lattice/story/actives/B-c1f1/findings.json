@@ -416,7 +416,7 @@
       "desc": "The plan defines fail-closed marker absence semantics at line 160, but its required dual-read fixture table and Story 1 red-fixture list do not require executable coverage for those branches. Add explicit fixtures proving: required plus all markers absent fails; recognized pre-cutover empty-if-all-absent yields an empty canonical view and whole-file legacy complement; and any partial marker under that policy fails. Without these fixtures, an implementation can satisfy the named same-path and overlap cases while silently treating an unmarked full CLAUDE.md as canonical or accepting a half-marked migration state, defeating the provenance-laundering guard.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-15T13:17:27.941Z",
@@ -427,7 +427,11 @@
         "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
       ],
       "signatureTag": "missing|md|plan-defines-fail",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added executable selector-state fixtures for required/all-absent failure, recognized legacy all-absent empty canonical plus full legacy complement, and every partial/malformed marker state failing before extraction.",
+      "resolvedAt": "2026-07-15T13:23:34.366Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c1f1:F-019",
