@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-3cec",
+  "allowedCommands": [
+    "git diff*",
+    "git log*",
+    "git status*",
+    "lattice *",
+    "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+    "node packages/main/dist/tasks/thin-entrypoint-failure-exercises-smoke.js",
+    "node scripts/verify-entrypoints.mjs",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build",
+    "npm test*",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "Lattice CLI"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/core/",
+    "packages/main/src/tasks/",
+    "packages/main/tests/",
+    "scripts/"
+  ],
+  "excludedCommands": [
+    "git clean*",
+    "git push*",
+    "git reset --hard*",
+    "git restore*",
+    "omx *"
+  ],
+  "excludedTools": [
+    "OMX"
+  ],
+  "excludedPaths": [
+    ".lattice/Lattice.md",
+    ".omx/",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/dev/",
+    "packages/main/src/handlers/audit.ts",
+    "packages/main/src/handlers/review-preflight.ts",
+    "packages/main/templates/"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Story 1 may add isolated registry, selector, evidence, key-provider, and test modules only. Existing behavior-affecting consumers and root/generated entrypoints remain unchanged.",
+  "createdAt": "2026-07-15T18:40:17.679Z",
+  "updatedAt": "2026-07-15T18:40:17.679Z",
+  "_hash": "77eac2cb05fffb9e12b3792c39ebb615bb18666d8fedf72f254481d46f013e90"
+}

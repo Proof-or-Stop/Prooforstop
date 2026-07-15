@@ -4,7 +4,7 @@
   "title": "Implement thin-entrypoint contract tests and canonical document registry",
   "description": "Implement Story 1 from the Proof-or-stop Thin Entrypoint Contract Migration Execution Plan: add the typed canonical document source-view registry, fail-closed selectors, typed process-evidence artifact paths and authenticity/freshness infrastructure, and red-before/green-after failure exercises while leaving runtime consumers and root AGENTS.md/CLAUDE.md unchanged.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "riskSignals": [
     {
@@ -28,6 +28,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-07bc482a401d5422",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-15T18:40:34.376Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-07bc482a401d5422",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-3cec",
+    "branch": "story/B-3cec",
+    "createdAt": "2026-07-15T18:40:28.382Z"
+  }
 }

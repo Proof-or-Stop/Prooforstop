@@ -1,0 +1,30 @@
+{
+  "storyId": "B-3cec",
+  "checkedAt": "2026-07-15T18:39:32.413Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [
+    {
+      "severity": "medium",
+      "desc": "CHK-001 and CHK-002 enumerate internal registry, selector, artifact, and signer mechanics but do not state their item-level user-observable completion signals. During PLAN, make the verificationIntent explicitly show that canonical views resolve deterministically, invalid/ambiguous selectors and evidence paths fail closed, and trusted signer/key lifecycle behavior is independently observable; CHK-003/004 already provide the aggregate red-to-green and integration outcome, so this is advisory rather than an INIT blocker."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-15T18:39:32.106Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-15T18:39:32.413Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-001 and CHK-002 enumerate internal registry, selector, artifact, and signer mechanics but do not state their item-level user-observable completion signals. During PLAN, make the verificationIntent explicitly show that canonical views resolve deterministically, invalid/ambiguous selectors and evidence paths fail closed, and trusted signer/key lifecycle behavior is independently observable; CHK-003/004 already provide the aggregate red-to-green and integration outcome, so this is advisory rather than an INIT blocker."
+        }
+      ]
+    }
+  ],
+  "_hash": "4caed07cb54192de0a26e1b350a9012fa099353bbaf1a4146bd989966e626395"
+}
