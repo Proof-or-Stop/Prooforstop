@@ -204,6 +204,27 @@
       ],
       "signatureTag": "missing|ts|round-cleanup-race",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c163:F-010",
+      "desc": "Routine done_prepare can still misclassify an explicit CLI max deadline as an ordinary validation failure. cli-engine passes both deadlineAt and an AbortSignal, but the validation runner independently shortens its command timer to deadlineAt (validation-executor.ts:309-314). If that timer settles before the polling watchdog aborts the signal—which is deterministic for MAX values not aligned with the watchdog interval, e.g. 1005ms with a 251ms poll—the verifier returns a failed/timed-out routine result while abortSignal.reason is still empty. done-prepare.ts:1651 only derives routineTimeoutLayer from the signal, then lines 1657-1663 take the generic parsed failure path, omitting disposition=executed, result=timed_out, timeoutLayer=max and existingEvidenceBasis. The new max smoke uses 180ms with a 45ms interval, aligning poll and deadline and masking this window. Treat Date.now() >= rawArgs.deadlineAt as max using rawArgs.deadlineError even before the signal fires, or propagate a named max-deadline reason through executeValidationPlan; add a deliberately non-divisible max fixture proving JSON classification and exit/event behavior.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T20:24:33.783Z",
+      "reviewRound": "2026-07-15T20:20:04.456Z",
+      "reviewRunId": "B-c163:RR-017",
+      "_hash": "1f5cb4e11cd06b984afedd6358788f1978fd62dc3595e0695bf6a7895b2ce5b2",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+      ],
+      "signatureTag": "timeout-classification|ts|deadline-before-watchdog-signal",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
