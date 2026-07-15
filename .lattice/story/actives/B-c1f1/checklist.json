@@ -58,7 +58,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "docs/requirements/NAV.md contains one discoverable entry for the new thin-entrypoint contract migration execution plan, points to the exact existing decision-document path, describes it as active normative planning authority, and its declared decision-file count equals an independent filesystem count under the navigation policy. WHY: proves the plan is reachable from the source-of-truth index and the index remains internally accurate.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The navigation update preserves ordering and surrounding entries, introduces no duplicate or case-variant link, and does not link to a legacy, retired, missing, or similarly named superseded document. WHY: covers ambiguous discovery when the requirements tree contains multiple root-document migration records.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Recompute the eligible decision-document count independently from NAV.md text and verify the declared count cannot pass merely because both the link and count were copied from a stale snapshot; also assert the new entry appears exactly once and resolves to the authored plan. WHY: catches self-consistent but factually stale navigation metadata.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Inspect the NAV diff for unrelated authority changes, accidental demotion of existing canonical documents, or wording that makes the operational runbook/root entrypoints co-equal normative sources. WHY: prevents a small indexing edit from silently changing source-of-truth precedence.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
