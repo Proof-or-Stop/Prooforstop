@@ -651,6 +651,34 @@
       ],
       "signatureTag": "adversarial|md|pending-key-preflight-active-only-contradiction",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-c1f1:F-029",
+      "desc": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:272-273,331,505 — HIGH: the secure-I/O closure is still incomplete for the CI secret-file provider. Process evidence and the repository-local fallback key use a descriptor-bound, component-by-component no-follow walk, but `LATTICE_PROCESS_EVIDENCE_PRIVATE_KEY_FILE` is specified only as using a no-follow read plus permission checks and a startup rejection of symlinks. For an absolute CI-mounted path outside the project root, checking the pathname/terminal entry and then opening it leaves parent-directory symlink/replacement and validate-then-open races; a swapped path can supply different private bytes after the permission/identity check. Define a separate external-secret-file reader that opens from a trusted filesystem root (or accepts an already-open descriptor), walks every parent with no-follow semantics, reads and verifies ownership/mode/public-key identity through the same descriptor, and fails closed where the platform cannot guarantee this. Add parent-symlink and parent/target-swap fixtures for the CI secret-file path, not only the repository artifact/fallback paths.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T13:52:55.410Z",
+      "reviewRound": "2026-07-15T13:49:34.896Z",
+      "reviewRunId": "B-c1f1:RR-034",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/authority-signing.ts",
+          "packages/main/src/core/receipt-bundle.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3001545566d4a6964adf2696e57d093308f58d31134da91e39de5e23206139a4",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|ci-secret-file-path-race",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
