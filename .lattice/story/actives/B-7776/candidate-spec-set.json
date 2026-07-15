@@ -1,0 +1,399 @@
+{
+  "schemaVersion": "proofbound.candidate-spec-set.v1",
+  "storyId": "B-7776",
+  "corpusDigest": "041a4a8a84d239559b83dc0810dbb9b02446dbd5117938ab828ded317d01c1ea",
+  "seedDigest": "17aa3c3cd5e095f1ca21e49aec463df82b4dffb2166a651d4a6cdf9e850e5de6",
+  "promptDigests": [],
+  "candidates": [
+    {
+      "path": "docs/requirements/decisions/story-lifecycle.md",
+      "contentHash": "25359e172485aec5b9cafabf56659a0736e346aef073b2a78d0a2a5da4a1cbc0",
+      "score": 108,
+      "reasons": [
+        {
+          "kind": "related-doc",
+          "term": "docs/requirements/decisions/story-lifecycle.md",
+          "source": "relatedDoc",
+          "points": 100
+        },
+        {
+          "kind": "body",
+          "term": "handlers",
+          "source": "handlers",
+          "points": 8
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "contentHash": "c99632e54fb80eaf08f4ab573eed9936e633c534c7e88e41d0964ccc4644150c",
+      "score": 100,
+      "reasons": [
+        {
+          "kind": "related-doc",
+          "term": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "source": "relatedDoc",
+          "points": 100
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/cc-learnings.md",
+      "contentHash": "87e90902982779e02ef6aebf18e4a5f23d9c1e328fb5ce5cfd97f2dddf39dacc",
+      "score": 38,
+      "reasons": [
+        {
+          "kind": "heading",
+          "term": "core",
+          "source": "core",
+          "points": 15
+        },
+        {
+          "kind": "heading",
+          "term": "lattice",
+          "source": "lattice",
+          "points": 15
+        },
+        {
+          "kind": "body",
+          "term": "handlers",
+          "source": "handlers",
+          "points": 8
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/lattice-authority-live-integration.md",
+      "contentHash": "3fa21aa2bd4634863233226ef2d5a52e04aa412571fcb0375140e09ae518153f",
+      "score": 36,
+      "reasons": [
+        {
+          "kind": "path",
+          "term": "lattice",
+          "source": "lattice",
+          "points": 20
+        },
+        {
+          "kind": "body",
+          "term": "core",
+          "source": "core",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "handlers",
+          "source": "handlers",
+          "points": 8
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/lattice-authority-m1-m16-generated-proof-and-live-e2e.md",
+      "contentHash": "d06c0a0d7e45d1b43f1d1443976c79d19fc48cb6e3cb7c8cf1ffde599e369b8a",
+      "score": 36,
+      "reasons": [
+        {
+          "kind": "path",
+          "term": "lattice",
+          "source": "lattice",
+          "points": 20
+        },
+        {
+          "kind": "body",
+          "term": "core",
+          "source": "core",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "handlers",
+          "source": "handlers",
+          "points": 8
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+      "contentHash": "54ec3b47fbb696465c2e7768a8cc9500c46a57c1beae8040a7406ad04aa4bc5c",
+      "score": 36,
+      "reasons": [
+        {
+          "kind": "path",
+          "term": "lattice",
+          "source": "lattice",
+          "points": 20
+        },
+        {
+          "kind": "body",
+          "term": "core",
+          "source": "core",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "handlers",
+          "source": "handlers",
+          "points": 8
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/lattice-experiment-protocol.md",
+      "contentHash": "fa810791f4f4f9502abeea2373026599b8fd85cd6d6a819af6aab71431e19fc9",
+      "score": 36,
+      "reasons": [
+        {
+          "kind": "path",
+          "term": "lattice",
+          "source": "lattice",
+          "points": 20
+        },
+        {
+          "kind": "body",
+          "term": "core",
+          "source": "core",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "handlers",
+          "source": "handlers",
+          "points": 8
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+      "contentHash": "285755d8cdda03b9e24f115838934f3727cf78de1b8cd30646d1450892404584",
+      "score": 36,
+      "reasons": [
+        {
+          "kind": "path",
+          "term": "lattice",
+          "source": "lattice",
+          "points": 20
+        },
+        {
+          "kind": "body",
+          "term": "core",
+          "source": "core",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "handlers",
+          "source": "handlers",
+          "points": 8
+        }
+      ]
+    }
+  ],
+  "candidateSpecSet": [
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+    "docs/requirements/decisions/cc-learnings.md",
+    "docs/requirements/decisions/lattice-authority-live-integration.md",
+    "docs/requirements/decisions/lattice-authority-m1-m16-generated-proof-and-live-e2e.md",
+    "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+    "docs/requirements/decisions/lattice-experiment-protocol.md",
+    "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md"
+  ],
+  "candidateBasis": {
+    "docs/requirements/decisions/story-lifecycle.md": [
+      {
+        "kind": "related-doc",
+        "term": "docs/requirements/decisions/story-lifecycle.md",
+        "source": "relatedDoc",
+        "points": 100
+      },
+      {
+        "kind": "body",
+        "term": "handlers",
+        "source": "handlers",
+        "points": 8
+      }
+    ],
+    "docs/requirements/decisions/review-assurance-floor-execution-plan.md": [
+      {
+        "kind": "related-doc",
+        "term": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+        "source": "relatedDoc",
+        "points": 100
+      }
+    ],
+    "docs/requirements/decisions/cc-learnings.md": [
+      {
+        "kind": "heading",
+        "term": "core",
+        "source": "core",
+        "points": 15
+      },
+      {
+        "kind": "heading",
+        "term": "lattice",
+        "source": "lattice",
+        "points": 15
+      },
+      {
+        "kind": "body",
+        "term": "handlers",
+        "source": "handlers",
+        "points": 8
+      }
+    ],
+    "docs/requirements/decisions/lattice-authority-live-integration.md": [
+      {
+        "kind": "path",
+        "term": "lattice",
+        "source": "lattice",
+        "points": 20
+      },
+      {
+        "kind": "body",
+        "term": "core",
+        "source": "core",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "handlers",
+        "source": "handlers",
+        "points": 8
+      }
+    ],
+    "docs/requirements/decisions/lattice-authority-m1-m16-generated-proof-and-live-e2e.md": [
+      {
+        "kind": "path",
+        "term": "lattice",
+        "source": "lattice",
+        "points": 20
+      },
+      {
+        "kind": "body",
+        "term": "core",
+        "source": "core",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "handlers",
+        "source": "handlers",
+        "points": 8
+      }
+    ],
+    "docs/requirements/decisions/lattice-experience-layer-execution-plan.md": [
+      {
+        "kind": "path",
+        "term": "lattice",
+        "source": "lattice",
+        "points": 20
+      },
+      {
+        "kind": "body",
+        "term": "core",
+        "source": "core",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "handlers",
+        "source": "handlers",
+        "points": 8
+      }
+    ],
+    "docs/requirements/decisions/lattice-experiment-protocol.md": [
+      {
+        "kind": "path",
+        "term": "lattice",
+        "source": "lattice",
+        "points": 20
+      },
+      {
+        "kind": "body",
+        "term": "core",
+        "source": "core",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "handlers",
+        "source": "handlers",
+        "points": 8
+      }
+    ],
+    "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md": [
+      {
+        "kind": "path",
+        "term": "lattice",
+        "source": "lattice",
+        "points": 20
+      },
+      {
+        "kind": "body",
+        "term": "core",
+        "source": "core",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "handlers",
+        "source": "handlers",
+        "points": 8
+      }
+    ]
+  },
+  "queryGroups": [
+    [
+      "b 7776"
+    ],
+    [
+      "checklist json"
+    ],
+    [
+      "convergence breaker smoke ts"
+    ],
+    [
+      "convergence breaker ts"
+    ],
+    [
+      "core"
+    ],
+    [
+      "decision json"
+    ],
+    [
+      "handlers"
+    ],
+    [
+      "index json"
+    ],
+    [
+      "intent collision json"
+    ],
+    [
+      "lattice"
+    ]
+  ],
+  "budgets": {
+    "candidates": 8,
+    "queryGroups": 10,
+    "rawHitsPerGroup": 50
+  },
+  "ambiguitySignals": [
+    "query_results_truncated",
+    "candidate_cutoff_tie"
+  ],
+  "requiresEscalation": true,
+  "escalationReasons": [
+    "ranking_affecting_query_truncation",
+    "candidate_cutoff_tie",
+    "high_risk_lifecycle_gate_process_fact_or_global_rename"
+  ],
+  "fullScan": false,
+  "scanEscalationReason": null,
+  "storyInputDigest": "f5f8a5c531dd1a041196d5be9fa445950eaaf4bb811c8cdde8f46a2d61d7e6c8",
+  "headHash": "79aef7014e2cb5f28641337dd3f8dc9b76f77add",
+  "materialHash": "7598ff0a5097f19b3e2afa369b226a782add597d88499f56534ab48b82bc3c05",
+  "storyFilesHash": "8489b6cba080f2be37c531d5f8f58f49b3e785296f148a0d4c491e91939383c8",
+  "artifactDigest": "8b0a0f003a1c6a53c77827438023bb088f6cb3885e1921c9dbb90e86ca69a4b2"
+}
