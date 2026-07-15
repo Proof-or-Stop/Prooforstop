@@ -123,7 +123,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-15T12:03:44.922Z",
-      "endTime": "2026-07-15T13:41:20.407Z",
+      "endTime": "2026-07-15T13:49:11.063Z",
       "verificationIntent": {
         "happy": [
           {
@@ -166,44 +166,44 @@
           "kind": "docs_check",
           "command": "find docs/requirements/decisions -maxdepth 1 -type f -name '*.md' | wc -l",
           "result": "pass",
-          "note": "115 inventory remains correct.",
-          "headHash": "ba93d5dd8c4308062f7b9b5f60926777aafd44e8",
-          "materialHash": "99859290b859de071211e9dfb7f3d50abefee2bf7653bbe121eacc984acc9d96",
-          "storyFilesHash": "0bc01b0855c50f8d9bd0b8b8eca672f22d67c08b6c23d1d4bec94fb8796f8277",
-          "timestamp": "2026-07-15T13:41:21.105Z"
+          "note": "115 inventory correct.",
+          "headHash": "f29ca50f6ca1dafef4f4b6f65626c00cf13084fa",
+          "materialHash": "91f31dfc9ab27e35032334f360f59a4325725ce600fca5e874f7bb8323950777",
+          "storyFilesHash": "caab2c5edce321e11bf52395e2aaf708567cd7e4b2c84dfe3ffbf0800eb14334",
+          "timestamp": "2026-07-15T13:49:11.564Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "manual_transcript",
           "command": "rg -n \"proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md\" docs/requirements/NAV.md",
           "result": "pass",
-          "note": "Exact plan link appears once.",
-          "headHash": "ba93d5dd8c4308062f7b9b5f60926777aafd44e8",
-          "materialHash": "99859290b859de071211e9dfb7f3d50abefee2bf7653bbe121eacc984acc9d96",
-          "storyFilesHash": "0bc01b0855c50f8d9bd0b8b8eca672f22d67c08b6c23d1d4bec94fb8796f8277",
-          "timestamp": "2026-07-15T13:41:21.807Z"
+          "note": "Plan link once.",
+          "headHash": "f29ca50f6ca1dafef4f4b6f65626c00cf13084fa",
+          "materialHash": "91f31dfc9ab27e35032334f360f59a4325725ce600fca5e874f7bb8323950777",
+          "storyFilesHash": "caab2c5edce321e11bf52395e2aaf708567cd7e4b2c84dfe3ffbf0800eb14334",
+          "timestamp": "2026-07-15T13:49:12.103Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "manual_transcript",
           "command": "rg -n \"Curated, non-exhaustive navigation|Inventory count: 115|Proof-or-stop Thin Entrypoint Contract Migration Execution Plan\" docs/requirements/NAV.md",
           "result": "pass",
-          "note": "Inventory and curated navigation remain truthful.",
-          "headHash": "ba93d5dd8c4308062f7b9b5f60926777aafd44e8",
-          "materialHash": "99859290b859de071211e9dfb7f3d50abefee2bf7653bbe121eacc984acc9d96",
-          "storyFilesHash": "0bc01b0855c50f8d9bd0b8b8eca672f22d67c08b6c23d1d4bec94fb8796f8277",
-          "timestamp": "2026-07-15T13:41:22.314Z"
+          "note": "NAV truthful.",
+          "headHash": "f29ca50f6ca1dafef4f4b6f65626c00cf13084fa",
+          "materialHash": "91f31dfc9ab27e35032334f360f59a4325725ce600fca5e874f7bb8323950777",
+          "storyFilesHash": "caab2c5edce321e11bf52395e2aaf708567cd7e4b2c84dfe3ffbf0800eb14334",
+          "timestamp": "2026-07-15T13:49:12.466Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
           "kind": "docs_check",
           "command": "git diff main...HEAD -- docs/requirements/NAV.md",
           "result": "pass",
-          "note": "NAV diff remains scoped.",
-          "headHash": "ba93d5dd8c4308062f7b9b5f60926777aafd44e8",
-          "materialHash": "99859290b859de071211e9dfb7f3d50abefee2bf7653bbe121eacc984acc9d96",
-          "storyFilesHash": "0bc01b0855c50f8d9bd0b8b8eca672f22d67c08b6c23d1d4bec94fb8796f8277",
-          "timestamp": "2026-07-15T13:41:22.844Z"
+          "note": "NAV scoped.",
+          "headHash": "f29ca50f6ca1dafef4f4b6f65626c00cf13084fa",
+          "materialHash": "91f31dfc9ab27e35032334f360f59a4325725ce600fca5e874f7bb8323950777",
+          "storyFilesHash": "caab2c5edce321e11bf52395e2aaf708567cd7e4b2c84dfe3ffbf0800eb14334",
+          "timestamp": "2026-07-15T13:49:13.065Z"
         }
       ]
     }
