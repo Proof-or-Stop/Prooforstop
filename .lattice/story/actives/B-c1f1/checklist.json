@@ -13,7 +13,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-15T11:59:26.241Z",
-      "endTime": "2026-07-15T12:48:39.746Z",
+      "endTime": "2026-07-15T13:15:12.803Z",
       "verificationIntent": {
         "happy": [
           {
@@ -61,55 +61,55 @@
           "kind": "docs_check",
           "command": "rg -n \"Proof-or-stop Thin Entrypoint Contract Migration Execution Plan|Story 1 — Contract tests|Story 9 — Legacy fallback retirement\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
           "result": "pass",
-          "note": "The plan remains complete and ordered across target architecture, nine implementation Stories, compatibility, rollback, and B-e514 convergence.",
-          "headHash": "df311437cf43686af7691cfccd0bd94bb569f8d8",
-          "materialHash": "ff2efac1890e310276515cf8a01d1754874c58baa75203240318756a43e800df",
-          "storyFilesHash": "ad8bdfbf98b577d1b03ae95df8a62d999b606ce9e8c082bcdbd68e18e29ef379",
-          "timestamp": "2026-07-15T12:48:40.352Z"
+          "note": "The complete nine-Story architecture and convergence path remain present.",
+          "headHash": "4f0d8380bd3da20f94658b7e87a8128c37046fb5",
+          "materialHash": "8dacaa22d299e82c40152a8c93ea9dc07f63d043a0f93ddfb935e13ecea74b71",
+          "storyFilesHash": "4353d55775cd8e19fa32ee5a841dc8af9f70b94a5c6727718564684852221946",
+          "timestamp": "2026-07-15T13:15:13.374Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "docs_check",
           "command": "rg -n \"CODEX.md|AGY.md|anti-regression ceilings|OMX prohibition\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
           "result": "pass",
-          "note": "Host protocols, ceiling budgets, and repository-local OMX policy boundaries remain explicit.",
-          "headHash": "df311437cf43686af7691cfccd0bd94bb569f8d8",
-          "materialHash": "ff2efac1890e310276515cf8a01d1754874c58baa75203240318756a43e800df",
-          "storyFilesHash": "ad8bdfbf98b577d1b03ae95df8a62d999b606ce9e8c082bcdbd68e18e29ef379",
-          "timestamp": "2026-07-15T12:48:40.702Z"
+          "note": "Host protocol and repository-local policy boundaries remain explicit.",
+          "headHash": "4f0d8380bd3da20f94658b7e87a8128c37046fb5",
+          "materialHash": "8dacaa22d299e82c40152a8c93ea9dc07f63d043a0f93ddfb935e13ecea74b71",
+          "storyFilesHash": "4353d55775cd8e19fa32ee5a841dc8af9f70b94a5c6727718564684852221946",
+          "timestamp": "2026-07-15T13:15:13.880Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
           "kind": "logic_test",
-          "command": "rg -n \"schemaVersion = 1|claimSlot|unparsedFact|dependency-injected\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "command": "rg -n \"schemaVersion = 1|claimSlot|source view|legacy-complement|provenance laundering|same physical path\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
           "result": "pass",
-          "note": "The semantic fact model is versioned and deterministic, distinguishes complementary claim slots, fails closed on unparsed facts, and specifies a testable collision seam.",
-          "headHash": "df311437cf43686af7691cfccd0bd94bb569f8d8",
-          "materialHash": "ff2efac1890e310276515cf8a01d1754874c58baa75203240318756a43e800df",
-          "storyFilesHash": "ad8bdfbf98b577d1b03ae95df8a62d999b606ce9e8c082bcdbd68e18e29ef379",
-          "timestamp": "2026-07-15T12:48:41.087Z"
+          "note": "Semantic identity plus disjoint source views prevent canonical/legacy provenance laundering on the same root file.",
+          "headHash": "4f0d8380bd3da20f94658b7e87a8128c37046fb5",
+          "materialHash": "8dacaa22d299e82c40152a8c93ea9dc07f63d043a0f93ddfb935e13ecea74b71",
+          "storyFilesHash": "4353d55775cd8e19fa32ee5a841dc8af9f70b94a5c6727718564684852221946",
+          "timestamp": "2026-07-15T13:15:14.473Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "manual_transcript",
           "command": "sed -n '/^```tsv$/,/^```$/p' docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md | sed '1d;$d' | tail -n +2 | wc -l",
           "result": "pass",
-          "note": "Independent checks found exactly 600 data rows, seven nonempty TSV fields per row, digest a6f8c5256a10a8356480898e99c1c12e9d53cedabf5078a7f801f714ff04d4a0, and plan self-hit dispositions retain-as-active-plan:70 plus neutral-fixture:2.",
-          "headHash": "df311437cf43686af7691cfccd0bd94bb569f8d8",
-          "materialHash": "ff2efac1890e310276515cf8a01d1754874c58baa75203240318756a43e800df",
-          "storyFilesHash": "ad8bdfbf98b577d1b03ae95df8a62d999b606ce9e8c082bcdbd68e18e29ef379",
-          "timestamp": "2026-07-15T12:48:41.418Z"
+          "note": "Frozen baseline remains 600 rows by seven nonempty fields with SHA-256 a6f8c5256a10a8356480898e99c1c12e9d53cedabf5078a7f801f714ff04d4a0.",
+          "headHash": "4f0d8380bd3da20f94658b7e87a8128c37046fb5",
+          "materialHash": "8dacaa22d299e82c40152a8c93ea9dc07f63d043a0f93ddfb935e13ecea74b71",
+          "storyFilesHash": "4353d55775cd8e19fa32ee5a841dc8af9f70b94a5c6727718564684852221946",
+          "timestamp": "2026-07-15T13:15:14.845Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
           "kind": "logic_test",
-          "command": "rg -n \"Required failure exercises|Partial template migration|B-e514 remains in TEST|complementary|opposing semantics|fingerprint-collision\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "command": "rg -n \"same-path canonical/legacy provenance laundering|ranges overlap|Partial template migration|B-e514 remains in TEST\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
           "result": "pass",
-          "note": "Failure exercises and semantic conflict/collision fixtures define fail-closed behavior and recovery ownership.",
-          "headHash": "df311437cf43686af7691cfccd0bd94bb569f8d8",
-          "materialHash": "ff2efac1890e310276515cf8a01d1754874c58baa75203240318756a43e800df",
-          "storyFilesHash": "ad8bdfbf98b577d1b03ae95df8a62d999b606ce9e8c082bcdbd68e18e29ef379",
-          "timestamp": "2026-07-15T12:48:41.775Z"
+          "note": "Failure matrix covers same-path laundering/overlap and rollout recovery cases.",
+          "headHash": "4f0d8380bd3da20f94658b7e87a8128c37046fb5",
+          "materialHash": "8dacaa22d299e82c40152a8c93ea9dc07f63d043a0f93ddfb935e13ecea74b71",
+          "storyFilesHash": "4353d55775cd8e19fa32ee5a841dc8af9f70b94a5c6727718564684852221946",
+          "timestamp": "2026-07-15T13:15:15.338Z"
         }
       ]
     },
