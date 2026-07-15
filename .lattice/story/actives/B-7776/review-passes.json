@@ -19,6 +19,41 @@
         "scanEscalationReason": null
       },
       "_hash": "3922ea844500bb9fd9910aef36183b34cec67c2c1d2a4b1637eddbb81d7be7c0"
+    },
+    {
+      "id": "B-7776:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Reviewed CHK-001 coverage: all happy, edge, and adversarial must intents map to focused smoke assertions; build and smoke pass independently, all legacy call sites are removed, and no coverage blocker or convergence-loop regression was found.",
+      "createdAt": "2026-07-15T12:08:23.320Z",
+      "reviewRound": "2026-07-15T12:05:39.733Z",
+      "reviewRunId": "B-7776:RR-002",
+      "writerSessionId": "sess-56757905ca5d4dba",
+      "sessionSource": "derived-ppid",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "02cf0f1264eabead607b849f4e062b4356aaf87d483e3d602caf62d4a63fcd91"
+      },
+      "readDiagnostics": [],
+      "_hash": "366634f8de9429be21720bb8bee104cb2c7b4919c4f85b8d135f7691b5d79f20"
     }
   ]
 }
