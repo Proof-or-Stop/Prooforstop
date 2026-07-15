@@ -9,9 +9,9 @@
         "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-15T19:08:41.063Z",
-      "endTime": "2026-07-15T20:17:02.410Z",
+      "endTime": "2026-07-15T20:32:04.578Z",
       "userSees": "done_prepare prints “DONE-required validation budget: <N>ms (derived|global_override|phase_override)” and direct/done_prepare commands are not killed by a shorter default CLI maximum.",
       "files": {
         "modify": [
@@ -729,6 +729,15 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Round 4 findings F-008/F-009/F-010 require implementation and affected-evidence correction."
+    },
+    {
+      "timestamp": "2026-07-15T20:32:04.578Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Round 4 F-008/F-009/F-010 implementation committed, full target suite passed, and only affected verification evidence refs were refreshed."
     }
   ]
 }
