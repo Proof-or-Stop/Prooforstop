@@ -289,7 +289,7 @@
       "desc": "The real CLI timeout matrix is flaky under the full focused sequence: running build -> done-prepare-closure-heartbeat -> validate-progress-heartbeat failed with `max !== command` at the command-timeout row, while immediately rerunning validate-progress-heartbeat alone passed. The row at validate-progress-heartbeat-smoke.ts:280 gives the command only 180ms but caps the entire CLI at 5000ms; under load, post-command evidence/git/CLI settlement can cross that outer cap, allowing the max watchdog to overwrite the intended command classification before output. This makes a required regression nondeterministic and can block REVIEW/TEST despite correct runtime behavior. Give command/phase attribution rows a much wider outer max and matching harness ceiling (well above worst observed process startup/evidence commit time), reserving tight max only for the explicit max row; optionally assert elapsed diagnostics on failure. Re-run the exact combined sequence repeatedly to demonstrate stability.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-15T20:58:51.748Z",
@@ -301,7 +301,11 @@
         "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts"
       ],
       "signatureTag": "test-reliability|ts|outer-max-overrides-command-row",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Repro: run build followed by the full focused sequence under host load; direct command/phase/idle rows used 3-5s outer LATTICE_MAX_TIMEOUT_MS and 5-8s harness ceilings measured from CLI spawn, while the intended inner timeout began only after process startup and fixture work. The outer max could therefore win first and misclassify a command/phase/idle row as max. Root cause: the test harness conflated infrastructure startup budget with the timeout layer under test. Fix in d374c96740: define NON_MAX_OUTER_TIMEOUT_MS=120000 and NON_MAX_HARNESS_CEILING_MS=60000; apply them to direct pass/command/idle, command-descendant, done_prepare idle, outer-idle descendant, story heartbeat, true command-timeout, and all non-max immediate retries. Only rows explicitly testing max retain tight values: direct/done_prepare max=180ms, descendant max=700ms, named non-divisible max=1005ms. Verification: npm --prefix packages/main run build PASS in 15.29s, then three full focused sequences all PASS at REVIEW HEAD a5bc524. R1 done-required/closure/validate-progress/catalog/contract=11.22/48.51/52.05/5.83/1.84s total119.45s; R2=17.99/54.81/52.27/3.75/1.34s total130.16s; R3=13.17/46.31/54.06/3.97/2.35s total119.86s; aggregate369.47s. Despite visible load variance, no non-max row was preempted or misattributed, and explicit max rows remained tight and passed.",
+      "resolvedAt": "2026-07-15T22:33:04.469Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
