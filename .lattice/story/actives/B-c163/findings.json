@@ -126,7 +126,7 @@
       "desc": "The additive done_prepare JSON defaults misclassify any transcript that blocks before validation. `donePrepareJsonResult` now fills missing fields with disposition=skipped_explicitly, result=blocked/not_run, existingEvidenceBasis=missing, but `skipped_explicitly` is contractually reserved for validate=false. A merge/preflight/stale-evidence blocker did not explicitly skip validation and its existing evidence basis was never evaluated, so the emitted structure asserts false facts. Preserve nullable/not_applicable fields for pre-validation blockers, or evaluate and emit a distinct disposition that does not claim an explicit operator skip.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-15T19:59:53.750Z",
@@ -137,7 +137,11 @@
         "packages/main/src/handlers/done-prepare.ts"
       ],
       "signatureTag": "spec-boundary|ts|additive-prepare-json",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: request done_prepare --json for a nonexistent/unreadable story so preflight blocks before validation; prior additive defaults incorrectly emitted disposition=skipped_explicitly and existingEvidenceBasis=missing despite neither fact being observed. Root cause: donePrepareJsonResult synthesized validation fields whenever transcript tokens were absent. Fix: disposition, result, existingEvidenceBasis, timeoutLayer, and refusalReasons are emitted only when explicitly present in the transcript; explicit timeoutLayer=null remains distinguishable. validate=false, reuse, and execution paths retain their exact observed fields. ReproTest: node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js. PASS at REVIEW HEAD 2d5b5a6; preflight JSON exits nonzero, remains parseable, reports blockedAt=preflight, and omits all five unobserved validation fields.",
+      "resolvedAt": "2026-07-15T20:20:40.720Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c163:F-007",
