@@ -29,7 +29,7 @@
       "desc": "The trusted metadata-only reuse lineage checks only the net tree diff (`git diff --name-only evidenceHead..currentHead`), not paths touched by every intervening commit. A descendant history can modify a code/config path and later restore it; that path disappears from the net diff, so this function can classify the lineage as trusted-story-metadata-descendant. This violates the documented and CHK-002 requirement that every intervening changed path be trusted metadata and that any intervening code/config path refuse reuse. Enumerate changed paths per commit across the ancestry range (including deletes/renames) or explicitly narrow the contract to final-tree equivalence.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-15T19:27:50.060Z",
@@ -42,7 +42,11 @@
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
       ],
       "signatureTag": "spec-boundary|ts|trusted-metadata-reuse",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: create evidence at an ancestor, modify a non-metadata path in one intervening commit, restore it in a later commit, then evaluate reuse; the former net diff hid the touched path. Root cause: lineage trust used only git diff evidenceHead..currentHead instead of enumerating paths touched by every commit. Fix: reuse now verifies ancestry, enumerates rev-list commits, reads each commit with diff-tree --no-renames, rejects any untrusted touched path including modify-then-revert and rename history, and rechecks HEAD to close TOCTOU. ReproTest: node packages/main/dist/tasks/done-required-validation-smoke.js; node scripts/verify-process-fact-contract.mjs. Both PASS at HEAD a6cefb0 and mechanically cover per-commit lineage, non-ancestor, code/config paths, modify-revert, rename, and concurrent HEAD movement.",
+      "resolvedAt": "2026-07-15T19:57:38.835Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c163:F-003",
