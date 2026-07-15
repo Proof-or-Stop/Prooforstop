@@ -9,7 +9,7 @@ export const NODE_TIMER_MAX_MS = 2_147_483_647;
 export const DEFAULT_DONE_PREPARE_PHASE_TIMEOUT_MS = 240_000;
 export const DEFAULT_TIMEOUT_BUDGET_GRACE_MS = 30_000;
 
-export type TimeoutBudgetSource = 'phase-env' | 'global-phase-env' | 'derived-command-budget' | 'default';
+export type TimeoutBudgetSource = 'phase-env' | 'global-phase-env' | 'derived-command-budget' | 'explicit-max-env' | 'default';
 export type CommandTimeoutLayer = 'command' | 'phase' | 'idle' | 'max';
 
 export class CliWatchdogTimeoutError extends Error {
@@ -40,6 +40,7 @@ export interface TimeoutBudget {
 }
 
 const DEFAULT_LIVE_SMOKE_CAPTURE_TIMEOUT_MS = 60_000;
+export const LIVE_SMOKE_CAPTURE_CLEANUP_GRACE_MS = 3_000;
 
 export type LiveSmokeCaptureBudgetSource =
   | 'fixed-arbitrary-command'
@@ -52,6 +53,7 @@ export interface LiveSmokeCaptureBudget {
   timeoutMs: number;
   source: LiveSmokeCaptureBudgetSource;
   recognizedCommand: 'done_required_validate' | 'done_prepare' | null;
+  nestedMaxTimeoutMs?: number;
 }
 
 function positiveInt(value: unknown): number | undefined {
@@ -133,20 +135,26 @@ function executableOnInheritedPath(name: string, root: string, env: NodeJS.Proce
   return null;
 }
 
-function trustedLatticeExecutable(root: string, executable: string, env: NodeJS.ProcessEnv): boolean {
+function trustedLatticeExecutable(
+  root: string,
+  executable: string,
+  env: NodeJS.ProcessEnv,
+  activeCliEntrypoint: string | undefined,
+): boolean {
   const resolvedExecutable = executable === 'lattice'
     ? executableOnInheritedPath(executable, root, env)
     : safeRealpath(isAbsolute(executable) ? executable : resolve(root, executable));
   if (!resolvedExecutable) return false;
 
-  const activeEntrypoint = process.argv[1]
-    ? safeRealpath(isAbsolute(process.argv[1]) ? process.argv[1] : resolve(root, process.argv[1]))
-    : null;
-  const verifiedGlobalEntrypoint = activeEntrypoint && /[\\/]node_modules[\\/]@lattice[\\/]core[\\/]dist[\\/]cli\.js$/.test(activeEntrypoint)
-    ? activeEntrypoint
+  const activeEntrypoint = activeCliEntrypoint
+    ? safeRealpath(isAbsolute(activeCliEntrypoint) ? activeCliEntrypoint : resolve(root, activeCliEntrypoint))
     : null;
   const candidates = [
-    verifiedGlobalEntrypoint,
+    // The runtime entrypoint contract is exact-realpath equality. This covers
+    // both an npm-global package and the supported global symlink to a project
+    // build without trusting another executable merely because its path looks
+    // package-shaped.
+    activeEntrypoint,
     join(root, 'packages', 'main', 'dist', 'cli.js'),
     join(root, 'bin', 'lattice.js'),
   ].flatMap((candidate) => {
@@ -161,6 +169,7 @@ function recognizedLiveSmokeCommand(
   root: string,
   command: string,
   env: NodeJS.ProcessEnv,
+  activeCliEntrypoint: string | undefined,
 ): 'done_required_validate' | 'done_prepare' | null {
   const trimmed = command.trim();
   // A wider budget is reserved for one direct Lattice closeout command. Shell
@@ -171,48 +180,65 @@ function recognizedLiveSmokeCommand(
   const match = trimmed.match(
     /^(?:LATTICE_SESSION_ID=[A-Za-z0-9_.:-]+\s+)?([^\s]+)\s+(done_required_validate|done_prepare)(?:\s|$)/,
   );
-  if (!match || !trustedLatticeExecutable(root, match[1], env)) return null;
+  if (!match || !trustedLatticeExecutable(root, match[1], env, activeCliEntrypoint)) return null;
   return match[2] === 'done_required_validate' || match[2] === 'done_prepare' ? match[2] : null;
 }
 
 /**
  * Select the live-smoke capture ceiling without granting arbitrary shell
- * commands a longer window. A positive explicit override may only LOWER the
- * legal ceiling selected for the command, and is clamped to Node's timer max.
+ * commands a longer window. The inherited CLI max remains the nested closeout
+ * business bound; the capture adds only bounded termination/reap grace. The
+ * live-smoke-specific override may only lower the resulting legal ceiling.
  */
 export function liveSmokeCaptureBudget(
   root: string,
   command: string,
   env: NodeJS.ProcessEnv = process.env,
+  activeCliEntrypoint: string | undefined = process.argv[1],
 ): LiveSmokeCaptureBudget {
-  const recognizedCommand = recognizedLiveSmokeCommand(root, command, env);
+  const recognizedCommand = recognizedLiveSmokeCommand(root, command, env, activeCliEntrypoint);
   let legalTimeoutMs = DEFAULT_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
   let source: LiveSmokeCaptureBudgetSource = 'fixed-arbitrary-command';
   if (recognizedCommand === 'done_required_validate') {
-    legalTimeoutMs = commandCliMaxBudget(root, recognizedCommand, {}).timeoutMs;
+    legalTimeoutMs = commandCliMaxBudget(root, recognizedCommand, {}, env, activeCliEntrypoint).timeoutMs;
     source = 'derived-done-required-command';
   } else if (recognizedCommand === 'done_prepare') {
     const validate = !/(?:^|\s)--validate(?:=|\s+)false(?:\s|$)/.test(command);
-    legalTimeoutMs = commandCliMaxBudget(root, recognizedCommand, { validate }).timeoutMs;
+    legalTimeoutMs = commandCliMaxBudget(root, recognizedCommand, { validate }, env, activeCliEntrypoint).timeoutMs;
     source = 'derived-done-prepare-command';
   }
 
-  // The outer CLI watchdog treats an inherited positive LATTICE_MAX_TIMEOUT_MS
-  // as authoritative. Mirror that exact clamped budget for a trusted closeout
-  // capture so the outer process never terminates first. It may only LOWER the
-  // fixed ceiling for an arbitrary/untrusted command.
+  // A trusted nested closeout keeps the inherited positive max as its business
+  // deadline. The capture wrapper adds only enough grace to terminate/reap it;
+  // commandCliMaxBudget adds the separate outer-wrapper grace. For an
+  // arbitrary/untrusted command the inherited max may only LOWER the fixed
+  // capture safety ceiling.
   const inheritedMax = positiveInt(env.LATTICE_MAX_TIMEOUT_MS);
+  let nestedMaxTimeoutMs: number | undefined;
   if (inheritedMax !== undefined) {
-    const inheritedLegalTimeoutMs = recognizedCommand ? inheritedMax : Math.min(legalTimeoutMs, inheritedMax);
+    nestedMaxTimeoutMs = recognizedCommand ? inheritedMax : undefined;
+    const inheritedLegalTimeoutMs = recognizedCommand
+      ? safeTimeoutSum([inheritedMax, LIVE_SMOKE_CAPTURE_CLEANUP_GRACE_MS])
+      : Math.min(legalTimeoutMs, inheritedMax);
     if (inheritedLegalTimeoutMs !== legalTimeoutMs || recognizedCommand) source = 'inherited-cli-max';
     legalTimeoutMs = inheritedLegalTimeoutMs;
   }
 
   const override = positiveInt(env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS);
   if (override !== undefined && override < legalTimeoutMs) {
-    return { timeoutMs: override, source: 'bounded-env-override', recognizedCommand };
+    return {
+      timeoutMs: override,
+      source: 'bounded-env-override',
+      recognizedCommand,
+      ...(nestedMaxTimeoutMs !== undefined ? { nestedMaxTimeoutMs } : {}),
+    };
   }
-  return { timeoutMs: legalTimeoutMs, source, recognizedCommand };
+  return {
+    timeoutMs: legalTimeoutMs,
+    source,
+    recognizedCommand,
+    ...(nestedMaxTimeoutMs !== undefined ? { nestedMaxTimeoutMs } : {}),
+  };
 }
 
 const CLOSEOUT_PHASE_ENVS = [
@@ -224,9 +250,15 @@ const CLOSEOUT_PHASE_ENVS = [
   'LATTICE_DONE_PREPARE_PRODUCE_COMMAND_TIMEOUT_MS',
 ] as const;
 
-export function commandCliMaxBudget(root: string, command: string, args: Record<string, unknown>): TimeoutBudget {
+export function commandCliMaxBudget(
+  root: string,
+  command: string,
+  args: Record<string, unknown>,
+  env: NodeJS.ProcessEnv = process.env,
+  activeCliEntrypoint: string | undefined = process.argv[1],
+): TimeoutBudget {
   if (command === 'live_smoke_transcript' && typeof args.capture === 'string') {
-    const capture = liveSmokeCaptureBudget(root, args.capture);
+    const capture = liveSmokeCaptureBudget(root, args.capture, env, activeCliEntrypoint);
     return {
       timeoutMs: safeTimeoutSum([capture.timeoutMs, DEFAULT_TIMEOUT_BUDGET_GRACE_MS]),
       source: capture.recognizedCommand ? 'derived-command-budget' : 'default',
@@ -253,4 +285,20 @@ export function commandCliMaxBudget(root: string, command: string, args: Record<
     commandBudgetMs: routine,
     graceMs: DEFAULT_TIMEOUT_BUDGET_GRACE_MS,
   };
+}
+
+/** Select the outer CLI watchdog budget while preserving explicit-max behavior
+ * for every command except a trusted closeout capture wrapper. That wrapper
+ * needs to outlive the nested business bound plus capture cleanup/reap grace. */
+export function effectiveCommandCliMaxBudget(
+  root: string,
+  command: string,
+  args: Record<string, unknown>,
+  env: NodeJS.ProcessEnv = process.env,
+  activeCliEntrypoint: string | undefined = process.argv[1],
+): TimeoutBudget {
+  const derived = commandCliMaxBudget(root, command, args, env, activeCliEntrypoint);
+  if (command === 'live_smoke_transcript' && derived.source === 'derived-command-budget') return derived;
+  const explicit = positiveInt(env.LATTICE_MAX_TIMEOUT_MS);
+  return explicit === undefined ? derived : { timeoutMs: explicit, source: 'explicit-max-env' };
 }

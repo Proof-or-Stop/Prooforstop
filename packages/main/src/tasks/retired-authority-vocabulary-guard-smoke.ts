@@ -356,7 +356,7 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // legacy compatibility symbols, approved call shapes, and occurrence counts above are unchanged.
   ['packages/main/src/handlers/delivery-context-pack.ts', '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844'],
   ['packages/main/src/tasks/closeout-trust-smoke.ts', 'd252c161562e00797371438a52f16c889e10a0551673e24b62162978b7447c3e'],
-  ['packages/main/src/cli-engine.ts', 'b1e13538f23c129b144af3178b01351fb8723bf868f41b86825d5117fcb5b09b'],
+  ['packages/main/src/cli-engine.ts', '9943fd169d5ecc85d350f331bbcd9458b60cff764e06bc16452e05fc6ae12af3'],
   ['packages/main/src/verifier/serve.ts', '20149fa438b1ec78fc9c9713eb3cc4a890bc58a1d82e7a5fa0d588e9c4e7ee91'],
   ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '518890b58fd8e369488721d66d954f9589a049a42066635f42c057227788ae45'],
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],

@@ -74,7 +74,7 @@ import {
   runStoryAdvanceInitCheckLifecycleDispatch,
   runStoryCreateLifecycleDispatch,
 } from './cli/lifecycle-dispatch.js';
-import { CliWatchdogTimeoutError, commandCliMaxBudget, NODE_TIMER_MAX_MS } from './core/done-required-timeout-budget.js';
+import { CliWatchdogTimeoutError, effectiveCommandCliMaxBudget, NODE_TIMER_MAX_MS } from './core/done-required-timeout-budget.js';
 
 export {
   READ_ONLY_COMMANDS,
@@ -1002,21 +1002,18 @@ export async function runCli(opts?: {
   // Can be overridden with LATTICE_IDLE_TIMEOUT_MS / LATTICE_MAX_TIMEOUT_MS,
   // A single LLM call in real-machine smoke tests can occasionally exceed 2 minutes (non-deterministic cases such as text-adventure uninstall).
   const explicitIdle = Number(process.env.LATTICE_IDLE_TIMEOUT_MS);
-  const explicitMax = Number(process.env.LATTICE_MAX_TIMEOUT_MS);
-  const derivedMaxBudget = commandCliMaxBudget(root, cmd, parsed);
+  const effectiveMaxBudget = effectiveCommandCliMaxBudget(root, cmd, parsed);
   const IDLE_TIMEOUT = Number.isFinite(explicitIdle) && explicitIdle > 0
     ? Math.min(NODE_TIMER_MAX_MS, Math.floor(explicitIdle))
     : (5 * 60 * 1000);
-  const MAX_TIMEOUT = Number.isFinite(explicitMax) && explicitMax > 0
-    ? Math.min(NODE_TIMER_MAX_MS, Math.floor(explicitMax))
-    : derivedMaxBudget.timeoutMs;
+  const MAX_TIMEOUT = effectiveMaxBudget.timeoutMs;
   const startTime = Date.now();
   let lastActivity = Date.now();
   const originalLog = log;
   log = (msg: string) => { lastActivity = Date.now(); originalLog(msg); };
   ctx.log = log;
   if (cmd === 'done_prepare' || cmd === 'done_required_validate') {
-    originalLog(`${cmd} timeout budget: maxMs=${MAX_TIMEOUT} source=${Number.isFinite(explicitMax) && explicitMax > 0 ? 'LATTICE_MAX_TIMEOUT_MS' : derivedMaxBudget.source}`);
+    originalLog(`${cmd} timeout budget: maxMs=${MAX_TIMEOUT} source=${effectiveMaxBudget.source === 'explicit-max-env' ? 'LATTICE_MAX_TIMEOUT_MS' : effectiveMaxBudget.source}`);
   }
 
   const structuredWatchdog = cmd === 'done_prepare' || cmd === 'done_required_validate';
