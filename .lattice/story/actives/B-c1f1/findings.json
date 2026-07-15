@@ -504,7 +504,7 @@
       "desc": "The new live-evidence confinement contract is not implementable against the registry architecture it names. The plan says only the three exact templates may be ignored and that a copied file outside them must fail, but runtime-artifact-registry.ts currently has an earlier first-match `runtime-cache` prefix for all `.lattice/runtime/`; findRuntimeArtifactEntry uses Array.find. Therefore an exact entry added after that prefix is unreachable, while an invalid sibling/copy still resolves to the broad materialHash-excluded runtime-cache entry. Story 1 must explicitly replace/narrow the broad prefix for this namespace or define deterministic specificity/typed lookup semantics, and the fixtures must prove both exact entries win and an unregistered sibling under `.lattice/runtime/evidence/thin-entrypoint/` is not accepted or cleanliness-excluded. Otherwise `processEvidence: true` and exact path confinement are prose-only.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-15T13:33:22.381Z",
@@ -516,7 +516,11 @@
         "packages/main/src/core/runtime-artifact-registry.ts"
       ],
       "signatureTag": "spec-boundary|md|live-evidence-confinement",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Moved live evidence to non-overlapping .lattice/process-evidence namespace and specified exactly-one typed artifact resolution with expected-ID/template checks; invalid siblings and injected ambiguity fail closed.",
+      "resolvedAt": "2026-07-15T13:42:03.256Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c1f1:F-023",
