@@ -172,7 +172,7 @@
       "desc": "Post-validation closeout watchdog blocks overwrite already-observed validation facts. `cliWatchdogTimeoutBlock` always emits `disposition=executed` and `existingEvidenceBasis=stale`, even when done_prepare ran with validate=false and had already recorded `disposition=skipped_explicitly` plus a computed missing/fresh/stale basis. The new post-validation timeout smoke uses exactly validate=false/dryRun but asserts the fabricated executed disposition, locking in the contradiction. Keep overall `result=timed_out`/timeoutLayer=idle|max, but carry the validation disposition and evidence basis observed at the validate step (or separate validation outcome from overall command outcome). This is distinct from the fixed preflight case: here the fields were observed and are then replaced with false values.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-15T20:22:01.186Z",
@@ -184,7 +184,11 @@
         "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts"
       ],
       "signatureTag": "spec-boundary|ts|post-validation-closeout",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: run validate=false to observe disposition=skipped_explicitly/result=not_run with the actual existingEvidenceBasis/refusalReasons, then force a later doneClosure idle or max timeout. The prior timeout block overwrote that context with fabricated disposition=executed and basis=stale. Root cause: cliWatchdogTimeoutBlock constructed a fresh generic validation terminal instead of carrying the already-observed validate step context. Fix: parse the completed validate step into an ObservedValidationTerminalContext; later closeout watchdog blocks preserve disposition, evidence basis, and refusals, append the real CLI timeout refusal, and change only result/timeoutLayer to timed_out/idle|max. ReproTest: node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js. PASS at REVIEW HEAD 7ffa19b; baseline-vs-timeout assertions cover idle and max, singular JSON, nonzero status, no story-evidence mutation, and immediate rerun.",
+      "resolvedAt": "2026-07-15T20:34:57.527Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c163:F-009",
