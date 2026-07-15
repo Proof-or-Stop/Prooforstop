@@ -306,6 +306,27 @@
       "resolvedAt": "2026-07-15T22:33:04.469Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-014",
+      "desc": "BUG-015 regression coverage is incomplete. The added budget block proves only direct done_required_validate (lines 382-390), not direct done_prepare. The timeout block (lines 414-450) proves stale-lock cleanup and capture-only behavior, but never creates a separate still-live validation lock to prove it is preserved, never immediately reruns capture after cleanup, and never combines the timeout with --write then reads evidence/live-smoke-transcript.json to prove the persisted timeout has exitCode:null/non-pass semantics. These are four explicit safety regressions requested for this round; without them a future change could delete an active validator lock, leave the command unusable after timeout, or serialize a timed-out capture as successful while the smoke remains green. Repro/audit: npm --prefix packages/main run build && node packages/main/dist/tasks/live-smoke-transcript-smoke.js passes, while inspection of packages/main/src/tasks/live-smoke-transcript-smoke.ts:370-450 shows the missing cases.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-15T23:31:09.623Z",
+      "reviewRound": "2026-07-15T23:28:18.819Z",
+      "reviewRunId": "B-c163:RR-036",
+      "_hash": "9ff5242d1d74091444658d8a33f09e92cd9a424a7b0fbb4fbde6dd5124eff395",
+      "files": [
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts",
+        "packages/main/src/core/validation-execution-lock.ts",
+        "packages/main/src/handlers/live-smoke-transcript.ts",
+        "packages/main/src/core/done-required-timeout-budget.ts"
+      ],
+      "signatureTag": "missing|ts|regression-coverage-incomplete",
+      "signatureTagSource": "auto"
     }
   ]
 }
