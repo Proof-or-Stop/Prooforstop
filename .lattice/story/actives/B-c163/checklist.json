@@ -337,13 +337,14 @@
           "intentRef": "CHK-002:edge:2",
           "kind": "logic_test",
           "verdict": "success",
-          "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
+          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
           "result": "pass",
-          "note": "PASS after build: validate=true+dryRun closeout timeout has no observed validation context and emits only result=timed_out plus timeoutLayer, omitting disposition/existingEvidenceBasis/refusalReasons; existing validate=false cases still preserve their observed terminal context.",
-          "headHash": "7e490355bffba953e5d4ee84bb072a1cbb4327e7",
-          "materialHash": "afe4a1a3af2f2acafa1d072cf9698740052abf21fbebba134c87fab472586211",
-          "storyFilesHash": "3fd86d752797f48b848bc984d6502b700d22600c2c5ef2cbbd304326f3cab9de",
-          "timestamp": "2026-07-15T20:43:02.833Z"
+          "note": "Combined original+focused coverage, PASS in three consecutive focused rounds after build: done-required smoke covers executed failure and policy/config/binding refusal without false reuse; closure smoke covers explicit validate=false skip, closeout idle|max, and validate=true+dryRun no-context timeout with absent unobserved fields; validate-progress covers command/idle/max structured timed_out attribution and nonzero shell status. Together disposition/result/refusalReasons/timeoutLayer remain truthful for executed failure, timeout, block, and explicit skip.",
+          "headHash": "d374c96740b772a6c3c356c3f50d57f4374a2ec4",
+          "materialHash": "9461512ba9d71dff9d2eb1d3f7bc9bc4c1efd3bdd6f66dd4a8c62489cdf5cb72",
+          "storyFilesHash": "15d277dcb5e8fb1f46445861c06e1e2e5a29136ef9c882a47d4ba6f85b10ac70",
+          "timestamp": "2026-07-15T22:28:56.551Z"
         },
         {
           "intentRef": "CHK-002:edge:3",
