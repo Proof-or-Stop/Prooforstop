@@ -218,7 +218,7 @@
       "desc": "Routine done_prepare can still misclassify an explicit CLI max deadline as an ordinary validation failure. cli-engine passes both deadlineAt and an AbortSignal, but the validation runner independently shortens its command timer to deadlineAt (validation-executor.ts:309-314). If that timer settles before the polling watchdog aborts the signal—which is deterministic for MAX values not aligned with the watchdog interval, e.g. 1005ms with a 251ms poll—the verifier returns a failed/timed-out routine result while abortSignal.reason is still empty. done-prepare.ts:1651 only derives routineTimeoutLayer from the signal, then lines 1657-1663 take the generic parsed failure path, omitting disposition=executed, result=timed_out, timeoutLayer=max and existingEvidenceBasis. The new max smoke uses 180ms with a 45ms interval, aligning poll and deadline and masking this window. Treat Date.now() >= rawArgs.deadlineAt as max using rawArgs.deadlineError even before the signal fires, or propagate a named max-deadline reason through executeValidationPlan; add a deliberately non-divisible max fixture proving JSON classification and exit/event behavior.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-15T20:24:33.783Z",
@@ -232,7 +232,11 @@
         "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
       ],
       "signatureTag": "timeout-classification|ts|deadline-before-watchdog-signal",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Repro: configure a silent routine validate command longer than LATTICE_MAX_TIMEOUT_MS=1005 while the CLI watchdog polls every floor(1005/4)=251ms. The command deadline could settle between watchdog ticks before abortSignal carried a named reason, so routine validation returned generic failure instead of timed_out/max. Root cause: cli-engine created deadlineError but done_prepare/verifier/ExecuteValidationPlan propagated only deadlineAt; the runner therefore lost the controlling deadline source. Fix: deadlineError now flows cli-engine -> done_prepare -> verifier -> ExecuteValidationPlan -> command options; after child cleanup, a deadline-owned timedOut result throws the named max error for structured classification. ReproTest: node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js. PASS at REVIEW HEAD 7ffa19b; the 1005/251 real CLI regression asserts status=blocked, result=timed_out, timeoutLayer=max, existingEvidenceBasis=stale, exit 1, no generic validation-failed reason, and immediate successful rerun cleanup.",
+      "resolvedAt": "2026-07-15T20:35:13.096Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
