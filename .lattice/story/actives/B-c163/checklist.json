@@ -529,13 +529,14 @@
           "intentRef": "CHK-003:edge:1",
           "kind": "logic_test",
           "verdict": "success",
-          "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
+          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
           "result": "pass",
-          "note": "PASS after build: validate=true+dryRun closeout idle timeout exits nonzero with one parseable JSON object, result=timed_out and timeoutLayer=idle, while unobserved disposition/existingEvidenceBasis/refusalReasons remain absent.",
-          "headHash": "87b32ab1461e6b5807de387b5a004acc3680ddb9",
-          "materialHash": "afe4a1a3af2f2acafa1d072cf9698740052abf21fbebba134c87fab472586211",
-          "storyFilesHash": "3fd86d752797f48b848bc984d6502b700d22600c2c5ef2cbbd304326f3cab9de",
-          "timestamp": "2026-07-15T20:43:12.351Z"
+          "note": "Combined original+focused coverage, PASS in three consecutive focused rounds after build: closure smoke verifies done_prepare human/JSON progress composition, singular JSON for noisy/silent and closeout timeout paths, plus validate=true+dryRun no-context timeout omitting disposition/existingEvidenceBasis/refusalReasons; validate-progress verifies the direct CLI bridge emits progress on stderr, exactly one JSON result, and noisy/silent commands settle once without duplicate heartbeat/result records.",
+          "headHash": "5d17fca468ede957ddfcaa3f0e37f5677af58afe",
+          "materialHash": "9461512ba9d71dff9d2eb1d3f7bc9bc4c1efd3bdd6f66dd4a8c62489cdf5cb72",
+          "storyFilesHash": "15d277dcb5e8fb1f46445861c06e1e2e5a29136ef9c882a47d4ba6f85b10ac70",
+          "timestamp": "2026-07-15T22:29:03.694Z"
         },
         {
           "intentRef": "CHK-003:edge:2",
