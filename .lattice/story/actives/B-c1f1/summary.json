@@ -1,17 +1,17 @@
 {
   "storyId": "B-c1f1",
-  "changes": "新增 Proof-or-stop 薄入口契约迁移执行方案，并在 requirements NAV 中登记入口；方案定义分层权威、机械注册表、红绿测试、九个后续 Story、回滚顺序与 B-e514 根文档唯一写入责任。",
-  "usage": "从 docs/requirements/NAV.md 打开执行方案，按 Story 1 至 9 的依赖顺序实施；根 AGENTS.md 与 CLAUDE.md 的收薄统一由 B-e514 执行，其他 Story 不并行修改根入口。",
-  "expectedOutcome": "用户能看到明确的 Proof-or-stop 标题、现状扫描清单、目标架构、逐 Story 执行顺序、验收门禁、回滚方案以及宿主中立的入口策略。",
-  "actualTranscript": "现场 smoke 命令退出码为 0，输出了执行方案的精确 H1 标题，并确认 docs/requirements/NAV.md 存在指向该方案的有效链接。",
-  "outcomeDiff": "文档执行方案的可观察结果与预期一致；根入口迁移和运行时代码调整按约定留给后续 Story，本 Story 未冒充已经完成实施。",
+  "changes": "Added the Proof-or-stop thin-entrypoint contract migration execution plan and registered it in the requirements NAV. The plan defines authority layers, mechanical registries, red-to-green tests, nine follow-up Stories, rollback order, and B-e514 as the sole root-document writer.",
+  "usage": "Open the plan from docs/requirements/NAV.md and implement Stories 1 through 9 in dependency order. B-e514 owns all root AGENTS.md and CLAUDE.md thinning changes; other Stories must not edit those entrypoints concurrently.",
+  "expectedOutcome": "The user can see the exact Proof-or-stop heading, a current-state scan manifest, target architecture, ordered Story sequence, acceptance gates, rollback procedure, and a host-neutral entrypoint policy.",
+  "actualTranscript": "The live smoke command exited with code 0, printed the exact plan H1, and confirmed that docs/requirements/NAV.md contains a valid link to the plan.",
+  "outcomeDiff": "The observable documentation deliverable matches the expected result. Root-entrypoint migration and runtime consumer changes remain intentionally assigned to follow-up Stories and are not claimed as implemented here.",
   "acceptanceVerdict": "accepted",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "本 Story 仅完成可执行迁移方案与导航登记，没有修改 AGENTS.md、CLAUDE.md、.lattice/Lattice.md 或任何运行时消费者。",
-  "pitfalls": "不得在 canonical docs、registry、audit 和 reviewer consumer 就绪前提前收薄根入口；B-e514 是根文档唯一写入者，避免并行冲突和契约断链。",
+  "limitations": "This Story delivers the executable migration plan and navigation entry only. It does not modify AGENTS.md, CLAUDE.md, .lattice/Lattice.md, or runtime consumers.",
+  "pitfalls": "Do not thin root entrypoints before canonical documents, registries, audit consumers, and reviewer consumers are ready. B-e514 is the sole root-document writer to prevent conflicts and broken contracts.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -35,10 +35,10 @@
     },
     "TEST": {
       "count": 1,
-      "durationMs": 6554335
+      "durationMs": 6877554
     }
   },
-  "totalDurationMs": 21088107,
+  "totalDurationMs": 21411326,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -51,5 +51,5 @@
     "open": 0
   },
   "createdAt": "2026-07-15T17:40:58.469Z",
-  "updatedAt": "2026-07-15T17:40:58.469Z"
+  "updatedAt": "2026-07-15T17:46:21.687Z"
 }
