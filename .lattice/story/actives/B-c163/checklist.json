@@ -202,9 +202,9 @@
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-15T19:30:58.283Z",
-      "endTime": "2026-07-15T19:46:13.208Z",
+      "endTime": "2026-07-15T20:17:18.648Z",
       "userSees": "done_prepare reports disposition “reused”, “executed”, or “skipped_explicitly”; JSON separately reports result, refusalReasons, timeoutLayer, and existingEvidenceBasis “fresh|stale|missing”.",
       "files": {
         "modify": [
@@ -285,132 +285,122 @@
         {
           "intentRef": "CHK-002:happy:0",
           "kind": "logic_test",
-          "verdict": "success",
           "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
           "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
           "result": "pass",
-          "note": "Runs actual done_prepare twice and asserts default fresh receipt reuse skips DONE-required execution.",
-          "headHash": "63240efbaed10e89c50f8ffb1aadb8c4b4f3fb28",
-          "materialHash": "683297ce2c52e333046d436ed08d5ffaa50055af7fece0781607d52b595df4cc",
-          "storyFilesHash": "d111d70d3b1d358afdccf9e6e3255d77b27edf48f9b7f30705cb8540a8889852",
-          "timestamp": "2026-07-15T19:45:48.121Z"
+          "note": "Actual exact-HEAD done_prepare default reuse returns disposition=reused/result=pass/fresh/null and does not spawn DONE-required validation.",
+          "headHash": "fa97d96ba527ed86cc6563fd63a79fd8946b942d",
+          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
+          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
+          "timestamp": "2026-07-15T20:17:18.972Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
           "kind": "logic_test",
-          "verdict": "success",
           "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
           "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
           "result": "pass",
-          "note": "Runs actual done_prepare with reuseFreshDoneRequired=false and asserts DONE-required command executes.",
-          "headHash": "63240efbaed10e89c50f8ffb1aadb8c4b4f3fb28",
-          "materialHash": "683297ce2c52e333046d436ed08d5ffaa50055af7fece0781607d52b595df4cc",
-          "storyFilesHash": "d111d70d3b1d358afdccf9e6e3255d77b27edf48f9b7f30705cb8540a8889852",
-          "timestamp": "2026-07-15T19:45:48.270Z"
+          "note": "Separate actual done_prepare fixture commits a trusted story metadata descendant and asserts reused/pass plus lineage=trusted-story-metadata-descendant.",
+          "headHash": "fa97d96ba527ed86cc6563fd63a79fd8946b942d",
+          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
+          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
+          "timestamp": "2026-07-15T20:17:19.192Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
-          "verdict": "success",
           "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
           "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
           "result": "pass",
-          "note": "Actual validate=false matrix asserts fresh, stale, missing, and malformed bases plus byte-for-byte evidence immutability.",
-          "headHash": "63240efbaed10e89c50f8ffb1aadb8c4b4f3fb28",
-          "materialHash": "683297ce2c52e333046d436ed08d5ffaa50055af7fece0781607d52b595df4cc",
-          "storyFilesHash": "d111d70d3b1d358afdccf9e6e3255d77b27edf48f9b7f30705cb8540a8889852",
-          "timestamp": "2026-07-15T19:45:48.420Z"
+          "note": "reuseFreshDoneRequired=false asserts disposition=executed/result=pass, execution progress, and changed receipt endedAt proving evidence refresh.",
+          "headHash": "fa97d96ba527ed86cc6563fd63a79fd8946b942d",
+          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
+          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
+          "timestamp": "2026-07-15T20:17:19.383Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
           "kind": "logic_test",
-          "verdict": "success",
-          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
-          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
           "result": "pass",
-          "note": "Asserts canonical evaluator receipt coverage, policy, command identity, hashes, and proof mutations refuse reuse.",
-          "headHash": "63240efbaed10e89c50f8ffb1aadb8c4b4f3fb28",
-          "materialHash": "683297ce2c52e333046d436ed08d5ffaa50055af7fece0781607d52b595df4cc",
-          "storyFilesHash": "d111d70d3b1d358afdccf9e6e3255d77b27edf48f9b7f30705cb8540a8889852",
-          "timestamp": "2026-07-15T19:45:48.565Z"
+          "note": "validate=false fresh/stale/missing/malformed matrix asserts skipped_explicitly/not_run and byte-for-byte evidence immutability.",
+          "headHash": "fa97d96ba527ed86cc6563fd63a79fd8946b942d",
+          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
+          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
+          "timestamp": "2026-07-15T20:17:19.583Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
           "kind": "logic_test",
-          "verdict": "success",
-          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
-          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
           "result": "pass",
-          "note": "Asserts exact HEAD and every-commit trusted metadata descendant acceptance.",
-          "headHash": "63240efbaed10e89c50f8ffb1aadb8c4b4f3fb28",
-          "materialHash": "683297ce2c52e333046d436ed08d5ffaa50055af7fece0781607d52b595df4cc",
-          "storyFilesHash": "d111d70d3b1d358afdccf9e6e3255d77b27edf48f9b7f30705cb8540a8889852",
-          "timestamp": "2026-07-15T19:45:48.712Z"
+          "note": "Real executed pass and command/idle/max timeout terminals stay within structured vocabulary, JSON remains singular, and failures exit nonzero.",
+          "headHash": "fa97d96ba527ed86cc6563fd63a79fd8946b942d",
+          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
+          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
+          "timestamp": "2026-07-15T20:17:19.760Z"
         },
         {
           "intentRef": "CHK-002:edge:3",
           "kind": "logic_test",
-          "verdict": "success",
-          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
-          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
           "result": "pass",
-          "note": "Asserts malformed JSON and malformed shape become stale; direct execution overwrites with valid passing evidence.",
-          "headHash": "63240efbaed10e89c50f8ffb1aadb8c4b4f3fb28",
-          "materialHash": "683297ce2c52e333046d436ed08d5ffaa50055af7fece0781607d52b595df4cc",
-          "storyFilesHash": "d111d70d3b1d358afdccf9e6e3255d77b27edf48f9b7f30705cb8540a8889852",
-          "timestamp": "2026-07-15T19:45:48.871Z"
+          "note": "validate=false independently observes existingEvidenceBasis fresh, stale, and missing without authorizing reuse or execution.",
+          "headHash": "fa97d96ba527ed86cc6563fd63a79fd8946b942d",
+          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
+          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
+          "timestamp": "2026-07-15T20:17:20.186Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
-          "verdict": "success",
           "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
           "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
-          "note": "Asserts modify-then-revert and rename-through-metadata histories expose untrusted README path and refuse reuse.",
-          "headHash": "63240efbaed10e89c50f8ffb1aadb8c4b4f3fb28",
-          "materialHash": "683297ce2c52e333046d436ed08d5ffaa50055af7fece0781607d52b595df4cc",
-          "storyFilesHash": "d111d70d3b1d358afdccf9e6e3255d77b27edf48f9b7f30705cb8540a8889852",
-          "timestamp": "2026-07-15T19:45:49.015Z"
+          "note": "Independent mutations cover evidence schema, policy/command identity and order, receipt coverage, material/story hashes, build proof, and enforced proof-admissibility command-spec failure.",
+          "headHash": "fa97d96ba527ed86cc6563fd63a79fd8946b942d",
+          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
+          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
+          "timestamp": "2026-07-15T20:17:20.553Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
           "kind": "logic_test",
-          "verdict": "success",
           "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
           "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
-          "note": "Hermetic head-move seam commits during evaluation and asserts head-changed-during-reuse-evaluation refusal.",
-          "headHash": "63240efbaed10e89c50f8ffb1aadb8c4b4f3fb28",
-          "materialHash": "683297ce2c52e333046d436ed08d5ffaa50055af7fece0781607d52b595df4cc",
-          "storyFilesHash": "d111d70d3b1d358afdccf9e6e3255d77b27edf48f9b7f30705cb8540a8889852",
-          "timestamp": "2026-07-15T19:45:49.166Z"
+          "note": "Truncated JSON and malformed shape become stale and recover by execution; injected concurrent HEAD move refuses reuse with one terminal outcome.",
+          "headHash": "fa97d96ba527ed86cc6563fd63a79fd8946b942d",
+          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
+          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
+          "timestamp": "2026-07-15T20:17:20.871Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
           "kind": "logic_test",
-          "verdict": "success",
-          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
-          "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
-          "note": "Actual JSON outputs assert explicit disposition, result, refusalReasons, timeoutLayer null, and evidence basis.",
-          "headHash": "63240efbaed10e89c50f8ffb1aadb8c4b4f3fb28",
-          "materialHash": "683297ce2c52e333046d436ed08d5ffaa50055af7fece0781607d52b595df4cc",
-          "storyFilesHash": "d111d70d3b1d358afdccf9e6e3255d77b27edf48f9b7f30705cb8540a8889852",
-          "timestamp": "2026-07-15T19:45:49.312Z"
+          "note": "Lineage matrix separately covers exact HEAD, trusted descendant, non-ancestor HEAD, metadata-like path outside allowlist, code/config path, modify-then-revert, and rename history.",
+          "headHash": "fa97d96ba527ed86cc6563fd63a79fd8946b942d",
+          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
+          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
+          "timestamp": "2026-07-15T20:17:21.227Z"
         },
         {
           "intentRef": "CHK-002:adversarial:3",
           "kind": "docs_check",
-          "verdict": "success",
           "file": "scripts/verify-process-fact-contract.mjs",
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Contract verifier requires canonical evaluator, per-commit rev-list/diff-tree, TOCTOU, malformed evidence and watchdog tokens; six docs state the same rule.",
-          "headHash": "63240efbaed10e89c50f8ffb1aadb8c4b4f3fb28",
-          "materialHash": "683297ce2c52e333046d436ed08d5ffaa50055af7fece0781607d52b595df4cc",
-          "storyFilesHash": "d111d70d3b1d358afdccf9e6e3255d77b27edf48f9b7f30705cb8540a8889852",
-          "timestamp": "2026-07-15T19:45:49.458Z"
+          "note": "Contract verifier and all six canonical documents align on lineage, validation structure, cooperative timeout cleanup, and precise no-child not-applicable semantics.",
+          "headHash": "fa97d96ba527ed86cc6563fd63a79fd8946b942d",
+          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
+          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
+          "timestamp": "2026-07-15T20:17:21.728Z"
         }
       ]
     },
@@ -689,6 +679,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Round 3 watchdog/deadline implementation and complete assertion-specific evidence verified."
+    },
+    {
+      "timestamp": "2026-07-15T20:17:18.648Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Round 3 reuse matrix and corrected 10/10 evidence mapping verified."
     }
   ]
 }
