@@ -1,0 +1,230 @@
+{
+  "storyId": "B-c163",
+  "checkedAt": "2026-07-15T19:07:16.688Z",
+  "features": [
+    {
+      "feature": "DONE-required phase budget sums every effective ordered required-command timeout once and adds one bounded orchestration grace.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-001; plan.md CHK-001; workflow convergence plan 6.2"
+    },
+    {
+      "feature": "Direct done_required_validate receives a command-specific default CLI absolute max no shorter than its legal derived required-command budget.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-001 happy/edge; plan.md CHK-001"
+    },
+    {
+      "feature": "done_prepare command-level default max covers routine validate plus every enabled closeout phase budget, including derived/overridden DONE-required phase budgets.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-001 edge total-budget intent; plan.md CHK-001"
+    },
+    {
+      "feature": "Phase-specific, global phase, idle, and max overrides retain explicit precedence; positive LATTICE_MAX_TIMEOUT_MS stays authoritative.",
+      "covered_by": "CHK-001 and CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-001/CHK-003; decision.json"
+    },
+    {
+      "feature": "Timeout arithmetic validates malformed, non-positive, non-finite, and oversized values and stays within a documented safe timer range.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-001 edge verification; plan.md"
+    },
+    {
+      "feature": "Human and JSON output report effective budget/source, controlling timeout layer, and changed actionable guidance rather than an identical deterministic rerun.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "background.md; checklist.json CHK-001"
+    },
+    {
+      "feature": "Command, phase, idle, and absolute max bounds remain independent and preserve abort, process-tree, timer, and resource cleanup.",
+      "covered_by": "CHK-001 and CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist verificationIntent; heartbeat documents"
+    },
+    {
+      "feature": "Receipt reuse requires canonical schema, PASS, policy, ordered command/spec, receipt, material/story-files, build-proof, and proof-admissibility checks.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-002; done-full-test and proof-admissibility docs"
+    },
+    {
+      "feature": "Only exact current HEAD or an ancestor-to-current lineage whose every changed path is trusted story metadata may reuse; all other lineage fails closed.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-002 happy/adversarial; plan.md; decision.json"
+    },
+    {
+      "feature": "reuseFreshDoneRequired defaults true, is independently disableable, and remains separate from reuseFreshValidation.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-002; workflow convergence rollback"
+    },
+    {
+      "feature": "validate:false never runs, reuses, creates, or mutates evidence and separately reports existingEvidenceBasis fresh, stale, or missing.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-002 edge verification and userSees; plan.md"
+    },
+    {
+      "feature": "Human and JSON output share closed disposition, result, refusalReasons, timeoutLayer, and existingEvidenceBasis fields.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json; checklist.json CHK-002"
+    },
+    {
+      "feature": "All six canonical Workstream A documents are updated to one exact-or-trusted-metadata-lineage, validate:false, structured-output, timeout-precedence, and heartbeat-safety contract.",
+      "covered_by": "CHK-001, CHK-002, and CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-002 adversarial doc-sync intent; plan Verification; execution boundary"
+    },
+    {
+      "feature": "Gate-consumed reuse semantics and CLI schema changes remain synchronized with process-fact registry and its contract verifier.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-002 files/test mappings; AGENTS process fact contract"
+    },
+    {
+      "feature": "Direct done_required_validate bridges periodic progress/heartbeat through ctx.log so productive silent work refreshes idle liveness.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-003; validate heartbeat plan"
+    },
+    {
+      "feature": "JSON stdout remains exactly one parseable result while progress uses the logging/stderr side channel without duplicate records.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-003 happy/edge; done_prepare heartbeat M1"
+    },
+    {
+      "feature": "Heartbeat remains diagnostic only, never extends command/phase/max deadlines, emits no late terminal activity, and cleanup permits an immediate later validation.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-003 adversarial; validate heartbeat plan"
+    },
+    {
+      "feature": "Throwing, closed, or rejecting progress sinks are contained as diagnostic failures and cannot change command PASS/FAIL or forge evidence.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-003 userSees and edge sink intent; plan.md"
+    },
+    {
+      "feature": "Focused DONE/progress/command-catalog smokes, build, process-fact verification, routine validate, independent review/quorum, DONE-required validation, and done_prepare verify the result.",
+      "covered_by": "CHK-001, CHK-002, and CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md Verification; checklist files.test"
+    },
+    {
+      "feature": "Required-command policy and proof-admissibility behavior remain unchanged; protected proof-admissibility and story-machine source files are not modified.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding constraints; scope-contract.json protectedFiles"
+    },
+    {
+      "feature": "Further candidate routing, unattended host readiness, and remote host execution are excluded.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Reserved for later Workstream B; execution boundary blocks the paths/tools.",
+      "source": "plan.md Non-goals; scope-boundary.json; execution-boundary.json"
+    },
+    {
+      "feature": "Typed agent dispatch registry/cardinality is excluded.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Reserved for later Workstream C.",
+      "source": "plan.md Non-goals; scope-boundary.json"
+    },
+    {
+      "feature": "Stable task-and-agent owner identity is excluded.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Reserved for later Workstream D.",
+      "source": "plan.md Non-goals; scope-boundary.json"
+    },
+    {
+      "feature": "Canonical scope paths and AST-backed semantic anchors are excluded.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Reserved for later Workstream E.",
+      "source": "plan.md Non-goals; scope-boundary.json"
+    },
+    {
+      "feature": "Remote publication/release and unrelated lifecycle changes are excluded.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Execution boundary excludes remote publish and limits writable paths to Workstream A.",
+      "source": "execution-boundary.json; scope-boundary.json"
+    },
+    {
+      "feature": "Retired/external Authority receipt production, verification, and gate-consumption semantics are not changed or claimed by local DONE-required reuse.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-c163 preserves local proof-admissibility boundaries and does not touch Authority receipt paths.",
+      "source": "authority-receipt-gate-integration-execution-plan.md retired note; scope contract"
+    },
+    {
+      "feature": "Autopilot checkpoint/resume, provider-health, throttle, and process-pool reliability remain unchanged; command-specific max derivation does not widen unrelated ordinary CLI command defaults.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Autopilot is a separate implemented program; CHK-001 edge intent explicitly preserves generic defaults for unrelated commands.",
+      "source": "autopilot-v2-reliability-execution-plan.md; CHK-001 edge command-isolation intent"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-c163/background.md",
+      ".lattice/story/actives/B-c163/checklist.json",
+      ".lattice/story/actives/B-c163/decision.json",
+      ".lattice/story/actives/B-c163/execution-boundary.json",
+      ".lattice/story/actives/B-c163/plan.md",
+      ".lattice/story/actives/B-c163/scope-boundary.json",
+      ".lattice/story/actives/B-c163/scope-contract.json",
+      ".lattice/story/actives/B-c163/understanding.json",
+      "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+      "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+      "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+      "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null,
+    "candidateSpecSetDigest": "7d4cefae75b14a379d93a9957ebe7a84679bf2c9c1165e4bfe494f5eacb46c05",
+    "corpusDigest": "f02342217a5b383708e8d8b0421978a55cc606a2523e752031ed7e421dd20712"
+  },
+  "summary": {
+    "total": 27,
+    "covered": 20,
+    "excluded": 7,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "ac1be9de5e1dc4c91eb1d74a53ac7941f4b3108262ea04b0acc6b277472a6dd8",
+  "openQuestions": []
+}
