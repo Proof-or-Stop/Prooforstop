@@ -11,9 +11,9 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-15T11:59:26.241Z",
-      "endTime": "2026-07-15T12:16:39.206Z",
+      "endTime": "2026-07-15T12:26:37.246Z",
       "verificationIntent": {
         "happy": [
           {
@@ -61,55 +61,55 @@
           "kind": "docs_check",
           "command": "rg -n \"Proof-or-stop Thin Entrypoint Contract Migration Execution Plan\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md docs/requirements/NAV.md",
           "result": "pass",
-          "note": "The exact heading and NAV entry exist; the hardened plan contains the target architecture, canonical registry, corrected dependency order, compatibility, rollback, failure exercises, and B-e514 convergence.",
-          "headHash": "7d7bebed3815af54e6fb8cd7303faa2bd7cb0147",
-          "materialHash": "4de9d757649531281385823319c7ae4ab78761f3991ef276a518ac84b3148de2",
-          "storyFilesHash": "c18b0af7201026ce45bfe33c7fce3d30c4d5a486bf23b58c5d0ab167d6d94fe6",
-          "timestamp": "2026-07-15T12:16:39.493Z"
+          "note": "The exact heading and NAV entry exist; the plan includes target architecture, semantic canonical registry, ordered rollout, compatibility, rollback, failure exercises, and B-e514 convergence.",
+          "headHash": "7a819ef04962c400c39fc0e9409a016d022a3af9",
+          "materialHash": "74849b447fb5c7aefac78fbeea027b76c86d87456866dfe6e3bf31d1180b480e",
+          "storyFilesHash": "32e67974806104f7f02ace522ffaed5138aa953765df58d7921e42858ea98132",
+          "timestamp": "2026-07-15T12:26:37.614Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "docs_check",
           "command": "rg -n \"CODEX.md|AGY.md|Budgets are anti-regression ceilings|OMX prohibition\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
           "result": "pass",
-          "note": "The plan rejects invented CODEX.md/AGY.md contracts, treats budgets as ceilings, and keeps OMX as repository-local user policy outside universal templates.",
-          "headHash": "7d7bebed3815af54e6fb8cd7303faa2bd7cb0147",
-          "materialHash": "4de9d757649531281385823319c7ae4ab78761f3991ef276a518ac84b3148de2",
-          "storyFilesHash": "c18b0af7201026ce45bfe33c7fce3d30c4d5a486bf23b58c5d0ab167d6d94fe6",
-          "timestamp": "2026-07-15T12:16:39.776Z"
+          "note": "The plan rejects invented host filenames, treats budgets as ceilings, and keeps OMX repository-local outside universal templates.",
+          "headHash": "7a819ef04962c400c39fc0e9409a016d022a3af9",
+          "materialHash": "74849b447fb5c7aefac78fbeea027b76c86d87456866dfe6e3bf31d1180b480e",
+          "storyFilesHash": "32e67974806104f7f02ace522ffaed5138aa953765df58d7921e42858ea98132",
+          "timestamp": "2026-07-15T12:26:37.844Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
           "kind": "docs_check",
-          "command": "rg -n \"Target hierarchy and precedence|Normative facts versus operational projection|Shared Canonical-Document Registry\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "command": "rg -n \"Source-independent semantic fact identity|fingerprint = SHA-256|legacy-only fact|semantic-conflict|fingerprint-collision\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
           "result": "pass",
-          "note": "Precedence and non-duplication are explicit across effective host entrypoints, .lattice navigation, the verified operational projection, normative decisions, and mechanical consumers.",
-          "headHash": "7d7bebed3815af54e6fb8cd7303faa2bd7cb0147",
-          "materialHash": "4de9d757649531281385823319c7ae4ab78761f3991ef276a518ac84b3148de2",
-          "storyFilesHash": "c18b0af7201026ce45bfe33c7fce3d30c4d5a486bf23b58c5d0ab167d6d94fe6",
-          "timestamp": "2026-07-15T12:16:40.053Z"
+          "note": "Dual-read uses source-independent semantic identity; source paths and anchors merge as provenance; legacy-only facts, conflicts and collisions fail closed.",
+          "headHash": "7a819ef04962c400c39fc0e9409a016d022a3af9",
+          "materialHash": "74849b447fb5c7aefac78fbeea027b76c86d87456866dfe6e3bf31d1180b480e",
+          "storyFilesHash": "32e67974806104f7f02ace522ffaed5138aa953765df58d7921e42858ea98132",
+          "timestamp": "2026-07-15T12:26:38.131Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "docs_check",
-          "command": "rg -n \"600|134 unique files|0 unclassified|deprecated-gc-smoke.ts:66|story-lifecycle.md:78,114|root-markdown-migration-execution-solution.md\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "command": "sed -n '/^```tsv$/,/^```$/p' docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md | sed '1d;$d' | tail -n +2 | wc -l",
           "result": "pass",
-          "note": "The plan includes a real bounded tracked-text baseline: 600 hit lines across 134 files, classified 15 host-discovery / 511 migrate / 74 neutral-fixture with zero unclassified, plus named missing consumers and normative authority hits. It explicitly requires semantic reruns by successor Stories.",
-          "headHash": "7d7bebed3815af54e6fb8cd7303faa2bd7cb0147",
-          "materialHash": "4de9d757649531281385823319c7ae4ab78761f3991ef276a518ac84b3148de2",
-          "storyFilesHash": "c18b0af7201026ce45bfe33c7fce3d30c4d5a486bf23b58c5d0ab167d6d94fe6",
-          "timestamp": "2026-07-15T12:16:40.309Z"
+          "note": "The embedded inspectable TSV contains exactly 600 line-level classification rows. A separate digest check returned 52b372438eb5a890c238079a3672d2797e0a4333b7dd01cf37eb2887246fceba, matching the documented digest; every row carries path:line, category, disposition and owner/target.",
+          "headHash": "7a819ef04962c400c39fc0e9409a016d022a3af9",
+          "materialHash": "74849b447fb5c7aefac78fbeea027b76c86d87456866dfe6e3bf31d1180b480e",
+          "storyFilesHash": "32e67974806104f7f02ace522ffaed5138aa953765df58d7921e42858ea98132",
+          "timestamp": "2026-07-15T12:26:38.360Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
           "kind": "docs_check",
           "command": "rg -n \"Story 3 — Audit|Story 4 — Review|Story 5 — Active normative|Story 6 — Verifier|Story 7 — Init|Story 8 — B-e514|Story 9 — Legacy|Required failure exercises|Partial template migration|B-e514 remains in TEST\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
           "result": "pass",
-          "note": "Consumers, normative authority and verifier readiness precede template thinning; the five concrete failure exercises specify fixture, expected failure, recovery and owner, and B-e514 remains the sole root owner.",
-          "headHash": "7d7bebed3815af54e6fb8cd7303faa2bd7cb0147",
-          "materialHash": "4de9d757649531281385823319c7ae4ab78761f3991ef276a518ac84b3148de2",
-          "storyFilesHash": "c18b0af7201026ce45bfe33c7fce3d30c4d5a486bf23b58c5d0ab167d6d94fe6",
-          "timestamp": "2026-07-15T12:16:40.529Z"
+          "note": "Canonical consumers and normative sources precede template/root thinning; required failure exercises cover stale links, conflicting commands, failed red evidence, partial template migration and B-e514 TEST recovery.",
+          "headHash": "7a819ef04962c400c39fc0e9409a016d022a3af9",
+          "materialHash": "74849b447fb5c7aefac78fbeea027b76c86d87456866dfe6e3bf31d1180b480e",
+          "storyFilesHash": "32e67974806104f7f02ace522ffaed5138aa953765df58d7921e42858ea98132",
+          "timestamp": "2026-07-15T12:26:38.562Z"
         }
       ]
     },
