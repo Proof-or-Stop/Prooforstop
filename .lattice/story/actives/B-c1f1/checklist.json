@@ -123,7 +123,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-15T12:03:44.922Z",
-      "endTime": "2026-07-15T12:26:40.571Z",
+      "endTime": "2026-07-15T12:48:47.336Z",
       "verificationIntent": {
         "happy": [
           {
@@ -166,44 +166,44 @@
           "kind": "docs_check",
           "command": "find docs/requirements/decisions -maxdepth 1 -type f -name '*.md' | wc -l",
           "result": "pass",
-          "note": "The correctly quoted independent filesystem command returned 115, matching NAV; the exact target link exists and resolves.",
-          "headHash": "44c9d8ce3aedd84ce736daed479c04e18f38e326",
-          "materialHash": "74849b447fb5c7aefac78fbeea027b76c86d87456866dfe6e3bf31d1180b480e",
-          "storyFilesHash": "32e67974806104f7f02ace522ffaed5138aa953765df58d7921e42858ea98132",
-          "timestamp": "2026-07-15T12:26:40.820Z"
+          "note": "Independent count returns 115 and matches NAV; the active planning authority link resolves.",
+          "headHash": "dab722d03b056a52c446fe5c110f26d031b5744b",
+          "materialHash": "ff2efac1890e310276515cf8a01d1754874c58baa75203240318756a43e800df",
+          "storyFilesHash": "ad8bdfbf98b577d1b03ae95df8a62d999b606ce9e8c082bcdbd68e18e29ef379",
+          "timestamp": "2026-07-15T12:49:37.310Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
-          "kind": "docs_check",
+          "kind": "manual_transcript",
           "command": "rg -n \"proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md\" docs/requirements/NAV.md",
           "result": "pass",
-          "note": "The exact path appears once and is labeled active migration-planning authority, not implementation evidence.",
-          "headHash": "44c9d8ce3aedd84ce736daed479c04e18f38e326",
-          "materialHash": "74849b447fb5c7aefac78fbeea027b76c86d87456866dfe6e3bf31d1180b480e",
-          "storyFilesHash": "32e67974806104f7f02ace522ffaed5138aa953765df58d7921e42858ea98132",
-          "timestamp": "2026-07-15T12:26:41.014Z"
+          "note": "The exact path appears once with no duplicate or superseded target.",
+          "headHash": "dab722d03b056a52c446fe5c110f26d031b5744b",
+          "materialHash": "ff2efac1890e310276515cf8a01d1754874c58baa75203240318756a43e800df",
+          "storyFilesHash": "ad8bdfbf98b577d1b03ae95df8a62d999b606ce9e8c082bcdbd68e18e29ef379",
+          "timestamp": "2026-07-15T12:49:37.636Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
-          "kind": "docs_check",
+          "kind": "manual_transcript",
           "command": "rg -n \"115 files|Proof-or-stop Thin Entrypoint Contract Migration Execution Plan\" docs/requirements/NAV.md",
           "result": "pass",
-          "note": "NAV has one declared count and one matching plan entry; independent count is 115.",
-          "headHash": "44c9d8ce3aedd84ce736daed479c04e18f38e326",
-          "materialHash": "74849b447fb5c7aefac78fbeea027b76c86d87456866dfe6e3bf31d1180b480e",
-          "storyFilesHash": "32e67974806104f7f02ace522ffaed5138aa953765df58d7921e42858ea98132",
-          "timestamp": "2026-07-15T12:26:41.251Z"
+          "note": "NAV has one matching count and one plan entry; filesystem count was recomputed independently.",
+          "headHash": "dab722d03b056a52c446fe5c110f26d031b5744b",
+          "materialHash": "ff2efac1890e310276515cf8a01d1754874c58baa75203240318756a43e800df",
+          "storyFilesHash": "ad8bdfbf98b577d1b03ae95df8a62d999b606ce9e8c082bcdbd68e18e29ef379",
+          "timestamp": "2026-07-15T12:49:37.931Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
           "kind": "docs_check",
-          "command": "git show --name-only --format= dc35dd083c67788c7b1fef51964e7dfb760264bf",
+          "command": "git diff main...HEAD -- docs/requirements/NAV.md",
           "result": "pass",
-          "note": "The original product commit changed only NAV.md and the new decision; later hardening commits changed only the plan, preserving unrelated authority entries.",
-          "headHash": "44c9d8ce3aedd84ce736daed479c04e18f38e326",
-          "materialHash": "74849b447fb5c7aefac78fbeea027b76c86d87456866dfe6e3bf31d1180b480e",
-          "storyFilesHash": "32e67974806104f7f02ace522ffaed5138aa953765df58d7921e42858ea98132",
-          "timestamp": "2026-07-15T12:26:41.437Z"
+          "note": "NAV diff only adds the plan entry and adjusts the decision count; it does not change authority precedence.",
+          "headHash": "dab722d03b056a52c446fe5c110f26d031b5744b",
+          "materialHash": "ff2efac1890e310276515cf8a01d1754874c58baa75203240318756a43e800df",
+          "storyFilesHash": "ad8bdfbf98b577d1b03ae95df8a62d999b606ce9e8c082bcdbd68e18e29ef379",
+          "timestamp": "2026-07-15T12:49:38.597Z"
         }
       ]
     }
