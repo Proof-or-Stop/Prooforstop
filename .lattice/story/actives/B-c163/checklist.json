@@ -211,9 +211,9 @@
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-15T19:30:58.283Z",
-      "endTime": "2026-07-15T19:24:09.806Z",
+      "endTime": "2026-07-15T19:46:13.208Z",
       "userSees": "done_prepare reports disposition “reused”, “executed”, or “skipped_explicitly”; JSON separately reports result, refusalReasons, timeoutLayer, and existingEvidenceBasis “fresh|stale|missing”.",
       "files": {
         "modify": [
@@ -628,6 +628,16 @@
       "timestamp": "2026-07-15T19:46:12.389Z",
       "phase": "DEV",
       "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-001..F-004 remediation implemented, committed, and assertion-specific verification evidence recorded.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-15T19:46:13.208Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
       "action": "update",
       "from": "in_progress",
       "to": "done",
