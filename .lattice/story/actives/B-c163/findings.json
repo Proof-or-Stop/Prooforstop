@@ -39,6 +39,27 @@
       ],
       "signatureTag": "spec-boundary|ts|trusted-metadata-reuse",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c163:F-003",
+      "desc": "All 28 must intents are marked covered by four smoke commands, but the assertions exercise only a small subset. Budget tests use one 1,200,000ms command: no 290,000+1,200,000 sequence, default-timeout command, malformed/non-positive inputs, unrelated CLI max, LATTICE_MAX_TIMEOUT_MS, or phase/max race; phase-timeout JSON does not assert disposition/result/refusalReasons/timeoutLayer. Reuse tests call the evaluator only and never exercise done_prepare default reuse, reuseFreshDoneRequired=false, fresh/stale/missing validate=false immutability, structured failure/timeout/block outputs, malformed/unreadable evidence, full lineage matrix, or TOCTOU. Direct-handler tests run an instant child and synchronous throwing sink only: no silent heartbeat past idle, real direct CLI watchdog, explicit idle/max, passing and failing rejected sinks, boundary ordering, descendant cleanup, lock reacquisition, or late-heartbeat race. Add table-driven budget tests and hermetic real-CLI fixtures per omitted intent, then bind each evidence ref to assertions that actually exist.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-15T19:28:24.619Z",
+      "reviewRound": "2026-07-15T19:24:16.796Z",
+      "reviewRunId": "B-c163:RR-005",
+      "_hash": "1c445de659fc43c9ffa0fc13efad52b83caf3dea2093061eb3e9f9dade2e0d24",
+      "files": [
+        "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+        "packages/main/src/tasks/done-required-validation-smoke.ts",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+        "packages/main/src/tasks/command-catalog-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|intents-marked-covered",
+      "signatureTagSource": "auto"
     }
   ]
 }
