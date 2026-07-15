@@ -416,7 +416,7 @@
         "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
         "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-15T19:30:58.806Z",
       "endTime": "2026-07-15T20:52:33.976Z",
       "userSees": "direct done_required_validate prints periodic “validate heartbeat” lines; --json remains one result, and a throwing/closed progress sink cannot change command PASS/FAIL.",
@@ -819,6 +819,15 @@
       "from": "done",
       "to": "in_progress",
       "reason": "F-012 restore combined original and focused coverage for CHK-002 edge evidence"
+    },
+    {
+      "timestamp": "2026-07-15T22:19:52.130Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "F-012/F-013 restore combined evidence and isolate non-max timeout rows from outer harness preemption"
     }
   ]
 }
