@@ -59,7 +59,7 @@
       "desc": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:253-289 — HIGH: the implementation slices do not assign migration of active normative documents that still point readers back to CLAUDE.md. For example story-lifecycle.md:78 names a nonexistent future CLAUDE.md hard-gate section and story-lifecycle.md:114 promises CLAUDE.md keeps a summary; root-markdown-migration-execution-solution.md:32 still routes operational material into AGENTS.md/CLAUDE.md. These are behavior-affecting authority references, not historical comments, and plain-text references evade the proposed Markdown link/anchor checks. Add the affected normative decisions to an explicit slice and a verifier that fails on active Claude-first authority phrases, otherwise the final hierarchy can pass while canonical docs remain contradictory/broken.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-15T12:07:25.943Z",
@@ -67,7 +67,11 @@
       "reviewRunId": "B-c1f1:RR-002",
       "_hash": "cf86936e070de8052707d23d5f8a056bcd236d64a5079e72ce6784fbf2d68401",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added Story 5 active normative-authority migration covering story-lifecycle.md:78/114, root-markdown-migration-execution-solution.md:32/75, root-document-migration-guide.md and all bounded-scan hits, plus a plain-text retired-authority vocabulary guard.",
+      "resolvedAt": "2026-07-15T12:17:45.260Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c1f1:F-004",
