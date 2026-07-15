@@ -121,9 +121,9 @@
         "docs/requirements/NAV.md",
         "docs/requirements/decisions/truth-source.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-15T12:03:44.922Z",
-      "endTime": null,
+      "endTime": "2026-07-15T12:04:30.686Z",
       "verificationIntent": {
         "happy": [
           {
@@ -159,7 +159,53 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "command": "find docs/requirements/decisions -maxdepth 1 -type f -name *.md | wc -l",
+          "result": "pass",
+          "note": "Independent filesystem count returned 115, matching the NAV declaration; the exact active-authority link exists at NAV line 71.",
+          "headHash": "64594ee070135b91c67e61fded809e24f45912c8",
+          "materialHash": "004d1736c869e082656ccde18df7ec331c1ae0b78d63b7937af3903054d40ebf",
+          "storyFilesHash": "a957a74c30c6f1717fb86d3399e3feb6b4cb04ed7324763c6b35e589a46bfc5a",
+          "timestamp": "2026-07-15T12:04:31.055Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md\" docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "The new path appears exactly once with the exact filename and is labeled active migration-planning authority, not implementation evidence.",
+          "headHash": "64594ee070135b91c67e61fded809e24f45912c8",
+          "materialHash": "004d1736c869e082656ccde18df7ec331c1ae0b78d63b7937af3903054d40ebf",
+          "storyFilesHash": "a957a74c30c6f1717fb86d3399e3feb6b4cb04ed7324763c6b35e589a46bfc5a",
+          "timestamp": "2026-07-15T12:04:31.361Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"115 files|Proof-or-stop Thin Entrypoint Contract Migration Execution Plan\" docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "NAV contains one count declaration and one matching plan entry; the linked target exists and the independent count is 115.",
+          "headHash": "64594ee070135b91c67e61fded809e24f45912c8",
+          "materialHash": "004d1736c869e082656ccde18df7ec331c1ae0b78d63b7937af3903054d40ebf",
+          "storyFilesHash": "a957a74c30c6f1717fb86d3399e3feb6b4cb04ed7324763c6b35e589a46bfc5a",
+          "timestamp": "2026-07-15T12:04:31.702Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "docs_check",
+          "command": "git show --name-only --format= dc35dd083c67788c7b1fef51964e7dfb760264bf",
+          "result": "pass",
+          "note": "The product commit contains only NAV.md and the new decision document; surrounding authority entries were preserved and no implementation paths changed.",
+          "headHash": "64594ee070135b91c67e61fded809e24f45912c8",
+          "materialHash": "004d1736c869e082656ccde18df7ec331c1ae0b78d63b7937af3903054d40ebf",
+          "storyFilesHash": "a957a74c30c6f1717fb86d3399e3feb6b4cb04ed7324763c6b35e589a46bfc5a",
+          "timestamp": "2026-07-15T12:04:32.066Z"
+        }
+      ]
     }
   ]
 }
