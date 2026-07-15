@@ -166,6 +166,25 @@
       "resolvedAt": "2026-07-15T20:20:52.163Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-008",
+      "desc": "Post-validation closeout watchdog blocks overwrite already-observed validation facts. `cliWatchdogTimeoutBlock` always emits `disposition=executed` and `existingEvidenceBasis=stale`, even when done_prepare ran with validate=false and had already recorded `disposition=skipped_explicitly` plus a computed missing/fresh/stale basis. The new post-validation timeout smoke uses exactly validate=false/dryRun but asserts the fabricated executed disposition, locking in the contradiction. Keep overall `result=timed_out`/timeoutLayer=idle|max, but carry the validation disposition and evidence basis observed at the validate step (or separate validation outcome from overall command outcome). This is distinct from the fixed preflight case: here the fields were observed and are then replaced with false values.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T20:22:01.186Z",
+      "reviewRound": "2026-07-15T20:20:04.456Z",
+      "reviewRunId": "B-c163:RR-014",
+      "_hash": "75b1f432eefc8037f1fc4d5a0ebdbe3d980db71ab3136c1d6a55aaf1333fbad9",
+      "files": [
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts"
+      ],
+      "signatureTag": "spec-boundary|ts|post-validation-closeout",
+      "signatureTagSource": "auto"
     }
   ]
 }
