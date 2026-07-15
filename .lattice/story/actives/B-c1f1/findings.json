@@ -406,6 +406,24 @@
       ],
       "signatureTag": "spec-boundary|md|source-view-contract",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c1f1:F-018",
+      "desc": "The plan defines fail-closed marker absence semantics at line 160, but its required dual-read fixture table and Story 1 red-fixture list do not require executable coverage for those branches. Add explicit fixtures proving: required plus all markers absent fails; recognized pre-cutover empty-if-all-absent yields an empty canonical view and whole-file legacy complement; and any partial marker under that policy fails. Without these fixtures, an implementation can satisfy the named same-path and overlap cases while silently treating an unmarked full CLAUDE.md as canonical or accepting a half-marked migration state, defeating the provenance-laundering guard.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-15T13:17:27.941Z",
+      "reviewRound": "2026-07-15T13:15:29.476Z",
+      "reviewRunId": "B-c1f1:RR-019",
+      "_hash": "50f45b3039e7b3396334ada830d589023e277aa01183c15768958d871a21bd20",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|plan-defines-fail",
+      "signatureTagSource": "auto"
     }
   ]
 }
