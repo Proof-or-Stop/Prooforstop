@@ -424,6 +424,37 @@
       },
       "readDiagnostics": [],
       "_hash": "a7979f438ed8be97b9c23a28694728940f4d7229572ae84ca2bb06ad33c3a9d5"
+    },
+    {
+      "id": "B-c1f1:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "F-032 is closed at commit 084a2a69c6: Story 6 readiness item 5 now explicitly replays both external-secret parent-swap and final ordinary-file replacement races, requires a second independent root-anchored no-follow walk over the complete ordered parent chain plus final-file identity after descriptor-bound read, and requires discard/fail-before-return on any mismatch. This makes pre-template readiness consume the full race contract rather than only the parent case; no new concept blocker found within F-032 scope.",
+      "createdAt": "2026-07-15T14:10:56.596Z",
+      "reviewRound": "2026-07-15T14:09:16.983Z",
+      "reviewRunId": "B-c1f1:RR-041",
+      "writerSessionId": "sess-5593716d3b6d0282",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "2e08fcf6179bd6dd67f5e75fbae68df6dc7702d8be74848b224f1363cb6c394e"
+      },
+      "readDiagnostics": [],
+      "_hash": "4aba94324bca590c4abdb9c8e27e8b8d172e4e639276933876fbfe8033ad85ea"
     }
   ]
 }
