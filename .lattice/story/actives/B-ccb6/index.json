@@ -4,11 +4,11 @@
   "title": "Make DONE-required validation converge without redundant reruns or false timeouts",
   "description": "Implement Workstream A from the workflow convergence remediation plan. Preserve an independent hard phase deadline derived from sequential command budgets plus bounded grace, reuse only structurally fresh DONE-required receipts, and ensure long active done_required_validate commands refresh CLI liveness without weakening per-command or absolute timeouts.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DISCARDED",
   "priority": "high",
   "createdAt": "2026-07-15T15:42:12.147Z",
   "startedAt": "2026-07-15T15:42:12.147Z",
-  "endedAt": null,
+  "endedAt": "2026-07-15T18:43:47.639Z",
   "events": [
     {
       "phase": "INIT",
@@ -27,11 +27,16 @@
       "user": "Harmonygo",
       "sessionId": "codex-bccb6-main",
       "agent": "main"
+    },
+    {
+      "phase": "DISCARDED",
+      "action": "discard",
+      "timestamp": "2026-07-15T18:43:47.639Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "codex-bccb6-main",
+      "agent": "main",
+      "reason": "Replaced after bootstrap fix: the original PLAN execution boundary omitted command-catalog.ts and cannot be expanded after INIT; preserve B-ccb6 as the audit record and recreate Workstream A from current main with the complete boundary."
     }
-  ],
-  "worktree": {
-    "path": ".worktrees/B-ccb6",
-    "branch": "story/B-ccb6",
-    "createdAt": "2026-07-15T15:46:19.706Z"
-  }
+  ]
 }
