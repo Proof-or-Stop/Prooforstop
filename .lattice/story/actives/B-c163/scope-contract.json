@@ -40,7 +40,24 @@
     "packages/main/src/core/scope-diff-pack.ts"
   ],
   "scopeChangeReason": "Verified HIGH findings F-001 and F-003 require minimal AbortSignal and deadline propagation through verifier and validation-executor so idle/max timeout can terminate child trees, release locks and timers, and produce a structured terminal result. No unrelated behavior is authorized.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "BUG-014 requires synchronizing the exact cli-engine AST fingerprint after the in-scope runCli implementation changed; this preserves the finite allowlist and is covered by the independently passing guard smoke.",
+      "timestamp": "2026-07-15T22:55:47.928Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "d8cee89719bf9b54bc1a46717f08aa13ab92d022",
+      "materialHash": "8586ae2baef0f365f2df89404aca9010476723f84894977d0bd16423c7dff8e2"
+    }
+  ],
   "createdAt": "2026-07-15T19:01:11.957Z",
-  "updatedAt": "2026-07-15T19:34:18.047Z"
+  "updatedAt": "2026-07-15T22:55:47.928Z"
 }
