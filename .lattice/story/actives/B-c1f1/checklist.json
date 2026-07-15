@@ -123,7 +123,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-15T12:03:44.922Z",
-      "endTime": "2026-07-15T13:22:57.154Z",
+      "endTime": "2026-07-15T13:30:49.516Z",
       "verificationIntent": {
         "happy": [
           {
@@ -166,11 +166,11 @@
           "kind": "docs_check",
           "command": "find docs/requirements/decisions -maxdepth 1 -type f -name '*.md' | wc -l",
           "result": "pass",
-          "note": "115 inventory count remains correct and the curated index is truthful.",
-          "headHash": "40374b53cf5e29436a190f0f985aa2cb8ccf7e44",
-          "materialHash": "1f739ed80703978797abc649a880a998cc453b5fc1ead632943f3eb289120fd3",
-          "storyFilesHash": "a7b975883f176184db4653ca6dee7b8dc43ec641e24f8496f00849fe56308731",
-          "timestamp": "2026-07-15T13:22:57.614Z"
+          "note": "115 inventory remains correct.",
+          "headHash": "621459e103aa3b5075957b32c6d53befadccdae7",
+          "materialHash": "9e2b1aaff2ab5cc6ee243175bbdf0c071db7aa189664b9115609dcb04bb4b9dd",
+          "storyFilesHash": "174f193dc0314194c5566809278f9a65e35dc9bad3fc45e363960c095f6c3ee0",
+          "timestamp": "2026-07-15T13:30:50.032Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -178,32 +178,32 @@
           "command": "rg -n \"proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md\" docs/requirements/NAV.md",
           "result": "pass",
           "note": "Exact plan link appears once.",
-          "headHash": "40374b53cf5e29436a190f0f985aa2cb8ccf7e44",
-          "materialHash": "1f739ed80703978797abc649a880a998cc453b5fc1ead632943f3eb289120fd3",
-          "storyFilesHash": "a7b975883f176184db4653ca6dee7b8dc43ec641e24f8496f00849fe56308731",
-          "timestamp": "2026-07-15T13:22:58.044Z"
+          "headHash": "621459e103aa3b5075957b32c6d53befadccdae7",
+          "materialHash": "9e2b1aaff2ab5cc6ee243175bbdf0c071db7aa189664b9115609dcb04bb4b9dd",
+          "storyFilesHash": "174f193dc0314194c5566809278f9a65e35dc9bad3fc45e363960c095f6c3ee0",
+          "timestamp": "2026-07-15T13:30:50.597Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "manual_transcript",
           "command": "rg -n \"Curated, non-exhaustive navigation|Inventory count: 115|Proof-or-stop Thin Entrypoint Contract Migration Execution Plan\" docs/requirements/NAV.md",
           "result": "pass",
-          "note": "NAV distinguishes inventory from curated links.",
-          "headHash": "40374b53cf5e29436a190f0f985aa2cb8ccf7e44",
-          "materialHash": "1f739ed80703978797abc649a880a998cc453b5fc1ead632943f3eb289120fd3",
-          "storyFilesHash": "a7b975883f176184db4653ca6dee7b8dc43ec641e24f8496f00849fe56308731",
-          "timestamp": "2026-07-15T13:22:58.469Z"
+          "note": "Inventory and curated navigation are truthfully distinguished.",
+          "headHash": "621459e103aa3b5075957b32c6d53befadccdae7",
+          "materialHash": "9e2b1aaff2ab5cc6ee243175bbdf0c071db7aa189664b9115609dcb04bb4b9dd",
+          "storyFilesHash": "174f193dc0314194c5566809278f9a65e35dc9bad3fc45e363960c095f6c3ee0",
+          "timestamp": "2026-07-15T13:30:51.027Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
           "kind": "docs_check",
           "command": "git diff main...HEAD -- docs/requirements/NAV.md",
           "result": "pass",
-          "note": "NAV change is limited and preserves authority precedence.",
-          "headHash": "40374b53cf5e29436a190f0f985aa2cb8ccf7e44",
-          "materialHash": "1f739ed80703978797abc649a880a998cc453b5fc1ead632943f3eb289120fd3",
-          "storyFilesHash": "a7b975883f176184db4653ca6dee7b8dc43ec641e24f8496f00849fe56308731",
-          "timestamp": "2026-07-15T13:22:59.246Z"
+          "note": "NAV diff remains scoped.",
+          "headHash": "621459e103aa3b5075957b32c6d53befadccdae7",
+          "materialHash": "9e2b1aaff2ab5cc6ee243175bbdf0c071db7aa189664b9115609dcb04bb4b9dd",
+          "storyFilesHash": "174f193dc0314194c5566809278f9a65e35dc9bad3fc45e363960c095f6c3ee0",
+          "timestamp": "2026-07-15T13:30:51.389Z"
         }
       ]
     }
