@@ -305,7 +305,7 @@
       "desc": "CHK-001 adversarial:0 is still not independently reviewable after F-008. The appendix digest and row count replay successfully (600 data rows; SHA-256 52b372438eb5a890c238079a3672d2797e0a4333b7dd01cf37eb2887246fceba; all four existing fields nonempty), but the plan contract at lines 212-214 requires matched phrase, behavioral/non-behavioral status, target authority, owning Story, and disposition for every hit. Appendix A exposes only path:line, category, disposition, and a combined owner/target column. Consequently the evidence command proves quantity and integrity of an under-specified manifest, not that every behavior-affecting hit was correctly assigned or justified. This independently confirms F-012; regenerate the manifest with the required separate fields (or revise the contract to an equally inspectable schema), recompute totals/digest, and refresh CHK-001 adversarial evidence.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-15T12:29:43.836Z",
@@ -316,7 +316,11 @@
         "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
       ],
       "signatureTag": "missing-docs-manifest-schema-underproves-classification",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "The complete seven-column manifest now mechanically proves classification coverage for all 600 scan hits with zero empty fields and a reproducible SHA-256 digest.",
+      "resolvedAt": "2026-07-15T13:06:37.541Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c1f1:F-014",
