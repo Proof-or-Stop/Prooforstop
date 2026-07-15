@@ -123,7 +123,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-15T12:03:44.922Z",
-      "endTime": "2026-07-15T14:04:00.849Z",
+      "endTime": "2026-07-15T14:08:49.777Z",
       "verificationIntent": {
         "happy": [
           {
@@ -167,10 +167,10 @@
           "command": "find docs/requirements/decisions -maxdepth 1 -type f -name '*.md' | wc -l",
           "result": "pass",
           "note": "115.",
-          "headHash": "8f73bbaff20b45ffe10cba9c573085a32c629eb8",
-          "materialHash": "c50eff3bec6e0fefb07f8c9d046292a3baf44ee35ed5a1dfb963d088e4fb3b6d",
-          "storyFilesHash": "0aff0c508bd84bbecdb2d8aa1c28c9eea30069b6d7aaccc8b20c31f26cc923a3",
-          "timestamp": "2026-07-15T14:04:01.209Z"
+          "headHash": "76feda79edb8ec623e7460f69267f08e3f86f6dd",
+          "materialHash": "cbefd163f96f6730a6acbe660d813e06ab8b6f8adea6aff82672387297f48b36",
+          "storyFilesHash": "a0d19b1712e6d995293f6929007f4949d9ea968f3a72c52dcd0feeef64d1b469",
+          "timestamp": "2026-07-15T14:08:50.583Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -178,10 +178,10 @@
           "command": "rg -n \"proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md\" docs/requirements/NAV.md",
           "result": "pass",
           "note": "Once.",
-          "headHash": "8f73bbaff20b45ffe10cba9c573085a32c629eb8",
-          "materialHash": "c50eff3bec6e0fefb07f8c9d046292a3baf44ee35ed5a1dfb963d088e4fb3b6d",
-          "storyFilesHash": "0aff0c508bd84bbecdb2d8aa1c28c9eea30069b6d7aaccc8b20c31f26cc923a3",
-          "timestamp": "2026-07-15T14:04:01.518Z"
+          "headHash": "76feda79edb8ec623e7460f69267f08e3f86f6dd",
+          "materialHash": "cbefd163f96f6730a6acbe660d813e06ab8b6f8adea6aff82672387297f48b36",
+          "storyFilesHash": "a0d19b1712e6d995293f6929007f4949d9ea968f3a72c52dcd0feeef64d1b469",
+          "timestamp": "2026-07-15T14:08:51.098Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -189,10 +189,10 @@
           "command": "rg -n \"Curated, non-exhaustive navigation|Inventory count: 115|Proof-or-stop Thin Entrypoint Contract Migration Execution Plan\" docs/requirements/NAV.md",
           "result": "pass",
           "note": "Truthful.",
-          "headHash": "8f73bbaff20b45ffe10cba9c573085a32c629eb8",
-          "materialHash": "c50eff3bec6e0fefb07f8c9d046292a3baf44ee35ed5a1dfb963d088e4fb3b6d",
-          "storyFilesHash": "0aff0c508bd84bbecdb2d8aa1c28c9eea30069b6d7aaccc8b20c31f26cc923a3",
-          "timestamp": "2026-07-15T14:04:01.823Z"
+          "headHash": "76feda79edb8ec623e7460f69267f08e3f86f6dd",
+          "materialHash": "cbefd163f96f6730a6acbe660d813e06ab8b6f8adea6aff82672387297f48b36",
+          "storyFilesHash": "a0d19b1712e6d995293f6929007f4949d9ea968f3a72c52dcd0feeef64d1b469",
+          "timestamp": "2026-07-15T14:08:51.965Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -200,10 +200,10 @@
           "command": "git diff main...HEAD -- docs/requirements/NAV.md",
           "result": "pass",
           "note": "Scoped.",
-          "headHash": "8f73bbaff20b45ffe10cba9c573085a32c629eb8",
-          "materialHash": "c50eff3bec6e0fefb07f8c9d046292a3baf44ee35ed5a1dfb963d088e4fb3b6d",
-          "storyFilesHash": "0aff0c508bd84bbecdb2d8aa1c28c9eea30069b6d7aaccc8b20c31f26cc923a3",
-          "timestamp": "2026-07-15T14:04:02.436Z"
+          "headHash": "76feda79edb8ec623e7460f69267f08e3f86f6dd",
+          "materialHash": "cbefd163f96f6730a6acbe660d813e06ab8b6f8adea6aff82672387297f48b36",
+          "storyFilesHash": "a0d19b1712e6d995293f6929007f4949d9ea968f3a72c52dcd0feeef64d1b469",
+          "timestamp": "2026-07-15T14:08:52.513Z"
         }
       ]
     }
