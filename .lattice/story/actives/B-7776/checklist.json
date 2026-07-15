@@ -22,7 +22,30 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Invoke the counter-only resumeBreakerState with representative current breaker counters after a frozen incident -> the returned state re-baselines every counter to those current values, clears frozen/trippedReasons/counterSnapshot, and restores autoRecoveriesSpent to 0; WHY: preserves the intentional human-ack reset behaviour while making the API contract truthful.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Invoke the counter-only reset with zero-valued current counters -> every baseline remains 0 and all reset fields still return to their clean defaults; WHY: proves the implementation derives the resumed state from counters without needing persisted prior-state data, including the lower boundary.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Build and run the convergence-breaker smoke after converting all production and smoke call sites to the one-argument counter-only signature -> TypeScript accepts no missed legacy two-argument call and the human-ack regression assertions pass; WHY: catches a silently retained misleading call site or an accidental change to resume semantics.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }

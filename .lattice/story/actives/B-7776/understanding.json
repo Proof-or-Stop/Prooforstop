@@ -1,0 +1,23 @@
+{
+  "task": "Remove the unused priorState argument from resumeBreakerState and update all internal callers without changing human-ack reset behaviour.",
+  "outcome": "After completion, the user can inspect resumeBreakerState and see a counter-only signature; running the convergence-breaker smoke prints PASS and story_resume still clears frozen state, restores the recovery budget, and re-baselines every counter.",
+  "facts": [
+    "resumeBreakerState currently ignores priorState.",
+    "The handler validates prior.frozen before calling the helper and uses prior.trippedReasons afterward.",
+    "There are exactly three internal call sites: one handler and two smoke paths.",
+    "The helper is not exported from the package root."
+  ],
+  "constraints": [
+    "Preserve all reset semantics and human-only acknowledgement checks.",
+    "Keep the change limited to the three declared source files.",
+    "Do not change thresholds, gate policy, or public CLI behaviour.",
+    "Follow the complete Lattice lifecycle and observe any repeated or stale-evidence loops."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "core/convergence-breaker.ts",
+    "handlers/story.ts",
+    "tasks/convergence-breaker-smoke.ts"
+  ],
+  "timestamp": "2026-07-15T11:59:01.109Z"
+}
