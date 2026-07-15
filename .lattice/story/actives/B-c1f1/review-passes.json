@@ -330,6 +330,37 @@
       },
       "readDiagnostics": [],
       "_hash": "422ea8c713c81162ea1633e238788f9700a2e6d7667d9630cf87ebb481bc2e95"
+    },
+    {
+      "id": "B-c1f1:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "PASS: F-028 now keeps ordinary startup/live signing active-only while a structurally separate human pending-key preflight exposes no signing capability or gate evidence; fixtures cover pending rejection and post-activation restart. F-029 now confines external CI files to an approved root with component-by-component no-follow descriptor traversal, ownership/mode and identity checks, fail-closed platform fallback, and parent/final-link plus swap fixtures. Commit 71d5e27 remains unchanged at the current review HEAD and these additions are consistent with the existing active-key, signer-registry, process-evidence, and secure-I/O contracts.",
+      "createdAt": "2026-07-15T14:00:36.196Z",
+      "reviewRound": "2026-07-15T13:57:06.336Z",
+      "reviewRunId": "B-c1f1:RR-037",
+      "writerSessionId": "sess-5593716d3b6d0282",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "8191a2407ea88108a5c48247dab5e82da1b634ea72ee3f8689873e0f861a93ad"
+      },
+      "readDiagnostics": [],
+      "_hash": "f2d5121fb2f3506006ed6a3088c31043b1216356b83506720cca9d49a809204a"
     }
   ]
 }
