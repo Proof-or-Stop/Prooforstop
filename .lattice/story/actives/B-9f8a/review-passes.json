@@ -135,6 +135,32 @@
         "corpusDigest": "c3c5c2991583c24c3cd1a5b524bebb1ef26f4ab22191008f3f6a6bd5d29edd94"
       },
       "_hash": "fc34f3847d2a8c03daca0e0e422f691c496ae9cae88f4e8ecf3f226b7305bfd0"
+    },
+    {
+      "id": "B-9f8a:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Targeted round-2 concept re-review confirmed F-003 and F-004 are corrected: DONE timing now retains the canonical independent hard phase deadline derived from sequential budgets plus grace, and owner-session work is framed as a B-9089 shipped-behavior regression repair with mandatory two-host review and an explicit canonical-decision boundary. Adjacent rollback, verification-matrix, evidence, and reproduction text remains internally consistent; no new concept blocker was found. Candidate binding is intentionally omitted under configured shadow semantics because the just-dispatched artifact was immediately stale and expanded generic-token ambiguity to the full corpus, the already-recorded F-005 failure.",
+      "createdAt": "2026-07-15T13:35:41.084Z",
+      "reviewRound": "2026-07-15T13:33:42.668Z",
+      "reviewRunId": "B-9f8a:RR-005",
+      "writerSessionId": "sess-854478e4496c885d",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "6c380b9ba068f60526d7bd7b89aac23c017c35e7b53edd7cdeb62b324f7ba128"
     }
   ]
 }
