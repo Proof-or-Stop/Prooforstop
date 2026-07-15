@@ -4,7 +4,7 @@
   "title": "Remove the misleading priorState parameter from resumeBreakerState",
   "description": "resumeBreakerState currently accepts a priorState argument that it never reads. Preserve the intentional human-ack reset semantics while making the internal API and all call sites accurately express that the next state is derived solely from current counters. Use the small change to observe whether the lifecycle produces unnecessary rework or convergence loops.",
   "type": "refactor",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "low",
   "keywords": [
     "convergence-breaker",
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-07-15T11:57:23.599Z",
   "startedAt": "2026-07-15T11:57:23.599Z",
-  "endedAt": null,
+  "endedAt": "2026-07-15T12:31:52.223Z",
   "events": [
     {
       "phase": "INIT",
@@ -69,12 +69,16 @@
       "user": "Harmonygo",
       "sessionId": "codex-b7776-root",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-15T12:31:52.223Z",
+      "branch": "story/B-7776",
+      "user": "Harmonygo",
+      "sessionId": "codex-b7776-root",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-7776",
-    "branch": "story/B-7776",
-    "createdAt": "2026-07-15T11:58:30.277Z"
-  },
   "currentReviewRound": "2026-07-15T12:05:39.733Z"
 }
