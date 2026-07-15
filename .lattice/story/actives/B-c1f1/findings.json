@@ -633,6 +633,24 @@
       "resolvedAt": "2026-07-15T13:50:01.214Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-028",
+      "desc": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:273,276 — HIGH: the private-key rotation preflight introduced for F-027 is internally contradictory. The startup/provider rule requires the configured private key to match the current active registry entry, but the two-step rotation requires startup to prove key B matches its pending registry entry before B may be activated. Under the stated rule, a process configured for pending B must fail before performing that proof; if an implementer relaxes the rule ad hoc, a pending key could accidentally enter the live-signing path. Define a separate non-signing pending-key enrollment/preflight operation that may derive and compare B only to the exact pending (signer,keyId) record, cannot emit live artifacts, and must succeed before the human activation commit; keep ordinary startup/signing active-only. Add a fixture proving pending B preflight succeeds while pending B live signing fails, then activation permits signing.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T13:52:00.957Z",
+      "reviewRound": "2026-07-15T13:49:34.896Z",
+      "reviewRunId": "B-c1f1:RR-032",
+      "_hash": "d6d627606687e7f5f99b059d0d944ec588cbf9e35c4139ead0d93a4fc1a5c271",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|pending-key-preflight-active-only-contradiction",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
