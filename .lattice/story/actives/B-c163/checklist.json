@@ -416,9 +416,9 @@
         "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
         "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-15T19:30:58.806Z",
-      "endTime": "2026-07-15T20:32:06.387Z",
+      "endTime": "2026-07-15T20:43:22.319Z",
       "userSees": "direct done_required_validate prints periodic “validate heartbeat” lines; --json remains one result, and a throwing/closed progress sink cannot change command PASS/FAIL.",
       "files": {
         "modify": [
@@ -778,6 +778,15 @@
       "timestamp": "2026-07-15T20:43:18.422Z",
       "phase": "DEV",
       "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-011 implementation and targeted regression passed"
+    },
+    {
+      "timestamp": "2026-07-15T20:43:22.319Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
       "action": "update",
       "from": "in_progress",
       "to": "done",
