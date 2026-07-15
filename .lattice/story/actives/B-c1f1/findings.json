@@ -362,6 +362,24 @@
       ],
       "signatureTag": "adversarial|md|canonical-legacy-provenance",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c1f1:F-016",
+      "desc": "docs/requirements/NAV.md declares 115 decision files but links only 102 of them. A deterministic comparison of git ls-files docs/requirements/decisions/*.md against NAV decision targets reports 13 omissions (including newly active plans such as proof-or-stop-agent-prompt-consolidation-execution-plan.md and proof-or-stop-evidence-instrument-replay-execution-plan.md). The B-c1f1 plan link is present exactly once and its active-authority label is correct, but the navigation count is not backed by a complete index, so readers cannot reach all claimed decision authorities. Update NAV to include every tracked decision document exactly once (or change the count/claim to a truthful explicitly partial index), then rerun the set comparison.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-15T13:10:36.183Z",
+      "reviewRound": "2026-07-15T13:06:08.764Z",
+      "reviewRunId": "B-c1f1:RR-016",
+      "_hash": "b8bd135fbef6dff2c8b94e3963bed097f1d22ae0d8663fe465b677f84907a2e3",
+      "files": [
+        "docs/requirements/NAV.md"
+      ],
+      "signatureTag": "doc-promise-undelivered|md|docs-requirements-declares",
+      "signatureTagSource": "auto"
     }
   ]
 }
