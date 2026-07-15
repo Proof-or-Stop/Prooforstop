@@ -191,12 +191,30 @@ const HEALTHY: BreakerCounters = {
     assert.ok(round && round.frozen === true, 'frozen state round-trips');
 
     // Ack clears it and re-baselines ALL signals to the current counts.
-    const resumed = resumeBreakerState(round, { ...STORM, advanceCount: 200 });
+    const resumed = resumeBreakerState({ ...STORM, advanceCount: 200 });
     assert.equal(resumed.frozen, false, 'resume clears frozen');
     assert.equal(resumed.autoRecoveriesSpent, 0, 'resume restores the recovery budget');
     assert.equal(resumed.advanceBaseline, 200, 'resume re-baselines advance to current');
     assert.equal(resumed.takeoverBaseline, 65, 'resume re-baselines takeover to current');
     assert.equal(resumed.reviewRunBaseline, 131, 'resume re-baselines review runs to current');
+
+    const resumedFromZero = resumeBreakerState({
+      advanceCount: 0,
+      reviewRunCount: 0,
+      reviewPassCount: 0,
+      takeoverCount: 0,
+      maxGateRepeat: 0,
+    });
+    assert.deepEqual(resumedFromZero, {
+      advanceBaseline: 0,
+      takeoverBaseline: 0,
+      reviewRunBaseline: 0,
+      reviewPassBaseline: 0,
+      autoRecoveriesSpent: 0,
+      frozen: false,
+      trippedReasons: [],
+      counterSnapshot: undefined,
+    }, 'resume derives clean defaults from zero counters without prior state');
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
@@ -314,7 +332,7 @@ const HEALTHY: BreakerCounters = {
     enforceConvergenceBreakerGate({ ...base, command: 'summary_set', isTakeoverCommand: false });
 
     // Ack clears it: the gate then proceeds again.
-    const cleared = resumeBreakerState(readBreakerState(dir), collectBreakerCounters(store, 'B-gate', dir));
+    const cleared = resumeBreakerState(collectBreakerCounters(store, 'B-gate', dir));
     writeBreakerState(dir, cleared);
     enforceConvergenceBreakerGate(base); // must not throw
   } finally {

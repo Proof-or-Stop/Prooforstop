@@ -339,7 +339,6 @@ export function assessBreaker(
  * separately.
  */
 export function resumeBreakerState(
-  priorState: Partial<BreakerState> | null | undefined,
   counters: BreakerCounters,
 ): BreakerState {
   return {
