@@ -203,6 +203,34 @@
         "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
       },
       "_hash": "ae6a02c6a55716df5ef5bb5543153033ffb3b176381efc3cbb2a3fdb3f8d9928"
+    },
+    {
+      "id": "B-c163:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Incremental Round 7 quality PASS. review_incremental_context identified only retired-authority-vocabulary-guard-smoke.ts since RP-007. Commit d8cee89719 changes exactly one 64-character cli-engine canonical AST fingerprint; no allowlist, matcher, retired vocabulary rule, approved call shape, occurrence count, or positive/negative control changed. Build and the real retired-authority vocabulary guard pass with the repinned fingerprint, confirming exact current cli-engine structure while existing mutation controls remain fail-closed.",
+      "createdAt": "2026-07-15T22:59:12.649Z",
+      "reviewRound": "2026-07-15T22:55:48.933Z",
+      "reviewRunId": "B-c163:RR-035",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "798c1504cc047ce5972fa3d11454edd63616a44848895ac022bc247b138a1a16",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "_hash": "455ed065e6fa32e492b9f91937b71839865fd087247279a813b3dad92e4a5bff"
     }
   ]
 }
