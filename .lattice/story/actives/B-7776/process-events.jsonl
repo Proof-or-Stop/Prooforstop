@@ -7,3 +7,6 @@
 {"type":"plan_reviewed","round":3,"blockerCount":0,"issueCount":1,"timestamp":"2026-07-15T12:03:30.843Z"}
 {"type":"dispatch","checklistId":"CHK-001","timestamp":"2026-07-15T12:04:55.880Z"}
 {"type":"subagent_result","checklistId":"CHK-001","success":true,"timestamp":"2026-07-15T12:05:09.586Z"}
+{"type":"dispatch","storyId":"B-7776","phase":"REVIEW","source":"lattice dispatch","targetKind":"checklist","agentType":"lattice-review-quality","itemId":"CHK-001","checklistId":"CHK-001","timestamp":"2026-07-15T12:06:22.348Z"}
+{"type":"dispatch","storyId":"B-7776","phase":"REVIEW","source":"lattice dispatch","targetKind":"checklist","agentType":"lattice-review-test-coverage","itemId":"CHK-001","checklistId":"CHK-001","timestamp":"2026-07-15T12:06:29.461Z"}
+{"type":"review_pass","storyId":"B-7776","command":"review_pass_set","role":"reviewer","agent":"lattice-review-concept","result":"pass","reviewPassId":"B-7776:RP-001","readManifest":{"filesReadFully":[],"filesTriagedByName":["packages/main/src/core/convergence-breaker.ts","packages/main/src/handlers/story.ts","packages/main/src/tasks/convergence-breaker-smoke.ts"],"scanEscalationReason":null},"timestamp":"2026-07-15T12:07:42.322Z"}
