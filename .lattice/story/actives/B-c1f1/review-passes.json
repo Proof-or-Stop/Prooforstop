@@ -41,6 +41,38 @@
       },
       "readDiagnostics": [],
       "_hash": "9b1f659f07557ed836945e2ed8ddf35127c760cc7465c053fc9e58fee06bd6d0"
+    },
+    {
+      "id": "B-c1f1:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted coverage re-review of df311437cf passes. Independently extracted Appendix A: 600 data rows plus header, exactly seven non-empty tab fields per row, zero duplicate path:line keys, SHA-256 a6f8c5256a10a8356480898e99c1c12e9d53cedabf5078a7f801f714ff04d4a0. Dispositions reconcile to 15 host-discovery + 70 active-plan + 511 migrate + 4 neutral = 600; statuses 596 behavioral + 4 non-behavioral; 134 unique files. Migration-plan rows reconcile to 70 retain-as-active-plan and two genuine quoted-defect neutral fixtures. NAV has one target link, target exists, and its declared 115 decision files matches the quoted find count. Required fixture matrix explicitly covers complementary distinct claimSlot pass, opposing same-slot conflict, equivalent wording parse identity, unparsedFact fail-closed, and dependency-injected fingerprint collision fail-closed. F-010 through F-014 are covered with testable expected outcomes; no test-coverage blocker found.",
+      "createdAt": "2026-07-15T13:08:54.383Z",
+      "reviewRound": "2026-07-15T13:06:08.764Z",
+      "reviewRunId": "B-c1f1:RR-014",
+      "writerSessionId": "sess-5593716d3b6d0282",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "8191a2407ea88108a5c48247dab5e82da1b634ea72ee3f8689873e0f861a93ad"
+      },
+      "readDiagnostics": [],
+      "_hash": "453aa6fc4188a7ddc4aef23444d68d8f20b913cac8390fb52bf00843b5fb4430"
     }
   ]
 }
