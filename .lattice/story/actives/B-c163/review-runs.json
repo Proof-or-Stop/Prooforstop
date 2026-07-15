@@ -4809,6 +4809,66 @@
         "bindingHash": "e89b23e8dbe154151f18a896feb1e35ecb8d57618ca8fdedb1acb529592dcbe3"
       },
       "_hash": "3cb5f43e061b42d74e4918ba803fad5521a21c73ff917587e31492c7cca96126"
+    },
+    {
+      "reviewRunId": "B-c163:RR-044",
+      "storyId": "B-c163",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-07-15T23:44:04.607Z",
+      "startedAt": "2026-07-15T23:47:40.369Z",
+      "headHash": "9bf4662d05c1d67d9859cedbf0d12d8e8adbd618",
+      "materialHash": "da4b3c0aa8ca430f3a416827256aab5d1968cbe6296712874b7026b02b7313d0",
+      "storyFilesHash": "b95fdae6d35b20dfe2e7d0fa2ef1ba51fd9cd0fac5d28cf36ff357e7a07217d3",
+      "promptHash": "225494a087107893187ce84d8646d17769357f62714d65e695e312018d7e77ab",
+      "scopeBinding": {
+        "scopeContractHash": "32e1b9a295171f1c27edf52703acb4a117c33c139977ede5709ca1059cc45fff",
+        "diffPackHash": "f3483bdc97cc40b6bddea2bd2cae32fae91827a4b88a946b3d706ba9481cb7f3",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/done-prepare-validation-reuse.ts",
+          "packages/main/src/core/done-required-timeout-budget.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [],
+        "bindingHash": "6e3c0c598a5a28644dbe0b49d9ea1acc3c47c9db128940df0f816e927623f241"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c163",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c163",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c163",
+        "workspaceMode": "linked-story-branch-worktree",
+        "headHash": "9bf4662d05c1d67d9859cedbf0d12d8e8adbd618",
+        "materialHash": "da4b3c0aa8ca430f3a416827256aab5d1968cbe6296712874b7026b02b7313d0",
+        "storyFilesHash": "b95fdae6d35b20dfe2e7d0fa2ef1ba51fd9cd0fac5d28cf36ff357e7a07217d3",
+        "bindingHash": "67189e27a4483ff607193c2ff84f9b4f6171c43278ceff4e37887ab60632c7c6"
+      },
+      "_hash": "5d46f8031f7a53dd3232b40b66c907421b6306f1e0e86864f712700b01a7b5a8"
     }
   ]
 }

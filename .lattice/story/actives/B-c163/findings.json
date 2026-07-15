@@ -486,6 +486,57 @@
       ],
       "signatureTag": "edge|ts|inherited-still-lets",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c163:F-018",
+      "desc": "The injection boundary is fixed, but the widened budget rejects the repository actual standard global lattice executable, so a normal direct `lattice done_required_validate` capture still receives only 60000ms. In trustedLatticeExecutable, activeEntrypoint is accepted as global only when its realpath matches /node_modules/@lattice/core/dist/cli.js. Here `command -v lattice` is /Users/jek/.nvm/versions/node/v22.13.0/bin/lattice and its realpath is /Users/jek/Documents/Work/proofbound/packages/main/dist/cli.js, which is the active verified global CLI but does not match that regex and is outside the story worktree root. Repro after build: set process.argv[1] to that actual shim and call liveSmokeCaptureBudget(process.cwd(), `lattice done_required_validate --storyId=B-c163`, process.env); result is timeoutMs=60000, source=fixed-arbitrary-command, recognizedCommand=null. The project candidate does not rescue normal use: worktree bin/lattice.js is tracked mode 100644, while the smoke creates a synthetic chmod 0755 bin/lattice.js, so its positive case does not represent either shipped entrypoint. This leaves the original long direct closeout capture path functionally unrecognized despite the new safety parser. Resolve the global/project executable through the existing runtime entrypoint/realpath contract, or safely accept the current running CLI realpath when the PATH executable resolves to that same verified entrypoint; add a regression using the actual global-symlink layout rather than only a chmod fixture. PATH/LD_PRELOAD/NODE_OPTIONS/inline timeout assignments and ;, &&, pipe, redirect, command substitution, backtick and newline composition all independently remained at 60000ms in this review.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T23:47:56.380Z",
+      "reviewRound": "2026-07-15T23:44:04.607Z",
+      "reviewRunId": "B-c163:RR-044",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "364433de10b0f68af5e6a2e165dc25feefc75810abf86ce521a1bc09097e8a26",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "ce3c99115b4c7c0132aefc29584152ec5a8bc25929466da4f04721f3d9cee1dd",
+      "files": [
+        "packages/main/src/core/done-required-timeout-budget.ts",
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts",
+        "packages/main/src/core/runtime-fact-registry.ts"
+      ],
+      "signatureTag": "edge|ts|injection-boundary-fixed",
+      "signatureTagSource": "auto"
     }
   ]
 }
