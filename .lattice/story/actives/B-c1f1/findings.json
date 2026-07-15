@@ -239,7 +239,7 @@
       "desc": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:181-201 — HIGH: the new source-independent fingerprint fixes path-based deduplication, but the conflict model is still not executable without false positives. conflictKey hashes only {factType, subject, commandOrPolicy}, then declares every different semantics payload under that key a semantic conflict. One command or policy subject legitimately carries multiple complementary facts (for example story_advance may require different phase arguments/outcomes for distinct transitions, or one command may have several required flags); those facts share this conflictKey but are not contradictory, so Story 6 readiness can fail even when canonical and legacy sources agree. Define a normalized claim-slot/aspect identity that distinguishes the proposition being asserted (such as transition/field/parameter target and predicate domain), compare modality/outcome for contradiction only within the same slot, and preserve multiple compatible fingerprints per command/subject. Add a fixture with two complementary same-command facts that must coexist plus one genuinely opposing fact that must fail closed.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-15T12:28:47.749Z",
@@ -250,7 +250,11 @@
         "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
       ],
       "signatureTag": "adversarial|md|semantic-conflict-key-too-coarse",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Added schemaVersion and claimSlot to fact identity/conflictKey; complementary aspects coexist while opposing semantics in the same slot fail closed; fixtures cover both.",
+      "resolvedAt": "2026-07-15T13:06:29.514Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c1f1:F-011",
