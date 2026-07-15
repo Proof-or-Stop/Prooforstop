@@ -2,32 +2,82 @@
   "schemaVersion": "proofbound.candidate-spec-set.v1",
   "storyId": "B-c163",
   "corpusDigest": "f02342217a5b383708e8d8b0421978a55cc606a2523e752031ed7e421dd20712",
-  "seedDigest": "6775cb179e6e65118f393a822537bd55d9935dbbb9ea75afe50b455252895f70",
+  "seedDigest": "2c32d5ae7f396ec6ae0d6e512b3d4dc60e30105e950e68a7d6ebef99e7058d07",
   "promptDigests": [],
   "candidates": [
     {
       "path": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
       "contentHash": "40864b389fe13ceb19aee878439741e7634f23c06ae573bba30be01b721527c9",
-      "score": 100,
+      "score": 108,
       "reasons": [
         {
           "kind": "related-doc",
           "term": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
           "source": "relatedDoc",
           "points": 100
+        },
+        {
+          "kind": "body",
+          "term": "handlers",
+          "source": "handlers",
+          "points": 8
         }
       ]
     },
     {
       "path": "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
       "contentHash": "8bd9c202440054df98e7b14a6e1548eac79eb7e2d8a5302229b212723c44ebf3",
-      "score": 100,
+      "score": 108,
       "reasons": [
         {
           "kind": "related-doc",
           "term": "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
           "source": "relatedDoc",
           "points": 100
+        },
+        {
+          "kind": "body",
+          "term": "handlers",
+          "source": "handlers",
+          "points": 8
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "contentHash": "9aad16986d5adbe7338e6d70b83369cf2c6d9f332d6ba54c10b3796448b7ad10",
+      "score": 108,
+      "reasons": [
+        {
+          "kind": "related-doc",
+          "term": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "source": "relatedDoc",
+          "points": 100
+        },
+        {
+          "kind": "body",
+          "term": "handlers",
+          "source": "handlers",
+          "points": 8
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+      "contentHash": "9e4831b0d2db3ae6264c3061392c8fb84cc6a57e62d70924ec57aa8bf068dac9",
+      "score": 108,
+      "reasons": [
+        {
+          "kind": "related-doc",
+          "term": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "source": "relatedDoc",
+          "points": 100
+        },
+        {
+          "kind": "body",
+          "term": "handlers",
+          "source": "handlers",
+          "points": 8
         }
       ]
     },
@@ -39,19 +89,6 @@
         {
           "kind": "related-doc",
           "term": "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
-          "source": "relatedDoc",
-          "points": 100
-        }
-      ]
-    },
-    {
-      "path": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
-      "contentHash": "9aad16986d5adbe7338e6d70b83369cf2c6d9f332d6ba54c10b3796448b7ad10",
-      "score": 100,
-      "reasons": [
-        {
-          "kind": "related-doc",
-          "term": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
           "source": "relatedDoc",
           "points": 100
         }
@@ -71,15 +108,28 @@
       ]
     },
     {
-      "path": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
-      "contentHash": "9e4831b0d2db3ae6264c3061392c8fb84cc6a57e62d70924ec57aa8bf068dac9",
-      "score": 100,
+      "path": "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+      "contentHash": "dcddc3f6fad9597c8a68df50d4739127a2b94df1b3c5c34ae8f62aede78f8325",
+      "score": 8,
       "reasons": [
         {
-          "kind": "related-doc",
-          "term": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
-          "source": "relatedDoc",
-          "points": 100
+          "kind": "body",
+          "term": "handlers",
+          "source": "handlers",
+          "points": 8
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+      "contentHash": "8016febb01e614a20da45dc93f7baf7c2b8a51c1a0098165b568f5687d2020f7",
+      "score": 8,
+      "reasons": [
+        {
+          "kind": "body",
+          "term": "handlers",
+          "source": "handlers",
+          "points": 8
         }
       ]
     }
@@ -87,10 +137,12 @@
   "candidateSpecSet": [
     "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
     "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
-    "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
     "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+    "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
     "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
-    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+    "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+    "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md"
   ],
   "candidateBasis": {
     "docs/requirements/decisions/done-full-test-gate-execution-plan.md": [
@@ -99,6 +151,12 @@
         "term": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
         "source": "relatedDoc",
         "points": 100
+      },
+      {
+        "kind": "body",
+        "term": "handlers",
+        "source": "handlers",
+        "points": 8
       }
     ],
     "docs/requirements/decisions/done-prepare-automation-execution-plan.md": [
@@ -107,20 +165,46 @@
         "term": "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
         "source": "relatedDoc",
         "points": 100
-      }
-    ],
-    "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md": [
+      },
       {
-        "kind": "related-doc",
-        "term": "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
-        "source": "relatedDoc",
-        "points": 100
+        "kind": "body",
+        "term": "handlers",
+        "source": "handlers",
+        "points": 8
       }
     ],
     "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md": [
       {
         "kind": "related-doc",
         "term": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "source": "relatedDoc",
+        "points": 100
+      },
+      {
+        "kind": "body",
+        "term": "handlers",
+        "source": "handlers",
+        "points": 8
+      }
+    ],
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md": [
+      {
+        "kind": "related-doc",
+        "term": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+        "source": "relatedDoc",
+        "points": 100
+      },
+      {
+        "kind": "body",
+        "term": "handlers",
+        "source": "handlers",
+        "points": 8
+      }
+    ],
+    "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md": [
+      {
+        "kind": "related-doc",
+        "term": "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
         "source": "relatedDoc",
         "points": 100
       }
@@ -133,51 +217,63 @@
         "points": 100
       }
     ],
-    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md": [
+    "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md": [
       {
-        "kind": "related-doc",
-        "term": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
-        "source": "relatedDoc",
-        "points": 100
+        "kind": "body",
+        "term": "handlers",
+        "source": "handlers",
+        "points": 8
+      }
+    ],
+    "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md": [
+      {
+        "kind": "body",
+        "term": "handlers",
+        "source": "handlers",
+        "points": 8
       }
     ]
   },
   "queryGroups": [
     [
-      "b c163"
+      "cli engine ts"
     ],
     [
-      "checklist json"
+      "command catalog ts"
     ],
     [
-      "decision json"
+      "done prepare ts"
     ],
     [
-      "index json"
+      "done prepare validation reuse ts"
     ],
     [
-      "intent collision json"
+      "done required timeout budget ts"
     ],
     [
-      "original intent snapshot json"
+      "done required validation ts"
     ],
     [
-      "plan md"
-    ],
-    [
-      "proofstory json"
-    ],
-    [
-      "red evidence json"
+      "handlers"
     ]
   ],
   "queryFiltering": {
     "maxDocumentFrequencyRatio": 0.4,
     "filteredTerms": [
       {
-        "term": "lattice",
-        "documentCount": 99,
-        "documentFrequencyRatio": 0.8389830508474576
+        "term": "cli",
+        "documentCount": 103,
+        "documentFrequencyRatio": 0.8728813559322034
+      },
+      {
+        "term": "core",
+        "documentCount": 82,
+        "documentFrequencyRatio": 0.6949152542372882
+      },
+      {
+        "term": "main",
+        "documentCount": 113,
+        "documentFrequencyRatio": 0.9576271186440678
       }
     ]
   },
@@ -194,9 +290,9 @@
   "escalationReasons": [],
   "fullScan": false,
   "scanEscalationReason": null,
-  "storyInputDigest": "5159864f04cfebd88a33565a3c95657846b66ee7cecdb4db3b8210e1c212b2f6",
-  "headHash": "7077d07350ccae7895b7bb67abb30642fc7cfdb1",
-  "materialHash": "fdc51916488d91d4fe67c7c066f102ca37d8d12a868b9034341ca34646c187d0",
+  "storyInputDigest": "c6d4cdca2cce3ff08156bda0e7ef598bc2f13126107087cca3623ef4f990a4c5",
+  "headHash": "0f969ca859c2d2e981059746701ec3195dcf64f7",
+  "materialHash": "06f0ac5e582ad459c8977a6b55940f68ba13178661bf5da364e84f7ed357e678",
   "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-  "artifactDigest": "2c129037ddc56d1040e91033904e9665a30c321ddfc766682402d2998f983225"
+  "artifactDigest": "7d4cefae75b14a379d93a9957ebe7a84679bf2c9c1165e4bfe494f5eacb46c05"
 }
