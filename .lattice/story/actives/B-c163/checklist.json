@@ -9,7 +9,7 @@
         "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-15T19:08:41.063Z",
       "endTime": "2026-07-15T20:17:02.410Z",
       "userSees": "done_prepare prints “DONE-required validation budget: <N>ms (derived|global_override|phase_override)” and direct/done_prepare commands are not killed by a shorter default CLI maximum.",
@@ -697,6 +697,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Round 3 liveness, deterministic race, descendant cleanup, and complete 9/9 evidence verified."
+    },
+    {
+      "timestamp": "2026-07-15T20:25:28.726Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Round 4 findings F-008/F-009/F-010 require implementation and affected-evidence correction."
     }
   ]
 }
