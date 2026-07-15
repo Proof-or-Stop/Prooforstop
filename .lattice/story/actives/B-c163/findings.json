@@ -266,7 +266,7 @@
       "desc": "The new dryRun and SIGTERM-resistant sync regressions pass (including three consecutive closure-smoke runs), but refreshing evidence replaced rather than supplemented three broader must bindings, so the 28-ref map now overclaims coverage. CHK-003:adversarial:0 now runs only done-prepare-closure-heartbeat three times and its note covers SIGKILL/reap for phase-bounded execFileSync/execSync; it no longer binds validate-progress-heartbeat, which contains the command/CLI-idle/CLI-max spawned-descendant ESRCH and immediate-retry assertions required by that intent. CHK-003:edge:1 now cites only the validate=true dryRun closeout-idle case and no longer binds the direct done_required_validate formatter/noisy/silent/single-result coverage. CHK-002:edge:2 similarly replaced the broader executed pass/fail/command/phase/idle/max/policy/skip vocabulary evidence with one dryRun closeout timeout. Preserve the new focused evidence but use combined commands/notes (or multiple evidence rows per intent) so each must ref still names every required assertion; for adversarial:0 include validate-progress-heartbeat plus the triple closure smoke, not the triple closure smoke alone.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-15T20:58:10.322Z",
@@ -278,7 +278,11 @@
         "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
       ],
       "signatureTag": "missing|ts|dryrun-sigterm-resistant",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: inspect CHK-002:edge:2, CHK-003:edge:1, and CHK-003:adversarial:0 after the focused dryRun/SIGTERM updates; verification_evidence_add had replaced each prior broad command/note with the newest narrow proof, so the row no longer cited every assertion required by its intent. Root cause: verification evidence is one row per intentRef and focused updates replace rather than merge the existing row. Fix: restore exact combined commands and notes. CHK-002:edge:2 now runs done-required-validation + done-prepare-closure-heartbeat + validate-progress-heartbeat and cites executed failure, policy/config/binding refusal, explicit skip, dryRun no-context omission, and command/idle/max structured attribution. CHK-003:edge:1 now runs closure + validate-progress and cites both done_prepare and direct JSON-safe progress bridges, singular JSON, noisy/silent settlement, and dryRun absent-field proof. CHK-003:adversarial:0 now runs validate-progress + closure and cites command/phase/idle/max termination, command/idle/max descendant ESRCH, no late heartbeat, lock/timer cleanup and immediate rerun, plus SIGTERM-resistant sync SIGKILL, bounded return, reap and wrapper restore. Verification: build once, then the full sequence done-required-validation-smoke; done-prepare-closure-heartbeat-smoke; validate-progress-heartbeat-smoke; command-catalog-smoke; verify-process-fact-contract ran three consecutive times at REVIEW HEAD a5bc524. R1 seconds=11.22/48.51/52.05/5.83/1.84 total119.45; R2=17.99/54.81/52.27/3.75/1.34 total130.16; R3=13.17/46.31/54.06/3.97/2.35 total119.86. All PASS; final evidence rows mechanically show the combined commands and notes.",
+      "resolvedAt": "2026-07-15T22:32:54.931Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c163:F-013",
