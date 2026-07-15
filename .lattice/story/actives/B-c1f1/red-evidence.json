@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-c1f1",
+  "records": [
+    {
+      "id": "RED-20260715115853",
+      "trigger": "The requested host-neutral thin-entrypoint migration execution plan and its source-of-truth navigation entry do not yet exist.",
+      "acceptanceTargetRef": "ACC-THIN-ENTRYPOINT-PLAN",
+      "baselineHeadHash": "a8515ce99f8b9e8dc99df35a1d301d56babc399f",
+      "baselineMaterialHash": "c65d8f32369e312b94c3e11c61cd7e8ce67a2870b7fe42429f3f1ed889d5fd03",
+      "observedFailure": "The decision document path is absent, so a bounded rg command cannot find the required plan heading across the planned document and NAV entry.",
+      "failingCommand": "rg -n \"Proof-or-stop Thin Entrypoint Contract Migration Execution Plan\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md docs/requirements/NAV.md",
+      "expectedGreenCommand": "rg -n \"Proof-or-stop Thin Entrypoint Contract Migration Execution Plan\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md docs/requirements/NAV.md",
+      "greenRelation": {
+        "targetRef": "ACC-THIN-ENTRYPOINT-PLAN",
+        "relation": "same_acceptance",
+        "command": "rg -n \"Proof-or-stop Thin Entrypoint Contract Migration Execution Plan\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md docs/requirements/NAV.md"
+      },
+      "note": "Pre-authoring red state for this documentation-only Story; missing-file exit is expected and will turn green only when both scoped deliverables exist.",
+      "createdAt": "2026-07-15T11:58:53.024Z"
+    }
+  ],
+  "createdAt": "2026-07-15T11:58:53.024Z",
+  "updatedAt": "2026-07-15T11:58:53.024Z"
+}
