@@ -19,6 +19,26 @@
       ],
       "signatureTag": "spec-boundary|ts|required-timeout-classification",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c163:F-002",
+      "desc": "The trusted metadata-only reuse lineage checks only the net tree diff (`git diff --name-only evidenceHead..currentHead`), not paths touched by every intervening commit. A descendant history can modify a code/config path and later restore it; that path disappears from the net diff, so this function can classify the lineage as trusted-story-metadata-descendant. This violates the documented and CHK-002 requirement that every intervening changed path be trusted metadata and that any intervening code/config path refuse reuse. Enumerate changed paths per commit across the ancestry range (including deletes/renames) or explicitly narrow the contract to final-tree equivalence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T19:27:50.060Z",
+      "reviewRound": "2026-07-15T19:24:16.796Z",
+      "reviewRunId": "B-c163:RR-007",
+      "_hash": "c5a58f1df0dde637e67fe20bba2a96459cfccc49deb75cf99babc0719fb3db78",
+      "files": [
+        "packages/main/src/core/done-prepare-validation-reuse.ts",
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+      ],
+      "signatureTag": "spec-boundary|ts|trusted-metadata-reuse",
+      "signatureTagSource": "auto"
     }
   ]
 }
