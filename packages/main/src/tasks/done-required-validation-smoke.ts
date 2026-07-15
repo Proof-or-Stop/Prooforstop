@@ -19,6 +19,10 @@ import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 import { commandCliMaxBudget, doneRequiredDerivedBudget, NODE_TIMER_MAX_MS, safeTimeoutSum, sequentialValidationBudget } from '../core/done-required-timeout-budget.js';
 import { evaluateDoneRequiredPreRunReuse } from '../core/done-prepare-validation-reuse.js';
+import {
+  MAX_NODE_TIMER_DELAY_MS,
+  runValidationCommand,
+} from '../core/validation-executor.js';
 import type { DoneRequiredCommandReceipt, DoneRequiredEvidenceData, StoryInfo, TestEvidenceData } from '../core/types.js';
 import { createDoneRequiredValidationHandlers } from '../handlers/done-required-validation.js';
 
@@ -195,6 +199,38 @@ function assertDoneRequiredBlocked(
   const evaluation = evaluateDoneRequiredEvidence({ projectRoot: root, storyId: STORY_ID, store, gitCwd: root });
   assert.equal(evaluation.blocking, true, message);
   assert.match(evaluation.reasons.join('\n'), reasonPattern, `${message}: ${evaluation.reasons.join(', ')}`);
+}
+
+// The effective timeout armed by the real runner must stay within Node's timer range.
+// Values above that range otherwise overflow to ~1ms and kill a healthy command immediately.
+{
+  const root = mkdtempSync(join(tmpdir(), 'lattice-validation-timeout-cap-'));
+  try {
+    const huge = await runValidationCommand({
+      label: 'huge timeout remains legal',
+      command: process.execPath,
+      args: ['-e', 'setTimeout(() => process.exit(0), 30)'],
+      timeoutMs: Number.MAX_SAFE_INTEGER,
+    }, root);
+    assert.equal(huge.code, 0);
+    assert.equal(huge.timedOut, undefined);
+    assert.equal(huge.timeoutMs, MAX_NODE_TIMER_DELAY_MS);
+    assert.ok(huge.durationMs >= 20, 'huge timeout must not overflow into an immediate timer');
+
+    for (const malformed of [0, -1, Number.POSITIVE_INFINITY]) {
+      const fallback = await runValidationCommand({
+        label: `fallback timeout ${String(malformed)}`,
+        command: process.execPath,
+        args: ['-e', 'setTimeout(() => process.exit(0), 10)'],
+        timeoutMs: malformed,
+      }, root, 1_000);
+      assert.equal(fallback.code, 0);
+      assert.equal(fallback.timedOut, undefined);
+      assert.equal(fallback.timeoutMs, 1_000);
+    }
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 }
 
 // Timeout arithmetic covers the legal sequential command budget once and saturates safely.

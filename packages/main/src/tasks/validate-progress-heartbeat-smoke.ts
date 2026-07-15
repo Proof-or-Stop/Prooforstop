@@ -242,6 +242,38 @@ function configureDoneRequired(root: string, durationMs: number, timeoutMs: numb
   commitAll(root, `configure direct DONE-required ${durationMs}/${timeoutMs}`);
 }
 
+function configureRoutineValidate(root: string, durationMs: number): void {
+  const configPath = join(root, 'lattice.config.json');
+  const config = JSON.parse(readFileSync(configPath, 'utf8')) as {
+    validate: { commands: Array<{ args: string[] }> };
+  };
+  config.validate.commands[0].args[3] = String(durationMs);
+  writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8');
+  commitAll(root, `configure routine validate ${durationMs}`);
+}
+
+function prepareDonePrepareRoutineFixture(): ReturnType<typeof setupStoryAdvanceFixture> {
+  const fixture = setupStoryAdvanceFixture();
+  const branch = `story/${fixture.storyId}`;
+  git(fixture.root, ['checkout', '-b', branch]);
+  const store = new StoryStore(fixture.root);
+  const story = store.readStory(fixture.storyId);
+  story.phase = 'TEST';
+  story.worktree = {
+    path: fixture.root,
+    branch,
+    createdAt: new Date().toISOString(),
+  };
+  story.events = [...(story.events ?? []), {
+    phase: 'TEST',
+    action: 'advance',
+    timestamp: new Date().toISOString(),
+  }];
+  store.writeStory(fixture.storyId, story);
+  commitAll(fixture.root, 'prepare TEST story for done_prepare routine timeout');
+  return fixture;
+}
+
 async function assertDirectDoneRequiredTimeoutMatrix(): Promise<void> {
   const cases = [
     { name: 'pass', durationMs: 800, commandTimeoutMs: 5_000, idleMs: 300, maxMs: 5_000, heartbeatMs: 50, result: 'pass', layer: null },
@@ -258,7 +290,11 @@ async function assertDirectDoneRequiredTimeoutMatrix(): Promise<void> {
         LATTICE_MAX_TIMEOUT_MS: String(testCase.maxMs),
         LATTICE_VALIDATE_HEARTBEAT_MS: String(testCase.heartbeatMs),
       });
-      assert.equal(result.status, 0, `${testCase.name} must settle through structured handler output:\n${result.stderr}`);
+      assert.equal(
+        result.status,
+        testCase.result === 'pass' ? 0 : 1,
+        `${testCase.name} must expose structured output with truthful shell status:\n${result.stderr}`,
+      );
       const parsed = JSON.parse(result.stdout);
       assert.equal(parsed.disposition, 'executed');
       assert.equal(parsed.result, testCase.result);
@@ -274,6 +310,7 @@ async function assertDirectDoneRequiredTimeoutMatrix(): Promise<void> {
           LATTICE_MAX_TIMEOUT_MS: '3000',
           LATTICE_VALIDATE_HEARTBEAT_MS: '50',
         });
+        assert.equal(retry.status, 0, `${testCase.name} timeout must permit a successful immediate rerun`);
         assert.equal(JSON.parse(retry.stdout).result, 'pass', `${testCase.name} timeout must release lock/timers for immediate rerun`);
       }
     } finally {
@@ -297,6 +334,7 @@ async function assertDirectDoneRequiredTimeoutMatrix(): Promise<void> {
     const timed = await runCli(descendantFixture.root, ['done_required_validate', JSON.stringify({ storyId: descendantFixture.storyId, json: true })], 5_000, {
       LATTICE_IDLE_TIMEOUT_MS: '1000', LATTICE_MAX_TIMEOUT_MS: '3000', LATTICE_VALIDATE_HEARTBEAT_MS: '50',
     });
+    assert.equal(timed.status, 1, 'structured command timeout must exit nonzero');
     assert.equal(JSON.parse(timed.stdout).timeoutLayer, 'command');
     assert.ok(existsSync(pidFile), 'descendant fixture must record grandchild pid');
     await new Promise((resolve) => setTimeout(resolve, 150));
@@ -306,9 +344,57 @@ async function assertDirectDoneRequiredTimeoutMatrix(): Promise<void> {
     const retry = await runCli(descendantFixture.root, ['done_required_validate', JSON.stringify({ storyId: descendantFixture.storyId, json: true })], 5_000, {
       LATTICE_IDLE_TIMEOUT_MS: '1000', LATTICE_MAX_TIMEOUT_MS: '3000', LATTICE_VALIDATE_HEARTBEAT_MS: '50',
     });
+    assert.equal(retry.status, 0, 'descendant timeout cleanup must permit a successful immediate rerun');
     assert.equal(JSON.parse(retry.stdout).result, 'pass');
   } finally {
     rmSync(descendantFixture.root, { recursive: true, force: true });
+  }
+}
+
+async function assertDonePrepareRoutineTimeoutMatrix(): Promise<void> {
+  const cases = [
+    { name: 'idle', idleMs: 120, maxMs: 5_000, heartbeatMs: 2_000, layer: 'idle' },
+    { name: 'max', idleMs: 1_000, maxMs: 180, heartbeatMs: 50, layer: 'max' },
+  ] as const;
+  for (const testCase of cases) {
+    const fixture = prepareDonePrepareRoutineFixture();
+    try {
+      configureRoutineValidate(fixture.root, 2_000);
+      const result = await runCli(fixture.root, [
+        'done_prepare',
+        '--storyId', fixture.storyId,
+        '--mergeMain=false',
+        '--refreshStale=false',
+        '--validate=true',
+        '--json',
+      ], 8_000, {
+        LATTICE_IDLE_TIMEOUT_MS: String(testCase.idleMs),
+        LATTICE_MAX_TIMEOUT_MS: String(testCase.maxMs),
+        LATTICE_VALIDATE_HEARTBEAT_MS: String(testCase.heartbeatMs),
+      });
+      assert.equal(result.status, 1, `done_prepare routine ${testCase.name} timeout must exit nonzero:\n${result.stderr}`);
+      const parsed = JSON.parse(result.stdout);
+      assert.equal(parsed.status, 'blocked');
+      assert.equal(parsed.blockedAt, 'validate', result.stdout);
+      assert.equal(parsed.disposition, 'executed');
+      assert.equal(parsed.result, 'timed_out');
+      assert.equal(parsed.timeoutLayer, testCase.layer);
+      assert.ok(Array.isArray(parsed.refusalReasons) && parsed.refusalReasons.length > 0);
+      assert.equal(parsed.existingEvidenceBasis, 'stale');
+
+      configureRoutineValidate(fixture.root, 0);
+      const retry = await runCli(fixture.root, ['validate', '--story', fixture.storyId, '--json'], 5_000, {
+        LATTICE_IDLE_TIMEOUT_MS: '1000',
+        LATTICE_MAX_TIMEOUT_MS: '3000',
+        LATTICE_VALIDATE_HEARTBEAT_MS: '50',
+      });
+      assert.equal(retry.status, 0, `${testCase.name} timeout must release locks/timers for an immediate validation rerun`);
+      const retryParsed = parseValidateJson(retry.stdout);
+      const command = retryParsed.commands?.find((entry) => entry.label === 'silent-active-validate');
+      assert.equal(command?.code, 0, `${testCase.name} timeout cleanup must allow the routine command to finish`);
+    } finally {
+      rmSync(fixture.root, { recursive: true, force: true });
+    }
   }
 }
 
@@ -438,6 +524,7 @@ void (async () => {
     await assertStoryAdvanceReceivesHeartbeat();
     await assertTrueHangFailsClosedWithNamedDiagnostics();
     await assertDirectDoneRequiredTimeoutMatrix();
+    await assertDonePrepareRoutineTimeoutMatrix();
     console.log('validate-progress-heartbeat smoke passed');
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));

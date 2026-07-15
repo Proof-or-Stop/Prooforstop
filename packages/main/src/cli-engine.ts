@@ -1048,6 +1048,22 @@ export async function runCli(opts?: {
   }, Math.max(10, Math.min(10_000, Math.floor(IDLE_TIMEOUT / 4), Math.floor(MAX_TIMEOUT / 4))));
   watchdog.unref();
 
+  function isStructuredDoneFailure(result: unknown): boolean {
+    if (!structuredWatchdog) return false;
+    let value: any = result;
+    if (typeof result === 'string') {
+      try { value = JSON.parse(result); } catch {
+        return /\bresult=(?:failed|timed_out|blocked)\b|^DONE prepare: BLOCKED/m.test(result);
+      }
+    }
+    return value?.allPass === false
+      || value?.status === 'fail'
+      || value?.status === 'blocked'
+      || value?.result === 'failed'
+      || value?.result === 'timed_out'
+      || value?.result === 'blocked';
+  }
+
   // Unified logging: write to .lattice/activity.jsonl (dual-source module, legacy path is read-compatible only).
   // Write failure is a PERSIST issue (incomplete audit means it cannot be traced later), so reportHealthIssue is used instead.
   // staleWarnings are persisted too, making later trend analysis possible (how long agents go before forgetting an advance).
@@ -1261,8 +1277,9 @@ export async function runCli(opts?: {
       });
       let result = fn();
       if (result && typeof (result as any).then === 'function') result = await result;
+      const structuredDoneFailure = isStructuredDoneFailure(result);
       clearInterval(watchdog);
-      log(`${cmd} done`);
+      log(`${cmd} ${structuredDoneFailure ? 'completed with structured failure' : 'done'}`);
       // B-bbaf CHK-006: a SUCCESSFUL story_advance is real progress THROUGH the
       // gate, so reset that story's repeated-gate-failure counter. Scoped to
       // story_advance specifically (codex host-B #3): resetting on ANY successful
@@ -1280,12 +1297,12 @@ export async function runCli(opts?: {
         } catch { /* best-effort: never fail a successful command on counter reset */ }
       }
       if (shouldWriteActivityLog(cmd, parsed) || staleWarnings.length > 0) {
-        writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: true, staleWarnings });
+        writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: !structuredDoneFailure, ...(structuredDoneFailure ? { error: 'structured terminal failure' } : {}), staleWarnings });
       }
       // F-032: writeCodexProcessEvent self-gates on isReadOnlyCommand (same
       // read-only contract as the activity log above and the pre/post hooks
       // below), so a plain (no --out) usage_sweep appends NO story process event.
-      writeCodexProcessEvent({ command: cmd, args: parsed, success: true });
+      writeCodexProcessEvent({ command: cmd, args: parsed, success: !structuredDoneFailure, ...(structuredDoneFailure ? { error: 'structured terminal failure' } : {}) });
       // Append next-step guidance. Only commands registered in hints.ts are decorated; other commands are returned unchanged.
       // B-7fc2: `--json` / `--format=json` stdout is a machine-only payload.
       // Skip hint decoration entirely in machine JSON mode so JSON.parse(stdout)
@@ -1319,7 +1336,7 @@ export async function runCli(opts?: {
       let output = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
       output = appendMilestoneStatusAfterMutation(output);
       process.stdout.write(`${output}\n`);
-      process.exitCode = 0;
+      process.exitCode = structuredDoneFailure ? 1 : 0;
       return;
     } catch (e: any) {
       clearInterval(watchdog);

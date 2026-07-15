@@ -470,7 +470,7 @@ function assertRealValidateDoneRequiredProgressJsonSafe(): void {
       LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS: '3000',
       LATTICE_VALIDATE_HEARTBEAT_MS: '20',
     });
-    assert.equal(result.status, 0, `real validate done_prepare should return a JSON result:\n${result.stderr}\n${result.stdout}`);
+    assert.equal(result.status, 1, `blocked real-validate done_prepare should return JSON and exit nonzero:\n${result.stderr}\n${result.stdout}`);
     assertProgressLabels(result.stderr, REQUIRED_REAL_VALIDATE_PROGRESS_LABELS);
     assert.ok(
       result.stderr.includes('done_prepare heartbeat: running DONE-required validation elapsedMs='),
@@ -511,7 +511,7 @@ async function assertDoneRequiredPhaseTimeoutFailsClosed(): Promise<void> {
       LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS: '100',
       LATTICE_VALIDATE_HEARTBEAT_MS: '20',
     });
-    assert.equal(result.status, 0, `phase-timeout done_prepare should return a blocked JSON result:\n${result.stderr}\n${result.stdout}`);
+    assert.equal(result.status, 1, `phase-timeout done_prepare should return blocked JSON and exit nonzero:\n${result.stderr}\n${result.stdout}`);
     assert.ok(
       result.stderr.includes(DONE_REQUIRED_PROGRESS_LABEL),
       `DONE-required validation phase must be attributed in progress output:\n${result.stderr}`,

@@ -1588,15 +1588,25 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     try {
       validateText = asText(await verifier.validate({ story: storyId, json: true, noSync: true, abortSignal: rawArgs.abortSignal, deadlineAt: rawArgs.deadlineAt }));
     } catch (err: any) {
-      setStep(steps, 'validate', 'blocked', err?.message || 'lattice validate failed');
+      const timeoutLayer = timeoutLayerFromReason(rawArgs.abortSignal?.reason) ?? timeoutLayerFromReason(err);
+      const terminal = timeoutLayer
+        ? `${err?.message || 'lattice validate timed out'}; disposition=executed result=timed_out refusalReasons=${err?.message || 'routine-validation-timeout'} timeoutLayer=${timeoutLayer} existingEvidenceBasis=stale`
+        : (err?.message || 'lattice validate failed');
+      setStep(steps, 'validate', 'blocked', terminal);
       return blocked({
         blockedAt: 'validate',
-        reason: err?.message || 'lattice validate failed',
+        reason: terminal,
         next: `lattice validate --story=${storyId} --json`,
         steps,
       });
     }
     const parsed = parseValidateOutput(validateText);
+    const routineTimeoutLayer = timeoutLayerFromReason(rawArgs.abortSignal?.reason);
+    if (routineTimeoutLayer) {
+      const reason = `routine validation exceeded CLI ${routineTimeoutLayer} timeout; disposition=executed result=timed_out refusalReasons=routine-validation-${routineTimeoutLayer}-timeout timeoutLayer=${routineTimeoutLayer} existingEvidenceBasis=stale`;
+      setStep(steps, 'validate', 'blocked', reason);
+      return blocked({ blockedAt: 'validate', reason, next: `inspect routine validation and ${routineTimeoutLayer} timeout configuration`, steps });
+    }
     if (!parsed.ok) {
       setStep(steps, 'validate', 'blocked', parsed.summary);
       return blocked({
