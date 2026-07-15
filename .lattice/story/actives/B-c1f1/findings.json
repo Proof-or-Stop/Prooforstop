@@ -571,7 +571,7 @@
       "desc": "The trusted-key rotation contract accepts a `retiring` key when the envelope's signed `createdAt` is before its cutoff (line 255), but `createdAt` is chosen and signed by the same private key. Anyone retaining/compromising that retiring key can create a new current-HEAD artifact after cutoff, backdate `createdAt`, and pass the stated verification. For live gate evidence, reject non-active keys outright (rotation already stales all live readiness), or require a verifier-trusted pre-cutoff issuance commitment/monotonic receipt independent of the signer. Add a fixture that signs after cutoff with a backdated `createdAt` and current registry/source digests and require rejection; wall-clock interval tests alone do not close this replay/backdating path.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-15T13:44:10.321Z",
@@ -582,7 +582,11 @@
         "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
       ],
       "signatureTag": "adversarial|md|trusted-rotation-contract",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Live readiness accepts only the current active authorized key; signed createdAt is audit-only and retired/revoked/pending keys are non-live, eliminating backdating bypass.",
+      "resolvedAt": "2026-07-15T13:49:55.613Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c1f1:F-026",
