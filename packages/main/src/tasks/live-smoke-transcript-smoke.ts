@@ -18,6 +18,8 @@ import { createMainRegistry } from '../registry.js';
 import type { HandlerContext } from '../handlers/context.js';
 import type { LiveSmokeTranscriptReport } from '../handlers/live-smoke-transcript.js';
 import { acquireOwnerLease, ownerLeasePath, resetSessionIdForTest } from '../core/story-owner-lease.js';
+import { commandCliMaxBudget, liveSmokeCaptureBudget } from '../core/done-required-timeout-budget.js';
+import { validationExecutionLockPath } from '../core/validation-execution-lock.js';
 
 const STORY_ID = 'B-livesmoke';
 const NOW = '2026-06-20T00:00:00.000Z';
@@ -282,7 +284,7 @@ assert.equal(
     assert.match(text, /expected \(from userSees\):/);
     assert.match(text, /current transcript: missing/);
     assert.match(text, /Live-smoke readiness row:/);
-    assert.match(text, /authorityDone: false/);
+    assert.match(text, /admissibilityStatus: transcript-context/);
 
     assert.equal(existsSync(artifactPath(store)), false, 'default writes no transcript artifact');
     assert.deepEqual(snapshotDir(root, storyDir), beforeSnapshot, 'default must not mutate story metadata files');
@@ -305,7 +307,7 @@ assert.equal(
     const storyDir = store.storyDirPath(STORY_ID);
     const beforeSnapshot = snapshotDir(root, storyDir);
 
-    const report = handler!({ storyId: STORY_ID, capture: `echo ${MARKER}`, json: true }) as LiveSmokeTranscriptReport;
+    const report = await handler!({ storyId: STORY_ID, capture: `echo ${MARKER}`, json: true }) as LiveSmokeTranscriptReport;
     assert.equal(report.mode.runCommands, true, '--capture ran the provided command');
     assert.equal(report.mode.writeEvidence, false, '--capture alone writes nothing (writeEvidence=false)');
     assert.ok(report.actual, '--capture records an actual transcript');
@@ -331,7 +333,7 @@ assert.equal(
     const handler = createMainRegistry(ctx).get('live_smoke_transcript');
     assert.ok(handler, 'registry exposes live_smoke_transcript for write test');
 
-    const report = handler!({ storyId: STORY_ID, capture: `echo ${MARKER}`, write: true, json: true }) as LiveSmokeTranscriptReport;
+    const report = await handler!({ storyId: STORY_ID, capture: `echo ${MARKER}`, write: true, json: true }) as LiveSmokeTranscriptReport;
     assert.equal(report.mode.runCommands, true, '--capture + --write ran the command');
     assert.equal(report.mode.writeEvidence, true, '--write persisted the artifact');
     assert.equal(report.write.requested, true);
@@ -357,6 +359,98 @@ assert.equal(
     assertNoAuthorityOrEvidenceArtifacts(store);
     assert.equal(store.readStory(STORY_ID).phase, 'TEST', '--write must not advance phase');
   } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// ---- capture budgets: direct closeout commands get their legal budget only --
+
+{
+  const { root } = createFixture(checklistWithUserSees);
+  const savedOverride = process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
+  try {
+    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      workflow: { profile: 'balanced' },
+      doneRequiredCommands: [{ label: 'long legal suite', command: 'npm', args: ['test'], timeoutMs: 120_000 }],
+    }, null, 2) + '\n', 'utf8');
+    resetConfigCache();
+
+    const direct = liveSmokeCaptureBudget(root, 'LATTICE_SESSION_ID=stable lattice done_required_validate --storyId=B-livesmoke --json', {});
+    assert.equal(direct.timeoutMs, 150_000, 'direct DONE-required capture derives command timeout plus grace');
+    assert.equal(direct.recognizedCommand, 'done_required_validate');
+    assert.equal(
+      commandCliMaxBudget(root, 'live_smoke_transcript', {
+        capture: 'lattice done_required_validate --storyId=B-livesmoke --json',
+      }).timeoutMs,
+      180_000,
+      'outer CLI max watchdog allows the derived capture budget plus handler grace',
+    );
+
+    const arbitrary = liveSmokeCaptureBudget(root, 'node long-arbitrary-script.js', {});
+    assert.equal(arbitrary.timeoutMs, 60_000, 'arbitrary captures retain the fixed safety ceiling');
+    const composed = liveSmokeCaptureBudget(root, 'lattice done_required_validate --storyId=B-livesmoke; node extra.js', {});
+    assert.equal(composed.timeoutMs, 60_000, 'shell-composed input cannot obtain the wider closeout budget');
+
+    const boundedHighOverride = liveSmokeCaptureBudget(root, 'node arbitrary.js', {
+      LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS: '999999999',
+    });
+    assert.equal(boundedHighOverride.timeoutMs, 60_000, 'explicit override cannot raise arbitrary-command safety ceiling');
+    const boundedLowOverride = liveSmokeCaptureBudget(root, 'lattice done_required_validate --storyId=B-livesmoke', {
+      LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS: '75',
+    });
+    assert.equal(boundedLowOverride.timeoutMs, 75, 'explicit override may lower a recognized command budget for testing/operations');
+  } finally {
+    if (savedOverride === undefined) delete process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
+    else process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS = savedOverride;
+    resetConfigCache();
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// ---- timeout kills the process group and reclaims its dead validation lock --
+
+{
+  const { root, store, ctx } = createFixture(checklistWithUserSees);
+  const savedOverride = process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
+  try {
+    const lockPath = validationExecutionLockPath(root, STORY_ID);
+    const descendantPidPath = join(root, 'descendant.pid');
+    const scriptPath = join(root, 'hanging-capture.cjs');
+    writeFileSync(scriptPath, [
+      "const { spawn } = require('node:child_process');",
+      "const { mkdirSync, writeFileSync } = require('node:fs');",
+      "const { hostname } = require('node:os');",
+      `const lockPath = ${JSON.stringify(lockPath)};`,
+      `const pidPath = ${JSON.stringify(descendantPidPath)};`,
+      "mkdirSync(lockPath, { recursive: true });",
+      "writeFileSync(lockPath + '/holder.json', JSON.stringify({ pid: process.pid, hostname: hostname(), command: 'done_required_validate for B-livesmoke', acquiredAt: new Date().toISOString() }));",
+      "const child = spawn(process.execPath, ['-e', 'process.on(\\\"SIGTERM\\\",()=>{});setInterval(()=>{},1000)'], { stdio: 'ignore' });",
+      "writeFileSync(pidPath, String(child.pid));",
+      "process.on('SIGTERM', () => {});",
+      "setInterval(() => {}, 1000);",
+    ].join('\n') + '\n', 'utf8');
+    process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS = '150';
+    const handler = createMainRegistry(ctx).get('live_smoke_transcript');
+    assert.ok(handler);
+    const report = await handler!({
+      storyId: STORY_ID,
+      capture: `${JSON.stringify(process.execPath)} ${JSON.stringify(scriptPath)}`,
+      json: true,
+    }) as LiveSmokeTranscriptReport;
+
+    assert.equal(report.actual?.exitCode, null, 'capture timeout is represented as a null terminal exit');
+    assert.match(report.actual?.stderr ?? '', /exceeded 150ms timeout; process group terminated/);
+    const descendantPid = Number(readFileSync(descendantPidPath, 'utf8'));
+    assert.throws(() => process.kill(descendantPid, 0), /ESRCH/, 'timed-out capture leaves no descendant process');
+    assert.equal(existsSync(lockPath), false, 'dead validation lock is reclaimed after timeout cleanup');
+    assert.equal(existsSync(artifactPath(store)), false, 'capture-only timeout still persists no transcript artifact');
+  } finally {
+    if (savedOverride === undefined) delete process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
+    else process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS = savedOverride;
     rmSync(root, { recursive: true, force: true });
   }
 }

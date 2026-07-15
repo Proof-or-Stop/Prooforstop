@@ -37,6 +37,20 @@ export interface TimeoutBudget {
   graceMs?: number;
 }
 
+const DEFAULT_LIVE_SMOKE_CAPTURE_TIMEOUT_MS = 60_000;
+
+export type LiveSmokeCaptureBudgetSource =
+  | 'fixed-arbitrary-command'
+  | 'derived-done-required-command'
+  | 'derived-done-prepare-command'
+  | 'bounded-env-override';
+
+export interface LiveSmokeCaptureBudget {
+  timeoutMs: number;
+  source: LiveSmokeCaptureBudgetSource;
+  recognizedCommand: 'done_required_validate' | 'done_prepare' | null;
+}
+
 function positiveInt(value: unknown): number | undefined {
   const parsed = Number(value);
   return Number.isFinite(parsed) && parsed > 0 ? Math.min(NODE_TIMER_MAX_MS, Math.floor(parsed)) : undefined;
@@ -94,6 +108,46 @@ export function donePreparePhaseBudget(root: string, phaseEnv: string, derived?:
   return derived ?? { timeoutMs: DEFAULT_DONE_PREPARE_PHASE_TIMEOUT_MS, source: 'default' };
 }
 
+function recognizedLiveSmokeCommand(command: string): 'done_required_validate' | 'done_prepare' | null {
+  const trimmed = command.trim();
+  // A wider budget is reserved for one direct Lattice closeout command. Shell
+  // composition/substitution stays on the fixed arbitrary-command ceiling.
+  if (!trimmed || /[;&|<>\n\r`]|\$\(/.test(trimmed)) return null;
+  const match = trimmed.match(
+    /^(?:[A-Za-z_][A-Za-z0-9_]*=(?:"[^"]*"|'[^']*'|[^\s]+)\s+)*lattice\s+(done_required_validate|done_prepare)(?:\s|$)/,
+  );
+  return match?.[1] === 'done_required_validate' || match?.[1] === 'done_prepare' ? match[1] : null;
+}
+
+/**
+ * Select the live-smoke capture ceiling without granting arbitrary shell
+ * commands a longer window. A positive explicit override may only LOWER the
+ * legal ceiling selected for the command, and is clamped to Node's timer max.
+ */
+export function liveSmokeCaptureBudget(
+  root: string,
+  command: string,
+  env: NodeJS.ProcessEnv = process.env,
+): LiveSmokeCaptureBudget {
+  const recognizedCommand = recognizedLiveSmokeCommand(command);
+  let legalTimeoutMs = DEFAULT_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
+  let source: LiveSmokeCaptureBudgetSource = 'fixed-arbitrary-command';
+  if (recognizedCommand === 'done_required_validate') {
+    legalTimeoutMs = commandCliMaxBudget(root, recognizedCommand, {}).timeoutMs;
+    source = 'derived-done-required-command';
+  } else if (recognizedCommand === 'done_prepare') {
+    const validate = !/(?:^|\s)--validate(?:=|\s+)false(?:\s|$)/.test(command);
+    legalTimeoutMs = commandCliMaxBudget(root, recognizedCommand, { validate }).timeoutMs;
+    source = 'derived-done-prepare-command';
+  }
+
+  const override = positiveInt(env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS);
+  if (override !== undefined && override < legalTimeoutMs) {
+    return { timeoutMs: override, source: 'bounded-env-override', recognizedCommand };
+  }
+  return { timeoutMs: legalTimeoutMs, source, recognizedCommand };
+}
+
 const CLOSEOUT_PHASE_ENVS = [
   'LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS',
   'LATTICE_DONE_PREPARE_DONE_CLOSURE_TIMEOUT_MS',
@@ -104,6 +158,15 @@ const CLOSEOUT_PHASE_ENVS = [
 ] as const;
 
 export function commandCliMaxBudget(root: string, command: string, args: Record<string, unknown>): TimeoutBudget {
+  if (command === 'live_smoke_transcript' && typeof args.capture === 'string') {
+    const capture = liveSmokeCaptureBudget(root, args.capture);
+    return {
+      timeoutMs: safeTimeoutSum([capture.timeoutMs, DEFAULT_TIMEOUT_BUDGET_GRACE_MS]),
+      source: capture.recognizedCommand ? 'derived-command-budget' : 'default',
+      commandBudgetMs: capture.timeoutMs,
+      graceMs: DEFAULT_TIMEOUT_BUDGET_GRACE_MS,
+    };
+  }
   const derived = doneRequiredDerivedBudget(root);
   if (command === 'done_required_validate') return derived;
   if (command !== 'done_prepare') return { timeoutMs: 15 * 60_000, source: 'default' };

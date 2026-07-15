@@ -1,6 +1,6 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { randomUUID } from 'node:crypto';
-import { readFileSync, utimesSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, utimesSync, writeFileSync } from 'node:fs';
 import { hostname } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -131,6 +131,29 @@ export function validationExecutionLockPath(root: string, storyId: string): stri
   if (!projectRoot) throw new Error('validationExecutionLockPath: root is required');
   if (!id) throw new Error('validationExecutionLockPath: storyId is required');
   return join(projectRoot, VALIDATION_EXECUTION_LOCKS_REL, `${sanitizeLockSegment(id)}.lock`);
+}
+
+/**
+ * Reclaim a validation lock only when its recorded local holder is provably no
+ * longer alive (or the normal heartbeat/age classifier otherwise marks it
+ * stale). A live or unknown lock is never removed.
+ */
+export function reclaimStaleValidationExecutionLock(root: string, storyId: string): boolean {
+  const lockPath = validationExecutionLockPath(root, storyId);
+  if (!existsSync(lockPath)) return false;
+  try {
+    const probe = acquireMkdirLock(lockPath, {
+      label: 'validation execution stale-lock recovery',
+      deadlineMs: 1,
+      staleMs: VALIDATION_EXECUTION_LOCK_STALE_MS,
+      failFastIfHeld: true,
+      classifyExistingLock: classifyValidationExecutionLock,
+    });
+    probe.release();
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function formatLockAge(ageMs: number): string {
