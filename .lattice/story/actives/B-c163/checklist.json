@@ -417,9 +417,9 @@
         "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
         "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-15T19:30:58.806Z",
-      "endTime": "2026-07-15T20:52:33.976Z",
+      "endTime": "2026-07-15T22:29:19.127Z",
       "userSees": "direct done_required_validate prints periodic “validate heartbeat” lines; --json remains one result, and a throwing/closed progress sink cannot change command PASS/FAIL.",
       "files": {
         "modify": [
@@ -839,6 +839,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "F-012 combined original and focused structured-terminal evidence restored; three focused rounds passed"
+    },
+    {
+      "timestamp": "2026-07-15T22:29:19.127Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-012 combined bridge/cleanup evidence restored and F-013 non-max harness isolation passed three full focused rounds"
     }
   ]
 }
