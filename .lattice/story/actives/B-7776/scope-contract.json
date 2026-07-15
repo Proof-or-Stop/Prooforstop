@@ -1,0 +1,57 @@
+{
+  "storyId": "B-7776",
+  "mode": "enforce",
+  "allowedModify": [
+    "core/convergence-breaker.ts",
+    "handlers/story.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "tasks/convergence-breaker-smoke.ts"
+  ],
+  "protectedFiles": [
+    "package.json",
+    "src/core/command-policy.ts",
+    "src/core/process-fact-levels.ts"
+  ],
+  "explicitExcludes": [
+    "docs/**",
+    "tests/fixtures/**",
+    "src/core/machine.ts"
+  ],
+  "scopeChangeReason": "Initial narrow contract for the user-confirmed maintenance refactor.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-15T12:02:49.069Z",
+  "updatedAt": "2026-07-15T12:02:49.069Z",
+  "fileRules": [
+    {
+      "path": "core/convergence-breaker.ts",
+      "allowedAnchors": [
+        "resumeBreakerState"
+      ],
+      "allowedChangeKinds": [
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0"
+      ]
+    },
+    {
+      "path": "handlers/story.ts",
+      "allowedAnchors": [
+        "createStoryResumeHandlers"
+      ],
+      "allowedChangeKinds": [
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-001:happy:0"
+      ]
+    }
+  ],
+  "protectedAnchors": [
+    "assessBreaker",
+    "isInteractiveAckAllowed"
+  ]
+}

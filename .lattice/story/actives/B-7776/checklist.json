@@ -20,8 +20,8 @@
           "tasks/convergence-breaker-smoke.ts"
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-15T12:04:55.879Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
@@ -46,6 +46,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-15T12:04:55.879Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementation and focused verification are in progress; correcting the lifecycle status before committing."
     }
   ]
 }
