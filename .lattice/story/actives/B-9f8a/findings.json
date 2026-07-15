@@ -68,6 +68,21 @@
       ],
       "signatureTag": "doc-code-drift|md|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9f8a:F-005",
+      "desc": "Coverage evidence for all 10 intents passes, but the coverage reviewer cannot persist a no-blocker pass under the configured shadow routing mode: generic-token truncation/cutoff tie makes review_pass_set enforce a full-scan escalation, and rerouting with fullScanReason expands candidateSpecSet from 8 documents to the entire 130-file corpus. This reproduces the execution plan C3/mode-consistency failure and makes a documentation-only coverage pass disproportionate. Evidence: review_pass_set rejected with ranking_affecting_query_truncation + candidate_cutoff_tie; candidate_spec_route full scan returned fullScan=true and the full corpus despite candidateSpecRouting.mode=shadow. WHY: reviewer writer behavior contradicts shadow-mode advisory semantics and blocks proportionate assurance.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-15T13:28:09.402Z",
+      "reviewRound": "2026-07-15T13:23:30.569Z",
+      "reviewRunId": "B-9f8a:RR-003",
+      "_hash": "96341eddbd1e1622ecc00f2358cf032500a2f14ea940065609705ae060cb60dc",
+      "signatureTag": "edge|unknown|coverage-evidence-intents",
+      "signatureTagSource": "auto"
     }
   ]
 }
