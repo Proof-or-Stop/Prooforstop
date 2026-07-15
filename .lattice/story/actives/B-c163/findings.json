@@ -97,6 +97,25 @@
       "resolvedAt": "2026-07-15T19:57:55.934Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-005",
+      "desc": "F-001 remains incomplete for done_prepare CLI idle/max timeouts. cli-engine now aborts a signal instead of exiting, but done_prepare only threads that parent signal into routine verifier.validate and the DONE-required runCloseoutPhase. The later doneClosure/reviewAssurance/runtimeChange/cleanTree/produceCommand runCloseoutPhase calls do not receive rawArgs.abortSignal, so an explicit max expiry during those phases is logged but does not terminate or structure the result. Even inside DONE-required validation, a parent CliWatchdogTimeoutError is not a DonePreparePhaseTimeoutError, so the catch falls through to `result=blocked` without timeoutLayer instead of `result=timed_out` with idle|max. The watchdog also has no top-level Promise.race fallback, so any uncooperative/synchronous done_prepare segment can outlive the absolute max. Thread/race the CLI watchdog across the whole handler and classify its reason before the generic blocked path; verify nonzero JSON outcomes for idle and max in both routine and post-validation closeout phases.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T19:59:39.007Z",
+      "reviewRound": "2026-07-15T19:56:48.039Z",
+      "reviewRunId": "B-c163:RR-010",
+      "_hash": "fabc1b6e01301199f2717b61cca4b44e98cc1041e522068e687a6b68d2d0cbae",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/handlers/done-prepare.ts"
+      ],
+      "signatureTag": "spec-boundary|ts|remains-incomplete-prepare",
+      "signatureTagSource": "auto"
     }
   ]
 }
