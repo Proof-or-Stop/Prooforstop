@@ -152,13 +152,16 @@ The process-fact verifier must use the same exported ownership model or a genera
 
 ### Source-independent semantic fact identity
 
-Dual-read deduplication must not include path, anchor, or document role in fact identity, because canonical and legacy sources necessarily have different locations. Each scanner normalizes a behavior-affecting statement into:
+Dual-read deduplication must not include path, anchor, or document role in fact identity, because canonical and legacy sources necessarily have different locations. It also must not infer semantic equivalence from free-form prose or an AI judgment. Story 1 defines a versioned, deterministic extractor (`schemaVersion = 1`) whose accepted inputs are registry records and an explicit, finite set of Markdown patterns. Each accepted statement is parsed into:
 
 ```ts
 interface NormalizedDocFact {
+  schemaVersion: 1;
+  factId: string;              // stable extractor-assigned identity before hashing
   factType: 'command' | 'flag' | 'path' | 'lifecycle' | 'review' | 'evidence' | 'policy';
   subject: string;             // normalized entity affected by the fact
   commandOrPolicy: string;     // normalized CLI command or stable policy key
+  claimSlot: string;           // versioned aspect key, e.g. availability, ordering, required-phase, outcome
   semantics: {
     modality: 'must' | 'must-not' | 'may' | 'advisory';
     predicate: string;         // canonical whitespace/case/parameter representation
@@ -176,19 +179,24 @@ interface FactProvenance {
 }
 ```
 
-Normalize Unicode, line endings, whitespace, command spelling, flag ordering, parameter placeholders, and registry-backed aliases before serializing with canonical JSON key order. Compute:
+`factId` is emitted by the versioned extractor from `{schemaVersion, factType, subject, commandOrPolicy, claimSlot}`; it is not generated from source location or prose wording. `claimSlot` identifies the independently assertable aspect of a subject. For example, a command's availability and its required phase occupy different slots and coexist, while two different required phases occupy the same slot and conflict. Extractor patterns declare their slot and field mapping in code, and changes to those mappings require a schema-version change plus migration fixtures.
+
+Normalize Unicode, line endings, whitespace, command spelling, flag ordering, parameter placeholders, and registry-backed aliases before serializing with canonical JSON key order. Two differently worded statements are equivalent only when a declared extractor pattern parses both into byte-identical normalized fields; syntactic cleanup alone does not claim semantic equivalence. A behavior-affecting line that matches the bounded authority scan but cannot be parsed becomes a structured `unparsedFact` with provenance and blocks audit, readiness, and retirement. It is never guessed, silently skipped, or reduced by an NLP similarity score.
+
+Compute:
 
 ```text
-conflictKey = SHA-256(canonicalJson({ factType, subject, commandOrPolicy }))
-fingerprint = SHA-256(canonicalJson({ factType, subject, commandOrPolicy, semantics }))
+factId = canonicalFactId({ schemaVersion, factType, subject, commandOrPolicy, claimSlot })
+conflictKey = SHA-256(canonicalJson({ schemaVersion, factType, subject, commandOrPolicy, claimSlot }))
+fingerprint = SHA-256(canonicalJson({ schemaVersion, factId, factType, subject, commandOrPolicy, claimSlot, semantics }))
 ```
 
 `fingerprint` is the source-independent semantic identity. Equal fingerprints with byte-identical canonical payloads merge into one fact whose provenance is the ordered union of every source path, anchor, role, host, and raw-text hash. Source information is never discarded and never participates in identity.
 
 Fail closed in either conflict case:
 
-1. Equal `conflictKey` with different normalized `semantics` means canonical and legacy sources disagree about the same subject/policy. Record a semantic-conflict result containing both fingerprints and all provenance; audit, readiness, and retirement fail until the owning source is corrected.
-2. Equal `fingerprint` with non-identical canonical payload bytes means a hash collision or normalizer defect. Record a fingerprint-collision result and fail without choosing either payload.
+1. Equal `conflictKey` with different normalized `semantics` means canonical and legacy sources disagree about the same aspect of the same subject/policy. Record a semantic-conflict result containing the shared `claimSlot`, both fingerprints, and all provenance; audit, readiness, and retirement fail until the owning source is corrected. Facts in different slots are complementary and do not conflict.
+2. Equal `fingerprint` with non-identical canonical payload bytes means a hash collision or normalizer defect. Record a fingerprint-collision result and fail without choosing either payload. The hash function is dependency-injected at the fingerprinting boundary so the collision path is deterministically testable; production uses SHA-256.
 
 Readiness and retirement compare semantic sets, not document locations. A fingerprint with legacy provenance and no canonical provenance is a legacy-only fact and blocks readiness. A fingerprint present in both sources counts once and retains both provenance records. Any conflict/collision blocks readiness and retirement. Retirement is allowed only when every retained behavior fact has canonical provenance, the legacy-only set is empty, and the conflict/collision set is empty; moving a fact between canonical paths does not reset semantic identity.
 
@@ -198,7 +206,11 @@ Required dual-read fixtures:
 |---|---|
 | Canonical runbook and legacy `CLAUDE.md` express the same normalized command/policy fact with different wording and paths | One fingerprint, one fact, and exactly two provenance sources; readiness does not count it as legacy-only |
 | Legacy `CLAUDE.md` contains a normalized fact absent from all canonical sources | One legacy-only fingerprint with its provenance; readiness and retirement fail and identify the missing canonical owner |
-| Two payloads share a `conflictKey` but have opposing semantics, plus an injected same-hash/different-payload collision fixture | Semantic conflict and fingerprint collision are separately reported; both fail closed and neither source is selected as authoritative |
+| Two facts describe the same command but use distinct `claimSlot` values such as `availability` and `required-phase` | Both facts coexist; neither is reported as a conflict |
+| Two facts use the same `claimSlot` but have opposing semantics | One semantic conflict is reported with both provenance sets; readiness and retirement fail |
+| Two differently worded statements match declared extractor patterns and parse to the same structured fields | One stable `factId` and fingerprint are produced; wording and path do not affect identity |
+| A scan-matched behavior-affecting statement matches no declared extractor pattern | One provenance-bearing `unparsedFact` is reported; audit, readiness, and retirement fail closed |
+| The injected hash seam returns the same fingerprint for two byte-distinct canonical payloads | One fingerprint-collision result is reported; both payloads are retained for diagnostics and neither is selected as authoritative |
 
 ## Current Consumer Inventory
 
@@ -209,7 +221,7 @@ Before each implementation Story, produce a fresh, repository-wide bounded scan 
 - prose such as “rules in CLAUDE.md”, “canonical detailed version”, “keeps only a short summary”, “see the … section in CLAUDE.md”, “update AGENTS.md/CLAUDE.md when workflow changes”, and equivalent authority claims that contain no Markdown link;
 - tests and fixtures that encode the old authority even when production code no longer does.
 
-The Story must persist or attach a deterministic classification table with `path:line`, matched phrase, consumer category, behavioral/non-behavioral status, target authority, owning implementation Story, and disposition (`migrate`, `retain-as-host-discovery`, `neutral-fixture`, or `remove`). Every scan hit must be classified; an unclassified hit fails that Story's focused verification. The implementation diff is then checked against this complete manifest, not merely against the named baseline below.
+The Story must persist or attach a deterministic classification table with `path:line`, matched phrase, consumer category, behavioral/non-behavioral status, target authority, owning implementation Story, and disposition (`migrate`, `retain-as-host-discovery`, `retain-as-active-plan`, `neutral-fixture`, or `remove`). `retain-as-active-plan` is limited to live requirements in this migration plan; it does not allow another active document to keep assigning authority to retired roots. Every scan hit must be classified; an unclassified hit fails that Story's focused verification. The implementation diff is then checked against this complete manifest, not merely against the named baseline below.
 
 This requirement applies to review of B-c1f1 itself: its adversarial documentation verification must execute the bounded enumeration against the current repository and attach the classification summary and zero-unclassified result. The named inventory in this plan cannot be used as self-validating evidence. Successor Stories rerun the same bounded scan because the repository may have acquired new consumers after this plan was accepted.
 
@@ -291,24 +303,24 @@ git grep -nI -E '(CLAUDE\.md|AGENTS\.md|(^|[^./])LATTICE\.md|\.lattice/Lattice\.
 
 The authority-word alternatives were applied in both directions around the host/document terms. The scan therefore covered filename/path literals plus plain-text authority claims. It enumerated tracked text only; generated dist, dependencies, worktrees, Story stores, fixture stores, and disabled legacy areas were excluded.
 
-Classification was deterministic and line-level. Root entrypoint and host-neutral guide hits were `retain-as-host-discovery`; this migration plan and explicitly historical/evidence material were `neutral-fixture`; active normative, operational, runtime, audit, review, verifier, and unambiguously behavioral test hits were conservatively `migrate`. A test line was `neutral-fixture` only when its matched text explicitly identified a fixture/example/sample/smoke. This conservative rule prevents an ambiguous executable hit from being silently allowlisted.
+Classification was deterministic and line-level. Root entrypoint and host-neutral guide hits were `retain-as-host-discovery`. Live requirements in this migration plan were `retain-as-active-plan`; only the two lines that quote retired-authority defect phrases as scan/guard examples were `neutral-fixture`. Active normative, operational, runtime, audit, review, verifier, and unambiguously behavioral test hits were conservatively `migrate`. A test line was `neutral-fixture` only when its matched text explicitly identified a fixture/example/sample/smoke. This conservative rule prevents an ambiguous executable hit from being silently allowlisted.
 
-| Consumer category | Retain as host discovery | Migrate | Neutral fixture | Total hit lines |
-|---|---:|---:|---:|---:|
-| Host-neutral guide | 1 | 0 | 0 | 1 |
-| Root entrypoint | 14 | 0 | 0 | 14 |
-| Operational/other docs | 0 | 17 | 0 | 17 |
-| Active normative docs | 0 | 106 | 0 | 106 |
-| This migration plan | 0 | 0 | 72 | 72 |
-| Init/managed assets | 0 | 92 | 0 | 92 |
-| Other source/comments | 0 | 51 | 0 | 51 |
-| Audit/docs-drift | 0 | 55 | 0 | 55 |
-| Aux/runtime discovery | 0 | 11 | 0 | 11 |
-| Review/preflight/prompts | 0 | 32 | 0 | 32 |
-| Lifecycle hints | 0 | 16 | 0 | 16 |
-| Verification/test fixtures | 0 | 130 | 2 | 132 |
-| Other tracked text | 0 | 1 | 0 | 1 |
-| **Total** | **15** | **511** | **74** | **600** |
+| Consumer category | Retain as host discovery | Retain as active plan | Migrate | Neutral fixture | Total hit lines |
+|---|---:|---:|---:|---:|---:|
+| Host-neutral guide | 1 | 0 | 0 | 0 | 1 |
+| Root entrypoint | 14 | 0 | 0 | 0 | 14 |
+| Operational/other docs | 0 | 0 | 17 | 0 | 17 |
+| Active normative docs | 0 | 0 | 106 | 0 | 106 |
+| This migration plan | 0 | 70 | 0 | 2 | 72 |
+| Init/managed assets | 0 | 0 | 92 | 0 | 92 |
+| Other source/comments | 0 | 0 | 51 | 0 | 51 |
+| Audit/docs-drift | 0 | 0 | 55 | 0 | 55 |
+| Aux/runtime discovery | 0 | 0 | 11 | 0 | 11 |
+| Review/preflight/prompts | 0 | 0 | 32 | 0 | 32 |
+| Lifecycle hints | 0 | 0 | 16 | 0 | 16 |
+| Verification/test fixtures | 0 | 0 | 130 | 2 | 132 |
+| Other tracked text | 0 | 0 | 1 | 0 | 1 |
+| **Total** | **15** | **70** | **511** | **4** | **600** |
 
 The scan covered **134 unique files**. Every returned line received both a consumer category and a disposition: **0 unclassified**.
 
@@ -525,610 +537,610 @@ This plan does not claim that any implementation Story is complete, that any hos
 <details>
 <summary>600-row TSV manifest for scan snapshot <code>7d7bebed3815af54e6fb8cd7303faa2bd7cb0147</code></summary>
 
-The TSV has exactly 600 data rows. Its digest covers the UTF-8 bytes from the header through the final row, with one `\n` after every line: `SHA-256: 52b372438eb5a890c238079a3672d2797e0a4333b7dd01cf37eb2887246fceba`.
+The TSV has exactly 600 data rows and seven non-empty fields per row. Its digest covers the UTF-8 bytes from the header through the final row, with one `\n` after every line: `SHA-256: a6f8c5256a10a8356480898e99c1c12e9d53cedabf5078a7f801f714ff04d4a0`.
 
 ```tsv
-path:line	category	disposition	owning Story / target
-.lattice/Lattice.md:6	host-neutral guide	retain-as-host-discovery	Story 2 / host-neutral guide
-AGENTS.md:2	root entrypoint	retain-as-host-discovery	Story 8 / root-entrypoint convergence
-AGENTS.md:18	root entrypoint	retain-as-host-discovery	Story 8 / root-entrypoint convergence
-AGENTS.md:136	root entrypoint	retain-as-host-discovery	Story 8 / root-entrypoint convergence
-AGENTS.md:303	root entrypoint	retain-as-host-discovery	Story 8 / root-entrypoint convergence
-CLAUDE.md:2	root entrypoint	retain-as-host-discovery	Story 8 / root-entrypoint convergence
-CLAUDE.md:81	root entrypoint	retain-as-host-discovery	Story 8 / root-entrypoint convergence
-CLAUDE.md:87	root entrypoint	retain-as-host-discovery	Story 8 / root-entrypoint convergence
-CLAUDE.md:88	root entrypoint	retain-as-host-discovery	Story 8 / root-entrypoint convergence
-CLAUDE.md:348	root entrypoint	retain-as-host-discovery	Story 8 / root-entrypoint convergence
-CLAUDE.md:373	root entrypoint	retain-as-host-discovery	Story 8 / root-entrypoint convergence
-CLAUDE.md:433	root entrypoint	retain-as-host-discovery	Story 8 / root-entrypoint convergence
-CLAUDE.md:550	root entrypoint	retain-as-host-discovery	Story 8 / root-entrypoint convergence
-CLAUDE.md:672	root entrypoint	retain-as-host-discovery	Story 8 / root-entrypoint convergence
-CLAUDE.md:774	root entrypoint	retain-as-host-discovery	Story 8 / root-entrypoint convergence
-docs/CLI.md:39	operational/other docs	migrate	Story 5 / operational-authority cleanup
-docs/CLI.md:169	operational/other docs	migrate	Story 5 / operational-authority cleanup
-docs/CLI.md:188	operational/other docs	migrate	Story 5 / operational-authority cleanup
-docs/CLI.md:216	operational/other docs	migrate	Story 5 / operational-authority cleanup
-docs/CLI.md:232	operational/other docs	migrate	Story 5 / operational-authority cleanup
-docs/CLI.md:671	operational/other docs	migrate	Story 5 / operational-authority cleanup
-docs/CLI.md:724	operational/other docs	migrate	Story 5 / operational-authority cleanup
-docs/CLI.md:734	operational/other docs	migrate	Story 5 / operational-authority cleanup
-docs/CLI.md:771	operational/other docs	migrate	Story 5 / operational-authority cleanup
-docs/CLI.md:879	operational/other docs	migrate	Story 5 / operational-authority cleanup
-docs/guide-scope-guard.md:209	operational/other docs	migrate	Story 5 / operational-authority cleanup
-docs/guide.md:142	operational/other docs	migrate	Story 5 / operational-authority cleanup
-docs/metadata/task.json:14	operational/other docs	migrate	Story 5 / operational-authority cleanup
-docs/metadata/task.json:2056	operational/other docs	migrate	Story 5 / operational-authority cleanup
-docs/metadata/task.json:2058	operational/other docs	migrate	Story 5 / operational-authority cleanup
-docs/requirements/baselines/proof-or-stop-prompt-baseline.json:1675	operational/other docs	migrate	Story 5 / operational-authority cleanup
-docs/requirements/baselines/proof-or-stop-prompt-baseline.json:1963	operational/other docs	migrate	Story 5 / operational-authority cleanup
-docs/requirements/decisions/authority-client-role.md:110	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/authority-client-role.md:204	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/authority-client-role.md:212	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md:23	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/cc-learnings.md:179	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/cc-learnings.md:199	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/cc-learnings.md:211	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/cc-learnings.md:242	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/cc-learnings.md:243	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/cc-learnings.md:264	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/cc-learnings.md:739	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/cc-learnings.md:795	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/cc-learnings.md:811	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/cc-learnings.md:821	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/cc-learnings.md:833	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/cell06-docker-server-execution-checklist.md:497	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md:894	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md:895	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md:896	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md:901	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md:971	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md:1148	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/done-full-test-gate-execution-plan.md:164	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md:293	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md:418	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/host-neutral-observability-console.md:4	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/host-neutral-observability-console.md:16	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/host-overflow.md:26	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/host-overflow.md:27	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/host-overflow.md:47	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/host-overflow.md:118	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/host-overflow.md:189	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/host-overflow.md:227	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/lattice-authority-live-integration.md:539	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/lattice-authority-live-integration.md:1258	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md:179	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md:180	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md:282	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md:287	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/lattice-console-demo-mvp-requirements.md:52	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md:59	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md:112	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md:333	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md:334	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md:503	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md:118	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md:35	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md:106	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md:167	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md:183	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/lifecycle-artifact-scope.md:170	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/lifecycle-artifact-scope.md:187	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/lifecycle-artifact-scope.md:252	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/lifecycle-artifact-scope.md:253	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md:252	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/orchestrate-retirement.md:33	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/owner-session-contract-execution-plan.md:266	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/pos-agent-drivability-optimization.md:96	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/pos-agent-drivability-optimization.md:99	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/pos-agent-drivability-optimization.md:151	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:99	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:6	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:13	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:23	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:24	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:25	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:27	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:32	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:34	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:36	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:37	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:39	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:41	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:58	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:66	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:87	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:95	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:98	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:100	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:103	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:111	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:112	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:116	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:120	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:122	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:149	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:157	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:159	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:170	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:172	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:177	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:178	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:179	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:180	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:182	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:186	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:188	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:189	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:190	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:195	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:203	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:204	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:205	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:206	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:209	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:213	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:215	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:216	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:217	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:221	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:223	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:235	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:236	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:288	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:289	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:294	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:296	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:297	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:298	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:307	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:308	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:310	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:342	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:345	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:352	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:396	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:407	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:412	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:436	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:458	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:459	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:461	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:463	migration plan	neutral-fixture	B-c1f1 / planning evidence
-docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md:85	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md:212	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/role-separation.md:252	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/role-separation.md:264	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/role-separation.md:273	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/role-separation.md:285	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/role-separation.md:290	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/role-separation.md:315	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/role-separation.md:338	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/role-separation.md:381	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/role-separation.md:394	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/role-separation.md:433	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/role-separation.md:455	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/role-separation.md:637	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/role-separation.md:656	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/role-separation.md:947	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/role-separation.md:982	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/root-document-migration-guide.md:15	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/root-document-migration-guide.md:19	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/root-document-migration-guide.md:20	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/root-document-migration-guide.md:23	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/root-document-migration-guide.md:46	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/root-document-migration-guide.md:71	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/root-document-migration-guide.md:112	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/root-markdown-migration-execution-solution.md:16	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/root-markdown-migration-execution-solution.md:17	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/root-markdown-migration-execution-solution.md:21	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/root-markdown-migration-execution-solution.md:28	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/root-markdown-migration-execution-solution.md:29	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/root-markdown-migration-execution-solution.md:32	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/root-markdown-migration-execution-solution.md:56	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/root-markdown-migration-execution-solution.md:72	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/root-markdown-migration-execution-solution.md:74	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/root-markdown-migration-execution-solution.md:75	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/root-markdown-migration-execution-solution.md:78	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/root-markdown-migration-execution-solution.md:79	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/root-markdown-migration-execution-solution.md:93	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/root-markdown-migration-execution-solution.md:129	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/session-ownership-and-write-leases.md:260	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/stack-layering.md:316	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/story-lifecycle.md:78	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/story-lifecycle.md:114	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/testing-infra.md:118	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/testing-infra.md:148	active normative docs	migrate	Story 5 / normative-authority migration
-docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md:161	active normative docs	migrate	Story 5 / normative-authority migration
-packages/main/src/claude-md-sync.ts:2	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/claude-md-sync.ts:14	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/claude-md-sync.ts:73	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/cli-engine.ts:730	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/cli-engine.ts:758	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/cli-init.ts:198	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/cli-init.ts:199	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/cli-init.ts:209	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/cli-init.ts:215	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/cli-init.ts:247	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/cli-init.ts:249	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/cli-init.ts:255	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/cli-init.ts:269	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/cli-init.ts:479	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/cli-init.ts:488	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/cli-init.ts:825	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/cli-init.ts:833	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/cli-init.ts:835	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/cli-init.ts:839	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/cli-init.ts:841	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/cli-init.ts:845	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/cli-init.ts:847	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/cli-init.ts:849	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/cli-init.ts:1077	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/cli-init.ts:1080	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/cli-prompts.ts:278	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/cli/command-catalog.ts:1933	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/cli/command-catalog.ts:1934	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/cli/command-catalog.ts:1935	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/cli/command-catalog.ts:1942	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/cli/command-catalog.ts:2283	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/cli/help-renderer.ts:235	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/cli/ownership-gate.ts:174	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/cli/ownership-gate.ts:183	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/core/advisory.ts:21	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/core/audit-meta-store.ts:87	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/core/audit-meta-store.ts:243	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/core/audit-scan.ts:2	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/core/audit-scan.ts:23	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/core/audit-scan.ts:72	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/core/audit-scan.ts:74	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/core/audit-scan.ts:112	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/core/audit-scan.ts:129	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/core/audit-scan.ts:195	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/core/audit-scan.ts:268	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/core/audit-scan.ts:336	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/core/audit-trigger.ts:2	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/core/audit-trigger.ts:132	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/core/audit-trigger.ts:140	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/core/audit-trigger.ts:147	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/core/audit-trigger.ts:165	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/core/audit-trigger.ts:178	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/core/audit-trigger.ts:235	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/core/audit-trigger.ts:289	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/core/background-validator.ts:7	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/core/cluster-compute.ts:37	aux/runtime discovery	migrate	Story 3 / discovery registry
-packages/main/src/core/codex-adapter-checks.ts:100	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/core/command-policy.ts:475	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/core/config.ts:13	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/core/dirty-worktree.ts:278	aux/runtime discovery	migrate	Story 3 / discovery registry
-packages/main/src/core/dirty-worktree.ts:279	aux/runtime discovery	migrate	Story 3 / discovery registry
-packages/main/src/core/finding-verify.ts:128	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/core/guard-utils.ts:3	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/core/guard-utils.ts:91	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/core/lattice-brand.ts:14	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/core/lattice-dispatch.ts:886	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/core/lattice-dispatch.ts:1828	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/core/lattice-dispatch.ts:1829	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/core/lattice-dispatch.ts:1831	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/core/lattice-dispatch.ts:2511	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/core/lattice-dispatch.ts:2661	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/core/lattice-dispatch.ts:2703	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/core/lattice-dispatch.ts:2727	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/core/lattice-evidence.ts:82	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/core/lattice-evidence.ts:100	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/core/lattice-evidence.ts:268	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/core/lattice-hosts.ts:389	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/core/managed-assets.ts:500	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/core/managed-assets.ts:501	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/core/managed-assets.ts:532	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/core/managed-assets.ts:579	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/core/managed-assets.ts:585	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/core/managed-assets.ts:591	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/core/managed-assets.ts:616	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/core/managed-assets.ts:622	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/core/managed-assets.ts:642	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/core/managed-assets.ts:643	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/core/managed-assets.ts:645	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/core/managed-assets.ts:671	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/core/managed-assets.ts:672	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/core/managed-assets.ts:674	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/core/managed-assets.ts:693	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/core/managed-assets.ts:694	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/core/managed-assets.ts:707	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/core/managed-assets.ts:708	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/core/managed-assets.ts:731	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/core/managed-assets.ts:732	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/core/managed-assets.ts:783	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/core/managed-assets.ts:784	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/core/process-fact-levels.ts:209	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/core/review-pass-provenance.ts:93	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/core/rollout-check.ts:230	aux/runtime discovery	migrate	Story 3 / discovery registry
-packages/main/src/core/rollout-check.ts:231	aux/runtime discovery	migrate	Story 3 / discovery registry
-packages/main/src/core/rollout-check.ts:232	aux/runtime discovery	migrate	Story 3 / discovery registry
-packages/main/src/core/rollout-check.ts:381	aux/runtime discovery	migrate	Story 3 / discovery registry
-packages/main/src/core/rollout-check.ts:382	aux/runtime discovery	migrate	Story 3 / discovery registry
-packages/main/src/core/rollout-check.ts:386	aux/runtime discovery	migrate	Story 3 / discovery registry
-packages/main/src/core/runtime-artifact-registry.ts:198	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/core/runtime-artifact-registry.ts:200	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/core/runtime-environment-checks.ts:593	aux/runtime discovery	migrate	Story 3 / discovery registry
-packages/main/src/handlers/agent-prompt.ts:13	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/src/handlers/artifact-declare.ts:11	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/handlers/audit.ts:4	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/handlers/audit.ts:10	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/handlers/audit.ts:101	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/handlers/audit.ts:103	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/handlers/audit.ts:107	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/handlers/aux-doc.ts:23	aux/runtime discovery	migrate	Story 3 / discovery registry
-packages/main/src/handlers/checklist.ts:564	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/handlers/doctor.ts:151	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/handlers/done-effects.ts:1036	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/handlers/finding.ts:138	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/handlers/finding.ts:194	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/handlers/gap-log.ts:21	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/handlers/init-check.ts:74	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/handlers/init-check.ts:76	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/handlers/init-check.ts:197	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/handlers/recover-evidence.ts:131	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/handlers/review-preflight.ts:153	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/src/handlers/review-preflight.ts:178	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/src/handlers/review-preflight.ts:226	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/src/handlers/review-preflight.ts:296	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/src/handlers/review-preflight.ts:299	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/src/handlers/session.ts:9	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/handlers/story-create.ts:386	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/handlers/story-create.ts:993	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/handlers/story-create.ts:1126	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/handlers/story-dispatch.ts:11	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/src/handlers/story-dispatch.ts:30	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/src/handlers/story-dispatch.ts:386	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/src/handlers/story-review.ts:477	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/handlers/transition-effects.ts:220	lifecycle hints	migrate	Story 4 / lifecycle hint routing
-packages/main/src/handlers/transition-effects.ts:391	lifecycle hints	migrate	Story 4 / lifecycle hint routing
-packages/main/src/handlers/transition-effects.ts:394	lifecycle hints	migrate	Story 4 / lifecycle hint routing
-packages/main/src/handlers/validate-docs-drift.ts:2	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/handlers/validate-docs-drift.ts:15	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/handlers/validate-docs-drift.ts:71	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/handlers/validate-docs-drift.ts:123	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/handlers/validate-docs-drift.ts:129	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/handlers/validate-docs-drift.ts:139	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/handlers/validate-docs-drift.ts:151	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/handlers/validate-docs-drift.ts:162	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/handlers/validate-docs-drift.ts:168	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/handlers/validate-docs-drift.ts:178	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/handlers/validate-docs-drift.ts:183	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/handlers/validate-docs-drift.ts:186	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/handlers/validate-docs-drift.ts:192	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/handlers/validate-docs-drift.ts:198	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/handlers/validate-docs-drift.ts:217	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/handlers/validate-docs-drift.ts:220	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/handlers/validate-docs-drift.ts:237	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/handlers/validate-docs-drift.ts:353	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/handlers/validate-docs-drift.ts:434	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/handlers/validate-docs-drift.ts:436	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/handlers/validate-docs-drift.ts:450	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/handlers/validate-docs-drift.ts:496	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/handlers/validate-docs-drift.ts:521	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/handlers/validate-docs-drift.ts:535	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/handlers/validate-lint.ts:574	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/handlers/workflow.ts:49	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/handlers/workflow.ts:50	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/handlers/workflow.ts:57	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/init-assets.ts:20	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/init-assets.ts:25	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/init-assets.ts:38	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/init-assets.ts:43	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/init-assets.ts:50	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/init-assets.ts:58	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/init-assets.ts:63	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/init-assets.ts:84	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/init-assets.ts:97	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/init-assets.ts:102	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/init-assets.ts:252	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/providers/claude-cli.ts:284	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/providers/types.ts:91	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/tasks/audit-esm-smoke.ts:10	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/tasks/cli-argument-ergonomics-smoke.ts:20	verification/test fixtures	neutral-fixture	Story 6 / verification-fixture classification
-packages/main/src/tasks/cli-argument-ergonomics-smoke.ts:23	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/cli-argument-ergonomics-smoke.ts:27	verification/test fixtures	neutral-fixture	Story 6 / verification-fixture classification
-packages/main/src/tasks/cli-argument-ergonomics-smoke.ts:30	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/cli-surface-smoke.ts:59	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/cli-surface-smoke.ts:60	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/cli-surface-smoke.ts:68	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/deprecated-gc-smoke.ts:66	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/tasks/docs-drift-path-drift-smoke.ts:4	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/tasks/docs-drift-path-drift-smoke.ts:8	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/tasks/docs-drift-path-drift-smoke.ts:226	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/tasks/docs-drift-path-drift-smoke.ts:320	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts:34	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts:74	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts:215	audit/docs-drift	migrate	Story 3 / audit-docs-drift
-packages/main/src/tasks/field-regression-cli-smoke.ts:1772	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/flow-stability-smoke.ts:1048	lifecycle hints	migrate	Story 4 / lifecycle hint routing
-packages/main/src/tasks/flow-stability-smoke.ts:1085	lifecycle hints	migrate	Story 4 / lifecycle hint routing
-packages/main/src/tasks/flow-stability-smoke.ts:1086	lifecycle hints	migrate	Story 4 / lifecycle hint routing
-packages/main/src/tasks/flow-stability-smoke.ts:1087	lifecycle hints	migrate	Story 4 / lifecycle hint routing
-packages/main/src/tasks/flow-stability-smoke.ts:1090	lifecycle hints	migrate	Story 4 / lifecycle hint routing
-packages/main/src/tasks/flow-stability-smoke.ts:1091	lifecycle hints	migrate	Story 4 / lifecycle hint routing
-packages/main/src/tasks/flow-stability-smoke.ts:1092	lifecycle hints	migrate	Story 4 / lifecycle hint routing
-packages/main/src/tasks/flow-stability-smoke.ts:3389	lifecycle hints	migrate	Story 4 / lifecycle hint routing
-packages/main/src/tasks/flow-stability-smoke.ts:3399	lifecycle hints	migrate	Story 4 / lifecycle hint routing
-packages/main/src/tasks/flow-stability-smoke.ts:3496	lifecycle hints	migrate	Story 4 / lifecycle hint routing
-packages/main/src/tasks/flow-stability-smoke.ts:3903	lifecycle hints	migrate	Story 4 / lifecycle hint routing
-packages/main/src/tasks/flow-stability-smoke.ts:3914	lifecycle hints	migrate	Story 4 / lifecycle hint routing
-packages/main/src/tasks/gap-log-smoke.ts:86	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/gap-log-smoke.ts:107	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/init-check-atomicity-smoke.ts:215	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/init-check-atomicity-smoke.ts:347	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/main-write-lock-coverage.ts:9	other source/comments	migrate	Story 5 / source-authority cleanup
-packages/main/src/tasks/managed-assets-wrapper-root-smoke.ts:9	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/tasks/managed-assets-wrapper-root-smoke.ts:116	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/tasks/managed-assets-wrapper-root-smoke.ts:138	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/tasks/managed-assets-wrapper-root-smoke.ts:146	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts:124	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts:578	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/prompt-registry-smoke.ts:89	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/provider-claude-smoke.ts:6	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/provider-claude-smoke.ts:250	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/repro-first-candidate-smoke.ts:46	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/repro-first-candidate-smoke.ts:47	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/retired-root-guard-smoke.ts:25	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/retired-root-guard-smoke.ts:30	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/retired-root-guard-smoke.ts:36	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/retired-root-guard-smoke.ts:48	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/review-host-execution-readiness-smoke.ts:189	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/session-brief-prompt-sync-smoke.ts:38	lifecycle hints	migrate	Story 4 / lifecycle hint routing
-packages/main/src/tasks/story-create-concurrency-smoke.ts:330	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/thin-init-assets-smoke.ts:15	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/tasks/thin-init-assets-smoke.ts:166	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/tasks/thin-init-assets-smoke.ts:171	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/tasks/thin-init-assets-smoke.ts:174	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/tasks/thin-init-assets-smoke.ts:176	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/tasks/thin-init-assets-smoke.ts:179	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/tasks/thin-init-assets-smoke.ts:180	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/tasks/thin-init-assets-smoke.ts:181	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/tasks/thin-init-assets-smoke.ts:182	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/tasks/thin-init-assets-smoke.ts:183	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/tasks/thin-init-assets-smoke.ts:185	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/tasks/thin-init-assets-smoke.ts:186	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/tasks/thin-init-assets-smoke.ts:187	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/tasks/thin-init-assets-smoke.ts:188	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/tasks/thin-init-assets-smoke.ts:200	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/tasks/thin-init-assets-smoke.ts:216	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/tasks/thin-init-assets-smoke.ts:218	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/tasks/thin-init-assets-smoke.ts:227	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/tasks/thin-init-assets-smoke.ts:232	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/tasks/thin-init-assets-smoke.ts:246	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/tasks/thin-init-assets-smoke.ts:266	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/tasks/thin-init-assets-smoke.ts:277	init/managed assets	migrate	Story 7 / init-managed assets
-packages/main/src/tasks/unattended-dispatch-smoke.ts:553	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/unattended-dispatch-smoke.ts:555	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/usage-ledger-default-on-smoke.ts:19	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/usage-ledger-default-on-smoke.ts:244	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/usage-ledger-default-on-smoke.ts:357	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/usage-ledger-dispatch-smoke.ts:456	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/validation-protocol-smoke.ts:413	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/validation-protocol-smoke.ts:1183	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/validation-protocol-smoke.ts:1184	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/validation-protocol-smoke.ts:1206	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/validation-protocol-smoke.ts:1209	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/validation-protocol-smoke.ts:1210	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/validation-protocol-smoke.ts:1223	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/validation-protocol-smoke.ts:1226	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/src/tasks/worktree-policy-smoke.ts:8	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-packages/main/templates/agents/lattice-evaluator.md:200	other tracked text	migrate	Story 4 / prompt classification
-packages/main/templates/agents/lattice-review-behavior.md:104	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/templates/agents/lattice-review-channel.md:104	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/templates/agents/lattice-review-concept.md:104	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/templates/agents/lattice-review-delivery.md:152	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/templates/agents/lattice-review-delivery.md:154	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/templates/agents/lattice-review-delivery.md:161	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/templates/agents/lattice-review-delivery.md:248	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/templates/agents/lattice-review-docs.md:107	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/templates/agents/lattice-review-docs.md:117	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/templates/agents/lattice-review-docs.md:119	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/templates/agents/lattice-review-docs.md:136	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/templates/agents/lattice-review-docs.md:142	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/templates/agents/lattice-review-docs.md:165	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/templates/agents/lattice-review-docs.md:169	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/templates/agents/lattice-review-docs.md:178	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/templates/agents/lattice-review-quality.md:104	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/templates/agents/lattice-review-story-init.md:125	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/templates/agents/lattice-review-story-init.md:185	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/templates/agents/lattice-review-story-init.md:205	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/templates/agents/lattice-review-story-init.md:209	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/templates/agents/lattice-review-story-init.md:252	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/templates/agents/lattice-review-story-init.md:267	review/preflight/prompts	migrate	Story 4 / bounded review routing
-packages/main/templates/agents/test-intent.md:80	review/preflight/prompts	migrate	Story 4 / bounded review routing
-scripts/verify-codex-assets.mjs:80	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-codex-assets.mjs:94	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-codex-assets.mjs:95	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-codex-assets.mjs:96	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-codex-assets.mjs:97	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-codex-assets.mjs:124	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-dev-memory.mjs:781	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-scripts/verify-dev-memory.mjs:801	verification/test fixtures	migrate	Story 6 / verification-fixture classification
-scripts/verify-entrypoints.mjs:99	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:137	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:142	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:152	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:157	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:164	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:178	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:179	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:182	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:184	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:189	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:196	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:398	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:399	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:400	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:401	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:515	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:516	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:517	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:522	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:527	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:529	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:534	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:565	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:568	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:569	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:580	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:726	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:727	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:731	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:732	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:733	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:734	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:735	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:736	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:747	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:766	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:768	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:784	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:786	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:800	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:802	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:803	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:819	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:820	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:821	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:822	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:825	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:826	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:827	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:828	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:842	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:843	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:844	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:848	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:849	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:850	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:851	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:852	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:853	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:854	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:855	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:856	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:857	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:858	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:859	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:860	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:861	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:870	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:871	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:872	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:873	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:874	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:875	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:878	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:879	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:880	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:881	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:882	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-entrypoints.mjs:883	verification/test fixtures	migrate	Stories 6-7 / entrypoint verification
-scripts/verify-process-fact-contract.mjs:54	verification/test fixtures	migrate	Story 6 / process-fact verifier
-scripts/verify-process-fact-contract.mjs:423	verification/test fixtures	migrate	Story 6 / process-fact verifier
-scripts/verify-process-fact-contract.mjs:428	verification/test fixtures	migrate	Story 6 / process-fact verifier
-scripts/verify-proof-or-stop-prompt-baseline.mjs:132	verification/test fixtures	migrate	Story 5 / retired-authority guard
+path:line	matchedPhrase	category	behavioralStatus	disposition	targetAuthority	owningStory
+.lattice/Lattice.md:6	Lattice	host-neutral guide	behavioral	retain-as-host-discovery	host-neutral guide	Story 2
+AGENTS.md:2	AGENTS.md	root entrypoint	behavioral	retain-as-host-discovery	root-entrypoint convergence	Story 8
+AGENTS.md:18	Lattice	root entrypoint	behavioral	retain-as-host-discovery	root-entrypoint convergence	Story 8
+AGENTS.md:136	Claude	root entrypoint	behavioral	retain-as-host-discovery	root-entrypoint convergence	Story 8
+AGENTS.md:303	AGENTS.md	root entrypoint	behavioral	retain-as-host-discovery	root-entrypoint convergence	Story 8
+CLAUDE.md:2	CLAUDE.md	root entrypoint	behavioral	retain-as-host-discovery	root-entrypoint convergence	Story 8
+CLAUDE.md:81	CLAUDE.md	root entrypoint	behavioral	retain-as-host-discovery	root-entrypoint convergence	Story 8
+CLAUDE.md:87	CLAUDE.md	root entrypoint	behavioral	retain-as-host-discovery	root-entrypoint convergence	Story 8
+CLAUDE.md:88	Claude	root entrypoint	behavioral	retain-as-host-discovery	root-entrypoint convergence	Story 8
+CLAUDE.md:348	CLAUDE.md	root entrypoint	behavioral	retain-as-host-discovery	root-entrypoint convergence	Story 8
+CLAUDE.md:373	CLAUDE.md	root entrypoint	behavioral	retain-as-host-discovery	root-entrypoint convergence	Story 8
+CLAUDE.md:433	CLAUDE.md	root entrypoint	behavioral	retain-as-host-discovery	root-entrypoint convergence	Story 8
+CLAUDE.md:550	CLAUDE.md	root entrypoint	behavioral	retain-as-host-discovery	root-entrypoint convergence	Story 8
+CLAUDE.md:672	CLAUDE.md	root entrypoint	behavioral	retain-as-host-discovery	root-entrypoint convergence	Story 8
+CLAUDE.md:774	Lattice	root entrypoint	behavioral	retain-as-host-discovery	root-entrypoint convergence	Story 8
+docs/CLI.md:39	CLAUDE.md	operational/other docs	behavioral	migrate	operational-authority cleanup	Story 5
+docs/CLI.md:169	Claude	operational/other docs	behavioral	migrate	operational-authority cleanup	Story 5
+docs/CLI.md:188	Claude	operational/other docs	behavioral	migrate	operational-authority cleanup	Story 5
+docs/CLI.md:216	Claude	operational/other docs	behavioral	migrate	operational-authority cleanup	Story 5
+docs/CLI.md:232	Claude	operational/other docs	behavioral	migrate	operational-authority cleanup	Story 5
+docs/CLI.md:671	AGENTS.md	operational/other docs	behavioral	migrate	operational-authority cleanup	Story 5
+docs/CLI.md:724	AGENTS.md	operational/other docs	behavioral	migrate	operational-authority cleanup	Story 5
+docs/CLI.md:734	AGENTS.md	operational/other docs	behavioral	migrate	operational-authority cleanup	Story 5
+docs/CLI.md:771	AGENTS.md	operational/other docs	behavioral	migrate	operational-authority cleanup	Story 5
+docs/CLI.md:879	AGENTS.md	operational/other docs	behavioral	migrate	operational-authority cleanup	Story 5
+docs/guide-scope-guard.md:209	CLAUDE.md	operational/other docs	behavioral	migrate	operational-authority cleanup	Story 5
+docs/guide.md:142	Claude	operational/other docs	behavioral	migrate	operational-authority cleanup	Story 5
+docs/metadata/task.json:14	CLAUDE.md	operational/other docs	behavioral	migrate	operational-authority cleanup	Story 5
+docs/metadata/task.json:2056	CLAUDE.md	operational/other docs	behavioral	migrate	operational-authority cleanup	Story 5
+docs/metadata/task.json:2058	CLAUDE.md	operational/other docs	behavioral	migrate	operational-authority cleanup	Story 5
+docs/requirements/baselines/proof-or-stop-prompt-baseline.json:1675	CLAUDE.md	operational/other docs	behavioral	migrate	operational-authority cleanup	Story 5
+docs/requirements/baselines/proof-or-stop-prompt-baseline.json:1963	CLAUDE.md	operational/other docs	behavioral	migrate	operational-authority cleanup	Story 5
+docs/requirements/decisions/authority-client-role.md:110	Claude	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/authority-client-role.md:204	Claude	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/authority-client-role.md:212	Claude	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md:23	Claude	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/cc-learnings.md:179	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/cc-learnings.md:199	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/cc-learnings.md:211	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/cc-learnings.md:242	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/cc-learnings.md:243	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/cc-learnings.md:264	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/cc-learnings.md:739	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/cc-learnings.md:795	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/cc-learnings.md:811	Claude	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/cc-learnings.md:821	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/cc-learnings.md:833	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/cell06-docker-server-execution-checklist.md:497	Lattice	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md:894	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md:895	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md:896	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md:901	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md:971	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md:1148	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/done-full-test-gate-execution-plan.md:164	AGENTS	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md:293	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md:418	Claude	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/host-neutral-observability-console.md:4	Claude	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/host-neutral-observability-console.md:16	Claude	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/host-overflow.md:26	Claude	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/host-overflow.md:27	Claude	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/host-overflow.md:47	Claude	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/host-overflow.md:118	Claude	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/host-overflow.md:189	Claude	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/host-overflow.md:227	Claude	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/lattice-authority-live-integration.md:539	Claude	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/lattice-authority-live-integration.md:1258	Claude	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md:179	AGENTS.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md:180	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md:282	AGENTS.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md:287	AGENTS.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/lattice-console-demo-mvp-requirements.md:52	Claude	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md:59	Claude	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md:112	AGENTS.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md:333	AGENTS.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md:334	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md:503	AGENTS.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md:118	AGENTS.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md:35	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md:106	Lattice	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md:167	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md:183	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/lifecycle-artifact-scope.md:170	.lattice/Lattice.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/lifecycle-artifact-scope.md:187	LATTICE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/lifecycle-artifact-scope.md:252	.lattice/Lattice.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/lifecycle-artifact-scope.md:253	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md:252	Claude	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/orchestrate-retirement.md:33	Claude	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/owner-session-contract-execution-plan.md:266	Claude	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/pos-agent-drivability-optimization.md:96	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/pos-agent-drivability-optimization.md:99	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/pos-agent-drivability-optimization.md:151	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:99	Claude	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:6	Claude	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:13	AGENTS.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:23	AGENTS.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:24	Claude	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:25	AGENTS.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:27	AGENTS.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:32	AGENTS.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:34	.lattice/Lattice.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:36	CLAUDE.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:37	AGENTS.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:39	.lattice/Lattice.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:41	.lattice/Lattice.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:58	.lattice/Lattice.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:66	.lattice/Lattice.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:87	AGENTS.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:95	.lattice/Lattice.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:98	CLAUDE.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:100	Claude	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:103	AGENTS.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:111	AGENTS.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:112	CLAUDE.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:116	.lattice/Lattice.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:120	AGENTS.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:122	Claude	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:149	AGENTS.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:157	CLAUDE.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:159	CLAUDE.md	migration plan	non-behavioral	neutral-fixture	quoted retired-authority defect example	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:170	Claude	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:172	AGENTS.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:177	CLAUDE.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:178	CLAUDE.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:179	CLAUDE.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:180	CLAUDE.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:182	Claude	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:186	CLAUDE.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:188	CLAUDE.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:189	AGENTS.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:190	CLAUDE.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:195	CLAUDE.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:203	CLAUDE.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:204	CLAUDE.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:205	AGENTS.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:206	AGENTS.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:209	CLAUDE.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:213	AGENTS.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:215	AGENTS.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:216	Claude	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:217	CLAUDE.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:221	.lattice/Lattice.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:223	CLAUDE.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:235	AGENTS	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:236	AGENTS.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:288	AGENTS.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:289	Claude	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:294	CLAUDE.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:296	CLAUDE.md	migration plan	non-behavioral	neutral-fixture	quoted retired-authority defect example	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:297	CLAUDE.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:298	AGENTS.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:307	.lattice/Lattice.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:308	CLAUDE.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:310	AGENTS.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:342	.lattice/Lattice.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:345	AGENTS.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:352	CLAUDE.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:396	Claude	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:407	AGENTS.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:412	AGENTS.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:436	CLAUDE.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:458	AGENTS.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:459	.lattice/Lattice.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:461	CLAUDE.md	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:463	Claude	migration plan	behavioral	retain-as-active-plan	active migration-plan authority	B-c1f1
+docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md:85	Claude	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md:212	Claude	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/role-separation.md:252	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/role-separation.md:264	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/role-separation.md:273	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/role-separation.md:285	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/role-separation.md:290	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/role-separation.md:315	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/role-separation.md:338	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/role-separation.md:381	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/role-separation.md:394	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/role-separation.md:433	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/role-separation.md:455	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/role-separation.md:637	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/role-separation.md:656	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/role-separation.md:947	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/role-separation.md:982	Claude	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/root-document-migration-guide.md:15	AGENTS.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/root-document-migration-guide.md:19	AGENTS.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/root-document-migration-guide.md:20	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/root-document-migration-guide.md:23	LATTICE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/root-document-migration-guide.md:46	AGENTS.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/root-document-migration-guide.md:71	LATTICE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/root-document-migration-guide.md:112	AGENTS.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/root-markdown-migration-execution-solution.md:16	AGENTS.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/root-markdown-migration-execution-solution.md:17	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/root-markdown-migration-execution-solution.md:21	LATTICE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/root-markdown-migration-execution-solution.md:28	AGENTS.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/root-markdown-migration-execution-solution.md:29	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/root-markdown-migration-execution-solution.md:32	LATTICE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/root-markdown-migration-execution-solution.md:56	AGENTS.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/root-markdown-migration-execution-solution.md:72	LATTICE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/root-markdown-migration-execution-solution.md:74	LATTICE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/root-markdown-migration-execution-solution.md:75	AGENTS.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/root-markdown-migration-execution-solution.md:78	LATTICE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/root-markdown-migration-execution-solution.md:79	LATTICE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/root-markdown-migration-execution-solution.md:93	LATTICE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/root-markdown-migration-execution-solution.md:129	AGENTS.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/session-ownership-and-write-leases.md:260	Claude	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/stack-layering.md:316	Claude	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/story-lifecycle.md:78	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/story-lifecycle.md:114	CLAUDE.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/testing-infra.md:118	AGENTS.md	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/testing-infra.md:148	Lattice	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md:161	Lattice	active normative docs	behavioral	migrate	normative-authority migration	Story 5
+packages/main/src/claude-md-sync.ts:2	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/claude-md-sync.ts:14	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/claude-md-sync.ts:73	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/cli-engine.ts:730	Lattice	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/cli-engine.ts:758	Lattice	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/cli-init.ts:198	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/cli-init.ts:199	Claude	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/cli-init.ts:209	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/cli-init.ts:215	Claude	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/cli-init.ts:247	.lattice/Lattice.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/cli-init.ts:249	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/cli-init.ts:255	LATTICE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/cli-init.ts:269	.lattice/Lattice.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/cli-init.ts:479	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/cli-init.ts:488	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/cli-init.ts:825	.lattice/Lattice.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/cli-init.ts:833	LATTICE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/cli-init.ts:835	LATTICE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/cli-init.ts:839	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/cli-init.ts:841	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/cli-init.ts:845	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/cli-init.ts:847	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/cli-init.ts:849	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/cli-init.ts:1077	.lattice/Lattice.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/cli-init.ts:1080	LATTICE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/cli-prompts.ts:278	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/cli/command-catalog.ts:1933	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/cli/command-catalog.ts:1934	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/cli/command-catalog.ts:1935	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/cli/command-catalog.ts:1942	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/cli/command-catalog.ts:2283	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/cli/help-renderer.ts:235	Lattice	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/cli/ownership-gate.ts:174	Lattice	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/cli/ownership-gate.ts:183	Lattice	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/advisory.ts:21	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/audit-meta-store.ts:87	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/audit-meta-store.ts:243	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/audit-scan.ts:2	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/core/audit-scan.ts:23	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/core/audit-scan.ts:72	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/core/audit-scan.ts:74	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/core/audit-scan.ts:112	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/core/audit-scan.ts:129	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/core/audit-scan.ts:195	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/core/audit-scan.ts:268	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/core/audit-scan.ts:336	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/core/audit-trigger.ts:2	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/core/audit-trigger.ts:132	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/core/audit-trigger.ts:140	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/core/audit-trigger.ts:147	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/core/audit-trigger.ts:165	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/core/audit-trigger.ts:178	Claude	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/core/audit-trigger.ts:235	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/core/audit-trigger.ts:289	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/core/background-validator.ts:7	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/cluster-compute.ts:37	CLAUDE.md	aux/runtime discovery	behavioral	migrate	discovery registry	Story 3
+packages/main/src/core/codex-adapter-checks.ts:100	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/core/command-policy.ts:475	Claude	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/config.ts:13	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/dirty-worktree.ts:278	AGENTS.md	aux/runtime discovery	behavioral	migrate	discovery registry	Story 3
+packages/main/src/core/dirty-worktree.ts:279	CLAUDE.md	aux/runtime discovery	behavioral	migrate	discovery registry	Story 3
+packages/main/src/core/finding-verify.ts:128	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/guard-utils.ts:3	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/guard-utils.ts:91	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/lattice-brand.ts:14	Lattice	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/lattice-dispatch.ts:886	Claude	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/lattice-dispatch.ts:1828	Claude	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/lattice-dispatch.ts:1829	Claude	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/lattice-dispatch.ts:1831	Claude	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/lattice-dispatch.ts:2511	Claude	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/lattice-dispatch.ts:2661	Claude	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/lattice-dispatch.ts:2703	Claude	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/lattice-dispatch.ts:2727	Claude	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/lattice-evidence.ts:82	Lattice	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/lattice-evidence.ts:100	Lattice	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/lattice-evidence.ts:268	Lattice	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/lattice-hosts.ts:389	Claude	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/managed-assets.ts:500	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/core/managed-assets.ts:501	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/core/managed-assets.ts:532	LATTICE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/core/managed-assets.ts:579	Lattice	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/core/managed-assets.ts:585	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/core/managed-assets.ts:591	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/core/managed-assets.ts:616	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/core/managed-assets.ts:622	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/core/managed-assets.ts:642	.lattice/Lattice.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/core/managed-assets.ts:643	.lattice/Lattice.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/core/managed-assets.ts:645	.lattice/Lattice.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/core/managed-assets.ts:671	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/core/managed-assets.ts:672	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/core/managed-assets.ts:674	.lattice/Lattice.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/core/managed-assets.ts:693	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/core/managed-assets.ts:694	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/core/managed-assets.ts:707	LATTICE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/core/managed-assets.ts:708	LATTICE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/core/managed-assets.ts:731	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/core/managed-assets.ts:732	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/core/managed-assets.ts:783	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/core/managed-assets.ts:784	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/core/process-fact-levels.ts:209	Claude	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/review-pass-provenance.ts:93	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/rollout-check.ts:230	AGENTS.md	aux/runtime discovery	behavioral	migrate	discovery registry	Story 3
+packages/main/src/core/rollout-check.ts:231	CLAUDE.md	aux/runtime discovery	behavioral	migrate	discovery registry	Story 3
+packages/main/src/core/rollout-check.ts:232	LATTICE.md	aux/runtime discovery	behavioral	migrate	discovery registry	Story 3
+packages/main/src/core/rollout-check.ts:381	AGENTS.md	aux/runtime discovery	behavioral	migrate	discovery registry	Story 3
+packages/main/src/core/rollout-check.ts:382	Lattice	aux/runtime discovery	behavioral	migrate	discovery registry	Story 3
+packages/main/src/core/rollout-check.ts:386	AGENTS.md	aux/runtime discovery	behavioral	migrate	discovery registry	Story 3
+packages/main/src/core/runtime-artifact-registry.ts:198	Lattice	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/runtime-artifact-registry.ts:200	Lattice	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/core/runtime-environment-checks.ts:593	AGENTS.md	aux/runtime discovery	behavioral	migrate	discovery registry	Story 3
+packages/main/src/handlers/agent-prompt.ts:13	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/src/handlers/artifact-declare.ts:11	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/handlers/audit.ts:4	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/handlers/audit.ts:10	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/handlers/audit.ts:101	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/handlers/audit.ts:103	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/handlers/audit.ts:107	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/handlers/aux-doc.ts:23	CLAUDE.md	aux/runtime discovery	behavioral	migrate	discovery registry	Story 3
+packages/main/src/handlers/checklist.ts:564	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/handlers/doctor.ts:151	Claude	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/handlers/done-effects.ts:1036	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/handlers/finding.ts:138	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/handlers/finding.ts:194	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/handlers/gap-log.ts:21	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/handlers/init-check.ts:74	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/handlers/init-check.ts:76	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/handlers/init-check.ts:197	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/handlers/recover-evidence.ts:131	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/handlers/review-preflight.ts:153	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/src/handlers/review-preflight.ts:178	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/src/handlers/review-preflight.ts:226	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/src/handlers/review-preflight.ts:296	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/src/handlers/review-preflight.ts:299	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/src/handlers/session.ts:9	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/handlers/story-create.ts:386	AGENTS.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/handlers/story-create.ts:993	AGENTS.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/handlers/story-create.ts:1126	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/handlers/story-dispatch.ts:11	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/src/handlers/story-dispatch.ts:30	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/src/handlers/story-dispatch.ts:386	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/src/handlers/story-review.ts:477	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/handlers/transition-effects.ts:220	CLAUDE.md	lifecycle hints	behavioral	migrate	lifecycle hint routing	Story 4
+packages/main/src/handlers/transition-effects.ts:391	CLAUDE.md	lifecycle hints	behavioral	migrate	lifecycle hint routing	Story 4
+packages/main/src/handlers/transition-effects.ts:394	CLAUDE.md	lifecycle hints	behavioral	migrate	lifecycle hint routing	Story 4
+packages/main/src/handlers/validate-docs-drift.ts:2	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/handlers/validate-docs-drift.ts:15	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/handlers/validate-docs-drift.ts:71	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/handlers/validate-docs-drift.ts:123	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/handlers/validate-docs-drift.ts:129	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/handlers/validate-docs-drift.ts:139	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/handlers/validate-docs-drift.ts:151	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/handlers/validate-docs-drift.ts:162	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/handlers/validate-docs-drift.ts:168	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/handlers/validate-docs-drift.ts:178	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/handlers/validate-docs-drift.ts:183	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/handlers/validate-docs-drift.ts:186	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/handlers/validate-docs-drift.ts:192	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/handlers/validate-docs-drift.ts:198	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/handlers/validate-docs-drift.ts:217	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/handlers/validate-docs-drift.ts:220	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/handlers/validate-docs-drift.ts:237	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/handlers/validate-docs-drift.ts:353	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/handlers/validate-docs-drift.ts:434	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/handlers/validate-docs-drift.ts:436	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/handlers/validate-docs-drift.ts:450	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/handlers/validate-docs-drift.ts:496	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/handlers/validate-docs-drift.ts:521	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/handlers/validate-docs-drift.ts:535	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/handlers/validate-lint.ts:574	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/handlers/workflow.ts:49	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/handlers/workflow.ts:50	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/handlers/workflow.ts:57	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/init-assets.ts:20	AGENTS	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/init-assets.ts:25	LATTICE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/init-assets.ts:38	LATTICE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/init-assets.ts:43	LATTICE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/init-assets.ts:50	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/init-assets.ts:58	CLAUDE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/init-assets.ts:63	LATTICE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/init-assets.ts:84	.lattice/Lattice.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/init-assets.ts:97	AGENTS	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/init-assets.ts:102	.lattice/Lattice.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/init-assets.ts:252	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/providers/claude-cli.ts:284	Claude	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/providers/types.ts:91	Claude	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/tasks/audit-esm-smoke.ts:10	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/tasks/cli-argument-ergonomics-smoke.ts:20	AGENTS.md	verification/test fixtures	non-behavioral	neutral-fixture	verification-fixture classification	Story 6
+packages/main/src/tasks/cli-argument-ergonomics-smoke.ts:23	AGENTS.md	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/cli-argument-ergonomics-smoke.ts:27	AGENTS.md	verification/test fixtures	non-behavioral	neutral-fixture	verification-fixture classification	Story 6
+packages/main/src/tasks/cli-argument-ergonomics-smoke.ts:30	AGENTS.md	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/cli-surface-smoke.ts:59	AGENTS.md	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/cli-surface-smoke.ts:60	CLAUDE.md	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/cli-surface-smoke.ts:68	AGENTS.md	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/deprecated-gc-smoke.ts:66	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/tasks/docs-drift-path-drift-smoke.ts:4	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/tasks/docs-drift-path-drift-smoke.ts:8	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/tasks/docs-drift-path-drift-smoke.ts:226	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/tasks/docs-drift-path-drift-smoke.ts:320	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts:34	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts:74	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/tasks/docs-drift-wrapper-root-smoke.ts:215	CLAUDE.md	audit/docs-drift	behavioral	migrate	audit-docs-drift	Story 3
+packages/main/src/tasks/field-regression-cli-smoke.ts:1772	CLAUDE.md	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/flow-stability-smoke.ts:1048	.lattice/Lattice.md	lifecycle hints	behavioral	migrate	lifecycle hint routing	Story 4
+packages/main/src/tasks/flow-stability-smoke.ts:1085	.lattice/Lattice.md	lifecycle hints	behavioral	migrate	lifecycle hint routing	Story 4
+packages/main/src/tasks/flow-stability-smoke.ts:1086	AGENTS.md	lifecycle hints	behavioral	migrate	lifecycle hint routing	Story 4
+packages/main/src/tasks/flow-stability-smoke.ts:1087	CLAUDE.md	lifecycle hints	behavioral	migrate	lifecycle hint routing	Story 4
+packages/main/src/tasks/flow-stability-smoke.ts:1090	LATTICE.md	lifecycle hints	behavioral	migrate	lifecycle hint routing	Story 4
+packages/main/src/tasks/flow-stability-smoke.ts:1091	AGENTS.md	lifecycle hints	behavioral	migrate	lifecycle hint routing	Story 4
+packages/main/src/tasks/flow-stability-smoke.ts:1092	CLAUDE.md	lifecycle hints	behavioral	migrate	lifecycle hint routing	Story 4
+packages/main/src/tasks/flow-stability-smoke.ts:3389	CLAUDE.md	lifecycle hints	behavioral	migrate	lifecycle hint routing	Story 4
+packages/main/src/tasks/flow-stability-smoke.ts:3399	CLAUDE.md	lifecycle hints	behavioral	migrate	lifecycle hint routing	Story 4
+packages/main/src/tasks/flow-stability-smoke.ts:3496	CLAUDE.md	lifecycle hints	behavioral	migrate	lifecycle hint routing	Story 4
+packages/main/src/tasks/flow-stability-smoke.ts:3903	CLAUDE.md	lifecycle hints	behavioral	migrate	lifecycle hint routing	Story 4
+packages/main/src/tasks/flow-stability-smoke.ts:3914	CLAUDE.md	lifecycle hints	behavioral	migrate	lifecycle hint routing	Story 4
+packages/main/src/tasks/gap-log-smoke.ts:86	CLAUDE.md	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/gap-log-smoke.ts:107	CLAUDE.md	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/init-check-atomicity-smoke.ts:215	Lattice	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/init-check-atomicity-smoke.ts:347	Lattice	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/main-write-lock-coverage.ts:9	CLAUDE.md	other source/comments	behavioral	migrate	source-authority cleanup	Story 5
+packages/main/src/tasks/managed-assets-wrapper-root-smoke.ts:9	.lattice/Lattice.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/tasks/managed-assets-wrapper-root-smoke.ts:116	.lattice/Lattice.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/tasks/managed-assets-wrapper-root-smoke.ts:138	.lattice/Lattice.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/tasks/managed-assets-wrapper-root-smoke.ts:146	.lattice/Lattice.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts:124	Claude	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/playbook-runtime-memory-index-smoke.ts:578	Claude	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/prompt-registry-smoke.ts:89	Lattice	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/provider-claude-smoke.ts:6	Claude	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/provider-claude-smoke.ts:250	Claude	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/repro-first-candidate-smoke.ts:46	CLAUDE.md	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/repro-first-candidate-smoke.ts:47	CLAUDE.md	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/retired-root-guard-smoke.ts:25	Lattice	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/retired-root-guard-smoke.ts:30	Lattice	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/retired-root-guard-smoke.ts:36	Lattice	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/retired-root-guard-smoke.ts:48	Lattice	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/review-host-execution-readiness-smoke.ts:189	Claude	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/session-brief-prompt-sync-smoke.ts:38	CLAUDE.md	lifecycle hints	behavioral	migrate	lifecycle hint routing	Story 4
+packages/main/src/tasks/story-create-concurrency-smoke.ts:330	AGENTS.md	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/thin-init-assets-smoke.ts:15	.lattice/Lattice.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/tasks/thin-init-assets-smoke.ts:166	LATTICE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/tasks/thin-init-assets-smoke.ts:171	Lattice	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/tasks/thin-init-assets-smoke.ts:174	.lattice/Lattice.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/tasks/thin-init-assets-smoke.ts:176	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/tasks/thin-init-assets-smoke.ts:179	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/tasks/thin-init-assets-smoke.ts:180	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/tasks/thin-init-assets-smoke.ts:181	Lattice	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/tasks/thin-init-assets-smoke.ts:182	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/tasks/thin-init-assets-smoke.ts:183	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/tasks/thin-init-assets-smoke.ts:185	.lattice/Lattice.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/tasks/thin-init-assets-smoke.ts:186	.lattice/Lattice.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/tasks/thin-init-assets-smoke.ts:187	.lattice/Lattice.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/tasks/thin-init-assets-smoke.ts:188	.lattice/Lattice.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/tasks/thin-init-assets-smoke.ts:200	LATTICE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/tasks/thin-init-assets-smoke.ts:216	.lattice/Lattice.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/tasks/thin-init-assets-smoke.ts:218	AGENTS.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/tasks/thin-init-assets-smoke.ts:227	LATTICE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/tasks/thin-init-assets-smoke.ts:232	LATTICE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/tasks/thin-init-assets-smoke.ts:246	LATTICE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/tasks/thin-init-assets-smoke.ts:266	LATTICE.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/tasks/thin-init-assets-smoke.ts:277	.lattice/Lattice.md	init/managed assets	behavioral	migrate	init-managed assets	Story 7
+packages/main/src/tasks/unattended-dispatch-smoke.ts:553	Claude	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/unattended-dispatch-smoke.ts:555	Claude	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/usage-ledger-default-on-smoke.ts:19	Claude	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/usage-ledger-default-on-smoke.ts:244	Claude	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/usage-ledger-default-on-smoke.ts:357	Claude	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/usage-ledger-dispatch-smoke.ts:456	Claude	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/validation-protocol-smoke.ts:413	Lattice	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/validation-protocol-smoke.ts:1183	LATTICE.md	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/validation-protocol-smoke.ts:1184	LATTICE.md	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/validation-protocol-smoke.ts:1206	LATTICE.md	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/validation-protocol-smoke.ts:1209	LATTICE.md	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/validation-protocol-smoke.ts:1210	LATTICE.md	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/validation-protocol-smoke.ts:1223	LATTICE.md	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/validation-protocol-smoke.ts:1226	LATTICE.md	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/src/tasks/worktree-policy-smoke.ts:8	Claude	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+packages/main/templates/agents/lattice-evaluator.md:200	Claude	other tracked text	behavioral	migrate	prompt classification	Story 4
+packages/main/templates/agents/lattice-review-behavior.md:104	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/templates/agents/lattice-review-channel.md:104	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/templates/agents/lattice-review-concept.md:104	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/templates/agents/lattice-review-delivery.md:152	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/templates/agents/lattice-review-delivery.md:154	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/templates/agents/lattice-review-delivery.md:161	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/templates/agents/lattice-review-delivery.md:248	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/templates/agents/lattice-review-docs.md:107	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/templates/agents/lattice-review-docs.md:117	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/templates/agents/lattice-review-docs.md:119	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/templates/agents/lattice-review-docs.md:136	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/templates/agents/lattice-review-docs.md:142	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/templates/agents/lattice-review-docs.md:165	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/templates/agents/lattice-review-docs.md:169	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/templates/agents/lattice-review-docs.md:178	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/templates/agents/lattice-review-quality.md:104	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/templates/agents/lattice-review-story-init.md:125	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/templates/agents/lattice-review-story-init.md:185	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/templates/agents/lattice-review-story-init.md:205	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/templates/agents/lattice-review-story-init.md:209	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/templates/agents/lattice-review-story-init.md:252	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/templates/agents/lattice-review-story-init.md:267	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+packages/main/templates/agents/test-intent.md:80	CLAUDE.md	review/preflight/prompts	behavioral	migrate	bounded review routing	Story 4
+scripts/verify-codex-assets.mjs:80	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-codex-assets.mjs:94	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-codex-assets.mjs:95	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-codex-assets.mjs:96	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-codex-assets.mjs:97	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-codex-assets.mjs:124	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-dev-memory.mjs:781	Lattice	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+scripts/verify-dev-memory.mjs:801	Lattice	verification/test fixtures	behavioral	migrate	verification-fixture classification	Story 6
+scripts/verify-entrypoints.mjs:99	.lattice/Lattice.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:137	LATTICE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:142	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:152	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:157	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:164	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:178	.lattice/Lattice.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:179	LATTICE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:182	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:184	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:189	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:196	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:398	LATTICE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:399	Claude	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:400	Claude	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:401	Claude	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:515	Claude	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:516	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:517	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:522	Claude	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:527	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:529	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:534	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:565	LATTICE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:568	LATTICE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:569	LATTICE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:580	.lattice/Lattice.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:726	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:727	LATTICE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:731	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:732	LATTICE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:733	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:734	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:735	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:736	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:747	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:766	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:768	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:784	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:786	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:800	LATTICE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:802	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:803	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:819	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:820	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:821	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:822	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:825	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:826	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:827	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:828	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:842	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:843	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:844	LATTICE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:848	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:849	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:850	LATTICE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:851	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:852	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:853	AGENTS	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:854	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:855	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:856	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:857	LATTICE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:858	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:859	LATTICE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:860	LATTICE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:861	LATTICE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:870	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:871	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:872	LATTICE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:873	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:874	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:875	LATTICE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:878	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:879	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:880	LATTICE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:881	AGENTS.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:882	CLAUDE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-entrypoints.mjs:883	LATTICE.md	verification/test fixtures	behavioral	migrate	entrypoint verification	Stories 6-7
+scripts/verify-process-fact-contract.mjs:54	AGENTS.md	verification/test fixtures	behavioral	migrate	process-fact verifier	Story 6
+scripts/verify-process-fact-contract.mjs:423	CLAUDE.md	verification/test fixtures	behavioral	migrate	process-fact verifier	Story 6
+scripts/verify-process-fact-contract.mjs:428	CLAUDE.md	verification/test fixtures	behavioral	migrate	process-fact verifier	Story 6
+scripts/verify-proof-or-stop-prompt-baseline.mjs:132	CLAUDE.md	verification/test fixtures	behavioral	migrate	retired-authority guard	Story 5
 ```
 
 </details>
