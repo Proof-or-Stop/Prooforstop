@@ -134,6 +134,26 @@
       ],
       "signatureTag": "spec-boundary|ts|additive-prepare-json",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c163:F-007",
+      "desc": "Round-2 smokes pass, but the 28 must refs are still not assertion-specific and several safety cases remain unproved. The CHK-002 evidence map is shifted: happy:1 points to reuse-disabled execution (the edge:0 requirement), edge:0 points to validate=false (edge:1), edge:1 to canonical mutations (adversarial:0), edge:2 to lineage, edge:3 to malformed evidence, and adversarial:2 to generic output fields. More importantly, done-prepare-closure-heartbeat-smoke.ts:326-345 does not exercise actual exact-HEAD versus trusted-descendant reuse separately; reuse disabled only asserts a progress line, not disposition=executed or evidence refresh. done-required-validation-smoke.ts:429-655 lacks independent evidence-schema mutation, proof-admissibility failure mutation, non-ancestor HEAD, and metadata-like-outside-allowlist cases required by CHK-002 adversarial:0/2. The timeout matrices at validate-progress-heartbeat-smoke.ts:277-399 use wide timing margins rather than just-before/just-after command/phase/idle/max races; descendant ESRCH is asserted only for command timeout, while CHK-003 adversarial:0 requires descendant-tree termination separately for command, phase, idle, and max. No test emits heartbeat concurrently with abort/exit/error or asserts no post-terminal heartbeat/duplicate evidence. Add the missing matrix rows/race instrumentation, assert disabled-reuse terminal fields and refreshed receipt, and remap each verificationEvidence intentRef to its actual assertion before accepting coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-15T20:00:42.604Z",
+      "reviewRound": "2026-07-15T19:56:48.039Z",
+      "reviewRunId": "B-c163:RR-011",
+      "_hash": "e5e70329cd7db37960312c5f4865d573ad090e167e31877b35ff4977507ab79a",
+      "files": [
+        "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+        "packages/main/src/tasks/done-required-validation-smoke.ts",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|round-smokes-pass",
+      "signatureTagSource": "auto"
     }
   ]
 }
