@@ -107,6 +107,64 @@
           "packages/main/src/tasks/command-catalog-smoke.ts",
           "scripts/verify-process-fact-contract.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "With reuseFreshDoneRequired omitted/default true and a canonical PASS receipt bound to current schema, policy, ordered command specs, material/story-files hashes, build proof, proof admissibility, and exact HEAD lineage, done_prepare does not spawn validation and reports disposition=reused, result=pass, refusalReasons=[], timeoutLayer=null, existingEvidenceBasis=fresh. WHY: proves redundant work is avoided only from admissible proof.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Repeat with evidence HEAD as an ancestor of current HEAD and every intervening changed path classified as trusted story metadata while story-owned material and canonical bindings remain current; reuse succeeds and records trusted metadata-only lineage. WHY: covers the legitimate evidence-commit fixed point.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Set reuseFreshDoneRequired=false with validate=true and otherwise fresh evidence; done_prepare forces one execution, reports disposition=executed, and refreshes evidence from the run. WHY: proves reuse is independently disableable and not coupled to other validation reuse switches.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Set validate=false with fresh, stale, and missing evidence; every case reports disposition=skipped_explicitly, result=not_run, performs neither reuse nor execution, and creates/modifies no DONE-required evidence. WHY: prevents skipped validation from manufacturing assurance.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "For executed failure, timeout, policy/config block, and explicit skip, structured output stays within disposition executed|reused|skipped_explicitly and result pass|failed|timed_out|blocked|not_run, with deterministic refusalReasons and timeoutLayer only when relevant; human wording matches. WHY: keeps automation and operator UX aligned.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Under validate=false, present canonical fresh evidence, structurally stale evidence, and no evidence in turn; existingEvidenceBasis is respectively fresh, stale, and missing while disposition remains skipped_explicitly and result remains not_run in all three cases. WHY: separates observation of prior proof from authorization to consume or create proof.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Mutate each binding independently—schema, policy hash, command-set/order/spec digest, material hash, storyFilesHash, build proof, proof admissibility, and receipt coverage; reuse fails closed with precise refusalReasons and validate=true executes or blocks rather than claiming reused. WHY: defends against stale or partial proof.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Present malformed, failed, partial, or unreadable evidence and race a metadata change between freshness evaluation and execution decision; no PASS is synthesized, disposition is never reused unless one consistent snapshot satisfies the canonical evaluator, and fallback has one terminal outcome. WHY: closes corruption and TOCTOU paths.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Compare exact current HEAD, trusted metadata-only descendant lineage, unrelated metadata-like paths outside the allowlist, a non-ancestor evidence HEAD, and any lineage containing even one code/config/non-metadata path; only exact HEAD and the fully trusted metadata-only descendant may reuse, every other path is rejected with lineage-specific refusalReasons. WHY: prevents a broad metadata classifier from admitting intervening material drift.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Mechanically inspect all six canonical Workstream A documents after the change; each states the same exact-or-trusted-metadata-only HEAD rule, validate:false semantics, structured disposition/result/evidence-basis vocabulary, timeout precedence, and heartbeat safety, with no surviving exact-HEAD-only contradiction. WHY: prevents runtime, gate registry, and operator guidance from diverging.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
