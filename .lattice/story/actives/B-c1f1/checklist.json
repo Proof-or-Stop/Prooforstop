@@ -123,7 +123,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-15T12:03:44.922Z",
-      "endTime": "2026-07-15T13:30:49.516Z",
+      "endTime": "2026-07-15T13:41:20.407Z",
       "verificationIntent": {
         "happy": [
           {
@@ -167,10 +167,10 @@
           "command": "find docs/requirements/decisions -maxdepth 1 -type f -name '*.md' | wc -l",
           "result": "pass",
           "note": "115 inventory remains correct.",
-          "headHash": "621459e103aa3b5075957b32c6d53befadccdae7",
-          "materialHash": "9e2b1aaff2ab5cc6ee243175bbdf0c071db7aa189664b9115609dcb04bb4b9dd",
-          "storyFilesHash": "174f193dc0314194c5566809278f9a65e35dc9bad3fc45e363960c095f6c3ee0",
-          "timestamp": "2026-07-15T13:30:50.032Z"
+          "headHash": "ba93d5dd8c4308062f7b9b5f60926777aafd44e8",
+          "materialHash": "99859290b859de071211e9dfb7f3d50abefee2bf7653bbe121eacc984acc9d96",
+          "storyFilesHash": "0bc01b0855c50f8d9bd0b8b8eca672f22d67c08b6c23d1d4bec94fb8796f8277",
+          "timestamp": "2026-07-15T13:41:21.105Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -178,21 +178,21 @@
           "command": "rg -n \"proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md\" docs/requirements/NAV.md",
           "result": "pass",
           "note": "Exact plan link appears once.",
-          "headHash": "621459e103aa3b5075957b32c6d53befadccdae7",
-          "materialHash": "9e2b1aaff2ab5cc6ee243175bbdf0c071db7aa189664b9115609dcb04bb4b9dd",
-          "storyFilesHash": "174f193dc0314194c5566809278f9a65e35dc9bad3fc45e363960c095f6c3ee0",
-          "timestamp": "2026-07-15T13:30:50.597Z"
+          "headHash": "ba93d5dd8c4308062f7b9b5f60926777aafd44e8",
+          "materialHash": "99859290b859de071211e9dfb7f3d50abefee2bf7653bbe121eacc984acc9d96",
+          "storyFilesHash": "0bc01b0855c50f8d9bd0b8b8eca672f22d67c08b6c23d1d4bec94fb8796f8277",
+          "timestamp": "2026-07-15T13:41:21.807Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "manual_transcript",
           "command": "rg -n \"Curated, non-exhaustive navigation|Inventory count: 115|Proof-or-stop Thin Entrypoint Contract Migration Execution Plan\" docs/requirements/NAV.md",
           "result": "pass",
-          "note": "Inventory and curated navigation are truthfully distinguished.",
-          "headHash": "621459e103aa3b5075957b32c6d53befadccdae7",
-          "materialHash": "9e2b1aaff2ab5cc6ee243175bbdf0c071db7aa189664b9115609dcb04bb4b9dd",
-          "storyFilesHash": "174f193dc0314194c5566809278f9a65e35dc9bad3fc45e363960c095f6c3ee0",
-          "timestamp": "2026-07-15T13:30:51.027Z"
+          "note": "Inventory and curated navigation remain truthful.",
+          "headHash": "ba93d5dd8c4308062f7b9b5f60926777aafd44e8",
+          "materialHash": "99859290b859de071211e9dfb7f3d50abefee2bf7653bbe121eacc984acc9d96",
+          "storyFilesHash": "0bc01b0855c50f8d9bd0b8b8eca672f22d67c08b6c23d1d4bec94fb8796f8277",
+          "timestamp": "2026-07-15T13:41:22.314Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -200,10 +200,10 @@
           "command": "git diff main...HEAD -- docs/requirements/NAV.md",
           "result": "pass",
           "note": "NAV diff remains scoped.",
-          "headHash": "621459e103aa3b5075957b32c6d53befadccdae7",
-          "materialHash": "9e2b1aaff2ab5cc6ee243175bbdf0c071db7aa189664b9115609dcb04bb4b9dd",
-          "storyFilesHash": "174f193dc0314194c5566809278f9a65e35dc9bad3fc45e363960c095f6c3ee0",
-          "timestamp": "2026-07-15T13:30:51.389Z"
+          "headHash": "ba93d5dd8c4308062f7b9b5f60926777aafd44e8",
+          "materialHash": "99859290b859de071211e9dfb7f3d50abefee2bf7653bbe121eacc984acc9d96",
+          "storyFilesHash": "0bc01b0855c50f8d9bd0b8b8eca672f22d67c08b6c23d1d4bec94fb8796f8277",
+          "timestamp": "2026-07-15T13:41:22.844Z"
         }
       ]
     }
