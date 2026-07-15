@@ -543,6 +543,24 @@
       "resolvedAt": "2026-07-15T13:42:08.302Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-024",
+      "desc": "Typed evidence resolution is only specified as path normalization plus an anchored template match (lines 249-251, fixtures 304-305/477), so it does not mechanically confine filesystem identity to the repository. A lexically valid `.lattice/process-evidence/...` path can traverse outside the project through a symlinked parent or symlink artifact while still matching the regex and expected artifact ID. Require root-anchored absolute resolution, lstat/no-follow checks for every path component and artifact, realpath containment beneath the canonical project `.lattice/process-evidence/thin-entrypoint` root, and atomic creation that cannot follow/swap symlinks; add parent-symlink, file-symlink, absolute-outside-root, and TOCTOU replacement fixtures that fail closed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T13:44:05.204Z",
+      "reviewRound": "2026-07-15T13:41:43.868Z",
+      "reviewRunId": "B-c1f1:RR-029",
+      "_hash": "c14b644acfd1ea3ad95dae70ddcff32fbfc1765a5b2e8bcdf1d4184c3367b1ea",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|typed-evidence-resolution",
+      "signatureTagSource": "auto"
     }
   ]
 }
