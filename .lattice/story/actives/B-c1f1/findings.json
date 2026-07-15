@@ -195,7 +195,7 @@
       "desc": "CHK-001 adversarial:0 remains under-proven after F-005. The stored verificationEvidence command only greps the plan for asserted totals and named strings; it does not execute the bounded git-grep enumeration, emit the 600 classified rows, or make the claimed zero-unclassified and every-consumer ownership result independently reviewable. I independently reran the documented lexical scan and reproduced 600 hit lines across 134 files, so the aggregate is plausible, but no persisted or attached line-level classification manifest exists to verify that all 511 migrate rows and 74 neutral-fixture rows were correctly classified and assigned. This also conflicts with the plan requirement that implementation diffs be checked against a complete manifest. Attach a deterministic path-and-line classification artifact, or narrow the intent and plan claim, and bind evidence to a command that validates zero unclassified plus owner and disposition completeness rather than grepping prose.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-15T12:19:56.903Z",
@@ -206,7 +206,11 @@
         "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
       ],
       "signatureTag": "adversarial-docs-classified-scan-manifest-not-attached",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Embedded a collapsed 600-row TSV line-level classification manifest in the plan. The appendix has nonempty path:line, category, disposition, and owner/target fields for every frozen scan hit; row count is 600 and its independently recomputed SHA-256 matches 52b372438eb5a890c238079a3672d2797e0a4333b7dd01cf37eb2887246fceba.",
+      "resolvedAt": "2026-07-15T12:27:08.521Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c1f1:F-009",
