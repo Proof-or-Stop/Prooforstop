@@ -1574,6 +1574,8 @@ Close signals:
 
 ## B-c163 convergence contract (implemented)
 
+- A later closeout idle/max timeout preserves any already-observed validation disposition, evidence basis, and refusal reasons; only the later terminal result/layer changes to `timed_out` and `idle|max`. The command-level `done_prepare` budget is the exact sum of routine validation plus each enabled closeout phase once (five non-validation phases, plus DONE-required only when enabled). CLI named deadline errors propagate through routine verifier execution so a command deadline that lands between watchdog polling ticks retains `timeoutLayer=max`.
+
 - Closeout segments check the parent watchdog before and after each segment and await cooperative abort cleanup. Synchronous JavaScript is inherently non-preemptible, so it stops at the first deadline/checkpoint boundary. Pure in-process closeout segments spawn no descendants, making process-tree ESRCH evidence not applicable there; descendant cleanup is required and tested only for validation/phase paths that actually spawn children.
 
 DONE-required execution and reuse use one bounded contract:

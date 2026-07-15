@@ -87,21 +87,49 @@ type CliResult = {
     resetConfigCache();
     const derived = doneRequiredDerivedBudget(root);
     assert.equal(derived.timeoutMs, 1_230_000);
-    const previousGlobal = process.env.LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS;
-    const previousPhase = process.env.LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS;
-    delete process.env.LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS;
-    delete process.env.LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS;
-    assert.equal(donePreparePhaseBudget(root, 'LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS', derived).source, 'derived-command-budget');
-    process.env.LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS = '1400000';
-    assert.equal(donePreparePhaseBudget(root, 'LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS', derived).timeoutMs, 1_400_000);
-    process.env.LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS = '1500000';
-    assert.equal(donePreparePhaseBudget(root, 'LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS', derived).timeoutMs, 1_500_000);
-    const total = commandCliMaxBudget(root, 'done_prepare', { validate: true });
-    assert.ok(total.timeoutMs >= 1_500_000 + 330_000, 'done_prepare max covers routine plus closeout budgets');
-    if (previousGlobal === undefined) delete process.env.LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS;
-    else process.env.LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS = previousGlobal;
-    if (previousPhase === undefined) delete process.env.LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS;
-    else process.env.LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS = previousPhase;
+    assert.equal(commandCliMaxBudget(root, 'done_required_validate', {}).timeoutMs, 1_230_000);
+    const phaseValues = {
+      LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS: '101000',
+      LATTICE_DONE_PREPARE_DONE_CLOSURE_TIMEOUT_MS: '102000',
+      LATTICE_DONE_PREPARE_REVIEW_ASSURANCE_TIMEOUT_MS: '103000',
+      LATTICE_DONE_PREPARE_RUNTIME_CHANGE_TIMEOUT_MS: '104000',
+      LATTICE_DONE_PREPARE_CLEAN_TREE_TIMEOUT_MS: '105000',
+      LATTICE_DONE_PREPARE_PRODUCE_COMMAND_TIMEOUT_MS: '106000',
+    } as const;
+    const envNames = ['LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS', ...Object.keys(phaseValues)] as const;
+    const previous = new Map(envNames.map((name) => [name, process.env[name]]));
+    try {
+      delete process.env.LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS;
+      for (const [name, value] of Object.entries(phaseValues)) process.env[name] = value;
+      assert.equal(donePreparePhaseBudget(root, 'LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS', derived).source, 'phase-env');
+      assert.equal(commandCliMaxBudget(root, 'done_prepare', { validate: true }).timeoutMs, 951_000, 'routine 330000 + all six required closeout phases exactly once');
+      assert.equal(commandCliMaxBudget(root, 'done_prepare', { validate: false }).timeoutMs, 520_000, 'validate=false excludes routine and DONE-required phase but retains all five closeout phases');
+
+      for (const name of Object.keys(phaseValues)) delete process.env[name];
+      process.env.LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS = '200000';
+      assert.equal(commandCliMaxBudget(root, 'done_prepare', { validate: true }).timeoutMs, 1_530_000, 'required global override: routine 330000 + all six phases at 200000');
+      assert.equal(commandCliMaxBudget(root, 'done_prepare', { validate: false }).timeoutMs, 1_000_000, 'required validate=false: five phases at global 200000');
+      delete process.env.LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS;
+      for (const [name, value] of Object.entries(phaseValues)) process.env[name] = value;
+
+      write(root, 'lattice.config.json', JSON.stringify({
+        scanRoot: '.', rootDir: '.', storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements',
+        validate: { commands: [{ command: 'node', timeoutMs: 300_000 }] },
+      }));
+      resetConfigCache();
+      assert.equal(commandCliMaxBudget(root, 'done_prepare', { validate: true }).timeoutMs, 850_000, 'no-policy validate=true is routine 330000 + each of five closeout phases exactly once');
+      assert.equal(commandCliMaxBudget(root, 'done_prepare', { validate: false }).timeoutMs, 520_000, 'no-policy validate=false still counts each of five closeout phases exactly once');
+
+      for (const name of Object.keys(phaseValues)) delete process.env[name];
+      process.env.LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS = '200000';
+      assert.equal(commandCliMaxBudget(root, 'done_prepare', { validate: true }).timeoutMs, 1_330_000, 'global override: routine 330000 + five phases at 200000');
+      assert.equal(commandCliMaxBudget(root, 'done_prepare', { validate: false }).timeoutMs, 1_000_000, 'global override: five phases at 200000 with validation disabled');
+    } finally {
+      for (const [name, value] of previous) {
+        if (value === undefined) delete process.env[name];
+        else process.env[name] = value;
+      }
+    }
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -442,6 +470,9 @@ function assertPostValidationCloseoutCliTimeouts(): void {
     try {
       const storyDir = `.lattice/story/actives/${fixture.storyId}`;
       const before = readTreeSnapshot(fixture.root, storyDir);
+      const baseline = JSON.parse(runCli(fixture.root, donePrepareFlagArgs(fixture.storyId, true)).stdout);
+      assert.equal(baseline.disposition, 'skipped_explicitly');
+      assert.equal(baseline.result, 'not_run');
       const result = runCli(fixture.root, donePrepareFlagArgs(fixture.storyId, true), {
         LATTICE_IDLE_TIMEOUT_MS: testCase.idleMs,
         LATTICE_MAX_TIMEOUT_MS: testCase.maxMs,
@@ -453,9 +484,13 @@ function assertPostValidationCloseoutCliTimeouts(): void {
       const parsed = JSON.parse(result.stdout);
       assert.equal(parsed.status, 'blocked');
       assert.equal(parsed.blockedAt, 'doneClosure');
-      assert.equal(parsed.disposition, 'executed');
+      assert.equal(parsed.disposition, baseline.disposition, 'later closeout timeout must preserve the observed validate=false disposition');
       assert.equal(parsed.result, 'timed_out');
       assert.equal(parsed.timeoutLayer, testCase.layer);
+      assert.equal(parsed.existingEvidenceBasis, baseline.existingEvidenceBasis, 'later closeout timeout must preserve the observed evidence basis');
+      for (const refusal of baseline.refusalReasons) {
+        assert.ok(parsed.refusalReasons.includes(refusal), `later closeout timeout must preserve validation refusal ${refusal}`);
+      }
       assert.deepEqual(readTreeSnapshot(fixture.root, storyDir), before, 'watchdog timeout must not duplicate or mutate story evidence');
       assert.equal((result.stdout.match(/"schemaVersion"/g) ?? []).length, 1, 'watchdog timeout emits one terminal JSON object');
 

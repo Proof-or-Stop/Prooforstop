@@ -50,6 +50,7 @@ export interface RunValidationCommandOptions {
   heartbeatMs?: number;
   abortSignal?: AbortSignal;
   deadlineAt?: number;
+  deadlineError?: () => Error;
 }
 
 export interface ExecuteValidationPlanOptions {
@@ -57,6 +58,7 @@ export interface ExecuteValidationPlanOptions {
   heartbeatMs?: number;
   abortSignal?: AbortSignal;
   deadlineAt?: number;
+  deadlineError?: () => Error;
 }
 
 /**
@@ -510,7 +512,15 @@ export async function executeValidationPlan(
       totalCommands: plan.commands.length,
       abortSignal: options.abortSignal,
       deadlineAt: options.deadlineAt,
+      deadlineError: options.deadlineError,
     });
+    if (
+      result.timedOut
+      && typeof options.deadlineAt === 'number'
+      && Date.now() >= options.deadlineAt
+    ) {
+      throw options.deadlineError?.() ?? new Error(`validation plan deadline exceeded at ${options.deadlineAt}`);
+    }
     commands.push(result);
 
     const failed = result.code !== 0 || Boolean(result.timedOut);

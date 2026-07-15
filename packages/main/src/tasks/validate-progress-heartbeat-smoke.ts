@@ -440,6 +440,44 @@ async function assertOuterWatchdogsKillDescendants(): Promise<void> {
   }
 }
 
+async function assertNonDivisibleMaxUsesNamedDeadline(): Promise<void> {
+  const fixture = prepareDonePrepareRoutineFixture();
+  try {
+    configureRoutineValidate(fixture.root, 2_000);
+    const result = await runCli(fixture.root, [
+      'done_prepare',
+      '--storyId', fixture.storyId,
+      '--mergeMain=false',
+      '--refreshStale=false',
+      '--validate=true',
+      '--json',
+    ], 5_000, {
+      LATTICE_IDLE_TIMEOUT_MS: '5000',
+      LATTICE_MAX_TIMEOUT_MS: '1005',
+      LATTICE_VALIDATE_HEARTBEAT_MS: '50',
+    });
+    assert.equal(result.status, 1, `1005ms max with 251ms watchdog polling must exit nonzero:\n${result.stderr}`);
+    const parsed = JSON.parse(result.stdout);
+    assert.equal(parsed.status, 'blocked');
+    assert.equal(parsed.blockedAt, 'validate');
+    assert.equal(parsed.disposition, 'executed');
+    assert.equal(parsed.result, 'timed_out');
+    assert.equal(parsed.timeoutLayer, 'max');
+    assert.equal(parsed.existingEvidenceBasis, 'stale');
+    assert.ok(!/validation failed/i.test(parsed.reason ?? ''), 'named deadline must not collapse into generic validation failure');
+
+    configureRoutineValidate(fixture.root, 0);
+    const retry = await runCli(fixture.root, ['validate', '--story', fixture.storyId, '--json'], 5_000, {
+      LATTICE_IDLE_TIMEOUT_MS: '1000',
+      LATTICE_MAX_TIMEOUT_MS: '3000',
+      LATTICE_VALIDATE_HEARTBEAT_MS: '50',
+    });
+    assert.equal(retry.status, 0, 'named deadline path must preserve cleanup for immediate rerun');
+  } finally {
+    rmSync(fixture.root, { recursive: true, force: true });
+  }
+}
+
 function runValidate(root: string, ceilingMs?: number): Promise<CliResult> {
   return runCli(root, ['validate', '--json'], ceilingMs);
 }
@@ -568,6 +606,7 @@ void (async () => {
     await assertDirectDoneRequiredTimeoutMatrix();
     await assertDonePrepareRoutineTimeoutMatrix();
     await assertOuterWatchdogsKillDescendants();
+    await assertNonDivisibleMaxUsesNamedDeadline();
     console.log('validate-progress-heartbeat smoke passed');
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));

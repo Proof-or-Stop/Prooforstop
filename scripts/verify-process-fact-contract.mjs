@@ -3161,9 +3161,11 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
     assert(budgetText.includes(token), `DONE-required timeout budget contract missing ${token}`);
   }
   const validationExecutorText = read('packages/main/src/core/validation-executor.ts');
-  for (const token of ['MAX_NODE_TIMER_DELAY_MS', 'Math.min(MAX_NODE_TIMER_DELAY_MS', 'resolveCommandTimeoutMs']) {
+  for (const token of ['MAX_NODE_TIMER_DELAY_MS', 'Math.min(MAX_NODE_TIMER_DELAY_MS', 'resolveCommandTimeoutMs', 'deadlineError']) {
     assert(validationExecutorText.includes(token), `validation timer overflow contract missing ${token}`);
   }
+  const verifierText = read('packages/main/src/handlers/verifier.ts');
+  assert(verifierText.includes('deadlineError: args.deadlineError'), 'routine verifier must preserve the named CLI deadline source');
   const cliEngineText = read('packages/main/src/cli-engine.ts');
   for (const token of ['structuredWatchdog', 'watchdogAbort.abort', 'CliWatchdogTimeoutError', 'isStructuredDoneFailure', "process.exitCode = structuredDoneFailure ? 1 : 0"]) {
     assert(cliEngineText.includes(token), `DONE-required structured CLI watchdog contract missing ${token}`);

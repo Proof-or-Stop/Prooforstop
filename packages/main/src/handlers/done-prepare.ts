@@ -175,6 +175,14 @@ interface DonePrepareJsonResult {
   existingEvidenceBasis?: 'fresh' | 'stale' | 'missing';
 }
 
+interface ObservedValidationTerminalContext {
+  disposition: NonNullable<DonePrepareJsonResult['disposition']>;
+  result: NonNullable<DonePrepareJsonResult['result']>;
+  refusalReasons: string[];
+  timeoutLayer: DonePrepareJsonResult['timeoutLayer'];
+  existingEvidenceBasis: NonNullable<DonePrepareJsonResult['existingEvidenceBasis']>;
+}
+
 class DonePreparePhaseTimeoutError extends Error {
   readonly phase: CloseoutPhase;
   readonly timeoutMs: number;
@@ -980,11 +988,18 @@ function cliWatchdogTimeoutBlock(
   steps: DonePrepareStep[],
   err: unknown,
   dryRun = false,
+  validationContext?: ObservedValidationTerminalContext,
 ): string | null {
   const timeoutLayer = timeoutLayerFromReason(err);
   if (timeoutLayer !== 'idle' && timeoutLayer !== 'max') return null;
   const message = err instanceof Error ? err.message : `CLI ${timeoutLayer} timeout`;
-  const reason = `${message}; disposition=executed result=timed_out refusalReasons=cli-${timeoutLayer}-timeout timeoutLayer=${timeoutLayer} existingEvidenceBasis=stale; synchronous JavaScript is cooperative and stops at the first phase/deadline checkpoint`;
+  const disposition = validationContext?.disposition ?? 'executed';
+  const existingEvidenceBasis = validationContext?.existingEvidenceBasis ?? 'stale';
+  const refusalReasons = [...new Set([
+    ...(validationContext?.refusalReasons ?? []),
+    `cli-${timeoutLayer}-timeout`,
+  ])];
+  const reason = `${message}; disposition=${disposition} result=timed_out refusalReasons=${refusalReasons.join(',')} timeoutLayer=${timeoutLayer} existingEvidenceBasis=${existingEvidenceBasis}; synchronous JavaScript is cooperative and stops at the first phase/deadline checkpoint`;
   setStep(steps, phase.stepId, 'blocked', reason);
   return block({
     blockedAt: phase.stepId,
@@ -993,6 +1008,23 @@ function cliWatchdogTimeoutBlock(
     next: `inspect the ${timeoutLayer} watchdog budget and the "${phase.label}" segment, then rerun only after correcting the blocking work or budget`,
     steps,
   });
+}
+
+function observedValidationTerminalContext(steps: DonePrepareStep[]): ObservedValidationTerminalContext | undefined {
+  const text = steps.find((step) => step.id === 'validate')?.reason ?? '';
+  const disposition = text.match(/\bdisposition=(reused|executed|skipped_explicitly)/)?.[1] as ObservedValidationTerminalContext['disposition'] | undefined;
+  const result = text.match(/\bresult=(pass|failed|timed_out|blocked|not_run)/)?.[1] as ObservedValidationTerminalContext['result'] | undefined;
+  const basis = text.match(/\bexistingEvidenceBasis=(fresh|stale|missing)/)?.[1] as ObservedValidationTerminalContext['existingEvidenceBasis'] | undefined;
+  const timeoutToken = text.match(/\btimeoutLayer=(command|phase|idle|max|null)/)?.[1];
+  const refusalText = text.match(/\brefusalReasons=([^;\n]*?)(?=\s+timeoutLayer=|\s+existingEvidenceBasis=|;|$)/)?.[1];
+  if (!disposition || !result || !basis || !timeoutToken || !refusalText) return undefined;
+  return {
+    disposition,
+    result,
+    existingEvidenceBasis: basis,
+    timeoutLayer: timeoutToken === 'null' ? null : timeoutToken as NonNullable<ObservedValidationTerminalContext['timeoutLayer']>,
+    refusalReasons: refusalText === 'none' ? [] : refusalText.split(',').filter(Boolean),
+  };
 }
 
 function donePrepareJsonResult(storyId: string, transcript: string): DonePrepareJsonResult {
@@ -1007,7 +1039,7 @@ function donePrepareJsonResult(storyId: string, transcript: string): DonePrepare
   const result = transcript.match(/\bresult=(pass|failed|timed_out|blocked|not_run)/)?.[1] as DonePrepareJsonResult['result'];
   const basis = transcript.match(/existingEvidenceBasis=(fresh|stale|missing)/)?.[1] as DonePrepareJsonResult['existingEvidenceBasis'];
   const timeoutLayer = transcript.match(/timeoutLayer=(command|phase|idle|max)/)?.[1] as Exclude<DonePrepareJsonResult['timeoutLayer'], null> | undefined;
-  const refusalText = transcript.match(/refusalReasons=([^;\n]+)/)?.[1];
+  const refusalText = transcript.match(/refusalReasons=([^;\n]*?)(?=\s+timeoutLayer=|\s+existingEvidenceBasis=|;|$)/)?.[1];
   return {
     schemaVersion: 'lattice.done_prepare.v1',
     storyId,
@@ -1633,7 +1665,14 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     let validateText = '';
     const validationSummaries: string[] = [];
     try {
-      validateText = asText(await verifier.validate({ story: storyId, json: true, noSync: true, abortSignal: rawArgs.abortSignal, deadlineAt: rawArgs.deadlineAt }));
+      validateText = asText(await verifier.validate({
+        story: storyId,
+        json: true,
+        noSync: true,
+        abortSignal: rawArgs.abortSignal,
+        deadlineAt: rawArgs.deadlineAt,
+        deadlineError: rawArgs.deadlineError,
+      }));
     } catch (err: any) {
       const timeoutLayer = timeoutLayerFromReason(rawArgs.abortSignal?.reason) ?? timeoutLayerFromReason(err);
       const terminal = timeoutLayer
@@ -1735,6 +1774,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     });
   }
 
+  const validationContext = observedValidationTerminalContext(steps);
   const prepareMutationEndHead = currentGitHead(gitCwd);
   if (prepareMutationEndHead && prepareMutationEndHead !== prepareMutationStartHead) {
     const commits = commitSummariesSince(gitCwd, prepareMutationStartHead, prepareMutationEndHead);
@@ -1803,7 +1843,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     }, rawArgs));
   } catch (err) {
     if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err, args.dryRun);
-    const watchdogBlock = cliWatchdogTimeoutBlock(CLOSEOUT_PHASES.doneClosure, steps, err, args.dryRun);
+    const watchdogBlock = cliWatchdogTimeoutBlock(CLOSEOUT_PHASES.doneClosure, steps, err, args.dryRun, validationContext);
     if (watchdogBlock) return watchdogBlock;
     throw err;
   }
@@ -1828,7 +1868,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     }, rawArgs));
   } catch (err) {
     if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err, args.dryRun);
-    const watchdogBlock = cliWatchdogTimeoutBlock(CLOSEOUT_PHASES.reviewAssurance, steps, err, args.dryRun);
+    const watchdogBlock = cliWatchdogTimeoutBlock(CLOSEOUT_PHASES.reviewAssurance, steps, err, args.dryRun, validationContext);
     if (watchdogBlock) return watchdogBlock;
     throw err;
   }
@@ -1855,7 +1895,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     runtime = await runCloseoutPhase(ctx, CLOSEOUT_PHASES.runtimeChange, () => detectRuntimeChanges(ctx.root, gitCwd), rawArgs);
   } catch (err) {
     if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err, args.dryRun);
-    const watchdogBlock = cliWatchdogTimeoutBlock(CLOSEOUT_PHASES.runtimeChange, steps, err, args.dryRun);
+    const watchdogBlock = cliWatchdogTimeoutBlock(CLOSEOUT_PHASES.runtimeChange, steps, err, args.dryRun, validationContext);
     if (watchdogBlock) return watchdogBlock;
     throw err;
   }
@@ -1876,7 +1916,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     }, rawArgs));
   } catch (err) {
     if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err, args.dryRun);
-    const watchdogBlock = cliWatchdogTimeoutBlock(CLOSEOUT_PHASES.cleanTree, steps, err, args.dryRun);
+    const watchdogBlock = cliWatchdogTimeoutBlock(CLOSEOUT_PHASES.cleanTree, steps, err, args.dryRun, validationContext);
     if (watchdogBlock) return watchdogBlock;
     throw err;
   }
@@ -2042,7 +2082,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     }), rawArgs);
   } catch (err) {
     if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err, args.dryRun);
-    const watchdogBlock = cliWatchdogTimeoutBlock(CLOSEOUT_PHASES.produceCommand, steps, err, args.dryRun);
+    const watchdogBlock = cliWatchdogTimeoutBlock(CLOSEOUT_PHASES.produceCommand, steps, err, args.dryRun, validationContext);
     if (watchdogBlock) return watchdogBlock;
     throw err;
   }
