@@ -5,7 +5,7 @@
       "desc": "DONE-required timeout classification is not implemented across the promised layers. `runDoneRequiredValidation` records a command timeout as a FAIL receipt, but `handlers/done-required-validation.ts` maps every non-PASS to result=failed and always emits timeoutLayer=null; `done_prepare` then parses that as failed and omits timeoutLayer. The CLI idle/max watchdog in `cli-engine.ts` still calls process.exit(2), so direct/done_prepare JSON receives no terminal result at all for idle/max expiry. Even successful done_prepare reused/executed output omits timeoutLayer=null because `donePrepareJsonResult` only adds a recognized non-null token. This contradicts CHK-001/003 requirements for result=timed_out and timeoutLayer=command|phase|idle|max, and leaves the JSON contract unable to distinguish timeout from validation failure.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-15T19:27:38.007Z",
@@ -18,7 +18,11 @@
         "packages/main/src/cli-engine.ts"
       ],
       "signatureTag": "spec-boundary|ts|required-timeout-classification",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: real subprocess matrices force command, phase, CLI idle, and CLI max expiry and inspect JSON plus shell status. Root cause: command receipts collapsed timeout into generic failure, done_prepare omitted routine watchdog attribution, and cli-engine force-exited before handlers could settle. Fix: timeout receipts now map to result=timed_out/timeoutLayer=command; AbortController-backed structured watchdogs propagate idle|max to direct validation and done_prepare; phase remains phase-attributed; structured failed/timed_out/blocked output stays parseable and exits nonzero. ReproTest: npm --prefix packages/main run build; node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js; node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js. Both smoke commands PASS at HEAD a6cefb0 and assert nonzero timeout status plus immediate rerun cleanup.",
+      "resolvedAt": "2026-07-15T19:57:27.172Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c163:F-002",

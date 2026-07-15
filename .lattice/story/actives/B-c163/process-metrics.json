@@ -1,6 +1,6 @@
 {
   "storyId": "B-c163",
-  "generatedAt": "2026-07-15T19:30:17.017Z",
+  "generatedAt": "2026-07-15T19:57:27.178Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
@@ -27,7 +27,7 @@
       },
       "metrics": {
         "findingCoverageRatio": {
-          "value": 0,
+          "value": 0.25,
           "unit": "ratio",
           "confidence": "medium",
           "sources": [
@@ -276,7 +276,7 @@
           "note": "fast channel — main agent allowed to write code itself — no violation possible"
         },
         "parallelBatchCount": {
-          "value": 1,
+          "value": 3,
           "unit": "count",
           "confidence": "medium",
           "sources": [
