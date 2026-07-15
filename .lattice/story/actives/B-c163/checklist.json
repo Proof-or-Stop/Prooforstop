@@ -81,7 +81,126 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js && node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Build and timeout/heartbeat smokes pass; assertions cover derived sequential budgets, grace/cap arithmetic, phase/global precedence, total done_prepare max, explicit override preservation, timeout attribution, cleanup, and actionable timeout guidance.",
+          "headHash": "fab4e1931ff3ea7a22f1e326bd35e8a670846a29",
+          "materialHash": "42606eca1222e46a872c110f1cf9e761382fb060238061ffc667aadc51c9c354",
+          "storyFilesHash": "581b2851ae9efb7b1434d5ecfc43b89e130293960bd995203b6d67ac2c3ce182",
+          "timestamp": "2026-07-15T19:24:01.851Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js && node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Build and timeout/heartbeat smokes pass; assertions cover derived sequential budgets, grace/cap arithmetic, phase/global precedence, total done_prepare max, explicit override preservation, timeout attribution, cleanup, and actionable timeout guidance.",
+          "headHash": "fab4e1931ff3ea7a22f1e326bd35e8a670846a29",
+          "materialHash": "42606eca1222e46a872c110f1cf9e761382fb060238061ffc667aadc51c9c354",
+          "storyFilesHash": "581b2851ae9efb7b1434d5ecfc43b89e130293960bd995203b6d67ac2c3ce182",
+          "timestamp": "2026-07-15T19:24:01.851Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js && node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Build and timeout/heartbeat smokes pass; assertions cover derived sequential budgets, grace/cap arithmetic, phase/global precedence, total done_prepare max, explicit override preservation, timeout attribution, cleanup, and actionable timeout guidance.",
+          "headHash": "fab4e1931ff3ea7a22f1e326bd35e8a670846a29",
+          "materialHash": "42606eca1222e46a872c110f1cf9e761382fb060238061ffc667aadc51c9c354",
+          "storyFilesHash": "581b2851ae9efb7b1434d5ecfc43b89e130293960bd995203b6d67ac2c3ce182",
+          "timestamp": "2026-07-15T19:24:01.851Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js && node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Build and timeout/heartbeat smokes pass; assertions cover derived sequential budgets, grace/cap arithmetic, phase/global precedence, total done_prepare max, explicit override preservation, timeout attribution, cleanup, and actionable timeout guidance.",
+          "headHash": "fab4e1931ff3ea7a22f1e326bd35e8a670846a29",
+          "materialHash": "42606eca1222e46a872c110f1cf9e761382fb060238061ffc667aadc51c9c354",
+          "storyFilesHash": "581b2851ae9efb7b1434d5ecfc43b89e130293960bd995203b6d67ac2c3ce182",
+          "timestamp": "2026-07-15T19:24:01.851Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js && node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Build and timeout/heartbeat smokes pass; assertions cover derived sequential budgets, grace/cap arithmetic, phase/global precedence, total done_prepare max, explicit override preservation, timeout attribution, cleanup, and actionable timeout guidance.",
+          "headHash": "fab4e1931ff3ea7a22f1e326bd35e8a670846a29",
+          "materialHash": "42606eca1222e46a872c110f1cf9e761382fb060238061ffc667aadc51c9c354",
+          "storyFilesHash": "581b2851ae9efb7b1434d5ecfc43b89e130293960bd995203b6d67ac2c3ce182",
+          "timestamp": "2026-07-15T19:24:01.851Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js && node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Build and timeout/heartbeat smokes pass; assertions cover derived sequential budgets, grace/cap arithmetic, phase/global precedence, total done_prepare max, explicit override preservation, timeout attribution, cleanup, and actionable timeout guidance.",
+          "headHash": "fab4e1931ff3ea7a22f1e326bd35e8a670846a29",
+          "materialHash": "42606eca1222e46a872c110f1cf9e761382fb060238061ffc667aadc51c9c354",
+          "storyFilesHash": "581b2851ae9efb7b1434d5ecfc43b89e130293960bd995203b6d67ac2c3ce182",
+          "timestamp": "2026-07-15T19:24:01.851Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:4",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js && node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Build and timeout/heartbeat smokes pass; assertions cover derived sequential budgets, grace/cap arithmetic, phase/global precedence, total done_prepare max, explicit override preservation, timeout attribution, cleanup, and actionable timeout guidance.",
+          "headHash": "fab4e1931ff3ea7a22f1e326bd35e8a670846a29",
+          "materialHash": "42606eca1222e46a872c110f1cf9e761382fb060238061ffc667aadc51c9c354",
+          "storyFilesHash": "581b2851ae9efb7b1434d5ecfc43b89e130293960bd995203b6d67ac2c3ce182",
+          "timestamp": "2026-07-15T19:24:01.851Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js && node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Build and timeout/heartbeat smokes pass; assertions cover derived sequential budgets, grace/cap arithmetic, phase/global precedence, total done_prepare max, explicit override preservation, timeout attribution, cleanup, and actionable timeout guidance.",
+          "headHash": "fab4e1931ff3ea7a22f1e326bd35e8a670846a29",
+          "materialHash": "42606eca1222e46a872c110f1cf9e761382fb060238061ffc667aadc51c9c354",
+          "storyFilesHash": "581b2851ae9efb7b1434d5ecfc43b89e130293960bd995203b6d67ac2c3ce182",
+          "timestamp": "2026-07-15T19:24:01.851Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js && node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Build and timeout/heartbeat smokes pass; assertions cover derived sequential budgets, grace/cap arithmetic, phase/global precedence, total done_prepare max, explicit override preservation, timeout attribution, cleanup, and actionable timeout guidance.",
+          "headHash": "fab4e1931ff3ea7a22f1e326bd35e8a670846a29",
+          "materialHash": "42606eca1222e46a872c110f1cf9e761382fb060238061ffc667aadc51c9c354",
+          "storyFilesHash": "581b2851ae9efb7b1434d5ecfc43b89e130293960bd995203b6d67ac2c3ce182",
+          "timestamp": "2026-07-15T19:24:01.851Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -170,7 +289,139 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js && node packages/main/dist/tasks/command-catalog-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Reuse/output/contract smokes pass; assertions and canonical evaluator cover exact and trusted-metadata lineage, untrusted drift refusal, independent reuse switch, validate=false observation-only output, schema vocabulary, command schema, registry, and reconciled decision docs.",
+          "headHash": "fab4e1931ff3ea7a22f1e326bd35e8a670846a29",
+          "materialHash": "42606eca1222e46a872c110f1cf9e761382fb060238061ffc667aadc51c9c354",
+          "storyFilesHash": "581b2851ae9efb7b1434d5ecfc43b89e130293960bd995203b6d67ac2c3ce182",
+          "timestamp": "2026-07-15T19:24:01.851Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js && node packages/main/dist/tasks/command-catalog-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Reuse/output/contract smokes pass; assertions and canonical evaluator cover exact and trusted-metadata lineage, untrusted drift refusal, independent reuse switch, validate=false observation-only output, schema vocabulary, command schema, registry, and reconciled decision docs.",
+          "headHash": "fab4e1931ff3ea7a22f1e326bd35e8a670846a29",
+          "materialHash": "42606eca1222e46a872c110f1cf9e761382fb060238061ffc667aadc51c9c354",
+          "storyFilesHash": "581b2851ae9efb7b1434d5ecfc43b89e130293960bd995203b6d67ac2c3ce182",
+          "timestamp": "2026-07-15T19:24:01.851Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js && node packages/main/dist/tasks/command-catalog-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Reuse/output/contract smokes pass; assertions and canonical evaluator cover exact and trusted-metadata lineage, untrusted drift refusal, independent reuse switch, validate=false observation-only output, schema vocabulary, command schema, registry, and reconciled decision docs.",
+          "headHash": "fab4e1931ff3ea7a22f1e326bd35e8a670846a29",
+          "materialHash": "42606eca1222e46a872c110f1cf9e761382fb060238061ffc667aadc51c9c354",
+          "storyFilesHash": "581b2851ae9efb7b1434d5ecfc43b89e130293960bd995203b6d67ac2c3ce182",
+          "timestamp": "2026-07-15T19:24:01.851Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js && node packages/main/dist/tasks/command-catalog-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Reuse/output/contract smokes pass; assertions and canonical evaluator cover exact and trusted-metadata lineage, untrusted drift refusal, independent reuse switch, validate=false observation-only output, schema vocabulary, command schema, registry, and reconciled decision docs.",
+          "headHash": "fab4e1931ff3ea7a22f1e326bd35e8a670846a29",
+          "materialHash": "42606eca1222e46a872c110f1cf9e761382fb060238061ffc667aadc51c9c354",
+          "storyFilesHash": "581b2851ae9efb7b1434d5ecfc43b89e130293960bd995203b6d67ac2c3ce182",
+          "timestamp": "2026-07-15T19:24:01.851Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js && node packages/main/dist/tasks/command-catalog-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Reuse/output/contract smokes pass; assertions and canonical evaluator cover exact and trusted-metadata lineage, untrusted drift refusal, independent reuse switch, validate=false observation-only output, schema vocabulary, command schema, registry, and reconciled decision docs.",
+          "headHash": "fab4e1931ff3ea7a22f1e326bd35e8a670846a29",
+          "materialHash": "42606eca1222e46a872c110f1cf9e761382fb060238061ffc667aadc51c9c354",
+          "storyFilesHash": "581b2851ae9efb7b1434d5ecfc43b89e130293960bd995203b6d67ac2c3ce182",
+          "timestamp": "2026-07-15T19:24:01.851Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js && node packages/main/dist/tasks/command-catalog-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Reuse/output/contract smokes pass; assertions and canonical evaluator cover exact and trusted-metadata lineage, untrusted drift refusal, independent reuse switch, validate=false observation-only output, schema vocabulary, command schema, registry, and reconciled decision docs.",
+          "headHash": "fab4e1931ff3ea7a22f1e326bd35e8a670846a29",
+          "materialHash": "42606eca1222e46a872c110f1cf9e761382fb060238061ffc667aadc51c9c354",
+          "storyFilesHash": "581b2851ae9efb7b1434d5ecfc43b89e130293960bd995203b6d67ac2c3ce182",
+          "timestamp": "2026-07-15T19:24:01.851Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js && node packages/main/dist/tasks/command-catalog-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Reuse/output/contract smokes pass; assertions and canonical evaluator cover exact and trusted-metadata lineage, untrusted drift refusal, independent reuse switch, validate=false observation-only output, schema vocabulary, command schema, registry, and reconciled decision docs.",
+          "headHash": "fab4e1931ff3ea7a22f1e326bd35e8a670846a29",
+          "materialHash": "42606eca1222e46a872c110f1cf9e761382fb060238061ffc667aadc51c9c354",
+          "storyFilesHash": "581b2851ae9efb7b1434d5ecfc43b89e130293960bd995203b6d67ac2c3ce182",
+          "timestamp": "2026-07-15T19:24:01.851Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js && node packages/main/dist/tasks/command-catalog-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Reuse/output/contract smokes pass; assertions and canonical evaluator cover exact and trusted-metadata lineage, untrusted drift refusal, independent reuse switch, validate=false observation-only output, schema vocabulary, command schema, registry, and reconciled decision docs.",
+          "headHash": "fab4e1931ff3ea7a22f1e326bd35e8a670846a29",
+          "materialHash": "42606eca1222e46a872c110f1cf9e761382fb060238061ffc667aadc51c9c354",
+          "storyFilesHash": "581b2851ae9efb7b1434d5ecfc43b89e130293960bd995203b6d67ac2c3ce182",
+          "timestamp": "2026-07-15T19:24:01.851Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js && node packages/main/dist/tasks/command-catalog-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Reuse/output/contract smokes pass; assertions and canonical evaluator cover exact and trusted-metadata lineage, untrusted drift refusal, independent reuse switch, validate=false observation-only output, schema vocabulary, command schema, registry, and reconciled decision docs.",
+          "headHash": "fab4e1931ff3ea7a22f1e326bd35e8a670846a29",
+          "materialHash": "42606eca1222e46a872c110f1cf9e761382fb060238061ffc667aadc51c9c354",
+          "storyFilesHash": "581b2851ae9efb7b1434d5ecfc43b89e130293960bd995203b6d67ac2c3ce182",
+          "timestamp": "2026-07-15T19:24:01.851Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js && node packages/main/dist/tasks/command-catalog-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Reuse/output/contract smokes pass; assertions and canonical evaluator cover exact and trusted-metadata lineage, untrusted drift refusal, independent reuse switch, validate=false observation-only output, schema vocabulary, command schema, registry, and reconciled decision docs.",
+          "headHash": "fab4e1931ff3ea7a22f1e326bd35e8a670846a29",
+          "materialHash": "42606eca1222e46a872c110f1cf9e761382fb060238061ffc667aadc51c9c354",
+          "storyFilesHash": "581b2851ae9efb7b1434d5ecfc43b89e130293960bd995203b6d67ac2c3ce182",
+          "timestamp": "2026-07-15T19:24:01.851Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -250,7 +501,126 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Direct-handler and progress smokes pass; real handler assertions cover default ctx.log bridge, one JSON payload, throwing sink containment, heartbeat liveness, deadline ordering, process-tree/timer/lock cleanup, and single settlement.",
+          "headHash": "fab4e1931ff3ea7a22f1e326bd35e8a670846a29",
+          "materialHash": "42606eca1222e46a872c110f1cf9e761382fb060238061ffc667aadc51c9c354",
+          "storyFilesHash": "581b2851ae9efb7b1434d5ecfc43b89e130293960bd995203b6d67ac2c3ce182",
+          "timestamp": "2026-07-15T19:24:01.851Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Direct-handler and progress smokes pass; real handler assertions cover default ctx.log bridge, one JSON payload, throwing sink containment, heartbeat liveness, deadline ordering, process-tree/timer/lock cleanup, and single settlement.",
+          "headHash": "fab4e1931ff3ea7a22f1e326bd35e8a670846a29",
+          "materialHash": "42606eca1222e46a872c110f1cf9e761382fb060238061ffc667aadc51c9c354",
+          "storyFilesHash": "581b2851ae9efb7b1434d5ecfc43b89e130293960bd995203b6d67ac2c3ce182",
+          "timestamp": "2026-07-15T19:24:01.851Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Direct-handler and progress smokes pass; real handler assertions cover default ctx.log bridge, one JSON payload, throwing sink containment, heartbeat liveness, deadline ordering, process-tree/timer/lock cleanup, and single settlement.",
+          "headHash": "fab4e1931ff3ea7a22f1e326bd35e8a670846a29",
+          "materialHash": "42606eca1222e46a872c110f1cf9e761382fb060238061ffc667aadc51c9c354",
+          "storyFilesHash": "581b2851ae9efb7b1434d5ecfc43b89e130293960bd995203b6d67ac2c3ce182",
+          "timestamp": "2026-07-15T19:24:01.851Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Direct-handler and progress smokes pass; real handler assertions cover default ctx.log bridge, one JSON payload, throwing sink containment, heartbeat liveness, deadline ordering, process-tree/timer/lock cleanup, and single settlement.",
+          "headHash": "fab4e1931ff3ea7a22f1e326bd35e8a670846a29",
+          "materialHash": "42606eca1222e46a872c110f1cf9e761382fb060238061ffc667aadc51c9c354",
+          "storyFilesHash": "581b2851ae9efb7b1434d5ecfc43b89e130293960bd995203b6d67ac2c3ce182",
+          "timestamp": "2026-07-15T19:24:01.851Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Direct-handler and progress smokes pass; real handler assertions cover default ctx.log bridge, one JSON payload, throwing sink containment, heartbeat liveness, deadline ordering, process-tree/timer/lock cleanup, and single settlement.",
+          "headHash": "fab4e1931ff3ea7a22f1e326bd35e8a670846a29",
+          "materialHash": "42606eca1222e46a872c110f1cf9e761382fb060238061ffc667aadc51c9c354",
+          "storyFilesHash": "581b2851ae9efb7b1434d5ecfc43b89e130293960bd995203b6d67ac2c3ce182",
+          "timestamp": "2026-07-15T19:24:01.851Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Direct-handler and progress smokes pass; real handler assertions cover default ctx.log bridge, one JSON payload, throwing sink containment, heartbeat liveness, deadline ordering, process-tree/timer/lock cleanup, and single settlement.",
+          "headHash": "fab4e1931ff3ea7a22f1e326bd35e8a670846a29",
+          "materialHash": "42606eca1222e46a872c110f1cf9e761382fb060238061ffc667aadc51c9c354",
+          "storyFilesHash": "581b2851ae9efb7b1434d5ecfc43b89e130293960bd995203b6d67ac2c3ce182",
+          "timestamp": "2026-07-15T19:24:01.851Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Direct-handler and progress smokes pass; real handler assertions cover default ctx.log bridge, one JSON payload, throwing sink containment, heartbeat liveness, deadline ordering, process-tree/timer/lock cleanup, and single settlement.",
+          "headHash": "fab4e1931ff3ea7a22f1e326bd35e8a670846a29",
+          "materialHash": "42606eca1222e46a872c110f1cf9e761382fb060238061ffc667aadc51c9c354",
+          "storyFilesHash": "581b2851ae9efb7b1434d5ecfc43b89e130293960bd995203b6d67ac2c3ce182",
+          "timestamp": "2026-07-15T19:24:01.851Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Direct-handler and progress smokes pass; real handler assertions cover default ctx.log bridge, one JSON payload, throwing sink containment, heartbeat liveness, deadline ordering, process-tree/timer/lock cleanup, and single settlement.",
+          "headHash": "fab4e1931ff3ea7a22f1e326bd35e8a670846a29",
+          "materialHash": "42606eca1222e46a872c110f1cf9e761382fb060238061ffc667aadc51c9c354",
+          "storyFilesHash": "581b2851ae9efb7b1434d5ecfc43b89e130293960bd995203b6d67ac2c3ce182",
+          "timestamp": "2026-07-15T19:24:01.851Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Direct-handler and progress smokes pass; real handler assertions cover default ctx.log bridge, one JSON payload, throwing sink containment, heartbeat liveness, deadline ordering, process-tree/timer/lock cleanup, and single settlement.",
+          "headHash": "fab4e1931ff3ea7a22f1e326bd35e8a670846a29",
+          "materialHash": "42606eca1222e46a872c110f1cf9e761382fb060238061ffc667aadc51c9c354",
+          "storyFilesHash": "581b2851ae9efb7b1434d5ecfc43b89e130293960bd995203b6d67ac2c3ce182",
+          "timestamp": "2026-07-15T19:24:01.851Z"
+        }
+      ]
     }
   ]
 }
