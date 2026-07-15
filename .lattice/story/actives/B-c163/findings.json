@@ -116,6 +116,24 @@
       ],
       "signatureTag": "spec-boundary|ts|remains-incomplete-prepare",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c163:F-006",
+      "desc": "The additive done_prepare JSON defaults misclassify any transcript that blocks before validation. `donePrepareJsonResult` now fills missing fields with disposition=skipped_explicitly, result=blocked/not_run, existingEvidenceBasis=missing, but `skipped_explicitly` is contractually reserved for validate=false. A merge/preflight/stale-evidence blocker did not explicitly skip validation and its existing evidence basis was never evaluated, so the emitted structure asserts false facts. Preserve nullable/not_applicable fields for pre-validation blockers, or evaluate and emit a distinct disposition that does not claim an explicit operator skip.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T19:59:53.750Z",
+      "reviewRound": "2026-07-15T19:56:48.039Z",
+      "reviewRunId": "B-c163:RR-012",
+      "_hash": "bee9434317d339713955ad65b359603b9c2b45152075e3c8c955705466a47973",
+      "files": [
+        "packages/main/src/handlers/done-prepare.ts"
+      ],
+      "signatureTag": "spec-boundary|ts|additive-prepare-json",
+      "signatureTagSource": "auto"
     }
   ]
 }
