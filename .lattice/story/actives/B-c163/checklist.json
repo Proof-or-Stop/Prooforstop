@@ -158,14 +158,15 @@
         {
           "intentRef": "CHK-001:edge:4",
           "kind": "logic_test",
+          "verdict": "success",
           "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
           "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
           "result": "pass",
-          "note": "done_prepare total covers routine validation and enabled closeout phases; real post-validation idle/max blockers are structured and nonzero.",
-          "headHash": "d70a4ad929308e0ec9b538e7978ba6bb7ef9be2d",
-          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
-          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
-          "timestamp": "2026-07-15T20:17:03.718Z"
+          "note": "Exact commandCliMaxBudget matrix asserts routine sequential budget plus each enabled phase exactly once: required/no-policy, validate true/false, six unique phase overrides and global override; omitting any of the five common closeout phases changes the expected total and fails.",
+          "headHash": "2230d10a30b66352f938e91920ef2c9219691679",
+          "materialHash": "0208749d1dcd92d80156a40ac21ec0115192e69eff29e9713a657e827527255b",
+          "storyFilesHash": "bc532b89794e474d93fe5793fe4fe48c99b3b519389a94ff6e8bb8ff1ef5c2a1",
+          "timestamp": "2026-07-15T20:31:50.208Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
