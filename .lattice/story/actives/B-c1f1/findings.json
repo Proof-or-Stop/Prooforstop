@@ -251,6 +251,24 @@
       ],
       "signatureTag": "adversarial|md|semantic-conflict-key-too-coarse",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-c1f1:F-011",
+      "desc": "The source-independent fingerprint design is still not executable as specified. Lines 166-193 only normalize syntactic form (Unicode, whitespace, command spelling, flags, placeholders, aliases), but the required fixture at line 199 demands differently worded prose produce the same semantic payload/fingerprint. No deterministic extraction grammar, stable fact identifier, normalizer version, ownership map, or fail-closed handling for unparseable/ambiguous prose is defined. Story 3 therefore cannot reliably distinguish equivalent paraphrases from legacy-only facts or conflicts, so the Story 6 empty-set readiness condition can be either unreachable or falsely green. Define a mechanically implementable source of normalized facts (prefer stable registry fact IDs/structured projections), version the canonicalization contract, fail closed on unknown extraction, and make the collision fixture possible through an injected hash seam rather than relying on a real SHA-256 collision.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T12:29:03.538Z",
+      "reviewRound": "2026-07-15T12:26:50.422Z",
+      "reviewRunId": "B-c1f1:RR-010",
+      "_hash": "ba91ccb32ef295f19e06edb7a2ee49e9349ec6dbaca11c88f9781716ca4b4984",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|source-independent-fingerprint",
+      "signatureTagSource": "auto"
     }
   ]
 }
