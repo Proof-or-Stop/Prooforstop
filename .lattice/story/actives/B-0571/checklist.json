@@ -1,0 +1,43 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Derive the DONE-required phase deadline from sequential command budgets",
+      "context": "Replace the unrelated 240-second default for the DONE-required closeout phase with sum(effective ordered command timeouts) plus bounded orchestration grace. Preserve global/per-phase overrides, per-command attribution, cleanup, human/JSON budget source, and a non-repeating timeout hint.",
+      "relatedDocs": [
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#6-workstream-a--done-required-validation-convergence",
+        "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#timeout-model",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md#4-validate"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Reuse structurally fresh DONE-required evidence during done_prepare",
+      "context": "Before spawning done_required_validate, consume canonical freshness/admissibility checks plus metadata-only HEAD lineage. Reuse only a current PASS receipt; expose an independently disableable switch and human/JSON reused/executed/refusal classification. validate:false never manufactures evidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#62-required-design",
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Keep long active DONE-required commands alive without weakening timeout safety",
+      "context": "Bridge direct done_required_validate progress/heartbeat through ctx.log so active silent commands survive the CLI idle watchdog. Preserve command timeoutMs, outer deadline, absolute max, JSON stdout isolation, process-tree cleanup, validation-lock cleanup, and existing idle/max overrides.",
+      "relatedDocs": [
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#63-acceptance",
+        "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+        "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
