@@ -1,0 +1,26 @@
+{
+  "task": "Write an executable plan for migrating Proof-or-stop agent documentation from a Claude-first root contract to host-neutral thin entrypoints and canonical verified documentation sources.",
+  "outcome": "The repository contains docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md, and docs/requirements/NAV.md links to it with the correct decision count; a maintainer can follow its ordered Story slices, red/green tests, compatibility steps, B-e514 convergence path, and rollback rules without guessing which files or contracts to change.",
+  "facts": [
+    "Codex discovers AGENTS.md rather than CODEX.md.",
+    "Antigravity/agy consumes AGENTS.md and does not require AGY.md.",
+    "Claude Code discovers CLAUDE.md and supports a host-specific compatibility entry.",
+    "B-e514 has thin root documents in TEST but DONE-required validation fails because old process-fact verification still requires long-form facts in root entries.",
+    ".lattice/Lattice.md is the intended host-neutral entry navigation but is currently too small and contains stale commands/branding.",
+    "audit, docs-drift, prompts, templates, and verification scripts contain hard-coded CLAUDE.md assumptions."
+  ],
+  "constraints": [
+    "This Story is documentation-only and writes only the new decision document and docs/requirements/NAV.md.",
+    "The plan must not invent CODEX.md or AGY.md.",
+    "The plan must preserve host discovery while eliminating duplicated lifecycle/process facts.",
+    "Operational projections must be mechanically checked against registries and normative decisions.",
+    "The plan must not claim that proposed runtime changes are already implemented.",
+    "Existing unrelated dirty files and B-e514 state must remain untouched."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+    "docs/requirements/NAV.md"
+  ],
+  "timestamp": "2026-07-15T11:51:41.650Z"
+}

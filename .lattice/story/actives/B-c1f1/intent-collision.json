@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-c1f1",
+  "id": "IC-20260715115819",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "B-c1f1 is a documentation-only Story that authors one new execution-plan decision document and registers it in docs/requirements/NAV.md. The plan must describe a future registry-first migration to host-neutral thin entrypoints, preserve AGENTS.md for Codex CLI and Antigravity CLI (agy), preserve CLAUDE.md as the Claude Code compatibility entry, retain .lattice/Lattice.md as the host-neutral navigation layer, and define B-e514 sequencing or supersession without modifying B-e514. This Story must not implement runtime, template, verifier, audit, reviewer, entrypoint, or runbook changes; must not create CODEX.md, AGY.md, or other host protocols; must not replace .lattice/Lattice.md; and must not modify AGENTS.md, CLAUDE.md, B-e514, or any file beyond the two declared documentation touchpoints.",
+  "acceptedInterpretationHash": "sha256:f50b94878d281267e176b36b8c7459383bcc9d0b4832caab4e1efa8e2d568637",
+  "notes": "The original request asks for an execution方案 after architectural review. The snapshot, understanding, decision, checklist file scopes, and plan consistently constrain delivery to a future-facing two-file documentation plan. Any direct migration implementation or competing host entrypoint creation would exceed the accepted interpretation.",
+  "createdAt": "2026-07-15T11:58:19.748Z",
+  "updatedAt": "2026-07-15T11:58:19.748Z"
+}

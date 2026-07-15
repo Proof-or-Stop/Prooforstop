@@ -1,0 +1,758 @@
+{
+  "findings": [
+    {
+      "id": "B-c1f1:F-001",
+      "desc": "Unsafe rollout ordering contradicts the plan’s own compatibility rule. Story 3 thins generated AGENTS.md/CLAUDE.md and claims runtime audit/review consumers ‘still dual-read’ (line 269), but audit/docs-drift dual-read is not introduced until Story 4 (lines 273–278) and review/preflight canonical routing until Story 5 (lines 282–287). Current audit.ts and review-preflight.ts remain hard-coded to root CLAUDE.md, so a project initialized after Story 3 can lose the detailed source those consumers require before they know how to read the canonical guide/runbook. This also violates cutover rule 6 (line 336), which permits thin generators only when the same Story proves consumers retain a valid source. Reorder consumer dual-read before template thinning, or combine the required consumer migration with Story 3 and prove fresh-init audit/review behavior before emitting thin assets.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T12:05:52.398Z",
+      "reviewRound": "2026-07-15T12:04:40.016Z",
+      "reviewRunId": "B-c1f1:RR-001",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/audit-scan.ts",
+          "packages/main/src/core/audit-trigger.ts",
+          "packages/main/src/handlers/audit.ts",
+          "packages/main/src/handlers/review-preflight.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7dcb95a49e061faea7a0ce1c0f8f3c57d2e6a663f1913151ca83dd7ec6581d92",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|unsafe-rollout-ordering",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Reordered rollout so registry plus audit/docs-drift/discovery dual-read, review/preflight routing, active normative authority migration, retired-authority guard, and verifier readiness all precede thin template generation. Story 7 is now first template-thinning owner and includes fresh-init audit/preflight checks.",
+      "resolvedAt": "2026-07-15T12:17:42.858Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-002",
+      "desc": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:262-276 — HIGH: the rollout order makes generated CLAUDE.md/AGENTS.md thin in Story 3, but canonical/legacy dual-read is not implemented until Story 4. Line 269 claims runtime audit/review consumers already dual-read even though Story 1 explicitly leaves consumers unchanged and Story 4 owns that migration. A project initialized after Story 3 can therefore receive thin entrypoints while audit/docs-drift/review preflight still hard-code CLAUDE.md, creating an unsafe intermediate release. Move consumer dual-read before template cutover, combine the slices, or keep generated legacy-compatible bodies until every consumer has a valid canonical source.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T12:07:25.084Z",
+      "reviewRound": "2026-07-15T12:04:40.016Z",
+      "reviewRunId": "B-c1f1:RR-002",
+      "_hash": "c831b6be1d493ea6e5b9cbef0e8285f63be5bc39fdb87286abf7d153af8202c7",
+      "signatureTag": "adversarial|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Moved template thinning from former Story 3 to Story 7 after canonical consumers and readiness are green; removed the false early-template compatibility statement.",
+      "resolvedAt": "2026-07-15T12:17:43.852Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-003",
+      "desc": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:253-289 — HIGH: the implementation slices do not assign migration of active normative documents that still point readers back to CLAUDE.md. For example story-lifecycle.md:78 names a nonexistent future CLAUDE.md hard-gate section and story-lifecycle.md:114 promises CLAUDE.md keeps a summary; root-markdown-migration-execution-solution.md:32 still routes operational material into AGENTS.md/CLAUDE.md. These are behavior-affecting authority references, not historical comments, and plain-text references evade the proposed Markdown link/anchor checks. Add the affected normative decisions to an explicit slice and a verifier that fails on active Claude-first authority phrases, otherwise the final hierarchy can pass while canonical docs remain contradictory/broken.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T12:07:25.943Z",
+      "reviewRound": "2026-07-15T12:04:40.016Z",
+      "reviewRunId": "B-c1f1:RR-002",
+      "_hash": "cf86936e070de8052707d23d5f8a056bcd236d64a5079e72ce6784fbf2d68401",
+      "signatureTag": "missing|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added Story 5 active normative-authority migration covering story-lifecycle.md:78/114, root-markdown-migration-execution-solution.md:32/75, root-document-migration-guide.md and all bounded-scan hits, plus a plain-text retired-authority vocabulary guard.",
+      "resolvedAt": "2026-07-15T12:17:45.260Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-004",
+      "desc": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:153-207,246-327 — HIGH: the consumer inventory and eight Story slices do not explicitly assign migration of active normative decision documents that still make CLAUDE.md/AGENTS.md process-authority destinations. Concrete current conflicts include story-lifecycle.md:78 (points to a CLAUDE.md hard-gate section), story-lifecycle.md:114 (requires a CLAUDE.md summary), and root-markdown-migration-execution-solution.md:32,75 (routes active operational instruction into AGENTS.md/CLAUDE.md). These are active authority statements, not implementation comments, and the proposed local Markdown link/anchor verifier will not catch their plain-text authority phrases. Add an explicit pre-cutover slice covering affected normative docs plus a retired-authority vocabulary assertion; otherwise the final canonical hierarchy can pass while its own decision sources remain contradictory and route readers back to the deprecated contract.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-15T12:08:27.247Z",
+      "reviewRound": "2026-07-15T12:04:40.016Z",
+      "reviewRunId": "B-c1f1:RR-004",
+      "_hash": "7c189823132229beae140eb74291ec76d996d30387e47363d52abf16f3569bf9",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/root-markdown-migration-execution-solution.md"
+      ],
+      "signatureTag": "missing|docs|active-normative-claude-first-authority-unassigned",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Added explicit pre-cutover normative-document migration and a retired-authority vocabulary guard that catches prose authority assignments even when all links are valid.",
+      "resolvedAt": "2026-07-15T12:17:46.375Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-005",
+      "desc": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:153 and :226 — HIGH verification-coverage gap: CHK-001 adversarial:0 requires a repository cross-check proving every behavior-affecting CLAUDE.md/AGENTS.md consumer is assigned or justified, and adversarial:1 requires simulated stale-link/conflicting-command/red-test/partial-template/B-e514 failure cases. The recorded evidence only greps for a preselected filename/heading list, so it cannot detect omitted consumers or exercise any failure case. An independent scan found packages/main/src/tasks/deprecated-gc-smoke.ts:66 still asserting the old CLAUDE.md audit-trigger contract without an explicit inventory assignment or exclusion. Replace the two grep-only evidence records with an actual classified consumer scan plus concrete fail-closed scenario checks (or narrow the intents with an explicit justified boundary) before coverage can pass.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-15T12:08:35.947Z",
+      "reviewRound": "2026-07-15T12:04:40.016Z",
+      "reviewRunId": "B-c1f1:RR-003",
+      "_hash": "06c9da4c91edec3ef13ab68a577aa9708e6911988c2307a297570a2fd5de15b6",
+      "signatureTag": "adversarial|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added a real B-c1f1 bounded tracked-text scan baseline with 600 hit lines across 134 files and zero unclassified under a documented conservative classifier, assigned deprecated-gc-smoke.ts:66, and added five concrete failure exercises with setup, expected failure, recovery and owner.",
+      "resolvedAt": "2026-07-15T12:17:47.646Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-006",
+      "desc": "The dual-read deduplication key makes the Story 6 readiness condition non-executable. Story 3 says canonical and legacy results are deduplicated by (path, anchor, symbol, driftType), but path and usually anchor differ across canonical docs and legacy CLAUDE.md. Therefore the same semantic fact remains two records, the legacy copy appears unique, and line 387 cannot prove a full-suite run with no unique legacy fact while the full legacy root contract is intentionally retained until Story 8. Define a source-independent semantic identity/fingerprint (for example normalized fact kind + command/symbol/target + drift type), merge provenance paths/anchors into the canonical record, specify collision handling, and make retirement/readiness consume that semantic identity rather than source-path identity.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T12:19:11.579Z",
+      "reviewRound": "2026-07-15T12:17:32.143Z",
+      "reviewRunId": "B-c1f1:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/NAV.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "8191a2407ea88108a5c48247dab5e82da1b634ea72ee3f8689873e0f861a93ad"
+      },
+      "readDiagnostics": [],
+      "_hash": "ded217847ea67c9fecc38acc575df8495c19135db3e2c0c2de7bdacafd468284",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|dual-read-semantic-dedup",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Defined a source-independent NormalizedDocFact semantic fingerprint, merged path/anchor/role/host/rawTextHash as provenance, made conflicts and collisions fail closed, and added canonical-plus-legacy dedupe, legacy-only blocker, and collision fixtures. Readiness/retirement now consume semantic identity.",
+      "resolvedAt": "2026-07-15T12:27:07.023Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-007",
+      "desc": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:352-353,437-439 — HIGH: the dual-read cutover defines deduplication with a key that includes `path`, then says any unique legacy fact blocks retirement. A canonical fact and its legacy CLAUDE.md copy necessarily have different source paths, so they can never deduplicate under `(path, anchor, symbol, driftType)`; the legacy scan will contribute path-distinct results and Story 6 readiness can remain blocked even after every fact has a canonical owner. Define a semantic fact identity independent of source provenance (for example normalized target/command + fact/check type + relevant arguments), aggregate canonical and legacy source paths as provenance on that identity, and reserve `unique legacy fact` for an identity absent from canonical results. Add a focused dual-read fixture proving the same fact in two documents deduplicates while a genuinely legacy-only fact blocks retirement.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T12:19:38.581Z",
+      "reviewRound": "2026-07-15T12:17:32.143Z",
+      "reviewRunId": "B-c1f1:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/NAV.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "915ab561e0d1a9be539d0ea664ccee4097683e2abef26157520ca31f248da188",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|docs-requirements-decisions",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of B-c1f1:F-006, independently identified in the same review round; F-006 carries the canonical remediation requirement.",
+      "resolvedAt": "2026-07-15T12:19:54.467Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-008",
+      "desc": "CHK-001 adversarial:0 remains under-proven after F-005. The stored verificationEvidence command only greps the plan for asserted totals and named strings; it does not execute the bounded git-grep enumeration, emit the 600 classified rows, or make the claimed zero-unclassified and every-consumer ownership result independently reviewable. I independently reran the documented lexical scan and reproduced 600 hit lines across 134 files, so the aggregate is plausible, but no persisted or attached line-level classification manifest exists to verify that all 511 migrate rows and 74 neutral-fixture rows were correctly classified and assigned. This also conflicts with the plan requirement that implementation diffs be checked against a complete manifest. Attach a deterministic path-and-line classification artifact, or narrow the intent and plan claim, and bind evidence to a command that validates zero unclassified plus owner and disposition completeness rather than grepping prose.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-15T12:19:56.903Z",
+      "reviewRound": "2026-07-15T12:17:32.143Z",
+      "reviewRunId": "B-c1f1:RR-007",
+      "_hash": "7235aab712bd56685379e89e8a60c557de9038214068b5433ba2b0b38d1b2a4b",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "adversarial-docs-classified-scan-manifest-not-attached",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Embedded a collapsed 600-row TSV line-level classification manifest in the plan. The appendix has nonempty path:line, category, disposition, and owner/target fields for every frozen scan hit; row count is 600 and its independently recomputed SHA-256 matches 52b372438eb5a890c238079a3672d2797e0a4333b7dd01cf37eb2887246fceba.",
+      "resolvedAt": "2026-07-15T12:27:08.521Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-009",
+      "desc": "CHK-002 verification evidence is not replayable and is currently stale. The recorded happy-path command uses find with an unquoted star-md name pattern. From the Story worktree zsh expands that pattern to root Markdown filenames, so find exits with CHANGELOG.md unknown primary or operator and the pipeline prints zero, despite the evidence row claiming pass and 115. A correctly quoted independent command returns 115 and the NAV link exists exactly once, so the document appears correct, but the recorded must-intent evidence is false as written. session_brief also reports four stale verification intents, matching the four CHK-002 rows still bound to the pre-hardening storyFilesHash. Replace and rerun the NAV evidence with a quoted assertion-bearing command and refresh it at current story scope before REVIEW coverage can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-15T12:20:03.508Z",
+      "reviewRound": "2026-07-15T12:17:32.143Z",
+      "reviewRunId": "B-c1f1:RR-007",
+      "_hash": "9c5326405fe178c622ad3e4e803f3baea442011b7dce6541167850e44a04d862",
+      "files": [
+        "docs/requirements/NAV.md"
+      ],
+      "signatureTag": "missing-docs-nav-evidence-command-unreplayable-stale",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Replaced CHK-002 happy evidence with the correctly quoted command find docs/requirements/decisions -maxdepth 1 -type f -name '*.md' | wc -l, reran it at current scope with result 115, and rebound all CHK-002 evidence at the current material state.",
+      "resolvedAt": "2026-07-15T12:27:10.374Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-010",
+      "desc": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:181-201 — HIGH: the new source-independent fingerprint fixes path-based deduplication, but the conflict model is still not executable without false positives. conflictKey hashes only {factType, subject, commandOrPolicy}, then declares every different semantics payload under that key a semantic conflict. One command or policy subject legitimately carries multiple complementary facts (for example story_advance may require different phase arguments/outcomes for distinct transitions, or one command may have several required flags); those facts share this conflictKey but are not contradictory, so Story 6 readiness can fail even when canonical and legacy sources agree. Define a normalized claim-slot/aspect identity that distinguishes the proposition being asserted (such as transition/field/parameter target and predicate domain), compare modality/outcome for contradiction only within the same slot, and preserve multiple compatible fingerprints per command/subject. Add a fixture with two complementary same-command facts that must coexist plus one genuinely opposing fact that must fail closed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T12:28:47.749Z",
+      "reviewRound": "2026-07-15T12:26:50.422Z",
+      "reviewRunId": "B-c1f1:RR-009",
+      "_hash": "56cf56798690318bcf6f6059b471a880ff3f7de614d94e2a86acfde553705ad4",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|semantic-conflict-key-too-coarse",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Added schemaVersion and claimSlot to fact identity/conflictKey; complementary aspects coexist while opposing semantics in the same slot fail closed; fixtures cover both.",
+      "resolvedAt": "2026-07-15T13:06:29.514Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-011",
+      "desc": "The source-independent fingerprint design is still not executable as specified. Lines 166-193 only normalize syntactic form (Unicode, whitespace, command spelling, flags, placeholders, aliases), but the required fixture at line 199 demands differently worded prose produce the same semantic payload/fingerprint. No deterministic extraction grammar, stable fact identifier, normalizer version, ownership map, or fail-closed handling for unparseable/ambiguous prose is defined. Story 3 therefore cannot reliably distinguish equivalent paraphrases from legacy-only facts or conflicts, so the Story 6 empty-set readiness condition can be either unreachable or falsely green. Define a mechanically implementable source of normalized facts (prefer stable registry fact IDs/structured projections), version the canonicalization contract, fail closed on unknown extraction, and make the collision fixture possible through an injected hash seam rather than relying on a real SHA-256 collision.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T12:29:03.538Z",
+      "reviewRound": "2026-07-15T12:26:50.422Z",
+      "reviewRunId": "B-c1f1:RR-010",
+      "_hash": "ba91ccb32ef295f19e06edb7a2ee49e9349ec6dbaca11c88f9781716ca4b4984",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|source-independent-fingerprint",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Specified a finite versioned deterministic extractor, stable factId, fail-closed unparsedFact behavior, and a dependency-injected hash seam with collision fixture.",
+      "resolvedAt": "2026-07-15T13:06:33.260Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-012",
+      "desc": "The F-008 baseline appendix contradicts the plan’s own manifest contract. Lines 212-214 require every row to contain path:line, matched phrase, consumer category, behavioral/non-behavioral status, target authority, owning Story, and disposition, but Appendix A’s TSV header at line 531 contains only path:line, category, disposition, and a combined owner/target field. The missing matched phrase and behavioral status prevent independent review of why a line was classified, and the combined final column cannot establish both target authority and owner. Regenerate the appendix with all required columns (or explicitly revise the contract with an equally inspectable representation), recompute its digest/totals, and refresh the adversarial evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T12:29:04.850Z",
+      "reviewRound": "2026-07-15T12:26:50.422Z",
+      "reviewRunId": "B-c1f1:RR-010",
+      "_hash": "5c02725b9feb0dbfacc8d9a71ba1462c86032907a5af10ede9881a46d296dfe2",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|baseline-appendix-contradicts",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Expanded Appendix A to seven explicit nonempty fields including matchedPhrase, behavioralStatus, targetAuthority, and owningStory; 600 rows and digest independently verified.",
+      "resolvedAt": "2026-07-15T13:06:35.379Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-013",
+      "desc": "CHK-001 adversarial:0 is still not independently reviewable after F-008. The appendix digest and row count replay successfully (600 data rows; SHA-256 52b372438eb5a890c238079a3672d2797e0a4333b7dd01cf37eb2887246fceba; all four existing fields nonempty), but the plan contract at lines 212-214 requires matched phrase, behavioral/non-behavioral status, target authority, owning Story, and disposition for every hit. Appendix A exposes only path:line, category, disposition, and a combined owner/target column. Consequently the evidence command proves quantity and integrity of an under-specified manifest, not that every behavior-affecting hit was correctly assigned or justified. This independently confirms F-012; regenerate the manifest with the required separate fields (or revise the contract to an equally inspectable schema), recompute totals/digest, and refresh CHK-001 adversarial evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-15T12:29:43.836Z",
+      "reviewRound": "2026-07-15T12:26:50.422Z",
+      "reviewRunId": "B-c1f1:RR-011",
+      "_hash": "ed7cf5f4bace182cce43ca7ed3d1e4f375638e08e5716ca5cdaa54f3315c15a6",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "missing-docs-manifest-schema-underproves-classification",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "The complete seven-column manifest now mechanically proves classification coverage for all 600 scan hits with zero empty fields and a reproducible SHA-256 digest.",
+      "resolvedAt": "2026-07-15T13:06:37.541Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-014",
+      "desc": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:294-302 and Appendix A — HIGH: the baseline classifies all 72 hits from this document as neutral-fixture / B-c1f1 planning evidence, but the document declares itself an active implementation plan (line 5) and NAV labels it active migration-planning authority. Many of those rows are current behavior-affecting requirements rather than quoted defects or neutral fixtures—for example the host contracts at lines 23-27, precedence at lines 58-66, and managed-ownership rules around lines 111-122. This also contradicts line 259, which limits the retired-authority allowlist to quoted defect examples in this plan, not the entire plan. The manifest therefore reaches 0 unclassified by neutralizing an active authority source, so successor Stories could omit or allowlist its live requirements. Add a disposition/category capable of retaining active migration authority (or classify individual live rows as behavior-affecting with an owner), reserve neutral-fixture only for actual quoted examples/history, regenerate totals/digest, and refresh CHK-001 adversarial evidence.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-15T12:31:33.751Z",
+      "reviewRound": "2026-07-15T12:26:50.422Z",
+      "reviewRunId": "B-c1f1:RR-012",
+      "_hash": "59ca901cab087f24e2c9241b827f0a182ca91a59defecefaddf36a3b14eafa35",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+        "docs/requirements/NAV.md"
+      ],
+      "signatureTag": "adversarial|docs|active-plan-neutralized-as-fixture",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Reclassified this active plan's 72 self-hits as 70 retain-as-active-plan behavioral requirements and 2 genuine quoted neutral fixtures; updated totals and digest.",
+      "resolvedAt": "2026-07-15T13:06:39.650Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-015",
+      "desc": "Canonical/legacy provenance alias can falsely satisfy readiness. The registry initially contains root CLAUDE.md as a canonical host entrypoint (lines 136-149), while Story 3 also scans the same root CLAUDE.md as legacy fallback (lines 411-415). With no explicit source-view or managed-region boundary, the full legacy lifecycle body can be extracted once with canonical provenance and again with legacy provenance; the rule at line 201 then treats every such fingerprint as canonically represented, making the legacy-only set empty and potentially authorizing Story 7 before facts were actually migrated. Define disjoint extraction semantics: before B-e514 cutover, detailed facts from the legacy root body must receive fallback-only provenance, while canonical root extraction is limited to declared thin-entrypoint constraint slots/managed regions (or separate registry records/selectors). Add a fixture where one physical path participates in host discovery and fallback scanning and prove its legacy-only detailed fact still blocks readiness.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T13:08:07.951Z",
+      "reviewRound": "2026-07-15T13:06:08.764Z",
+      "reviewRunId": "B-c1f1:RR-015",
+      "_hash": "415345097857748e151eb85916ccb24004e693ae105e4a314b8e1cc13d23e308",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|canonical-legacy-provenance",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Defined disjoint source views and exact managed-slot selectors for same-path CLAUDE canonical versus legacy extraction; pre-cutover canonical view is empty, detailed facts remain fallback-only, and laundering/overlap fixtures fail closed.",
+      "resolvedAt": "2026-07-15T13:15:42.509Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-016",
+      "desc": "docs/requirements/NAV.md declares 115 decision files but links only 102 of them. A deterministic comparison of git ls-files docs/requirements/decisions/*.md against NAV decision targets reports 13 omissions (including newly active plans such as proof-or-stop-agent-prompt-consolidation-execution-plan.md and proof-or-stop-evidence-instrument-replay-execution-plan.md). The B-c1f1 plan link is present exactly once and its active-authority label is correct, but the navigation count is not backed by a complete index, so readers cannot reach all claimed decision authorities. Update NAV to include every tracked decision document exactly once (or change the count/claim to a truthful explicitly partial index), then rerun the set comparison.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-15T13:10:36.183Z",
+      "reviewRound": "2026-07-15T13:06:08.764Z",
+      "reviewRunId": "B-c1f1:RR-016",
+      "_hash": "b8bd135fbef6dff2c8b94e3963bed097f1d22ae0d8663fe465b677f84907a2e3",
+      "files": [
+        "docs/requirements/NAV.md"
+      ],
+      "signatureTag": "doc-promise-undelivered|md|docs-requirements-declares",
+      "signatureTagSource": "auto",
+      "resolvedReason": "NAV now explicitly states it is a curated non-exhaustive navigation; 115 is labeled as direct-directory inventory count. Deterministic comparison shows 102 unique curated links, 13 intentionally unlinked, zero duplicates/dead links/extras.",
+      "resolvedAt": "2026-07-15T13:15:45.346Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-017",
+      "desc": "The source-view contract is still under-specified for the pre-cutover full AGENTS.md. The registry says it covers both root entrypoints and Story 6 says canonical provenance from root entrypoints is accepted only from allowed thin slots, but only CLAUDE.md receives explicit canonical managed-slot + disjoint legacy-complement views and a pre-cutover empty-canonical rule. The current AGENTS.md is also a giant detailed contract; without an equally explicit AGENTS selector/slot mapping, an implementation can register it as whole-document canonical (laundering detailed lifecycle facts by path) or treat its outer lattice block as canonical despite the plan forbidding that. Specify AGENTS thin slot names and allowed claimSlots, its legacy complement, empty-if-all-absent behavior before Story 7/8, and same-path disjointness/provenance fixtures. Story 6 readiness must require detailed pre-cutover AGENTS facts to be fallback-only and backed by real canonical counterparts, exactly as for CLAUDE.md.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T13:17:07.573Z",
+      "reviewRound": "2026-07-15T13:15:29.476Z",
+      "reviewRunId": "B-c1f1:RR-017",
+      "_hash": "d457414ffff5aa238f236fc998820a2f089445c0ddb11a4f72717d026f9125bf",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "spec-boundary|md|source-view-contract",
+      "signatureTagSource": "auto",
+      "resolvedReason": "AGENTS now mirrors CLAUDE with explicit canonical thin slots, allowed claim slots, disjoint legacy complement, pre-cutover empty canonical view and same-path laundering fixtures.",
+      "resolvedAt": "2026-07-15T13:23:31.163Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-018",
+      "desc": "The plan defines fail-closed marker absence semantics at line 160, but its required dual-read fixture table and Story 1 red-fixture list do not require executable coverage for those branches. Add explicit fixtures proving: required plus all markers absent fails; recognized pre-cutover empty-if-all-absent yields an empty canonical view and whole-file legacy complement; and any partial marker under that policy fails. Without these fixtures, an implementation can satisfy the named same-path and overlap cases while silently treating an unmarked full CLAUDE.md as canonical or accepting a half-marked migration state, defeating the provenance-laundering guard.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-15T13:17:27.941Z",
+      "reviewRound": "2026-07-15T13:15:29.476Z",
+      "reviewRunId": "B-c1f1:RR-019",
+      "_hash": "50f45b3039e7b3396334ada830d589023e277aa01183c15768958d871a21bd20",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|plan-defines-fail",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added executable selector-state fixtures for required/all-absent failure, recognized legacy all-absent empty canonical plus full legacy complement, and every partial/malformed marker state failing before extraction.",
+      "resolvedAt": "2026-07-15T13:23:34.366Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-019",
+      "desc": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:182-198,470 — HIGH: the semantic readiness rule requires one complete run at the same HEAD, but FactProvenance cannot prove which source snapshot or selector contract produced a fact. It records viewId, path, lineRange, anchor, role/host, and rawTextHash only; it has no repository revision/source blob digest and no digest/version of the view definition (including allowedClaimSlots and marker selector). A cached or combined result can therefore retain an unchanged statement hash after the file or selector registry changes and still appear current, so legacy-only/conflict emptiness is not mechanically bound to the asserted HEAD. Add source revision/blob (or equivalent full-content digest) plus a registry/view-definition digest to provenance/readiness artifacts, and require focused stale-provenance fixtures for both a document change and selector/allowed-slot change.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T13:19:47.200Z",
+      "reviewRound": "2026-07-15T13:15:29.476Z",
+      "reviewRunId": "B-c1f1:RR-018",
+      "_hash": "b1680f8cbe5bb02ada82a230d35c66dacb08e9c9f54a2a52ec6aa71572ea9000",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|semantic-provenance-not-snapshot-bound",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fact provenance and readiness now bind exact HEAD, blob/full-content, registry/view/selector digests including allowedClaimSlots; dependent artifacts stale on any source or selector change, with mutation fixtures.",
+      "resolvedAt": "2026-07-15T13:23:37.872Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-020",
+      "desc": "Freshness coverage omits two invalidation states promised by the contract. The plan states that every artifact is bound to an exact sourceRevision with cleanTree:true and that a changed HEAD or dirty tree makes it stale, but the required dual-read and failure-exercise fixtures only mutate a selected document byte or registry/view/selector fields. An implementation could therefore reuse a passing readiness artifact after an unrelated committed HEAD change or with an unrelated dirty tracked file and still satisfy every listed executable fixture. Add explicit real-harness cases for (1) an unrelated tracked commit that changes HEAD while selected document and registry bytes remain unchanged, and (2) an unrelated dirty tracked file at the same HEAD; both must reject/stale the prior snapshot, and only a fresh clean extraction/review bound to the new exact HEAD may recover.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-15T13:25:23.992Z",
+      "reviewRound": "2026-07-15T13:23:16.275Z",
+      "reviewRunId": "B-c1f1:RR-023",
+      "_hash": "59539e79f21f35ab96302bf89a37c06423ae3a65e1f9503d3446b72a3229ddbb",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|freshness-coverage-omits",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added real-harness freshness cases for unrelated committed HEAD change and unrelated tracked dirty state, plus control showing a validated runtime evidence write does not stale; recovery requires new chain or cleaning.",
+      "resolvedAt": "2026-07-15T13:31:27.535Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-021",
+      "desc": "Snapshot freshness is specified in a self-invalidating way. Lines 215-234 require the extraction snapshot and every dependent review/readiness artifact to share one exact sourceRevision with cleanTree:true, and any changed HEAD or dirty tree stales all prior evidence. But producing or persisting the required review evidence necessarily changes repository state under the current lifecycle: this signed review_run_start alone makes the tracked .lattice/story/actives/B-c1f1/review-runs.json dirty; committing such evidence changes HEAD, while leaving it uncommitted violates cleanTree. The plan therefore defines no stable state in which a persisted/reloadable FactReadinessArtifact can pass. Specify a non-self-invalidating persistence boundary (for example, an explicitly scoped material snapshot plus narrowly excluded/generated evidence paths, an atomic envelope with pre-write revision semantics, or verifiable out-of-tree signed storage), while ensuring unrelated code/doc commits and dirty tracked files still stale the artifact. Add an executable end-to-end fixture that extracts at a clean revision, persists review/readiness evidence, reloads it, and passes without self-staling, plus the existing unrelated-change stale cases. Without this, Stories 3/6 can implement every listed digest field yet never converge.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T13:26:09.781Z",
+      "reviewRound": "2026-07-15T13:23:16.275Z",
+      "reviewRunId": "B-c1f1:RR-022",
+      "_hash": "4b26d93967db8729b9c2e931095f63eadd8784ce5965133cdcda4df3434af907",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|snapshot-evidence-self-invalidates",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Defined exact untracked/gitignored live evidence artifact templates registered by runtime/process registries, signature/hash-chain persistence, archival-only committed copies, and clean-HEAD persist/restart/reload E2E fixture.",
+      "resolvedAt": "2026-07-15T13:31:30.898Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-022",
+      "desc": "The new live-evidence confinement contract is not implementable against the registry architecture it names. The plan says only the three exact templates may be ignored and that a copied file outside them must fail, but runtime-artifact-registry.ts currently has an earlier first-match `runtime-cache` prefix for all `.lattice/runtime/`; findRuntimeArtifactEntry uses Array.find. Therefore an exact entry added after that prefix is unreachable, while an invalid sibling/copy still resolves to the broad materialHash-excluded runtime-cache entry. Story 1 must explicitly replace/narrow the broad prefix for this namespace or define deterministic specificity/typed lookup semantics, and the fixtures must prove both exact entries win and an unregistered sibling under `.lattice/runtime/evidence/thin-entrypoint/` is not accepted or cleanliness-excluded. Otherwise `processEvidence: true` and exact path confinement are prose-only.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T13:33:22.381Z",
+      "reviewRound": "2026-07-15T13:31:08.401Z",
+      "reviewRunId": "B-c1f1:RR-025",
+      "_hash": "70dc182c4b1a178e5541cd985b33bc259bb0a0db83e013e70294a7ab7c2f57b9",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+        "packages/main/src/core/runtime-artifact-registry.ts"
+      ],
+      "signatureTag": "spec-boundary|md|live-evidence-confinement",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Moved live evidence to non-overlapping .lattice/process-evidence namespace and specified exactly-one typed artifact resolution with expected-ID/template checks; invalid siblings and injected ambiguity fail closed.",
+      "resolvedAt": "2026-07-15T13:42:03.256Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-023",
+      "desc": "The persistence envelope treats a local hash chain as equivalent to a signer/key signature without defining an external trust anchor. An unkeyed chain stored beside the payload proves only internal consistency: any local writer can rewrite extraction, review, and readiness payloads and recompute the complete chain, including reviewer identity/run fields. Because this chain is gate-consumed and survives restart, the plan must require the existing signed-artifact/key-verification mechanism or specify an immutable/keyed trust anchor, signer authorization, replay/rotation rules, and an adversarial forged-chain fixture. The current `signature (or an equivalently verified local hash chain)` option otherwise weakens signed review evidence to self-asserted hashes.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T13:33:36.884Z",
+      "reviewRound": "2026-07-15T13:31:08.401Z",
+      "reviewRunId": "B-c1f1:RR-025",
+      "_hash": "35ec11abe25161afa867e88cacaaf0b2dae5d287fba3131fd543f11b753e24dc",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|persistence-envelope-treats",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Required canonical JSON plus Ed25519 trusted signer/key registry verification; unkeyed chains provide linkage only. Fixtures reject recomputed-chain forgery, unknown/wrong/revoked/out-of-window keys and verify restart/rotation.",
+      "resolvedAt": "2026-07-15T13:42:08.302Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-024",
+      "desc": "Typed evidence resolution is only specified as path normalization plus an anchored template match (lines 249-251, fixtures 304-305/477), so it does not mechanically confine filesystem identity to the repository. A lexically valid `.lattice/process-evidence/...` path can traverse outside the project through a symlinked parent or symlink artifact while still matching the regex and expected artifact ID. Require root-anchored absolute resolution, lstat/no-follow checks for every path component and artifact, realpath containment beneath the canonical project `.lattice/process-evidence/thin-entrypoint` root, and atomic creation that cannot follow/swap symlinks; add parent-symlink, file-symlink, absolute-outside-root, and TOCTOU replacement fixtures that fail closed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T13:44:05.204Z",
+      "reviewRound": "2026-07-15T13:41:43.868Z",
+      "reviewRunId": "B-c1f1:RR-029",
+      "_hash": "c14b644acfd1ea3ad95dae70ddcff32fbfc1765a5b2e8bcdf1d4184c3367b1ea",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|typed-evidence-resolution",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Specified root-anchored no-follow descriptor I/O with lstat/realpath/fstat, same-directory atomic publication and revalidation; symlink, escape and swap-race fixtures fail closed.",
+      "resolvedAt": "2026-07-15T13:49:52.340Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-025",
+      "desc": "The trusted-key rotation contract accepts a `retiring` key when the envelope's signed `createdAt` is before its cutoff (line 255), but `createdAt` is chosen and signed by the same private key. Anyone retaining/compromising that retiring key can create a new current-HEAD artifact after cutoff, backdate `createdAt`, and pass the stated verification. For live gate evidence, reject non-active keys outright (rotation already stales all live readiness), or require a verifier-trusted pre-cutoff issuance commitment/monotonic receipt independent of the signer. Add a fixture that signs after cutoff with a backdated `createdAt` and current registry/source digests and require rejection; wall-clock interval tests alone do not close this replay/backdating path.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T13:44:10.321Z",
+      "reviewRound": "2026-07-15T13:41:43.868Z",
+      "reviewRunId": "B-c1f1:RR-029",
+      "_hash": "2007299ee0e3d139471549f402a170f20bc73bc5dca66e6fdf863fa4a2aed378",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|trusted-rotation-contract",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Live readiness accepts only the current active authorized key; signed createdAt is audit-only and retired/revoked/pending keys are non-live, eliminating backdating bypass.",
+      "resolvedAt": "2026-07-15T13:49:55.613Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-026",
+      "desc": "Rotation freshness is specified but not covered by an executable fixture. The plan says a trusted signer-registry rotation changes signerRegistryDigest/HEAD and must stale prior extraction/review/readiness artifacts (line 255), yet the required fixtures only validate static key states (unknown/wrong signer/revoked/out-of-window/retiring cutoff) and restart verification (lines 307, 478). Add a fixture that first creates a passing chain under registry/key A, then rotates the tracked registry to key B (including status/replacement/authorization change), asserts the old chain is stale/rejected specifically because signerRegistryDigest and sourceRevision changed, and asserts a newly signed complete chain under B passes after restart. Also include a wrong-artifact-ID authorization case because allowed artifact IDs are part of the trusted registry contract but currently have no negative fixture.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-15T13:44:13.502Z",
+      "reviewRound": "2026-07-15T13:41:43.868Z",
+      "reviewRunId": "B-c1f1:RR-030",
+      "_hash": "6b2f65f1cd1b06927056dda4641aa1c5c1e89e4755433b71691e928d6d7bdf50",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|rotation-freshness-specified",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added executable A-to-B registry rotation/restart freshness flow and wrong-artifact-ID authorization negative.",
+      "resolvedAt": "2026-07-15T13:49:58.399Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-027",
+      "desc": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:212-257,300,478,504-505 — F-023 closes verifier-side trust (tracked public-key registry, Ed25519 verification, rotation status) but never defines the signing-side private-key lifecycle. Story 1 is required to emit signed extraction/review/readiness artifacts and the restart/fresh-init fixtures require those artifacts to survive a fresh process, yet the plan does not name the private-key store/provider, bootstrap behavior for a new repository, permission/ignore requirements, signer/key selection, public-key enrollment transaction, missing/mismatched-key failure, or rotation/recovery of the private half. The existing authority-signing.ts primitives accept an in-memory private key and do not provide storage, while the plan explicitly says private material is absent from the tracked registry. An implementer therefore must invent a security-critical provisioning design, and a fresh init or restart cannot deterministically satisfy the claimed signing/reload contract. Specify one canonical local private-key provider and lifecycle (including fresh-init enrollment and atomic trusted-public-registry binding, restrictive storage/ignore rules, startup lookup and fail-closed diagnostics, rotation/revocation/recovery, and fixtures proving restart plus missing/wrong/private-public mismatch behavior) before Story 1 is executable.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T13:44:17.627Z",
+      "reviewRound": "2026-07-15T13:41:43.868Z",
+      "reviewRunId": "B-c1f1:RR-031",
+      "_hash": "865c365ea834307f9cafeefd735fe41abd0409ee9410ca0d0bf9400762de5247",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+        "packages/main/src/core/authority-signing.ts",
+        "packages/main/src/core/runtime-artifact-registry.ts"
+      ],
+      "signatureTag": "spec-boundary|md|private-key-provisioning-lifecycle",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Defined human/bootstrap private-key generation, secure local/OS/CI providers, startup checks, non-export, two-step rotation and loss recovery fixtures.",
+      "resolvedAt": "2026-07-15T13:50:01.214Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-028",
+      "desc": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:273,276 — HIGH: the private-key rotation preflight introduced for F-027 is internally contradictory. The startup/provider rule requires the configured private key to match the current active registry entry, but the two-step rotation requires startup to prove key B matches its pending registry entry before B may be activated. Under the stated rule, a process configured for pending B must fail before performing that proof; if an implementer relaxes the rule ad hoc, a pending key could accidentally enter the live-signing path. Define a separate non-signing pending-key enrollment/preflight operation that may derive and compare B only to the exact pending (signer,keyId) record, cannot emit live artifacts, and must succeed before the human activation commit; keep ordinary startup/signing active-only. Add a fixture proving pending B preflight succeeds while pending B live signing fails, then activation permits signing.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T13:52:00.957Z",
+      "reviewRound": "2026-07-15T13:49:34.896Z",
+      "reviewRunId": "B-c1f1:RR-032",
+      "_hash": "d6d627606687e7f5f99b059d0d944ec588cbf9e35c4139ead0d93a4fc1a5c271",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|pending-key-preflight-active-only-contradiction",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Separated human-only pending-key enrollment/preflight from active-only normal signing; preflight exposes no live writer/capability and emits no gate evidence. Fixtures cover pending match, pending signing rejection, activation and restart.",
+      "resolvedAt": "2026-07-15T13:57:28.851Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-029",
+      "desc": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:272-273,331,505 — HIGH: the secure-I/O closure is still incomplete for the CI secret-file provider. Process evidence and the repository-local fallback key use a descriptor-bound, component-by-component no-follow walk, but `LATTICE_PROCESS_EVIDENCE_PRIVATE_KEY_FILE` is specified only as using a no-follow read plus permission checks and a startup rejection of symlinks. For an absolute CI-mounted path outside the project root, checking the pathname/terminal entry and then opening it leaves parent-directory symlink/replacement and validate-then-open races; a swapped path can supply different private bytes after the permission/identity check. Define a separate external-secret-file reader that opens from a trusted filesystem root (or accepts an already-open descriptor), walks every parent with no-follow semantics, reads and verifies ownership/mode/public-key identity through the same descriptor, and fails closed where the platform cannot guarantee this. Add parent-symlink and parent/target-swap fixtures for the CI secret-file path, not only the repository artifact/fallback paths.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T13:52:55.410Z",
+      "reviewRound": "2026-07-15T13:49:34.896Z",
+      "reviewRunId": "B-c1f1:RR-034",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/authority-signing.ts",
+          "packages/main/src/core/receipt-bundle.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3001545566d4a6964adf2696e57d093308f58d31134da91e39de5e23206139a4",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|ci-secret-file-path-race",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "External CI file provider now descriptor-walks every component from an approved mount root with no-follow handles and identity/permission checks; parent/final symlink and swap attacks fail closed.",
+      "resolvedAt": "2026-07-15T13:57:31.202Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-030",
+      "desc": "External CI secret-file parent-swap rejection is promised but not mechanically specified. The provider clause walks components through retained descriptors and rechecks only the final file identity after read (line 280), while the required fixture says a parent swap must fail before key bytes are returned (line 517). Retained descriptors prevent redirection, but they do not by themselves detect that an already-opened parent was renamed/replaced in the approved path. Require a second descriptor-relative walk from the pinned filesystem/volume root after the read, compare every parent and final file identity to the first walk, and return no key bytes on any mismatch (or weaken the test to safety-without-redirection). Without this, a conforming implementation can satisfy the prose walk yet cannot meet the stated rejection assertion.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T13:58:53.944Z",
+      "reviewRound": "2026-07-15T13:57:06.336Z",
+      "reviewRunId": "B-c1f1:RR-035",
+      "_hash": "c2735b61a603c3056ebbf86f170d3ea31ace80c568b12b92ecf3af5ba23cb776",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|external-secret-file",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added a second independent root-anchored no-follow walk after read and before return, comparing every recorded parent and final file identity; mismatch discards bytes and fails closed.",
+      "resolvedAt": "2026-07-15T14:04:35.610Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-031",
+      "desc": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:280,341,517,543,590 — HIGH coverage gap: F-029 explicitly required both parent-directory and final-target swap fixtures for the external CI secret-file provider. The revised prose requires component walking and rechecks the final descriptor identity, but the executable fixture at line 341 injects only a parent swap; the failure matrix names only `parent swap race`; Stories 1/6 likewise name external-secret parent-swap attacks. A symlink final-target case does not exercise replacing an ordinary final file between validation/open/read. Add a deterministic external-secret target-file swap hook/case, distinct from the repository process-evidence I/O fixture, and assert the provider either remains bound to the originally opened approved inode or fails before returning key bytes. Keep the existing parent-symlink, final-symlink, parent-swap, root-escape, permission, and unsupported-platform cases.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-15T13:59:38.544Z",
+      "reviewRound": "2026-07-15T13:57:06.336Z",
+      "reviewRunId": "B-c1f1:RR-036",
+      "_hash": "00f372f06a3b6735b8edbb9a5c3bab2897cfdbece94c77daee6d7377c45fd7ab",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|external-secret-target-swap-fixture",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Added deterministic final regular-file replacement and parent rename/replacement race fixtures; only unchanged chain may return original descriptor-bound bytes, never attacker bytes.",
+      "resolvedAt": "2026-07-15T14:04:38.003Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-032",
+      "desc": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:595 — HIGH: F-031 is only partially closed across the implementation sequence. The provider contract, focused fixture table, failure-exercise matrix, and Story 1 now explicitly cover deterministic final regular-file replacement as well as parent replacement, but Story 6 readiness still names only `external-secret parent-swap attacks`. F-031 explicitly identified the omission in Stories 1/6, and Story 6 is the pre-template readiness replay that must prove the complete race contract before cutover. Add final-target regular-file replacement (and the independent second-walk identity assertion) to Story 6's required full-suite replay wording, so an implementer cannot satisfy readiness by replaying only the parent-race case.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T14:06:18.145Z",
+      "reviewRound": "2026-07-15T14:04:18.878Z",
+      "reviewRunId": "B-c1f1:RR-040",
+      "_hash": "0ce84907f0fe9b242e70e415af4be4363071b7d9adea46803a4e678b852c18f8",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|story6-external-secret-final-target-replay",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Story 6 readiness/replay now explicitly requires parent-swap and final regular-file replacement races plus second independent root-anchored full ordered parent/final identity verification and discard-before-return.",
+      "resolvedAt": "2026-07-15T14:09:37.936Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

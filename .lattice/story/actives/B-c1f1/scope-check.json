@@ -1,0 +1,143 @@
+{
+  "storyId": "B-c1f1",
+  "checkedAt": "2026-07-15T11:56:28.835Z",
+  "features": [
+    {
+      "feature": "Define an implementable host-discovery architecture for Codex CLI, Claude Code CLI, and Antigravity CLI (agy).",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-c1f1/background.md; understanding.json; checklist.json"
+    },
+    {
+      "feature": "Separate host entrypoints, .lattice/Lattice.md navigation, operational runbook projection, normative decision documents, and CLI/registry/gate authority with explicit precedence and no duplicated truth.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-c1f1/checklist.json; plan.md; decision.json"
+    },
+    {
+      "feature": "Keep AGENTS.md and CLAUDE.md budgets as anti-regression ceilings, preserve repository-local constraints such as the OMX ban without universalizing them, and avoid inventing CODEX.md or AGY.md.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-c1f1/checklist.json; understanding.json"
+    },
+    {
+      "feature": "Explain how Claude receives shared instructions without copying a second long root contract.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-c1f1/checklist.json"
+    },
+    {
+      "feature": "Inventory behavior-affecting CLAUDE.md/AGENTS.md and canonical-path consumers across audit, docs-drift, reviewers, templates, sync, triggers, managed assets, and verifiers.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-c1f1/checklist.json; background.md"
+    },
+    {
+      "feature": "Assign every discovered mechanical consumer to an implementation slice or explicitly justify it out of scope.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-c1f1/checklist.json; plan.md"
+    },
+    {
+      "feature": "Specify test-first red/green checks for size budgets, effective constraint reachability, imports, links, anchors, cycles, audit coverage, bounded reviewer reads, process-fact contracts, branding, and command consistency.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-c1f1/plan.md; checklist.json"
+    },
+    {
+      "feature": "Define fail-closed compatibility, staged cutover, rollback points, and recovery for stale links, conflicting commands, failed red tests, and partial template migration.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-c1f1/checklist.json; decision.json"
+    },
+    {
+      "feature": "Provide ordered, independently reviewable implementation Story slices rather than an all-in-one migration.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-c1f1/decision.json; plan.md"
+    },
+    {
+      "feature": "Choose a single-owner, safe convergence path for B-e514 and prevent overlapping root-file writes or premature old-contract retirement.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-c1f1/checklist.json; decision.json"
+    },
+    {
+      "feature": "Keep operational guidance mechanically checked against registries and normative decisions so the runbook cannot become a third truth source.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-c1f1/understanding.json; decision.json"
+    },
+    {
+      "feature": "Clearly label all runtime/template/verifier/root cutover changes as future implementation work; this Story does not implement them.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The Story is documentation-only and CHK-001 explicitly requires proposed implementation to remain future work.",
+      "source": ".lattice/story/actives/B-c1f1/understanding.json; plan.md"
+    },
+    {
+      "feature": "Create only the new execution-plan decision document and modify only docs/requirements/NAV.md, leaving unrelated files and B-e514 untouched.",
+      "covered_by": "CHK-001,CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-c1f1/understanding.json; checklist.json; plan.md"
+    },
+    {
+      "feature": "Register exactly one discoverable NAV entry at the exact new decision-document path and describe it as active normative planning authority.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-c1f1/checklist.json"
+    },
+    {
+      "feature": "Recompute and update the NAV decision-file count independently, while preserving ordering and avoiding duplicate, case-variant, missing, legacy, retired, or superseded links.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-c1f1/checklist.json; plan.md"
+    },
+    {
+      "feature": "Avoid unrelated NAV authority changes, demotion of existing canonical documents, or wording that makes root entrypoints/runbook co-equal normative sources.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-c1f1/checklist.json"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/requirements/decisions/root-document-migration-guide.md",
+      "docs/requirements/decisions/truth-source.md",
+      "docs/requirements/NAV.md"
+    ],
+    "filesTriagedByName": [
+      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+      "docs/requirements/decisions/story-lifecycle.md",
+      "docs/requirements/decisions/testing-infra.md"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 16,
+    "covered": 15,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "485f57c26cd8583be392ef21c389ed18dc4a7b6ae34af3946a06b0089872c591",
+  "openQuestions": []
+}

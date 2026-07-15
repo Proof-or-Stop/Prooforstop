@@ -11,9 +11,107 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-15T11:59:26.241Z",
+      "endTime": "2026-07-15T14:08:43.870Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The execution-plan decision document exists and gives an implementable target architecture for Codex CLI, Claude Code CLI, and Antigravity CLI (agy), separating host-discovery entrypoints, .lattice/Lattice.md navigation, the operational runbook projection, normative decision sources, and CLI/registry/gate mechanical authority; it also inventories current CLAUDE.md consumers and defines test-first sequencing, compatibility, rollback, implementation Story slices, and B-e514 convergence. WHY: proves the requested plan is complete enough to execute without inventing missing architecture during implementation.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The plan treats AGENTS.md and CLAUDE.md size budgets as anti-regression ceilings rather than fill targets, preserves repository-local hard constraints such as the OMX ban without forcing them into universal generated templates, and does not propose CODEX.md or AGY.md as new host protocols. WHY: covers the boundary between shared generated assets, repository-local policy, and actual host discovery conventions.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "The plan explicitly defines precedence and non-duplication across AGENTS.md, CLAUDE.md, .lattice/Lattice.md, the runbook, normative decision docs, and mechanical registries/gates, including how Claude obtains shared rules without copying a second long root contract. WHY: prevents thin-entrypoint migration from creating a third drifting source of truth.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Cross-check the plan inventory against repository references to CLAUDE.md/AGENTS.md and canonical-document path arrays; every behavior-affecting audit, docs-drift, reviewer, template, sync, trigger, managed-asset, and verifier consumer found is either assigned to a migration slice or explicitly justified out of scope. WHY: catches a cosmetically thin root document that leaves hidden Claude-first mechanical contracts active.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Challenge the rollout by simulating stale links, conflicting runbook commands, failed red tests, rollback after partial template migration, and B-e514 remaining blocked at TEST; the plan must specify fail-closed detection and a safe recovery/order of operations without declaring the old contract retired early. WHY: prevents an irreversible documentation cutover or false convergence when canonical consumers disagree.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "User sees the heading \"Proof-or-stop Thin Entrypoint Contract Migration Execution Plan\" followed by an ordered implementation sequence, red/green verification matrix, rollback rules, and the B-e514 convergence decision.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Proof-or-stop Thin Entrypoint Contract Migration Execution Plan|Story 6 — Verifier readiness|Story 9 — Legacy fallback retirement\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "result": "pass",
+          "note": "Plan and Story 6 readiness remain explicit.",
+          "headHash": "084a2a69c6d5ca3caee8c7155a71bf435331ea1c",
+          "materialHash": "cbefd163f96f6730a6acbe660d813e06ab8b6f8adea6aff82672387297f48b36",
+          "storyFilesHash": "a0d19b1712e6d995293f6929007f4949d9ea968f3a72c52dcd0feeef64d1b469",
+          "timestamp": "2026-07-15T14:08:44.624Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"CODEX.md|AGY.md|anti-regression ceilings|OMX prohibition\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "result": "pass",
+          "note": "Boundaries explicit.",
+          "headHash": "084a2a69c6d5ca3caee8c7155a71bf435331ea1c",
+          "materialHash": "cbefd163f96f6730a6acbe660d813e06ab8b6f8adea6aff82672387297f48b36",
+          "storyFilesHash": "a0d19b1712e6d995293f6929007f4949d9ea968f3a72c52dcd0feeef64d1b469",
+          "timestamp": "2026-07-15T14:08:45.089Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "rg -n \"final regular-file replacement|second independent.*no-follow|complete ordered parent chain\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "result": "pass",
+          "note": "Story 6 replay includes both race classes and full-chain verification.",
+          "headHash": "084a2a69c6d5ca3caee8c7155a71bf435331ea1c",
+          "materialHash": "cbefd163f96f6730a6acbe660d813e06ab8b6f8adea6aff82672387297f48b36",
+          "storyFilesHash": "a0d19b1712e6d995293f6929007f4949d9ea968f3a72c52dcd0feeef64d1b469",
+          "timestamp": "2026-07-15T14:08:45.480Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "sed -n '/^```tsv$/,/^```$/p' docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md | sed '1d;$d' | tail -n +2 | wc -l",
+          "result": "pass",
+          "note": "600x7 unchanged.",
+          "headHash": "084a2a69c6d5ca3caee8c7155a71bf435331ea1c",
+          "materialHash": "cbefd163f96f6730a6acbe660d813e06ab8b6f8adea6aff82672387297f48b36",
+          "storyFilesHash": "a0d19b1712e6d995293f6929007f4949d9ea968f3a72c52dcd0feeef64d1b469",
+          "timestamp": "2026-07-15T14:08:46.102Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "rg -n \"never return.*replacement|discard.*buffer|Story 6\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "result": "pass",
+          "note": "Failure behavior bound to readiness replay.",
+          "headHash": "084a2a69c6d5ca3caee8c7155a71bf435331ea1c",
+          "materialHash": "cbefd163f96f6730a6acbe660d813e06ab8b6f8adea6aff82672387297f48b36",
+          "storyFilesHash": "a0d19b1712e6d995293f6929007f4949d9ea968f3a72c52dcd0feeef64d1b469",
+          "timestamp": "2026-07-15T14:08:46.610Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -23,9 +121,120 @@
         "docs/requirements/NAV.md",
         "docs/requirements/decisions/truth-source.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-15T12:03:44.922Z",
+      "endTime": "2026-07-15T14:08:49.777Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "docs/requirements/NAV.md contains one discoverable entry for the new thin-entrypoint contract migration execution plan, points to the exact existing decision-document path, describes it as active normative planning authority, and its declared decision-file count equals an independent filesystem count under the navigation policy. WHY: proves the plan is reachable from the source-of-truth index and the index remains internally accurate.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The navigation update preserves ordering and surrounding entries, introduces no duplicate or case-variant link, and does not link to a legacy, retired, missing, or similarly named superseded document. WHY: covers ambiguous discovery when the requirements tree contains multiple root-document migration records.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Recompute the eligible decision-document count independently from NAV.md text and verify the declared count cannot pass merely because both the link and count were copied from a stale snapshot; also assert the new entry appears exactly once and resolves to the authored plan. WHY: catches self-consistent but factually stale navigation metadata.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Inspect the NAV diff for unrelated authority changes, accidental demotion of existing canonical documents, or wording that makes the operational runbook/root entrypoints co-equal normative sources. WHY: prevents a small indexing edit from silently changing source-of-truth precedence.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "User sees \"Proof-or-stop Thin Entrypoint Contract Migration Execution Plan\" listed once in Source of Truth Navigation and the header count updated to \"115 files\".",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "command": "find docs/requirements/decisions -maxdepth 1 -type f -name '*.md' | wc -l",
+          "result": "pass",
+          "note": "115.",
+          "headHash": "76feda79edb8ec623e7460f69267f08e3f86f6dd",
+          "materialHash": "cbefd163f96f6730a6acbe660d813e06ab8b6f8adea6aff82672387297f48b36",
+          "storyFilesHash": "a0d19b1712e6d995293f6929007f4949d9ea968f3a72c52dcd0feeef64d1b469",
+          "timestamp": "2026-07-15T14:08:50.583Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "rg -n \"proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md\" docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "Once.",
+          "headHash": "76feda79edb8ec623e7460f69267f08e3f86f6dd",
+          "materialHash": "cbefd163f96f6730a6acbe660d813e06ab8b6f8adea6aff82672387297f48b36",
+          "storyFilesHash": "a0d19b1712e6d995293f6929007f4949d9ea968f3a72c52dcd0feeef64d1b469",
+          "timestamp": "2026-07-15T14:08:51.098Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "rg -n \"Curated, non-exhaustive navigation|Inventory count: 115|Proof-or-stop Thin Entrypoint Contract Migration Execution Plan\" docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "Truthful.",
+          "headHash": "76feda79edb8ec623e7460f69267f08e3f86f6dd",
+          "materialHash": "cbefd163f96f6730a6acbe660d813e06ab8b6f8adea6aff82672387297f48b36",
+          "storyFilesHash": "a0d19b1712e6d995293f6929007f4949d9ea968f3a72c52dcd0feeef64d1b469",
+          "timestamp": "2026-07-15T14:08:51.965Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "docs_check",
+          "command": "git diff main...HEAD -- docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "Scoped.",
+          "headHash": "76feda79edb8ec623e7460f69267f08e3f86f6dd",
+          "materialHash": "cbefd163f96f6730a6acbe660d813e06ab8b6f8adea6aff82672387297f48b36",
+          "storyFilesHash": "a0d19b1712e6d995293f6929007f4949d9ea968f3a72c52dcd0feeef64d1b469",
+          "timestamp": "2026-07-15T14:08:52.513Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-15T12:09:14.412Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Address REVIEW findings F-001 through F-005 by correcting rollout order, adding normative-doc authority migration and retired-authority guards, completing consumer inventory, and specifying failure-scenario exercises."
+    },
+    {
+      "timestamp": "2026-07-15T12:22:18.939Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Address F-006 and F-008 with semantic dual-read identity and an independently inspectable line-level scan manifest appendix."
+    },
+    {
+      "timestamp": "2026-07-15T12:22:20.787Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Replace invalid F-009 NAV count evidence with a correctly quoted reproducible command."
     }
   ]
 }

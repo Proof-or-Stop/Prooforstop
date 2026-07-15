@@ -1,0 +1,543 @@
+{
+  "passes": [
+    {
+      "id": "B-c1f1:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Docs re-review passes: F-001 through F-004 are materially closed in the plan, F-005 residual manifest proof is already tracked by F-008, NAV count/link/authority wording is consistent, and no additional documentation blocker was found. Existing F-006 and F-008/F-009 remain owned by their original lanes.",
+      "createdAt": "2026-07-15T12:20:51.626Z",
+      "reviewRound": "2026-07-15T12:17:32.143Z",
+      "reviewRunId": "B-c1f1:RR-008",
+      "writerSessionId": "sess-5593716d3b6d0282",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/root-document-migration-guide.md",
+          "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/root-document-migration-guide.md",
+          "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "bec8c24c84adcc418456767f38fdb848e585b4098066623a9f7eabb2fde34d68"
+      },
+      "readDiagnostics": [],
+      "_hash": "9b1f659f07557ed836945e2ed8ddf35127c760cc7465c053fc9e58fee06bd6d0"
+    },
+    {
+      "id": "B-c1f1:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted coverage re-review of df311437cf passes. Independently extracted Appendix A: 600 data rows plus header, exactly seven non-empty tab fields per row, zero duplicate path:line keys, SHA-256 a6f8c5256a10a8356480898e99c1c12e9d53cedabf5078a7f801f714ff04d4a0. Dispositions reconcile to 15 host-discovery + 70 active-plan + 511 migrate + 4 neutral = 600; statuses 596 behavioral + 4 non-behavioral; 134 unique files. Migration-plan rows reconcile to 70 retain-as-active-plan and two genuine quoted-defect neutral fixtures. NAV has one target link, target exists, and its declared 115 decision files matches the quoted find count. Required fixture matrix explicitly covers complementary distinct claimSlot pass, opposing same-slot conflict, equivalent wording parse identity, unparsedFact fail-closed, and dependency-injected fingerprint collision fail-closed. F-010 through F-014 are covered with testable expected outcomes; no test-coverage blocker found.",
+      "createdAt": "2026-07-15T13:08:54.383Z",
+      "reviewRound": "2026-07-15T13:06:08.764Z",
+      "reviewRunId": "B-c1f1:RR-014",
+      "writerSessionId": "sess-5593716d3b6d0282",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "8191a2407ea88108a5c48247dab5e82da1b634ea72ee3f8689873e0f861a93ad"
+      },
+      "readDiagnostics": [],
+      "_hash": "453aa6fc4188a7ddc4aef23444d68d8f20b913cac8390fb52bf00843b5fb4430"
+    },
+    {
+      "id": "B-c1f1:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "PASS targeted F-010..F-014 remediation at df311437cf. The plan now specifies schemaVersion=1, finite extractor patterns, source-independent factId, claimSlot-scoped conflicts, complementary/opposing fixtures, unparsedFact fail-closed behavior, and an injected fingerprint collision seam. Independent checks confirmed 600 seven-field rows, digest a6f8c5256a10a8356480898e99c1c12e9d53cedabf5078a7f801f714ff04d4a0, 134 files, exact path:line parity with the frozen scan, and 15/70/511/4 disposition totals. No quality blocker found.",
+      "createdAt": "2026-07-15T13:09:13.300Z",
+      "reviewRound": "2026-07-15T13:06:08.764Z",
+      "reviewRunId": "B-c1f1:RR-013",
+      "writerSessionId": "sess-5593716d3b6d0282",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "8191a2407ea88108a5c48247dab5e82da1b634ea72ee3f8689873e0f861a93ad"
+      },
+      "readDiagnostics": [],
+      "_hash": "371fb887b3b1ee5297c106ed2547273584dd95bd648ac78b1d0feec754ef4bc0"
+    },
+    {
+      "id": "B-c1f1:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "PASS: NAV truthfully labels itself curated and non-exhaustive, scopes 115 to direct Markdown files under docs/requirements/decisions, and live count is 115. All 103 local NAV links are unique and resolve. Plan and NAV consistently mark this document as active migration-planning authority while explicitly denying implementation evidence/completion. Frozen 600-row manifest is internally consistent (600 rows, seven non-empty fields, stated SHA-256, 134 unique files); 72 self-hits split into 70 behavioral retain-as-active-plan rows and only two non-behavioral quoted retired-authority examples. F-014 and F-016 are resolved; no docs blocker found.",
+      "createdAt": "2026-07-15T13:19:12.081Z",
+      "reviewRound": "2026-07-15T13:15:29.476Z",
+      "reviewRunId": "B-c1f1:RR-020",
+      "writerSessionId": "sess-5593716d3b6d0282",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "8191a2407ea88108a5c48247dab5e82da1b634ea72ee3f8689873e0f861a93ad"
+      },
+      "readDiagnostics": [],
+      "_hash": "37b057d1672f1558f5ff92303a773e4c8d0e4e524c03a0a616fdf09d32d37ede"
+    },
+    {
+      "id": "B-c1f1:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "PASS: independent final concept review found no new blocker. AGENTS.md and CLAUDE.md are symmetric same-path canonical thin-slot plus disjoint legacy-complement views; file-read deduplication cannot upgrade legacy provenance, and executable fixtures cover both hosts, malformed/overlapping selectors, and snapshot staleness. Fact identity remains source-independent while complete provenance is retained and conflicts, unparsed facts, and collisions fail closed. The nine-Story order establishes selectors and destinations, migrates dual-read consumers and normative authority, proves one-snapshot readiness, and only then thins templates and B-e514 roots before retiring fallback. Host discovery stays AGENTS for Codex/Antigravity and CLAUDE importing AGENTS for Claude, without CODEX.md or AGY.md.",
+      "createdAt": "2026-07-15T13:25:22.321Z",
+      "reviewRound": "2026-07-15T13:23:16.275Z",
+      "reviewRunId": "B-c1f1:RR-021",
+      "writerSessionId": "sess-5593716d3b6d0282",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "8191a2407ea88108a5c48247dab5e82da1b634ea72ee3f8689873e0f861a93ad"
+      },
+      "readDiagnostics": [],
+      "_hash": "e101facd64c7eee008d16c1c9acd12c3c8aa811504462d3988a66048e9cb7a11"
+    },
+    {
+      "id": "B-c1f1:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Final docs re-review PASS: the plan truthfully identifies active planning authority without claiming implementation; its active-plan versus neutral-fixture classifications, manifest totals/digest/source references, NAV count/status wording, and local links were independently verified. No separate docs blocker; existing F-020/F-021 cover freshness and persistence.",
+      "createdAt": "2026-07-15T13:27:30.315Z",
+      "reviewRound": "2026-07-15T13:23:16.275Z",
+      "reviewRunId": "B-c1f1:RR-024",
+      "writerSessionId": "sess-5593716d3b6d0282",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "8191a2407ea88108a5c48247dab5e82da1b634ea72ee3f8689873e0f861a93ad"
+      },
+      "readDiagnostics": [],
+      "_hash": "50ba72b8c79bfb7a9a814d72f8da17844e6ce6de027597906c13819a068e717c"
+    },
+    {
+      "id": "B-c1f1:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Targeted final quality review of F-021 found no blocker. The plan assigns three exact live artifact IDs and path templates to the runtime artifact registry, binds process-gate semantics by ID, rejects tracked dirt and all HEAD/input digest drift, confines the only process-evidence live exclusions to validated untracked/gitignored templates, separates committed archival evidence from same-HEAD live consumption, and requires an executable clean-HEAD persist/restart/reload chain plus unrelated-commit, tracked-dirty, out-of-template, tracked-live, and valid-runtime-write controls. The future chain therefore does not self-invalidate while material changes remain fail-closed.",
+      "createdAt": "2026-07-15T13:34:03.305Z",
+      "reviewRound": "2026-07-15T13:31:08.401Z",
+      "reviewRunId": "B-c1f1:RR-026",
+      "writerSessionId": "sess-5593716d3b6d0282",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "8191a2407ea88108a5c48247dab5e82da1b634ea72ee3f8689873e0f861a93ad"
+      },
+      "readDiagnostics": [],
+      "_hash": "d04c9b50f843c474c4b210d79c99a7c3314b8254bc4f7047705d07a86d69951a"
+    },
+    {
+      "id": "B-c1f1:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted coverage pass: F-020/F-021 now have executable restart, unrelated-commit, tracked-dirty, and validated-runtime-write controls with explicit failure/recovery ownership. Independently verified Appendix A is one 600-row x 7-field nonempty TSV with unique path:line keys and matching SHA-256; NAV reports 115 decision files, 102 unique live links, 13 intentional omissions, zero dead links, and exactly one active-plan link.",
+      "createdAt": "2026-07-15T13:34:48.021Z",
+      "reviewRound": "2026-07-15T13:31:08.401Z",
+      "reviewRunId": "B-c1f1:RR-027",
+      "writerSessionId": "sess-5593716d3b6d0282",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "8191a2407ea88108a5c48247dab5e82da1b634ea72ee3f8689873e0f861a93ad"
+      },
+      "readDiagnostics": [],
+      "_hash": "7a7f37c4f96a9fbb9d599bb08bda74d574aa218506c3b262418878b303492e8a"
+    },
+    {
+      "id": "B-c1f1:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Final targeted docs review at product commit aed3d1508f: PASS. NAV has exactly one correctly labeled active-plan link and the target exists. The 600-row seven-field TSV, digest, 134-file count, classification totals, and frozen path-line set all reproduce. Status, authority hierarchy, nine-Story sequence, B-e514 ownership, rollback, and acceptance are coherent. No new docs blocker beyond F-022/F-023.",
+      "createdAt": "2026-07-15T13:36:16.588Z",
+      "reviewRound": "2026-07-15T13:31:08.401Z",
+      "reviewRunId": "B-c1f1:RR-028",
+      "writerSessionId": "sess-5593716d3b6d0282",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "8191a2407ea88108a5c48247dab5e82da1b634ea72ee3f8689873e0f861a93ad"
+      },
+      "readDiagnostics": [],
+      "_hash": "8fc08f5fe9d6f6d29b79488b3298001b7aee0a71e9caeb103ede221d0ba187b0"
+    },
+    {
+      "id": "B-c1f1:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Closure coverage PASS at product commit a90929b24d. F-024 is covered by descriptor-bound no-follow read/write fixtures including component/target symlinks, lexical/realpath escapes, and injected swap races; F-025 by current-active-only signer authorization with pending/retired/revoked/wrong signer-or-artifact negatives; F-026 by executable A-to-B pending-to-active rotation, restart, stale-A and unauthorized-artifact cases; F-027 by bootstrap/OS/fallback/CI providers, permission/symlink/mismatch/loss and recovery fixtures. Independently replayed frozen scan 7d7bebed: 600 rows, 134 files, exact path:line set match, zero duplicates, all matched phrases present. TSV has 600 data rows, exactly seven nonempty fields each, matching digest and 15/70/511/4 dispositions. NAV count is 115, exact plan link occurs once, and all 103 curated links are unique and resolve. No new blocker.",
+      "createdAt": "2026-07-15T13:53:06.986Z",
+      "reviewRound": "2026-07-15T13:49:34.896Z",
+      "reviewRunId": "B-c1f1:RR-033",
+      "writerSessionId": "sess-5593716d3b6d0282",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "8191a2407ea88108a5c48247dab5e82da1b634ea72ee3f8689873e0f861a93ad"
+      },
+      "readDiagnostics": [],
+      "_hash": "422ea8c713c81162ea1633e238788f9700a2e6d7667d9630cf87ebb481bc2e95"
+    },
+    {
+      "id": "B-c1f1:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "PASS: F-028 now keeps ordinary startup/live signing active-only while a structurally separate human pending-key preflight exposes no signing capability or gate evidence; fixtures cover pending rejection and post-activation restart. F-029 now confines external CI files to an approved root with component-by-component no-follow descriptor traversal, ownership/mode and identity checks, fail-closed platform fallback, and parent/final-link plus swap fixtures. Commit 71d5e27 remains unchanged at the current review HEAD and these additions are consistent with the existing active-key, signer-registry, process-evidence, and secure-I/O contracts.",
+      "createdAt": "2026-07-15T14:00:36.196Z",
+      "reviewRound": "2026-07-15T13:57:06.336Z",
+      "reviewRunId": "B-c1f1:RR-037",
+      "writerSessionId": "sess-5593716d3b6d0282",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "8191a2407ea88108a5c48247dab5e82da1b634ea72ee3f8689873e0f861a93ad"
+      },
+      "readDiagnostics": [],
+      "_hash": "f2d5121fb2f3506006ed6a3088c31043b1216356b83506720cca9d49a809204a"
+    },
+    {
+      "id": "B-c1f1:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "PASS: commit c99f621966 closes the external CI secret-file race contract. The provider records the complete ordered parent-chain plus final stable identity on a first root-anchored no-follow walk, reads only through the retained final descriptor, performs a second independent root-anchored no-follow full-chain walk before returning, and zeroes/discards buffered key bytes on any missing component or identity mismatch. Deterministic fixtures cover ordinary parent rename/replacement, final regular-file replacement, symlink/reparse replacement, and boundaries between first walk, descriptor read, and second walk; no blocker found.",
+      "createdAt": "2026-07-15T14:06:38.998Z",
+      "reviewRound": "2026-07-15T14:04:18.878Z",
+      "reviewRunId": "B-c1f1:RR-038",
+      "writerSessionId": "sess-5593716d3b6d0282",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "2e08fcf6179bd6dd67f5e75fbae68df6dc7702d8be74848b224f1363cb6c394e"
+      },
+      "readDiagnostics": [],
+      "_hash": "c79e946d0d98865a98050ccc105fcef48b844420750a270fd9f00730c85b994c"
+    },
+    {
+      "id": "B-c1f1:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage closure PASS at product commit c99f621966 (current product docs byte-identical): verified parent-directory and final regular-file replacement race fixtures across the normative fixture, executable failure matrix, and Story 1 scope; semantic dedupe fixtures cover complementary slots, opposing same-slot semantics, structured wording equivalence, unparsed fail-closed behavior, and injected collision. Independently parsed appendix as exactly 600 unique data rows x 7 non-empty fields, zero unknown dispositions, totals 15/70/511/4, digest a6f8c5256a10a8356480898e99c1c12e9d53cedabf5078a7f801f714ff04d4a0. NAV has exactly one valid active-plan link and decision count 115. No blocker.",
+      "createdAt": "2026-07-15T14:06:46.297Z",
+      "reviewRound": "2026-07-15T14:04:18.878Z",
+      "reviewRunId": "B-c1f1:RR-039",
+      "writerSessionId": "sess-5593716d3b6d0282",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "8191a2407ea88108a5c48247dab5e82da1b634ea72ee3f8689873e0f861a93ad"
+      },
+      "readDiagnostics": [],
+      "_hash": "a7979f438ed8be97b9c23a28694728940f4d7229572ae84ca2bb06ad33c3a9d5"
+    },
+    {
+      "id": "B-c1f1:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "F-032 is closed at commit 084a2a69c6: Story 6 readiness item 5 now explicitly replays both external-secret parent-swap and final ordinary-file replacement races, requires a second independent root-anchored no-follow walk over the complete ordered parent chain plus final-file identity after descriptor-bound read, and requires discard/fail-before-return on any mismatch. This makes pre-template readiness consume the full race contract rather than only the parent case; no new concept blocker found within F-032 scope.",
+      "createdAt": "2026-07-15T14:10:56.596Z",
+      "reviewRound": "2026-07-15T14:09:16.983Z",
+      "reviewRunId": "B-c1f1:RR-041",
+      "writerSessionId": "sess-5593716d3b6d0282",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "2e08fcf6179bd6dd67f5e75fbae68df6dc7702d8be74848b224f1363cb6c394e"
+      },
+      "readDiagnostics": [],
+      "_hash": "4aba94324bca590c4abdb9c8e27e8b8d172e4e639276933876fbfe8033ad85ea"
+    },
+    {
+      "id": "B-c1f1:RP-015",
+      "agent": "lattice-review-quality",
+      "note": "PASS: commit 084a2a69c6 closes F-032 without scope expansion. Story 6 readiness now replays both external-secret parent-swap and final regular-file replacement races, and mechanically requires a second independent root-anchored full parent/final identity comparison with discard-before-return on mismatch. The wording matches the provider contract and focused failure matrix; no blocking quality finding remains.",
+      "createdAt": "2026-07-15T14:11:30.619Z",
+      "reviewRound": "2026-07-15T14:09:16.983Z",
+      "reviewRunId": "B-c1f1:RR-042",
+      "writerSessionId": "sess-5593716d3b6d0282",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "8eaf8144641306e94a78e842b955625c724fde170e97373ed3d65048e04ec149"
+    },
+    {
+      "id": "B-c1f1:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final acceptance coverage PASS at product commit 084a2a69c6. F-032 is closed in Story 6 readiness/replay: the matrix explicitly exercises external-secret parent-swap and final regular-file replacement races and requires a second independent filesystem-root-anchored no-follow walk over the complete ordered parent chain plus final identity after descriptor-bound read and before return; mismatch discards buffered bytes and fails closed, never returning replacement bytes. Replayed the frozen 7d7bebed scan: 600 hits and sorted path:line digest exactly match Appendix A; appendix has 600 data rows, seven non-empty fields, no duplicate keys, declared digest a6f8c525..., and dispositions 15/70/511/4. NAV independently counts 115 direct decision Markdown files, has exactly one exact target link, target exists, and scoped diff/check are clean. No coverage blocker found.",
+      "createdAt": "2026-07-15T14:13:21.127Z",
+      "reviewRound": "2026-07-15T14:09:16.983Z",
+      "reviewRunId": "B-c1f1:RR-043",
+      "writerSessionId": "sess-5593716d3b6d0282",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "8191a2407ea88108a5c48247dab5e82da1b634ea72ee3f8689873e0f861a93ad"
+      },
+      "readDiagnostics": [],
+      "_hash": "d9998ef8cedd5f1e06b91e01bc0bd8a466150771aa7c25b97f615e4d641836aa"
+    },
+    {
+      "id": "B-c1f1:RP-017",
+      "agent": "lattice-review-docs",
+      "note": "PASS at implementation commit 084a2a69c6. Plan/NAV/manifest-only review found no blocking documentation defect: target host discovery and authority hierarchy are explicit; rollout keeps canonical consumers and verifiers ahead of template/root thinning; B-e514 remains the sole root-document owner; and Story 6 readiness now explicitly replays external-secret parent/final replacement races. Independently verified NAV inventory/link and the frozen 600-row manifest's scan-set equality, fields, matched phrases, totals, uniqueness, and SHA-256.",
+      "createdAt": "2026-07-15T14:13:27.425Z",
+      "reviewRound": "2026-07-15T14:09:16.983Z",
+      "reviewRunId": "B-c1f1:RR-044",
+      "writerSessionId": "sess-5593716d3b6d0282",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "8191a2407ea88108a5c48247dab5e82da1b634ea72ee3f8689873e0f861a93ad"
+      },
+      "readDiagnostics": [],
+      "_hash": "dbf7c3ad3ba66e8682e741ec34a27614b52b7563f5c9f49ee45de41ebfce227f"
+    }
+  ]
+}

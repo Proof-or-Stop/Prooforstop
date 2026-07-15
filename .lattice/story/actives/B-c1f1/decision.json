@@ -1,0 +1,83 @@
+{
+  "principles": [
+    "One normative source per process fact",
+    "Host discovery compatibility without host-specific truth duplication",
+    "Test-first migration with explicit rollback",
+    "Small independently reviewable implementation Stories",
+    "Operational guidance must be mechanically verifiable"
+  ],
+  "drivers": [
+    "B-e514 is blocked by an obsolete root-document process-fact contract",
+    "CLAUDE.md hard-coding prevents host-neutral operation",
+    "Codex, Claude Code, and Antigravity/agy use asymmetric native discovery filenames",
+    "Maintainers need a concrete migration order rather than another conceptual document",
+    "Root entrypoints must retain non-negotiable safety constraints without regrowing into manuals"
+  ],
+  "options": [
+    {
+      "name": "A: Single all-in-one migration Story",
+      "pros": [
+        "One atomic cutover",
+        "No temporary mixed contract"
+      ],
+      "cons": [
+        "Large overlapping diff across docs, templates, runtime, prompts, and tests",
+        "Hard to review and roll back",
+        "Conflicts with active B-e514"
+      ]
+    },
+    {
+      "name": "B: Registry-first staged migration",
+      "pros": [
+        "Establishes one canonical-doc registry before moving consumers",
+        "Allows red tests and compatibility reads before root cutover",
+        "Provides clean rollback points and a controlled B-e514 convergence path"
+      ],
+      "cons": [
+        "Requires temporary dual-read compatibility",
+        "Needs careful Story ordering"
+      ]
+    },
+    {
+      "name": "C: Thin root docs only",
+      "pros": [
+        "Smallest immediate diff",
+        "Quickly reduces prompt size"
+      ],
+      "cons": [
+        "Leaves audit and verifier broken",
+        "Moves no canonical facts",
+        "Cannot complete B-e514 safely"
+      ]
+    }
+  ],
+  "chosen": "B: Registry-first staged migration",
+  "rationale": "A registry-first staged migration separates normative sources, operational projections, host adapters, mechanical consumers, and final root cutover. It prevents root documents from being thinned before audit/verifier consumers can follow canonical sources, while keeping every implementation slice reviewable and reversible.",
+  "preMortem": [
+    {
+      "scenario": "The runbook becomes a third independent lifecycle specification.",
+      "trigger": "The runbook copies phase, reviewer, or DONE semantics without deriving or validating them against canonical registries and decisions.",
+      "consequence": "Root documents become thin but process drift simply moves into docs/dev.",
+      "mitigation": "Classify the runbook as a non-normative operational projection and require command, phase, lane, link, and policy checks against a shared canonical-doc/process registry."
+    },
+    {
+      "scenario": "B-e514 overwrites or conflicts with the migrated root entrypoints.",
+      "trigger": "The contract migration and B-e514 both modify AGENTS.md/CLAUDE.md or close in the wrong order.",
+      "consequence": "One Story invalidates the other evidence or restores stale entrypoint content.",
+      "mitigation": "The plan must choose a single root-cutover owner, explicitly supersede or sequence B-e514, and prohibit overlapping root-file writes until that ownership is resolved."
+    },
+    {
+      "scenario": "Claude loses mandatory project safety instructions after CLAUDE.md is shortened.",
+      "trigger": "CLAUDE.md becomes a pointer but its AGENTS import or canonical-link closure is missing or untested.",
+      "consequence": "Claude sessions omit session recovery, controlled story writes, or other repository constraints.",
+      "mitigation": "Test effective host instruction closure, including Claude imports, rather than checking only literal text in each file."
+    },
+    {
+      "scenario": "A canonical registry is added but legacy consumers continue scanning only CLAUDE.md.",
+      "trigger": "Audit, docs-drift, reviewer prompts, sync utilities, or verifier path arrays are missed during inventory.",
+      "consequence": "The migration appears complete while some gates and diagnostics retain the old contract.",
+      "mitigation": "Include repository-wide hard-code inventory, consumer-by-consumer migration acceptance, and a final negative scan for semantic CLAUDE.md truth-source dependencies."
+    }
+  ],
+  "timestamp": "2026-07-15T11:51:43.300Z"
+}

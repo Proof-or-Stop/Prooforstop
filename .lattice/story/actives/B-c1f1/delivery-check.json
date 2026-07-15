@@ -1,0 +1,42 @@
+{
+  "storyId": "B-c1f1",
+  "checkedAt": "2026-07-15T16:04:34.937Z",
+  "headHash": "7347893eb7764fbbd0671b73631d915cc427eef1",
+  "materialHash": "cbefd163f96f6730a6acbe660d813e06ab8b6f8adea6aff82672387297f48b36",
+  "storyFilesHash": "a0d19b1712e6d995293f6929007f4949d9ea968f3a72c52dcd0feeef64d1b469",
+  "reviewRound": "2026-07-15T14:09:16.983Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+      "promise": "The user sees the Proof-or-stop thin-entrypoint migration execution plan with ordered implementation stages, red/green verification, rollback rules, and the B-e514 convergence decision.",
+      "status": "verified",
+      "verifiedBy": "Independent main...HEAD diff, document inspection, fresh lattice validate evidence, and live-smoke capture.",
+      "evidence": "Plan exists at HEAD; headings occur at lines 1, 480, 537, 615, and 654. Status says migration not yet implemented and B-c1f1 changes only this plan plus NAV. Story 8 states B-e514 remains the single owner of root AGENTS.md/CLAUDE.md; final disclaimer says no implementation completion is claimed. Root AGENTS.md, CLAUDE.md, and .lattice/Lattice.md have no main...HEAD diff. lattice validate is PASS at 2026-07-15T16:02:09.176Z."
+    },
+    {
+      "docPath": "docs/requirements/NAV.md",
+      "promise": "The Source of Truth Navigation lists the plan exactly once and reports the independently verified inventory count of 115 decision Markdown files.",
+      "status": "verified",
+      "verifiedBy": "Independent filesystem count, exact-link count, path existence check, and NAV diff review.",
+      "evidence": "find returned 115; exact plan path occurs once; target file exists; NAV diff only clarifies the inventory wording and adds the active migration-planning authority entry marked not implementation evidence."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "2026-07-15T16:04:09.481Z live-smoke capture exited 0 and printed the exact plan heading, Implementation Sequence, Story 8 B-e514 convergence, Rollback and Failure Recovery, B-e514 single-owner statement, and the explicit no-implementation-complete disclaimer."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "The same live-smoke capture exited 0 and printed NAV inventory count 115 plus the single Proof-or-stop Thin Entrypoint Contract Migration Execution Plan link marked active migration-planning authority and not implementation evidence."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "PASS: reverse scan shows only the plan and NAV as product changes; all nine required verification intents are covered, current lattice validate is PASS, live smoke is fresh and independently recaptured, no TODO/FIXME/TBD remains, migration implementation is explicitly excluded, and B-e514 remains the sole future root-doc owner."
+  },
+  "_hash": "e0af563ab6dcceb09f31f98392149cc532f7ca6e2efe3ccd89a447f331b39cdc"
+}

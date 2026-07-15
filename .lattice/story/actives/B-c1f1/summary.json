@@ -1,0 +1,55 @@
+{
+  "storyId": "B-c1f1",
+  "changes": "Added the Proof-or-stop thin-entrypoint contract migration execution plan and registered it in the requirements NAV. The plan defines authority layers, mechanical registries, red-to-green tests, nine follow-up Stories, rollback order, and B-e514 as the sole root-document writer.",
+  "usage": "Open the plan from docs/requirements/NAV.md and implement Stories 1 through 9 in dependency order. B-e514 owns all root AGENTS.md and CLAUDE.md thinning changes; other Stories must not edit those entrypoints concurrently.",
+  "expectedOutcome": "The user can see the exact Proof-or-stop heading, a current-state scan manifest, target architecture, ordered Story sequence, acceptance gates, rollback procedure, and a host-neutral entrypoint policy.",
+  "actualTranscript": "The live smoke command exited with code 0, printed the exact plan H1, and confirmed that docs/requirements/NAV.md contains a valid link to the plan.",
+  "outcomeDiff": "The observable documentation deliverable matches the expected result. Root-entrypoint migration and runtime consumer changes remain intentionally assigned to follow-up Stories and are not claimed as implemented here.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This Story delivers the executable migration plan and navigation entry only. It does not modify AGENTS.md, CLAUDE.md, .lattice/Lattice.md, or runtime consumers.",
+  "pitfalls": "Do not thin root entrypoints before canonical documents, registries, audit consumers, and reviewer consumers are ready. B-e514 is the sole root-document writer to prevent conflicts and broken contracts.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 97825
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 7418
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 461415
+    },
+    "DEV": {
+      "count": 12,
+      "durationMs": 4144281
+    },
+    "REVIEW": {
+      "count": 12,
+      "durationMs": 9821965
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 6877554
+    }
+  },
+  "totalDurationMs": 21411326,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-15T17:40:58.469Z",
+  "updatedAt": "2026-07-15T17:46:21.687Z"
+}
