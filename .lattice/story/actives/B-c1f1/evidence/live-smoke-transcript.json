@@ -1,0 +1,20 @@
+{
+  "storyId": "B-c1f1",
+  "expected": "User sees the heading \"Proof-or-stop Thin Entrypoint Contract Migration Execution Plan\" followed by an ordered implementation sequence, red/green verification matrix, rollback rules, and the B-e514 convergence decision.",
+  "actual": {
+    "command": "rg -n \"^# Proof-or-stop Thin Entrypoint Contract Migration Execution Plan|Proof-or-stop Thin Entrypoint Contract Migration Execution Plan\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md docs/requirements/NAV.md",
+    "exitCode": 0,
+    "stdout": "docs/requirements/NAV.md:71:- [Proof-or-stop Thin Entrypoint Contract Migration Execution Plan](decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md) — active migration-planning authority; not implementation evidence.\ndocs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:1:# Proof-or-stop Thin Entrypoint Contract Migration Execution Plan\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-15T16:02:25.971Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "9d923a60a051a1d5fc9693f147cc9cb0da218869",
+  "materialHash": "cbefd163f96f6730a6acbe660d813e06ab8b6f8adea6aff82672387297f48b36"
+}
