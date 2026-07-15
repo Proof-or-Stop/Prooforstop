@@ -392,6 +392,38 @@
       },
       "readDiagnostics": [],
       "_hash": "c79e946d0d98865a98050ccc105fcef48b844420750a270fd9f00730c85b994c"
+    },
+    {
+      "id": "B-c1f1:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage closure PASS at product commit c99f621966 (current product docs byte-identical): verified parent-directory and final regular-file replacement race fixtures across the normative fixture, executable failure matrix, and Story 1 scope; semantic dedupe fixtures cover complementary slots, opposing same-slot semantics, structured wording equivalence, unparsed fail-closed behavior, and injected collision. Independently parsed appendix as exactly 600 unique data rows x 7 non-empty fields, zero unknown dispositions, totals 15/70/511/4, digest a6f8c5256a10a8356480898e99c1c12e9d53cedabf5078a7f801f714ff04d4a0. NAV has exactly one valid active-plan link and decision count 115. No blocker.",
+      "createdAt": "2026-07-15T14:06:46.297Z",
+      "reviewRound": "2026-07-15T14:04:18.878Z",
+      "reviewRunId": "B-c1f1:RR-039",
+      "writerSessionId": "sess-5593716d3b6d0282",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "8191a2407ea88108a5c48247dab5e82da1b634ea72ee3f8689873e0f861a93ad"
+      },
+      "readDiagnostics": [],
+      "_hash": "a7979f438ed8be97b9c23a28694728940f4d7229572ae84ca2bb06ad33c3a9d5"
     }
   ]
 }
