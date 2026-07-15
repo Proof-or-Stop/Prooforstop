@@ -563,14 +563,15 @@
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
-          "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
           "result": "pass",
-          "note": "Actual spawned descendants are killed and ESRCH-verified for command, DONE-required phase, CLI idle, and CLI max, followed by immediate rerun. Pure in-process closeout phases spawn no child, so descendant ESRCH is explicitly not applicable there.",
-          "headHash": "a03361c1df5dd49b607b4186d3ce0461548bec43",
-          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
-          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
-          "timestamp": "2026-07-15T20:17:40.237Z"
+          "note": "RED/GREEN proof: a SIGTERM-resistant sync child made the old phase wrapper wait 5041ms; phase-bounded execFileSync/execSync now use SIGKILL, all three consecutive closure smokes passed within the 120ms phase deadline envelope, and immediate post-timeout sync calls prove child reap plus wrapper restore without leakage.",
+          "headHash": "47eb0924532c96d681201808078a7c6de7e56f12",
+          "materialHash": "0166642dc26ee1c7d917ad668e71e5d1686d2a7190abfa5dd527b5467f097b27",
+          "storyFilesHash": "1b57cbbdf812fbcefc1c40327f2db9138d81dd66c8a8a8a8892b6c505b1a5092",
+          "timestamp": "2026-07-15T20:52:25.159Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
