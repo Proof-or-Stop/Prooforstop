@@ -115,6 +115,45 @@
       "resolvedAt": "2026-07-15T12:17:47.646Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-006",
+      "desc": "The dual-read deduplication key makes the Story 6 readiness condition non-executable. Story 3 says canonical and legacy results are deduplicated by (path, anchor, symbol, driftType), but path and usually anchor differ across canonical docs and legacy CLAUDE.md. Therefore the same semantic fact remains two records, the legacy copy appears unique, and line 387 cannot prove a full-suite run with no unique legacy fact while the full legacy root contract is intentionally retained until Story 8. Define a source-independent semantic identity/fingerprint (for example normalized fact kind + command/symbol/target + drift type), merge provenance paths/anchors into the canonical record, specify collision handling, and make retirement/readiness consume that semantic identity rather than source-path identity.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T12:19:11.579Z",
+      "reviewRound": "2026-07-15T12:17:32.143Z",
+      "reviewRunId": "B-c1f1:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/NAV.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "8191a2407ea88108a5c48247dab5e82da1b634ea72ee3f8689873e0f861a93ad"
+      },
+      "readDiagnostics": [],
+      "_hash": "ded217847ea67c9fecc38acc575df8495c19135db3e2c0c2de7bdacafd468284",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|dual-read-semantic-dedup",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
