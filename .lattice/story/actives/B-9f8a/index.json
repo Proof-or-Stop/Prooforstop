@@ -4,7 +4,7 @@
   "title": "Document the execution plan for six workflow convergence failures",
   "description": "Create an umbrella execution plan for the confirmed DONE timeout, unattended host liveness, candidate routing over-scan, typed dispatch, owner-session identity, and scope-anchor false-positive issues. The document must preserve existing source-of-truth boundaries, split implementation into cohesive stories, specify rollout, verification, and regression controls, and avoid changing runtime behavior.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "medium",
   "createdAt": "2026-07-15T13:08:01.600Z",
   "startedAt": "2026-07-15T13:08:01.600Z",
@@ -18,6 +18,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-07bc482a401d5422",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-15T13:09:40.557Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-07bc482a401d5422",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-9f8a",
+    "branch": "story/B-9f8a",
+    "createdAt": "2026-07-15T13:09:34.658Z"
+  }
 }
