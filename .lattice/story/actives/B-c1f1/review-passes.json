@@ -361,6 +361,37 @@
       },
       "readDiagnostics": [],
       "_hash": "f2d5121fb2f3506006ed6a3088c31043b1216356b83506720cca9d49a809204a"
+    },
+    {
+      "id": "B-c1f1:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "PASS: commit c99f621966 closes the external CI secret-file race contract. The provider records the complete ordered parent-chain plus final stable identity on a first root-anchored no-follow walk, reads only through the retained final descriptor, performs a second independent root-anchored no-follow full-chain walk before returning, and zeroes/discards buffered key bytes on any missing component or identity mismatch. Deterministic fixtures cover ordinary parent rename/replacement, final regular-file replacement, symlink/reparse replacement, and boundaries between first walk, descriptor read, and second walk; no blocker found.",
+      "createdAt": "2026-07-15T14:06:38.998Z",
+      "reviewRound": "2026-07-15T14:04:18.878Z",
+      "reviewRunId": "B-c1f1:RR-038",
+      "writerSessionId": "sess-5593716d3b6d0282",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "2e08fcf6179bd6dd67f5e75fbae68df6dc7702d8be74848b224f1363cb6c394e"
+      },
+      "readDiagnostics": [],
+      "_hash": "c79e946d0d98865a98050ccc105fcef48b844420750a270fd9f00730c85b994c"
     }
   ]
 }
