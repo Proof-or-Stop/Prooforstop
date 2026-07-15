@@ -30,6 +30,21 @@
       ],
       "signatureTag": "adversarial|md|unsafe-rollout-ordering",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c1f1:F-002",
+      "desc": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:262-276 — HIGH: the rollout order makes generated CLAUDE.md/AGENTS.md thin in Story 3, but canonical/legacy dual-read is not implemented until Story 4. Line 269 claims runtime audit/review consumers already dual-read even though Story 1 explicitly leaves consumers unchanged and Story 4 owns that migration. A project initialized after Story 3 can therefore receive thin entrypoints while audit/docs-drift/review preflight still hard-code CLAUDE.md, creating an unsafe intermediate release. Move consumer dual-read before template cutover, combine the slices, or keep generated legacy-compatible bodies until every consumer has a valid canonical source.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T12:07:25.084Z",
+      "reviewRound": "2026-07-15T12:04:40.016Z",
+      "reviewRunId": "B-c1f1:RR-002",
+      "_hash": "c831b6be1d493ea6e5b9cbef0e8285f63be5bc39fdb87286abf7d153af8202c7",
+      "signatureTag": "adversarial|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
