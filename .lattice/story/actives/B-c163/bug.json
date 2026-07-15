@@ -3,10 +3,20 @@
     {
       "id": "BUG-014",
       "title": "Retired-authority guard fingerprint was not synchronized after runCli changed",
-      "status": "open",
+      "status": "fixed",
       "foundAt": "2026-07-15T22:50:55.919Z",
-      "fixedAt": null,
-      "checklistId": "CHK-003"
+      "fixedAt": "2026-07-15T22:55:59.673Z",
+      "checklistId": "CHK-003",
+      "evidence": {
+        "symptom": "Configured validation command 3 failed because the exact registered cli-engine non-literal loader call site was reported as unapproved.",
+        "reproSteps": [
+          "Run node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "Observe cli-engine.ts:766 reported with canonical fingerprint b1e13538 while the pinned fingerprint is f8a151cb"
+        ],
+        "rootCause": "B-c163 changed the runCli AST in cli-engine.ts but left PINNED_EXECUTABLE_SOURCE_FINGERPRINTS on the pre-change fingerprint.",
+        "fixEvidence": "Commit d8cee89719 synchronizes only the exact cli-engine canonical AST fingerprint without changing the finite allowlist or matcher; independent guard smoke passes.",
+        "reproTest": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+      }
     }
   ]
 }
