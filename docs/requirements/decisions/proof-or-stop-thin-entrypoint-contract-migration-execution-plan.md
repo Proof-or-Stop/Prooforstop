@@ -159,7 +159,12 @@ The registry unit is a source view, not a path. The initial registry declares vi
 
 Managed slots use exact, non-nesting markers `<!-- lattice:slot:<name>:start -->` and `<!-- lattice:slot:<name>:end -->`. Duplicate, partial, nested, reversed, or overlapping markers fail closed. `absencePolicy: 'required'` also fails when all markers are absent. `empty-if-all-absent` is permitted only for a recognized pre-cutover legacy managed-asset version: all declared markers must be absent, the canonical range is empty, and the legacy complement is the whole file; any partial appearance fails. Fresh thin templates use `required`. The generic outer `<!-- lattice:start -->` / `<!-- lattice:end -->` managed-body markers do not by themselves make content canonical. `managed-slots` selects only the complete declared ranges, while `legacy-complement` selects the exact line-range complement; selector construction must prove those ranges are disjoint and cover the intended source view before extraction.
 
-During migration, root `CLAUDE.md` has two views over the same physical path. Its canonical view selects only declared thin-entrypoint slots such as `claude-host-discovery`, `shared-agent-import`, and `claude-adapter`, with an allowlist limited to their host-discovery/import/adapter `claimSlot` values. Its legacy view selects the complement. Before Story 7/8 emits those slot markers, the canonical view is empty and every detailed process fact in the existing file is `legacy-fallback` provenance only. Unmarked user-owned text remains preserved and available to the effective host instruction closure, but it is not canonical mechanical process-fact evidence unless a separate registry view explicitly owns it. A detailed lifecycle/review/DONE fact placed inside a thin slot is a misplaced or unparseable fact and fails the root non-duplication/selector checks; slot placement cannot promote it to canonical authority.
+During migration, each root entrypoint has two views over its physical path:
+
+- `AGENTS.md` canonical view selects only declared thin slots such as `agents-host-discovery`, `agents-local-safety`, and `lattice-navigation`. Its `allowedClaimSlots` are limited to shared host discovery, the directly visible minimum safety constraints defined by this plan, and canonical navigation. Its legacy view selects the exact complement.
+- `CLAUDE.md` canonical view selects only declared thin slots such as `claude-host-discovery`, `shared-agent-import`, and `claude-adapter`. Its `allowedClaimSlots` are limited to Claude host discovery, shared import/delegation, and Claude-only adapter facts. Its legacy view selects the exact complement.
+
+Before Story 7/8 emits those slot markers, both canonical root views are empty under the recognized pre-cutover `empty-if-all-absent` policy, and every detailed process fact in the existing `AGENTS.md` and `CLAUDE.md` files is `legacy-fallback` provenance only. Unmarked user-owned text remains preserved and available to the effective host instruction closure, but it is not canonical mechanical process-fact evidence unless a separate registry view explicitly owns it. A detailed lifecycle/review/DONE fact placed inside either root's thin slots is a misplaced or unparseable fact and fails the root non-duplication/selector checks; slot placement cannot promote it to canonical authority.
 
 The same source-view rule applies when templates and existing repositories coexist: path equality never changes a view's authority. A fact counts as canonical provenance only when extracted through a `sourceView: 'canonical'` selector whose declared slot permits that fact's `claimSlot`; a legacy-complement match remains legacy even if another view for the same path is canonical.
 
@@ -188,14 +193,45 @@ interface NormalizedDocFact {
 interface FactProvenance {
   viewId: string;
   sourceView: AgentDocSourceView;
+  sourceRevision: string;       // exact repository HEAD used by the extraction run
   path: string;
   lineRange: [number, number];
+  gitBlobId: string | null;     // null only for explicitly injected in-memory fixtures
+  fullContentDigest: string;    // SHA-256 of the complete source bytes, not selected lines
+  registryDigest: string;       // canonical digest of the complete registry snapshot
+  viewDefinitionDigest: string; // canonical digest of this full view record
+  selectorDigest: string;       // includes kind, slotNames, allowedClaimSlots, and absencePolicy
   anchor: string | null;
   role: CanonicalAgentDocRole;
   host: 'codex' | 'claude' | 'antigravity' | 'shared';
   rawTextHash: string;
 }
 ```
+
+Every extraction produces one signed or hash-bound envelope, and every readiness result binds it explicitly:
+
+```ts
+interface FactExtractionSnapshot {
+  sourceRevision: string;
+  cleanTree: true;
+  registryDigest: string;
+  viewDefinitionDigests: string[];
+  selectorDigests: string[];
+  documents: Array<{ path: string; gitBlobId: string | null; fullContentDigest: string }>;
+  resultDigest: string; // canonical digest of facts, conflicts, collisions, unparsed facts, and provenance
+}
+
+interface FactReadinessArtifact {
+  sourceRevision: string;
+  extractionSnapshotDigest: string;
+  registryDigest: string;
+  resultDigest: string;
+  reviewEvidenceDigest: string;
+  status: 'pass' | 'fail' | 'stale';
+}
+```
+
+Review and readiness artifacts reference the extraction snapshot digest rather than copying an unbound fact list. All facts contributing to one readiness decision must come from the same snapshot and exact HEAD. A changed HEAD, dirty or changed document byte, registry row, view role/flags, selector kind/range, `slotNames`, `allowedClaimSlots`, or `absencePolicy` makes the prior extraction and every dependent review/readiness artifact stale; callers must re-extract and re-review instead of merging snapshots.
 
 `factId` is emitted by the versioned extractor from `{schemaVersion, factType, subject, commandOrPolicy, claimSlot}`; it is not generated from source location or prose wording. `claimSlot` identifies the independently assertable aspect of a subject. For example, a command's availability and its required phase occupy different slots and coexist, while two different required phases occupy the same slot and conflict. Extractor patterns declare their slot and field mapping in code, and changes to those mappings require a schema-version change plus migration fixtures.
 
@@ -230,7 +266,18 @@ Required dual-read fixtures:
 | A scan-matched behavior-affecting statement matches no declared extractor pattern | One provenance-bearing `unparsedFact` is reported; audit, readiness, and retirement fail closed |
 | The injected hash seam returns the same fingerprint for two byte-distinct canonical payloads | One fingerprint-collision result is reported; both payloads are retained for diagnostics and neither is selected as authoritative |
 | One physical `CLAUDE.md` contains declared thin host/import slots plus an old detailed lifecycle fact outside those slots, and canonical/legacy views target the same path | The thin facts receive canonical provenance, the detailed fact receives legacy-fallback provenance only, and readiness remains blocked if that detailed fact has no canonical counterpart; deduplicating the file read must not deduplicate or relabel the views |
+| One physical `AGENTS.md` contains declared discovery/safety/navigation slots plus an old detailed lifecycle fact outside those slots, and canonical/legacy views target the same path | The thin facts receive canonical provenance, the detailed fact receives legacy-fallback provenance only, and readiness remains blocked if that detailed fact has no canonical counterpart; the shared filename must not launder its complement into canonical provenance |
 | A fixture configures canonical and legacy selectors whose ranges overlap on the same physical path | Registry/selector validation fails before extraction and reports both view IDs and the overlapping range; no provenance is emitted |
+| After a passing extraction, mutate one selected document byte without changing its path | The full-content/blob digest differs, so the fact snapshot and dependent readiness/review artifact are stale and fail until extraction and review rerun at the new content |
+| After a passing extraction, change a view selector or only its `allowedClaimSlots` while document bytes remain unchanged | The registry/view/selector digest differs, so the prior facts cannot be reused and readiness fails stale until re-extraction and review bind the new snapshot |
+
+Required executable selector-state fixtures (Story 1; exercised through the real pure selector implementation, not prose mocks):
+
+| Selector state | Required result |
+|---|---|
+| `absencePolicy: 'required'` and all declared slot markers absent | Fail closed with the view ID and missing slot names; emit no canonical or legacy facts |
+| Recognized pre-cutover legacy asset version, `empty-if-all-absent`, and all declared markers absent | Return an empty canonical range plus a full-file legacy complement; every extracted process fact has legacy-fallback provenance |
+| Any partial state: one boundary missing, only some declared slots present, duplicate marker, nested marker, reversed marker, or canonical/legacy overlap | Fail selector validation before fact extraction; identify the malformed/overlapping range and emit no provenance |
 
 ## Current Consumer Inventory
 
@@ -388,7 +435,9 @@ Implement `packages/main/src/tasks/thin-entrypoint-failure-exercises-smoke.ts` a
 |---|---|---|---|---|
 | Stale link or anchor | Create a temporary canonical registry containing `.lattice/Lattice.md` with a link to `docs/dev/lattice-agent-runbook.md#missing-anchor`; create the target file without that heading | Link/anchor verifier exits non-zero and reports the source path, target path, and missing anchor; no fallback to the legacy root makes it pass | Add the exact target heading, rerun, and assert the same fixture passes without changing the registry role | Story 1 (validator and exercise), re-run in Story 2 against real guide/runbook |
 | Conflicting runbook command | Put ``lattice command_that_does_not_exist`` in a temporary runbook selected by `viewsForMechanicalAudit()` while the command registry omits it | Projection/audit test exits non-zero and attributes the unknown command to the runbook, not `CLAUDE.md` | Replace it with a registered command or deliberately add the command through its own reviewed runtime Story; rerun and assert green | Story 3 |
-| Same-path provenance laundering | Create one temporary `CLAUDE.md` containing valid declared host/import slots and one unique detailed lifecycle fact in their complement; register disjoint canonical and legacy-fallback views for that same path, then exercise a second fixture with deliberately overlapping ranges | The unique detailed fact is legacy-only and blocks readiness; the overlap variant fails selector validation before extraction. Neither may gain canonical provenance because the physical path also has a canonical view | Add the unique detailed fact to its real normative owner (not the thin slot), keep the root occurrence as fallback, and assert it merges with both provenance records; remove the overlap and assert the validated selectors remain disjoint | Stories 1 and 3 |
+| Same-path provenance laundering | Parameterize the fixture over temporary `AGENTS.md` and `CLAUDE.md`: each file contains its valid declared thin slots and one unique detailed lifecycle fact in their complement; register disjoint canonical and legacy-fallback views for that same path, then exercise a deliberately overlapping variant | In both host files the unique detailed fact is legacy-only and blocks readiness; the overlap variant fails selector validation before extraction. Neither may gain canonical provenance because the physical path also has a canonical view | Add the unique detailed fact to its real normative owner (not a thin slot), keep the root occurrence as fallback, and assert it merges with both provenance records; remove the overlap and assert the validated selectors remain disjoint | Stories 1 and 3 |
+| Selector absence/partial state machine | Execute the three required selector-state fixtures: `required` with all markers absent; recognized legacy `empty-if-all-absent` with all markers absent; and every listed partial/malformed state | Required/absent and all partial/malformed cases fail with no provenance; recognized legacy/all-absent returns empty canonical selection plus full legacy complement | Add every required marker for a thin asset and assert valid disjoint ranges, or restore the exact recognized legacy all-absent asset; no other state passes | Story 1 |
+| Fact-snapshot freshness | Create a passing readiness artifact, then independently mutate one document byte, a view-definition flag, a selector field, and only `allowedClaimSlots`, without updating the artifact | Each mutation changes the appropriate blob/content/registry/view/selector digest and makes facts plus dependent review/readiness stale at the same snapshot/HEAD gate | Re-extract and re-review each mutated snapshot; assert only the artifact bound to the new complete snapshot passes | Stories 1, 3, and 6 |
 | Failed red test | Run the new root non-duplication and canonical-audit tests against a frozen legacy-root fixture before production changes; store the assertion ID and non-zero result in red evidence | Harness fails specifically because the fixture contains the lifecycle body and the bad runbook command is invisible; a passing or unrelated failure invalidates the red evidence | Implement the registry/validator path without weakening the assertion, then replay the identical fixture pair and show the expected legacy fixture remains rejected while the canonical fixture passes | Story 1 |
 | Partial template migration | In a temporary initialized project, preserve user text around managed markers, inject a write failure after one host asset is staged but before the asset set is committed, and also test a mixed old-`AGENTS.md`/new-`CLAUDE.md` pair | Managed update fails atomically; no half-thin discovery set is accepted; user-owned text and the previously valid asset set are byte-identical | Remove the injected failure, rerun the full asset transaction, resolve the Claude import closure, and execute canonical audit plus review-preflight smoke on the fresh init | Story 7 |
 | B-e514 remains in TEST | Use an injected lifecycle/store double representing B-e514 in TEST with the old process-fact verifier failure and no current canonical-only full-suite evidence; do not read or mutate the real Story store | Convergence helper refuses a DONE/superseded claim and reports prerequisite contract Stories / stale evidence as blockers; it must not create a second root-doc owner | Feed the double completed prerequisite receipts, merged-main state, refreshed review/delivery evidence, and green full-suite evidence; assert convergence becomes eligible while B-e514 remains the sole owner | Story 8 |
@@ -414,7 +463,7 @@ Each stage is a separate Story with a focused commit set, fresh review, and a cl
 ### Story 1 — Contract tests and canonical registry
 
 1. Add the typed canonical-document-view registry, pure source-view/content selectors, and fail-closed disjoint-range validation. Reading one physical file once is an I/O optimization only; selector application and provenance remain per view.
-2. Add red fixtures for budgets, imports, links/anchors, canonical audit reachability, root non-duplication, process-fact ownership, malformed/overlapping slot markers, and same-path canonical/legacy provenance laundering.
+2. Add red fixtures for budgets, imports, links/anchors, canonical audit reachability, root non-duplication, process-fact ownership, every required absence/partial selector state, AGENTS/CLAUDE same-path canonical/legacy provenance laundering, and document/registry/view/selector snapshot staleness.
 3. Record red evidence against current behavior, then implement only enough registry/validator infrastructure for the new tests to exercise real selectors.
 4. Keep existing runtime consumers unchanged.
 
@@ -432,7 +481,7 @@ Rollback: revert the guide/runbook and registry entries; root discovery remains 
 ### Story 3 — Audit, docs-drift, and discovery dual-read
 
 1. Move audit, audit trigger, docs-drift, auxiliary discovery, and runtime/rollout discovery to registry source-view selectors.
-2. During dual-read, extract canonical views first and legacy-fallback views second. For root `CLAUDE.md`, apply the declared thin-slot selector and its disjoint legacy complement even though both views share one physical path; normalize facts, deduplicate by the source-independent semantic `fingerprint`, and merge all view IDs, source-view roles, paths, ranges, anchors, and hosts into provenance without upgrading legacy provenance.
+2. During dual-read, extract canonical views first and legacy-fallback views second. For root `AGENTS.md` and `CLAUDE.md`, apply each file's declared thin-slot selector and disjoint legacy complement even though each pair of views shares one physical path; normalize facts, deduplicate by the source-independent semantic `fingerprint`, and merge all view IDs, source-view roles, source revisions, blob/content/registry/view/selector digests, paths, ranges, anchors, and hosts into provenance without upgrading legacy provenance.
 3. Fail closed on semantic conflicts or fingerprint collisions, and emit a structured advisory for each legacy-only fingerprint so cutover readiness is observable.
 4. Update `packages/main/src/tasks/deprecated-gc-smoke.ts:66` with the registry-backed audit-trigger fixture and preserve the deprecated-GC advisory assertion.
 5. Preserve git-root/wrapper-root semantics and existing audit locking.
@@ -463,11 +512,11 @@ Rollback: revert the normative wording and guard together; dual-read consumers a
 
 1. Change process-fact verification so detailed lifecycle, review, evidence, and DONE facts are checked only in their canonical normative owners.
 2. Implement root-budget, effective-import-closure, required-constraint, non-duplication, and link/anchor enforcement. Exercise hard failure against thin contract fixtures, while keeping one explicit repository-root migration exemption bound only to B-e514 until Story 8; the exemption must not apply to generated templates or other projects.
-3. Make all behavior-affecting canonical path sets derive from the shared registry or its generated projection.
+3. Make all behavior-affecting canonical view sets derive from the shared registry or its generated projection, and bind the extraction plus dependent review/readiness artifacts to one clean HEAD and complete source/registry/view/selector digest snapshot.
 4. Require the bounded-scan classification manifest and retired-authority guard to be green.
 5. Run the full red-to-green matrix and complete suite while the repository root and generated templates still use the legacy-compatible bodies; the output must identify the narrow B-e514 root-budget exemption rather than presenting the real root as already thin.
 
-Readiness condition: canonical audit, docs-drift, review/preflight routing, normative authority, and verifiers pass with an empty semantic legacy-only fingerprint set and an empty conflict/collision/unparsed/selector-overlap set for at least one complete full-suite run at the same HEAD. Canonical provenance from root entrypoints is accepted only from allowed thin slots; therefore an empty legacy-only set must come from real canonical counterparts, never from relabeling the still-full root path. This authorizes template work; it does not retire the old contract.
+Readiness condition: canonical audit, docs-drift, review/preflight routing, normative authority, and verifiers pass with an empty semantic legacy-only fingerprint set and an empty conflict/collision/unparsed/selector-overlap set for at least one complete full-suite run bound to one clean HEAD and one complete extraction snapshot. Canonical provenance from both root entrypoints is accepted only from their allowed thin slots; under the recognized pre-cutover all-absent policy both canonical root selections are empty and their full contents are legacy complements. Therefore an empty legacy-only set must come from real canonical counterparts, never from relabeling either still-full root path. Any source-content or registry/view/selector digest change stales the facts and every dependent review/readiness artifact. This authorizes template work; it does not retire the old contract.
 
 Rollback: revert this verifier Story to restore dual acceptance; do not copy old prose back into templates.
 
@@ -475,7 +524,7 @@ Rollback: revert this verifier Story to restore dual acceptance; do not copy old
 
 This is the first Story allowed to generate thin entrypoints. It starts only after Stories 1–6 are green, so a fresh init cannot receive thin documents while audit, review/preflight, normative docs, or verifiers still require the old body.
 
-1. Update generic and global-thin templates for the host matrix. Emit the exact declared thin-slot markers with `absencePolicy: 'required'` and only their allowed host-discovery/import/adapter claim slots; do not mark the outer managed body or legacy-compatible prose wholesale as canonical.
+1. Update generic and global-thin templates for the host matrix. Emit the exact declared `AGENTS.md` discovery/safety/navigation slots and `CLAUDE.md` discovery/import/adapter slots with `absencePolicy: 'required'` and only their allowed claim slots; do not mark the outer managed body or legacy-compatible prose wholesale as canonical.
 2. Implement Claude shared-rule import/delegation and effective-closure validation.
 3. Generalize or retire `claude-md-sync.ts` whole-document assumptions while preserving supported profile behavior.
 4. Make multi-asset managed updates atomic and prove repository-local text survives rollback and successful repair.
@@ -492,7 +541,7 @@ B-e514 remains the single owner of product edits to root `AGENTS.md` and `CLAUDE
 After Stories 1–7 merge to main, the B-e514 owner must:
 
 1. Merge current main into the B-e514 worktree using the lifecycle-supported convergence path.
-2. Update its thin files to the final contract: shared constraints and local user region in `AGENTS.md`; declared Claude thin slots containing import/delegation and Claude-only adapter material in `CLAUDE.md`. Remove the old detailed complement rather than widening a canonical selector around it.
+2. Update its thin files to the final contract: declared AGENTS thin slots containing shared discovery/minimum safety/navigation plus the preserved local user region; declared Claude thin slots containing import/delegation and Claude-only adapter material. Remove both old detailed complements rather than widening canonical selectors around them.
 3. Preserve the repository-local OMX prohibition outside the managed block.
 4. Remove the B-e514-specific repository-root budget exemption and prove the actual root files pass the same hard checks as fresh init.
 5. Re-run entrypoint, process-fact, audit reachability, managed preservation, build, routine validation, DONE-required validation when configured, and the full suite.
