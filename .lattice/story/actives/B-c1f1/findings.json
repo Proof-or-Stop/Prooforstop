@@ -283,7 +283,7 @@
       "desc": "The F-008 baseline appendix contradicts the plan’s own manifest contract. Lines 212-214 require every row to contain path:line, matched phrase, consumer category, behavioral/non-behavioral status, target authority, owning Story, and disposition, but Appendix A’s TSV header at line 531 contains only path:line, category, disposition, and a combined owner/target field. The missing matched phrase and behavioral status prevent independent review of why a line was classified, and the combined final column cannot establish both target authority and owner. Regenerate the appendix with all required columns (or explicitly revise the contract with an equally inspectable representation), recompute its digest/totals, and refresh the adversarial evidence.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-15T12:29:04.850Z",
@@ -294,7 +294,11 @@
         "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
       ],
       "signatureTag": "missing|md|baseline-appendix-contradicts",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Expanded Appendix A to seven explicit nonempty fields including matchedPhrase, behavioralStatus, targetAuthority, and owningStory; 600 rows and digest independently verified.",
+      "resolvedAt": "2026-07-15T13:06:35.379Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c1f1:F-013",
