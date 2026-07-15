@@ -56,8 +56,32 @@
       "phase": "DEV",
       "headHash": "d8cee89719bf9b54bc1a46717f08aa13ab92d022",
       "materialHash": "8586ae2baef0f365f2df89404aca9010476723f84894977d0bd16423c7dff8e2"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "BUG-015 was reproduced through the required TEST live-smoke path: its 60-second capture ceiling orphaned DONE-required npm test and left the validation lock active. These files are the minimum runtime policy, process-fact, safe lock recovery, handler, and regression-test surface needed to derive the legal budget and reap the full process group without widening arbitrary captures.",
+      "timestamp": "2026-07-15T23:28:17.795Z",
+      "paths": [
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/src/core/validation-execution-lock.ts",
+        "packages/main/src/handlers/live-smoke-transcript.ts",
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/src/core/validation-execution-lock.ts",
+        "packages/main/src/handlers/live-smoke-transcript.ts",
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "2098b0ec91818d72400a1405e6051c6e5e28a9cc",
+      "materialHash": "6cbf8fd142bda72ccd43502f3b43f26eaf1e1afc000b4533271cd66416083932"
     }
   ],
   "createdAt": "2026-07-15T19:01:11.957Z",
-  "updatedAt": "2026-07-15T22:55:47.928Z"
+  "updatedAt": "2026-07-15T23:28:17.795Z"
 }

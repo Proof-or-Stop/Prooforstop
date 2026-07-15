@@ -17,6 +17,14 @@
         "fixEvidence": "Commit d8cee89719 synchronizes only the exact cli-engine canonical AST fingerprint without changing the finite allowlist or matcher; independent guard smoke passes.",
         "reproTest": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
       }
+    },
+    {
+      "id": "BUG-015",
+      "title": "Live-smoke capture times out long DONE-required validation and orphans its npm test process group",
+      "status": "open",
+      "foundAt": "2026-07-15T23:16:33.253Z",
+      "fixedAt": null,
+      "checklistId": "CHK-003"
     }
   ]
 }
