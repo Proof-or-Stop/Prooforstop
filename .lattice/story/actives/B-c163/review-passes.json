@@ -300,6 +300,37 @@
       },
       "readDiagnostics": [],
       "_hash": "60140587cea35ad9cb4e5843bdc242550895c1e1ad81d30a94168e8e2cc9e862"
+    },
+    {
+      "id": "B-c163:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 9 targeted verification confirms fix bc619c4471 closes F-014: direct done_prepare receives the derived closeout budget; timeout --write persists a readable artifact with actual.exitCode null and timeout stderr; the validation lock and capture both rerun immediately after cleanup; and a separate live validation lock is preserved. TypeScript build and compiled live-smoke smoke both pass.",
+      "createdAt": "2026-07-15T23:46:51.886Z",
+      "reviewRound": "2026-07-15T23:44:04.607Z",
+      "reviewRunId": "B-c163:RR-040",
+      "writerSessionId": "review-bc163-coverage-r9",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/done-required-timeout-budget.ts",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "364433de10b0f68af5e6a2e165dc25feefc75810abf86ce521a1bc09097e8a26",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "_hash": "93d85168cdf1e8cf412101c05dd13f4248d6c6318099a42ae2d6936286c87536"
     }
   ]
 }
