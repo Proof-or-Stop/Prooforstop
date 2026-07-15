@@ -13,7 +13,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-15T11:59:26.241Z",
-      "endTime": "2026-07-15T13:41:09.982Z",
+      "endTime": "2026-07-15T13:49:04.643Z",
       "verificationIntent": {
         "happy": [
           {
@@ -61,33 +61,33 @@
           "kind": "docs_check",
           "command": "rg -n \"Proof-or-stop Thin Entrypoint Contract Migration Execution Plan|Story 1 — Contract tests|Story 9 — Legacy fallback retirement\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
           "result": "pass",
-          "note": "Complete architecture and ordered implementation plan remain present.",
-          "headHash": "2fc5799022134632f88f84d9f379217f35d0779f",
-          "materialHash": "99859290b859de071211e9dfb7f3d50abefee2bf7653bbe121eacc984acc9d96",
-          "storyFilesHash": "0bc01b0855c50f8d9bd0b8b8eca672f22d67c08b6c23d1d4bec94fb8796f8277",
-          "timestamp": "2026-07-15T13:41:11.085Z"
+          "note": "Complete architecture and implementation sequence remain present.",
+          "headHash": "a90929b24d9798581e25746057e85d9cc4acb3fb",
+          "materialHash": "91f31dfc9ab27e35032334f360f59a4325725ce600fca5e874f7bb8323950777",
+          "storyFilesHash": "caab2c5edce321e11bf52395e2aaf708567cd7e4b2c84dfe3ffbf0800eb14334",
+          "timestamp": "2026-07-15T13:49:05.141Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "docs_check",
           "command": "rg -n \"CODEX.md|AGY.md|anti-regression ceilings|OMX prohibition\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
           "result": "pass",
-          "note": "Host and local policy boundaries remain explicit.",
-          "headHash": "2fc5799022134632f88f84d9f379217f35d0779f",
-          "materialHash": "99859290b859de071211e9dfb7f3d50abefee2bf7653bbe121eacc984acc9d96",
-          "storyFilesHash": "0bc01b0855c50f8d9bd0b8b8eca672f22d67c08b6c23d1d4bec94fb8796f8277",
-          "timestamp": "2026-07-15T13:41:11.828Z"
+          "note": "Host/local boundaries remain explicit.",
+          "headHash": "a90929b24d9798581e25746057e85d9cc4acb3fb",
+          "materialHash": "91f31dfc9ab27e35032334f360f59a4325725ce600fca5e874f7bb8323950777",
+          "storyFilesHash": "caab2c5edce321e11bf52395e2aaf708567cd7e4b2c84dfe3ffbf0800eb14334",
+          "timestamp": "2026-07-15T13:49:06.292Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
           "kind": "logic_test",
-          "command": "rg -n \"resolveProcessEvidenceArtifact|exactly one|Ed25519|process-evidence-signer|unkeyed\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "command": "rg -n \"O_NOFOLLOW|current active|OS keychain|LATTICE_PROCESS_EVIDENCE_PRIVATE_KEY|createdAt.*audit\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
           "result": "pass",
-          "note": "Process evidence uses unique typed resolution in a non-overlapping namespace and trusted keyed Ed25519 authentication.",
-          "headHash": "2fc5799022134632f88f84d9f379217f35d0779f",
-          "materialHash": "99859290b859de071211e9dfb7f3d50abefee2bf7653bbe121eacc984acc9d96",
-          "storyFilesHash": "0bc01b0855c50f8d9bd0b8b8eca672f22d67c08b6c23d1d4bec94fb8796f8277",
-          "timestamp": "2026-07-15T13:41:12.823Z"
+          "note": "Secure descriptor-bound I/O, active-key-only live verification, and private key lifecycle are explicit.",
+          "headHash": "a90929b24d9798581e25746057e85d9cc4acb3fb",
+          "materialHash": "91f31dfc9ab27e35032334f360f59a4325725ce600fca5e874f7bb8323950777",
+          "storyFilesHash": "caab2c5edce321e11bf52395e2aaf708567cd7e4b2c84dfe3ffbf0800eb14334",
+          "timestamp": "2026-07-15T13:49:06.804Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -95,21 +95,21 @@
           "command": "sed -n '/^```tsv$/,/^```$/p' docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md | sed '1d;$d' | tail -n +2 | wc -l",
           "result": "pass",
           "note": "Frozen baseline remains 600x7 with documented digest.",
-          "headHash": "2fc5799022134632f88f84d9f379217f35d0779f",
-          "materialHash": "99859290b859de071211e9dfb7f3d50abefee2bf7653bbe121eacc984acc9d96",
-          "storyFilesHash": "0bc01b0855c50f8d9bd0b8b8eca672f22d67c08b6c23d1d4bec94fb8796f8277",
-          "timestamp": "2026-07-15T13:41:13.808Z"
+          "headHash": "a90929b24d9798581e25746057e85d9cc4acb3fb",
+          "materialHash": "91f31dfc9ab27e35032334f360f59a4325725ce600fca5e874f7bb8323950777",
+          "storyFilesHash": "caab2c5edce321e11bf52395e2aaf708567cd7e4b2c84dfe3ffbf0800eb14334",
+          "timestamp": "2026-07-15T13:49:07.265Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
           "kind": "logic_test",
-          "command": "rg -n \"Typed path resolution|Keyed authenticity and rotation|forged payload|duplicate typed matcher|wrong signer\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "command": "rg -n \"Symlink/TOCTOU-safe artifact I/O|Active-key A→B rotation|Private-key lifecycle and recovery|wrong signer/artifact ID\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
           "result": "pass",
-          "note": "Adversarial fixtures cover ambiguous/invalid paths, forgery, signer authorization and rotation.",
-          "headHash": "2fc5799022134632f88f84d9f379217f35d0779f",
-          "materialHash": "99859290b859de071211e9dfb7f3d50abefee2bf7653bbe121eacc984acc9d96",
-          "storyFilesHash": "0bc01b0855c50f8d9bd0b8b8eca672f22d67c08b6c23d1d4bec94fb8796f8277",
-          "timestamp": "2026-07-15T13:41:15.109Z"
+          "note": "Adversarial matrix covers path races, rotation, authorization and key recovery.",
+          "headHash": "a90929b24d9798581e25746057e85d9cc4acb3fb",
+          "materialHash": "91f31dfc9ab27e35032334f360f59a4325725ce600fca5e874f7bb8323950777",
+          "storyFilesHash": "caab2c5edce321e11bf52395e2aaf708567cd7e4b2c84dfe3ffbf0800eb14334",
+          "timestamp": "2026-07-15T13:49:07.658Z"
         }
       ]
     },
