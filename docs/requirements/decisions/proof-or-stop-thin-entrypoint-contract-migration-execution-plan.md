@@ -227,6 +227,58 @@ Add a retired-authority vocabulary guard over active decision docs, operational 
 
 This inventory is a migration baseline, not permission to ignore new hits. Each implementation Story must attach the complete bounded-scan manifest, classification totals, and zero-unclassified result to its verification evidence. A selected-file grep or an unexplained excluded hit does not satisfy the verification narrative.
 
+## B-c1f1 Baseline Scan Evidence — 2026-07-15
+
+The B-c1f1 implementer ran the required bounded scan in the Story worktree over the tracked working tree based on parent commit `831bb14b61976e4e7319a1f72b0b0440aa5f52a7`, including this evidence section before the final count. The reproducible command shape was:
+
+```bash
+git grep -nI -E '(CLAUDE\.md|AGENTS\.md|(^|[^./])LATTICE\.md|\.lattice/Lattice\.md|((canonical|complete|shared|workflow|process|rule|instruction|summary|detail|authority|规范|权威|规则|详见).{0,80}(Claude|AGENTS|Lattice))|((Claude|AGENTS|Lattice).{0,80}(canonical|complete|shared|workflow|process|rule|instruction|summary|detail|authority|规范|权威|规则|详见)))' \
+  -- AGENTS.md CLAUDE.md .lattice/Lattice.md docs packages/main/src packages/main/templates scripts \
+  ':(exclude)docs/story/**' ':(exclude)tests/fixtures/**' \
+  ':(exclude)packages/main/tests/fixtures/**' ':(exclude)packages/main/dist/**' \
+  ':(exclude)node_modules/**' ':(exclude).worktrees/**' ':(exclude).omx/**'
+```
+
+The authority-word alternatives were applied in both directions around the host/document terms. The scan therefore covered filename/path literals plus plain-text authority claims. It enumerated tracked text only; generated dist, dependencies, worktrees, Story stores, fixture stores, and disabled legacy areas were excluded.
+
+Classification was deterministic and line-level. Root entrypoint and host-neutral guide hits were `retain-as-host-discovery`; this migration plan and explicitly historical/evidence material were `neutral-fixture`; active normative, operational, runtime, audit, review, verifier, and unambiguously behavioral test hits were conservatively `migrate`. A test line was `neutral-fixture` only when its matched text explicitly identified a fixture/example/sample/smoke. This conservative rule prevents an ambiguous executable hit from being silently allowlisted.
+
+| Consumer category | Retain as host discovery | Migrate | Neutral fixture | Total hit lines |
+|---|---:|---:|---:|---:|
+| Host-neutral guide | 1 | 0 | 0 | 1 |
+| Root entrypoint | 14 | 0 | 0 | 14 |
+| Operational/other docs | 0 | 17 | 0 | 17 |
+| Active normative docs | 0 | 106 | 0 | 106 |
+| This migration plan | 0 | 0 | 72 | 72 |
+| Init/managed assets | 0 | 92 | 0 | 92 |
+| Other source/comments | 0 | 51 | 0 | 51 |
+| Audit/docs-drift | 0 | 55 | 0 | 55 |
+| Aux/runtime discovery | 0 | 11 | 0 | 11 |
+| Review/preflight/prompts | 0 | 32 | 0 | 32 |
+| Lifecycle hints | 0 | 16 | 0 | 16 |
+| Verification/test fixtures | 0 | 130 | 2 | 132 |
+| Other tracked text | 0 | 1 | 0 | 1 |
+| **Total** | **15** | **511** | **74** | **600** |
+
+The scan covered **134 unique files**. Every returned line received both a consumer category and a disposition: **0 unclassified**.
+
+High-risk current hits that establish implementation ownership include:
+
+| Current source | Hit lines | Classification / required owner |
+|---|---:|---|
+| `docs/requirements/decisions/story-lifecycle.md:78,114` | 2 | Active normative authority; migrate in Story 5 |
+| `docs/requirements/decisions/root-markdown-migration-execution-solution.md` including lines 32 and 75 | 14 | Active normative authority; migrate in Story 5 |
+| `docs/requirements/decisions/root-document-migration-guide.md` | 7 | Active normative authority/lineage; semantically classify and migrate in Story 5 |
+| `packages/main/src/core/audit-trigger.ts` | 8 | Audit/docs-drift; migrate in Story 3 |
+| `packages/main/src/handlers/audit.ts` | 5 | Audit/docs-drift; migrate in Story 3 |
+| `packages/main/src/handlers/review-preflight.ts` | 5 | Review/preflight; migrate in Story 4 |
+| `packages/main/src/tasks/deprecated-gc-smoke.ts:66` | 1 | Audit-trigger fixture; migrate with Story 3 rather than allowlisting it |
+| `packages/main/src/handlers/transition-effects.ts` | 3 | Lifecycle/user-value hints; migrate in Story 4 |
+| `scripts/verify-process-fact-contract.mjs` | 3 | Process verifier; migrate in Story 6 |
+| `scripts/verify-entrypoints.mjs` | 80 | Entrypoint verification/fixtures; classify individual assertions across Stories 1, 6, and 7 |
+
+This is a lexical routing baseline, not proof that all 0-unclassified rows are already correct. The large conservative `migrate` set intentionally requires the owning Stories to perform semantic review and narrow only documented host-discovery, historical, or neutral-fixture exceptions. Successor Stories must rerun the scan and may not reuse these totals after the tree changes.
+
 ## Red-Before / Green-After Verification Contract
 
 The first implementation Story adds tests before changing production consumers. The red suite must fail against the current repository for the intended reason, with an artifact recording the failing assertion.
