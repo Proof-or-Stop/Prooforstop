@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make resumeBreakerState accurately expose its counter-only reset contract",
+      "context": "Remove the unused priorState parameter, update all three internal call sites, and preserve the existing human-ack reset behaviour. Observe and report any lifecycle rework or convergence anomalies encountered.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+      ],
+      "userSees": "The convergence-breaker resume API no longer suggests that prior state influences a full reset, with existing reset behaviour unchanged.",
+      "files": {
+        "modify": [
+          "core/convergence-breaker.ts",
+          "handlers/story.ts",
+          "tasks/convergence-breaker-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "tasks/convergence-breaker-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

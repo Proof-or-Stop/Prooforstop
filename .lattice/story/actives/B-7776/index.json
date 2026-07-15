@@ -1,0 +1,29 @@
+{
+  "storyId": "B-7776",
+  "name": "remove-unused-resume-breaker-prior-state",
+  "title": "Remove the misleading priorState parameter from resumeBreakerState",
+  "description": "resumeBreakerState currently accepts a priorState argument that it never reads. Preserve the intentional human-ack reset semantics while making the internal API and all call sites accurately express that the next state is derived solely from current counters. Use the small change to observe whether the lifecycle produces unnecessary rework or convergence loops.",
+  "type": "refactor",
+  "phase": "INIT",
+  "priority": "low",
+  "keywords": [
+    "convergence-breaker",
+    "resumeBreakerState",
+    "unused-parameter",
+    "maintenance"
+  ],
+  "createdAt": "2026-07-15T11:57:23.599Z",
+  "startedAt": "2026-07-15T11:57:23.599Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-15T11:57:24.368Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-07bc482a401d5422",
+      "agent": "main"
+    }
+  ]
+}
