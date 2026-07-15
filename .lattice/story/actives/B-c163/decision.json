@@ -1,0 +1,82 @@
+{
+  "principles": [
+    "Legal inner work fits every default outer bound",
+    "Evidence reuse is fail-closed proof consumption",
+    "Progress never extends deadlines",
+    "Trusted metadata lineage is explicit and documented"
+  ],
+  "drivers": [
+    "Sequential 1490s configured budget",
+    "Observed 300s idle kill",
+    "Default 900s max conflict",
+    "573s redundant full-suite cost",
+    "Exact-HEAD evidence fixed-point impossibility"
+  ],
+  "options": [
+    {
+      "name": "A: Shared budget and trusted metadata lineage",
+      "pros": [
+        "Converges while bounded",
+        "Single source of timeout truth",
+        "Canonical docs match runtime"
+      ],
+      "cons": [
+        "Touches CLI engine and six docs"
+      ]
+    },
+    {
+      "name": "B: Fixed larger constants",
+      "pros": [
+        "Small"
+      ],
+      "cons": [
+        "Configuration drift",
+        "Still inconsistent"
+      ]
+    },
+    {
+      "name": "C: Ignore HEAD or remove outer bounds",
+      "pros": [
+        "Easy convergence"
+      ],
+      "cons": [
+        "Weakens proof or hang safety"
+      ]
+    }
+  ],
+  "chosen": "A: Shared budget and trusted metadata lineage",
+  "rationale": "A is the only option that preserves safety, makes current proof reusable after its own metadata commit, and keeps specifications mechanically aligned.",
+  "preMortem": [
+    {
+      "scenario": "Timer sum overflows",
+      "trigger": "Huge timeout values",
+      "consequence": "Immediate or unbounded timeout",
+      "mitigation": "Finite positive arithmetic and Node safe-timer cap"
+    },
+    {
+      "scenario": "Metadata lineage admits code drift",
+      "trigger": "Broad path classifier",
+      "consequence": "Stale proof reused",
+      "mitigation": "Require ancestor relation and every intervening path to be trusted story metadata plus canonical evaluator pass"
+    },
+    {
+      "scenario": "Explicit max override is ignored",
+      "trigger": "Derived default wins precedence",
+      "consequence": "Operator cannot bound run",
+      "mitigation": "Positive LATTICE_MAX_TIMEOUT_MS always wins"
+    },
+    {
+      "scenario": "Heartbeat corrupts JSON",
+      "trigger": "Progress sent to stdout",
+      "consequence": "Automation parse failure",
+      "mitigation": "ctx.log side channel only"
+    },
+    {
+      "scenario": "Docs retain exact-HEAD contradiction",
+      "trigger": "Implementation-only patch",
+      "consequence": "Future reviewer rejects valid reuse",
+      "mitigation": "Update all six canonical documents and registry contract in same story"
+    }
+  ],
+  "timestamp": "2026-07-15T18:59:26.130Z"
+}

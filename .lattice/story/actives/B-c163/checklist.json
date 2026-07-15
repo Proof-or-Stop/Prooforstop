@@ -28,6 +28,54 @@
           "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
           "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Given ordered DONE-required commands with effective timeoutMs 290000 and 1200000, the shared budget calculator returns their sequential sum plus the documented bounded grace; done_prepare reports DONE-required validation budget: <N>ms (derived), and the default phase deadline and DONE-required CLI absolute max are each no shorter than that legal budget. WHY: proves outer defaults cannot deterministically preempt valid inner work.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Run the same policy through done_prepare and direct done_required_validate without timeout env overrides; both consume the same shared derived budget and complete with disposition=executed, result=pass, refusalReasons=[], timeoutLayer=null, while human output identifies the derived source. WHY: prevents handler and CLI budget drift.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Exercise one command, multiple sequential commands, explicit per-command timeouts, and commands using the default effective timeout; total uses each effective ordered timeout exactly once and adds bounded grace exactly once. WHY: covers sum-plus-grace arithmetic boundaries.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Set phase-specific, global phase, and LATTICE_MAX_TIMEOUT_MS overrides in combinations: phase-specific wins over global for the DONE-required phase, global wins over derived phase default when phase-specific is absent, and explicit max remains authoritative over derived max; selected source/value is reported. WHY: locks operator override precedence.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Supply timeout values whose sum is non-finite, non-positive, malformed, or beyond Node safe timer range; construction fails closed or applies the documented finite safe cap without overflow, wraparound, immediate accidental timeout, or an unbounded timer. WHY: protects timer-range boundaries.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Invoke unrelated ordinary CLI commands and both DONE-required entry paths; only done_required_validate and done_prepare validation receive the command-specific derived default max, unrelated commands retain the generic max, and positive LATTICE_MAX_TIMEOUT_MS overrides both. WHY: verifies command-specific CLI max derivation without globally weakening watchdog safety.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Race phase/max abort against final child completion at the deadline; exactly one terminal classification is emitted, result is pass or timed_out consistently, timeoutLayer names command|phase|max as applicable, and timers/listeners/processes are cleaned once. WHY: catches double settlement and deadline race leaks.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Force a derived phase timeout and inspect human plus JSON responses; disposition=executed, result=timed_out, refusalReasons and timeoutLayer identify the controlling layer/command, and the hint proposes inspection or a changed override/action rather than the identical deterministic rerun. WHY: ensures actionable non-looping failure UX.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
       }
     },
     {

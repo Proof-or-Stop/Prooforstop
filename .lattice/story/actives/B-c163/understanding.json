@@ -1,0 +1,30 @@
+{
+  "task": "Make DONE-required validation converge with bounded proof reuse.",
+  "outcome": "The user sees a derived or overridden DONE-required budget, periodic validate heartbeat output, a disposition of reused, executed, or skipped_explicitly, a separate result and evidence-basis state, then PASS or one bounded failure naming its timeout layer.",
+  "facts": [
+    "240000ms phase default is shorter than 290000ms + 1200000ms legal sequential work",
+    "900000ms CLI default max is also shorter than legal DONE-required work",
+    "direct handler drops generated heartbeat when progress is undefined",
+    "canonical evidence evaluator validates all bindings except HEAD because evidence commits move HEAD",
+    "six canonical documents contain exact-HEAD wording that must be reconciled with trusted metadata-only lineage",
+    "candidate routing bootstrap now resolves the six documents without full scan"
+  ],
+  "constraints": [
+    "Explicit phase/global/idle/max overrides remain authoritative",
+    "All default outer bounds cover legal inner work",
+    "validate:false does not create or reuse evidence",
+    "Proof admissibility and required command policy remain unchanged",
+    "All six canonical documents stay synchronized"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/done-required-timeout-budget.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/done-prepare-validation-reuse.ts",
+    "packages/main/src/handlers/done-required-validation.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/process-fact-registry.ts"
+  ],
+  "timestamp": "2026-07-15T18:59:25.142Z"
+}
