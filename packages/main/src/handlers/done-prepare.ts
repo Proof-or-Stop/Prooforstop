@@ -46,7 +46,7 @@ import {
   writeDonePrepareValidationReuseRecord,
   type DonePrepareValidationReuseBasis,
 } from '../core/done-prepare-validation-reuse.js';
-import { donePreparePhaseBudget, doneRequiredDerivedBudget, type TimeoutBudgetSource } from '../core/done-required-timeout-budget.js';
+import { donePreparePhaseBudget, doneRequiredDerivedBudget, timeoutLayerFromReason, type TimeoutBudgetSource } from '../core/done-required-timeout-budget.js';
 import {
   buildReviewEscalationGuidance,
   buildReviewAssuranceFloorGuidance,
@@ -77,6 +77,9 @@ interface DonePrepareArgs {
   autoCloseGeneratedMetadata?: boolean;
   reuseFreshValidation?: boolean;
   reuseFreshDoneRequired?: boolean;
+  abortSignal?: AbortSignal;
+  deadlineAt?: number;
+  deadlineError?: () => Error;
 }
 
 interface DonePrepareStep {
@@ -168,7 +171,7 @@ interface DonePrepareJsonResult {
   disposition?: 'reused' | 'executed' | 'skipped_explicitly';
   result?: 'pass' | 'failed' | 'timed_out' | 'blocked' | 'not_run';
   refusalReasons?: string[];
-  timeoutLayer?: 'command' | 'phase' | 'idle' | 'max';
+  timeoutLayer: 'command' | 'phase' | 'idle' | 'max' | null;
   existingEvidenceBasis?: 'fresh' | 'stale' | 'missing';
 }
 
@@ -274,7 +277,9 @@ const RUNTIME_FILES = new Set([
   'packages/main/src/cli-engine.ts',
 ]);
 
-function defaulted(args: DonePrepareArgs): Required<DonePrepareArgs> {
+type DefaultedDonePrepareArgs = Required<Omit<DonePrepareArgs, 'abortSignal' | 'deadlineAt' | 'deadlineError'>>;
+
+function defaulted(args: DonePrepareArgs): DefaultedDonePrepareArgs {
   return {
     storyId: args.storyId,
     mergeMain: args.mergeMain !== false,
@@ -855,6 +860,7 @@ async function runCloseoutPhase<T>(
   ctx: HandlerContext,
   phase: CloseoutPhase,
   work: (control: CloseoutPhaseControl) => T | Promise<T>,
+  parentSignal?: AbortSignal,
 ): Promise<T> {
   const heartbeatMs = donePrepareHeartbeatMs();
   const budget = donePreparePhaseTimeoutBudget(ctx.root, phase);
@@ -885,6 +891,15 @@ async function runCloseoutPhase<T>(
       reject(err);
     }, timeoutMs);
   });
+  let rejectParentAbort: ((reason: unknown) => void) | undefined;
+  const parentAbort = new Promise<never>((_resolve, reject) => { rejectParentAbort = reject; });
+  const onParentAbort = () => {
+    const reason = parentSignal?.reason instanceof Error ? parentSignal.reason : new Error('CLI watchdog aborted done_prepare');
+    abortController.abort(reason);
+    rejectParentAbort?.(reason);
+  };
+  if (parentSignal?.aborted) onParentAbort();
+  else parentSignal?.addEventListener('abort', onParentAbort, { once: true });
 
   const task = Promise.resolve().then(async () => {
     try {
@@ -899,7 +914,7 @@ async function runCloseoutPhase<T>(
   });
 
   try {
-    const result = await Promise.race([task, deadline]);
+    const result = await Promise.race([task, deadline, parentAbort]);
     ctx.log?.(`done_prepare progress: completed ${phase.label} elapsedMs=${Date.now() - started}`);
     return result;
   } catch (err) {
@@ -911,6 +926,7 @@ async function runCloseoutPhase<T>(
     clearInterval(heartbeat);
     if (timeout) clearTimeout(timeout);
     childProcessDeadline.restore();
+    parentSignal?.removeEventListener('abort', onParentAbort);
   }
 }
 
@@ -943,7 +959,7 @@ function donePrepareJsonResult(storyId: string, transcript: string): DonePrepare
   const disposition = transcript.match(/\bdisposition=(reused|executed|skipped_explicitly)/)?.[1] as DonePrepareJsonResult['disposition'];
   const result = transcript.match(/\bresult=(pass|failed|timed_out|blocked|not_run)/)?.[1] as DonePrepareJsonResult['result'];
   const basis = transcript.match(/existingEvidenceBasis=(fresh|stale|missing)/)?.[1] as DonePrepareJsonResult['existingEvidenceBasis'];
-  const timeoutLayer = transcript.match(/timeoutLayer=(command|phase|idle|max)/)?.[1] as DonePrepareJsonResult['timeoutLayer'];
+  const timeoutLayer = transcript.match(/timeoutLayer=(command|phase|idle|max)/)?.[1] as Exclude<DonePrepareJsonResult['timeoutLayer'], null> | undefined;
   const refusalText = transcript.match(/refusalReasons=([^;\n]+)/)?.[1];
   return {
     schemaVersion: 'lattice.done_prepare.v1',
@@ -952,15 +968,24 @@ function donePrepareJsonResult(storyId: string, transcript: string): DonePrepare
     transcript,
     ...(blockedAt ? { blockedAt } : {}),
     ...(reason ? { reason } : {}),
-    ...(disposition ? { disposition } : {}),
-    ...(result ? { result } : {}),
-    ...(basis ? { existingEvidenceBasis: basis } : {}),
-    ...(timeoutLayer ? { timeoutLayer } : {}),
-    ...(refusalText ? { refusalReasons: refusalText === 'none' ? [] : refusalText.split(',') } : {}),
+    disposition: disposition ?? 'skipped_explicitly',
+    result: result ?? (status === 'blocked' ? 'blocked' : 'not_run'),
+    existingEvidenceBasis: basis ?? 'missing',
+    timeoutLayer: timeoutLayer ?? null,
+    refusalReasons: refusalText && refusalText !== 'none' ? refusalText.split(',') : [],
   };
 }
 
-function parseValidateOutput(text: string, next = 'lattice validate --story=<storyId> --json'): { ok: boolean; summary: string; next: string } {
+function parseValidateOutput(text: string, next = 'lattice validate --story=<storyId> --json'): {
+  ok: boolean;
+  summary: string;
+  next: string;
+  disposition?: string;
+  result?: string;
+  refusalReasons?: string[];
+  timeoutLayer?: string | null;
+  existingEvidenceBasis?: string;
+} {
   try {
     const parsed = JSON.parse(text);
     const status = typeof parsed.status === 'string' ? parsed.status.toLowerCase() : '';
@@ -976,6 +1001,11 @@ function parseValidateOutput(text: string, next = 'lattice validate --story=<sto
       ok,
       summary: detail || (ok ? 'validation passed' : 'validation failed'),
       next,
+      ...(typeof parsed.disposition === 'string' ? { disposition: parsed.disposition } : {}),
+      ...(typeof parsed.result === 'string' ? { result: parsed.result } : {}),
+      ...(Array.isArray(parsed.refusalReasons) ? { refusalReasons: parsed.refusalReasons.map(String) } : {}),
+      ...(parsed.timeoutLayer === null || typeof parsed.timeoutLayer === 'string' ? { timeoutLayer: parsed.timeoutLayer } : {}),
+      ...(typeof parsed.existingEvidenceBasis === 'string' ? { existingEvidenceBasis: parsed.existingEvidenceBasis } : {}),
     };
   } catch {
     return {
@@ -1548,7 +1578,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
   if (!args.validate) {
     const existing = evaluateDoneRequiredPreRunReuse({ root: ctx.root, gitCwd, storyId, store: ctx.store });
     setStep(steps, 'validate', 'skipped',
-      `validate=false; disposition=skipped_explicitly result=not_run existingEvidenceBasis=${existing.existingEvidenceBasis} refusalReasons=${existing.refusalReasons.join(',') || 'none'}`);
+      `validate=false; disposition=skipped_explicitly result=not_run existingEvidenceBasis=${existing.existingEvidenceBasis} refusalReasons=${existing.refusalReasons.join(',') || 'none'} timeoutLayer=null`);
   } else if (args.dryRun) {
     setStep(steps, 'validate', 'skipped', 'planned mutation skipped: dryRun does not run lattice validate');
   } else {
@@ -1556,7 +1586,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     let validateText = '';
     const validationSummaries: string[] = [];
     try {
-      validateText = asText(await verifier.validate({ story: storyId, json: true, noSync: true }));
+      validateText = asText(await verifier.validate({ story: storyId, json: true, noSync: true, abortSignal: rawArgs.abortSignal, deadlineAt: rawArgs.deadlineAt }));
     } catch (err: any) {
       setStep(steps, 'validate', 'blocked', err?.message || 'lattice validate failed');
       return blocked({
@@ -1585,7 +1615,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       const reuse = evaluateDoneRequiredPreRunReuse({ root: ctx.root, gitCwd, storyId, store: ctx.store });
       if (args.reuseFreshDoneRequired && reuse.reusable) {
         validationSummaries.push(
-          `DONE-required validation reused: disposition=reused result=pass existingEvidenceBasis=fresh refusalReasons=none lineage=${reuse.lineage}`,
+          `DONE-required validation reused: disposition=reused result=pass existingEvidenceBasis=fresh refusalReasons=none timeoutLayer=null lineage=${reuse.lineage}`,
         );
       } else {
         let doneRequiredText = '';
@@ -1603,6 +1633,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
               deadlineAt: phaseControl.deadlineAt,
               deadlineError: phaseControl.timeoutError,
             }),
+            rawArgs.abortSignal,
           ));
         } catch (err: any) {
           if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err, args.dryRun);
@@ -1619,13 +1650,13 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
           setStep(steps, 'validate', 'blocked', parsedDoneRequired.summary, command);
           return blocked({
             blockedAt: 'validate',
-            reason: `${parsedDoneRequired.summary}; disposition=executed result=failed existingEvidenceBasis=${reuse.existingEvidenceBasis} refusalReasons=${reuse.refusalReasons.join(',') || 'validation-failed'}`,
+            reason: `${parsedDoneRequired.summary}; disposition=${parsedDoneRequired.disposition ?? 'executed'} result=${parsedDoneRequired.result ?? 'failed'} existingEvidenceBasis=${parsedDoneRequired.existingEvidenceBasis ?? reuse.existingEvidenceBasis} refusalReasons=${parsedDoneRequired.refusalReasons?.join(',') || reuse.refusalReasons.join(',') || 'validation-failed'} timeoutLayer=${parsedDoneRequired.timeoutLayer ?? 'null'}`,
             next: parsedDoneRequired.next,
             steps,
           });
         }
         validationSummaries.push(
-          `DONE-required validation passed: ${parsedDoneRequired.summary}; disposition=executed result=pass existingEvidenceBasis=${reuse.existingEvidenceBasis} refusalReasons=${reuse.refusalReasons.join(',') || (args.reuseFreshDoneRequired ? 'none' : 'reuse-disabled')}`,
+          `DONE-required validation passed: ${parsedDoneRequired.summary}; disposition=${parsedDoneRequired.disposition ?? 'executed'} result=${parsedDoneRequired.result ?? 'pass'} existingEvidenceBasis=${parsedDoneRequired.existingEvidenceBasis ?? reuse.existingEvidenceBasis} refusalReasons=${parsedDoneRequired.refusalReasons?.join(',') || reuse.refusalReasons.join(',') || (args.reuseFreshDoneRequired ? 'none' : 'reuse-disabled')} timeoutLayer=${parsedDoneRequired.timeoutLayer ?? 'null'}`,
         );
       }
     }
@@ -1710,7 +1741,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
         buildPack: () => computedRunbook.memoryFreshnessPack,
       });
       return { runbook: computedRunbook, packSurface: computedPackSurface };
-    }));
+    }, rawArgs.abortSignal));
   } catch (err) {
     if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err, args.dryRun);
     throw err;
@@ -1733,7 +1764,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
           ? buildDonePrepareReviewAssurancePlan(ctx, storyId, gitCwd, currentBinding)
           : undefined,
       };
-    }));
+    }, rawArgs.abortSignal));
   } catch (err) {
     if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err, args.dryRun);
     throw err;
@@ -1758,7 +1789,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
 
   let runtime: RuntimeChangeReport;
   try {
-    runtime = await runCloseoutPhase(ctx, CLOSEOUT_PHASES.runtimeChange, () => detectRuntimeChanges(ctx.root, gitCwd));
+    runtime = await runCloseoutPhase(ctx, CLOSEOUT_PHASES.runtimeChange, () => detectRuntimeChanges(ctx.root, gitCwd), rawArgs.abortSignal);
   } catch (err) {
     if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err, args.dryRun);
     throw err;
@@ -1777,7 +1808,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
           (entry) => !unchangedFromInitialAllowedMetadata(ctx, storyId, gitCwd, entry, initialAllowedMetadataSignatures),
         ),
       };
-    }));
+    }, rawArgs.abortSignal));
   } catch (err) {
     if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err, args.dryRun);
     throw err;
@@ -1941,7 +1972,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       runtime,
       dryRun: args.dryRun,
       showMemoryPack: packSurface.shouldRender,
-    }));
+    }), rawArgs.abortSignal);
   } catch (err) {
     if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err, args.dryRun);
     throw err;
@@ -1951,7 +1982,20 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
 export function createDonePrepareHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
     async done_prepare(args: DonePrepareArgs) {
-      const transcript = await runDonePrepare(ctx, args);
+      let transcript: string;
+      try {
+        transcript = await runDonePrepare(ctx, args);
+      } catch (error) {
+        const timeoutLayer = timeoutLayerFromReason(args.abortSignal?.reason) ?? timeoutLayerFromReason(error);
+        const reason = error instanceof Error ? error.message : String(error);
+        if (!timeoutLayer && args.validate !== false) throw error;
+        transcript = [
+          'DONE prepare: BLOCKED',
+          'blockedAt: validate',
+          `reason: ${reason}; disposition=${timeoutLayer ? 'executed' : 'skipped_explicitly'} result=${timeoutLayer ? 'timed_out' : 'not_run'} refusalReasons=${timeoutLayer ? reason : `evidence-malformed-or-unreadable:${reason}`} timeoutLayer=${timeoutLayer ?? 'null'} existingEvidenceBasis=stale`,
+          'next: inspect the attributed timeout layer, verify child/lock cleanup, then rerun with a corrected command or explicit legal budget',
+        ].join('\n');
+      }
       if (args?.json === true) return donePrepareJsonResult(args.storyId ?? '', transcript);
       return transcript;
     },

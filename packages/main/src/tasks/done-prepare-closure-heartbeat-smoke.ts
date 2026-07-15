@@ -317,6 +317,73 @@ function donePrepareRealValidateArgs(storyId: string, json = false): string[] {
   ];
 }
 
+function seedDoneRequiredViaCli(root: string, storyId: string): void {
+  const result = runCli(root, ['done_required_validate', '--storyId', storyId, '--json']);
+  assert.equal(result.status, 0, `seed DONE-required evidence failed:\n${result.stderr}\n${result.stdout}`);
+  assert.equal(JSON.parse(result.stdout).result, 'pass');
+}
+
+function assertActualReuseSwitchAndValidateFalseBasis(): void {
+  const reusableFixture = setupFixture({ realValidate: true });
+  try {
+    seedDoneRequiredViaCli(reusableFixture.root, reusableFixture.storyId);
+    const reused = runCli(reusableFixture.root, [
+      ...donePrepareRealValidateArgs(reusableFixture.storyId, true),
+    ]);
+    const reusedJson = JSON.parse(reused.stdout);
+    assert.equal(reusedJson.disposition, 'reused', `default/explicit reuse must be observable:\n${reused.stdout}`);
+    assert.equal(reusedJson.result, 'pass');
+    assert.equal(reusedJson.timeoutLayer, null);
+    assert.ok(!reused.stderr.includes(DONE_REQUIRED_PROGRESS_LABEL), 'reused receipt must skip DONE-required command execution');
+
+    const disabled = runCli(reusableFixture.root, [
+      ...donePrepareRealValidateArgs(reusableFixture.storyId, true),
+      '--reuseFreshDoneRequired=false',
+    ]);
+    assert.match(disabled.stderr, /done_prepare progress: running DONE-required validation/, 'disabled reuse must execute DONE-required commands');
+  } finally {
+    rmSync(reusableFixture.root, { recursive: true, force: true });
+  }
+
+  for (const basis of ['missing', 'fresh', 'stale'] as const) {
+    const fixture = setupFixture({ realValidate: true });
+    try {
+      const evidencePath = join(fixture.root, `.lattice/story/actives/${fixture.storyId}/done-required-evidence.json`);
+      if (basis !== 'missing') seedDoneRequiredViaCli(fixture.root, fixture.storyId);
+      if (basis === 'stale') {
+        write(fixture.root, 'README.md', '# stale material\n');
+        commitAll(fixture.root, 'make prior evidence stale');
+      }
+      const before = existsSync(evidencePath) ? readFileSync(evidencePath, 'utf8') : null;
+      const observed = runCli(fixture.root, donePrepareFlagArgs(fixture.storyId, true));
+      const parsed = JSON.parse(observed.stdout);
+      assert.equal(parsed.disposition, 'skipped_explicitly');
+      assert.equal(parsed.result, 'not_run');
+      assert.equal(parsed.existingEvidenceBasis, basis);
+      assert.equal(parsed.timeoutLayer, null);
+      assert.equal(existsSync(evidencePath) ? readFileSync(evidencePath, 'utf8') : null, before, `validate=false must not mutate ${basis} evidence`);
+    } finally {
+      rmSync(fixture.root, { recursive: true, force: true });
+    }
+  }
+
+  const malformed = setupFixture({ realValidate: true });
+  try {
+    const evidencePath = join(malformed.root, `.lattice/story/actives/${malformed.storyId}/done-required-evidence.json`);
+    writeFileSync(evidencePath, '{"truncated":', 'utf8');
+    const before = readFileSync(evidencePath, 'utf8');
+    const observed = runCli(malformed.root, donePrepareFlagArgs(malformed.storyId, true));
+    const parsed = JSON.parse(observed.stdout);
+    assert.equal(parsed.disposition, 'skipped_explicitly');
+    assert.equal(parsed.result, 'not_run');
+    assert.equal(parsed.existingEvidenceBasis, 'stale');
+    assert.match(parsed.refusalReasons.join('\n'), /evidence-malformed-or-unreadable/);
+    assert.equal(readFileSync(evidencePath, 'utf8'), before);
+  } finally {
+    rmSync(malformed.root, { recursive: true, force: true });
+  }
+}
+
 function assertProgressLabels(text: string, labels: readonly string[] = REQUIRED_PROGRESS_LABELS): void {
   for (const label of labels) {
     assert.ok(text.includes(label), `missing progress label ${JSON.stringify(label)} in:\n${text}`);
@@ -457,9 +524,19 @@ async function assertDoneRequiredPhaseTimeoutFailsClosed(): Promise<void> {
       blockedAt?: string;
       reason?: string;
       transcript?: string;
+      disposition?: string;
+      result?: string;
+      refusalReasons?: string[];
+      timeoutLayer?: string | null;
+      existingEvidenceBasis?: string;
     };
     assert.equal(parsed.status, 'blocked');
     assert.equal(parsed.blockedAt, 'validate');
+    assert.equal(parsed.disposition, 'executed');
+    assert.equal(parsed.result, 'timed_out');
+    assert.equal(parsed.timeoutLayer, 'phase');
+    assert.ok(Array.isArray(parsed.refusalReasons) && parsed.refusalReasons.length > 0);
+    assert.match(parsed.existingEvidenceBasis ?? '', /^(fresh|stale|missing)$/);
     assert.match(parsed.reason ?? '', /done_prepare phase "running DONE-required validation" exceeded 100ms timeout/);
     assert.match(parsed.reason ?? '', /heartbeat output is diagnostic only and does not extend the phase deadline/);
     assert.match(parsed.transcript ?? '', /^blockedAt: validate$/m);
@@ -474,6 +551,11 @@ async function assertDoneRequiredPhaseTimeoutFailsClosed(): Promise<void> {
         `DONE-required phase timeout must not allow a late PASS evidence write:\n${readFileSync(evidencePath, 'utf8')}`,
       );
     }
+    const retry = runCli(root, ['done_required_validate', '--storyId', storyId, '--json'], {
+      LATTICE_MAX_TIMEOUT_MS: '5000',
+      LATTICE_VALIDATE_HEARTBEAT_MS: '20',
+    });
+    assert.equal(JSON.parse(retry.stdout).result, 'pass', 'phase timeout must release process tree/lock/timers for immediate rerun');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -621,6 +703,7 @@ void (async () => {
   try {
     assertHumanCliProgress(fixture.root, fixture.storyId);
     assertJsonStdoutParseable(fixture.root, fixture.storyId);
+    assertActualReuseSwitchAndValidateFalseBasis();
     assertRealValidateDoneRequiredProgressJsonSafe();
     await assertDoneRequiredPhaseTimeoutFailsClosed();
     await assertHungPhaseFailsClosed();

@@ -53,6 +53,8 @@ export interface RunValidationCommandOptions {
 export interface ExecuteValidationPlanOptions {
   progress?: ValidationProgressReporter;
   heartbeatMs?: number;
+  abortSignal?: AbortSignal;
+  deadlineAt?: number;
 }
 
 /**
@@ -116,7 +118,10 @@ function trimOutput(output: string): string {
 function emitValidationProgress(progress: ValidationProgressReporter | undefined, event: ValidationProgressEvent): void {
   if (!progress) return;
   try {
-    progress(event);
+    const result = progress(event) as unknown;
+    if (result && typeof (result as { then?: unknown }).then === 'function') {
+      void Promise.resolve(result).catch(() => { /* diagnostic-only async sink rejection */ });
+    }
   } catch {
     // Progress is diagnostic-only; validation results must not depend on a
     // caller's logging sink.
@@ -500,6 +505,8 @@ export async function executeValidationPlan(
       heartbeatMs: options.heartbeatMs,
       commandIndex: i + 1,
       totalCommands: plan.commands.length,
+      abortSignal: options.abortSignal,
+      deadlineAt: options.deadlineAt,
     });
     commands.push(result);
 

@@ -93,19 +93,32 @@ export function evaluateDoneRequiredPreRunReuse(args: {
   gitCwd: string;
   storyId: string;
   store: StoryStore;
+  /** Hermetic TOCTOU seam; production callers omit it. */
+  beforeFinalHeadCheck?: () => void;
 }): DoneRequiredPreRunReuseEvaluation {
-  const canonical = evaluateDoneRequiredEvidence({
-    projectRoot: args.root,
-    gitCwd: args.gitCwd,
-    storyId: args.storyId,
-    store: args.store,
-  });
+  const headBefore = currentGitHead(args.gitCwd);
+  let canonical: ReturnType<typeof evaluateDoneRequiredEvidence>;
+  try {
+    canonical = evaluateDoneRequiredEvidence({
+      projectRoot: args.root,
+      gitCwd: args.gitCwd,
+      storyId: args.storyId,
+      store: args.store,
+    });
+  } catch (error) {
+    return {
+      reusable: false,
+      existingEvidenceBasis: 'stale',
+      refusalReasons: [`evidence-malformed-or-unreadable:${error instanceof Error ? error.message : String(error)}`],
+      lineage: 'rejected',
+    };
+  }
   const evidence = canonical.evidence;
   if (!evidence) {
     return { reusable: false, existingEvidenceBasis: 'missing', refusalReasons: canonical.reasons, lineage: 'rejected' };
   }
   const reasons = [...canonical.reasons];
-  const currentHead = currentGitHead(args.gitCwd);
+  const currentHead = headBefore;
   let lineage: DoneRequiredPreRunReuseEvaluation['lineage'] = 'rejected';
   if (!evidence.headHash || !currentHead) {
     reasons.push('missing-head-lineage');
@@ -117,11 +130,16 @@ export function evaluateDoneRequiredPreRunReuse(args: {
         cwd: args.gitCwd,
         stdio: ['ignore', 'ignore', 'pipe'],
       });
-      const changed = execFileSync('git', ['diff', '--name-only', `${evidence.headHash}..${currentHead}`], {
+      const commits = execFileSync('git', ['rev-list', '--reverse', `${evidence.headHash}..${currentHead}`], {
         cwd: args.gitCwd,
         encoding: 'utf8',
         stdio: ['ignore', 'pipe', 'pipe'],
-      }).split('\n').map((path) => path.trim()).filter(Boolean);
+      }).split('\n').map((commit) => commit.trim()).filter(Boolean);
+      const changed = [...new Set(commits.flatMap((commit) => execFileSync(
+        'git',
+        ['diff-tree', '--root', '--no-commit-id', '--name-only', '--no-renames', '-r', '-m', commit],
+        { cwd: args.gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },
+      ).split('\n').map((path) => path.trim()).filter(Boolean)))];
       const untrusted = changed.filter((path) => !isStoryMetadataPath(path, args.root));
       if (changed.length === 0) reasons.push('empty-descendant-lineage');
       else if (untrusted.length > 0) reasons.push(...untrusted.map((path) => `untrusted-lineage-path:${path}`));
@@ -129,6 +147,12 @@ export function evaluateDoneRequiredPreRunReuse(args: {
     } catch {
       reasons.push('evidence-head-is-not-current-ancestor');
     }
+  }
+  args.beforeFinalHeadCheck?.();
+  const headAfter = currentGitHead(args.gitCwd);
+  if (!headBefore || headAfter !== headBefore) {
+    reasons.push('head-changed-during-reuse-evaluation');
+    lineage = 'rejected';
   }
   const unique = [...new Set(reasons)];
   const reusable = canonical.ok && unique.length === 0 && lineage !== 'rejected';

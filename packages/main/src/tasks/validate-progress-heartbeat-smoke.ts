@@ -183,7 +183,7 @@ function setupStoryAdvanceFixture(): { root: string; storyId: string; started: s
   return { ...fixture, storyId };
 }
 
-function runCli(root: string, args: string[], ceilingMs = 25_000): Promise<CliResult> {
+function runCli(root: string, args: string[], ceilingMs = 25_000, env: Record<string, string> = {}): Promise<CliResult> {
   const start = Date.now();
   const child = spawn(process.execPath, [cliPath, '--root', root, ...args], {
     cwd: root,
@@ -192,6 +192,7 @@ function runCli(root: string, args: string[], ceilingMs = 25_000): Promise<CliRe
       LATTICE_IDLE_TIMEOUT_MS: String(IDLE_TIMEOUT_MS),
       LATTICE_MAX_TIMEOUT_MS: '30000',
       LATTICE_VALIDATE_HEARTBEAT_MS: String(HEARTBEAT_MS),
+      ...env,
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
@@ -226,6 +227,89 @@ function runCli(root: string, args: string[], ceilingMs = 25_000): Promise<CliRe
       });
     });
   });
+}
+
+function configureDoneRequired(root: string, durationMs: number, timeoutMs: number): void {
+  const configPath = join(root, 'lattice.config.json');
+  const config = JSON.parse(readFileSync(configPath, 'utf8')) as Record<string, unknown>;
+  config.doneRequiredCommands = [{
+    label: 'direct-silent-done-required',
+    command: process.execPath,
+    args: ['-e', `setTimeout(() => process.exit(0), ${durationMs})`],
+    timeoutMs,
+  }];
+  writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8');
+  commitAll(root, `configure direct DONE-required ${durationMs}/${timeoutMs}`);
+}
+
+async function assertDirectDoneRequiredTimeoutMatrix(): Promise<void> {
+  const cases = [
+    { name: 'pass', durationMs: 800, commandTimeoutMs: 5_000, idleMs: 300, maxMs: 5_000, heartbeatMs: 50, result: 'pass', layer: null },
+    { name: 'command', durationMs: 2_000, commandTimeoutMs: 180, idleMs: 1_000, maxMs: 5_000, heartbeatMs: 50, result: 'timed_out', layer: 'command' },
+    { name: 'idle', durationMs: 2_000, commandTimeoutMs: 5_000, idleMs: 120, maxMs: 5_000, heartbeatMs: 2_000, result: 'timed_out', layer: 'idle' },
+    { name: 'max', durationMs: 2_000, commandTimeoutMs: 5_000, idleMs: 1_000, maxMs: 180, heartbeatMs: 50, result: 'timed_out', layer: 'max' },
+  ] as const;
+  for (const testCase of cases) {
+    const fixture = setupStoryAdvanceFixture();
+    try {
+      configureDoneRequired(fixture.root, testCase.durationMs, testCase.commandTimeoutMs);
+      const result = await runCli(fixture.root, ['done_required_validate', JSON.stringify({ storyId: fixture.storyId, json: true })], 8_000, {
+        LATTICE_IDLE_TIMEOUT_MS: String(testCase.idleMs),
+        LATTICE_MAX_TIMEOUT_MS: String(testCase.maxMs),
+        LATTICE_VALIDATE_HEARTBEAT_MS: String(testCase.heartbeatMs),
+      });
+      assert.equal(result.status, 0, `${testCase.name} must settle through structured handler output:\n${result.stderr}`);
+      const parsed = JSON.parse(result.stdout);
+      assert.equal(parsed.disposition, 'executed');
+      assert.equal(parsed.result, testCase.result);
+      assert.equal(parsed.timeoutLayer, testCase.layer);
+      assert.ok(Array.isArray(parsed.refusalReasons));
+      assert.match(parsed.existingEvidenceBasis, /^(fresh|stale|missing)$/);
+      if (testCase.name === 'pass') assert.match(result.stderr, /validate heartbeat: command 1\/1 direct-silent-done-required/);
+
+      if (testCase.result === 'timed_out') {
+        configureDoneRequired(fixture.root, 0, 2_000);
+        const retry = await runCli(fixture.root, ['done_required_validate', JSON.stringify({ storyId: fixture.storyId, json: true })], 5_000, {
+          LATTICE_IDLE_TIMEOUT_MS: '1000',
+          LATTICE_MAX_TIMEOUT_MS: '3000',
+          LATTICE_VALIDATE_HEARTBEAT_MS: '50',
+        });
+        assert.equal(JSON.parse(retry.stdout).result, 'pass', `${testCase.name} timeout must release lock/timers for immediate rerun`);
+      }
+    } finally {
+      rmSync(fixture.root, { recursive: true, force: true });
+    }
+  }
+
+  const descendantFixture = setupStoryAdvanceFixture();
+  try {
+    const pidFile = join(descendantFixture.root, 'descendant.pid');
+    const configPath = join(descendantFixture.root, 'lattice.config.json');
+    const config = JSON.parse(readFileSync(configPath, 'utf8')) as Record<string, unknown>;
+    config.doneRequiredCommands = [{
+      label: 'descendant-tree-timeout',
+      command: process.execPath,
+      args: ['-e', `const {spawn}=require('child_process');const fs=require('fs');const c=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'});fs.writeFileSync(${JSON.stringify(pidFile)},String(c.pid));setInterval(()=>{},1000)`],
+      timeoutMs: 200,
+    }];
+    writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8');
+    commitAll(descendantFixture.root, 'configure descendant timeout');
+    const timed = await runCli(descendantFixture.root, ['done_required_validate', JSON.stringify({ storyId: descendantFixture.storyId, json: true })], 5_000, {
+      LATTICE_IDLE_TIMEOUT_MS: '1000', LATTICE_MAX_TIMEOUT_MS: '3000', LATTICE_VALIDATE_HEARTBEAT_MS: '50',
+    });
+    assert.equal(JSON.parse(timed.stdout).timeoutLayer, 'command');
+    assert.ok(existsSync(pidFile), 'descendant fixture must record grandchild pid');
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    const descendantPid = Number(readFileSync(pidFile, 'utf8'));
+    assert.throws(() => process.kill(descendantPid, 0), /ESRCH/, 'command timeout must kill descendant process group');
+    configureDoneRequired(descendantFixture.root, 0, 2_000);
+    const retry = await runCli(descendantFixture.root, ['done_required_validate', JSON.stringify({ storyId: descendantFixture.storyId, json: true })], 5_000, {
+      LATTICE_IDLE_TIMEOUT_MS: '1000', LATTICE_MAX_TIMEOUT_MS: '3000', LATTICE_VALIDATE_HEARTBEAT_MS: '50',
+    });
+    assert.equal(JSON.parse(retry.stdout).result, 'pass');
+  } finally {
+    rmSync(descendantFixture.root, { recursive: true, force: true });
+  }
 }
 
 function runValidate(root: string, ceilingMs?: number): Promise<CliResult> {
@@ -353,6 +437,7 @@ void (async () => {
     assert.match(finishText, /^finished \d+$/);
     await assertStoryAdvanceReceivesHeartbeat();
     await assertTrueHangFailsClosedWithNamedDiagnostics();
+    await assertDirectDoneRequiredTimeoutMatrix();
     console.log('validate-progress-heartbeat smoke passed');
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));

@@ -2,7 +2,7 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { buildDoneChecklist, type DoneCheckRow } from '../core/done-oracle.js';
@@ -17,7 +17,7 @@ import {
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
-import { doneRequiredDerivedBudget, NODE_TIMER_MAX_MS, safeTimeoutSum } from '../core/done-required-timeout-budget.js';
+import { commandCliMaxBudget, doneRequiredDerivedBudget, NODE_TIMER_MAX_MS, safeTimeoutSum, sequentialValidationBudget } from '../core/done-required-timeout-budget.js';
 import { evaluateDoneRequiredPreRunReuse } from '../core/done-prepare-validation-reuse.js';
 import type { DoneRequiredCommandReceipt, DoneRequiredEvidenceData, StoryInfo, TestEvidenceData } from '../core/types.js';
 import { createDoneRequiredValidationHandlers } from '../handlers/done-required-validation.js';
@@ -205,6 +205,16 @@ function assertDoneRequiredBlocked(
     assert.equal(budget.timeoutMs, 1_230_000);
     assert.equal(budget.source, 'derived-command-budget');
     assert.equal(safeTimeoutSum([NODE_TIMER_MAX_MS, 1]), NODE_TIMER_MAX_MS);
+    assert.equal(sequentialValidationBudget([
+      { label: 'build', command: 'node', args: [], timeoutMs: 290_000 },
+      { label: 'test', command: 'node', args: [], timeoutMs: 1_200_000 },
+    ]), 1_520_000, 'sequential budget sums each effective timeout once plus grace');
+    assert.equal(sequentialValidationBudget([
+      { label: 'zero fallback', command: 'node', args: [], timeoutMs: 0 },
+      { label: 'negative fallback', command: 'node', args: [], timeoutMs: -1 },
+      { label: 'non-finite fallback', command: 'node', args: [], timeoutMs: Number.POSITIVE_INFINITY },
+    ]), 840_000, 'invalid/non-positive timeout inputs use the bounded command default');
+    assert.equal(commandCliMaxBudget(root, 'story_get', {}).timeoutMs, 900_000, 'unrelated CLI defaults remain unchanged');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -237,6 +247,82 @@ function assertDoneRequiredBlocked(
 // Ordinary validate can pass while required gate fails, and missing artifact blocks required policy.
 
 // Direct handler defaults progress to ctx.log, keeps JSON singular, and contains a throwing sink.
+// Every intervening commit is inspected, so modify-then-revert material history is still untrusted.
+{
+  const { root, store } = fixture([{ label: 'required pass', command: 'node', args: ['-e', 'process.exit(0)'] }]);
+  try {
+    const originalReadme = '# done required fixture\n';
+    writeDoneEvidence(root, store);
+    git(root, ['add', '.lattice/story/actives']);
+    git(root, ['commit', '-m', 'trusted evidence metadata']);
+    writeFileSync(join(root, 'README.md'), '# temporary material mutation\n', 'utf8');
+    git(root, ['add', 'README.md']);
+    git(root, ['commit', '-m', 'temporarily mutate material']);
+    writeFileSync(join(root, 'README.md'), originalReadme, 'utf8');
+    git(root, ['add', 'README.md']);
+    git(root, ['commit', '-m', 'restore material bytes']);
+    git(root, ['mv', 'README.md', `.lattice/story/actives/${STORY_ID}/renamed-from-material.md`]);
+    git(root, ['commit', '-m', 'rename material into metadata path']);
+    git(root, ['mv', `.lattice/story/actives/${STORY_ID}/renamed-from-material.md`, 'README.md']);
+    git(root, ['commit', '-m', 'restore renamed material path']);
+    const reuse = evaluateDoneRequiredPreRunReuse({ root, gitCwd: root, storyId: STORY_ID, store });
+    assert.equal(reuse.reusable, false);
+    assert.match(reuse.refusalReasons.join('\n'), /untrusted-lineage-path:README\.md/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// A HEAD move during evaluation fails closed even when the initial lineage is exact.
+{
+  const { root, store } = fixture([{ label: 'required pass', command: 'node', args: ['-e', 'process.exit(0)'] }]);
+  try {
+    writeDoneEvidence(root, store);
+    const reuse = evaluateDoneRequiredPreRunReuse({
+      root,
+      gitCwd: root,
+      storyId: STORY_ID,
+      store,
+      beforeFinalHeadCheck: () => {
+        writeFileSync(join(root, 'TOCTOU.md'), 'head moved\n', 'utf8');
+        git(root, ['add', 'TOCTOU.md']);
+        git(root, ['commit', '-m', 'move head during reuse evaluation']);
+      },
+    });
+    assert.equal(reuse.reusable, false);
+    assert.match(reuse.refusalReasons.join('\n'), /head-changed-during-reuse-evaluation/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// Malformed evidence is stale, never an exception, and direct execution overwrites it.
+{
+  const { root, store } = fixture([{ label: 'repair malformed', command: 'node', args: ['-e', 'process.exit(0)'] }]);
+  const previousCwd = process.cwd();
+  try {
+    const evidencePath = join(root, '.lattice/story/actives', STORY_ID, 'done-required-evidence.json');
+    writeFileSync(evidencePath, '{"truncated":', 'utf8');
+    const stale = evaluateDoneRequiredPreRunReuse({ root, gitCwd: root, storyId: STORY_ID, store });
+    assert.equal(stale.reusable, false);
+    assert.equal(stale.existingEvidenceBasis, 'stale');
+    assert.match(stale.refusalReasons.join('\n'), /evidence-malformed-or-unreadable/);
+    writeFileSync(evidencePath, '{}', 'utf8');
+    const malformedShape = evaluateDoneRequiredPreRunReuse({ root, gitCwd: root, storyId: STORY_ID, store });
+    assert.equal(malformedShape.reusable, false);
+    assert.equal(malformedShape.existingEvidenceBasis, 'stale');
+    assert.match(malformedShape.refusalReasons.join('\n'), /evidence-malformed-or-unreadable/);
+    process.chdir(root);
+    const handler = createDoneRequiredValidationHandlers({ root, scanRoot: root, store, log: () => {} });
+    const repaired = JSON.parse(await handler.done_required_validate({ storyId: STORY_ID, json: true }));
+    assert.equal(repaired.result, 'pass');
+    assert.doesNotThrow(() => JSON.parse(readFileSync(evidencePath, 'utf8')));
+  } finally {
+    process.chdir(previousCwd);
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 {
   const { root, store } = fixture([{ label: 'direct progress', command: 'node', args: ['-e', 'process.exit(0)'] }]);
   const previousCwd = process.cwd();
@@ -257,13 +343,32 @@ function assertDoneRequiredBlocked(
 }
 
 {
-  const { root, store } = fixture([{ label: 'throwing progress sink', command: 'node', args: ['-e', 'process.exit(0)'] }]);
+  const { root, store } = fixture([{ label: 'throwing progress sink', command: 'node', args: ['-e', 'process.exit(1)'] }]);
   const previousCwd = process.cwd();
   try {
     process.chdir(root);
     const handler = createDoneRequiredValidationHandlers({ root, scanRoot: root, store, log: () => { throw new Error('closed sink'); } });
     const raw = await handler.done_required_validate({ storyId: STORY_ID, json: true });
-    assert.equal(JSON.parse(raw).result, 'pass', 'diagnostic sink failure cannot change validation PASS');
+    assert.equal(JSON.parse(raw).result, 'failed', 'diagnostic sink failure cannot change validation FAIL');
+  } finally {
+    process.chdir(previousCwd);
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+{
+  const { root, store } = fixture([{ label: 'rejected async progress sink', command: 'node', args: ['-e', 'process.exit(0)'] }]);
+  const previousCwd = process.cwd();
+  try {
+    process.chdir(root);
+    const handler = createDoneRequiredValidationHandlers({ root, scanRoot: root, store, log: () => {} });
+    const raw = await handler.done_required_validate({
+      storyId: STORY_ID,
+      json: true,
+      progress: async () => { throw new Error('rejected async sink'); },
+    });
+    assert.equal(JSON.parse(raw).result, 'pass', 'async diagnostic sink rejection cannot change validation PASS');
+    await new Promise((resolve) => setImmediate(resolve));
   } finally {
     process.chdir(previousCwd);
     rmSync(root, { recursive: true, force: true });

@@ -8,6 +8,27 @@ export const DEFAULT_DONE_PREPARE_PHASE_TIMEOUT_MS = 240_000;
 export const DEFAULT_TIMEOUT_BUDGET_GRACE_MS = 30_000;
 
 export type TimeoutBudgetSource = 'phase-env' | 'global-phase-env' | 'derived-command-budget' | 'default';
+export type CommandTimeoutLayer = 'command' | 'phase' | 'idle' | 'max';
+
+export class CliWatchdogTimeoutError extends Error {
+  readonly timeoutLayer: 'idle' | 'max';
+  readonly timeoutMs: number;
+
+  constructor(timeoutLayer: 'idle' | 'max', timeoutMs: number) {
+    super(`CLI ${timeoutLayer} timeout exceeded ${timeoutMs}ms`);
+    this.name = 'CliWatchdogTimeoutError';
+    this.timeoutLayer = timeoutLayer;
+    this.timeoutMs = timeoutMs;
+  }
+}
+
+export function timeoutLayerFromReason(reason: unknown): CommandTimeoutLayer | null {
+  if (reason && typeof reason === 'object') {
+    const layer = (reason as { timeoutLayer?: unknown }).timeoutLayer;
+    if (layer === 'command' || layer === 'phase' || layer === 'idle' || layer === 'max') return layer;
+  }
+  return null;
+}
 
 export interface TimeoutBudget {
   timeoutMs: number;
@@ -31,7 +52,7 @@ export function safeTimeoutSum(values: number[]): number {
 }
 
 export function sequentialValidationBudget(commands: ValidationCommand[], graceMs = DEFAULT_TIMEOUT_BUDGET_GRACE_MS): number {
-  return safeTimeoutSum([...commands.map(resolveCommandTimeoutMs), graceMs]);
+  return safeTimeoutSum([...commands.map((command) => resolveCommandTimeoutMs(command)), graceMs]);
 }
 
 function configuredRoutineCommands(root: string): ValidationCommand[] {
@@ -56,7 +77,7 @@ function configuredRoutineCommands(root: string): ValidationCommand[] {
 
 export function doneRequiredDerivedBudget(root: string): TimeoutBudget {
   const commands = resolveDoneRequiredPolicy(root).commands;
-  const commandBudgetMs = safeTimeoutSum(commands.map(resolveCommandTimeoutMs));
+  const commandBudgetMs = safeTimeoutSum(commands.map((command) => resolveCommandTimeoutMs(command)));
   return {
     timeoutMs: safeTimeoutSum([commandBudgetMs, DEFAULT_TIMEOUT_BUDGET_GRACE_MS]),
     source: 'derived-command-budget',

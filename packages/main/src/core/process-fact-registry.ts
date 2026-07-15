@@ -1178,7 +1178,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/done-required-validation',
     consumerGate: 'story_advance DONE done-required-validation gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.done_required_validate,
-    rationale: 'Opt-in DONE-required command receipts are consumed by the local DONE oracle separately from ordinary TEST validation evidence, with coverage and identity rechecked against the active policy. done_prepare may skip execution only after that canonical evaluator passes and HEAD is exact or differs solely by trusted story metadata.',
+    rationale: 'Opt-in DONE-required command receipts are consumed by the local DONE oracle separately from ordinary TEST validation evidence, with coverage and identity rechecked against the active policy. done_prepare may skip execution only after that canonical evaluator passes, every path touched by every intervening commit is trusted story metadata, and HEAD remains stable across evaluation. Command/phase/CLI-idle/CLI-max timeout terminals are structured and retain cleanup before result emission.',
   },
   {
     name: 'artifact:declared-artifacts.json',

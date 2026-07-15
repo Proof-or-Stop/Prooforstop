@@ -74,7 +74,7 @@ import {
   runStoryAdvanceInitCheckLifecycleDispatch,
   runStoryCreateLifecycleDispatch,
 } from './cli/lifecycle-dispatch.js';
-import { commandCliMaxBudget, NODE_TIMER_MAX_MS } from './core/done-required-timeout-budget.js';
+import { CliWatchdogTimeoutError, commandCliMaxBudget, NODE_TIMER_MAX_MS } from './core/done-required-timeout-budget.js';
 
 export {
   READ_ONLY_COMMANDS,
@@ -1019,17 +1019,33 @@ export async function runCli(opts?: {
     originalLog(`${cmd} timeout budget: maxMs=${MAX_TIMEOUT} source=${Number.isFinite(explicitMax) && explicitMax > 0 ? 'LATTICE_MAX_TIMEOUT_MS' : derivedMaxBudget.source}`);
   }
 
+  const structuredWatchdog = cmd === 'done_prepare' || cmd === 'done_required_validate';
+  const watchdogAbort = new AbortController();
+  if (structuredWatchdog) {
+    Object.assign(parsed, {
+      abortSignal: watchdogAbort.signal,
+      deadlineError: () => watchdogAbort.signal.reason instanceof Error
+        ? watchdogAbort.signal.reason
+        : new CliWatchdogTimeoutError('max', MAX_TIMEOUT),
+    });
+  }
+
   const watchdog = setInterval(() => {
     const now = Date.now();
     if (now - startTime > MAX_TIMEOUT) {
-      originalLog(`${cmd} exceeded max timeout ${MAX_TIMEOUT}ms; forcing exit`);
-      process.exit(2);
+      const error = new CliWatchdogTimeoutError('max', MAX_TIMEOUT);
+      originalLog(`${cmd} exceeded max timeout ${MAX_TIMEOUT}ms; aborting with structured result`);
+      if (structuredWatchdog) watchdogAbort.abort(error);
+      else process.exit(2);
+      return;
     }
     if (now - lastActivity > IDLE_TIMEOUT) {
-      originalLog(`${cmd} stuck: ${IDLE_TIMEOUT / 1000} seconds without output; forcing exit`);
-      process.exit(2);
+      const error = new CliWatchdogTimeoutError('idle', IDLE_TIMEOUT);
+      originalLog(`${cmd} stuck: ${IDLE_TIMEOUT / 1000} seconds without output; aborting with structured result`);
+      if (structuredWatchdog) watchdogAbort.abort(error);
+      else process.exit(2);
     }
-  }, 10000);
+  }, Math.max(10, Math.min(10_000, Math.floor(IDLE_TIMEOUT / 4), Math.floor(MAX_TIMEOUT / 4))));
   watchdog.unref();
 
   // Unified logging: write to .lattice/activity.jsonl (dual-source module, legacy path is read-compatible only).
