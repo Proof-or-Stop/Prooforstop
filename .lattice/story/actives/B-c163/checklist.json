@@ -527,14 +527,14 @@
         {
           "intentRef": "CHK-003:edge:1",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "verdict": "success",
           "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
           "result": "pass",
-          "note": "done_prepare and direct progress remain JSON-safe; quiet/noisy paths emit one result and preflight omits unobserved validation fields.",
-          "headHash": "a03361c1df5dd49b607b4186d3ce0461548bec43",
-          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
-          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
-          "timestamp": "2026-07-15T20:17:39.570Z"
+          "note": "PASS after build: validate=true+dryRun closeout idle timeout exits nonzero with one parseable JSON object, result=timed_out and timeoutLayer=idle, while unobserved disposition/existingEvidenceBasis/refusalReasons remain absent.",
+          "headHash": "87b32ab1461e6b5807de387b5a004acc3680ddb9",
+          "materialHash": "afe4a1a3af2f2acafa1d072cf9698740052abf21fbebba134c87fab472586211",
+          "storyFilesHash": "3fd86d752797f48b848bc984d6502b700d22600c2c5ef2cbbd304326f3cab9de",
+          "timestamp": "2026-07-15T20:43:12.351Z"
         },
         {
           "intentRef": "CHK-003:edge:2",
