@@ -123,7 +123,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-15T12:03:44.922Z",
-      "endTime": "2026-07-15T12:48:47.336Z",
+      "endTime": "2026-07-15T13:15:17.741Z",
       "verificationIntent": {
         "happy": [
           {
@@ -166,44 +166,44 @@
           "kind": "docs_check",
           "command": "find docs/requirements/decisions -maxdepth 1 -type f -name '*.md' | wc -l",
           "result": "pass",
-          "note": "Independent count returns 115 and matches NAV; the active planning authority link resolves.",
-          "headHash": "dab722d03b056a52c446fe5c110f26d031b5744b",
-          "materialHash": "ff2efac1890e310276515cf8a01d1754874c58baa75203240318756a43e800df",
-          "storyFilesHash": "ad8bdfbf98b577d1b03ae95df8a62d999b606ce9e8c082bcdbd68e18e29ef379",
-          "timestamp": "2026-07-15T12:49:37.310Z"
+          "note": "Inventory count is 115 and NAV truthfully labels itself curated and non-exhaustive while linking the active plan.",
+          "headHash": "ffaf3b8ae2d420e894935c72e2a92fb661a2cf4b",
+          "materialHash": "8dacaa22d299e82c40152a8c93ea9dc07f63d043a0f93ddfb935e13ecea74b71",
+          "storyFilesHash": "4353d55775cd8e19fa32ee5a841dc8af9f70b94a5c6727718564684852221946",
+          "timestamp": "2026-07-15T13:15:18.185Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "manual_transcript",
           "command": "rg -n \"proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md\" docs/requirements/NAV.md",
           "result": "pass",
-          "note": "The exact path appears once with no duplicate or superseded target.",
-          "headHash": "dab722d03b056a52c446fe5c110f26d031b5744b",
-          "materialHash": "ff2efac1890e310276515cf8a01d1754874c58baa75203240318756a43e800df",
-          "storyFilesHash": "ad8bdfbf98b577d1b03ae95df8a62d999b606ce9e8c082bcdbd68e18e29ef379",
-          "timestamp": "2026-07-15T12:49:37.636Z"
+          "note": "The exact plan path appears once.",
+          "headHash": "ffaf3b8ae2d420e894935c72e2a92fb661a2cf4b",
+          "materialHash": "8dacaa22d299e82c40152a8c93ea9dc07f63d043a0f93ddfb935e13ecea74b71",
+          "storyFilesHash": "4353d55775cd8e19fa32ee5a841dc8af9f70b94a5c6727718564684852221946",
+          "timestamp": "2026-07-15T13:15:18.614Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "manual_transcript",
-          "command": "rg -n \"115 files|Proof-or-stop Thin Entrypoint Contract Migration Execution Plan\" docs/requirements/NAV.md",
+          "command": "rg -n \"Curated, non-exhaustive navigation|Inventory count: 115|Proof-or-stop Thin Entrypoint Contract Migration Execution Plan\" docs/requirements/NAV.md",
           "result": "pass",
-          "note": "NAV has one matching count and one plan entry; filesystem count was recomputed independently.",
-          "headHash": "dab722d03b056a52c446fe5c110f26d031b5744b",
-          "materialHash": "ff2efac1890e310276515cf8a01d1754874c58baa75203240318756a43e800df",
-          "storyFilesHash": "ad8bdfbf98b577d1b03ae95df8a62d999b606ce9e8c082bcdbd68e18e29ef379",
-          "timestamp": "2026-07-15T12:49:37.931Z"
+          "note": "NAV distinguishes filesystem inventory from its 102-entry curated link set, avoiding a false exhaustiveness claim.",
+          "headHash": "ffaf3b8ae2d420e894935c72e2a92fb661a2cf4b",
+          "materialHash": "8dacaa22d299e82c40152a8c93ea9dc07f63d043a0f93ddfb935e13ecea74b71",
+          "storyFilesHash": "4353d55775cd8e19fa32ee5a841dc8af9f70b94a5c6727718564684852221946",
+          "timestamp": "2026-07-15T13:15:19.150Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
           "kind": "docs_check",
           "command": "git diff main...HEAD -- docs/requirements/NAV.md",
           "result": "pass",
-          "note": "NAV diff only adds the plan entry and adjusts the decision count; it does not change authority precedence.",
-          "headHash": "dab722d03b056a52c446fe5c110f26d031b5744b",
-          "materialHash": "ff2efac1890e310276515cf8a01d1754874c58baa75203240318756a43e800df",
-          "storyFilesHash": "ad8bdfbf98b577d1b03ae95df8a62d999b606ce9e8c082bcdbd68e18e29ef379",
-          "timestamp": "2026-07-15T12:49:38.597Z"
+          "note": "NAV changes only the truthful inventory/index qualifier and the new plan entry/count.",
+          "headHash": "ffaf3b8ae2d420e894935c72e2a92fb661a2cf4b",
+          "materialHash": "8dacaa22d299e82c40152a8c93ea9dc07f63d043a0f93ddfb935e13ecea74b71",
+          "storyFilesHash": "4353d55775cd8e19fa32ee5a841dc8af9f70b94a5c6727718564684852221946",
+          "timestamp": "2026-07-15T13:15:19.580Z"
         }
       ]
     }
