@@ -327,6 +327,58 @@
       ],
       "signatureTag": "missing|ts|regression-coverage-incomplete",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c163:F-015",
+      "desc": "BUG-015 remains reproducible for a supported explicit max override: liveSmokeCaptureBudget recognizes a direct `lattice done_required_validate`/`done_prepare` command but derives only the default/config phase budget and ignores the command's authoritative inherited `LATTICE_MAX_TIMEOUT_MS`. The nested CLI honors that env at cli-engine.ts:1005-1014, while the capture timer arms the shorter value at done-required-timeout-budget.ts:127-144 and live-smoke-transcript.ts:516-518, so capture can SIGTERM/SIGKILL a still-legally-running closeout. Repro after build: `LATTICE_MAX_TIMEOUT_MS=2147483647 node --input-type=module -e \"import { liveSmokeCaptureBudget } from './packages/main/dist/core/done-required-timeout-budget.js'; const b=liveSmokeCaptureBudget(process.cwd(),'lattice done_required_validate --storyId=B-c163',process.env); console.log(JSON.stringify({explicitMax:Number(process.env.LATTICE_MAX_TIMEOUT_MS),capture:b})); if (!(b.timeoutMs < Number(process.env.LATTICE_MAX_TIMEOUT_MS))) process.exit(2);\"` prints explicitMax=2147483647 versus capture.timeoutMs=1520000. This contradicts the decisions contract that explicit LATTICE_MAX_TIMEOUT_MS remains authoritative and the Round-8 requirement that capture never impose a shorter ceiling on a recognized closeout command. Include the clamped explicit max in the recognized-command legal ceiling (and account deliberately for allowed inline env assignments), while preserving the 60s arbitrary-command ceiling and lower-only LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS override. The persisted candidate digest 79fc8a964ff94df0740750b1b0a967b329c8274d211a1909c76141ebd26e13ea is stale; exact current local recomputation after review_run_start is 286e849c16a844a368a84188612e86ae40e370453b60d8f00f1a3109c7fff402; corpus digest is unchanged.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T23:33:39.829Z",
+      "reviewRound": "2026-07-15T23:28:18.819Z",
+      "reviewRunId": "B-c163:RR-038",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "79fc8a964ff94df0740750b1b0a967b329c8274d211a1909c76141ebd26e13ea",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "da94eefafc80c6bd3fd54a596a65690dd364f4adac97234f34591dc85b2e7b2a",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/done-required-timeout-budget.ts",
+        "packages/main/src/handlers/live-smoke-transcript.ts",
+        "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md"
+      ],
+      "signatureTag": "edge|ts|remains-reproducible-supported",
+      "signatureTagSource": "auto"
     }
   ]
 }
