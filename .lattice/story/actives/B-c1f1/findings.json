@@ -217,7 +217,7 @@
       "desc": "CHK-002 verification evidence is not replayable and is currently stale. The recorded happy-path command uses find with an unquoted star-md name pattern. From the Story worktree zsh expands that pattern to root Markdown filenames, so find exits with CHANGELOG.md unknown primary or operator and the pipeline prints zero, despite the evidence row claiming pass and 115. A correctly quoted independent command returns 115 and the NAV link exists exactly once, so the document appears correct, but the recorded must-intent evidence is false as written. session_brief also reports four stale verification intents, matching the four CHK-002 rows still bound to the pre-hardening storyFilesHash. Replace and rerun the NAV evidence with a quoted assertion-bearing command and refresh it at current story scope before REVIEW coverage can pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-15T12:20:03.508Z",
@@ -228,7 +228,11 @@
         "docs/requirements/NAV.md"
       ],
       "signatureTag": "missing-docs-nav-evidence-command-unreplayable-stale",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Replaced CHK-002 happy evidence with the correctly quoted command find docs/requirements/decisions -maxdepth 1 -type f -name '*.md' | wc -l, reran it at current scope with result 115, and rebound all CHK-002 evidence at the current material state.",
+      "resolvedAt": "2026-07-15T12:27:10.374Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
