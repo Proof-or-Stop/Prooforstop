@@ -113,13 +113,12 @@ are required by project policy.
 
 ### 6.2 Required design
 
-The DONE-required phase must not have an independent deadline shorter than the
-legal work it wraps. Choose one of these designs and record the choice:
-
-- remove the redundant phase deadline and rely on each command's effective
-  timeout plus existing process cleanup; or
-- derive the phase deadline from
-  `sum(effective sequential command deadlines) + bounded orchestration grace`.
+The DONE-required phase must retain the independent hard wall-clock deadline
+required by the canonical heartbeat contract, but that deadline must not be
+shorter than the legal work it wraps. Derive it from
+`sum(effective sequential command deadlines) + bounded orchestration grace`.
+Each sequential subcommand also keeps its own hard deadline and cleanup path, so
+both a hung subcommand and a stuck interval between subcommands remain bounded.
 
 Using only `max(command timeout)` is rejected because build and test execute
 sequentially. Raising the hard-coded default without relating it to configured
@@ -143,7 +142,8 @@ receipt already exists, output must say that directly.
 ### 6.3 Acceptance
 
 - A fixture with sequential 290-second and 1,200-second declared budgets is not
-  rejected by a 240-second wrapper.
+  rejected by a 240-second wrapper, while the phase still has a derived hard
+  wall-clock deadline.
 - A deliberately hung child still stops at its own command deadline and leaves
   no process, concurrency slot, or temporary state behind.
 - A fresh, fully bound receipt avoids redundant execution.
@@ -157,7 +157,8 @@ receipt already exists, output must say that directly.
 ### 6.4 Rollback
 
 Receipt reuse must be independently switchable off. If derived phase timing
-regresses, fall back to per-command deadlines rather than restoring 240 seconds.
+regresses, retain the independent phase deadline and fall back to a conservative
+derived sum plus grace rather than restoring 240 seconds.
 
 ## 7. Workstream B — Unattended Host Liveness and Routing Specificity
 
@@ -294,8 +295,12 @@ Do not restore prefix-based privilege inference as rollback.
 
 ### 9.1 Scope
 
-Own C5 and complete the relevant unfinished slices of the canonical owner-session
-contract. This workstream is security- and role-separation-sensitive.
+Own C5 as a regression repair against the fully implemented B-9089 owner-session
+contract. The observed `derived-ppid` self-conflict is a defect or newly exposed
+contract gap in shipped behavior, not evidence that the canonical rollout is
+unfinished. Any change to canonical identity or resolution priority requires an
+explicit update/new decision rather than being smuggled in as implementation.
+This workstream is security- and role-separation-sensitive.
 
 ### 9.2 Required identity model
 
@@ -319,6 +324,12 @@ Resolution order should remain explicit and observable:
 The adapter must not expose raw host tokens in logs or artifacts. The resulting
 session id should be a stable derived identifier with source metadata sufficient
 for `session_brief` diagnostics.
+
+Before implementation begins, record fresh review of the current owner-session
+decision from at least two independent hosts, following its canonical evidence
+requirements. Prefer Codex CLI plus Claude Code CLI; Antigravity CLI (`agy`) may
+be used where the owner document permits it. Local two-host review remains local
+assurance and does not widen Authority or release claims.
 
 ### 9.3 Acceptance
 
@@ -448,7 +459,7 @@ mode label without wiring it through config, handler, artifact, prompt, and gate
 
 | Area | Positive proof | Edge proof | Adversarial/negative proof |
 |---|---|---|---|
-| DONE convergence | Legal long suite completes or fresh receipt is reused. | Sequential budgets use sum or no outer deadline. | Stale/mismatched receipt is rejected; hung child is killed and cleaned up. |
+| DONE convergence | Legal long suite completes or fresh receipt is reused. | Sequential budgets derive an independent phase deadline from their sum plus bounded grace. | Stale/mismatched receipt is rejected; hung child is killed and cleaned up. |
 | Host liveness | Verified unattended host produces output and completes. | Slow productive host passes startup but remains under total deadline. | Unverified/no-output/interactively blocked host is not left running. |
 | Candidate specificity | Exact paths and related docs are selected. | Common terms are down-weighted with an explainable threshold. | High-specificity risk still escalates; shadow never emits enforce STOP. |
 | Dispatch | Every known role receives its registered prompt and legal identifiers. | Legacy aliases map explicitly. | Unknown/reviewer roles never fall through to implementer commands. |
