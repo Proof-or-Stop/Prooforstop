@@ -379,6 +379,57 @@
       ],
       "signatureTag": "edge|ts|remains-reproducible-supported",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c163:F-016",
+      "desc": "BUG-015 still allows an arbitrary executable to obtain the derived closeout timeout through an accepted shell environment prefix. recognizedLiveSmokeCommand accepts unrestricted NAME=value assignments before lattice. Because runCapture later executes through shell:true, PATH=/tmp/fake:$PATH lattice done_required_validate resolves /tmp/fake/lattice, and LD_PRELOAD=/tmp/arbitrary.so lattice done_required_validate injects arbitrary code, yet both are classified as recognized closeout commands. Repro after build: importing liveSmokeCaptureBudget for node arbitrary.js returns 60000, while PATH=/tmp/fake:$PATH lattice done_required_validate --storyId=B-c163 and LD_PRELOAD=/tmp/arbitrary.so lattice done_required_validate --storyId=B-c163 each return recognizedCommand=done_required_validate and timeoutMs=1520000 in this repo. This violates the fixed 60-second arbitrary-command safety ceiling and the direct-command recognition boundary. Reject inline environment assignments for the widened path, or narrowly allowlist inert assignments such as LATTICE_SESSION_ID while rejecting executable-resolution/runtime-injection variables and resolving the intended lattice executable before granting the derived budget. Add PATH and LD_PRELOAD/NODE_OPTIONS adversarial budget assertions. The persisted candidate digest 79fc8a964ff94df0740750b1b0a967b329c8274d211a1909c76141ebd26e13ea is stale; the last independently recomputed digest before the concurrent finding commits was 286e849c16a844a368a84188612e86ae40e370453b60d8f00f1a3109c7fff402, so owner must reroute for the exact current digest; corpus digest is unchanged.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T23:34:39.958Z",
+      "reviewRound": "2026-07-15T23:28:18.819Z",
+      "reviewRunId": "B-c163:RR-039",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "79fc8a964ff94df0740750b1b0a967b329c8274d211a1909c76141ebd26e13ea",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "1217d1398293fec7f7d1de84926b0401a7b8a5f216e044c9c3b3cb1dcc473474",
+      "files": [
+        "packages/main/src/core/done-required-timeout-budget.ts",
+        "packages/main/src/handlers/live-smoke-transcript.ts",
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|still-allows-arbitrary",
+      "signatureTagSource": "auto"
     }
   ]
 }
