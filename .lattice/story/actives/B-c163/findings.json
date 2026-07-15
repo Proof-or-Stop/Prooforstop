@@ -243,7 +243,7 @@
       "desc": "A remaining no-invented-fields gap exists for `validate=true,dryRun=true`. That branch records only `planned mutation skipped: dryRun does not run lattice validate`, so `observedValidationTerminalContext` correctly returns undefined. If a later closeout phase hits idle/max, `cliWatchdogTimeoutBlock` nevertheless falls back to disposition=executed and existingEvidenceBasis=stale, even though validation did not execute and the evidence basis was never evaluated. This is the same false-fact class F-006 prohibited, now reachable after the validate step. When validationContext is absent, emit only the observed overall timeout fields (result/refusalReasons/timeoutLayer) and omit disposition/basis, or explicitly record a truthful dry-run validation context before closeout.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-15T20:36:31.321Z",
@@ -255,7 +255,11 @@
         "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts"
       ],
       "signatureTag": "spec-boundary|ts|remaining-invented-fields",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: run done_prepare --validate=true --dryRun=true --json, force a later doneClosure idle timeout, and inspect the terminal JSON. Because dryRun skips actual validation, there is no observed validation terminal context; the old path nevertheless emitted disposition=executed, existingEvidenceBasis=stale, and a synthetic refusalReasons entry. Root cause: cliWatchdogTimeoutBlock used fallback executed/stale values and always constructed refusalReasons when validationContext was undefined. Fix: the watchdog now conditionally composes terminal context—when observed validationContext exists it preserves disposition/evidence basis/refusals and appends the real watchdog refusal; when none exists it emits only the true result=timed_out and timeoutLayer=idle|max plus the ordinary blocked reason. ReproTest: npm --prefix packages/main run build; node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js; node scripts/verify-process-fact-contract.mjs. PASS at REVIEW HEAD 2155e94; validate=true+dryRun JSON exits nonzero, reports blockedAt=doneClosure/result=timed_out/timeoutLayer=idle, emits one parseable object, and asserts disposition/existingEvidenceBasis/refusalReasons are absent, while existing validate=false idle|max cases retain observed context. Additional independent focused verification found no separate finding ID but exposed a sync-child cleanup gap: phase-bounded execFileSync/execSync used default SIGTERM and a resistant child reproduced 5041ms. Commit 47eb092 switches only phase-controlled deadlines to SIGKILL; the closure smoke now uses a SIGTERM-resistant child, verifies phase-bounded return plus immediate reap/restore, and passed three consecutive runs.",
+      "resolvedAt": "2026-07-15T20:54:46.007Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
