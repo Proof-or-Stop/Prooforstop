@@ -9,9 +9,9 @@
         "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-15T19:08:41.063Z",
-      "endTime": "2026-07-15T19:54:31.908Z",
+      "endTime": "2026-07-15T20:17:02.410Z",
       "userSees": "done_prepare prints “DONE-required validation budget: <N>ms (derived|global_override|phase_override)” and direct/done_prepare commands are not killed by a shorter default CLI maximum.",
       "files": {
         "modify": [
@@ -89,23 +89,23 @@
           "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
           "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
-          "note": "Asserts 290000+1200000 sequential effective budgets are summed once plus bounded grace.",
-          "headHash": "68b14799c90bf2a12f9fed6bc1b2b98710126614",
-          "materialHash": "83dfa52672b6054c4aaa7c848032f7750e36c948bc7999ad9e7d9bf8a675a065",
-          "storyFilesHash": "6ccb43cfda8fbf702f15492128fce39c9bff83667c1219210c0650673a98544f",
-          "timestamp": "2026-07-15T19:54:32.202Z"
+          "note": "Sequential 290000+1200000 timeout arithmetic is summed once plus bounded grace; effective runner timeout is capped legally.",
+          "headHash": "d70a4ad929308e0ec9b538e7978ba6bb7ef9be2d",
+          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
+          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
+          "timestamp": "2026-07-15T20:17:02.652Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
-          "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
           "result": "pass",
-          "note": "Real direct CLI matrix proves derived command budget allows a legal silent command to finish with structured PASS.",
-          "headHash": "68b14799c90bf2a12f9fed6bc1b2b98710126614",
-          "materialHash": "83dfa52672b6054c4aaa7c848032f7750e36c948bc7999ad9e7d9bf8a675a065",
-          "storyFilesHash": "6ccb43cfda8fbf702f15492128fce39c9bff83667c1219210c0650673a98544f",
-          "timestamp": "2026-07-15T19:54:32.409Z"
+          "note": "Actual done_prepare and direct entry paths consume the shared budget and expose explicit structured reuse/execution terminals.",
+          "headHash": "d70a4ad929308e0ec9b538e7978ba6bb7ef9be2d",
+          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
+          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
+          "timestamp": "2026-07-15T20:17:02.831Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -113,11 +113,11 @@
           "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
           "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
-          "note": "Real runValidationCommand cases prove zero, negative, and Infinity command timeoutMs fall back to the injected finite default and finish normally.",
-          "headHash": "68b14799c90bf2a12f9fed6bc1b2b98710126614",
-          "materialHash": "83dfa52672b6054c4aaa7c848032f7750e36c948bc7999ad9e7d9bf8a675a065",
-          "storyFilesHash": "6ccb43cfda8fbf702f15492128fce39c9bff83667c1219210c0650673a98544f",
-          "timestamp": "2026-07-15T19:54:32.608Z"
+          "note": "Table covers one/multiple/default/explicit effective timeouts, invalid values, bounded grace once, and real runner fallback.",
+          "headHash": "d70a4ad929308e0ec9b538e7978ba6bb7ef9be2d",
+          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
+          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
+          "timestamp": "2026-07-15T20:17:03.010Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -125,11 +125,11 @@
           "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
           "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
           "result": "pass",
-          "note": "Asserts phase-specific override beats global phase override which beats derived command budget.",
-          "headHash": "68b14799c90bf2a12f9fed6bc1b2b98710126614",
-          "materialHash": "83dfa52672b6054c4aaa7c848032f7750e36c948bc7999ad9e7d9bf8a675a065",
-          "storyFilesHash": "6ccb43cfda8fbf702f15492128fce39c9bff83667c1219210c0650673a98544f",
-          "timestamp": "2026-07-15T19:54:32.813Z"
+          "note": "Phase-specific, global phase, derived, and explicit CLI max precedence are asserted with selected values and timeout attribution.",
+          "headHash": "d70a4ad929308e0ec9b538e7978ba6bb7ef9be2d",
+          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
+          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
+          "timestamp": "2026-07-15T20:17:03.181Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
@@ -137,23 +137,23 @@
           "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
           "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
-          "note": "Real runValidationCommand with Number.MAX_SAFE_INTEGER arms MAX_NODE_TIMER_DELAY_MS, remains alive for the child duration, and avoids Node timer overflow/immediate timeout.",
-          "headHash": "68b14799c90bf2a12f9fed6bc1b2b98710126614",
-          "materialHash": "83dfa52672b6054c4aaa7c848032f7750e36c948bc7999ad9e7d9bf8a675a065",
-          "storyFilesHash": "6ccb43cfda8fbf702f15492128fce39c9bff83667c1219210c0650673a98544f",
-          "timestamp": "2026-07-15T19:54:33.020Z"
+          "note": "Real runValidationCommand proves Number.MAX_SAFE_INTEGER is capped at MAX_NODE_TIMER_DELAY_MS and zero/negative/Infinity fall back without overflow.",
+          "headHash": "d70a4ad929308e0ec9b538e7978ba6bb7ef9be2d",
+          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
+          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
+          "timestamp": "2026-07-15T20:17:03.356Z"
         },
         {
           "intentRef": "CHK-001:edge:3",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
-          "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
-          "note": "Budget fixture asserts phase and global environment precedence with actual values.",
-          "headHash": "68b14799c90bf2a12f9fed6bc1b2b98710126614",
-          "materialHash": "83dfa52672b6054c4aaa7c848032f7750e36c948bc7999ad9e7d9bf8a675a065",
-          "storyFilesHash": "6ccb43cfda8fbf702f15492128fce39c9bff83667c1219210c0650673a98544f",
-          "timestamp": "2026-07-15T19:54:33.222Z"
+          "note": "Unrelated CLI generic max remains unchanged while DONE entry paths use derived budgets; explicit positive max remains authoritative.",
+          "headHash": "d70a4ad929308e0ec9b538e7978ba6bb7ef9be2d",
+          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
+          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
+          "timestamp": "2026-07-15T20:17:03.533Z"
         },
         {
           "intentRef": "CHK-001:edge:4",
@@ -161,23 +161,23 @@
           "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
           "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
           "result": "pass",
-          "note": "Existing hung closeout fixtures prove non-DONE-required phases retain independent bounded defaults and overrides.",
-          "headHash": "68b14799c90bf2a12f9fed6bc1b2b98710126614",
-          "materialHash": "83dfa52672b6054c4aaa7c848032f7750e36c948bc7999ad9e7d9bf8a675a065",
-          "storyFilesHash": "6ccb43cfda8fbf702f15492128fce39c9bff83667c1219210c0650673a98544f",
-          "timestamp": "2026-07-15T19:54:33.412Z"
+          "note": "done_prepare total covers routine validation and enabled closeout phases; real post-validation idle/max blockers are structured and nonzero.",
+          "headHash": "d70a4ad929308e0ec9b538e7978ba6bb7ef9be2d",
+          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
+          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
+          "timestamp": "2026-07-15T20:17:03.718Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
-          "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
           "result": "pass",
-          "note": "Real direct and done_prepare routine timeout matrices emit one terminal JSON result, exit nonzero on timed_out, and immediately rerun successfully after idle/max/command aborts.",
-          "headHash": "68b14799c90bf2a12f9fed6bc1b2b98710126614",
-          "materialHash": "83dfa52672b6054c4aaa7c848032f7750e36c948bc7999ad9e7d9bf8a675a065",
-          "storyFilesHash": "6ccb43cfda8fbf702f15492128fce39c9bff83667c1219210c0650673a98544f",
-          "timestamp": "2026-07-15T19:54:33.641Z"
+          "note": "Deterministic future/expired deadline seams plus abort-at-command-start event ordering prove one stable terminal, no late heartbeat, and no duplicate evidence; real CLI matrix covers command/idle/max.",
+          "headHash": "d70a4ad929308e0ec9b538e7978ba6bb7ef9be2d",
+          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
+          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
+          "timestamp": "2026-07-15T20:17:03.908Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -185,11 +185,11 @@
           "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
           "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
           "result": "pass",
-          "note": "Actual done_prepare phase timeout returns structured blocked/timed_out JSON with phase attribution and nonzero shell status; guidance names inspection/override rather than blind rerun.",
-          "headHash": "68b14799c90bf2a12f9fed6bc1b2b98710126614",
-          "materialHash": "83dfa52672b6054c4aaa7c848032f7750e36c948bc7999ad9e7d9bf8a675a065",
-          "storyFilesHash": "6ccb43cfda8fbf702f15492128fce39c9bff83667c1219210c0650673a98544f",
-          "timestamp": "2026-07-15T19:54:33.831Z"
+          "note": "Derived phase and parent idle/max timeout JSON assert executed/timed_out/refusalReasons/layer, nonzero status, and actionable non-looping guidance.",
+          "headHash": "d70a4ad929308e0ec9b538e7978ba6bb7ef9be2d",
+          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
+          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
+          "timestamp": "2026-07-15T20:17:04.096Z"
         }
       ]
     },
@@ -680,6 +680,15 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Round 3 findings F-005/F-006/F-007 require implementation and assertion-specific evidence corrections."
+    },
+    {
+      "timestamp": "2026-07-15T20:17:02.410Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Round 3 watchdog/deadline implementation and complete assertion-specific evidence verified."
     }
   ]
 }
