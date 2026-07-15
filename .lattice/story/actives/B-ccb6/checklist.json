@@ -1,0 +1,43 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Derive the DONE-required phase deadline from sequential command budgets",
+      "context": "Replace the unrelated 240-second default for the running DONE-required validation phase with an independent hard deadline derived from the sum of effective ordered command timeouts plus bounded orchestration grace. Keep per-command deadlines, phase attribution, heartbeat diagnostics, and true-hang cleanup.",
+      "relatedDocs": [
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#6-workstream-a--done-required-validation-convergence",
+        "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#timeout-model",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md#4-validate"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Reuse structurally fresh DONE-required evidence during done_prepare",
+      "context": "Before invoking done_required_validate, consume the canonical freshness reader and reuse an existing PASS receipt only when all required current bindings match. Stale HEAD/material/storyFilesHash/policy/ordered CommandSpec/build-proof/schema must force execution or an explicit blocker; validate:false must never manufacture evidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#62-required-design",
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Keep long active DONE-required commands alive without weakening timeout safety",
+      "context": "Wire JSON-safe, immediately flushed progress/heartbeat from done_required_validate through the CLI liveness layer so an active silent npm test is not killed at 300 seconds. Preserve command timeoutMs, independent phase deadline, absolute maximum, child cleanup, validation lock cleanup, and infra-failure attribution.",
+      "relatedDocs": [
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#63-acceptance",
+        "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+        "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
