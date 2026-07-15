@@ -13,9 +13,9 @@
         "docs/guide-scope-guard.md",
         "docs/requirements/decisions/role-separation.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-15T13:21:39.716Z",
-      "endTime": "2026-07-15T13:23:02.901Z",
+      "endTime": "2026-07-15T13:33:23.276Z",
       "verificationIntent": {
         "happy": [
           {
@@ -83,23 +83,23 @@
           "command": "rg -n '^## (6\\\\. Workstream A|7\\\\. Workstream B|8\\\\. Workstream C|9\\\\. Workstream D|10\\\\. Workstream E)' docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
           "result": "pass",
           "note": "Exactly five cohesive workstreams are present and separately scoped.",
-          "headHash": "1559cd0a51f1918a425609c1c5b741d2be33ad11",
-          "materialHash": "ed9bf88c20eb50f5d3107e3092e466760157220e02c4d72c075b61a7d30ae395",
-          "storyFilesHash": "25fe8963fedb43e354811218fb06cad385df91c68e863bdbdff31e74143af719",
-          "timestamp": "2026-07-15T13:23:03.368Z"
+          "headHash": "adfe592d399d232c9ccf2eb6b9fd4e0e35a93191",
+          "materialHash": "ddc9e3ba2b0db31b202dd63c3d16adb16a4761e90a11934e9d9bcee52dc5dcd6",
+          "storyFilesHash": "a1455525c9bda13d26cd0c81de906ad4c3a2f43043bd947ea1a79f1a537d4f1f",
+          "timestamp": "2026-07-15T13:33:23.860Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
           "kind": "docs_check",
           "verdict": "success",
           "file": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
-          "command": "rg -n 'done-prepare-automation-execution-plan|multi-host-keyword-candidate-spec-routing-execution-plan|owner-session-contract-execution-plan|session-ownership-and-write-leases|guide-scope-guard|role-separation' docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "command": "rg -n 'done-prepare-automation-execution-plan|done-prepare-heartbeat-review-assurance-ux-execution-plan|multi-host-keyword-candidate-spec-routing-execution-plan|owner-session-contract-execution-plan|session-ownership-and-write-leases|guide-scope-guard|role-separation' docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
           "result": "pass",
-          "note": "All canonical related documents are linked and precedence is explicit.",
-          "headHash": "1559cd0a51f1918a425609c1c5b741d2be33ad11",
-          "materialHash": "ed9bf88c20eb50f5d3107e3092e466760157220e02c4d72c075b61a7d30ae395",
-          "storyFilesHash": "25fe8963fedb43e354811218fb06cad385df91c68e863bdbdff31e74143af719",
-          "timestamp": "2026-07-15T13:23:03.757Z"
+          "note": "All seven canonical related documents are linked and precedence is explicit.",
+          "headHash": "adfe592d399d232c9ccf2eb6b9fd4e0e35a93191",
+          "materialHash": "ddc9e3ba2b0db31b202dd63c3d16adb16a4761e90a11934e9d9bcee52dc5dcd6",
+          "storyFilesHash": "a1455525c9bda13d26cd0c81de906ad4c3a2f43043bd947ea1a79f1a537d4f1f",
+          "timestamp": "2026-07-15T13:33:24.424Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
@@ -109,23 +109,23 @@
           "command": "rg -n 'proposal / execution coordination only|## 11\\\\. Story Slicing and Landing Order|## 16\\\\. Explicit Non-Goals' docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
           "result": "pass",
           "note": "Status, landing order, and documentation-only non-goals are internally consistent.",
-          "headHash": "1559cd0a51f1918a425609c1c5b741d2be33ad11",
-          "materialHash": "ed9bf88c20eb50f5d3107e3092e466760157220e02c4d72c075b61a7d30ae395",
-          "storyFilesHash": "25fe8963fedb43e354811218fb06cad385df91c68e863bdbdff31e74143af719",
-          "timestamp": "2026-07-15T13:23:04.149Z"
+          "headHash": "adfe592d399d232c9ccf2eb6b9fd4e0e35a93191",
+          "materialHash": "ddc9e3ba2b0db31b202dd63c3d16adb16a4761e90a11934e9d9bcee52dc5dcd6",
+          "storyFilesHash": "a1455525c9bda13d26cd0c81de906ad4c3a2f43043bd947ea1a79f1a537d4f1f",
+          "timestamp": "2026-07-15T13:33:24.961Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "docs_check",
           "verdict": "success",
           "file": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
-          "command": "rg -n 'sum\\\\(effective sequential command deadlines\\\\)|post-merge HEAD|story-files hash|ordered command specifications' docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "command": "rg -n 'independent hard wall-clock deadline|sum\\\\(effective sequential command deadlines\\\\)|post-merge HEAD|story-files hash|ordered command specifications' docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
           "result": "pass",
-          "note": "Sequential timeout derivation and fresh-receipt bindings are specified.",
-          "headHash": "1559cd0a51f1918a425609c1c5b741d2be33ad11",
-          "materialHash": "ed9bf88c20eb50f5d3107e3092e466760157220e02c4d72c075b61a7d30ae395",
-          "storyFilesHash": "25fe8963fedb43e354811218fb06cad385df91c68e863bdbdff31e74143af719",
-          "timestamp": "2026-07-15T13:23:04.589Z"
+          "note": "Canonical independent phase deadline, sequential derivation, and fresh-receipt bindings are specified.",
+          "headHash": "adfe592d399d232c9ccf2eb6b9fd4e0e35a93191",
+          "materialHash": "ddc9e3ba2b0db31b202dd63c3d16adb16a4761e90a11934e9d9bcee52dc5dcd6",
+          "storyFilesHash": "a1455525c9bda13d26cd0c81de906ad4c3a2f43043bd947ea1a79f1a537d4f1f",
+          "timestamp": "2026-07-15T13:33:25.565Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -135,10 +135,10 @@
           "command": "rg -n 'launcherSupport: unverified|first-output watchdog|explicit `relatedDocs`|`shadow`: record comparison' docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
           "result": "pass",
           "note": "Unattended readiness, liveness, explicit-document exemptions, and shadow semantics are covered.",
-          "headHash": "1559cd0a51f1918a425609c1c5b741d2be33ad11",
-          "materialHash": "ed9bf88c20eb50f5d3107e3092e466760157220e02c4d72c075b61a7d30ae395",
-          "storyFilesHash": "25fe8963fedb43e354811218fb06cad385df91c68e863bdbdff31e74143af719",
-          "timestamp": "2026-07-15T13:23:05.212Z"
+          "headHash": "adfe592d399d232c9ccf2eb6b9fd4e0e35a93191",
+          "materialHash": "ddc9e3ba2b0db31b202dd63c3d16adb16a4761e90a11934e9d9bcee52dc5dcd6",
+          "storyFilesHash": "a1455525c9bda13d26cd0c81de906ad4c3a2f43043bd947ea1a79f1a537d4f1f",
+          "timestamp": "2026-07-15T13:33:26.049Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
@@ -148,10 +148,10 @@
           "command": "rg -n 'taskIdentity \\\\+ agentOrRoleIdentity|repo-root-relative|reject `\\\\.\\\\.` escape|symlink escape' docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
           "result": "pass",
           "note": "Identity separation and canonical path containment requirements are present.",
-          "headHash": "1559cd0a51f1918a425609c1c5b741d2be33ad11",
-          "materialHash": "ed9bf88c20eb50f5d3107e3092e466760157220e02c4d72c075b61a7d30ae395",
-          "storyFilesHash": "25fe8963fedb43e354811218fb06cad385df91c68e863bdbdff31e74143af719",
-          "timestamp": "2026-07-15T13:23:06.385Z"
+          "headHash": "adfe592d399d232c9ccf2eb6b9fd4e0e35a93191",
+          "materialHash": "ddc9e3ba2b0db31b202dd63c3d16adb16a4761e90a11934e9d9bcee52dc5dcd6",
+          "storyFilesHash": "a1455525c9bda13d26cd0c81de906ad4c3a2f43043bd947ea1a79f1a537d4f1f",
+          "timestamp": "2026-07-15T13:33:26.546Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -161,10 +161,10 @@
           "command": "rg -n 'explicit agent-type registry|Unknown agent types fail|verification-intent.*test-intent' docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
           "result": "pass",
           "note": "Dispatch registry fails closed and covers current and legacy intent agent names.",
-          "headHash": "1559cd0a51f1918a425609c1c5b741d2be33ad11",
-          "materialHash": "ed9bf88c20eb50f5d3107e3092e466760157220e02c4d72c075b61a7d30ae395",
-          "storyFilesHash": "25fe8963fedb43e354811218fb06cad385df91c68e863bdbdff31e74143af719",
-          "timestamp": "2026-07-15T13:23:06.822Z"
+          "headHash": "adfe592d399d232c9ccf2eb6b9fd4e0e35a93191",
+          "materialHash": "ddc9e3ba2b0db31b202dd63c3d16adb16a4761e90a11934e9d9bcee52dc5dcd6",
+          "storyFilesHash": "a1455525c9bda13d26cd0c81de906ad4c3a2f43043bd947ea1a79f1a537d4f1f",
+          "timestamp": "2026-07-15T13:33:27.128Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -174,10 +174,10 @@
           "command": "rg -n 'TypeScript parser/AST|Protected-anchor behavior remains fail closed|anchorParserVersion' docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
           "result": "pass",
           "note": "AST anchors, protected behavior, and parser versioning are explicit.",
-          "headHash": "1559cd0a51f1918a425609c1c5b741d2be33ad11",
-          "materialHash": "ed9bf88c20eb50f5d3107e3092e466760157220e02c4d72c075b61a7d30ae395",
-          "storyFilesHash": "25fe8963fedb43e354811218fb06cad385df91c68e863bdbdff31e74143af719",
-          "timestamp": "2026-07-15T13:23:07.209Z"
+          "headHash": "adfe592d399d232c9ccf2eb6b9fd4e0e35a93191",
+          "materialHash": "ddc9e3ba2b0db31b202dd63c3d16adb16a4761e90a11934e9d9bcee52dc5dcd6",
+          "storyFilesHash": "a1455525c9bda13d26cd0c81de906ad4c3a2f43043bd947ea1a79f1a537d4f1f",
+          "timestamp": "2026-07-15T13:33:27.622Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
@@ -186,11 +186,11 @@
           "file": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
           "command": "rg -n 'Stale/mismatched receipt is rejected|Different tasks/roles do not collide|genuine out-of-scope writes remain blocked' docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
           "result": "pass",
-          "note": "Negative regression controls preserve freshness, identity isolation, and scope enforcement.",
-          "headHash": "1559cd0a51f1918a425609c1c5b741d2be33ad11",
-          "materialHash": "ed9bf88c20eb50f5d3107e3092e466760157220e02c4d72c075b61a7d30ae395",
-          "storyFilesHash": "25fe8963fedb43e354811218fb06cad385df91c68e863bdbdff31e74143af719",
-          "timestamp": "2026-07-15T13:23:07.581Z"
+          "note": "Negative controls preserve freshness, identity isolation, and scope enforcement.",
+          "headHash": "adfe592d399d232c9ccf2eb6b9fd4e0e35a93191",
+          "materialHash": "ddc9e3ba2b0db31b202dd63c3d16adb16a4761e90a11934e9d9bcee52dc5dcd6",
+          "storyFilesHash": "a1455525c9bda13d26cd0c81de906ad4c3a2f43043bd947ea1a79f1a537d4f1f",
+          "timestamp": "2026-07-15T13:33:28.107Z"
         },
         {
           "intentRef": "CHK-001:adversarial:3",
@@ -200,10 +200,10 @@
           "command": "rg -n 'host=fake|hard-code 40%|CODEX_THREAD_ID|one large story' docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
           "result": "pass",
           "note": "Tempting unsafe shortcuts are explicitly rejected.",
-          "headHash": "1559cd0a51f1918a425609c1c5b741d2be33ad11",
-          "materialHash": "ed9bf88c20eb50f5d3107e3092e466760157220e02c4d72c075b61a7d30ae395",
-          "storyFilesHash": "25fe8963fedb43e354811218fb06cad385df91c68e863bdbdff31e74143af719",
-          "timestamp": "2026-07-15T13:23:07.976Z"
+          "headHash": "adfe592d399d232c9ccf2eb6b9fd4e0e35a93191",
+          "materialHash": "ddc9e3ba2b0db31b202dd63c3d16adb16a4761e90a11934e9d9bcee52dc5dcd6",
+          "storyFilesHash": "a1455525c9bda13d26cd0c81de906ad4c3a2f43043bd947ea1a79f1a537d4f1f",
+          "timestamp": "2026-07-15T13:33:28.599Z"
         }
       ]
     }
@@ -237,6 +237,16 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Reopen to bind verification evidence to the canonical-contract corrections from REVIEW.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-07-15T13:33:23.276Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Reverified all ten intents after aligning with the canonical deadline and B-9089 owner-session contracts and recording review-time reproductions.",
       "agent": "main-agent"
     }
   ]
