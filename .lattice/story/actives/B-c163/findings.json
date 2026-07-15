@@ -195,7 +195,7 @@
       "desc": "Round-3 cleanup/race/lineage matrices pass, but the core top-level budget regression still lacks an assertion that can detect omitted closeout phases. In done-prepare-closure-heartbeat-smoke.ts:90-100 the fixture selects DONE-required phase=1,500,000ms and global phase=1,400,000ms, yet only asserts total >= 1,500,000 + 330,000. An implementation summing routine validation plus DONE-required while omitting all five other enabled closeout phases would still pass, contrary to CHK-001:edge:4. CHK-001:edge:3 also claims both DONE entry paths use derived command-specific maxima, but tests only assert story_get stays 900,000ms; there is no exact commandCliMaxBudget assertion for done_required_validate or done_prepare. Add exact expected totals for validate=true required-policy, validate=false, no-policy, global override, and phase-specific override combinations, plus exact derived maxima for both DONE entry paths. Also correct CHK-002:happy:0 evidence wording or add an actual exact-HEAD done_prepare fixture: seedDoneRequiredViaCli auto-commits evidence, so the current integration run proves trusted-metadata-descendant reuse, while exact-head is only covered at the evaluator unit level.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-15T20:23:36.194Z",
@@ -207,7 +207,11 @@
         "packages/main/src/tasks/done-required-validation-smoke.ts"
       ],
       "signatureTag": "missing|ts|round-cleanup-race",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: inspect commandCliMaxBudget totals under required/no-policy and validate true/false; prior tests only asserted a lower bound, so omission or double-counting of a closeout phase could pass. Root cause: evidence described broad budget coverage without exact arithmetic for every enabled phase and the CHK-002 reuse notes conflated evaluator exact-HEAD with CLI metadata auto-commit lineage. Fix: exact totals now use six unique phase overrides plus a global override and assert routine sequential budget plus each enabled phase exactly once: five common closeout phases always, DONE-required only when required+validate, routine only when validate. Evidence correction: CHK-002 happy:0 now points to the evaluator exact-HEAD assertion; happy:1 points to actual done_prepare CLI integration, whose evidence auto-commit correctly proves trusted-story-metadata-descendant rather than exact HEAD. ReproTest: node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js; node packages/main/dist/tasks/done-required-validation-smoke.js. PASS at REVIEW HEAD 7ffa19b; any omission of the five common phases changes exact totals and fails.",
+      "resolvedAt": "2026-07-15T20:35:05.198Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c163:F-010",
