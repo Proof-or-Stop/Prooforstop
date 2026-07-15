@@ -731,6 +731,24 @@
       "resolvedAt": "2026-07-15T14:04:38.003Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c1f1:F-032",
+      "desc": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:595 — HIGH: F-031 is only partially closed across the implementation sequence. The provider contract, focused fixture table, failure-exercise matrix, and Story 1 now explicitly cover deterministic final regular-file replacement as well as parent replacement, but Story 6 readiness still names only `external-secret parent-swap attacks`. F-031 explicitly identified the omission in Stories 1/6, and Story 6 is the pre-template readiness replay that must prove the complete race contract before cutover. Add final-target regular-file replacement (and the independent second-walk identity assertion) to Story 6's required full-suite replay wording, so an implementer cannot satisfy readiness by replaying only the parent-race case.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T14:06:18.145Z",
+      "reviewRound": "2026-07-15T14:04:18.878Z",
+      "reviewRunId": "B-c1f1:RR-040",
+      "_hash": "0ce84907f0fe9b242e70e415af4be4363071b7d9adea46803a4e678b852c18f8",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|story6-external-secret-final-target-replay",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
