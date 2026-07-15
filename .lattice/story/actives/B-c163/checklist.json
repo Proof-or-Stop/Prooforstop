@@ -337,14 +337,13 @@
           "intentRef": "CHK-002:edge:2",
           "kind": "logic_test",
           "verdict": "success",
-          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
           "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
           "result": "pass",
-          "note": "A later closeout idle|max timeout preserves the already observed validate=false disposition=skipped_explicitly, actual evidence basis and refusal reasons, while only result/layer become timed_out/idle|max; JSON stays singular and exits nonzero.",
-          "headHash": "b6a0103299b873bfd351238964a1d43da3eacecf",
-          "materialHash": "0208749d1dcd92d80156a40ac21ec0115192e69eff29e9713a657e827527255b",
-          "storyFilesHash": "bc532b89794e474d93fe5793fe4fe48c99b3b519389a94ff6e8bb8ff1ef5c2a1",
-          "timestamp": "2026-07-15T20:31:53.527Z"
+          "note": "PASS after build: validate=true+dryRun closeout timeout has no observed validation context and emits only result=timed_out plus timeoutLayer, omitting disposition/existingEvidenceBasis/refusalReasons; existing validate=false cases still preserve their observed terminal context.",
+          "headHash": "7e490355bffba953e5d4ee84bb072a1cbb4327e7",
+          "materialHash": "afe4a1a3af2f2acafa1d072cf9698740052abf21fbebba134c87fab472586211",
+          "storyFilesHash": "3fd86d752797f48b848bc984d6502b700d22600c2c5ef2cbbd304326f3cab9de",
+          "timestamp": "2026-07-15T20:43:02.833Z"
         },
         {
           "intentRef": "CHK-002:edge:3",
