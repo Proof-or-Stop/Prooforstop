@@ -705,6 +705,24 @@
       ],
       "signatureTag": "missing|md|external-secret-file",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c1f1:F-031",
+      "desc": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:280,341,517,543,590 — HIGH coverage gap: F-029 explicitly required both parent-directory and final-target swap fixtures for the external CI secret-file provider. The revised prose requires component walking and rechecks the final descriptor identity, but the executable fixture at line 341 injects only a parent swap; the failure matrix names only `parent swap race`; Stories 1/6 likewise name external-secret parent-swap attacks. A symlink final-target case does not exercise replacing an ordinary final file between validation/open/read. Add a deterministic external-secret target-file swap hook/case, distinct from the repository process-evidence I/O fixture, and assert the provider either remains bound to the originally opened approved inode or fails before returning key bytes. Keep the existing parent-symlink, final-symlink, parent-swap, root-escape, permission, and unsupported-platform cases.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-15T13:59:38.544Z",
+      "reviewRound": "2026-07-15T13:57:06.336Z",
+      "reviewRunId": "B-c1f1:RR-036",
+      "_hash": "00f372f06a3b6735b8edbb9a5c3bab2897cfdbece94c77daee6d7377c45fd7ab",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|external-secret-target-swap-fixture",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
