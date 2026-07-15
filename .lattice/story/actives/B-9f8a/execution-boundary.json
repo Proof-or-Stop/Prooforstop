@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-9f8a",
+  "allowedCommands": [
+    "git diff*",
+    "git log*",
+    "git status*",
+    "lattice *",
+    "npm --prefix packages/main run build",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Bash",
+    "Glob",
+    "Grep",
+    "Read"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+  ],
+  "excludedCommands": [
+    "agy *",
+    "claude *",
+    "codex *",
+    "git clean*",
+    "git push*",
+    "git reset*",
+    "omx *"
+  ],
+  "excludedTools": [
+    "browser automation",
+    "remote host execution"
+  ],
+  "excludedPaths": [
+    ".lattice/dev-memory/experience.jsonl",
+    ".omx",
+    "docs/story",
+    "Proof-or-Stop-editable-high-fidelity.docx",
+    "Proof-or-Stop-editable.docx",
+    "Proof-or-Stop-latest.pdf",
+    "Proof-or-Stop-layout-exact.docx",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Documentation-only story; preserve all existing user changes and do not alter runtime code.",
+  "createdAt": "2026-07-15T13:09:28.648Z",
+  "updatedAt": "2026-07-15T13:09:28.648Z",
+  "_hash": "c0364a0e171aeb60b98e19a8c88d3747b59d4a7267c5d8a69e0187635a1761fa"
+}

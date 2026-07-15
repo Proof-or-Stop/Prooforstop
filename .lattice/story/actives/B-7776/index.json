@@ -1,0 +1,84 @@
+{
+  "storyId": "B-7776",
+  "name": "remove-unused-resume-breaker-prior-state",
+  "title": "Remove the misleading priorState parameter from resumeBreakerState",
+  "description": "resumeBreakerState currently accepts a priorState argument that it never reads. Preserve the intentional human-ack reset semantics while making the internal API and all call sites accurately express that the next state is derived solely from current counters. Use the small change to observe whether the lifecycle produces unnecessary rework or convergence loops.",
+  "type": "refactor",
+  "phase": "DONE",
+  "priority": "low",
+  "keywords": [
+    "convergence-breaker",
+    "resumeBreakerState",
+    "unused-parameter",
+    "maintenance"
+  ],
+  "createdAt": "2026-07-15T11:57:23.599Z",
+  "startedAt": "2026-07-15T11:57:23.599Z",
+  "endedAt": "2026-07-15T12:31:52.223Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-15T11:57:24.368Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-07bc482a401d5422",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-15T11:58:33.950Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-07bc482a401d5422",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-15T11:58:39.154Z",
+      "branch": "story/B-7776",
+      "user": "Harmonygo",
+      "sessionId": "sess-56757905ca5d4dba",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-15T12:03:31.989Z",
+      "branch": "story/B-7776",
+      "user": "Harmonygo",
+      "sessionId": "codex-b7776-root",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-15T12:05:39.733Z",
+      "branch": "story/B-7776",
+      "user": "Harmonygo",
+      "sessionId": "codex-b7776-root",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-15T12:16:07.142Z",
+      "branch": "story/B-7776",
+      "user": "Harmonygo",
+      "sessionId": "codex-b7776-root",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-15T12:31:52.223Z",
+      "branch": "story/B-7776",
+      "user": "Harmonygo",
+      "sessionId": "codex-b7776-root",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-07-15T12:05:39.733Z"
+}

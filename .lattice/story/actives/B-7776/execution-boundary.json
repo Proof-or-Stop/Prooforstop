@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-7776",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git status *",
+    "lattice *",
+    "node packages/main/dist/tasks/convergence-breaker-smoke.js",
+    "npm --prefix packages/main run build",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "shell"
+  ],
+  "allowedPaths": [
+    "packages/main/dist",
+    "packages/main/src/core/convergence-breaker.ts",
+    "packages/main/src/handlers/story.ts",
+    "packages/main/src/tasks/convergence-breaker-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git clean *",
+    "git push *",
+    "git reset *",
+    "git restore *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "docs/story",
+    "packages/main/tests/fixtures"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Narrow maintenance execution boundary for the requested cleanup.",
+  "createdAt": "2026-07-15T11:57:23.599Z",
+  "updatedAt": "2026-07-15T11:57:23.599Z",
+  "_hash": "5d8e68cce738e65f725f0955ed525194c24a90ffdafef7574a2a729cef87ea64"
+}

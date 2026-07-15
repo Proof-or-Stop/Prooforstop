@@ -1,0 +1,55 @@
+{
+  "storyId": "B-7776",
+  "changes": "Removed the unused priorState parameter from resumeBreakerState, updated all three internal calls, and added an explicit zero-counter reset assertion.",
+  "usage": "No CLI usage changes are required; maintainers now call resumeBreakerState(counters) and story_resume continues to operate as before.",
+  "expectedOutcome": "The counter-only helper signature is visible in source, TypeScript builds cleanly, and the convergence-breaker smoke reports PASS while preserving human-ack reset semantics.",
+  "actualTranscript": "npm --prefix packages/main run build completed with tsc success; node packages/main/dist/tasks/convergence-breaker-smoke.js printed PASS convergence-breaker with all reset and gate checks succeeding.",
+  "outcomeDiff": "Expected and actual outcomes match: the misleading dependency is removed, all internal callers compile, and representative plus zero-counter reset behaviour passes.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — the requested cleanup and verification are fully covered",
+  "pitfalls": "Workflow observations include reviewer dispatch requiring itemId, derived-ppid lease churn without a stable session ID, scope path namespace mismatch, generic semantic-anchor false positives, and candidate routing escalating a tiny refactor to a full decisions-corpus scan.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 69582
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 5204
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 292835
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 127744
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 627409
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 40661
+    }
+  },
+  "totalDurationMs": 1164204,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-15T12:16:47.803Z",
+  "updatedAt": "2026-07-15T12:16:47.803Z"
+}

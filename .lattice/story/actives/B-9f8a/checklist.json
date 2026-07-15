@@ -1,0 +1,273 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Write the cross-cutting workflow convergence execution plan",
+      "context": "Turn the confirmed six-claim diagnosis into an implementation-ready Markdown decision document. Include evidence, adopted corrections, five cohesive workstreams, acceptance criteria, rollout dependencies, risk controls, and explicit non-goals.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+        "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md",
+        "docs/guide-scope-guard.md",
+        "docs/requirements/decisions/role-separation.md"
+      ],
+      "status": "done",
+      "startTime": "2026-07-15T13:21:39.716Z",
+      "endTime": "2026-07-15T13:39:23.907Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Inspect the delivered Markdown decision document and map the six confirmed diagnoses to exactly five cohesive implementation workstreams: DONE timeout/receipt reuse; unattended host liveness plus candidate-routing specificity; typed dispatch; owner-session identity; canonical scope paths plus semantic anchors. Each workstream states evidence-backed root cause, adopted/modified/rejected remedy, implementation boundary, dependencies, rollout/rollback, and positive acceptance criteria. WHY: the umbrella plan must be directly decomposable into independent stories without combining unrelated runtime changes.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Cross-check the document citations and source-of-truth statements against all checklist relatedDocs: done-prepare automation and heartbeat/review assurance, multi-host candidate routing, owner-session contract and write leases, scope-guard guide, and role separation. The document distinguishes existing canonical policy from proposed changes and does not supersede those sources accidentally. WHY: implementation stories must consume authoritative contracts instead of stale diagnostic prose.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Review the document end to end and confirm one internally consistent landing order, dependency graph, priority rationale, ownership boundary, shared terminology, and explicit non-goals; confirm it remains documentation-only and makes no claim that runtime behavior is already fixed. WHY: the plan must be auditable and safe to execute incrementally.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "For DONE-required validation with multiple sequential commands, verify the plan rejects an outer timeout derived only from max(command timeout) and specifies either no redundant outer deadline or sum(effective command deadlines)+bounded grace, while fresh-receipt reuse remains bound to current HEAD/material/story-files/policy/command set. WHY: a superficially larger timeout must not preserve deterministic failure or weaken evidence freshness.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "For unattended routing, verify the plan treats launcherSupport=unverified as ineligible for unattended execution, separates probe timeout from real host-process liveness, preserves explicit relatedDocs/typed risk signals when filtering generic tokens, and keeps shadow mode advisory rather than enforce-blocking. WHY: fixing stalls and over-scan must not hide authoritative documents or silently change configured mode semantics.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "For owner identity and scope normalization, verify the plan requires stable per-task and per-agent/role identity rather than a repo-wide token, and requires an explicit canonical path base plus traversal/symlink containment and legacy migration. WHY: the fixes must not collapse reviewer/implementer identities or broaden write scope.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Challenge the dispatch workstream with verification-intent, test-intent, unknown, story-level reviewer, and item-level reviewer inputs. Acceptance must require an explicit fail-closed agent-type registry, schema-valid prompts, current verification-intent naming, and no fallback of unknown/reviewer roles to implementer instructions. WHY: prefix patches alone can continue role pollution and unauthorized status/commit guidance.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Challenge the scope-anchor workstream with if/for/while/switch blocks, local const declarations, methods, nested functions, protected anchors, repo-relative versus package-relative paths, .. traversal, and symlink escape. Acceptance must prefer AST-based declaration anchors (regex exclusion only as stopgap), preserve protected-anchor fail-closed behavior, and version parsing/hash semantics so old evidence becomes explicitly stale rather than silently reinterpreted. WHY: eliminating false positives must not introduce false negatives or evidence ambiguity.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Review every workstream for regression controls and negative acceptance cases: true child-process hangs still terminate and clean up; stale or mismatched DONE receipts are rejected; high-specificity routing still finds explicit documents; reviewer evidence cannot be self-attested; independent sessions still conflict correctly; genuine out-of-scope/protected-anchor writes still block. WHY: each convenience fix must preserve existing safety gates.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Attempt to interpret the umbrella plan as authorization to implement all five workstreams in one story, change runtime behavior in this documentation story, use host=fake as a production remedy, hard-code an unexplained 40% corpus threshold, or use CODEX_THREAD_ID/repo token as sole owner identity. The document must explicitly reject these readings in non-goals and story slicing. WHY: known tempting shortcuts would recreate cost imbalance or weaken role/evidence separation.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "command": "rg -n '^## (6\\\\. Workstream A|7\\\\. Workstream B|8\\\\. Workstream C|9\\\\. Workstream D|10\\\\. Workstream E)' docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "result": "pass",
+          "note": "Exactly five cohesive workstreams are present and separately scoped.",
+          "headHash": "59f0e8864cd859b1e04837af6ddfc16f1a4c1bf0",
+          "materialHash": "bf3db83d6f4f0093ac0567f2a5a9f7deeae03036d1b4d94bc29804b7a8ff2276",
+          "storyFilesHash": "92a291b13110e1d03cb4f393c998bf6763049b33ff432b226eecf876556aca0f",
+          "timestamp": "2026-07-15T13:39:24.412Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "command": "rg -n 'done-prepare-automation-execution-plan|done-prepare-heartbeat-review-assurance-ux-execution-plan|multi-host-keyword-candidate-spec-routing-execution-plan|owner-session-contract-execution-plan|session-ownership-and-write-leases|guide-scope-guard|role-separation' docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "result": "pass",
+          "note": "All seven canonical related documents are linked and precedence is explicit.",
+          "headHash": "59f0e8864cd859b1e04837af6ddfc16f1a4c1bf0",
+          "materialHash": "bf3db83d6f4f0093ac0567f2a5a9f7deeae03036d1b4d94bc29804b7a8ff2276",
+          "storyFilesHash": "92a291b13110e1d03cb4f393c998bf6763049b33ff432b226eecf876556aca0f",
+          "timestamp": "2026-07-15T13:39:24.940Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "command": "rg -n 'proposal / execution coordination only|## 11\\\\. Story Slicing and Landing Order|## 16\\\\. Explicit Non-Goals' docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "result": "pass",
+          "note": "Status, landing order, and documentation-only non-goals are internally consistent.",
+          "headHash": "59f0e8864cd859b1e04837af6ddfc16f1a4c1bf0",
+          "materialHash": "bf3db83d6f4f0093ac0567f2a5a9f7deeae03036d1b4d94bc29804b7a8ff2276",
+          "storyFilesHash": "92a291b13110e1d03cb4f393c998bf6763049b33ff432b226eecf876556aca0f",
+          "timestamp": "2026-07-15T13:39:26.172Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "command": "rg -n 'independent hard wall-clock deadline|sum\\\\(effective sequential command deadlines\\\\)|post-merge HEAD|story-files hash|ordered command specifications' docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "result": "pass",
+          "note": "Canonical independent phase deadline, sequential derivation, and fresh-receipt bindings are specified.",
+          "headHash": "59f0e8864cd859b1e04837af6ddfc16f1a4c1bf0",
+          "materialHash": "bf3db83d6f4f0093ac0567f2a5a9f7deeae03036d1b4d94bc29804b7a8ff2276",
+          "storyFilesHash": "92a291b13110e1d03cb4f393c998bf6763049b33ff432b226eecf876556aca0f",
+          "timestamp": "2026-07-15T13:39:27.162Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "command": "rg -n 'launcherSupport: unverified|first-output watchdog|explicit `relatedDocs`|`shadow`: record comparison' docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "result": "pass",
+          "note": "Unattended readiness, liveness, explicit-document exemptions, and shadow semantics are covered.",
+          "headHash": "59f0e8864cd859b1e04837af6ddfc16f1a4c1bf0",
+          "materialHash": "bf3db83d6f4f0093ac0567f2a5a9f7deeae03036d1b4d94bc29804b7a8ff2276",
+          "storyFilesHash": "92a291b13110e1d03cb4f393c998bf6763049b33ff432b226eecf876556aca0f",
+          "timestamp": "2026-07-15T13:39:27.794Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "command": "rg -n 'taskIdentity \\\\+ agentOrRoleIdentity|repo-root-relative|reject `\\\\.\\\\.` escape|symlink escape' docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "result": "pass",
+          "note": "Identity separation and canonical path containment requirements are present.",
+          "headHash": "59f0e8864cd859b1e04837af6ddfc16f1a4c1bf0",
+          "materialHash": "bf3db83d6f4f0093ac0567f2a5a9f7deeae03036d1b4d94bc29804b7a8ff2276",
+          "storyFilesHash": "92a291b13110e1d03cb4f393c998bf6763049b33ff432b226eecf876556aca0f",
+          "timestamp": "2026-07-15T13:39:28.469Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "command": "rg -n 'explicit agent-type registry|Unknown agent types fail|verification-intent.*test-intent' docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "result": "pass",
+          "note": "Dispatch registry fails closed and covers current and legacy intent agent names.",
+          "headHash": "59f0e8864cd859b1e04837af6ddfc16f1a4c1bf0",
+          "materialHash": "bf3db83d6f4f0093ac0567f2a5a9f7deeae03036d1b4d94bc29804b7a8ff2276",
+          "storyFilesHash": "92a291b13110e1d03cb4f393c998bf6763049b33ff432b226eecf876556aca0f",
+          "timestamp": "2026-07-15T13:39:29.303Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "command": "rg -n 'TypeScript parser/AST|Protected-anchor behavior remains fail closed|anchorParserVersion' docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "result": "pass",
+          "note": "AST anchors, protected behavior, and parser versioning are explicit.",
+          "headHash": "59f0e8864cd859b1e04837af6ddfc16f1a4c1bf0",
+          "materialHash": "bf3db83d6f4f0093ac0567f2a5a9f7deeae03036d1b4d94bc29804b7a8ff2276",
+          "storyFilesHash": "92a291b13110e1d03cb4f393c998bf6763049b33ff432b226eecf876556aca0f",
+          "timestamp": "2026-07-15T13:39:30.012Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "command": "rg -n 'Stale/mismatched receipt is rejected|Different tasks/roles do not collide|genuine out-of-scope writes remain blocked' docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "result": "pass",
+          "note": "Negative controls preserve freshness, identity isolation, and scope enforcement.",
+          "headHash": "59f0e8864cd859b1e04837af6ddfc16f1a4c1bf0",
+          "materialHash": "bf3db83d6f4f0093ac0567f2a5a9f7deeae03036d1b4d94bc29804b7a8ff2276",
+          "storyFilesHash": "92a291b13110e1d03cb4f393c998bf6763049b33ff432b226eecf876556aca0f",
+          "timestamp": "2026-07-15T13:39:30.401Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "command": "rg -n 'host=fake|hard-code 40%|CODEX_THREAD_ID|one large story' docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "result": "pass",
+          "note": "Tempting unsafe shortcuts are explicitly rejected.",
+          "headHash": "59f0e8864cd859b1e04837af6ddfc16f1a4c1bf0",
+          "materialHash": "bf3db83d6f4f0093ac0567f2a5a9f7deeae03036d1b4d94bc29804b7a8ff2276",
+          "storyFilesHash": "92a291b13110e1d03cb4f393c998bf6763049b33ff432b226eecf876556aca0f",
+          "timestamp": "2026-07-15T13:39:30.834Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-15T13:21:39.716Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Drafted the execution plan and am completing verification and commit.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-07-15T13:23:02.901Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Execution plan committed and all ten content, boundary, and adversarial documentation checks passed.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-07-15T13:32:29.661Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopen to bind verification evidence to the canonical-contract corrections from REVIEW.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-07-15T13:33:23.276Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Reverified all ten intents after aligning with the canonical deadline and B-9089 owner-session contracts and recording review-time reproductions.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-07-15T13:38:29.310Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Correct the review-time full-corpus count wording from F-007.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-07-15T13:39:23.907Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Reverified all ten intents after correcting the committed full-corpus artifact count wording.",
+      "agent": "main-agent"
+    }
+  ]
+}

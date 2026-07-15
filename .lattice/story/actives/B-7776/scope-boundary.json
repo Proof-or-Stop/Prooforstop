@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-7776",
+  "mode": "maintenance",
+  "allowed": [
+    "Record any workflow loop or disproportionate assurance behaviour observed",
+    "Remove the unused priorState parameter from resumeBreakerState",
+    "Run focused and routine lifecycle verification",
+    "Update its internal handler and smoke-test call sites"
+  ],
+  "excluded": [
+    "Change convergence-breaker thresholds or reset semantics",
+    "Modify unrelated lifecycle gates",
+    "Redesign story_resume authorization"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User asked to open a story and handle this simple issue now, while observing the workflow for loops.",
+  "createdAt": "2026-07-15T11:57:23.599Z",
+  "updatedAt": "2026-07-15T11:57:23.599Z",
+  "_hash": "e26da5108110288a6699fcc572c413f56e4e68648f030e8cb1c6f4f361a9c5c1"
+}

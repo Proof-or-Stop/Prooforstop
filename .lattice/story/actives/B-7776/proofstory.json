@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-7776",
+  "diagnosticOnly": false,
+  "hardeningLevel": "standard",
+  "triggerReasons": [
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:60284339f368ac8181798ee9599c5edb5c6f245231804f953b8d62bf175cfea1",
+  "acceptanceBindings": [
+    {
+      "id": "ACCEPT-001",
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "Source and all callers no longer carry the unused priorState parameter, and build plus convergence-breaker smoke pass without changing reset semantics.",
+      "note": "Binds the counter-only API cleanup and preserved reset behaviour to the single checklist item and all must intents."
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "Narrow acceptance envelope for the requested internal API cleanup.",
+  "createdAt": "2026-07-15T12:03:14.800Z",
+  "updatedAt": "2026-07-15T12:03:14.800Z"
+}

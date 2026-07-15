@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-ccb6",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Direct done_required_validate progress/heartbeat through CLI liveness",
+    "Focused tests and canonical documentation updates for these behaviors",
+    "Structurally fresh DONE-required receipt reuse in done_prepare",
+    "Workstream A: coherent DONE-required phase timeout derivation"
+  ],
+  "excluded": [
+    "Candidate routing and host liveness changes outside DONE-required validation",
+    "Owner-session identity changes",
+    "Remote publishing or release",
+    "Scope path or semantic anchor changes",
+    "Typed agent dispatch changes"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User explicitly asked to execute the remediation document in order, starting with #1.",
+  "createdAt": "2026-07-15T15:44:55.843Z",
+  "updatedAt": "2026-07-15T15:44:55.843Z",
+  "_hash": "4b0c7c5f7c3826c9292c4fee4d5ac8c04e0dd62e470c609d5b902456127aa884"
+}

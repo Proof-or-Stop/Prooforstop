@@ -1,0 +1,25 @@
+{
+  "task": "Write one umbrella execution plan for the six confirmed workflow convergence failures exposed during B-7776.",
+  "outcome": "The user opens workflow-convergence-failure-remediation-execution-plan.md and can directly see what will be fixed, in which five stories, in what order, with exact acceptance checks and regression safeguards.",
+  "facts": [
+    "The done_prepare DONE-required phase timeout is 240 seconds while configured sequential command timeouts total 1490 seconds.",
+    "Real host execution can wait up to 12 minutes after safe probes admit launchers whose unattended support remains unverified.",
+    "Generic query tokens can exceed the 50-hit cap and force full-corpus review scans.",
+    "story_dispatch uses prefix-based reviewer classification and mismatched story-level/item-level contracts.",
+    "derived-ppid owner identity is unstable across shells and must not be replaced by a repository-global token that collapses agent roles.",
+    "Scope checklist paths and git paths use different bases, while regex anchors can classify control flow or local variables as declarations."
+  ],
+  "constraints": [
+    "Add only one new Markdown decision document.",
+    "Do not change runtime code or existing decision documents.",
+    "Treat existing subsystem documents as canonical truth sources.",
+    "Use Codex CLI, Claude Code CLI, and Antigravity CLI as the current host taxonomy.",
+    "Separate task identity from agent/role identity.",
+    "Preserve freshness, role-separation, and fail-closed lifecycle guarantees."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+  ],
+  "timestamp": "2026-07-15T13:10:11.967Z"
+}

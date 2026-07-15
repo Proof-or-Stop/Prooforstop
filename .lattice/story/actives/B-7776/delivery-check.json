@@ -1,0 +1,23 @@
+{
+  "storyId": "B-7776",
+  "checkedAt": "2026-07-15T12:18:25.987Z",
+  "headHash": "bdeacabb42bb6dc38bfc2916337ea6ab47f46fbc",
+  "materialHash": "7598ff0a5097f19b3e2afa369b226a782add597d88499f56534ab48b82bc3c05",
+  "storyFilesHash": "8489b6cba080f2be37c531d5f8f58f49b3e785296f148a0d4c491e91939383c8",
+  "reviewRound": "2026-07-15T12:05:39.733Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independent reviewer run of npm build followed by convergence-breaker smoke exited 0. TypeScript accepted the counter-only signature at all four source references. Smoke printed PASS and asserted non-zero re-baselining, zero-counter clean defaults, freeze clearing, restored recovery budget, and post-ack gate progress."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "No documentation promises changed. The implementation removes only the unused priorState parameter, preserves human and frozen-state checks in the handler, updates every call site, and independently passes build plus happy, zero-boundary, and frozen-gate smoke assertions."
+  },
+  "_hash": "c9d8a2ba357248582ff92a62c3e54dd9bb73e6e4a31382b9c15ce8636c602eb1"
+}

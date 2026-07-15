@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-9f8a",
+  "mode": "maintenance",
+  "allowed": [
+    "Add one Markdown execution-plan document under docs/requirements/decisions covering the six confirmed workflow convergence failures",
+    "Reference existing decision documents without redefining their canonical contracts",
+    "Specify five cohesive implementation workstreams, rollout order, acceptance criteria, verification, risks, and rollback"
+  ],
+  "excluded": [
+    "Creation of the five implementation stories",
+    "Edits to existing decision documents",
+    "Remote host execution, publishing, or git push",
+    "Runtime or CLI behavior changes",
+    "User-owned dirty files"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User asked: 根据上面的诊断写一个执行文档markdown",
+  "createdAt": "2026-07-15T13:09:27.712Z",
+  "updatedAt": "2026-07-15T13:09:27.712Z",
+  "_hash": "5c2223fb80259fad14d623b59cb63990b5acc10b3e00a247d3bc5fb0850e9204"
+}

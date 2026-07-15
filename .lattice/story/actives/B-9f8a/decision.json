@@ -1,0 +1,79 @@
+{
+  "principles": [
+    "Preserve canonical subsystem truth sources",
+    "Keep implementation stories cohesive and independently reversible",
+    "Do not trade liveness fixes for weaker evidence or role separation"
+  ],
+  "drivers": [
+    "Six failures were observed in one lifecycle but belong to five subsystems",
+    "The document must be immediately usable for story intake",
+    "Several naive fixes can introduce silent authorization or coverage regressions"
+  ],
+  "options": [
+    {
+      "name": "A: One umbrella plan with five implementation workstreams",
+      "pros": [
+        "Provides shared dependency and rollout model",
+        "Keeps runtime changes in cohesive future stories",
+        "Avoids redefining existing subsystem contracts"
+      ],
+      "cons": [
+        "Requires careful cross-reference maintenance",
+        "Implementation completion will be distributed across later stories"
+      ]
+    },
+    {
+      "name": "B: One implementation story for all six failures",
+      "pros": [
+        "Single tracking object",
+        "One nominal completion point"
+      ],
+      "cons": [
+        "Unrelated scope triggers expensive review",
+        "Rollback and root-cause attribution become difficult",
+        "Session identity design can block faster liveness fixes"
+      ]
+    },
+    {
+      "name": "C: Six isolated documents",
+      "pros": [
+        "Maximum local detail",
+        "Each claim can evolve alone"
+      ],
+      "cons": [
+        "Duplicates shared rollout rules",
+        "Makes dependency and sequencing hard to audit",
+        "Adds unnecessary documentation surface"
+      ]
+    }
+  ],
+  "chosen": "A: One umbrella plan with five implementation workstreams",
+  "rationale": "The diagnosis is cross-cutting, but the fixes have different owners and failure domains. An umbrella plan records shared invariants and ordering while future stories remain small, testable, and reversible.",
+  "preMortem": [
+    {
+      "scenario": "The umbrella plan contradicts an existing canonical decision document",
+      "trigger": "It restates subsystem behavior instead of referencing the owner document",
+      "consequence": "Future implementers follow conflicting truth sources",
+      "mitigation": "Declare precedence and label this document as execution coordination only"
+    },
+    {
+      "scenario": "A timeout or receipt-reuse fix weakens DONE evidence freshness",
+      "trigger": "Reuse checks omit HEAD, material, story files, policy, or command-set binding",
+      "consequence": "Stale validation is accepted as current",
+      "mitigation": "Make all binding fields explicit acceptance criteria and require negative stale cases"
+    },
+    {
+      "scenario": "Stable session identity collapses reviewer and implementer identities",
+      "trigger": "A repository-global or thread-only token is shared across roles",
+      "consequence": "Lease and anti-self-review boundaries are bypassed",
+      "mitigation": "Require task identity plus distinct agent/role identity and cross-role collision tests"
+    },
+    {
+      "scenario": "IDF filtering hides an explicitly relevant decision document",
+      "trigger": "High document frequency filtering applies to paths or relatedDocs",
+      "consequence": "Review coverage regresses while scan cost looks lower",
+      "mitigation": "Exempt explicit paths, relatedDocs, registry facts, and typed risk signals from generic-token filtering"
+    }
+  ],
+  "timestamp": "2026-07-15T13:10:33.154Z"
+}
