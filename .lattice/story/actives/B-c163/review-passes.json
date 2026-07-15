@@ -257,6 +257,49 @@
         "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
       },
       "_hash": "604797cfc5e98a4d23c80766bad1661385851bc3b64cb1c4be3e20a9a9529ec1"
+    },
+    {
+      "id": "B-c163:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Incremental Round 7 PASS: BUG-014 only re-pins cli-engine.ts to its exact canonical AST after the in-scope runCli DONE-timeout/structured-failure changes. The fingerprint remains a fail-closed structural prerequisite for the already-approved non-literal loader call; no scanner rule, loader allowlist, compatibility call shape, executable authority, or runtime dispatch capability is broadened. All six bounded candidate decisions were read in full; build and retired-authority-vocabulary-guard-smoke passed.",
+      "createdAt": "2026-07-15T23:01:07.845Z",
+      "reviewRound": "2026-07-15T22:55:48.933Z",
+      "reviewRunId": "B-c163:RR-034",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "798c1504cc047ce5972fa3d11454edd63616a44848895ac022bc247b138a1a16",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "60140587cea35ad9cb4e5843bdc242550895c1e1ad81d30a94168e8e2cc9e862"
     }
   ]
 }
