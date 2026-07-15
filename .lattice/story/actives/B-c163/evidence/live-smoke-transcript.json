@@ -1,0 +1,21 @@
+{
+  "storyId": "B-c163",
+  "expected": "done_prepare prints “DONE-required validation budget: <N>ms (derived|global_override|phase_override)” and direct/done_prepare commands are not killed by a shorter default CLI maximum.",
+  "actual": {
+    "command": "LATTICE_SESSION_ID=codex-wa-final lattice done_required_validate --storyId=B-c163 --json",
+    "exitCode": null,
+    "stdout": "",
+    "stderr": "[0.0s] running done_required_validate...\n\n[capture error] spawnSync /bin/sh ETIMEDOUT"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-15T23:16:03.901Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "aef002549bd675a77ce6c5fd84ee8d890f537748",
+  "materialHash": "8586ae2baef0f365f2df89404aca9010476723f84894977d0bd16423c7dff8e2"
+}
