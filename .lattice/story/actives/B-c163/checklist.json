@@ -423,7 +423,7 @@
         "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
         "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-15T19:30:58.806Z",
       "endTime": "2026-07-15T19:54:46.193Z",
       "userSees": "direct done_required_validate prints periodic “validate heartbeat” lines; --json remains one result, and a throwing/closed progress sink cannot change command PASS/FAIL.",
@@ -667,6 +667,15 @@
       "timestamp": "2026-07-15T20:03:02.657Z",
       "phase": "DEV",
       "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Round 3 findings F-005/F-006/F-007 require implementation and assertion-specific evidence corrections."
+    },
+    {
+      "timestamp": "2026-07-15T20:03:03.570Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
       "action": "update",
       "from": "done",
       "to": "in_progress",
