@@ -103,7 +103,7 @@
       "desc": "F-001 remains incomplete for done_prepare CLI idle/max timeouts. cli-engine now aborts a signal instead of exiting, but done_prepare only threads that parent signal into routine verifier.validate and the DONE-required runCloseoutPhase. The later doneClosure/reviewAssurance/runtimeChange/cleanTree/produceCommand runCloseoutPhase calls do not receive rawArgs.abortSignal, so an explicit max expiry during those phases is logged but does not terminate or structure the result. Even inside DONE-required validation, a parent CliWatchdogTimeoutError is not a DonePreparePhaseTimeoutError, so the catch falls through to `result=blocked` without timeoutLayer instead of `result=timed_out` with idle|max. The watchdog also has no top-level Promise.race fallback, so any uncooperative/synchronous done_prepare segment can outlive the absolute max. Thread/race the CLI watchdog across the whole handler and classify its reason before the generic blocked path; verify nonzero JSON outcomes for idle and max in both routine and post-validation closeout phases.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-15T19:59:39.007Z",
@@ -115,7 +115,11 @@
         "packages/main/src/handlers/done-prepare.ts"
       ],
       "signatureTag": "spec-boundary|ts|remains-incomplete-prepare",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Source correction: the reviewer subclaim that later doneClosure/reviewAssurance/runtimeChange/cleanTree/produceCommand calls lacked the parent signal was disproven; every current call already passed rawArgs.abortSignal before this fix, so no false repro or worker redesign was used. Verified gaps: a parent CliWatchdogTimeoutError inside DONE-required closeout fell through generic blocked classification; closeout segments lacked explicit parent deadline checkpoints; and Promise.race could return before cooperative child/lock cleanup settled. Fix: all closeout segments now receive the full parent timeout control, check signal/deadline before and after work, classify parent idle|max as executed/timed_out at the active phase, abort cooperatively and await task/child settlement, while bounded sync-child wrappers enforce the first safe boundary. ReproTest: npm --prefix packages/main run build; node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js; node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js. PASS at REVIEW HEAD 2d5b5a6; real JSON/nonzero tests cover DONE-required phase plus post-validation closeout idle|max, descendant cleanup where a child exists, and immediate rerun.",
+      "resolvedAt": "2026-07-15T20:20:33.339Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c163:F-006",
