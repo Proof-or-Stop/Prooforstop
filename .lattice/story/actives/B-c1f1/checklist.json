@@ -121,7 +121,7 @@
         "docs/requirements/NAV.md",
         "docs/requirements/decisions/truth-source.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-15T12:03:44.922Z",
       "endTime": "2026-07-15T12:04:30.686Z",
       "verificationIntent": {
@@ -226,6 +226,15 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Address F-006 and F-008 with semantic dual-read identity and an independently inspectable line-level scan manifest appendix."
+    },
+    {
+      "timestamp": "2026-07-15T12:22:20.787Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Replace invalid F-009 NAV count evidence with a correctly quoted reproducible command."
     }
   ]
 }
