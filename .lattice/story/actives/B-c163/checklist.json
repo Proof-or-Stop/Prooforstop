@@ -203,9 +203,9 @@
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-15T19:30:58.283Z",
-      "endTime": "2026-07-15T20:43:18.422Z",
+      "endTime": "2026-07-15T22:29:14.906Z",
       "userSees": "done_prepare reports disposition “reused”, “executed”, or “skipped_explicitly”; JSON separately reports result, refusalReasons, timeoutLayer, and existingEvidenceBasis “fresh|stale|missing”.",
       "files": {
         "modify": [
@@ -830,6 +830,15 @@
       "from": "done",
       "to": "in_progress",
       "reason": "F-012/F-013 restore combined evidence and isolate non-max timeout rows from outer harness preemption"
+    },
+    {
+      "timestamp": "2026-07-15T22:29:14.906Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-012 combined original and focused structured-terminal evidence restored; three focused rounds passed"
     }
   ]
 }
