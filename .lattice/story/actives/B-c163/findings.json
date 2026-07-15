@@ -237,6 +237,25 @@
       "resolvedAt": "2026-07-15T20:35:13.096Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-011",
+      "desc": "A remaining no-invented-fields gap exists for `validate=true,dryRun=true`. That branch records only `planned mutation skipped: dryRun does not run lattice validate`, so `observedValidationTerminalContext` correctly returns undefined. If a later closeout phase hits idle/max, `cliWatchdogTimeoutBlock` nevertheless falls back to disposition=executed and existingEvidenceBasis=stale, even though validation did not execute and the evidence basis was never evaluated. This is the same false-fact class F-006 prohibited, now reachable after the validate step. When validationContext is absent, emit only the observed overall timeout fields (result/refusalReasons/timeoutLayer) and omit disposition/basis, or explicitly record a truthful dry-run validation context before closeout.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T20:36:31.321Z",
+      "reviewRound": "2026-07-15T20:34:31.035Z",
+      "reviewRunId": "B-c163:RR-018",
+      "_hash": "a673cfd27b21f2ec9cc0e5488058ea3d8991b6e52e00697557a36fbcd2491cef",
+      "files": [
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts"
+      ],
+      "signatureTag": "spec-boundary|ts|remaining-invented-fields",
+      "signatureTagSource": "auto"
     }
   ]
 }
