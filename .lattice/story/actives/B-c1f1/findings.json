@@ -154,6 +154,33 @@
       ],
       "signatureTag": "adversarial|md|dual-read-semantic-dedup",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-c1f1:F-007",
+      "desc": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:352-353,437-439 — HIGH: the dual-read cutover defines deduplication with a key that includes `path`, then says any unique legacy fact blocks retirement. A canonical fact and its legacy CLAUDE.md copy necessarily have different source paths, so they can never deduplicate under `(path, anchor, symbol, driftType)`; the legacy scan will contribute path-distinct results and Story 6 readiness can remain blocked even after every fact has a canonical owner. Define a semantic fact identity independent of source provenance (for example normalized target/command + fact/check type + relevant arguments), aggregate canonical and legacy source paths as provenance on that identity, and reserve `unique legacy fact` for an identity absent from canonical results. Add a focused dual-read fixture proving the same fact in two documents deduplicates while a genuinely legacy-only fact blocks retirement.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T12:19:38.581Z",
+      "reviewRound": "2026-07-15T12:17:32.143Z",
+      "reviewRunId": "B-c1f1:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/NAV.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "915ab561e0d1a9be539d0ea664ccee4097683e2abef26157520ca31f248da188",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
