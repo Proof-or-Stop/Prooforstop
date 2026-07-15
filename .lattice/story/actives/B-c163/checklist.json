@@ -416,9 +416,9 @@
         "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
         "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-15T19:30:58.806Z",
-      "endTime": "2026-07-15T20:43:22.319Z",
+      "endTime": "2026-07-15T20:52:33.976Z",
       "userSees": "direct done_required_validate prints periodic “validate heartbeat” lines; --json remains one result, and a throwing/closed progress sink cannot change command PASS/FAIL.",
       "files": {
         "modify": [
@@ -801,6 +801,15 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Focused closure smoke exposed sync child deadline/reap robustness gap; harden phase-bounded sync timeout and regression"
+    },
+    {
+      "timestamp": "2026-07-15T20:52:33.976Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Focused sync deadline/reap hardening committed; RED old path at 5041ms and three consecutive hardened closure smokes passed"
     }
   ]
 }
