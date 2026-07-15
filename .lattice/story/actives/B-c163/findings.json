@@ -312,7 +312,7 @@
       "desc": "BUG-015 regression coverage is incomplete. The added budget block proves only direct done_required_validate (lines 382-390), not direct done_prepare. The timeout block (lines 414-450) proves stale-lock cleanup and capture-only behavior, but never creates a separate still-live validation lock to prove it is preserved, never immediately reruns capture after cleanup, and never combines the timeout with --write then reads evidence/live-smoke-transcript.json to prove the persisted timeout has exitCode:null/non-pass semantics. These are four explicit safety regressions requested for this round; without them a future change could delete an active validator lock, leave the command unusable after timeout, or serialize a timed-out capture as successful while the smoke remains green. Repro/audit: npm --prefix packages/main run build && node packages/main/dist/tasks/live-smoke-transcript-smoke.js passes, while inspection of packages/main/src/tasks/live-smoke-transcript-smoke.ts:370-450 shows the missing cases.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-15T23:31:09.623Z",
@@ -326,7 +326,11 @@
         "packages/main/src/core/done-required-timeout-budget.ts"
       ],
       "signatureTag": "missing|ts|regression-coverage-incomplete",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit bc619c4471 adds direct done_prepare derived-budget assertions, timeout --write/readback exitCode:null non-pass checks, immediate validation-lock reacquire plus immediate capture retry, and preservation of a separate live lock. Independent reviewer build and live-smoke transcript smoke both PASS on signed run B-c163:RR-040.",
+      "resolvedAt": "2026-07-15T23:46:18.940Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c163:F-015",
