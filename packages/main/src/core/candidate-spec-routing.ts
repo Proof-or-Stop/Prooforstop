@@ -20,6 +20,8 @@ export const DEFAULT_HOST_AMBIGUITY_BUDGET = 5;
  * full-corpus escalation. Exact relatedDocs remain direct candidates.
  */
 export const DEFAULT_MAX_QUERY_DOCUMENT_FREQUENCY_RATIO = 0.4;
+/** A body-only match scores 8; only heading-or-stronger ties can change a high-confidence routing decision. */
+export const MIN_RANKING_AFFECTING_CUTOFF_SCORE = 15;
 
 const SHA256 = (value: string | Buffer): string => createHash('sha256').update(value).digest('hex');
 const CONTROL = /[\u0000-\u001f\u007f]/;
@@ -144,6 +146,7 @@ export interface CandidateSpecSetArtifact {
     maxDocumentFrequencyRatio: number;
     filteredTerms: Array<{ term: string; documentCount: number; documentFrequencyRatio: number }>;
   };
+  rankingPolicy: { minRankingAffectingCutoffScore: number };
   budgets: { candidates: number; queryGroups: number; rawHitsPerGroup: number };
   ambiguitySignals: string[];
   requiresEscalation: boolean;
@@ -563,7 +566,11 @@ export function routeCandidateSpecs(args: {
   const hasExplicitRelatedDoc = ranked.some(candidate => candidate.reasons.some(reason => reason.kind === 'related-doc'));
   if (ranked.length > 0 && rankedReasonKinds.size < 2 && !hasExplicitRelatedDoc) ambiguitySignals.push('weak_source_class_coverage');
   if (truncated) ambiguitySignals.push('query_results_truncated');
-  const cutoffTie = ranked.length > candidateBudget && ranked[candidateBudget - 1]?.score === ranked[candidateBudget]?.score;
+  const cutoffScore = ranked[candidateBudget - 1]?.score;
+  const cutoffTie = ranked.length > candidateBudget
+    && cutoffScore === ranked[candidateBudget]?.score
+    && typeof cutoffScore === 'number'
+    && cutoffScore >= MIN_RANKING_AFFECTING_CUTOFF_SCORE;
   if (cutoffTie) ambiguitySignals.push('candidate_cutoff_tie');
   const unmatchedHighConfidenceLegacyTerms = proposals.flatMap(proposal => proposal.terms)
     .filter(term => term.kind === 'legacy-term' && term.confidence === 'high')
@@ -601,6 +608,7 @@ export function routeCandidateSpecs(args: {
     candidateBasis: Object.fromEntries(candidates.map(candidate => [candidate.path, candidate.reasons])),
     queryGroups,
     queryFiltering: { maxDocumentFrequencyRatio, filteredTerms },
+    rankingPolicy: { minRankingAffectingCutoffScore: MIN_RANKING_AFFECTING_CUTOFF_SCORE },
     budgets: { candidates: candidateBudget, queryGroups: queryGroupBudget, rawHitsPerGroup },
     ambiguitySignals,
     requiresEscalation,

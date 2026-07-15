@@ -254,6 +254,23 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     assert.ok(frequencyFilteredRoute.candidateSpecSet.includes('docs/requirements/decisions/auth-session.md'), 'explicit relatedDocs bypass frequency filtering');
     assert.match(renderCandidateSpecRouteText(frequencyFilteredRoute, first.entries.length, []), /queryFiltering=maxDocumentFrequencyRatio=0\.4 filtered=.*decision:3/);
 
+    for (let index = 0; index < 8; index += 1) {
+      writeFileSync(join(root, `docs/requirements/decisions/body-only-${index}.md`), `# Unique ${index}\n\nincidentalbodysignal\n`);
+    }
+    const bodyTieCorpus = buildCorpusIndex(root);
+    const bodyTieRoute = routeCandidateSpecs({
+      projectRoot: root,
+      storyId: story.storyId,
+      corpus: bodyTieCorpus,
+      seeds: buildKeywordSeeds({ storyId: story.storyId, title: 'incidentalbodysignal' }),
+      candidateBudget: 2,
+      maxDocumentFrequencyRatio: 1,
+    });
+    assert.ok(bodyTieRoute.candidates.every(candidate => candidate.score === 8));
+    assert.ok(!bodyTieRoute.escalationReasons.includes('candidate_cutoff_tie'), 'body-only score ties use deterministic truncation and must not force a broad scan');
+    assert.equal(bodyTieRoute.rankingPolicy.minRankingAffectingCutoffScore, 15);
+    for (let index = 0; index < 8; index += 1) rmSync(join(root, `docs/requirements/decisions/body-only-${index}.md`));
+
     const resolvedTruncation = routeCandidateSpecs({
       projectRoot: root, storyId: story.storyId, corpus: first,
       seeds: buildKeywordSeeds({ storyId: story.storyId, title: 'decision' }), rawHitsPerGroup: 1,
