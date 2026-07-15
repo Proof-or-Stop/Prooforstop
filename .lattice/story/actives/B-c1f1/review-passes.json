@@ -266,6 +266,38 @@
       },
       "readDiagnostics": [],
       "_hash": "7a7f37c4f96a9fbb9d599bb08bda74d574aa218506c3b262418878b303492e8a"
+    },
+    {
+      "id": "B-c1f1:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Final targeted docs review at product commit aed3d1508f: PASS. NAV has exactly one correctly labeled active-plan link and the target exists. The 600-row seven-field TSV, digest, 134-file count, classification totals, and frozen path-line set all reproduce. Status, authority hierarchy, nine-Story sequence, B-e514 ownership, rollback, and acceptance are coherent. No new docs blocker beyond F-022/F-023.",
+      "createdAt": "2026-07-15T13:36:16.588Z",
+      "reviewRound": "2026-07-15T13:31:08.401Z",
+      "reviewRunId": "B-c1f1:RR-028",
+      "writerSessionId": "sess-5593716d3b6d0282",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "8191a2407ea88108a5c48247dab5e82da1b634ea72ee3f8689873e0f861a93ad"
+      },
+      "readDiagnostics": [],
+      "_hash": "8fc08f5fe9d6f6d29b79488b3298001b7aee0a71e9caeb103ede221d0ba187b0"
     }
   ]
 }
