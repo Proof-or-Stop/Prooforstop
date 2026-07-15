@@ -298,6 +298,38 @@
       },
       "readDiagnostics": [],
       "_hash": "8fc08f5fe9d6f6d29b79488b3298001b7aee0a71e9caeb103ede221d0ba187b0"
+    },
+    {
+      "id": "B-c1f1:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Closure coverage PASS at product commit a90929b24d. F-024 is covered by descriptor-bound no-follow read/write fixtures including component/target symlinks, lexical/realpath escapes, and injected swap races; F-025 by current-active-only signer authorization with pending/retired/revoked/wrong signer-or-artifact negatives; F-026 by executable A-to-B pending-to-active rotation, restart, stale-A and unauthorized-artifact cases; F-027 by bootstrap/OS/fallback/CI providers, permission/symlink/mismatch/loss and recovery fixtures. Independently replayed frozen scan 7d7bebed: 600 rows, 134 files, exact path:line set match, zero duplicates, all matched phrases present. TSV has 600 data rows, exactly seven nonempty fields each, matching digest and 15/70/511/4 dispositions. NAV count is 115, exact plan link occurs once, and all 103 curated links are unique and resolve. No new blocker.",
+      "createdAt": "2026-07-15T13:53:06.986Z",
+      "reviewRound": "2026-07-15T13:49:34.896Z",
+      "reviewRunId": "B-c1f1:RR-033",
+      "writerSessionId": "sess-5593716d3b6d0282",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "8191a2407ea88108a5c48247dab5e82da1b634ea72ee3f8689873e0f861a93ad"
+      },
+      "readDiagnostics": [],
+      "_hash": "422ea8c713c81162ea1633e238788f9700a2e6d7667d9630cf87ebb481bc2e95"
     }
   ]
 }
