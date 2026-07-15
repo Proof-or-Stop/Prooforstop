@@ -413,9 +413,9 @@
         "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
         "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-15T19:30:58.806Z",
-      "endTime": "2026-07-15T19:54:46.193Z",
+      "endTime": "2026-07-15T20:17:37.807Z",
       "userSees": "direct done_required_validate prints periodic “validate heartbeat” lines; --json remains one result, and a throwing/closed progress sink cannot change command PASS/FAIL.",
       "files": {
         "modify": [
@@ -490,11 +490,11 @@
           "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
           "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
           "result": "pass",
-          "note": "Real direct done_required_validate CLI stays alive beyond idle through heartbeat and returns PASS.",
-          "headHash": "eef51278c5515e513cafd8f3498b1daa9740f00a",
-          "materialHash": "83dfa52672b6054c4aaa7c848032f7750e36c948bc7999ad9e7d9bf8a675a065",
-          "storyFilesHash": "6ccb43cfda8fbf702f15492128fce39c9bff83667c1219210c0650673a98544f",
-          "timestamp": "2026-07-15T19:54:46.447Z"
+          "note": "Real direct silent command stays alive beyond idle through periodic heartbeat and completes PASS within command/derived/max budgets.",
+          "headHash": "a03361c1df5dd49b607b4186d3ce0461548bec43",
+          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
+          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
+          "timestamp": "2026-07-15T20:17:38.438Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -502,11 +502,11 @@
           "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
           "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
           "result": "pass",
-          "note": "Real direct --json stdout is parsed as one terminal object while heartbeat remains on stderr.",
-          "headHash": "eef51278c5515e513cafd8f3498b1daa9740f00a",
-          "materialHash": "83dfa52672b6054c4aaa7c848032f7750e36c948bc7999ad9e7d9bf8a675a065",
-          "storyFilesHash": "6ccb43cfda8fbf702f15492128fce39c9bff83667c1219210c0650673a98544f",
-          "timestamp": "2026-07-15T19:54:46.645Z"
+          "note": "Direct --json stdout is exactly one parseable terminal object while progress and heartbeat remain on stderr.",
+          "headHash": "a03361c1df5dd49b607b4186d3ce0461548bec43",
+          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
+          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
+          "timestamp": "2026-07-15T20:17:38.960Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -514,11 +514,11 @@
           "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
           "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
           "result": "pass",
-          "note": "Real direct and done_prepare routine CLI cases prove idle/max remain authoritative, return timeoutLayer idle|max, preserve parseable JSON, and exit status 1.",
-          "headHash": "eef51278c5515e513cafd8f3498b1daa9740f00a",
-          "materialHash": "83dfa52672b6054c4aaa7c848032f7750e36c948bc7999ad9e7d9bf8a675a065",
-          "storyFilesHash": "6ccb43cfda8fbf702f15492128fce39c9bff83667c1219210c0650673a98544f",
-          "timestamp": "2026-07-15T19:54:46.858Z"
+          "note": "Explicit idle and max below/above defaults remain authoritative; heartbeat refreshes idle only and max is attributed timeoutLayer=max.",
+          "headHash": "a03361c1df5dd49b607b4186d3ce0461548bec43",
+          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
+          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
+          "timestamp": "2026-07-15T20:17:39.173Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -526,23 +526,23 @@
           "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
           "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
           "result": "pass",
-          "note": "Asserts done_prepare bridge and direct validation progress remain JSON-safe without duplicate result payloads.",
-          "headHash": "eef51278c5515e513cafd8f3498b1daa9740f00a",
-          "materialHash": "83dfa52672b6054c4aaa7c848032f7750e36c948bc7999ad9e7d9bf8a675a065",
-          "storyFilesHash": "6ccb43cfda8fbf702f15492128fce39c9bff83667c1219210c0650673a98544f",
-          "timestamp": "2026-07-15T19:54:47.091Z"
+          "note": "done_prepare and direct progress remain JSON-safe; quiet/noisy paths emit one result and preflight omits unobserved validation fields.",
+          "headHash": "a03361c1df5dd49b607b4186d3ce0461548bec43",
+          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
+          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
+          "timestamp": "2026-07-15T20:17:39.570Z"
         },
         {
           "intentRef": "CHK-003:edge:2",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
-          "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
           "result": "pass",
-          "note": "Table-driven real subprocesses isolate pass, command, idle, and max outcomes; each timed_out terminal is single, structured, and nonzero.",
-          "headHash": "eef51278c5515e513cafd8f3498b1daa9740f00a",
-          "materialHash": "83dfa52672b6054c4aaa7c848032f7750e36c948bc7999ad9e7d9bf8a675a065",
-          "storyFilesHash": "6ccb43cfda8fbf702f15492128fce39c9bff83667c1219210c0650673a98544f",
-          "timestamp": "2026-07-15T19:54:47.355Z"
+          "note": "Deterministic injected future/expired deadline seams and abort-at-start ordering complement real pass/command/idle/max subprocess terminals without narrow just-before wall-clock races.",
+          "headHash": "a03361c1df5dd49b607b4186d3ce0461548bec43",
+          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
+          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
+          "timestamp": "2026-07-15T20:17:39.787Z"
         },
         {
           "intentRef": "CHK-003:edge:3",
@@ -550,35 +550,35 @@
           "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
           "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
-          "note": "Real handler cases assert synchronous throwing sink preserves FAIL and async rejecting sink preserves PASS without unhandled rejection.",
-          "headHash": "eef51278c5515e513cafd8f3498b1daa9740f00a",
-          "materialHash": "83dfa52672b6054c4aaa7c848032f7750e36c948bc7999ad9e7d9bf8a675a065",
-          "storyFilesHash": "6ccb43cfda8fbf702f15492128fce39c9bff83667c1219210c0650673a98544f",
-          "timestamp": "2026-07-15T19:54:47.592Z"
+          "note": "Synchronous throwing and asynchronous rejecting diagnostic sinks preserve independent FAIL/PASS and do not produce unhandled rejection.",
+          "headHash": "a03361c1df5dd49b607b4186d3ce0461548bec43",
+          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
+          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
+          "timestamp": "2026-07-15T20:17:40.030Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
-          "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
           "result": "pass",
-          "note": "Command descendant timeout asserts grandchild ESRCH; direct command/idle/max and routine done_prepare idle/max each permit an immediate successful validation rerun after cleanup.",
-          "headHash": "eef51278c5515e513cafd8f3498b1daa9740f00a",
-          "materialHash": "83dfa52672b6054c4aaa7c848032f7750e36c948bc7999ad9e7d9bf8a675a065",
-          "storyFilesHash": "6ccb43cfda8fbf702f15492128fce39c9bff83667c1219210c0650673a98544f",
-          "timestamp": "2026-07-15T19:54:47.846Z"
+          "note": "Actual spawned descendants are killed and ESRCH-verified for command, DONE-required phase, CLI idle, and CLI max, followed by immediate rerun. Pure in-process closeout phases spawn no child, so descendant ESRCH is explicitly not applicable there.",
+          "headHash": "a03361c1df5dd49b607b4186d3ce0461548bec43",
+          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
+          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
+          "timestamp": "2026-07-15T20:17:40.237Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
-          "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
-          "note": "Phase deadline race asserts no late PASS evidence and immediate direct rerun proves timer/lock cleanup.",
-          "headHash": "eef51278c5515e513cafd8f3498b1daa9740f00a",
-          "materialHash": "83dfa52672b6054c4aaa7c848032f7750e36c948bc7999ad9e7d9bf8a675a065",
-          "storyFilesHash": "6ccb43cfda8fbf702f15492128fce39c9bff83667c1219210c0650673a98544f",
-          "timestamp": "2026-07-15T19:54:48.058Z"
+          "note": "Abort triggered concurrently at command_start asserts exactly one command_timeout/end, no heartbeat after terminal, and at most one evidence write.",
+          "headHash": "a03361c1df5dd49b607b4186d3ce0461548bec43",
+          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
+          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
+          "timestamp": "2026-07-15T20:17:40.434Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
@@ -586,11 +586,11 @@
           "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
           "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
           "result": "pass",
-          "note": "Heartbeat remains diagnostic: wedged direct and done_prepare routine children are still terminated by command or explicit max/idle bounds with structured timed_out attribution.",
-          "headHash": "eef51278c5515e513cafd8f3498b1daa9740f00a",
-          "materialHash": "83dfa52672b6054c4aaa7c848032f7750e36c948bc7999ad9e7d9bf8a675a065",
-          "storyFilesHash": "6ccb43cfda8fbf702f15492128fce39c9bff83667c1219210c0650673a98544f",
-          "timestamp": "2026-07-15T19:54:48.361Z"
+          "note": "Genuinely wedged children continue diagnostic heartbeats yet command/idle/max absolute bounds terminate with structured timed_out and correct layer.",
+          "headHash": "a03361c1df5dd49b607b4186d3ce0461548bec43",
+          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
+          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
+          "timestamp": "2026-07-15T20:17:40.656Z"
         }
       ]
     }
@@ -688,6 +688,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Round 3 reuse matrix and corrected 10/10 evidence mapping verified."
+    },
+    {
+      "timestamp": "2026-07-15T20:17:37.807Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Round 3 liveness, deterministic race, descendant cleanup, and complete 9/9 evidence verified."
     }
   ]
 }
