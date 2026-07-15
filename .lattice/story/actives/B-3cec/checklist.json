@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define canonical document views and fail-closed content selectors",
+      "context": "Create a data-only registry with stable view identities, canonical versus legacy-fallback provenance, managed-slot and legacy-complement selectors, disjoint-range validation, host selectors, and no filesystem I/O.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md#story-1--contract-tests-and-canonical-registry",
+        "docs/requirements/decisions/truth-source.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Register and secure thin-entrypoint process-evidence artifacts",
+      "context": "Add exact typed artifact templates, ambiguity-rejecting resolution, descriptor-bound no-follow I/O, current-active signer authorization, pending-key preflight separation, and private-key provider/bootstrap behavior required by the plan.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md#shared-canonical-document-registry",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add red-before and green-after thin-entrypoint failure exercises",
+      "context": "Build the required temporary-repository/in-memory harness for budgets, imports, links, provenance, selector states, freshness, typed paths, signatures, key rotation, provider recovery, symlink and TOCTOU boundaries, material cleanliness, and frozen legacy-root rejection; record assertion-specific red evidence before production behavior is changed.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md#red-before--green-after-verification-contract",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Integrate focused verification without migrating existing consumers",
+      "context": "Register the failure-exercise smoke in focused commands and npm test, build the package, and prove the new isolated registry/validator infrastructure passes while audit, review, templates, and root entrypoints retain their current behavior until later Stories.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md#story-1--contract-tests-and-canonical-registry",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
