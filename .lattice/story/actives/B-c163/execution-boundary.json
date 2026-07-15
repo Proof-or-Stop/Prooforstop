@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-c163",
+  "allowedCommands": [
+    "git add*",
+    "git commit*",
+    "git diff*",
+    "git log*",
+    "git merge main*",
+    "git show*",
+    "git status*",
+    "lattice *",
+    "node packages/main/dist/tasks/*",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main *",
+    "npm install*",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "coverage-reviewer",
+    "exec_command",
+    "lattice-review-scope-plan",
+    "lattice-review-story-init",
+    "product-reviewer",
+    "reviewer",
+    "verification-intent"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+    "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/done-prepare-validation-reuse.ts",
+    "packages/main/src/core/done-required-timeout-budget.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/handlers/done-required-validation.ts",
+    "packages/main/src/tasks/command-catalog-smoke.ts",
+    "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+    "packages/main/src/tasks/done-required-validation-smoke.ts",
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excludedCommands": [
+    "git checkout --*",
+    "git push*",
+    "git reset --hard*",
+    "omx *"
+  ],
+  "excludedTools": [
+    "omx",
+    "remote host execution",
+    "remote publish"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "packages/main/src/core/candidate-spec-routing.ts",
+    "packages/main/src/core/host-execution-readiness.ts",
+    "packages/main/src/core/owner-session.ts",
+    "packages/main/src/core/scope-diff-pack.ts",
+    "packages/main/src/core/scope-path-classifier.ts",
+    "packages/main/src/handlers/story-dispatch.ts",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Final immutable Workstream A boundary includes runtime, CLI schema, process registry, focused tests, dependency bootstrap command, and all six canonical documents.",
+  "createdAt": "2026-07-15T18:57:44.077Z",
+  "updatedAt": "2026-07-15T18:57:44.077Z",
+  "_hash": "f404abdee8c76afc08e020ed6515c02f51245a8303c5228a7ffe8ed1a788518a"
+}
