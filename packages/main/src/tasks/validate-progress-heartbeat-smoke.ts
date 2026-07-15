@@ -41,6 +41,10 @@ const COMMAND_DURATION_MS = 11_500;
 const COMMAND_TIMEOUT_MS = 20_000;
 const IDLE_TIMEOUT_MS = 1_000;
 const HEARTBEAT_MS = 250;
+// Fixture setup and CLI startup are outside the timeout layer under test. Keep
+// their guards wide so only rows explicitly named "max" exercise a tight max.
+const NON_MAX_OUTER_TIMEOUT_MS = 120_000;
+const NON_MAX_HARNESS_CEILING_MS = 60_000;
 
 type CliResult = {
   status: number | null;
@@ -183,14 +187,14 @@ function setupStoryAdvanceFixture(): { root: string; storyId: string; started: s
   return { ...fixture, storyId };
 }
 
-function runCli(root: string, args: string[], ceilingMs = 25_000, env: Record<string, string> = {}): Promise<CliResult> {
+function runCli(root: string, args: string[], ceilingMs = NON_MAX_HARNESS_CEILING_MS, env: Record<string, string> = {}): Promise<CliResult> {
   const start = Date.now();
   const child = spawn(process.execPath, [cliPath, '--root', root, ...args], {
     cwd: root,
     env: {
       ...process.env,
       LATTICE_IDLE_TIMEOUT_MS: String(IDLE_TIMEOUT_MS),
-      LATTICE_MAX_TIMEOUT_MS: '30000',
+      LATTICE_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS),
       LATTICE_VALIDATE_HEARTBEAT_MS: String(HEARTBEAT_MS),
       ...env,
     },
@@ -276,16 +280,16 @@ function prepareDonePrepareRoutineFixture(): ReturnType<typeof setupStoryAdvance
 
 async function assertDirectDoneRequiredTimeoutMatrix(): Promise<void> {
   const cases = [
-    { name: 'pass', durationMs: 800, commandTimeoutMs: 5_000, idleMs: 300, maxMs: 5_000, heartbeatMs: 50, result: 'pass', layer: null },
-    { name: 'command', durationMs: 2_000, commandTimeoutMs: 180, idleMs: 1_000, maxMs: 5_000, heartbeatMs: 50, result: 'timed_out', layer: 'command' },
-    { name: 'idle', durationMs: 2_000, commandTimeoutMs: 5_000, idleMs: 120, maxMs: 5_000, heartbeatMs: 2_000, result: 'timed_out', layer: 'idle' },
+    { name: 'pass', durationMs: 800, commandTimeoutMs: 5_000, idleMs: 300, maxMs: NON_MAX_OUTER_TIMEOUT_MS, heartbeatMs: 50, result: 'pass', layer: null },
+    { name: 'command', durationMs: 2_000, commandTimeoutMs: 180, idleMs: 1_000, maxMs: NON_MAX_OUTER_TIMEOUT_MS, heartbeatMs: 50, result: 'timed_out', layer: 'command' },
+    { name: 'idle', durationMs: 2_000, commandTimeoutMs: 5_000, idleMs: 120, maxMs: NON_MAX_OUTER_TIMEOUT_MS, heartbeatMs: 2_000, result: 'timed_out', layer: 'idle' },
     { name: 'max', durationMs: 2_000, commandTimeoutMs: 5_000, idleMs: 1_000, maxMs: 180, heartbeatMs: 50, result: 'timed_out', layer: 'max' },
   ] as const;
   for (const testCase of cases) {
     const fixture = setupStoryAdvanceFixture();
     try {
       configureDoneRequired(fixture.root, testCase.durationMs, testCase.commandTimeoutMs);
-      const result = await runCli(fixture.root, ['done_required_validate', JSON.stringify({ storyId: fixture.storyId, json: true })], 8_000, {
+      const result = await runCli(fixture.root, ['done_required_validate', JSON.stringify({ storyId: fixture.storyId, json: true })], NON_MAX_HARNESS_CEILING_MS, {
         LATTICE_IDLE_TIMEOUT_MS: String(testCase.idleMs),
         LATTICE_MAX_TIMEOUT_MS: String(testCase.maxMs),
         LATTICE_VALIDATE_HEARTBEAT_MS: String(testCase.heartbeatMs),
@@ -305,9 +309,9 @@ async function assertDirectDoneRequiredTimeoutMatrix(): Promise<void> {
 
       if (testCase.result === 'timed_out') {
         configureDoneRequired(fixture.root, 0, 2_000);
-        const retry = await runCli(fixture.root, ['done_required_validate', JSON.stringify({ storyId: fixture.storyId, json: true })], 5_000, {
+        const retry = await runCli(fixture.root, ['done_required_validate', JSON.stringify({ storyId: fixture.storyId, json: true })], NON_MAX_HARNESS_CEILING_MS, {
           LATTICE_IDLE_TIMEOUT_MS: '1000',
-          LATTICE_MAX_TIMEOUT_MS: '3000',
+          LATTICE_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS),
           LATTICE_VALIDATE_HEARTBEAT_MS: '50',
         });
         assert.equal(retry.status, 0, `${testCase.name} timeout must permit a successful immediate rerun`);
@@ -331,8 +335,8 @@ async function assertDirectDoneRequiredTimeoutMatrix(): Promise<void> {
     }];
     writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8');
     commitAll(descendantFixture.root, 'configure descendant timeout');
-    const timed = await runCli(descendantFixture.root, ['done_required_validate', JSON.stringify({ storyId: descendantFixture.storyId, json: true })], 5_000, {
-      LATTICE_IDLE_TIMEOUT_MS: '1000', LATTICE_MAX_TIMEOUT_MS: '3000', LATTICE_VALIDATE_HEARTBEAT_MS: '50',
+    const timed = await runCli(descendantFixture.root, ['done_required_validate', JSON.stringify({ storyId: descendantFixture.storyId, json: true })], NON_MAX_HARNESS_CEILING_MS, {
+      LATTICE_IDLE_TIMEOUT_MS: '1000', LATTICE_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS), LATTICE_VALIDATE_HEARTBEAT_MS: '50',
     });
     assert.equal(timed.status, 1, 'structured command timeout must exit nonzero');
     assert.equal(JSON.parse(timed.stdout).timeoutLayer, 'command');
@@ -341,8 +345,8 @@ async function assertDirectDoneRequiredTimeoutMatrix(): Promise<void> {
     const descendantPid = Number(readFileSync(pidFile, 'utf8'));
     assert.throws(() => process.kill(descendantPid, 0), /ESRCH/, 'command timeout must kill descendant process group');
     configureDoneRequired(descendantFixture.root, 0, 2_000);
-    const retry = await runCli(descendantFixture.root, ['done_required_validate', JSON.stringify({ storyId: descendantFixture.storyId, json: true })], 5_000, {
-      LATTICE_IDLE_TIMEOUT_MS: '1000', LATTICE_MAX_TIMEOUT_MS: '3000', LATTICE_VALIDATE_HEARTBEAT_MS: '50',
+    const retry = await runCli(descendantFixture.root, ['done_required_validate', JSON.stringify({ storyId: descendantFixture.storyId, json: true })], NON_MAX_HARNESS_CEILING_MS, {
+      LATTICE_IDLE_TIMEOUT_MS: '1000', LATTICE_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS), LATTICE_VALIDATE_HEARTBEAT_MS: '50',
     });
     assert.equal(retry.status, 0, 'descendant timeout cleanup must permit a successful immediate rerun');
     assert.equal(JSON.parse(retry.stdout).result, 'pass');
@@ -353,7 +357,7 @@ async function assertDirectDoneRequiredTimeoutMatrix(): Promise<void> {
 
 async function assertDonePrepareRoutineTimeoutMatrix(): Promise<void> {
   const cases = [
-    { name: 'idle', idleMs: 120, maxMs: 5_000, heartbeatMs: 2_000, layer: 'idle' },
+    { name: 'idle', idleMs: 120, maxMs: NON_MAX_OUTER_TIMEOUT_MS, heartbeatMs: 2_000, layer: 'idle' },
     { name: 'max', idleMs: 1_000, maxMs: 180, heartbeatMs: 50, layer: 'max' },
   ] as const;
   for (const testCase of cases) {
@@ -367,7 +371,7 @@ async function assertDonePrepareRoutineTimeoutMatrix(): Promise<void> {
         '--refreshStale=false',
         '--validate=true',
         '--json',
-      ], 8_000, {
+      ], NON_MAX_HARNESS_CEILING_MS, {
         LATTICE_IDLE_TIMEOUT_MS: String(testCase.idleMs),
         LATTICE_MAX_TIMEOUT_MS: String(testCase.maxMs),
         LATTICE_VALIDATE_HEARTBEAT_MS: String(testCase.heartbeatMs),
@@ -383,9 +387,9 @@ async function assertDonePrepareRoutineTimeoutMatrix(): Promise<void> {
       assert.equal(parsed.existingEvidenceBasis, 'stale');
 
       configureRoutineValidate(fixture.root, 0);
-      const retry = await runCli(fixture.root, ['validate', '--story', fixture.storyId, '--json'], 5_000, {
+      const retry = await runCli(fixture.root, ['validate', '--story', fixture.storyId, '--json'], NON_MAX_HARNESS_CEILING_MS, {
         LATTICE_IDLE_TIMEOUT_MS: '1000',
-        LATTICE_MAX_TIMEOUT_MS: '3000',
+        LATTICE_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS),
         LATTICE_VALIDATE_HEARTBEAT_MS: '50',
       });
       assert.equal(retry.status, 0, `${testCase.name} timeout must release locks/timers for an immediate validation rerun`);
@@ -400,7 +404,7 @@ async function assertDonePrepareRoutineTimeoutMatrix(): Promise<void> {
 
 async function assertOuterWatchdogsKillDescendants(): Promise<void> {
   const cases = [
-    { name: 'idle', idleMs: '500', maxMs: '5000', heartbeatMs: '2000' },
+    { name: 'idle', idleMs: '500', maxMs: String(NON_MAX_OUTER_TIMEOUT_MS), heartbeatMs: '2000' },
     { name: 'max', idleMs: '2000', maxMs: '700', heartbeatMs: '50' },
   ] as const;
   for (const testCase of cases) {
@@ -418,7 +422,7 @@ async function assertOuterWatchdogsKillDescendants(): Promise<void> {
       writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8');
       writeFileSync(join(fixture.root, '.gitignore'), `${readFileSync(join(fixture.root, '.gitignore'), 'utf8')}${testCase.name}-descendant.pid\n`, 'utf8');
       commitAll(fixture.root, `configure ${testCase.name} descendant timeout`);
-      const result = await runCli(fixture.root, ['done_required_validate', JSON.stringify({ storyId: fixture.storyId, json: true })], 5_000, {
+      const result = await runCli(fixture.root, ['done_required_validate', JSON.stringify({ storyId: fixture.storyId, json: true })], NON_MAX_HARNESS_CEILING_MS, {
         LATTICE_IDLE_TIMEOUT_MS: testCase.idleMs,
         LATTICE_MAX_TIMEOUT_MS: testCase.maxMs,
         LATTICE_VALIDATE_HEARTBEAT_MS: testCase.heartbeatMs,
@@ -451,7 +455,7 @@ async function assertNonDivisibleMaxUsesNamedDeadline(): Promise<void> {
       '--refreshStale=false',
       '--validate=true',
       '--json',
-    ], 5_000, {
+    ], NON_MAX_HARNESS_CEILING_MS, {
       LATTICE_IDLE_TIMEOUT_MS: '5000',
       LATTICE_MAX_TIMEOUT_MS: '1005',
       LATTICE_VALIDATE_HEARTBEAT_MS: '50',
@@ -467,9 +471,9 @@ async function assertNonDivisibleMaxUsesNamedDeadline(): Promise<void> {
     assert.ok(!/validation failed/i.test(parsed.reason ?? ''), 'named deadline must not collapse into generic validation failure');
 
     configureRoutineValidate(fixture.root, 0);
-    const retry = await runCli(fixture.root, ['validate', '--story', fixture.storyId, '--json'], 5_000, {
+    const retry = await runCli(fixture.root, ['validate', '--story', fixture.storyId, '--json'], NON_MAX_HARNESS_CEILING_MS, {
       LATTICE_IDLE_TIMEOUT_MS: '1000',
-      LATTICE_MAX_TIMEOUT_MS: '3000',
+      LATTICE_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS),
       LATTICE_VALIDATE_HEARTBEAT_MS: '50',
     });
     assert.equal(retry.status, 0, 'named deadline path must preserve cleanup for immediate rerun');
@@ -547,7 +551,7 @@ function assertGreenBehavior(result: CliResult, started: string, finished: strin
 async function assertStoryAdvanceReceivesHeartbeat(): Promise<void> {
   const { root, storyId, started, finished } = setupStoryAdvanceFixture();
   try {
-    const result = await runCli(root, ['story_advance', JSON.stringify({ storyId, phase: 'TEST' })], 35_000);
+    const result = await runCli(root, ['story_advance', JSON.stringify({ storyId, phase: 'TEST' })], NON_MAX_HARNESS_CEILING_MS);
     assert.equal(result.status, 0, `story_advance should survive active validate heartbeat:\n${result.stderr}\n${result.stdout}`);
     assert.ok(existsSync(started), 'story_advance internal validate command must start');
     assert.ok(existsSync(finished), 'story_advance internal validate command must finish');
@@ -568,7 +572,7 @@ async function assertStoryAdvanceReceivesHeartbeat(): Promise<void> {
 async function assertTrueHangFailsClosedWithNamedDiagnostics(): Promise<void> {
   const { root } = setupTimeoutFixture();
   try {
-    const result = await runValidate(root, 15_000);
+    const result = await runValidate(root, NON_MAX_HARNESS_CEILING_MS);
     assert.equal(result.status, 0, `validate command should return JSON even for failed validation:\n${result.stderr}`);
     assert.ok(!result.stderr.includes('without output; forcing exit'), `true hang should fail by command timeout, not idle watchdog:\n${result.stderr}`);
     assert.match(result.stderr, /validate timeout: command 1\/1 true-hang: command=.* args=.* timeoutMs=1000 elapsedMs=/);
