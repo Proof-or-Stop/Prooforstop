@@ -3168,6 +3168,10 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
   for (const token of ['structuredWatchdog', 'watchdogAbort.abort', 'CliWatchdogTimeoutError', 'isStructuredDoneFailure', "process.exitCode = structuredDoneFailure ? 1 : 0"]) {
     assert(cliEngineText.includes(token), `DONE-required structured CLI watchdog contract missing ${token}`);
   }
+  const donePrepareText = read('packages/main/src/handlers/done-prepare.ts');
+  for (const token of ['cliWatchdogTimeoutBlock', 'throwIfParentTimedOut', 'deadlineAt', 'Await the cooperative task after aborting it']) {
+    assert(donePrepareText.includes(token), `done_prepare cooperative watchdog/cleanup contract missing ${token}`);
+  }
   assert(cliToolNameSet.has(commandName), `CLI schema: required DONE-required validation command missing from MAIN_TOOLS: ${commandName}`);
 
   const policy = policyByName.get(commandName);

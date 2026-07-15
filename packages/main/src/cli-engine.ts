@@ -1024,6 +1024,7 @@ export async function runCli(opts?: {
   if (structuredWatchdog) {
     Object.assign(parsed, {
       abortSignal: watchdogAbort.signal,
+      deadlineAt: startTime + MAX_TIMEOUT,
       deadlineError: () => watchdogAbort.signal.reason instanceof Error
         ? watchdogAbort.signal.reason
         : new CliWatchdogTimeoutError('max', MAX_TIMEOUT),

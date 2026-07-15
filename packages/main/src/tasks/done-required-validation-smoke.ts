@@ -17,7 +17,7 @@ import {
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
-import { commandCliMaxBudget, doneRequiredDerivedBudget, NODE_TIMER_MAX_MS, safeTimeoutSum, sequentialValidationBudget } from '../core/done-required-timeout-budget.js';
+import { CliWatchdogTimeoutError, commandCliMaxBudget, doneRequiredDerivedBudget, NODE_TIMER_MAX_MS, safeTimeoutSum, sequentialValidationBudget } from '../core/done-required-timeout-budget.js';
 import { evaluateDoneRequiredPreRunReuse } from '../core/done-prepare-validation-reuse.js';
 import {
   MAX_NODE_TIMER_DELAY_MS,
@@ -233,6 +233,65 @@ function assertDoneRequiredBlocked(
   }
 }
 
+// Injected deadline seams deterministically cover before/after without relying on wall-clock races.
+{
+  const root = mkdtempSync(join(tmpdir(), 'lattice-validation-deadline-seam-'));
+  try {
+    const beforeDeadline = await runValidationCommand({
+      label: 'before deadline', command: process.execPath, args: ['-e', 'process.exit(0)'], timeoutMs: 5_000,
+    }, root, 5_000, { deadlineAt: Date.now() + 5_000 });
+    assert.equal(beforeDeadline.code, 0);
+    assert.equal(beforeDeadline.timedOut, undefined);
+
+    const afterDeadline = await runValidationCommand({
+      label: 'after deadline', command: process.execPath, args: ['-e', 'setInterval(()=>{},1000)'], timeoutMs: 5_000,
+    }, root, 5_000, { deadlineAt: Date.now() - 1 });
+    assert.equal(afterDeadline.code, 124);
+    assert.equal(afterDeadline.timedOut, true);
+    assert.equal(afterDeadline.timeoutMs, 1);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// Abort concurrent with command start settles once, writes one evidence artifact,
+// and emits no heartbeat after the terminal command_end event.
+{
+  const { root, store } = fixture([{ label: 'abort ordering', command: process.execPath, args: ['-e', 'setInterval(()=>{},1000)'], timeoutMs: 5_000 }]);
+  const previousCwd = process.cwd();
+  try {
+    process.chdir(root);
+    let evidenceWrites = 0;
+    const originalWrite = store.writeDoneRequiredEvidence.bind(store);
+    store.writeDoneRequiredEvidence = (storyId: string, data: DoneRequiredEvidenceData): void => {
+      evidenceWrites += 1;
+      originalWrite(storyId, data);
+    };
+    const abort = new AbortController();
+    const eventTypes: string[] = [];
+    const handler = createDoneRequiredValidationHandlers({ root, scanRoot: root, store, log: () => {} });
+    const parsed = JSON.parse(await handler.done_required_validate({
+      storyId: STORY_ID,
+      json: true,
+      abortSignal: abort.signal,
+      progress: (event: { type: string }) => {
+        eventTypes.push(event.type);
+        if (event.type === 'command_start') abort.abort(new CliWatchdogTimeoutError('idle', 1));
+      },
+    }));
+    assert.equal(parsed.result, 'timed_out');
+    assert.equal(parsed.timeoutLayer, 'idle');
+    assert.ok(evidenceWrites <= 1, 'abort/exit race must never duplicate a terminal evidence artifact');
+    assert.equal(eventTypes.filter((type) => type === 'command_end').length, 1);
+    assert.equal(eventTypes.filter((type) => type === 'command_timeout').length, 1);
+    const endIndex = eventTypes.lastIndexOf('command_end');
+    assert.equal(eventTypes.slice(endIndex + 1).includes('heartbeat'), false, 'no heartbeat may follow terminal command_end');
+  } finally {
+    process.chdir(previousCwd);
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 // Timeout arithmetic covers the legal sequential command budget once and saturates safely.
 {
   const { root } = fixture([{ label: 'slow legal suite', command: 'node', args: ['-e', 'process.exit(0)'], timeoutMs: 1_200_000 }]);
@@ -281,6 +340,78 @@ function assertDoneRequiredBlocked(
 }
 
 // Ordinary validate can pass while required gate fails, and missing artifact blocks required policy.
+
+// Reuse refuses an independently corrupted evidence schema.
+{
+  const { root, store } = fixture([{ label: 'required pass', command: 'node', args: ['-e', 'process.exit(0)'] }]);
+  try {
+    const evidence = writeDoneEvidence(root, store);
+    store.writeDoneRequiredEvidence(STORY_ID, { ...evidence, schema: 'wrong-schema' } as unknown as DoneRequiredEvidenceData);
+    const reuse = evaluateDoneRequiredPreRunReuse({ root, gitCwd: root, storyId: STORY_ID, store });
+    assert.equal(reuse.reusable, false);
+    assert.match(reuse.refusalReasons.join('\n'), /schema|version/i);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// Proof-admissibility mutation is independent from lineage and policy drift.
+{
+  const { root, store } = fixture(
+    [{ label: 'required pass', command: 'node', args: ['-e', 'process.exit(0)'] }],
+    { mode: 'enforce', enforcedConsumers: ['DONE_REQUIRED'] },
+  );
+  try {
+    const evidence = writeDoneEvidence(root, store);
+    store.writeDoneRequiredEvidence(STORY_ID, {
+      ...evidence,
+      receipts: evidence.receipts.map((receipt) => ({ ...receipt, commandSpec: undefined })),
+    });
+    const reuse = evaluateDoneRequiredPreRunReuse({ root, gitCwd: root, storyId: STORY_ID, store });
+    assert.equal(reuse.reusable, false);
+    assert.match(reuse.refusalReasons.join('\n'), /command_spec_missing|proof/i);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// A valid but non-ancestor evidence HEAD cannot be reused.
+{
+  const { root, store } = fixture([{ label: 'required pass', command: 'node', args: ['-e', 'process.exit(0)'] }]);
+  try {
+    const evidence = writeDoneEvidence(root, store);
+    git(root, ['checkout', '-b', 'side-lineage']);
+    writeFileSync(join(root, 'SIDE.md'), 'side\n', 'utf8');
+    git(root, ['add', 'SIDE.md']);
+    git(root, ['commit', '-m', 'side lineage']);
+    const sideHead = currentGitHead(root)!;
+    git(root, ['checkout', 'main']);
+    store.writeDoneRequiredEvidence(STORY_ID, { ...evidence, headHash: sideHead });
+    const reuse = evaluateDoneRequiredPreRunReuse({ root, gitCwd: root, storyId: STORY_ID, store });
+    assert.equal(reuse.reusable, false);
+    assert.match(reuse.refusalReasons.join('\n'), /evidence-head-is-not-current-ancestor/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// A metadata-looking path outside the canonical allowlist remains untrusted.
+{
+  const { root, store } = fixture([{ label: 'required pass', command: 'node', args: ['-e', 'process.exit(0)'] }]);
+  try {
+    writeDoneEvidence(root, store);
+    git(root, ['add', '.lattice/story/actives']);
+    git(root, ['commit', '-m', 'commit evidence metadata']);
+    writeFileSync(join(root, '.lattice-story-like.json'), '{}\n', 'utf8');
+    git(root, ['add', '.lattice-story-like.json']);
+    git(root, ['commit', '-m', 'metadata-like path outside allowlist']);
+    const reuse = evaluateDoneRequiredPreRunReuse({ root, gitCwd: root, storyId: STORY_ID, store });
+    assert.equal(reuse.reusable, false);
+    assert.match(reuse.refusalReasons.join('\n'), /untrusted-lineage-path:\.lattice-story-like\.json/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
 
 // Direct handler defaults progress to ctx.log, keeps JSON singular, and contains a throwing sink.
 // Every intervening commit is inspected, so modify-then-revert material history is still untrusted.

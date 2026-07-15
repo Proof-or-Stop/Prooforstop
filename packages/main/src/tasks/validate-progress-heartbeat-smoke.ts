@@ -398,6 +398,48 @@ async function assertDonePrepareRoutineTimeoutMatrix(): Promise<void> {
   }
 }
 
+async function assertOuterWatchdogsKillDescendants(): Promise<void> {
+  const cases = [
+    { name: 'idle', idleMs: '500', maxMs: '5000', heartbeatMs: '2000' },
+    { name: 'max', idleMs: '2000', maxMs: '700', heartbeatMs: '50' },
+  ] as const;
+  for (const testCase of cases) {
+    const fixture = setupStoryAdvanceFixture();
+    try {
+      const pidFile = join(fixture.root, `${testCase.name}-descendant.pid`);
+      const configPath = join(fixture.root, 'lattice.config.json');
+      const config = JSON.parse(readFileSync(configPath, 'utf8')) as Record<string, unknown>;
+      config.doneRequiredCommands = [{
+        label: `${testCase.name}-descendant-tree-timeout`,
+        command: process.execPath,
+        args: ['-e', `const {spawn}=require('child_process');const fs=require('fs');const c=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'});fs.writeFileSync(${JSON.stringify(pidFile)},String(c.pid));setInterval(()=>{},1000)`],
+        timeoutMs: 5_000,
+      }];
+      writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8');
+      writeFileSync(join(fixture.root, '.gitignore'), `${readFileSync(join(fixture.root, '.gitignore'), 'utf8')}${testCase.name}-descendant.pid\n`, 'utf8');
+      commitAll(fixture.root, `configure ${testCase.name} descendant timeout`);
+      const result = await runCli(fixture.root, ['done_required_validate', JSON.stringify({ storyId: fixture.storyId, json: true })], 5_000, {
+        LATTICE_IDLE_TIMEOUT_MS: testCase.idleMs,
+        LATTICE_MAX_TIMEOUT_MS: testCase.maxMs,
+        LATTICE_VALIDATE_HEARTBEAT_MS: testCase.heartbeatMs,
+      });
+      assert.equal(result.status, 1);
+      const parsed = JSON.parse(result.stdout);
+      assert.equal(parsed.result, 'timed_out');
+      assert.equal(parsed.timeoutLayer, testCase.name);
+      assert.ok(existsSync(pidFile));
+      await new Promise((resolve) => setTimeout(resolve, 150));
+      const descendantPid = Number(readFileSync(pidFile, 'utf8'));
+      assert.throws(() => process.kill(descendantPid, 0), /ESRCH/, `${testCase.name} watchdog must kill descendants before structured return`);
+      const terminalIndex = result.stderr.lastIndexOf('completed with structured failure');
+      const heartbeatAfterTerminal = result.stderr.slice(Math.max(0, terminalIndex)).includes('validate heartbeat:');
+      assert.equal(heartbeatAfterTerminal, false, `${testCase.name} timeout must not emit heartbeat after terminal output`);
+    } finally {
+      rmSync(fixture.root, { recursive: true, force: true });
+    }
+  }
+}
+
 function runValidate(root: string, ceilingMs?: number): Promise<CliResult> {
   return runCli(root, ['validate', '--json'], ceilingMs);
 }
@@ -525,6 +567,7 @@ void (async () => {
     await assertTrueHangFailsClosedWithNamedDiagnostics();
     await assertDirectDoneRequiredTimeoutMatrix();
     await assertDonePrepareRoutineTimeoutMatrix();
+    await assertOuterWatchdogsKillDescendants();
     console.log('validate-progress-heartbeat smoke passed');
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));

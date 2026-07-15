@@ -336,13 +336,43 @@ function assertActualReuseSwitchAndValidateFalseBasis(): void {
     assert.equal(reusedJson.timeoutLayer, null);
     assert.ok(!reused.stderr.includes(DONE_REQUIRED_PROGRESS_LABEL), 'reused receipt must skip DONE-required command execution');
 
+    const evidencePath = join(reusableFixture.root, `.lattice/story/actives/${reusableFixture.storyId}/done-required-evidence.json`);
+    const beforeDisabled = JSON.parse(readFileSync(evidencePath, 'utf8')) as { endedAt?: string };
     const disabled = runCli(reusableFixture.root, [
       ...donePrepareRealValidateArgs(reusableFixture.storyId, true),
       '--reuseFreshDoneRequired=false',
     ]);
+    const disabledJson = JSON.parse(disabled.stdout);
+    assert.equal(disabledJson.disposition, 'executed');
+    assert.equal(disabledJson.result, 'pass');
+    assert.equal(disabledJson.timeoutLayer, null);
     assert.match(disabled.stderr, /done_prepare progress: running DONE-required validation/, 'disabled reuse must execute DONE-required commands');
+    const afterDisabled = JSON.parse(readFileSync(evidencePath, 'utf8')) as { endedAt?: string };
+    assert.notEqual(afterDisabled.endedAt, beforeDisabled.endedAt, 'disabled reuse must refresh the DONE-required receipt');
   } finally {
     rmSync(reusableFixture.root, { recursive: true, force: true });
+  }
+
+  const descendantFixture = setupFixture({ realValidate: true });
+  try {
+    seedDoneRequiredViaCli(descendantFixture.root, descendantFixture.storyId);
+    write(
+      descendantFixture.root,
+      `.lattice/story/actives/${descendantFixture.storyId}/background.md`,
+      '# trusted metadata-only descendant\n',
+    );
+    commitAll(descendantFixture.root, 'add trusted story metadata descendant');
+    const descendant = runCli(
+      descendantFixture.root,
+      donePrepareRealValidateArgs(descendantFixture.storyId, true),
+    );
+    const parsed = JSON.parse(descendant.stdout);
+    assert.equal(parsed.disposition, 'reused', 'trusted metadata-only descendant must reuse actual done_prepare evidence');
+    assert.equal(parsed.result, 'pass');
+    assert.match(parsed.transcript, /lineage=trusted-story-metadata-descendant/);
+    assert.ok(!descendant.stderr.includes(DONE_REQUIRED_PROGRESS_LABEL));
+  } finally {
+    rmSync(descendantFixture.root, { recursive: true, force: true });
   }
 
   for (const basis of ['missing', 'fresh', 'stale'] as const) {
@@ -381,6 +411,64 @@ function assertActualReuseSwitchAndValidateFalseBasis(): void {
     assert.equal(readFileSync(evidencePath, 'utf8'), before);
   } finally {
     rmSync(malformed.root, { recursive: true, force: true });
+  }
+}
+
+function assertPreflightBlockOmitsUnobservedValidationFields(): void {
+  const fixture = setupFixture();
+  try {
+    const result = runCli(fixture.root, [
+      'done_prepare', '--storyId', 'B-does-not-exist', '--json',
+    ]);
+    assert.equal(result.status, 1, 'preflight blocker must exit nonzero while preserving JSON');
+    const parsed = JSON.parse(result.stdout);
+    assert.equal(parsed.status, 'blocked');
+    assert.equal(parsed.blockedAt, 'preflight');
+    for (const field of ['disposition', 'result', 'existingEvidenceBasis', 'timeoutLayer', 'refusalReasons']) {
+      assert.equal(Object.hasOwn(parsed, field), false, `preflight must not invent unobserved validation field ${field}`);
+    }
+  } finally {
+    rmSync(fixture.root, { recursive: true, force: true });
+  }
+}
+
+function assertPostValidationCloseoutCliTimeouts(): void {
+  const cases = [
+    { layer: 'idle', idleMs: '120', maxMs: '5000', heartbeatMs: '2000' },
+    { layer: 'max', idleMs: '1000', maxMs: '180', heartbeatMs: '50' },
+  ] as const;
+  for (const testCase of cases) {
+    const fixture = setupFixture();
+    try {
+      const storyDir = `.lattice/story/actives/${fixture.storyId}`;
+      const before = readTreeSnapshot(fixture.root, storyDir);
+      const result = runCli(fixture.root, donePrepareFlagArgs(fixture.storyId, true), {
+        LATTICE_IDLE_TIMEOUT_MS: testCase.idleMs,
+        LATTICE_MAX_TIMEOUT_MS: testCase.maxMs,
+        LATTICE_DONE_PREPARE_HEARTBEAT_MS: testCase.heartbeatMs,
+        LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS: '5000',
+        LATTICE_DONE_PREPARE_SMOKE_HANG_PHASE: 'doneClosure',
+      });
+      assert.equal(result.status, 1, `post-validation ${testCase.layer} timeout must exit nonzero`);
+      const parsed = JSON.parse(result.stdout);
+      assert.equal(parsed.status, 'blocked');
+      assert.equal(parsed.blockedAt, 'doneClosure');
+      assert.equal(parsed.disposition, 'executed');
+      assert.equal(parsed.result, 'timed_out');
+      assert.equal(parsed.timeoutLayer, testCase.layer);
+      assert.deepEqual(readTreeSnapshot(fixture.root, storyDir), before, 'watchdog timeout must not duplicate or mutate story evidence');
+      assert.equal((result.stdout.match(/"schemaVersion"/g) ?? []).length, 1, 'watchdog timeout emits one terminal JSON object');
+
+      const retry = runCli(fixture.root, donePrepareFlagArgs(fixture.storyId, true), {
+        LATTICE_IDLE_TIMEOUT_MS: '1000',
+        LATTICE_MAX_TIMEOUT_MS: '5000',
+        LATTICE_DONE_PREPARE_HEARTBEAT_MS: '50',
+      });
+      assert.equal(retry.status, 0, `${testCase.layer} timeout must leave no child/lock/timer that blocks immediate rerun`);
+      assert.equal(JSON.parse(retry.stdout).status, 'pass');
+    } finally {
+      rmSync(fixture.root, { recursive: true, force: true });
+    }
   }
 }
 
@@ -502,13 +590,20 @@ function assertRealValidateDoneRequiredProgressJsonSafe(): void {
 }
 
 async function assertDoneRequiredPhaseTimeoutFailsClosed(): Promise<void> {
-  const childDurationMs = 1_000;
+  const childDurationMs = 1_500;
   const { root, storyId } = setupFixture({ realValidate: true, doneRequiredDelayMs: childDurationMs });
   try {
+    const descendantPidFile = join(root, 'phase-descendant.pid');
+    const configPath = join(root, 'lattice.config.json');
+    const config = JSON.parse(readFileSync(configPath, 'utf8')) as { doneRequiredCommands: Array<{ args: string[] }> };
+    config.doneRequiredCommands[0].args = ['-e', `const {spawn}=require('child_process');const fs=require('fs');const c=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'});fs.writeFileSync(${JSON.stringify(descendantPidFile)},String(c.pid));setTimeout(()=>process.exit(0),${childDurationMs})`];
+    writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8');
+    writeFileSync(join(root, '.gitignore'), `${readFileSync(join(root, '.gitignore'), 'utf8')}phase-descendant.pid\n`, 'utf8');
+    commitAll(root, 'configure phase-timeout descendant fixture');
     const result = runCli(root, donePrepareRealValidateArgs(storyId, true), {
       LATTICE_DONE_PREPARE_HEARTBEAT_MS: '20',
       LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS: '5000',
-      LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS: '100',
+      LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS: '500',
       LATTICE_VALIDATE_HEARTBEAT_MS: '20',
     });
     assert.equal(result.status, 1, `phase-timeout done_prepare should return blocked JSON and exit nonzero:\n${result.stderr}\n${result.stdout}`);
@@ -537,9 +632,14 @@ async function assertDoneRequiredPhaseTimeoutFailsClosed(): Promise<void> {
     assert.equal(parsed.timeoutLayer, 'phase');
     assert.ok(Array.isArray(parsed.refusalReasons) && parsed.refusalReasons.length > 0);
     assert.match(parsed.existingEvidenceBasis ?? '', /^(fresh|stale|missing)$/);
-    assert.match(parsed.reason ?? '', /done_prepare phase "running DONE-required validation" exceeded 100ms timeout/);
+    assert.match(parsed.reason ?? '', /done_prepare phase "running DONE-required validation" exceeded 500ms timeout/);
     assert.match(parsed.reason ?? '', /heartbeat output is diagnostic only and does not extend the phase deadline/);
     assert.match(parsed.transcript ?? '', /^blockedAt: validate$/m);
+
+    assert.ok(existsSync(descendantPidFile), 'phase timeout fixture must record its descendant pid');
+    await sleep(150);
+    const descendantPid = Number(readFileSync(descendantPidFile, 'utf8'));
+    assert.throws(() => process.kill(descendantPid, 0), /ESRCH/, 'DONE-required phase abort must kill the descendant process tree before returning');
 
     await sleep(childDurationMs + 250);
     const evidencePath = join(root, '.lattice', 'story', 'actives', storyId, 'done-required-evidence.json');
@@ -704,6 +804,8 @@ void (async () => {
     assertHumanCliProgress(fixture.root, fixture.storyId);
     assertJsonStdoutParseable(fixture.root, fixture.storyId);
     assertActualReuseSwitchAndValidateFalseBasis();
+    assertPreflightBlockOmitsUnobservedValidationFields();
+    assertPostValidationCloseoutCliTimeouts();
     assertRealValidateDoneRequiredProgressJsonSafe();
     await assertDoneRequiredPhaseTimeoutFailsClosed();
     await assertHungPhaseFailsClosed();

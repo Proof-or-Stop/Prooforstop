@@ -46,7 +46,7 @@ import {
   writeDonePrepareValidationReuseRecord,
   type DonePrepareValidationReuseBasis,
 } from '../core/done-prepare-validation-reuse.js';
-import { donePreparePhaseBudget, doneRequiredDerivedBudget, timeoutLayerFromReason, type TimeoutBudgetSource } from '../core/done-required-timeout-budget.js';
+import { CliWatchdogTimeoutError, donePreparePhaseBudget, doneRequiredDerivedBudget, timeoutLayerFromReason, type TimeoutBudgetSource } from '../core/done-required-timeout-budget.js';
 import {
   buildReviewEscalationGuidance,
   buildReviewAssuranceFloorGuidance,
@@ -171,7 +171,7 @@ interface DonePrepareJsonResult {
   disposition?: 'reused' | 'executed' | 'skipped_explicitly';
   result?: 'pass' | 'failed' | 'timed_out' | 'blocked' | 'not_run';
   refusalReasons?: string[];
-  timeoutLayer: 'command' | 'phase' | 'idle' | 'max' | null;
+  timeoutLayer?: 'command' | 'phase' | 'idle' | 'max' | null;
   existingEvidenceBasis?: 'fresh' | 'stale' | 'missing';
 }
 
@@ -672,9 +672,13 @@ function shouldSmokeHangCloseoutPhase(phase: CloseoutPhase): boolean {
   return phaseEnvMatches(DONE_PREPARE_SMOKE_HANG_PHASE_ENV, phase);
 }
 
-async function maybeSmokeHangCloseoutPhase(phase: CloseoutPhase): Promise<void> {
+async function maybeSmokeHangCloseoutPhase(phase: CloseoutPhase, signal: AbortSignal): Promise<void> {
   if (!shouldSmokeHangCloseoutPhase(phase)) return;
-  await new Promise(() => { /* smoke-only pending promise; the phase deadline must reject first. */ });
+  await new Promise<never>((_resolve, reject) => {
+    const rejectAbort = () => reject(signal.reason instanceof Error ? signal.reason : new Error('closeout phase aborted'));
+    if (signal.aborted) rejectAbort();
+    else signal.addEventListener('abort', rejectAbort, { once: true });
+  });
 }
 
 function markChildProcessPhaseTimeout(deadline: CloseoutPhaseChildProcessDeadline): DonePreparePhaseTimeoutError {
@@ -860,8 +864,24 @@ async function runCloseoutPhase<T>(
   ctx: HandlerContext,
   phase: CloseoutPhase,
   work: (control: CloseoutPhaseControl) => T | Promise<T>,
-  parentSignal?: AbortSignal,
+  parent: Pick<DonePrepareArgs, 'abortSignal' | 'deadlineAt' | 'deadlineError'> = {},
 ): Promise<T> {
+  const parentTimeoutReason = (): Error | null => {
+    if (parent.abortSignal?.aborted) {
+      return parent.abortSignal.reason instanceof Error
+        ? parent.abortSignal.reason
+        : new Error('CLI watchdog aborted done_prepare');
+    }
+    if (typeof parent.deadlineAt === 'number' && Date.now() >= parent.deadlineAt) {
+      return parent.deadlineError?.() ?? new CliWatchdogTimeoutError('max', 1);
+    }
+    return null;
+  };
+  const throwIfParentTimedOut = (): void => {
+    const reason = parentTimeoutReason();
+    if (reason) throw reason;
+  };
+  throwIfParentTimedOut();
   const heartbeatMs = donePrepareHeartbeatMs();
   const budget = donePreparePhaseTimeoutBudget(ctx.root, phase);
   const timeoutMs = budget.timeoutMs;
@@ -884,27 +904,28 @@ async function runCloseoutPhase<T>(
   heartbeat.unref?.();
 
   let timeout: NodeJS.Timeout | undefined;
-  const deadline = new Promise<never>((_resolve, reject) => {
-    timeout = setTimeout(() => {
+  timeout = setTimeout(() => {
       const err = timeoutError();
       abortController.abort(err);
-      reject(err);
-    }, timeoutMs);
-  });
-  let rejectParentAbort: ((reason: unknown) => void) | undefined;
-  const parentAbort = new Promise<never>((_resolve, reject) => { rejectParentAbort = reject; });
+  }, timeoutMs);
   const onParentAbort = () => {
-    const reason = parentSignal?.reason instanceof Error ? parentSignal.reason : new Error('CLI watchdog aborted done_prepare');
+    const reason = parent.abortSignal?.reason instanceof Error ? parent.abortSignal.reason : new Error('CLI watchdog aborted done_prepare');
     abortController.abort(reason);
-    rejectParentAbort?.(reason);
   };
-  if (parentSignal?.aborted) onParentAbort();
-  else parentSignal?.addEventListener('abort', onParentAbort, { once: true });
+  if (parent.abortSignal?.aborted) onParentAbort();
+  else parent.abortSignal?.addEventListener('abort', onParentAbort, { once: true });
 
   const task = Promise.resolve().then(async () => {
     try {
-      await maybeSmokeHangCloseoutPhase(phase);
+      throwIfParentTimedOut();
+      await maybeSmokeHangCloseoutPhase(phase, phaseControl.signal);
       const result = await work(phaseControl);
+      throwIfParentTimedOut();
+      if (abortController.signal.aborted) {
+        throw abortController.signal.reason instanceof Error
+          ? abortController.signal.reason
+          : new Error('closeout phase aborted');
+      }
       if (childProcessDeadline.timeoutError) throw childProcessDeadline.timeoutError;
       return result;
     } catch (err) {
@@ -914,7 +935,13 @@ async function runCloseoutPhase<T>(
   });
 
   try {
-    const result = await Promise.race([task, deadline, parentAbort]);
+    // Await the cooperative task after aborting it. Returning from a timeout race
+    // before the child/lock owner settles would recreate the convergence leak this
+    // path is meant to prevent. Synchronous JavaScript cannot be pre-empted; the
+    // deadline checks before/after work and bounded sync child wrappers enforce the
+    // timeout at the first safe event-loop boundary.
+    const result = await task;
+    throwIfParentTimedOut();
     ctx.log?.(`done_prepare progress: completed ${phase.label} elapsedMs=${Date.now() - started}`);
     return result;
   } catch (err) {
@@ -926,7 +953,7 @@ async function runCloseoutPhase<T>(
     clearInterval(heartbeat);
     if (timeout) clearTimeout(timeout);
     childProcessDeadline.restore();
-    parentSignal?.removeEventListener('abort', onParentAbort);
+    parent.abortSignal?.removeEventListener('abort', onParentAbort);
   }
 }
 
@@ -944,6 +971,26 @@ function phaseTimeoutBlock(storyId: string, steps: DonePrepareStep[], err: DoneP
     next: err.phase.id === 'doneRequiredValidation'
       ? `inspect the timed-out receipt command with lattice done_required_validate --storyId=${storyId}; rerun done_prepare only after fixing the hang or explicitly raising ${err.phase.timeoutEnv}`
       : `inspect the "${err.phase.label}" closeout phase; if its work is legitimately longer, rerun with ${err.phase.timeoutEnv} set above ${err.timeoutMs}`,
+    steps,
+  });
+}
+
+function cliWatchdogTimeoutBlock(
+  phase: CloseoutPhase,
+  steps: DonePrepareStep[],
+  err: unknown,
+  dryRun = false,
+): string | null {
+  const timeoutLayer = timeoutLayerFromReason(err);
+  if (timeoutLayer !== 'idle' && timeoutLayer !== 'max') return null;
+  const message = err instanceof Error ? err.message : `CLI ${timeoutLayer} timeout`;
+  const reason = `${message}; disposition=executed result=timed_out refusalReasons=cli-${timeoutLayer}-timeout timeoutLayer=${timeoutLayer} existingEvidenceBasis=stale; synchronous JavaScript is cooperative and stops at the first phase/deadline checkpoint`;
+  setStep(steps, phase.stepId, 'blocked', reason);
+  return block({
+    blockedAt: phase.stepId,
+    reason,
+    dryRun,
+    next: `inspect the ${timeoutLayer} watchdog budget and the "${phase.label}" segment, then rerun only after correcting the blocking work or budget`,
     steps,
   });
 }
@@ -968,11 +1015,11 @@ function donePrepareJsonResult(storyId: string, transcript: string): DonePrepare
     transcript,
     ...(blockedAt ? { blockedAt } : {}),
     ...(reason ? { reason } : {}),
-    disposition: disposition ?? 'skipped_explicitly',
-    result: result ?? (status === 'blocked' ? 'blocked' : 'not_run'),
-    existingEvidenceBasis: basis ?? 'missing',
-    timeoutLayer: timeoutLayer ?? null,
-    refusalReasons: refusalText && refusalText !== 'none' ? refusalText.split(',') : [],
+    ...(disposition ? { disposition } : {}),
+    ...(result ? { result } : {}),
+    ...(basis ? { existingEvidenceBasis: basis } : {}),
+    ...(timeoutLayer ? { timeoutLayer } : /\btimeoutLayer=null\b/.test(transcript) ? { timeoutLayer: null } : {}),
+    ...(refusalText ? { refusalReasons: refusalText === 'none' ? [] : refusalText.split(',') } : {}),
   };
 }
 
@@ -1643,10 +1690,12 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
               deadlineAt: phaseControl.deadlineAt,
               deadlineError: phaseControl.timeoutError,
             }),
-            rawArgs.abortSignal,
+            rawArgs,
           ));
         } catch (err: any) {
           if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err, args.dryRun);
+          const watchdogBlock = cliWatchdogTimeoutBlock(CLOSEOUT_PHASES.doneRequiredValidation, steps, err, args.dryRun);
+          if (watchdogBlock) return watchdogBlock;
           setStep(steps, 'validate', 'blocked', `${err?.message || 'DONE-required validation failed'}; disposition=executed result=blocked existingEvidenceBasis=${reuse.existingEvidenceBasis} refusalReasons=${reuse.refusalReasons.join(',') || 'execution-failed'}`, command);
           return blocked({
             blockedAt: 'validate',
@@ -1751,9 +1800,11 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
         buildPack: () => computedRunbook.memoryFreshnessPack,
       });
       return { runbook: computedRunbook, packSurface: computedPackSurface };
-    }, rawArgs.abortSignal));
+    }, rawArgs));
   } catch (err) {
     if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err, args.dryRun);
+    const watchdogBlock = cliWatchdogTimeoutBlock(CLOSEOUT_PHASES.doneClosure, steps, err, args.dryRun);
+    if (watchdogBlock) return watchdogBlock;
     throw err;
   }
 
@@ -1774,9 +1825,11 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
           ? buildDonePrepareReviewAssurancePlan(ctx, storyId, gitCwd, currentBinding)
           : undefined,
       };
-    }, rawArgs.abortSignal));
+    }, rawArgs));
   } catch (err) {
     if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err, args.dryRun);
+    const watchdogBlock = cliWatchdogTimeoutBlock(CLOSEOUT_PHASES.reviewAssurance, steps, err, args.dryRun);
+    if (watchdogBlock) return watchdogBlock;
     throw err;
   }
 
@@ -1799,9 +1852,11 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
 
   let runtime: RuntimeChangeReport;
   try {
-    runtime = await runCloseoutPhase(ctx, CLOSEOUT_PHASES.runtimeChange, () => detectRuntimeChanges(ctx.root, gitCwd), rawArgs.abortSignal);
+    runtime = await runCloseoutPhase(ctx, CLOSEOUT_PHASES.runtimeChange, () => detectRuntimeChanges(ctx.root, gitCwd), rawArgs);
   } catch (err) {
     if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err, args.dryRun);
+    const watchdogBlock = cliWatchdogTimeoutBlock(CLOSEOUT_PHASES.runtimeChange, steps, err, args.dryRun);
+    if (watchdogBlock) return watchdogBlock;
     throw err;
   }
   setStep(steps, 'runtimeChange', 'pass', runtime.postDoneRuntimeVersionBumpRequired ? 'runtime behavior change detected' : 'no runtime version bump required before DONE');
@@ -1818,9 +1873,11 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
           (entry) => !unchangedFromInitialAllowedMetadata(ctx, storyId, gitCwd, entry, initialAllowedMetadataSignatures),
         ),
       };
-    }, rawArgs.abortSignal));
+    }, rawArgs));
   } catch (err) {
     if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err, args.dryRun);
+    const watchdogBlock = cliWatchdogTimeoutBlock(CLOSEOUT_PHASES.cleanTree, steps, err, args.dryRun);
+    if (watchdogBlock) return watchdogBlock;
     throw err;
   }
   if (finalBlockingEntries.length > 0) {
@@ -1982,9 +2039,11 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       runtime,
       dryRun: args.dryRun,
       showMemoryPack: packSurface.shouldRender,
-    }), rawArgs.abortSignal);
+    }), rawArgs);
   } catch (err) {
     if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err, args.dryRun);
+    const watchdogBlock = cliWatchdogTimeoutBlock(CLOSEOUT_PHASES.produceCommand, steps, err, args.dryRun);
+    if (watchdogBlock) return watchdogBlock;
     throw err;
   }
 }
