@@ -593,7 +593,7 @@
       "desc": "Rotation freshness is specified but not covered by an executable fixture. The plan says a trusted signer-registry rotation changes signerRegistryDigest/HEAD and must stale prior extraction/review/readiness artifacts (line 255), yet the required fixtures only validate static key states (unknown/wrong signer/revoked/out-of-window/retiring cutoff) and restart verification (lines 307, 478). Add a fixture that first creates a passing chain under registry/key A, then rotates the tracked registry to key B (including status/replacement/authorization change), asserts the old chain is stale/rejected specifically because signerRegistryDigest and sourceRevision changed, and asserts a newly signed complete chain under B passes after restart. Also include a wrong-artifact-ID authorization case because allowed artifact IDs are part of the trusted registry contract but currently have no negative fixture.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-15T13:44:13.502Z",
@@ -604,7 +604,11 @@
         "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
       ],
       "signatureTag": "missing|md|rotation-freshness-specified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added executable A-to-B registry rotation/restart freshness flow and wrong-artifact-ID authorization negative.",
+      "resolvedAt": "2026-07-15T13:49:58.399Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c1f1:F-027",
