@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-ccb6",
+  "checkedAt": "2026-07-15T15:45:00.672Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "4b0c7c5f7c3826c9292c4fee4d5ac8c04e0dd62e470c609d5b902456127aa884",
+  "executionBoundaryHash": "dc98e79244ac9d3d8d81d1def5796514d6ff00b59de0dcbb52dc4e9768f7cf80",
+  "freshnessHash": "ec7b8199e8acbc090d3f8771e137057fc30cd91e675496c1a1a0f5b81daa0160",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "Candidate routing and host liveness changes outside DONE-required validation",
+    "customerKeyRef",
+    "Layer4",
+    "Owner-session identity changes",
+    "Remote publishing or release",
+    "repair UX",
+    "Scope path or semantic anchor changes",
+    "Typed agent dispatch changes"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Candidate routing and host liveness changes outside DONE-required validation",
+      "source": "scopeBoundary.excluded",
+      "text": "Candidate routing and host liveness changes outside DONE-required validation",
+      "excluded": true
+    },
+    {
+      "keyword": "Owner-session identity changes",
+      "source": "scopeBoundary.excluded",
+      "text": "Owner-session identity changes",
+      "excluded": true
+    },
+    {
+      "keyword": "Remote publishing or release",
+      "source": "scopeBoundary.excluded",
+      "text": "Remote publishing or release",
+      "excluded": true
+    },
+    {
+      "keyword": "Scope path or semantic anchor changes",
+      "source": "scopeBoundary.excluded",
+      "text": "Scope path or semantic anchor changes",
+      "excluded": true
+    },
+    {
+      "keyword": "Typed agent dispatch changes",
+      "source": "scopeBoundary.excluded",
+      "text": "Typed agent dispatch changes",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "c416ad32b51fc69071d9b82e4a432891473b63b548d66155297ab06673f41f30"
+}

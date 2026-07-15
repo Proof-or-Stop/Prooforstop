@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-ccb6",
+  "allowedCommands": [
+    "git add*",
+    "git commit*",
+    "git diff*",
+    "git log*",
+    "git status*",
+    "lattice *",
+    "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
+    "node packages/main/dist/tasks/done-required-validation-smoke.js",
+    "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+    "npm --prefix packages/main run build",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Bash",
+    "Glob",
+    "Grep",
+    "Read"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+    "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+    "packages/main/src/core/done-prepare-validation-reuse.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/handlers/done-required-validation.ts",
+    "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+    "packages/main/src/tasks/done-required-validation-smoke.ts",
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+  ],
+  "excludedCommands": [
+    "agy *",
+    "claude *",
+    "codex *",
+    "git clean*",
+    "git push*",
+    "git reset*",
+    "omx *"
+  ],
+  "excludedTools": [
+    "browser automation",
+    "remote host execution"
+  ],
+  "excludedPaths": [
+    ".lattice/dev-memory/experience.jsonl",
+    ".omx",
+    "docs/story",
+    "Proof-or-Stop-editable-high-fidelity.docx",
+    "Proof-or-Stop-editable.docx",
+    "Proof-or-Stop-latest.pdf",
+    "Proof-or-Stop-layout-exact.docx",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Implement only Workstream A and preserve user-owned dirty files.",
+  "createdAt": "2026-07-15T15:44:57.694Z",
+  "updatedAt": "2026-07-15T15:44:57.694Z",
+  "_hash": "dc98e79244ac9d3d8d81d1def5796514d6ff00b59de0dcbb52dc4e9768f7cf80"
+}

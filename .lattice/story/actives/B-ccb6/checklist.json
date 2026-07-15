@@ -3,7 +3,7 @@
     {
       "id": "CHK-001",
       "title": "Derive the DONE-required phase deadline from sequential command budgets",
-      "context": "Replace the unrelated 240-second default for the running DONE-required validation phase with an independent hard deadline derived from the sum of effective ordered command timeouts plus bounded orchestration grace. Keep per-command deadlines, phase attribution, heartbeat diagnostics, and true-hang cleanup.",
+      "context": "Replace the unrelated 240-second default for the running DONE-required validation phase with an independent hard deadline derived from the sum of effective ordered command timeouts plus bounded orchestration grace. Keep per-command deadlines, phase attribution, heartbeat diagnostics, true-hang cleanup, and all existing global/per-phase timeout environment overrides. Human and JSON output must classify derived timeout failure and the next hint must not recommend an identical deterministically failing rerun.",
       "relatedDocs": [
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#6-workstream-a--done-required-validation-convergence",
         "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#timeout-model",
@@ -11,12 +11,22 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees done_prepare report the derived DONE-required phase budget and either complete a legal long suite or name the exact bounded timeout and actionable next step.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-prepare.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-002",
       "title": "Reuse structurally fresh DONE-required evidence during done_prepare",
-      "context": "Before invoking done_required_validate, consume the canonical freshness reader and reuse an existing PASS receipt only when all required current bindings match. Stale HEAD/material/storyFilesHash/policy/ordered CommandSpec/build-proof/schema must force execution or an explicit blocker; validate:false must never manufacture evidence.",
+      "context": "Before invoking done_required_validate, consume the canonical freshness reader and reuse an existing PASS receipt only when all required current bindings match. Stale HEAD/material/storyFilesHash/policy/ordered CommandSpec/build-proof/schema must force execution or an explicit blocker; validate:false must never manufacture evidence. Receipt reuse must be independently disableable, report reused versus executed in human/JSON output, and preserve a safe rerun path.",
       "relatedDocs": [
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#62-required-design",
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
@@ -24,12 +34,23 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees done_prepare say whether DONE-required validation was executed or reused, with stale binding reasons when reuse is refused.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/core/done-prepare-validation-reuse.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-003",
       "title": "Keep long active DONE-required commands alive without weakening timeout safety",
-      "context": "Wire JSON-safe, immediately flushed progress/heartbeat from done_required_validate through the CLI liveness layer so an active silent npm test is not killed at 300 seconds. Preserve command timeoutMs, independent phase deadline, absolute maximum, child cleanup, validation lock cleanup, and infra-failure attribution.",
+      "context": "Wire JSON-safe, immediately flushed progress/heartbeat from direct done_required_validate through the CLI liveness layer so an active silent npm test is not killed at 300 seconds. Preserve command timeoutMs, independent phase deadline, absolute maximum, child cleanup, validation lock cleanup, infra-failure attribution, and compatibility with LATTICE_IDLE_TIMEOUT_MS/LATTICE_MAX_TIMEOUT_MS overrides.",
       "relatedDocs": [
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#63-acceptance",
         "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
@@ -37,7 +58,18 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees periodic DONE-required command progress while a long active suite runs, followed by PASS or an attributed bounded failure instead of a false stuck exit.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-required-validation.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ]
+      }
     }
   ]
 }
