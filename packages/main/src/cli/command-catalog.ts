@@ -1151,6 +1151,7 @@ Behavior:
     json: z.boolean().optional().describe('Return a JSON object; progress still uses the CLI liveness side channel.'),
     autoCloseGeneratedMetadata: z.boolean().optional().describe('Opt-in: commit only current-run generated DONE/test lifecycle metadata after manifest safety checks (default false).'),
     reuseFreshValidation: z.boolean().optional().describe('Opt-in: after a safe generated-metadata commit, reuse same-run validation only when structural hashes are unchanged (default false).'),
+    reuseFreshDoneRequired: z.boolean().optional().describe('Reuse fresh DONE-required evidence before execution only when canonical checks and exact/trusted-metadata-only HEAD lineage pass (default true).'),
     versionBump: z.never().optional().describe('Unsupported: done_prepare never bumps versions before DONE.'),
     bumpVersion: z.never().optional().describe('Unsupported: done_prepare never bumps versions before DONE.'),
     postDoneVersionBump: z.never().optional().describe('Unsupported: done_prepare only reports post-DONE version bump need.'),

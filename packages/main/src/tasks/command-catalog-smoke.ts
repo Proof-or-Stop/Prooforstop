@@ -82,10 +82,11 @@ function runDistCliProbe(args: string[]): { status: number | null; stdout: strin
 const duplicateNames = toolNames.filter((name, index) => toolNames.indexOf(name) !== index);
 assert.deepEqual([...new Set(duplicateNames)], [], 'MAIN_TOOLS must not contain duplicate commands');
 
-assert.deepEqual(toolNames.slice(0, 8), [
+assert.deepEqual(toolNames.slice(0, 9), [
   'story_create',
   'story_advance',
   'story_update',
+  'story_resume',
   'story_get',
   'story_list',
   'story_resolve',
@@ -150,6 +151,8 @@ assert.equal(schemaAccepts('quantum_claim_benchmark', 'runCommands', true), fals
 assert.equal(schemaAccepts('quantum_claim_report', 'format', 'text'), true, 'quantum report schema accepts text format');
 assert.equal(schemaAccepts('quantum_claim_report', 'authorityClaim', true), false, 'quantum report schema keeps authorityClaim unsupported');
 assert.equal(schemaAccepts('quantum_claim_report', 'writeEvidence', true), false, 'quantum report schema rejects writeEvidence side-effect flag');
+assert.equal(schemaAccepts('done_prepare', 'reuseFreshDoneRequired', true), true, 'done_prepare accepts explicit DONE-required reuse opt-in');
+assert.equal(schemaAccepts('done_prepare', 'reuseFreshDoneRequired', false), true, 'done_prepare accepts independent DONE-required reuse disable');
 
 const currentHostText = [
   findTool('host_runtime_list').description,
@@ -207,7 +210,7 @@ for (const { args, includes } of commandHelpExpectations) {
 const helpOutput = runCli(['help']);
 assert.match(helpOutput, /Proofbound CLI/, 'lattice help should retain Proofbound branding');
 assert.match(helpOutput, /host_runtime_probe/, 'lattice help should include host runtime commands');
-assert.match(helpOutput, /antigravity/, 'lattice help should include antigravity host text');
+assert.match(runCli(['help', '--full']), /antigravity/, 'lattice help --full should include antigravity host text');
 
 const quantumCliOutput = runDistCli([
   '--root',

@@ -176,7 +176,7 @@ Self-host required policy:
 - Missing DONE-required evidence blocks DONE.
 - Failing DONE-required evidence blocks DONE.
 - Stale DONE-required evidence blocks DONE.
-- Evidence from a different HEAD, material hash, story files hash, command set, or policy hash blocks DONE.
+- Material/story-files, command-set, or policy drift blocks DONE. For pre-run execution reuse, a different evidence HEAD is accepted only when it is an ancestor of current HEAD and every intervening path is trusted story metadata; exact HEAD also passes.
 - Evidence for a command with `requiresBuildProof: "packages-main-build"` without a same-material build receipt, or equivalent proof of current `packages/main/dist`, blocks DONE for the self-host required policy.
 - A skipped command in the required set is a failure unless the policy explicitly defines it as optional.
 - The DONE checklist gets a dedicated row separate from ordinary `test-evidence`, for example `done-required-validation`.
@@ -391,3 +391,13 @@ Stop implementation and return to design review if any of these occur:
 - The emergency path would let degraded evidence claim full assurance.
 - Release/push wording would imply root full-suite coverage without consuming or rerunning the full-suite artifact.
 - Review evidence cannot satisfy 3 distinct rounds with 2 independent hosts per round over the final material hash.
+
+
+## B-c163 convergence contract (implemented)
+
+DONE-required execution and reuse use one bounded contract:
+
+- The DONE-required phase budget is the safe sum of effective sequential command timeouts plus bounded grace. A phase-specific override wins the global phase override, which wins the derived budget. The direct `done_required_validate` CLI max covers that derived phase; the `done_prepare` CLI max covers routine validation plus every enabled closeout phase. An explicit `LATTICE_MAX_TIMEOUT_MS` remains authoritative.
+- `done_prepare` defaults `reuseFreshDoneRequired=true`, independently of post-closeout `reuseFreshValidation`. Reuse requires the canonical DONE-required evaluator to pass and evidence HEAD to equal current HEAD, or be its ancestor with every intervening changed path classified as trusted story metadata. Any code, config, non-metadata, non-ancestor, or unreadable lineage refuses reuse.
+- `validate:false` means `disposition=skipped_explicitly` and `result=not_run`; it neither executes nor reuses nor manufactures evidence, while reporting `existingEvidenceBasis=fresh|stale|missing`. Executed and reused paths report `disposition`, `result`, `refusalReasons`, and any `timeoutLayer` in human and JSON output.
+- Progress and heartbeat output uses stderr/the logging side channel, never JSON stdout. Reporter failures are diagnostic-only. Heartbeats refresh idle liveness only; command, phase, idle, and absolute max deadlines, child-tree termination, lock release, and timer cleanup remain independent.

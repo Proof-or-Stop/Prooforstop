@@ -3152,6 +3152,14 @@ function assertDoneClosureCommandContract(cliToolNameSet, registry, levelRegistr
 
 function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, levelRegistry, policyByName) {
   const commandName = 'done_required_validate';
+  const reuseText = read('packages/main/src/core/done-prepare-validation-reuse.ts');
+  for (const token of ['evaluateDoneRequiredEvidence', 'merge-base', '--is-ancestor', 'isStoryMetadataPath', 'untrusted-lineage-path']) {
+    assert(reuseText.includes(token), `DONE-required pre-run reuse must preserve canonical/lineage check: ${token}`);
+  }
+  const budgetText = read('packages/main/src/core/done-required-timeout-budget.ts');
+  for (const token of ['NODE_TIMER_MAX_MS', 'resolveCommandTimeoutMs', 'derived-command-budget', 'LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS']) {
+    assert(budgetText.includes(token), `DONE-required timeout budget contract missing ${token}`);
+  }
   assert(cliToolNameSet.has(commandName), `CLI schema: required DONE-required validation command missing from MAIN_TOOLS: ${commandName}`);
 
   const policy = policyByName.get(commandName);

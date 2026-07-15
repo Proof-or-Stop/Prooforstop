@@ -74,6 +74,7 @@ import {
   runStoryAdvanceInitCheckLifecycleDispatch,
   runStoryCreateLifecycleDispatch,
 } from './cli/lifecycle-dispatch.js';
+import { commandCliMaxBudget, NODE_TIMER_MAX_MS } from './core/done-required-timeout-budget.js';
 
 export {
   READ_ONLY_COMMANDS,
@@ -1000,18 +1001,28 @@ export async function runCli(opts?: {
   // Heartbeat: by default, 5 minutes without output means stuck; 15 minutes is the absolute safety limit.
   // Can be overridden with LATTICE_IDLE_TIMEOUT_MS / LATTICE_MAX_TIMEOUT_MS,
   // A single LLM call in real-machine smoke tests can occasionally exceed 2 minutes (non-deterministic cases such as text-adventure uninstall).
-  const IDLE_TIMEOUT = Number(process.env.LATTICE_IDLE_TIMEOUT_MS) || (5 * 60 * 1000);
-  const MAX_TIMEOUT = Number(process.env.LATTICE_MAX_TIMEOUT_MS) || (15 * 60 * 1000);
+  const explicitIdle = Number(process.env.LATTICE_IDLE_TIMEOUT_MS);
+  const explicitMax = Number(process.env.LATTICE_MAX_TIMEOUT_MS);
+  const derivedMaxBudget = commandCliMaxBudget(root, cmd, parsed);
+  const IDLE_TIMEOUT = Number.isFinite(explicitIdle) && explicitIdle > 0
+    ? Math.min(NODE_TIMER_MAX_MS, Math.floor(explicitIdle))
+    : (5 * 60 * 1000);
+  const MAX_TIMEOUT = Number.isFinite(explicitMax) && explicitMax > 0
+    ? Math.min(NODE_TIMER_MAX_MS, Math.floor(explicitMax))
+    : derivedMaxBudget.timeoutMs;
   const startTime = Date.now();
   let lastActivity = Date.now();
   const originalLog = log;
   log = (msg: string) => { lastActivity = Date.now(); originalLog(msg); };
   ctx.log = log;
+  if (cmd === 'done_prepare' || cmd === 'done_required_validate') {
+    originalLog(`${cmd} timeout budget: maxMs=${MAX_TIMEOUT} source=${Number.isFinite(explicitMax) && explicitMax > 0 ? 'LATTICE_MAX_TIMEOUT_MS' : derivedMaxBudget.source}`);
+  }
 
   const watchdog = setInterval(() => {
     const now = Date.now();
     if (now - startTime > MAX_TIMEOUT) {
-      originalLog(`${cmd} exceeded 10 minutes; forcing exit`);
+      originalLog(`${cmd} exceeded max timeout ${MAX_TIMEOUT}ms; forcing exit`);
       process.exit(2);
     }
     if (now - lastActivity > IDLE_TIMEOUT) {

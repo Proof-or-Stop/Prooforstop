@@ -9,6 +9,8 @@ import {
 import type { ValidationProgressReporter } from '../core/validation-types.js';
 import { withValidationExecutionLock } from '../core/validation-execution-lock.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
+import { formatValidationProgressEvent } from '../core/validation-executor.js';
+import { evaluateDoneRequiredPreRunReuse } from '../core/done-prepare-validation-reuse.js';
 
 export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
@@ -41,6 +43,7 @@ export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Recor
       }
 
       const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+      const prior = evaluateDoneRequiredPreRunReuse({ root: ctx.root, gitCwd, storyId, store: ctx.store });
       const evidence = await withValidationExecutionLock({
         root: ctx.root,
         storyId,
@@ -52,7 +55,9 @@ export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Recor
         store: ctx.store,
         gitCwd,
         options: {
-          progress: args.progress,
+          progress: args.progress ?? ((event) => {
+            ctx.log?.(formatValidationProgressEvent(event));
+          }),
           heartbeatMs: args.heartbeatMs,
           abortSignal: args.abortSignal,
           deadlineAt: args.deadlineAt,
@@ -62,8 +67,18 @@ export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Recor
       autoCommitStoryMetadata(ctx.root, storyId, 'done_required_validate', {
         closeoutArtifactPaths: ['done-required-evidence.json'],
       });
-      if (args.json) return JSON.stringify(evidence);
-      return renderDoneRequiredEvidence(evidence);
+      if (args.json) return JSON.stringify({
+        ...evidence,
+        disposition: 'executed',
+        result: evidence.status === 'PASS' ? 'pass' : 'failed',
+        refusalReasons: [],
+        timeoutLayer: null,
+        existingEvidenceBasis: prior.existingEvidenceBasis,
+      });
+      return [
+        renderDoneRequiredEvidence(evidence),
+        `disposition=executed result=${evidence.status === 'PASS' ? 'pass' : 'failed'} refusalReasons=none timeoutLayer=none existingEvidenceBasis=${prior.existingEvidenceBasis}`,
+      ].join('\n');
     },
   };
 }

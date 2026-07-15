@@ -17,7 +17,10 @@ import {
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
+import { doneRequiredDerivedBudget, NODE_TIMER_MAX_MS, safeTimeoutSum } from '../core/done-required-timeout-budget.js';
+import { evaluateDoneRequiredPreRunReuse } from '../core/done-prepare-validation-reuse.js';
 import type { DoneRequiredCommandReceipt, DoneRequiredEvidenceData, StoryInfo, TestEvidenceData } from '../core/types.js';
+import { createDoneRequiredValidationHandlers } from '../handlers/done-required-validation.js';
 
 const STORY_ID = 'B-ac25';
 
@@ -194,7 +197,79 @@ function assertDoneRequiredBlocked(
   assert.match(evaluation.reasons.join('\n'), reasonPattern, `${message}: ${evaluation.reasons.join(', ')}`);
 }
 
+// Timeout arithmetic covers the legal sequential command budget once and saturates safely.
+{
+  const { root } = fixture([{ label: 'slow legal suite', command: 'node', args: ['-e', 'process.exit(0)'], timeoutMs: 1_200_000 }]);
+  try {
+    const budget = doneRequiredDerivedBudget(root);
+    assert.equal(budget.timeoutMs, 1_230_000);
+    assert.equal(budget.source, 'derived-command-budget');
+    assert.equal(safeTimeoutSum([NODE_TIMER_MAX_MS, 1]), NODE_TIMER_MAX_MS);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// Pre-run reuse accepts exact HEAD and trusted story-metadata descendants only.
+{
+  const { root, store } = fixture([{ label: 'required pass', command: 'node', args: ['-e', 'process.exit(0)'] }]);
+  try {
+    writeDoneEvidence(root, store);
+    let reuse = evaluateDoneRequiredPreRunReuse({ root, gitCwd: root, storyId: STORY_ID, store });
+    assert.equal(reuse.reusable, true);
+    assert.equal(reuse.lineage, 'exact-head');
+    git(root, ['add', '.lattice/story/actives']);
+    git(root, ['commit', '-m', 'commit trusted story metadata']);
+    reuse = evaluateDoneRequiredPreRunReuse({ root, gitCwd: root, storyId: STORY_ID, store });
+    assert.equal(reuse.reusable, true);
+    assert.equal(reuse.lineage, 'trusted-story-metadata-descendant');
+    writeFileSync(join(root, 'README.md'), '# material drift\n', 'utf8');
+    git(root, ['add', 'README.md']);
+    git(root, ['commit', '-m', 'material drift']);
+    reuse = evaluateDoneRequiredPreRunReuse({ root, gitCwd: root, storyId: STORY_ID, store });
+    assert.equal(reuse.reusable, false);
+    assert.match(reuse.refusalReasons.join('\n'), /stale-material|untrusted-lineage-path:README\.md/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 // Ordinary validate can pass while required gate fails, and missing artifact blocks required policy.
+
+// Direct handler defaults progress to ctx.log, keeps JSON singular, and contains a throwing sink.
+{
+  const { root, store } = fixture([{ label: 'direct progress', command: 'node', args: ['-e', 'process.exit(0)'] }]);
+  const previousCwd = process.cwd();
+  try {
+    process.chdir(root);
+    const logs: string[] = [];
+    const handler = createDoneRequiredValidationHandlers({ root, scanRoot: root, store, log: (line) => logs.push(line) });
+    const raw = await handler.done_required_validate({ storyId: STORY_ID, json: true });
+    const parsed = JSON.parse(raw);
+    assert.equal(parsed.disposition, 'executed');
+    assert.equal(parsed.result, 'pass');
+    assert.match(logs.join('\n'), /validate progress: command 1\/1 started direct progress/);
+    assert.equal(raw.trim().split('\n').length, 1, 'direct JSON stdout payload stays singular');
+  } finally {
+    process.chdir(previousCwd);
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+{
+  const { root, store } = fixture([{ label: 'throwing progress sink', command: 'node', args: ['-e', 'process.exit(0)'] }]);
+  const previousCwd = process.cwd();
+  try {
+    process.chdir(root);
+    const handler = createDoneRequiredValidationHandlers({ root, scanRoot: root, store, log: () => { throw new Error('closed sink'); } });
+    const raw = await handler.done_required_validate({ storyId: STORY_ID, json: true });
+    assert.equal(JSON.parse(raw).result, 'pass', 'diagnostic sink failure cannot change validation PASS');
+  } finally {
+    process.chdir(previousCwd);
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 {
   const { root, store } = fixture([{ label: 'required pass', command: 'node', args: ['-e', 'process.exit(0)'] }]);
   try {

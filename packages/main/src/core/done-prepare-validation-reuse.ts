@@ -1,9 +1,10 @@
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { loadConfig, type LatticeConfig } from './config.js';
-import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
-import { resolveDoneRequiredPolicy } from './done-required-validation.js';
+import { currentGitHead, currentMaterialHash, currentStoryFilesHash, isStoryMetadataPath } from './evidence-freshness.js';
+import { evaluateDoneRequiredEvidence, resolveDoneRequiredPolicy } from './done-required-validation.js';
 import { digestScopeContract } from './guard-session.js';
 import { LIFECYCLE_TRANSITIONS } from './lifecycle-registry.js';
 import type { StoryStore } from './store.js';
@@ -77,6 +78,66 @@ export interface DonePrepareValidationReuseResult {
   ok: boolean;
   record?: DonePrepareValidationReuseRecord;
   reasons: string[];
+}
+
+export interface DoneRequiredPreRunReuseEvaluation {
+  reusable: boolean;
+  existingEvidenceBasis: 'fresh' | 'stale' | 'missing';
+  refusalReasons: string[];
+  lineage: 'exact-head' | 'trusted-story-metadata-descendant' | 'rejected';
+}
+
+/** A stricter wrapper around the DONE gate evaluator used only to skip execution. */
+export function evaluateDoneRequiredPreRunReuse(args: {
+  root: string;
+  gitCwd: string;
+  storyId: string;
+  store: StoryStore;
+}): DoneRequiredPreRunReuseEvaluation {
+  const canonical = evaluateDoneRequiredEvidence({
+    projectRoot: args.root,
+    gitCwd: args.gitCwd,
+    storyId: args.storyId,
+    store: args.store,
+  });
+  const evidence = canonical.evidence;
+  if (!evidence) {
+    return { reusable: false, existingEvidenceBasis: 'missing', refusalReasons: canonical.reasons, lineage: 'rejected' };
+  }
+  const reasons = [...canonical.reasons];
+  const currentHead = currentGitHead(args.gitCwd);
+  let lineage: DoneRequiredPreRunReuseEvaluation['lineage'] = 'rejected';
+  if (!evidence.headHash || !currentHead) {
+    reasons.push('missing-head-lineage');
+  } else if (evidence.headHash === currentHead) {
+    lineage = 'exact-head';
+  } else {
+    try {
+      execFileSync('git', ['merge-base', '--is-ancestor', evidence.headHash, currentHead], {
+        cwd: args.gitCwd,
+        stdio: ['ignore', 'ignore', 'pipe'],
+      });
+      const changed = execFileSync('git', ['diff', '--name-only', `${evidence.headHash}..${currentHead}`], {
+        cwd: args.gitCwd,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+      }).split('\n').map((path) => path.trim()).filter(Boolean);
+      const untrusted = changed.filter((path) => !isStoryMetadataPath(path, args.root));
+      if (changed.length === 0) reasons.push('empty-descendant-lineage');
+      else if (untrusted.length > 0) reasons.push(...untrusted.map((path) => `untrusted-lineage-path:${path}`));
+      else lineage = 'trusted-story-metadata-descendant';
+    } catch {
+      reasons.push('evidence-head-is-not-current-ancestor');
+    }
+  }
+  const unique = [...new Set(reasons)];
+  const reusable = canonical.ok && unique.length === 0 && lineage !== 'rejected';
+  return {
+    reusable,
+    existingEvidenceBasis: reusable ? 'fresh' : 'stale',
+    refusalReasons: unique,
+    lineage,
+  };
 }
 
 function stableStringify(value: unknown): string {

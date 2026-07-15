@@ -38,6 +38,7 @@ import type {
 } from '../core/types.js';
 import { createDonePrepareHandlers } from '../handlers/done-prepare.js';
 import type { HandlerContext } from '../handlers/context.js';
+import { commandCliMaxBudget, donePreparePhaseBudget, doneRequiredDerivedBudget } from '../core/done-required-timeout-budget.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const cliPath = join(here, '..', 'cli.js');
@@ -55,10 +56,6 @@ const REQUIRED_PROGRESS_LABELS = [
 
 const REQUIRED_REAL_VALIDATE_PROGRESS_LABELS = [
   DONE_REQUIRED_PROGRESS_LABEL,
-  'done_prepare progress: evaluating DONE closure',
-  'done_prepare progress: checking review assurance',
-  'done_prepare progress: computing runtime-change status',
-  'done_prepare progress: checking clean tree',
 ] as const;
 
 type Fixture = {
@@ -77,6 +74,38 @@ type CliResult = {
   stderr: string;
   error?: Error;
 };
+
+// Phase-specific override wins global, which wins the command-derived legal budget.
+{
+  const root = mkdtempSync(join(tmpdir(), 'lattice-done-prepare-budget-'));
+  try {
+    write(root, 'lattice.config.json', JSON.stringify({
+      scanRoot: '.', rootDir: '.', storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements',
+      validate: { commands: [{ command: 'node', timeoutMs: 300_000 }] },
+      doneRequiredCommands: [{ command: 'node', timeoutMs: 1_200_000 }],
+    }));
+    resetConfigCache();
+    const derived = doneRequiredDerivedBudget(root);
+    assert.equal(derived.timeoutMs, 1_230_000);
+    const previousGlobal = process.env.LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS;
+    const previousPhase = process.env.LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS;
+    delete process.env.LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS;
+    delete process.env.LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS;
+    assert.equal(donePreparePhaseBudget(root, 'LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS', derived).source, 'derived-command-budget');
+    process.env.LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS = '1400000';
+    assert.equal(donePreparePhaseBudget(root, 'LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS', derived).timeoutMs, 1_400_000);
+    process.env.LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS = '1500000';
+    assert.equal(donePreparePhaseBudget(root, 'LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS', derived).timeoutMs, 1_500_000);
+    const total = commandCliMaxBudget(root, 'done_prepare', { validate: true });
+    assert.ok(total.timeoutMs >= 1_500_000 + 330_000, 'done_prepare max covers routine plus closeout budgets');
+    if (previousGlobal === undefined) delete process.env.LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS;
+    else process.env.LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS = previousGlobal;
+    if (previousPhase === undefined) delete process.env.LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS;
+    else process.env.LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS = previousPhase;
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
 
 function write(root: string, path: string, content: string): void {
   const target = join(root, path);
@@ -350,10 +379,18 @@ function assertJsonStdoutParseable(root: string, storyId: string): void {
     storyId?: string;
     status?: string;
     transcript?: string;
+    disposition?: string;
+    result?: string;
+    existingEvidenceBasis?: string;
+    refusalReasons?: string[];
   };
   assert.equal(parsed.schemaVersion, 'lattice.done_prepare.v1');
   assert.equal(parsed.storyId, storyId);
   assert.equal(parsed.status, 'pass');
+  assert.equal(parsed.disposition, 'skipped_explicitly');
+  assert.equal(parsed.result, 'not_run');
+  assert.match(parsed.existingEvidenceBasis ?? '', /^(fresh|stale|missing)$/);
+  assert.ok(Array.isArray(parsed.refusalReasons));
   assert.ok(parsed.transcript?.startsWith('DONE prepare: PASS'), 'JSON payload carries the final transcript');
 }
 
