@@ -144,6 +144,34 @@
         "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
       },
       "_hash": "493804649c1be407360d34b2b8f6b223fa7759fbee6a0a70014d7074e683607b"
+    },
+    {
+      "id": "B-c163:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final coverage PASS after F-012. All 28 must intent refs were re-audited. The three corrected rows now combine original and focused assertions: CHK-002 edge:2 binds failure/block/skip plus command/phase/idle/max structured terminals; CHK-003 edge:1 binds direct and done_prepare JSON-safe progress plus dryRun no-context behavior; CHK-003 adversarial:0 binds validate-progress descendant cleanup and closure SIGTERM-resistant sync SIGKILL/reap coverage. Exact current combined smoke suite and process-fact contract passed.",
+      "createdAt": "2026-07-15T22:37:13.375Z",
+      "reviewRound": "2026-07-15T22:32:04.933Z",
+      "reviewRunId": "B-c163:RR-029",
+      "writerSessionId": "review-bc163-coverage-final",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2ea99fa8ad571bc44f8e8534e98a27d26c2f4436fdd218076b84eb24819957ac"
     }
   ]
 }
