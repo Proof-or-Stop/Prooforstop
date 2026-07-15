@@ -90,10 +90,10 @@
           "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
           "note": "Sequential 290000+1200000 timeout arithmetic is summed once plus bounded grace; effective runner timeout is capped legally.",
-          "headHash": "d70a4ad929308e0ec9b538e7978ba6bb7ef9be2d",
-          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
-          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
-          "timestamp": "2026-07-15T20:17:02.652Z"
+          "headHash": "f18fadd4ebda36c9a48e51d21aaf62c090962a7b",
+          "materialHash": "9461512ba9d71dff9d2eb1d3f7bc9bc4c1efd3bdd6f66dd4a8c62489cdf5cb72",
+          "storyFilesHash": "15d277dcb5e8fb1f46445861c06e1e2e5a29136ef9c882a47d4ba6f85b10ac70",
+          "timestamp": "2026-07-15T22:44:23.682Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -102,10 +102,10 @@
           "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
           "result": "pass",
           "note": "Actual done_prepare and direct entry paths consume the shared budget and expose explicit structured reuse/execution terminals.",
-          "headHash": "d70a4ad929308e0ec9b538e7978ba6bb7ef9be2d",
-          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
-          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
-          "timestamp": "2026-07-15T20:17:02.831Z"
+          "headHash": "f18fadd4ebda36c9a48e51d21aaf62c090962a7b",
+          "materialHash": "9461512ba9d71dff9d2eb1d3f7bc9bc4c1efd3bdd6f66dd4a8c62489cdf5cb72",
+          "storyFilesHash": "15d277dcb5e8fb1f46445861c06e1e2e5a29136ef9c882a47d4ba6f85b10ac70",
+          "timestamp": "2026-07-15T22:44:23.683Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -114,10 +114,10 @@
           "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
           "note": "Table covers one/multiple/default/explicit effective timeouts, invalid values, bounded grace once, and real runner fallback.",
-          "headHash": "d70a4ad929308e0ec9b538e7978ba6bb7ef9be2d",
-          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
-          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
-          "timestamp": "2026-07-15T20:17:03.010Z"
+          "headHash": "f18fadd4ebda36c9a48e51d21aaf62c090962a7b",
+          "materialHash": "9461512ba9d71dff9d2eb1d3f7bc9bc4c1efd3bdd6f66dd4a8c62489cdf5cb72",
+          "storyFilesHash": "15d277dcb5e8fb1f46445861c06e1e2e5a29136ef9c882a47d4ba6f85b10ac70",
+          "timestamp": "2026-07-15T22:44:23.683Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -126,10 +126,10 @@
           "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
           "result": "pass",
           "note": "Phase-specific, global phase, derived, and explicit CLI max precedence are asserted with selected values and timeout attribution.",
-          "headHash": "d70a4ad929308e0ec9b538e7978ba6bb7ef9be2d",
-          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
-          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
-          "timestamp": "2026-07-15T20:17:03.181Z"
+          "headHash": "f18fadd4ebda36c9a48e51d21aaf62c090962a7b",
+          "materialHash": "9461512ba9d71dff9d2eb1d3f7bc9bc4c1efd3bdd6f66dd4a8c62489cdf5cb72",
+          "storyFilesHash": "15d277dcb5e8fb1f46445861c06e1e2e5a29136ef9c882a47d4ba6f85b10ac70",
+          "timestamp": "2026-07-15T22:44:23.683Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
@@ -138,10 +138,10 @@
           "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
           "note": "Real runValidationCommand proves Number.MAX_SAFE_INTEGER is capped at MAX_NODE_TIMER_DELAY_MS and zero/negative/Infinity fall back without overflow.",
-          "headHash": "d70a4ad929308e0ec9b538e7978ba6bb7ef9be2d",
-          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
-          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
-          "timestamp": "2026-07-15T20:17:03.356Z"
+          "headHash": "f18fadd4ebda36c9a48e51d21aaf62c090962a7b",
+          "materialHash": "9461512ba9d71dff9d2eb1d3f7bc9bc4c1efd3bdd6f66dd4a8c62489cdf5cb72",
+          "storyFilesHash": "15d277dcb5e8fb1f46445861c06e1e2e5a29136ef9c882a47d4ba6f85b10ac70",
+          "timestamp": "2026-07-15T22:44:23.683Z"
         },
         {
           "intentRef": "CHK-001:edge:3",
@@ -150,10 +150,10 @@
           "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
           "note": "Unrelated CLI generic max remains unchanged while DONE entry paths use derived budgets; explicit positive max remains authoritative.",
-          "headHash": "d70a4ad929308e0ec9b538e7978ba6bb7ef9be2d",
-          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
-          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
-          "timestamp": "2026-07-15T20:17:03.533Z"
+          "headHash": "f18fadd4ebda36c9a48e51d21aaf62c090962a7b",
+          "materialHash": "9461512ba9d71dff9d2eb1d3f7bc9bc4c1efd3bdd6f66dd4a8c62489cdf5cb72",
+          "storyFilesHash": "15d277dcb5e8fb1f46445861c06e1e2e5a29136ef9c882a47d4ba6f85b10ac70",
+          "timestamp": "2026-07-15T22:44:23.683Z"
         },
         {
           "intentRef": "CHK-001:edge:4",
@@ -163,10 +163,10 @@
           "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
           "result": "pass",
           "note": "Exact commandCliMaxBudget matrix asserts routine sequential budget plus each enabled phase exactly once: required/no-policy, validate true/false, six unique phase overrides and global override; omitting any of the five common closeout phases changes the expected total and fails.",
-          "headHash": "2230d10a30b66352f938e91920ef2c9219691679",
-          "materialHash": "0208749d1dcd92d80156a40ac21ec0115192e69eff29e9713a657e827527255b",
-          "storyFilesHash": "bc532b89794e474d93fe5793fe4fe48c99b3b519389a94ff6e8bb8ff1ef5c2a1",
-          "timestamp": "2026-07-15T20:31:50.208Z"
+          "headHash": "f18fadd4ebda36c9a48e51d21aaf62c090962a7b",
+          "materialHash": "9461512ba9d71dff9d2eb1d3f7bc9bc4c1efd3bdd6f66dd4a8c62489cdf5cb72",
+          "storyFilesHash": "15d277dcb5e8fb1f46445861c06e1e2e5a29136ef9c882a47d4ba6f85b10ac70",
+          "timestamp": "2026-07-15T22:44:23.683Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -175,10 +175,10 @@
           "command": "node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
           "result": "pass",
           "note": "Deterministic future/expired deadline seams plus abort-at-command-start event ordering prove one stable terminal, no late heartbeat, and no duplicate evidence; real CLI matrix covers command/idle/max.",
-          "headHash": "d70a4ad929308e0ec9b538e7978ba6bb7ef9be2d",
-          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
-          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
-          "timestamp": "2026-07-15T20:17:03.908Z"
+          "headHash": "f18fadd4ebda36c9a48e51d21aaf62c090962a7b",
+          "materialHash": "9461512ba9d71dff9d2eb1d3f7bc9bc4c1efd3bdd6f66dd4a8c62489cdf5cb72",
+          "storyFilesHash": "15d277dcb5e8fb1f46445861c06e1e2e5a29136ef9c882a47d4ba6f85b10ac70",
+          "timestamp": "2026-07-15T22:44:23.683Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -187,10 +187,10 @@
           "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
           "result": "pass",
           "note": "Derived phase and parent idle/max timeout JSON assert executed/timed_out/refusalReasons/layer, nonzero status, and actionable non-looping guidance.",
-          "headHash": "d70a4ad929308e0ec9b538e7978ba6bb7ef9be2d",
-          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
-          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
-          "timestamp": "2026-07-15T20:17:04.096Z"
+          "headHash": "f18fadd4ebda36c9a48e51d21aaf62c090962a7b",
+          "materialHash": "9461512ba9d71dff9d2eb1d3f7bc9bc4c1efd3bdd6f66dd4a8c62489cdf5cb72",
+          "storyFilesHash": "15d277dcb5e8fb1f46445861c06e1e2e5a29136ef9c882a47d4ba6f85b10ac70",
+          "timestamp": "2026-07-15T22:44:23.683Z"
         }
       ]
     },
@@ -291,10 +291,10 @@
           "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
           "note": "The evaluator-level exact-HEAD fixture independently asserts reusable=true and lineage=exact-head before any metadata auto-commit.",
-          "headHash": "039bcaeaaa8a8fe0b9d4894854910b8adb266000",
-          "materialHash": "0208749d1dcd92d80156a40ac21ec0115192e69eff29e9713a657e827527255b",
-          "storyFilesHash": "bc532b89794e474d93fe5793fe4fe48c99b3b519389a94ff6e8bb8ff1ef5c2a1",
-          "timestamp": "2026-07-15T20:31:51.419Z"
+          "headHash": "f18fadd4ebda36c9a48e51d21aaf62c090962a7b",
+          "materialHash": "9461512ba9d71dff9d2eb1d3f7bc9bc4c1efd3bdd6f66dd4a8c62489cdf5cb72",
+          "storyFilesHash": "15d277dcb5e8fb1f46445861c06e1e2e5a29136ef9c882a47d4ba6f85b10ac70",
+          "timestamp": "2026-07-15T22:44:23.683Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -304,10 +304,10 @@
           "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
           "result": "pass",
           "note": "Actual done_prepare CLI integration observes the evidence auto-commit as a trusted story-metadata descendant and asserts disposition=reused/result=pass with lineage=trusted-story-metadata-descendant.",
-          "headHash": "a0c6728704d2d21b92d8acf2160094ecd4286faf",
-          "materialHash": "0208749d1dcd92d80156a40ac21ec0115192e69eff29e9713a657e827527255b",
-          "storyFilesHash": "bc532b89794e474d93fe5793fe4fe48c99b3b519389a94ff6e8bb8ff1ef5c2a1",
-          "timestamp": "2026-07-15T20:31:52.463Z"
+          "headHash": "f18fadd4ebda36c9a48e51d21aaf62c090962a7b",
+          "materialHash": "9461512ba9d71dff9d2eb1d3f7bc9bc4c1efd3bdd6f66dd4a8c62489cdf5cb72",
+          "storyFilesHash": "15d277dcb5e8fb1f46445861c06e1e2e5a29136ef9c882a47d4ba6f85b10ac70",
+          "timestamp": "2026-07-15T22:44:23.683Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -316,10 +316,10 @@
           "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
           "result": "pass",
           "note": "reuseFreshDoneRequired=false asserts disposition=executed/result=pass, execution progress, and changed receipt endedAt proving evidence refresh.",
-          "headHash": "fa97d96ba527ed86cc6563fd63a79fd8946b942d",
-          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
-          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
-          "timestamp": "2026-07-15T20:17:19.383Z"
+          "headHash": "f18fadd4ebda36c9a48e51d21aaf62c090962a7b",
+          "materialHash": "9461512ba9d71dff9d2eb1d3f7bc9bc4c1efd3bdd6f66dd4a8c62489cdf5cb72",
+          "storyFilesHash": "15d277dcb5e8fb1f46445861c06e1e2e5a29136ef9c882a47d4ba6f85b10ac70",
+          "timestamp": "2026-07-15T22:44:23.683Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -328,10 +328,10 @@
           "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
           "result": "pass",
           "note": "validate=false fresh/stale/missing/malformed matrix asserts skipped_explicitly/not_run and byte-for-byte evidence immutability.",
-          "headHash": "fa97d96ba527ed86cc6563fd63a79fd8946b942d",
-          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
-          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
-          "timestamp": "2026-07-15T20:17:19.583Z"
+          "headHash": "f18fadd4ebda36c9a48e51d21aaf62c090962a7b",
+          "materialHash": "9461512ba9d71dff9d2eb1d3f7bc9bc4c1efd3bdd6f66dd4a8c62489cdf5cb72",
+          "storyFilesHash": "15d277dcb5e8fb1f46445861c06e1e2e5a29136ef9c882a47d4ba6f85b10ac70",
+          "timestamp": "2026-07-15T22:44:23.683Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
@@ -353,10 +353,10 @@
           "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
           "result": "pass",
           "note": "validate=false independently observes existingEvidenceBasis fresh, stale, and missing without authorizing reuse or execution.",
-          "headHash": "fa97d96ba527ed86cc6563fd63a79fd8946b942d",
-          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
-          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
-          "timestamp": "2026-07-15T20:17:20.186Z"
+          "headHash": "f18fadd4ebda36c9a48e51d21aaf62c090962a7b",
+          "materialHash": "9461512ba9d71dff9d2eb1d3f7bc9bc4c1efd3bdd6f66dd4a8c62489cdf5cb72",
+          "storyFilesHash": "15d277dcb5e8fb1f46445861c06e1e2e5a29136ef9c882a47d4ba6f85b10ac70",
+          "timestamp": "2026-07-15T22:44:23.683Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -365,10 +365,10 @@
           "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
           "note": "Independent mutations cover evidence schema, policy/command identity and order, receipt coverage, material/story hashes, build proof, and enforced proof-admissibility command-spec failure.",
-          "headHash": "fa97d96ba527ed86cc6563fd63a79fd8946b942d",
-          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
-          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
-          "timestamp": "2026-07-15T20:17:20.553Z"
+          "headHash": "f18fadd4ebda36c9a48e51d21aaf62c090962a7b",
+          "materialHash": "9461512ba9d71dff9d2eb1d3f7bc9bc4c1efd3bdd6f66dd4a8c62489cdf5cb72",
+          "storyFilesHash": "15d277dcb5e8fb1f46445861c06e1e2e5a29136ef9c882a47d4ba6f85b10ac70",
+          "timestamp": "2026-07-15T22:44:23.683Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -377,10 +377,10 @@
           "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
           "note": "Truncated JSON and malformed shape become stale and recover by execution; injected concurrent HEAD move refuses reuse with one terminal outcome.",
-          "headHash": "fa97d96ba527ed86cc6563fd63a79fd8946b942d",
-          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
-          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
-          "timestamp": "2026-07-15T20:17:20.871Z"
+          "headHash": "f18fadd4ebda36c9a48e51d21aaf62c090962a7b",
+          "materialHash": "9461512ba9d71dff9d2eb1d3f7bc9bc4c1efd3bdd6f66dd4a8c62489cdf5cb72",
+          "storyFilesHash": "15d277dcb5e8fb1f46445861c06e1e2e5a29136ef9c882a47d4ba6f85b10ac70",
+          "timestamp": "2026-07-15T22:44:23.683Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
@@ -389,10 +389,10 @@
           "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
           "note": "Lineage matrix separately covers exact HEAD, trusted descendant, non-ancestor HEAD, metadata-like path outside allowlist, code/config path, modify-then-revert, and rename history.",
-          "headHash": "fa97d96ba527ed86cc6563fd63a79fd8946b942d",
-          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
-          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
-          "timestamp": "2026-07-15T20:17:21.227Z"
+          "headHash": "f18fadd4ebda36c9a48e51d21aaf62c090962a7b",
+          "materialHash": "9461512ba9d71dff9d2eb1d3f7bc9bc4c1efd3bdd6f66dd4a8c62489cdf5cb72",
+          "storyFilesHash": "15d277dcb5e8fb1f46445861c06e1e2e5a29136ef9c882a47d4ba6f85b10ac70",
+          "timestamp": "2026-07-15T22:44:23.683Z"
         },
         {
           "intentRef": "CHK-002:adversarial:3",
@@ -401,10 +401,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Contract verifier and all six canonical documents align on lineage, validation structure, cooperative timeout cleanup, and precise no-child not-applicable semantics.",
-          "headHash": "fa97d96ba527ed86cc6563fd63a79fd8946b942d",
-          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
-          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
-          "timestamp": "2026-07-15T20:17:21.728Z"
+          "headHash": "f18fadd4ebda36c9a48e51d21aaf62c090962a7b",
+          "materialHash": "9461512ba9d71dff9d2eb1d3f7bc9bc4c1efd3bdd6f66dd4a8c62489cdf5cb72",
+          "storyFilesHash": "15d277dcb5e8fb1f46445861c06e1e2e5a29136ef9c882a47d4ba6f85b10ac70",
+          "timestamp": "2026-07-15T22:44:23.683Z"
         }
       ]
     },
@@ -495,10 +495,10 @@
           "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
           "result": "pass",
           "note": "Real direct silent command stays alive beyond idle through periodic heartbeat and completes PASS within command/derived/max budgets.",
-          "headHash": "a03361c1df5dd49b607b4186d3ce0461548bec43",
-          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
-          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
-          "timestamp": "2026-07-15T20:17:38.438Z"
+          "headHash": "f18fadd4ebda36c9a48e51d21aaf62c090962a7b",
+          "materialHash": "9461512ba9d71dff9d2eb1d3f7bc9bc4c1efd3bdd6f66dd4a8c62489cdf5cb72",
+          "storyFilesHash": "15d277dcb5e8fb1f46445861c06e1e2e5a29136ef9c882a47d4ba6f85b10ac70",
+          "timestamp": "2026-07-15T22:44:23.683Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -507,10 +507,10 @@
           "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
           "result": "pass",
           "note": "Direct --json stdout is exactly one parseable terminal object while progress and heartbeat remain on stderr.",
-          "headHash": "a03361c1df5dd49b607b4186d3ce0461548bec43",
-          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
-          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
-          "timestamp": "2026-07-15T20:17:38.960Z"
+          "headHash": "f18fadd4ebda36c9a48e51d21aaf62c090962a7b",
+          "materialHash": "9461512ba9d71dff9d2eb1d3f7bc9bc4c1efd3bdd6f66dd4a8c62489cdf5cb72",
+          "storyFilesHash": "15d277dcb5e8fb1f46445861c06e1e2e5a29136ef9c882a47d4ba6f85b10ac70",
+          "timestamp": "2026-07-15T22:44:23.683Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -520,10 +520,10 @@
           "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
           "result": "pass",
           "note": "Explicit max remains authoritative, including non-divisible 1005ms max / 251ms watchdog polling: named deadline propagation returns result=timed_out, timeoutLayer=max, stale basis and exit 1 rather than generic validation failure, then immediately reruns successfully.",
-          "headHash": "d0c6262dbad8140daae2c82d18c88bc14381fd2a",
-          "materialHash": "0208749d1dcd92d80156a40ac21ec0115192e69eff29e9713a657e827527255b",
-          "storyFilesHash": "bc532b89794e474d93fe5793fe4fe48c99b3b519389a94ff6e8bb8ff1ef5c2a1",
-          "timestamp": "2026-07-15T20:31:54.720Z"
+          "headHash": "f18fadd4ebda36c9a48e51d21aaf62c090962a7b",
+          "materialHash": "9461512ba9d71dff9d2eb1d3f7bc9bc4c1efd3bdd6f66dd4a8c62489cdf5cb72",
+          "storyFilesHash": "15d277dcb5e8fb1f46445861c06e1e2e5a29136ef9c882a47d4ba6f85b10ac70",
+          "timestamp": "2026-07-15T22:44:23.683Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -545,10 +545,10 @@
           "command": "node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
           "result": "pass",
           "note": "Deterministic injected future/expired deadline seams and abort-at-start ordering complement real pass/command/idle/max subprocess terminals without narrow just-before wall-clock races.",
-          "headHash": "a03361c1df5dd49b607b4186d3ce0461548bec43",
-          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
-          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
-          "timestamp": "2026-07-15T20:17:39.787Z"
+          "headHash": "f18fadd4ebda36c9a48e51d21aaf62c090962a7b",
+          "materialHash": "9461512ba9d71dff9d2eb1d3f7bc9bc4c1efd3bdd6f66dd4a8c62489cdf5cb72",
+          "storyFilesHash": "15d277dcb5e8fb1f46445861c06e1e2e5a29136ef9c882a47d4ba6f85b10ac70",
+          "timestamp": "2026-07-15T22:44:23.683Z"
         },
         {
           "intentRef": "CHK-003:edge:3",
@@ -557,10 +557,10 @@
           "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
           "note": "Synchronous throwing and asynchronous rejecting diagnostic sinks preserve independent FAIL/PASS and do not produce unhandled rejection.",
-          "headHash": "a03361c1df5dd49b607b4186d3ce0461548bec43",
-          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
-          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
-          "timestamp": "2026-07-15T20:17:40.030Z"
+          "headHash": "f18fadd4ebda36c9a48e51d21aaf62c090962a7b",
+          "materialHash": "9461512ba9d71dff9d2eb1d3f7bc9bc4c1efd3bdd6f66dd4a8c62489cdf5cb72",
+          "storyFilesHash": "15d277dcb5e8fb1f46445861c06e1e2e5a29136ef9c882a47d4ba6f85b10ac70",
+          "timestamp": "2026-07-15T22:44:23.683Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -582,10 +582,10 @@
           "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
           "note": "Abort triggered concurrently at command_start asserts exactly one command_timeout/end, no heartbeat after terminal, and at most one evidence write.",
-          "headHash": "a03361c1df5dd49b607b4186d3ce0461548bec43",
-          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
-          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
-          "timestamp": "2026-07-15T20:17:40.434Z"
+          "headHash": "f18fadd4ebda36c9a48e51d21aaf62c090962a7b",
+          "materialHash": "9461512ba9d71dff9d2eb1d3f7bc9bc4c1efd3bdd6f66dd4a8c62489cdf5cb72",
+          "storyFilesHash": "15d277dcb5e8fb1f46445861c06e1e2e5a29136ef9c882a47d4ba6f85b10ac70",
+          "timestamp": "2026-07-15T22:44:23.683Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
@@ -594,10 +594,10 @@
           "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
           "result": "pass",
           "note": "Genuinely wedged children continue diagnostic heartbeats yet command/idle/max absolute bounds terminate with structured timed_out and correct layer.",
-          "headHash": "a03361c1df5dd49b607b4186d3ce0461548bec43",
-          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
-          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
-          "timestamp": "2026-07-15T20:17:40.656Z"
+          "headHash": "f18fadd4ebda36c9a48e51d21aaf62c090962a7b",
+          "materialHash": "9461512ba9d71dff9d2eb1d3f7bc9bc4c1efd3bdd6f66dd4a8c62489cdf5cb72",
+          "storyFilesHash": "15d277dcb5e8fb1f46445861c06e1e2e5a29136ef9c882a47d4ba6f85b10ac70",
+          "timestamp": "2026-07-15T22:44:23.683Z"
         }
       ]
     }
