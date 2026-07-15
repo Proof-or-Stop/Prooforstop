@@ -260,6 +260,25 @@
       "resolvedAt": "2026-07-15T20:54:46.007Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-012",
+      "desc": "The new dryRun and SIGTERM-resistant sync regressions pass (including three consecutive closure-smoke runs), but refreshing evidence replaced rather than supplemented three broader must bindings, so the 28-ref map now overclaims coverage. CHK-003:adversarial:0 now runs only done-prepare-closure-heartbeat three times and its note covers SIGKILL/reap for phase-bounded execFileSync/execSync; it no longer binds validate-progress-heartbeat, which contains the command/CLI-idle/CLI-max spawned-descendant ESRCH and immediate-retry assertions required by that intent. CHK-003:edge:1 now cites only the validate=true dryRun closeout-idle case and no longer binds the direct done_required_validate formatter/noisy/silent/single-result coverage. CHK-002:edge:2 similarly replaced the broader executed pass/fail/command/phase/idle/max/policy/skip vocabulary evidence with one dryRun closeout timeout. Preserve the new focused evidence but use combined commands/notes (or multiple evidence rows per intent) so each must ref still names every required assertion; for adversarial:0 include validate-progress-heartbeat plus the triple closure smoke, not the triple closure smoke alone.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-15T20:58:10.322Z",
+      "reviewRound": "2026-07-15T20:54:04.151Z",
+      "reviewRunId": "B-c163:RR-024",
+      "_hash": "00ed5b6295bc84766da46a9aaa994718deea59d16889b82e12774a9a9da27575",
+      "files": [
+        "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|dryrun-sigterm-resistant",
+      "signatureTagSource": "auto"
     }
   ]
 }
