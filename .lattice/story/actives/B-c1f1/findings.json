@@ -1,0 +1,35 @@
+{
+  "findings": [
+    {
+      "id": "B-c1f1:F-001",
+      "desc": "Unsafe rollout ordering contradicts the plan’s own compatibility rule. Story 3 thins generated AGENTS.md/CLAUDE.md and claims runtime audit/review consumers ‘still dual-read’ (line 269), but audit/docs-drift dual-read is not introduced until Story 4 (lines 273–278) and review/preflight canonical routing until Story 5 (lines 282–287). Current audit.ts and review-preflight.ts remain hard-coded to root CLAUDE.md, so a project initialized after Story 3 can lose the detailed source those consumers require before they know how to read the canonical guide/runbook. This also violates cutover rule 6 (line 336), which permits thin generators only when the same Story proves consumers retain a valid source. Reorder consumer dual-read before template thinning, or combine the required consumer migration with Story 3 and prove fresh-init audit/review behavior before emitting thin assets.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T12:05:52.398Z",
+      "reviewRound": "2026-07-15T12:04:40.016Z",
+      "reviewRunId": "B-c1f1:RR-001",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/audit-scan.ts",
+          "packages/main/src/core/audit-trigger.ts",
+          "packages/main/src/handlers/audit.ts",
+          "packages/main/src/handlers/review-preflight.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7dcb95a49e061faea7a0ce1c0f8f3c57d2e6a663f1913151ca83dd7ec6581d92",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|unsafe-rollout-ordering",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
