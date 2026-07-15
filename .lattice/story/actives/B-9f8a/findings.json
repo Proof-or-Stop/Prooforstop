@@ -98,6 +98,21 @@
       "_hash": "82c674a04bae90dd491ebfac0f8efd296544e8ac241b0619dd2b5bed7e492745",
       "signatureTag": "edge|unknown|round-targeted-coverage",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9f8a:F-007",
+      "desc": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md:48-49 claims a review route expanded to a 130-file requirements corpus, but the current repository has 117 Markdown files under docs/requirements and every committed candidate-spec artifact for this story records either 8 candidates before escalation or 117 after full scan (verified with rg --files and git history). This appears to conflate the earlier 130-file project-doc inventory with the requirements corpus, so the reproduction evidence is factually inconsistent. Replace 130 with the evidenced count or describe the two measurements without calling 130 the requirements corpus.",
+      "severity": "low",
+      "category": "happy",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-15T13:37:31.014Z",
+      "reviewRound": "2026-07-15T13:33:42.668Z",
+      "reviewRunId": "B-9f8a:RR-008",
+      "_hash": "b02a11dfffe9dd445068f653860d5e2a5cbb0ce1d530b689d6b18b92b907ed3f",
+      "signatureTag": "happy|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
