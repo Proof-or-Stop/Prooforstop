@@ -299,14 +299,15 @@
         {
           "intentRef": "CHK-002:happy:1",
           "kind": "logic_test",
+          "verdict": "success",
           "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
           "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
           "result": "pass",
-          "note": "Separate actual done_prepare fixture commits a trusted story metadata descendant and asserts reused/pass plus lineage=trusted-story-metadata-descendant.",
-          "headHash": "fa97d96ba527ed86cc6563fd63a79fd8946b942d",
-          "materialHash": "ae43502aa282938894f52a8de68daecc74f2093e2e8cefec1c3f23b9398566dd",
-          "storyFilesHash": "07721018e144a98efcd14d9d7b78b0a6071749499fdf468f041890fef70d0990",
-          "timestamp": "2026-07-15T20:17:19.192Z"
+          "note": "Actual done_prepare CLI integration observes the evidence auto-commit as a trusted story-metadata descendant and asserts disposition=reused/result=pass with lineage=trusted-story-metadata-descendant.",
+          "headHash": "a0c6728704d2d21b92d8acf2160094ecd4286faf",
+          "materialHash": "0208749d1dcd92d80156a40ac21ec0115192e69eff29e9713a657e827527255b",
+          "storyFilesHash": "bc532b89794e474d93fe5793fe4fe48c99b3b519389a94ff6e8bb8ff1ef5c2a1",
+          "timestamp": "2026-07-15T20:31:52.463Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
