@@ -527,7 +527,7 @@
       "desc": "The persistence envelope treats a local hash chain as equivalent to a signer/key signature without defining an external trust anchor. An unkeyed chain stored beside the payload proves only internal consistency: any local writer can rewrite extraction, review, and readiness payloads and recompute the complete chain, including reviewer identity/run fields. Because this chain is gate-consumed and survives restart, the plan must require the existing signed-artifact/key-verification mechanism or specify an immutable/keyed trust anchor, signer authorization, replay/rotation rules, and an adversarial forged-chain fixture. The current `signature (or an equivalently verified local hash chain)` option otherwise weakens signed review evidence to self-asserted hashes.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-15T13:33:36.884Z",
@@ -538,7 +538,11 @@
         "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
       ],
       "signatureTag": "adversarial|md|persistence-envelope-treats",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Required canonical JSON plus Ed25519 trusted signer/key registry verification; unkeyed chains provide linkage only. Fixtures reject recomputed-chain forgery, unknown/wrong/revoked/out-of-window keys and verify restart/rotation.",
+      "resolvedAt": "2026-07-15T13:42:08.302Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
