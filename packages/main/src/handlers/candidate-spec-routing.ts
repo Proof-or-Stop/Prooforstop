@@ -20,6 +20,7 @@ import { runHostRun } from '../core/host-run.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { captureReviewRunSnapshot } from '../core/review-run.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
+import { isStoryMetadataPath } from '../core/evidence-freshness.js';
 
 const MAX_PROPOSAL_OUTPUT_BYTES = 64 * 1024;
 
@@ -71,7 +72,10 @@ function changedPaths(ctx: HandlerContext, storyId: string): string[] {
       projectRoot: ctx.root,
     });
     return execFileSync('git', ['diff', '--name-only', 'main...HEAD'], { cwd: gitCwd, encoding: 'utf8' })
-      .split(/\r?\n/).map(value => value.trim()).filter(Boolean).sort();
+      .split(/\r?\n/)
+      .map(value => value.trim())
+      .filter(path => Boolean(path) && !isStoryMetadataPath(path, ctx.root))
+      .sort();
   } catch {
     return [];
   }
