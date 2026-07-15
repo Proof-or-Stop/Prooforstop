@@ -5,7 +5,7 @@
       "desc": "Unsafe rollout ordering contradicts the plan’s own compatibility rule. Story 3 thins generated AGENTS.md/CLAUDE.md and claims runtime audit/review consumers ‘still dual-read’ (line 269), but audit/docs-drift dual-read is not introduced until Story 4 (lines 273–278) and review/preflight canonical routing until Story 5 (lines 282–287). Current audit.ts and review-preflight.ts remain hard-coded to root CLAUDE.md, so a project initialized after Story 3 can lose the detailed source those consumers require before they know how to read the canonical guide/runbook. This also violates cutover rule 6 (line 336), which permits thin generators only when the same Story proves consumers retain a valid source. Reorder consumer dual-read before template thinning, or combine the required consumer migration with Story 3 and prove fresh-init audit/review behavior before emitting thin assets.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-15T12:05:52.398Z",
@@ -29,7 +29,11 @@
         "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
       ],
       "signatureTag": "adversarial|md|unsafe-rollout-ordering",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Reordered rollout so registry plus audit/docs-drift/discovery dual-read, review/preflight routing, active normative authority migration, retired-authority guard, and verifier readiness all precede thin template generation. Story 7 is now first template-thinning owner and includes fresh-init audit/preflight checks.",
+      "resolvedAt": "2026-07-15T12:17:42.858Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c1f1:F-002",
