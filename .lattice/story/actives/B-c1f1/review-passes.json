@@ -474,6 +474,38 @@
         "scanEscalationReason": null
       },
       "_hash": "8eaf8144641306e94a78e842b955625c724fde170e97373ed3d65048e04ec149"
+    },
+    {
+      "id": "B-c1f1:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final acceptance coverage PASS at product commit 084a2a69c6. F-032 is closed in Story 6 readiness/replay: the matrix explicitly exercises external-secret parent-swap and final regular-file replacement races and requires a second independent filesystem-root-anchored no-follow walk over the complete ordered parent chain plus final identity after descriptor-bound read and before return; mismatch discards buffered bytes and fails closed, never returning replacement bytes. Replayed the frozen 7d7bebed scan: 600 hits and sorted path:line digest exactly match Appendix A; appendix has 600 data rows, seven non-empty fields, no duplicate keys, declared digest a6f8c525..., and dispositions 15/70/511/4. NAV independently counts 115 direct decision Markdown files, has exactly one exact target link, target exists, and scoped diff/check are clean. No coverage blocker found.",
+      "createdAt": "2026-07-15T14:13:21.127Z",
+      "reviewRound": "2026-07-15T14:09:16.983Z",
+      "reviewRunId": "B-c1f1:RR-043",
+      "writerSessionId": "sess-5593716d3b6d0282",
+      "sessionSource": "derived-ppid",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "8191a2407ea88108a5c48247dab5e82da1b634ea72ee3f8689873e0f861a93ad"
+      },
+      "readDiagnostics": [],
+      "_hash": "d9998ef8cedd5f1e06b91e01bc0bd8a466150771aa7c25b97f615e4d641836aa"
     }
   ]
 }
