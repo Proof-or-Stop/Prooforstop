@@ -185,6 +185,25 @@
       ],
       "signatureTag": "spec-boundary|ts|post-validation-closeout",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c163:F-009",
+      "desc": "Round-3 cleanup/race/lineage matrices pass, but the core top-level budget regression still lacks an assertion that can detect omitted closeout phases. In done-prepare-closure-heartbeat-smoke.ts:90-100 the fixture selects DONE-required phase=1,500,000ms and global phase=1,400,000ms, yet only asserts total >= 1,500,000 + 330,000. An implementation summing routine validation plus DONE-required while omitting all five other enabled closeout phases would still pass, contrary to CHK-001:edge:4. CHK-001:edge:3 also claims both DONE entry paths use derived command-specific maxima, but tests only assert story_get stays 900,000ms; there is no exact commandCliMaxBudget assertion for done_required_validate or done_prepare. Add exact expected totals for validate=true required-policy, validate=false, no-policy, global override, and phase-specific override combinations, plus exact derived maxima for both DONE entry paths. Also correct CHK-002:happy:0 evidence wording or add an actual exact-HEAD done_prepare fixture: seedDoneRequiredViaCli auto-commits evidence, so the current integration run proves trusted-metadata-descendant reuse, while exact-head is only covered at the evaluator unit level.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-15T20:23:36.194Z",
+      "reviewRound": "2026-07-15T20:20:04.456Z",
+      "reviewRunId": "B-c163:RR-016",
+      "_hash": "5fdded2c412b45b127888ac4097e9ba881987cd071f881bea4a3caaa4b5bb1ca",
+      "files": [
+        "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+        "packages/main/src/tasks/done-required-validation-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|round-cleanup-race",
+      "signatureTagSource": "auto"
     }
   ]
 }
