@@ -1,0 +1,118 @@
+{
+  "findings": [
+    {
+      "id": "B-9f8a:F-001",
+      "desc": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md:116-122 — Workstream A permits removing the DONE-required phase deadline and relying only on per-command deadlines, but the subordinate done-prepare heartbeat contract requires every heartbeating phase to have an independent hard wall-clock deadline. Per-command timeouts do not bound orchestration hangs before, between, or after child commands. Keep a derived phase deadline (sum of effective sequential command deadlines plus bounded orchestration grace), or explicitly split the phase into mechanically bounded substeps before allowing removal. Severity: medium.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T13:26:24.156Z",
+      "reviewRound": "2026-07-15T13:23:30.569Z",
+      "reviewRunId": "B-9f8a:RR-002",
+      "_hash": "2a84cce5bf84d01f3ba0e067722dae10d44ea720e7e1496dbabbd403b013a2f9",
+      "signatureTag": "edge|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9f8a:F-002",
+      "desc": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md:293-336,417-428 — Workstream D calls the canonical owner-session contract unfinished and lists only role-separation review before implementation. The adopted session-ownership source says B-9089 already implemented the host-neutral contract, while owner-session-contract-execution-plan.md:358-381 mandates fresh independent two-host PASS evidence bound to the document version before any runtime implementation. Reframe D as a regression/adapter-gap correction against shipped behavior and add the mandatory two-host review as an explicit blocking dependency and acceptance artifact; otherwise the execution plan can launch redundant or noncompliant identity work. Severity: medium.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T13:26:27.258Z",
+      "reviewRound": "2026-07-15T13:23:30.569Z",
+      "reviewRunId": "B-9f8a:RR-002",
+      "_hash": "37847fe2c719a7e4dd8c21ee27a9eee8b95c1d2f66e74791a55819c42647117c",
+      "signatureTag": "missing|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9f8a:F-003",
+      "desc": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md:119-122 treats removing the DONE-required phase deadline as an equally valid implementation choice, but the cited canonical heartbeat plan requires every heartbeating closure phase to retain an independent hard wall-clock deadline (done-prepare-heartbeat-review-assurance-ux-execution-plan.md:186-190). Because section 4 says canonical subsystem documents win, this branch is not implementation-ready as written: either select the sum(effective sequential deadlines)+bounded grace design, or explicitly require updating/superseding the canonical deadline contract before removal. Severity medium: an implementer following option one can violate the current fail-closed liveness policy.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T13:26:35.688Z",
+      "reviewRound": "2026-07-15T13:23:30.569Z",
+      "reviewRunId": "B-9f8a:RR-001",
+      "_hash": "73281412f63f19f2e4f6915b561943fc80dc15846c1444b76a07c4c33280cbba",
+      "files": [
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+        "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md"
+      ],
+      "signatureTag": "spec-boundary|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9f8a:F-004",
+      "desc": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md:297 says Workstream D will complete unfinished slices of the canonical owner-session contract, but session-ownership-and-write-leases.md:5-15 records the rollout as fully implemented by B-9089 and lines 27-34 already describe the active adapter/generated-token/derived-ppid chain. Reframe D as a regression repair to the shipped adapter/fallback behavior, identify the precise missing Codex task/agent propagation, and require a canonical contract update/new decision if taskIdentity+agentOrRoleIdentity changes the existing single-session-id semantics. Severity medium: the stale implementation status obscures whether the workstream is bug repair or a new identity-policy change.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T13:26:35.689Z",
+      "reviewRound": "2026-07-15T13:23:30.569Z",
+      "reviewRunId": "B-9f8a:RR-001",
+      "_hash": "09c20111710eaebb8c6f5f725c7414cfeff8c075fee3f1eef4537c29112b21f3",
+      "files": [
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md",
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md"
+      ],
+      "signatureTag": "doc-code-drift|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9f8a:F-005",
+      "desc": "Coverage evidence for all 10 intents passes, but the coverage reviewer cannot persist a no-blocker pass under the configured shadow routing mode: generic-token truncation/cutoff tie makes review_pass_set enforce a full-scan escalation, and rerouting with fullScanReason expands candidateSpecSet from 8 documents to the entire 130-file corpus. This reproduces the execution plan C3/mode-consistency failure and makes a documentation-only coverage pass disproportionate. Evidence: review_pass_set rejected with ranking_affecting_query_truncation + candidate_cutoff_tie; candidate_spec_route full scan returned fullScan=true and the full corpus despite candidateSpecRouting.mode=shadow. WHY: reviewer writer behavior contradicts shadow-mode advisory semantics and blocks proportionate assurance.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-15T13:28:09.402Z",
+      "reviewRound": "2026-07-15T13:23:30.569Z",
+      "reviewRunId": "B-9f8a:RR-003",
+      "_hash": "96341eddbd1e1622ecc00f2358cf032500a2f14ea940065609705ae060cb60dc",
+      "signatureTag": "edge|unknown|coverage-evidence-intents",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9f8a:F-006",
+      "desc": "Round-2 targeted coverage re-review confirms the corrected document satisfies all 10 current verification intents and every verificationEvidence command passes, but review_pass_set still cannot legally persist a pass: after reusing the existing explicit fullScanReason on the current material, candidateSpecSet expanded to the full requirements corpus and the writer demanded roughly 120 additional candidate full reads unrelated to the targeted corrections. I will not fabricate readEvents for unread documents. This is a current-round recurrence of B-9f8a:F-005, not a document-content defect. WHY: configured shadow routing is acting as an enforce blocker and makes a targeted documentation re-review require full-corpus assurance.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-15T13:36:59.376Z",
+      "reviewRound": "2026-07-15T13:33:42.668Z",
+      "reviewRunId": "B-9f8a:RR-007",
+      "_hash": "82c674a04bae90dd491ebfac0f8efd296544e8ac241b0619dd2b5bed7e492745",
+      "signatureTag": "edge|unknown|round-targeted-coverage",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9f8a:F-007",
+      "desc": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md:48-49 claims a review route expanded to a 130-file requirements corpus, but the current repository has 117 Markdown files under docs/requirements and every committed candidate-spec artifact for this story records either 8 candidates before escalation or 117 after full scan (verified with rg --files and git history). This appears to conflate the earlier 130-file project-doc inventory with the requirements corpus, so the reproduction evidence is factually inconsistent. Replace 130 with the evidenced count or describe the two measurements without calling 130 the requirements corpus.",
+      "severity": "low",
+      "category": "happy",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-15T13:37:31.014Z",
+      "reviewRound": "2026-07-15T13:33:42.668Z",
+      "reviewRunId": "B-9f8a:RR-008",
+      "_hash": "b02a11dfffe9dd445068f653860d5e2a5cbb0ce1d530b689d6b18b92b907ed3f",
+      "signatureTag": "happy|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
+    }
+  ]
+}

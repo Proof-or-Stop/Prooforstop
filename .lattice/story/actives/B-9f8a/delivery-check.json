@@ -1,0 +1,52 @@
+{
+  "storyId": "B-9f8a",
+  "checkedAt": "2026-07-15T14:08:22.353Z",
+  "headHash": "ea9c9993bf08412062833ec73ef4fe0c4e521383",
+  "materialHash": "bf3db83d6f4f0093ac0567f2a5a9f7deeae03036d1b4d94bc29804b7a8ff2276",
+  "storyFilesHash": "92a291b13110e1d03cb4f393c998bf6763049b33ff432b226eecf876556aca0f",
+  "reviewRound": "2026-07-15T13:52:43.551Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#1-decision",
+      "promise": "The document maps six confirmed workflow failures into exactly five independently scoped implementation workstreams.",
+      "status": "verified",
+      "verifiedBy": "independent full document inspection and section-heading grep",
+      "evidence": "Sections 6 through 10 define exactly five workstreams covering C1, C2 plus C3, C4, C5, and C6, with scope, design, acceptance, and rollback boundaries."
+    },
+    {
+      "docPath": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#4-source-of-truth-boundaries",
+      "promise": "The plan links all seven canonical related documents and makes their precedence explicit.",
+      "status": "verified",
+      "verifiedBy": "Markdown link extraction and filesystem existence check",
+      "evidence": "Exactly seven Markdown links were extracted; all seven resolve to existing repository files, and section 4 states that canonical subsystem documents win on disagreement."
+    },
+    {
+      "docPath": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#16-explicit-non-goals",
+      "promise": "This story is documentation-only and does not implement or claim completion of any runtime fix.",
+      "status": "verified",
+      "verifiedBy": "status line, decision boundary, and explicit non-goals inspection",
+      "evidence": "The status says runtime fixes are not implemented; section 1 does not authorize runtime changes; section 16 rejects implementation and rejects claiming that the six issues are fixed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#11-story-slicing-and-landing-order",
+      "promise": "The plan supplies landing order, dependencies, rollout stages, verification matrix, metrics, risks, controls, and explicit non-goals suitable for downstream story intake.",
+      "status": "verified",
+      "verifiedBy": "independent end-to-end Markdown inspection",
+      "evidence": "Sections 11 through 17 contain story slicing, rollout, verification, metrics, exit criteria, risk controls, non-goals, and an implementation intake template."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independent reviewer replayed all ten content and adversarial grep assertions with exit code 0, verified all seven Markdown links resolve to existing files, and ran lattice validate for B-9f8a. Routine validation completed 45 of 45 configured commands with PASS and reported verification intent coverage 10 of 10 with zero required missing."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All four documentation promises are verified. The 553-line plan has five scoped workstreams, seven valid canonical links, explicit documentation-only boundaries, 10 of 10 independently replayed acceptance checks, a clean worktree, and a fresh 45 of 45 routine validation PASS."
+  },
+  "_hash": "b9d7908efd3f445c67ea369841ab410f24bc219d318ff92af2876c11ab93ad64"
+}
