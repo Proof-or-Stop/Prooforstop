@@ -121,7 +121,7 @@
       "desc": "The dual-read deduplication key makes the Story 6 readiness condition non-executable. Story 3 says canonical and legacy results are deduplicated by (path, anchor, symbol, driftType), but path and usually anchor differ across canonical docs and legacy CLAUDE.md. Therefore the same semantic fact remains two records, the legacy copy appears unique, and line 387 cannot prove a full-suite run with no unique legacy fact while the full legacy root contract is intentionally retained until Story 8. Define a source-independent semantic identity/fingerprint (for example normalized fact kind + command/symbol/target + drift type), merge provenance paths/anchors into the canonical record, specify collision handling, and make retirement/readiness consume that semantic identity rather than source-path identity.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-15T12:19:11.579Z",
@@ -153,7 +153,11 @@
         "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
       ],
       "signatureTag": "adversarial|md|dual-read-semantic-dedup",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Defined a source-independent NormalizedDocFact semantic fingerprint, merged path/anchor/role/host/rawTextHash as provenance, made conflicts and collisions fail closed, and added canonical-plus-legacy dedupe, legacy-only blocker, and collision fixtures. Readiness/retirement now consume semantic identity.",
+      "resolvedAt": "2026-07-15T12:27:07.023Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c1f1:F-007",
