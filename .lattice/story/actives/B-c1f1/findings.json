@@ -661,7 +661,7 @@
       "desc": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md:272-273,331,505 — HIGH: the secure-I/O closure is still incomplete for the CI secret-file provider. Process evidence and the repository-local fallback key use a descriptor-bound, component-by-component no-follow walk, but `LATTICE_PROCESS_EVIDENCE_PRIVATE_KEY_FILE` is specified only as using a no-follow read plus permission checks and a startup rejection of symlinks. For an absolute CI-mounted path outside the project root, checking the pathname/terminal entry and then opening it leaves parent-directory symlink/replacement and validate-then-open races; a swapped path can supply different private bytes after the permission/identity check. Define a separate external-secret-file reader that opens from a trusted filesystem root (or accepts an already-open descriptor), walks every parent with no-follow semantics, reads and verifies ownership/mode/public-key identity through the same descriptor, and fails closed where the platform cannot guarantee this. Add parent-symlink and parent/target-swap fixtures for the CI secret-file path, not only the repository artifact/fallback paths.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-15T13:52:55.410Z",
@@ -682,7 +682,11 @@
         "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
       ],
       "signatureTag": "adversarial|md|ci-secret-file-path-race",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "External CI file provider now descriptor-walks every component from an approved mount root with no-follow handles and identity/permission checks; parent/final symlink and swap attacks fail closed.",
+      "resolvedAt": "2026-07-15T13:57:31.202Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
