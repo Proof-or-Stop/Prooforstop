@@ -345,6 +345,18 @@ function donePrepareRealValidateArgs(storyId: string, json = false): string[] {
   ];
 }
 
+function donePrepareValidateDryRunArgs(storyId: string): string[] {
+  return [
+    'done_prepare',
+    '--storyId', storyId,
+    '--mergeMain=false',
+    '--refreshStale=false',
+    '--validate=true',
+    '--dryRun=true',
+    '--json',
+  ];
+}
+
 function seedDoneRequiredViaCli(root: string, storyId: string): void {
   const result = runCli(root, ['done_required_validate', '--storyId', storyId, '--json']);
   assert.equal(result.status, 0, `seed DONE-required evidence failed:\n${result.stderr}\n${result.stdout}`);
@@ -504,6 +516,31 @@ function assertPostValidationCloseoutCliTimeouts(): void {
     } finally {
       rmSync(fixture.root, { recursive: true, force: true });
     }
+  }
+}
+
+function assertDryRunCloseoutTimeoutOmitsUnobservedValidationFields(): void {
+  const fixture = setupFixture();
+  try {
+    const result = runCli(fixture.root, donePrepareValidateDryRunArgs(fixture.storyId), {
+      LATTICE_IDLE_TIMEOUT_MS: '500',
+      LATTICE_MAX_TIMEOUT_MS: '5000',
+      LATTICE_DONE_PREPARE_HEARTBEAT_MS: '2000',
+      LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS: '5000',
+      LATTICE_DONE_PREPARE_SMOKE_HANG_PHASE: 'doneClosure',
+    });
+    assert.equal(result.status, 1, 'validate=true dryRun closeout timeout must exit nonzero');
+    const parsed = JSON.parse(result.stdout);
+    assert.equal(parsed.status, 'blocked');
+    assert.equal(parsed.blockedAt, 'doneClosure');
+    assert.equal(parsed.result, 'timed_out');
+    assert.equal(parsed.timeoutLayer, 'idle');
+    for (const field of ['disposition', 'existingEvidenceBasis', 'refusalReasons']) {
+      assert.equal(Object.hasOwn(parsed, field), false, `unobserved validation field ${field} must remain absent`);
+    }
+    assert.equal((result.stdout.match(/"schemaVersion"/g) ?? []).length, 1, 'watchdog timeout emits one terminal JSON object');
+  } finally {
+    rmSync(fixture.root, { recursive: true, force: true });
   }
 }
 
@@ -841,6 +878,7 @@ void (async () => {
     assertActualReuseSwitchAndValidateFalseBasis();
     assertPreflightBlockOmitsUnobservedValidationFields();
     assertPostValidationCloseoutCliTimeouts();
+    assertDryRunCloseoutTimeoutOmitsUnobservedValidationFields();
     assertRealValidateDoneRequiredProgressJsonSafe();
     await assertDoneRequiredPhaseTimeoutFailsClosed();
     await assertHungPhaseFailsClosed();

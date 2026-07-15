@@ -993,13 +993,12 @@ function cliWatchdogTimeoutBlock(
   const timeoutLayer = timeoutLayerFromReason(err);
   if (timeoutLayer !== 'idle' && timeoutLayer !== 'max') return null;
   const message = err instanceof Error ? err.message : `CLI ${timeoutLayer} timeout`;
-  const disposition = validationContext?.disposition ?? 'executed';
-  const existingEvidenceBasis = validationContext?.existingEvidenceBasis ?? 'stale';
-  const refusalReasons = [...new Set([
-    ...(validationContext?.refusalReasons ?? []),
-    `cli-${timeoutLayer}-timeout`,
-  ])];
-  const reason = `${message}; disposition=${disposition} result=timed_out refusalReasons=${refusalReasons.join(',')} timeoutLayer=${timeoutLayer} existingEvidenceBasis=${existingEvidenceBasis}; synchronous JavaScript is cooperative and stops at the first phase/deadline checkpoint`;
+  const terminalContext = validationContext
+    ? `disposition=${validationContext.disposition} result=timed_out refusalReasons=${[
+      ...new Set([...validationContext.refusalReasons, `cli-${timeoutLayer}-timeout`]),
+    ].join(',')} timeoutLayer=${timeoutLayer} existingEvidenceBasis=${validationContext.existingEvidenceBasis}`
+    : `result=timed_out timeoutLayer=${timeoutLayer}`;
+  const reason = `${message}; ${terminalContext}; synchronous JavaScript is cooperative and stops at the first phase/deadline checkpoint`;
   setStep(steps, phase.stepId, 'blocked', reason);
   return block({
     blockedAt: phase.stepId,
