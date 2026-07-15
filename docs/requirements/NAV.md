@@ -1,6 +1,6 @@
 # Source of Truth Navigation
 
-> 115 files
+> Curated, non-exhaustive navigation. Inventory count: 115 Markdown files directly under `docs/requirements/decisions/`; not every file is linked below.
 
 ## evidence
 
