@@ -14,6 +14,21 @@
       "_hash": "2a84cce5bf84d01f3ba0e067722dae10d44ea720e7e1496dbabbd403b013a2f9",
       "signatureTag": "edge|unknown|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9f8a:F-002",
+      "desc": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md:293-336,417-428 — Workstream D calls the canonical owner-session contract unfinished and lists only role-separation review before implementation. The adopted session-ownership source says B-9089 already implemented the host-neutral contract, while owner-session-contract-execution-plan.md:358-381 mandates fresh independent two-host PASS evidence bound to the document version before any runtime implementation. Reframe D as a regression/adapter-gap correction against shipped behavior and add the mandatory two-host review as an explicit blocking dependency and acceptance artifact; otherwise the execution plan can launch redundant or noncompliant identity work. Severity: medium.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T13:26:27.258Z",
+      "reviewRound": "2026-07-15T13:23:30.569Z",
+      "reviewRunId": "B-9f8a:RR-002",
+      "_hash": "37847fe2c719a7e4dd8c21ee27a9eee8b95c1d2f66e74791a55819c42647117c",
+      "signatureTag": "missing|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
