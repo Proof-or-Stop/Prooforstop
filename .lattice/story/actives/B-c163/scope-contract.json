@@ -13,7 +13,9 @@
     "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
     "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
     "packages/main/src/handlers/done-required-validation.ts",
-    "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md"
+    "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/handlers/verifier.ts"
   ],
   "allowedCreate": [
     "packages/main/src/core/done-required-timeout-budget.ts"
@@ -37,8 +39,8 @@
     "packages/main/src/core/scope-path-classifier.ts",
     "packages/main/src/core/scope-diff-pack.ts"
   ],
-  "scopeChangeReason": "Final Workstream A scope including all six canonical docs and process-fact verification.",
+  "scopeChangeReason": "Verified HIGH findings F-001 and F-003 require minimal AbortSignal and deadline propagation through verifier and validation-executor so idle/max timeout can terminate child trees, release locks and timers, and produce a structured terminal result. No unrelated behavior is authorized.",
   "acknowledgements": [],
   "createdAt": "2026-07-15T19:01:11.957Z",
-  "updatedAt": "2026-07-15T19:01:11.957Z"
+  "updatedAt": "2026-07-15T19:34:18.047Z"
 }
