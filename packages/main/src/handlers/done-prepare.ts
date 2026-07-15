@@ -715,6 +715,7 @@ function boundedExecFileSyncOptions(
     options: {
       ...(options ?? {}),
       timeout: hasShorterTimeout ? Math.floor(existingTimeout) : remainingMs,
+      ...(!hasShorterTimeout ? { killSignal: 'SIGKILL' as const } : {}),
     },
     phaseBounded: !hasShorterTimeout,
   };
@@ -733,6 +734,7 @@ function boundedExecSyncOptions(
     options: {
       ...(options ?? {}),
       timeout: hasShorterTimeout ? Math.floor(existingTimeout) : remainingMs,
+      ...(!hasShorterTimeout ? { killSignal: 'SIGKILL' as const } : {}),
     },
     phaseBounded: !hasShorterTimeout,
   };
@@ -772,7 +774,7 @@ function smokeSyncGitHangArgs(): string[] {
     DONE_PREPARE_SMOKE_SYNC_GIT_HANG_MS_ENV,
     DEFAULT_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_MS,
   );
-  return ['-e', `setTimeout(() => {}, ${hangMs});`];
+  return ['-e', `process.on('SIGTERM', () => {}); setTimeout(() => {}, ${hangMs});`];
 }
 
 function smokeSyncGitHangCommand(): string {

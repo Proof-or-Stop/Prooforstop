@@ -8,7 +8,7 @@
  */
 
 import assert from 'node:assert/strict';
-import { execFileSync, spawnSync } from 'node:child_process';
+import { execFileSync, execSync, spawnSync } from 'node:child_process';
 import {
   existsSync,
   mkdirSync,
@@ -783,8 +783,11 @@ async function assertSynchronousGitTimeoutFailsClosed(): Promise<void> {
     process.chdir(root);
     const storySnapshotBefore = readTreeSnapshot(root, `.lattice/story/actives/${storyId}`);
     const logs: string[] = [];
-    const prepare = createDonePrepareHandlers(mkCtx(root, (msg) => logs.push(msg)));
-    const started = Date.now();
+    let phaseStartedAt = 0;
+    const prepare = createDonePrepareHandlers(mkCtx(root, (msg) => {
+      logs.push(msg);
+      if (msg === 'done_prepare progress: computing runtime-change status') phaseStartedAt = Date.now();
+    }));
     const transcript = await withEnv({
       LATTICE_DONE_PREPARE_HEARTBEAT_MS: '20',
       LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS: '5000',
@@ -799,12 +802,12 @@ async function assertSynchronousGitTimeoutFailsClosed(): Promise<void> {
       validate: false,
       dryRun: true,
     })));
-    const elapsedMs = Date.now() - started;
+    const phaseElapsedMs = Date.now() - phaseStartedAt;
 
-    assert.ok(logs.includes('done_prepare progress: computing runtime-change status'), 'sync git timeout emits the exact progress label');
+    assert.ok(phaseStartedAt > 0, 'sync git timeout emits the exact progress label');
     assert.ok(
-      elapsedMs < 2_000,
-      `sync git timeout should be bounded by the phase deadline, not the sleeping child duration; elapsedMs=${elapsedMs}`,
+      phaseElapsedMs < 2_000,
+      `sync git timeout should be bounded by the phase deadline, not the SIGTERM-resistant child duration; phaseElapsedMs=${phaseElapsedMs}`,
     );
     assert.ok(transcript.startsWith('DONE prepare: BLOCKED'), `sync git timeout must return a BLOCKED transcript:\n${transcript}`);
     assert.match(transcript, /^blockedAt: runtimeChange$/m);
@@ -817,6 +820,10 @@ async function assertSynchronousGitTimeoutFailsClosed(): Promise<void> {
       'sync child timeout diagnostics must not write gate evidence or story metadata',
     );
     assert.ok(!existsSync(join(root, '.lattice', 'activity.jsonl')), 'sync timeout progress does not depend on activity-root logging');
+    assert.doesNotThrow(
+      () => execFileSync(process.execPath, ['-e', ''], { stdio: 'ignore', timeout: 1_000 }),
+      'sync timeout must reap the child and restore execFileSync before returning',
+    );
   } finally {
     process.chdir(oldCwd);
     rmSync(root, { recursive: true, force: true });
@@ -830,8 +837,11 @@ async function assertSynchronousDoneClosureGitTimeoutFailsClosed(): Promise<void
     process.chdir(root);
     const storySnapshotBefore = readTreeSnapshot(root, `.lattice/story/actives/${storyId}`);
     const logs: string[] = [];
-    const prepare = createDonePrepareHandlers(mkCtx(root, (msg) => logs.push(msg)));
-    const started = Date.now();
+    let phaseStartedAt = 0;
+    const prepare = createDonePrepareHandlers(mkCtx(root, (msg) => {
+      logs.push(msg);
+      if (msg === 'done_prepare progress: evaluating DONE closure') phaseStartedAt = Date.now();
+    }));
     const transcript = await withEnv({
       LATTICE_DONE_PREPARE_HEARTBEAT_MS: '20',
       LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS: '5000',
@@ -846,12 +856,12 @@ async function assertSynchronousDoneClosureGitTimeoutFailsClosed(): Promise<void
       validate: false,
       dryRun: true,
     })));
-    const elapsedMs = Date.now() - started;
+    const phaseElapsedMs = Date.now() - phaseStartedAt;
 
-    assert.ok(logs.includes('done_prepare progress: evaluating DONE closure'), 'execSync git timeout emits the exact done-closure progress label');
+    assert.ok(phaseStartedAt > 0, 'execSync git timeout emits the exact done-closure progress label');
     assert.ok(
-      elapsedMs < 2_000,
-      `done-closure execSync timeout should be bounded by the phase deadline, not the sleeping child duration; elapsedMs=${elapsedMs}`,
+      phaseElapsedMs < 2_000,
+      `done-closure execSync timeout should be bounded by the phase deadline, not the SIGTERM-resistant child duration; phaseElapsedMs=${phaseElapsedMs}`,
     );
     assert.ok(transcript.startsWith('DONE prepare: BLOCKED'), `execSync git timeout must return a BLOCKED transcript:\n${transcript}`);
     assert.match(transcript, /^blockedAt: doneClosure$/m);
@@ -864,6 +874,10 @@ async function assertSynchronousDoneClosureGitTimeoutFailsClosed(): Promise<void
       'execSync timeout diagnostics must not write gate evidence or story metadata',
     );
     assert.ok(!existsSync(join(root, '.lattice', 'activity.jsonl')), 'execSync timeout progress does not depend on activity-root logging');
+    assert.doesNotThrow(
+      () => execSync(`${JSON.stringify(process.execPath)} -e ""`, { stdio: 'ignore', timeout: 1_000 }),
+      'sync timeout must reap the child and restore execSync before returning',
+    );
   } finally {
     process.chdir(oldCwd);
     rmSync(root, { recursive: true, force: true });
