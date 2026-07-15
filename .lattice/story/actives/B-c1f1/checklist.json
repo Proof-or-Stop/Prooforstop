@@ -13,7 +13,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-15T11:59:26.241Z",
-      "endTime": "2026-07-15T13:15:12.803Z",
+      "endTime": "2026-07-15T13:22:51.536Z",
       "verificationIntent": {
         "happy": [
           {
@@ -61,55 +61,55 @@
           "kind": "docs_check",
           "command": "rg -n \"Proof-or-stop Thin Entrypoint Contract Migration Execution Plan|Story 1 — Contract tests|Story 9 — Legacy fallback retirement\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
           "result": "pass",
-          "note": "The complete nine-Story architecture and convergence path remain present.",
-          "headHash": "4f0d8380bd3da20f94658b7e87a8128c37046fb5",
-          "materialHash": "8dacaa22d299e82c40152a8c93ea9dc07f63d043a0f93ddfb935e13ecea74b71",
-          "storyFilesHash": "4353d55775cd8e19fa32ee5a841dc8af9f70b94a5c6727718564684852221946",
-          "timestamp": "2026-07-15T13:15:13.374Z"
+          "note": "Complete architecture and ordered implementation plan remain present.",
+          "headHash": "3da3cb165ef2ddaa24f25f74c13d2f54a898a1be",
+          "materialHash": "1f739ed80703978797abc649a880a998cc453b5fc1ead632943f3eb289120fd3",
+          "storyFilesHash": "a7b975883f176184db4653ca6dee7b8dc43ec641e24f8496f00849fe56308731",
+          "timestamp": "2026-07-15T13:22:52.093Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "docs_check",
           "command": "rg -n \"CODEX.md|AGY.md|anti-regression ceilings|OMX prohibition\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
           "result": "pass",
-          "note": "Host protocol and repository-local policy boundaries remain explicit.",
-          "headHash": "4f0d8380bd3da20f94658b7e87a8128c37046fb5",
-          "materialHash": "8dacaa22d299e82c40152a8c93ea9dc07f63d043a0f93ddfb935e13ecea74b71",
-          "storyFilesHash": "4353d55775cd8e19fa32ee5a841dc8af9f70b94a5c6727718564684852221946",
-          "timestamp": "2026-07-15T13:15:13.880Z"
+          "note": "Host and local policy boundaries remain explicit.",
+          "headHash": "3da3cb165ef2ddaa24f25f74c13d2f54a898a1be",
+          "materialHash": "1f739ed80703978797abc649a880a998cc453b5fc1ead632943f3eb289120fd3",
+          "storyFilesHash": "a7b975883f176184db4653ca6dee7b8dc43ec641e24f8496f00849fe56308731",
+          "timestamp": "2026-07-15T13:22:52.718Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
           "kind": "logic_test",
-          "command": "rg -n \"schemaVersion = 1|claimSlot|source view|legacy-complement|provenance laundering|same physical path\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "command": "rg -n \"AGENTS.md canonical view|CLAUDE.md canonical view|sourceRevision|viewDefinitionDigest|selectorDigest|allowedClaimSlots\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
           "result": "pass",
-          "note": "Semantic identity plus disjoint source views prevent canonical/legacy provenance laundering on the same root file.",
-          "headHash": "4f0d8380bd3da20f94658b7e87a8128c37046fb5",
-          "materialHash": "8dacaa22d299e82c40152a8c93ea9dc07f63d043a0f93ddfb935e13ecea74b71",
-          "storyFilesHash": "4353d55775cd8e19fa32ee5a841dc8af9f70b94a5c6727718564684852221946",
-          "timestamp": "2026-07-15T13:15:14.473Z"
+          "note": "Both roots use disjoint source views and semantic evidence is bound to source and selector snapshots.",
+          "headHash": "3da3cb165ef2ddaa24f25f74c13d2f54a898a1be",
+          "materialHash": "1f739ed80703978797abc649a880a998cc453b5fc1ead632943f3eb289120fd3",
+          "storyFilesHash": "a7b975883f176184db4653ca6dee7b8dc43ec641e24f8496f00849fe56308731",
+          "timestamp": "2026-07-15T13:22:53.397Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "manual_transcript",
           "command": "sed -n '/^```tsv$/,/^```$/p' docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md | sed '1d;$d' | tail -n +2 | wc -l",
           "result": "pass",
-          "note": "Frozen baseline remains 600 rows by seven nonempty fields with SHA-256 a6f8c5256a10a8356480898e99c1c12e9d53cedabf5078a7f801f714ff04d4a0.",
-          "headHash": "4f0d8380bd3da20f94658b7e87a8128c37046fb5",
-          "materialHash": "8dacaa22d299e82c40152a8c93ea9dc07f63d043a0f93ddfb935e13ecea74b71",
-          "storyFilesHash": "4353d55775cd8e19fa32ee5a841dc8af9f70b94a5c6727718564684852221946",
-          "timestamp": "2026-07-15T13:15:14.845Z"
+          "note": "Frozen baseline remains 600x7 with documented digest.",
+          "headHash": "3da3cb165ef2ddaa24f25f74c13d2f54a898a1be",
+          "materialHash": "1f739ed80703978797abc649a880a998cc453b5fc1ead632943f3eb289120fd3",
+          "storyFilesHash": "a7b975883f176184db4653ca6dee7b8dc43ec641e24f8496f00849fe56308731",
+          "timestamp": "2026-07-15T13:22:54.107Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
           "kind": "logic_test",
-          "command": "rg -n \"same-path canonical/legacy provenance laundering|ranges overlap|Partial template migration|B-e514 remains in TEST\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "command": "rg -n \"required.*all markers are absent|empty-if-all-absent|partial marker|Fact-snapshot freshness|provenance laundering\" docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
           "result": "pass",
-          "note": "Failure matrix covers same-path laundering/overlap and rollout recovery cases.",
-          "headHash": "4f0d8380bd3da20f94658b7e87a8128c37046fb5",
-          "materialHash": "8dacaa22d299e82c40152a8c93ea9dc07f63d043a0f93ddfb935e13ecea74b71",
-          "storyFilesHash": "4353d55775cd8e19fa32ee5a841dc8af9f70b94a5c6727718564684852221946",
-          "timestamp": "2026-07-15T13:15:15.338Z"
+          "note": "Executable fixtures cover marker absence/partial states, provenance laundering, and stale source/selector snapshots.",
+          "headHash": "3da3cb165ef2ddaa24f25f74c13d2f54a898a1be",
+          "materialHash": "1f739ed80703978797abc649a880a998cc453b5fc1ead632943f3eb289120fd3",
+          "storyFilesHash": "a7b975883f176184db4653ca6dee7b8dc43ec641e24f8496f00849fe56308731",
+          "timestamp": "2026-07-15T13:22:54.554Z"
         }
       ]
     },
