@@ -56,6 +56,39 @@
         "scanEscalationReason": null
       },
       "_hash": "f8647b5f65bcc2f333f6762cd59226754ee21b78ea1302607a19880a0066a729"
+    },
+    {
+      "id": "B-c163:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Final targeted quality review found no blocker. F-010 is fixed by propagating deadlineError through verifier and executeValidationPlan; a timed-out command at deadline now throws the named max error even before watchdog signal polling. The real 1005ms/251ms non-divisible CLI fixture returns one JSON object, exit 1, result=timed_out, timeoutLayer=max, then immediately reruns successfully. Post-validation closeout timeouts preserve observed disposition, evidence basis and refusal context while appending the watchdog reason. Exact total budgets cover all enabled phases. Build, validate-progress heartbeat, done-prepare closure, done-required validation, command-catalog and process-fact contract all pass.",
+      "createdAt": "2026-07-15T20:39:09.395Z",
+      "reviewRound": "2026-07-15T20:34:31.035Z",
+      "reviewRunId": "B-c163:RR-021",
+      "writerSessionId": "review-bc163-quality-r4",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6b91c884cdbef1c709787bb82ecf42c9a9173815e75c63188ab5db5a6c271789"
     }
   ]
 }
