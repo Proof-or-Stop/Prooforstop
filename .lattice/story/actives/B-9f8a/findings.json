@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-9f8a:F-001",
+      "desc": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md:116-122 — Workstream A permits removing the DONE-required phase deadline and relying only on per-command deadlines, but the subordinate done-prepare heartbeat contract requires every heartbeating phase to have an independent hard wall-clock deadline. Per-command timeouts do not bound orchestration hangs before, between, or after child commands. Keep a derived phase deadline (sum of effective sequential command deadlines plus bounded orchestration grace), or explicitly split the phase into mechanically bounded substeps before allowing removal. Severity: medium.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T13:26:24.156Z",
+      "reviewRound": "2026-07-15T13:23:30.569Z",
+      "reviewRunId": "B-9f8a:RR-002",
+      "_hash": "2a84cce5bf84d01f3ba0e067722dae10d44ea720e7e1496dbabbd403b013a2f9",
+      "signatureTag": "edge|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
