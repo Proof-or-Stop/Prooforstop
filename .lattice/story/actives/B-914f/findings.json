@@ -240,6 +240,26 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-914f:F-012",
+      "desc": "packages/main/src/core/validation-evidence-reuse.ts:256-263 and packages/main/src/handlers/verifier.ts:1196-1199 — HIGH: F-010 is not fully sound. priorCoverageOnlyFailure proves only that coverage was missing, not that coverage was the sole reason for the stored FAIL. commandExecution deliberately treats optional-command failures as PASS, while persistence stores their status=warn result as overall FAIL; after coverage repair the classifier returns reusable=true and the configured path emits a clean reused PASS, erasing the optional failure/warning. The validate-file semantic predicate likewise accepts every status except literal fail, so status=warn/error/unknown plus missing coverage can be laundered the same way. Reviewer repro constructed exact-head evidence with result=FAIL, missingRequired=1 and optionalFailureCount=1 and observed {reusable:true}. Persist/validate an explicit overall-failure-cause (or reject any non-clean command status/optional failure), require validate-file semantic PASS positively, and add contradiction rows proving non-coverage contributors execute rather than reuse.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-16T15:08:21.999Z",
+      "reviewRound": "2026-07-16T15:02:21.339Z",
+      "reviewRunId": "B-914f:RR-009",
+      "_hash": "5e384d920c6fa7c06ae04628ea5c5d1b06ac8357a3e55ee0dc0b56ecc5c6a519",
+      "files": [
+        "packages/main/src/core/validation-evidence-reuse.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
