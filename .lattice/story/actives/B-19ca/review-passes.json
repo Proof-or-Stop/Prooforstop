@@ -361,6 +361,30 @@
       },
       "readDiagnostics": [],
       "_hash": "88762f2da1c8135065bd6213505ce93b74f7b879a7a7a36950736cd53c211124"
+    },
+    {
+      "id": "B-19ca:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Round 7 incremental concept review: b54f43ca27 removes an unknown inherited LATTICE_AGENT from the nested-worktree smoke, preserving the registry fail-closed rule while using the explicit omitted-host compatibility path; the smoke passes and no authority crossover or design blocker was found.",
+      "createdAt": "2026-07-16T13:19:08.295Z",
+      "reviewRound": "2026-07-16T13:17:00.741Z",
+      "reviewRunId": "B-19ca:RR-034",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/verify-nested-worktree-bootstrap.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/init-check.ts",
+          "packages/main/src/handlers/review-run.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f5e76e6f0480c8444b0c2ee0ca1f1389a852920526b5d7b425dc7c6a63e6fff3"
     }
   ]
 }
