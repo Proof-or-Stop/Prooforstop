@@ -1,0 +1,39 @@
+{
+  "passes": [
+    {
+      "id": "B-19ca:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Round-2 docs re-review PASS. F-005 is resolved: the umbrella plan and role-separation document now match the accepted prompt-consolidation decision to fold implementation-reviewer into quality/behavior and leave item-scoped acceptance to verification-intent. Candidate dispatch help exposes registry-defined cardinality and excludes implementation-reviewer. Existing host prompt files are legacy compatibility assets, not active dispatch/evidence authority; their banner/removal remains in the separate prompt-consolidation rollout.",
+      "createdAt": "2026-07-16T11:57:44.019Z",
+      "reviewRound": "2026-07-16T11:50:24.553Z",
+      "reviewRunId": "B-19ca:RR-012",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "bece73fc7c48804ddedae9963ce661b6a2699dd2dd2c6ae5a3a4d6c9b216ffda",
+        "corpusDigest": "fab7461b8085dde0edf5b3e6e93634e3382fd96e190816832e09d598eccb36de"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "6188b0a7ad938c118a10a1ec38d414fede72303a20bd82b13320a39461a84a5a"
+      },
+      "readDiagnostics": [],
+      "_hash": "47ad0e24c4d78f240ea414c5a64393f5dfaad317dc22038a09ce4894df19ffba"
+    }
+  ]
+}
