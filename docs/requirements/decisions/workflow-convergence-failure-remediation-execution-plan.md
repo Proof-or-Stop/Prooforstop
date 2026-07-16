@@ -267,8 +267,12 @@ prompt builder, hints, and tests. Each registered type declares:
 - reviewer lane and evidence ownership, if any.
 
 At minimum the registry must model implementer, verification-intent, INIT
-reviewers, story reviewers, item reviewers, coverage reviewer, finding repair,
-and delivery reviewer. `verification-intent` is the current name; legacy
+reviewers, story reviewers, coverage reviewer, finding repair,
+and delivery reviewer. A separate item-reviewer family is intentionally retired:
+its implementation-risk responsibility is folded into the quality and behavior
+story-review lanes, while item-scoped verification remains owned by
+`verification-intent`. This avoids a third overlapping code-review authority and
+matches the accepted prompt-consolidation decision. `verification-intent` is the current name; legacy
 `test-intent` and `test-case-reviewer` behavior must be deliberate compatibility,
 not accidental fallback.
 
@@ -291,6 +295,24 @@ the same schema they describe.
   cardinality, prompt class, and denied command class.
 - Process-fact registry and contract verification are updated if reviewer/gate
   semantics change.
+
+#### Implemented contract (B-19ca)
+
+The authority source is `AGENT_DISPATCH_REGISTRY`, not an agent-name prefix.
+Every canonical role and compatibility alias declares its lifecycle phases,
+story/identifier cardinality, prompt class, commit permission, reviewer lane,
+evidence ownership, and mutation allowlist. The CLI enum is derived from that
+same table; runtime request validation happens before prompt rendering or event
+writes, and role-aware mutation consumers fail closed on privilege crossover.
+
+`agent-dispatch-registry-smoke` exhaustively executes every canonical name and
+alias across all lifecycle phases, all eight item/finding/cluster cardinality
+combinations, every prompt class, and every allowed/denied mutation command.
+Its explicit completeness ledger is itself mutation-tested: injecting a new
+canonical row or alias without coverage must fail. `command-catalog-smoke`
+keeps the catalog enum and nullable/omitted-field examples schema-valid, while
+`runtime:agent_dispatch_role_authority_gate` records the gate-consumed contract
+in the process-fact registry and verifier.
 
 ### 8.4 Rollback
 

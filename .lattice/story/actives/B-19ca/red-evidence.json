@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-19ca",
+  "records": [
+    {
+      "id": "RED-B19CA-DISPATCH",
+      "trigger": "C4 typed dispatch must prevent verification and reviewer roles from receiving implementer authority",
+      "acceptanceTargetRef": "CHK-002",
+      "baselineHeadHash": "ab3fc8277ccd7a1a10be32d2af85b0eaf0451bc6",
+      "baselineMaterialHash": "b217c65ee81f6cb6dd7d2b1040f146c8497ad5b697657e24c7d5161fe4a33647",
+      "observedFailure": "Current dispatch returns exit 0 and an As lattice-implementer prompt with git commit and checklist status:done steps for both verification-intent and test-intent; an unknown-role also receives that prompt, while story-level lattice-review-quality is rejected for missing itemId.",
+      "failingCommand": "lattice dispatch --storyId=B-19ca --itemId=CHK-001 --agentType=verification-intent",
+      "expectedGreenCommand": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+      "greenRelation": {
+        "targetRef": "CHK-002",
+        "relation": "regression_to_green",
+        "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js"
+      },
+      "note": "Pre-fix transcript reproduced directly in the B-19ca PLAN worktree on 2026-07-16; negative cases must become fail-closed and legacy aliases role-safe.",
+      "createdAt": "2026-07-16T10:21:43.217Z"
+    },
+    {
+      "id": "RED-B19CA-DISPATCH-EDGE1",
+      "trigger": "Verification and legacy test aliases must not receive implementer mutation guidance",
+      "acceptanceTargetRef": "CHK-002:edge:1",
+      "baselineHeadHash": "9f6cf19e310936e993951e3b198acef0e4a78396",
+      "baselineMaterialHash": "b217c65ee81f6cb6dd7d2b1040f146c8497ad5b697657e24c7d5161fe4a33647",
+      "observedFailure": "verification-intent and test-intent both dispatch as lattice-implementer and include git commit --author plus checklist status:done; unknown-role behaves the same.",
+      "failingCommand": "lattice dispatch --storyId=B-19ca --itemId=CHK-001 --agentType=verification-intent",
+      "expectedGreenCommand": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+      "greenRelation": {
+        "targetRef": "CHK-002:edge:1",
+        "relation": "regression_to_green",
+        "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js"
+      },
+      "note": "Exact must verification intent binding for the reproduced C4 role-pollution failure.",
+      "createdAt": "2026-07-16T10:24:47.082Z"
+    }
+  ],
+  "createdAt": "2026-07-16T10:21:43.217Z",
+  "updatedAt": "2026-07-16T10:24:47.082Z"
+}

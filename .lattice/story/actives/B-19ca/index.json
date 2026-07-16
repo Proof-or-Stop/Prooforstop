@@ -4,11 +4,11 @@
   "title": "Introduce a typed agent dispatch registry and fail-closed prompt routing",
   "description": "Implement Workstream C / C4 from workflow-convergence-failure-remediation-execution-plan.md: replace prefix-based role inference and mismatched story/item hints with one explicit registry consumed by schema, handler, prompt construction, hints, permissions, and tests.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-07-16T10:15:31.924Z",
   "startedAt": "2026-07-16T10:15:31.924Z",
-  "endedAt": null,
+  "endedAt": "2026-07-16T13:45:23.817Z",
   "events": [
     {
       "phase": "INIT",
@@ -27,11 +27,169 @@
       "user": "Harmonygo",
       "sessionId": "codex-wa-final",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-16T10:19:03.509Z",
+      "branch": "story/B-19ca",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-16T10:34:58.252Z",
+      "branch": "story/B-19ca",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-16T11:17:22.582Z",
+      "branch": "story/B-19ca",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-16T11:26:19.410Z",
+      "branch": "story/B-19ca",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-16T11:50:24.554Z",
+      "branch": "story/B-19ca",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-16T11:58:25.205Z",
+      "branch": "story/B-19ca",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-16T12:04:32.408Z",
+      "branch": "story/B-19ca",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-16T12:10:08.037Z",
+      "branch": "story/B-19ca",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-16T12:15:37.080Z",
+      "branch": "story/B-19ca",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-16T12:19:59.349Z",
+      "branch": "story/B-19ca",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-16T12:25:28.504Z",
+      "branch": "story/B-19ca",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-16T12:31:02.897Z",
+      "branch": "story/B-19ca",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-16T12:36:17.693Z",
+      "branch": "story/B-19ca",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-16T12:58:51.038Z",
+      "branch": "story/B-19ca",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-16T13:14:55.190Z",
+      "branch": "story/B-19ca",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-16T13:17:00.741Z",
+      "branch": "story/B-19ca",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-16T13:35:46.794Z",
+      "branch": "story/B-19ca",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-16T13:45:23.817Z",
+      "branch": "story/B-19ca",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-19ca",
-    "branch": "story/B-19ca",
-    "createdAt": "2026-07-16T10:18:35.969Z"
-  }
+  "currentReviewRound": "2026-07-16T13:17:00.741Z"
 }

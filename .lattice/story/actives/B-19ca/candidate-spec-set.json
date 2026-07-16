@@ -1,0 +1,116 @@
+{
+  "schemaVersion": "proofbound.candidate-spec-set.v1",
+  "storyId": "B-19ca",
+  "corpusDigest": "fab7461b8085dde0edf5b3e6e93634e3382fd96e190816832e09d598eccb36de",
+  "seedDigest": "03b9a51d19713966b46b141c9a00ad63e90a9237b32f4e29041bb9f5f329c316",
+  "promptDigests": [],
+  "candidates": [
+    {
+      "path": "docs/requirements/decisions/role-separation.md",
+      "contentHash": "6d7634e137331d2b0b05bf485594af81340baec6a0cc60e593fcd5f87eb2912d",
+      "score": 100,
+      "reasons": [
+        {
+          "kind": "related-doc",
+          "term": "docs/requirements/decisions/role-separation.md",
+          "source": "relatedDoc",
+          "points": 100
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+      "contentHash": "133161a3749ab5b770adcdea7ecdb7ca3f0a4e696d40fcea24cf2e2b756e1b42",
+      "score": 100,
+      "reasons": [
+        {
+          "kind": "related-doc",
+          "term": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "source": "relatedDoc",
+          "points": 100
+        }
+      ]
+    }
+  ],
+  "candidateSpecSet": [
+    "docs/requirements/decisions/role-separation.md",
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+  ],
+  "candidateBasis": {
+    "docs/requirements/decisions/role-separation.md": [
+      {
+        "kind": "related-doc",
+        "term": "docs/requirements/decisions/role-separation.md",
+        "source": "relatedDoc",
+        "points": 100
+      }
+    ],
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md": [
+      {
+        "kind": "related-doc",
+        "term": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+        "source": "relatedDoc",
+        "points": 100
+      }
+    ]
+  },
+  "queryGroups": [
+    [
+      "agent dispatch registry smoke ts"
+    ],
+    [
+      "agent dispatch registry ts"
+    ],
+    [
+      "candidate spec routing smoke ts"
+    ],
+    [
+      "checklist ts"
+    ],
+    [
+      "command catalog smoke ts"
+    ],
+    [
+      "command catalog ts"
+    ],
+    [
+      "delivery check ts"
+    ],
+    [
+      "finding ts"
+    ]
+  ],
+  "queryFiltering": {
+    "maxDocumentFrequencyRatio": 0.4,
+    "filteredTerms": [
+      {
+        "term": "cli",
+        "documentCount": 103,
+        "documentFrequencyRatio": 0.8728813559322034
+      },
+      {
+        "term": "core",
+        "documentCount": 82,
+        "documentFrequencyRatio": 0.6949152542372882
+      }
+    ]
+  },
+  "rankingPolicy": {
+    "minRankingAffectingCutoffScore": 15
+  },
+  "budgets": {
+    "candidates": 8,
+    "queryGroups": 10,
+    "rawHitsPerGroup": 50
+  },
+  "ambiguitySignals": [],
+  "requiresEscalation": false,
+  "escalationReasons": [],
+  "fullScan": false,
+  "scanEscalationReason": null,
+  "storyInputDigest": "fc40c843e6271d400a39f07fd3a4db70b81248c28db2352bdf1f4515c1f0b5a4",
+  "headHash": "39faff4d0d76a7dd829ad59c6967e5c7c1c5a854",
+  "materialHash": "e2597e3483f61a2f3bb890c0d62029d634dc86671e4f93a4de3ad75739979229",
+  "storyFilesHash": "9bf008ba8c7ad49817a6ae24ea0d70ba44bb2bab5fb5efdb39a5ec5e317527e3",
+  "artifactDigest": "863fac4ba26193c5d6d55a1fcf78730fef2653e45138e18f042ae4df001afd5f"
+}

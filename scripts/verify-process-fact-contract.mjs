@@ -4919,6 +4919,11 @@ function assertParentRoadmapTotalityRuntime() {
   assert(handlerText.includes('buildParentRoadmapSampleCase') && handlerText.includes('summaryText'), `${handlerPath}: handler must expose sample cases and claim wording checks`);
   assert(levelText.includes('runtime:parent_roadmap_totality_claim_consumer'), 'process-fact-levels: parent roadmap runtime claim consumer fact missing');
   assert(registryFactText.includes('runtime:parent_roadmap_totality_claim_consumer'), 'process-fact-registry: parent roadmap runtime claim consumer semantics missing');
+  assert(levelText.includes('runtime:agent_dispatch_role_authority_gate'), 'process-fact-levels: typed agent dispatch authority fact missing');
+  assert(registryFactText.includes("'runtime:agent_dispatch_role_authority_gate': ['runtime-behavior', 'schema-contract', 'reviewer-lane', 'gate-evidence']"), 'process-fact-registry: typed dispatch authority must remain a gate-consumed reviewer-lane schema contract');
+  const dispatchAuthorityLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:agent_dispatch_role_authority_gate');
+  assert(dispatchAuthorityLevel?.level === 'L4', 'typed agent dispatch authority must remain L4');
+  assert(/dispatch prompt admission and role-gated checklist\/reviewer evidence mutation consumers/.test(dispatchAuthorityLevel?.gateConsumer || ''), 'typed agent dispatch authority must name prompt and mutation consumers');
   for (const marker of [
     '--expected-red=parent-overclaim',
     '--expected-red=test-first',

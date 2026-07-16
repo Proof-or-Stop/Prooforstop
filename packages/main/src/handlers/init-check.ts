@@ -22,6 +22,7 @@ import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { currentMaterialHash } from '../core/evidence-freshness.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { getSessionId } from '../core/story-owner-lease.js';
+import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
 import {
   INIT_CHECK_SALT,
   REQUIRED_INIT_CHECK_AGENTS,
@@ -69,9 +70,9 @@ function withInitCheckLock<T>(store: StoryStore, storyId: string, fn: () => T): 
  * init_check_set handler factory.
  *
  * Called by the lattice-review-story-init subagent (CHK-002 template); writes init-check.json.
- * Does not validate the caller's agentId (EXP-001 has falsified the mechanical distinguishability between subagent and main agent from the CLI perspective);
- * agentId is passed through purely as a reviewer-self-reported audit field. Anti-self-exemption relies on three layers: (1) the signature mechanism +
- * (2) the reviewer template fence + (3) CLAUDE.md behavioral conventions (same architecture as the landed B-ed3e scope-check).
+ * The registry validates mutation authority. A registered LATTICE_AGENT is the
+ * authoritative dispatched identity, so payload agent/agentId attribution
+ * cannot impersonate a trusted host or a different reviewer lane.
  *
  * Three-layer validation (CLAUDE.md "Handler coding conventions"):
  * - Zod schema: the cli-engine.ts registration side defines the issues array structure + severity enum + desc min(1)
@@ -87,6 +88,10 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       agent?: string;
       agentId?: string;
     }): string {
+      const authority = resolveAgentMutationAuthority({
+        command: 'init_check_set',
+        payloadActors: [args.agent, args.agentId],
+      });
       return withInitCheckLock(store, args.storyId, () => {
       // 1) story existence check (same approach as scope_check_save)
       let title = '';
@@ -127,7 +132,7 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
 
       // 5) construct InitCheckData and persist to disk
       const checkedAt = new Date().toISOString();
-      const agentId = normalizeAgentId(args.agentId || args.agent);
+      const agentId = normalizeAgentId(authority.actor);
       const previous = store.readInitCheck(args.storyId);
       const agentResults = previous ? initCheckAgentResults(previous).filter(
         result => !initCheckAgentMatches(result.agentId, agentId) && result.agentId !== agentId,

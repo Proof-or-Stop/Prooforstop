@@ -1,0 +1,20 @@
+{
+  "storyId": "B-19ca",
+  "expected": "The dispatch registry diagnostic lists each supported canonical role and legacy alias with its lifecycle phases, target cardinality, prompt class, and authority class; duplicate or incomplete entries fail the diagnostic.",
+  "actual": {
+    "command": "npm run test:nested-worktree-bootstrap",
+    "exitCode": 0,
+    "stdout": "\n> lattice@0.3.205 test:nested-worktree-bootstrap\n> node scripts/verify-nested-worktree-bootstrap.mjs\n\nnested-worktree bootstrap verified: from-worktree-root -> /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/lattice-nested-worktree-aSfkcb/.worktrees/B-bc1a (not /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/lattice-nested-worktree-aSfkcb/.worktrees/B-02cb/.worktrees/B-bc1a); from-main -> /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/lattice-nested-worktree-aSfkcb/.worktrees/B-d3ef\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-16T13:36:39.507Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "2a94e27df06c07dc3b62f2a3ee13ad7c654b06d0",
+  "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6"
+}

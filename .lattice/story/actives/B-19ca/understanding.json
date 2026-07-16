@@ -1,0 +1,37 @@
+{
+  "task": "Replace distributed prefix-based dispatch inference with one typed, fail-closed agent contract.",
+  "outcome": "A user runs lattice dispatch for verification-intent, test-intent, or test-case-reviewer with the required itemId and sees a role-specific verification/review prompt with no git commit or checklist status:done instructions; valid story reviewers run without itemId; an unknown type or wrong identifier combination exits nonzero and prints the accepted types and required cardinality.",
+  "facts": [
+    "story-dispatch.ts currently classifies reviewers only by the lattice-review- prefix",
+    "dispatch currently permits only three hard-coded story-level agent types",
+    "command-catalog agentType guidance says only the INIT reviewer may be story-level, which disagrees with the handler",
+    "verification-intent and legacy test aliases can fall into the implementer prompt branch",
+    "Workstream C requires a shared registry and explicitly forbids adding more prefix checks",
+    "Repository prompt assets define implementer, INIT/product/scope/story reviewers, behavior/concept/quality/docs/channel/test-coverage/delivery reviewers, implementation-reviewer, test-intent and test-case-reviewer roles",
+    "Mutation authority is already mechanically enforced in role-sensitive handlers such as checklist, review-run, init-check, scope-check and delivery-check; registry helpers can replace their duplicated role sets/classifiers without redesigning command-policy ownership",
+    "docs/requirements/decisions/role-separation.md is the canonical subsystem owner for role separation and must be synchronized with C4 runtime semantics"
+  ],
+  "constraints": [
+    "Preserve deliberate legacy aliases while removing accidental fallback semantics",
+    "Unknown types fail before prompt generation and never receive implementer instructions",
+    "Schema, handler, prompt builder, hints, role permissions, and tests consume one contract",
+    "Gate-consumed reviewer semantics require process-fact registry and verifier synchronization",
+    "Do not absorb host liveness, owner identity, or AST scope workstreams into this story"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/handlers/transition-effects.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/command-catalog-smoke.ts",
+    "packages/main/src/tasks/review-pass-discard-smoke.ts",
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+    "docs/requirements/decisions/role-separation.md"
+  ],
+  "timestamp": "2026-07-16T10:31:39.234Z"
+}

@@ -25,6 +25,12 @@ import type { HandlerContext } from './context.js';
 import { createClusterHandlers } from './cluster.js';
 import type { StoryStore } from '../core/store.js';
 import { reportHealthIssue } from '../core/health.js';
+import {
+  resolveAgentDispatchType,
+  resolveAgentDispatchPromptBuilder,
+  validateAgentDispatchRequest,
+  type ResolvedAgentDispatchType,
+} from '../core/agent-dispatch-registry.js';
 
 // B-45ed CHK-008: agent-type → background injection strategy mapping table
 // Source: CLAUDE.md "background.md tiered injection (subagent)" subsection
@@ -43,12 +49,8 @@ const IMPLEMENTER_COMMIT_AUTHOR = 'lattice-implementer <lattice-implementer@nore
 
 /** Resolve agentType → injection strategy; unknown agentType downgrades to required (safest). */
 function resolveBackgroundPolicy(agentType: string | undefined): BackgroundPolicy {
-  if (!agentType) return 'required'; // default lattice-implementer behavior
-  return AGENT_BG_POLICY[agentType] ?? 'required';
-}
-
-function isReviewAgent(agentType: string | undefined): boolean {
-  return !!agentType && agentType.startsWith('lattice-review-');
+  const canonical = resolveAgentDispatchType(agentType).canonicalType;
+  return AGENT_BG_POLICY[canonical] ?? 'required';
 }
 
 function appendImplementerCommitSteps(lines: string[], message: string): void {
@@ -69,7 +71,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
   function appendDispatchEvent(args: {
     storyId: string;
     agentType?: string;
-    targetKind: 'init-review' | 'scope-plan-review' | 'checklist' | 'finding' | 'cluster';
+    targetKind: 'init-review' | 'scope-plan-review' | 'story-review' | 'delivery-review' | 'checklist' | 'finding' | 'cluster';
     itemId?: string;
     findingId?: string;
     clusterId?: string;
@@ -258,6 +260,96 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     return { prompt: lines.join('\n') };
   }
 
+  function buildStoryReviewPrompt(args: {
+    storyId: string;
+    resolved: ResolvedAgentDispatchType;
+  }): { prompt: string } {
+    const story = store.readStory(args.storyId);
+    const entry = args.resolved.entry;
+    const lane = entry.reviewerLane;
+    if (!lane) throw new Error(`${entry.canonicalName} has no reviewer lane`);
+    const storyDir = `${store.storyDirRel()}/${args.storyId}`;
+    const routed = store.readCandidateSpecSet(args.storyId);
+    const lines: string[] = [
+      `As ${entry.canonicalName}, review story ${args.storyId} in full.`,
+      '',
+      `Working directory (subagent must cd here): ${root}`,
+      '',
+    ];
+    appendDispatchLivenessGuidance(lines, `${entry.canonicalName}/story`);
+    lines.push('Role boundary:');
+    lines.push('- Review only; do not change code, tests, checklist status, or story metadata.');
+    lines.push('- This is a story-level dispatch: review every checklist item and the integrated change, not one selected item.');
+    lines.push('');
+    lines.push('Required reading:');
+    lines.push(`1. ${storyDir}/background.md`);
+    lines.push(`2. ${storyDir}/plan.md`);
+    lines.push(`3. ${storyDir}/checklist.json`);
+    lines.push('- Read the files and relatedDocs named by every checklist item, bounded by the current candidate-spec artifact.');
+    if (routed) {
+      lines.push(`- Candidate routing: digest=${routed.artifactDigest} corpusDigest=${routed.corpusDigest} candidates=${routed.candidateSpecSet.join(', ') || '(none)'}`);
+      lines.push(`- Bind no-blocker readManifest to candidateSpecSetDigest=${routed.artifactDigest} and corpusDigest=${routed.corpusDigest}.`);
+      if (routed.requiresEscalation && !routed.fullScan) {
+        lines.push(`STOP — candidate routing escalation is unresolved (${routed.escalationReasons.join(', ') || 'unspecified'}). Do not submit review_pass_set or finding evidence using this artifact.`);
+      }
+    }
+    lines.push('');
+    lines.push(`Current phase: ${story.phase}. Review lane: ${lane}.`);
+    lines.push('Conclusion record (must choose one):');
+    lines.push(`- Start the reviewer run: lattice review_run_start '{"storyId":"${args.storyId}","agent":"${lane}"}' and copy the returned reviewRunId.`);
+    lines.push(`- Has issues: lattice finding_add '{"storyId":"${args.storyId}","reviewRunId":"<reviewRunId>","desc":"<file:line WHY + severity>","severity":"high|medium|low","category":"missing|edge|adversarial|happy","agent":"${lane}"}'`);
+    lines.push('- No blocker: call review_pass_set with the returned reviewRunId and a truthful readManifest covering the story-level review.');
+    return { prompt: lines.join('\n') };
+  }
+
+  function buildDeliveryReviewPrompt(args: {
+    storyId: string;
+    resolved: ResolvedAgentDispatchType;
+  }): { prompt: string } {
+    store.readStory(args.storyId);
+    const lines: string[] = [
+      `As ${args.resolved.canonicalType}, perform the delivery review for story ${args.storyId}.`,
+      '',
+      `Working directory (subagent must cd here): ${root}`,
+      '',
+    ];
+    appendDispatchLivenessGuidance(lines, `${args.resolved.canonicalType}/story`);
+    lines.push('Role boundary: review only; do not change code, tests, checklist status, or commits.');
+    lines.push(`Required reading: ${store.storyDirRel()}/${args.storyId}/background.md, plan.md, checklist.json, and delivery-facing relatedDocs.`);
+    lines.push('Finish by calling delivery_check_set with the complete promise and evidence mapping; dispatch output alone is not delivery evidence.');
+    return { prompt: lines.join('\n') };
+  }
+
+  function buildVerificationIntentPrompt(args: {
+    storyId: string;
+    itemId: string;
+    resolved: ResolvedAgentDispatchType;
+  }): { prompt: string } {
+    const story = store.readStory(args.storyId);
+    const item = store.readChecklist(args.storyId).items.find(candidate => candidate.id === args.itemId);
+    if (!item) throw new Error(`${args.itemId} not found in story ${args.storyId}`);
+    const storyDir = `${store.storyDirRel()}/${args.storyId}`;
+    const lines: string[] = [
+      `As ${args.resolved.canonicalType}, define verification intent for ${args.storyId} ${args.itemId}: ${item.title}`,
+      '',
+      `Working directory (subagent must cd here): ${root}`,
+      '',
+    ];
+    appendDispatchLivenessGuidance(lines, `${args.resolved.canonicalType}/${args.itemId}`);
+    lines.push('Role boundary:');
+    lines.push('- Define adversarial acceptance intent only; do not implement, edit code/tests, or change checklist completion.');
+    lines.push('- The legacy requested alias, if any, has exactly the same verification-intent authority.');
+    lines.push('');
+    lines.push('Required reading:');
+    lines.push(`1. ${storyDir}/background.md`);
+    lines.push(`2. ${storyDir}/plan.md#${args.itemId}`);
+    for (const doc of item.relatedDocs || []) lines.push(`- ${doc}`);
+    lines.push('');
+    lines.push(`Current phase: ${story.phase}. Context: ${item.context || '(not declared)'}`);
+    lines.push('Finish by calling checklist_update with only storyId, itemId, and verificationIntent; do not pass status.');
+    return { prompt: lines.join('\n') };
+  }
+
   function buildFindingPrompt(args: {
     storyId: string;
     findingId: string;
@@ -389,8 +481,9 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       //    - none     → do not inject at all
       const bgPolicy = resolveBackgroundPolicy(agentType);
 
-      if (isReviewAgent(agentType)) {
-        const displayAgent = agentType!;
+      const resolvedAgent = resolveAgentDispatchType(agentType);
+      if (resolvedAgent.entry.roleClass.endsWith('reviewer')) {
+        const displayAgent = resolvedAgent.canonicalType;
         const lines: string[] = [];
         lines.push(`As ${displayAgent} reviewing ${args.storyId} ${args.itemId}: ${item.title}`);
         lines.push('');
@@ -518,9 +611,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
      * (B-a4e3 CHK-005: the deprecated finding_dispatch / story_dispatch alias methods were removed;
      * dispatch is now the only entry. buildItemPrompt / buildFindingPrompt remain — they are used here.)
      *
-     * Dispatch by exactly one of itemId / findingId / clusterId; if only
-     * agentType=lattice-review-story-init/product-reviewer/lattice-review-scope-plan is passed,
-     * generate the corresponding story-level reviewer prompt.
+     * The registry is the sole authority for phase, cardinality, prompt class,
+     * and role. Validation completes before any prompt builder is selected.
      *
      * Mutual exclusion validation: exactly one of the three must be provided; more / fewer both throw Error.
      * Returns: { prompt: string } — byte-identical to the old entry (clusterId branch reuses cluster.ts text).
@@ -533,62 +625,93 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       agentType?: string;
     }): { prompt: string } {
       if (!args.storyId) throw new Error('storyId is required');
+      let story;
+      try {
+        story = store.readStory(args.storyId);
+      } catch {
+        throw new Error(`story ${args.storyId} not found`);
+      }
+      const resolved = validateAgentDispatchRequest({
+        agentType: args.agentType,
+        phase: story.phase,
+        itemId: args.itemId,
+        findingId: args.findingId,
+        clusterId: args.clusterId,
+      });
+      const canonicalType = resolved.canonicalType;
+      const identifierKind = args.itemId ? 'itemId' : args.findingId ? 'findingId' : args.clusterId ? 'clusterId' : undefined;
+      const promptBuilder = resolveAgentDispatchPromptBuilder(resolved.entry, identifierKind);
 
-      const provided = [
-        args.itemId ? 'itemId' : null,
-        args.findingId ? 'findingId' : null,
-        args.clusterId ? 'clusterId' : null,
-      ].filter(Boolean);
-      const normalizedAgentType = args.agentType;
-      if (provided.length === 0 && normalizedAgentType === 'lattice-review-story-init') {
+      if (promptBuilder === 'init-review') {
         const result = buildInitReviewPrompt({
           storyId: args.storyId,
-          agentType: args.agentType,
+          agentType: canonicalType,
         });
         appendDispatchEvent({
           storyId: args.storyId,
-          agentType: args.agentType,
+          agentType: canonicalType,
           targetKind: 'init-review',
         });
         return result;
       }
-      if (provided.length === 0 && normalizedAgentType === 'product-reviewer') {
+      if (promptBuilder === 'product-init-review') {
         const result = buildProductInitReviewPrompt({
           storyId: args.storyId,
-          agentType: args.agentType,
+          agentType: canonicalType,
         });
         appendDispatchEvent({
           storyId: args.storyId,
-          agentType: args.agentType,
+          agentType: canonicalType,
           targetKind: 'init-review',
         });
         return result;
       }
-      if (provided.length === 0 && normalizedAgentType === 'lattice-review-scope-plan') {
+      if (promptBuilder === 'scope-plan-review') {
         const result = buildScopePlanReviewPrompt({
           storyId: args.storyId,
-          agentType: args.agentType,
+          agentType: canonicalType,
         });
         appendDispatchEvent({
           storyId: args.storyId,
-          agentType: args.agentType,
+          agentType: canonicalType,
           targetKind: 'scope-plan-review',
         });
         return result;
       }
-      if (provided.length !== 1) {
-        throw new Error('dispatch requires exactly one of itemId / findingId / clusterId; story-level reviewers may pass only agentType=lattice-review-story-init, product-reviewer, or lattice-review-scope-plan');
+      if (promptBuilder === 'story-review' || promptBuilder === 'coverage-review') {
+        const result = buildStoryReviewPrompt({ storyId: args.storyId, resolved });
+        appendDispatchEvent({ storyId: args.storyId, agentType: canonicalType, targetKind: 'story-review' });
+        return result;
+      }
+      if (promptBuilder === 'delivery-review') {
+        const result = buildDeliveryReviewPrompt({ storyId: args.storyId, resolved });
+        appendDispatchEvent({ storyId: args.storyId, agentType: canonicalType, targetKind: 'delivery-review' });
+        return result;
+      }
+      if (promptBuilder === 'verification-intent-item') {
+        const result = buildVerificationIntentPrompt({
+          storyId: args.storyId,
+          itemId: args.itemId!,
+          resolved,
+        });
+        appendDispatchEvent({
+          storyId: args.storyId,
+          agentType: canonicalType,
+          targetKind: 'checklist',
+          itemId: args.itemId!,
+        });
+        return result;
       }
 
       if (args.itemId) {
         const result = buildItemPrompt({
           storyId: args.storyId,
           itemId: args.itemId,
-          agentType: args.agentType,
+          agentType: canonicalType,
         });
         appendDispatchEvent({
           storyId: args.storyId,
-          agentType: args.agentType,
+          agentType: canonicalType,
           targetKind: 'checklist',
           itemId: args.itemId,
         });
@@ -598,11 +721,11 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         const result = buildFindingPrompt({
           storyId: args.storyId,
           findingId: args.findingId,
-          agentType: args.agentType,
+          agentType: canonicalType,
         });
         appendDispatchEvent({
           storyId: args.storyId,
-          agentType: args.agentType,
+          agentType: canonicalType,
           targetKind: 'finding',
           findingId: args.findingId,
         });
@@ -617,7 +740,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       });
       appendDispatchEvent({
         storyId: args.storyId,
-        agentType: args.agentType,
+        agentType: canonicalType,
         targetKind: 'cluster',
         clusterId: args.clusterId!,
       });

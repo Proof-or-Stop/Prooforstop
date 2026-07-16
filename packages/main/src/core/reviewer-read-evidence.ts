@@ -7,6 +7,7 @@ import type {
   ReviewerReadLogEvidence,
   ReviewerReadManifest,
 } from './types.js';
+import { isRegisteredReviewAgent } from './agent-dispatch-registry.js';
 
 export interface ReviewerReadLogOptions {
   projectRoot?: string;
@@ -29,10 +30,6 @@ const REVIEWER_READ_DIAGNOSTIC_CODES: readonly ReviewerReadDiagnostic['code'][] 
   'read_manifest_extra_triage',
   'full_scan_without_scanEscalationReason',
 ] as const;
-
-function isReviewerAgent(agent: unknown): agent is string {
-  return typeof agent === 'string' && agent.startsWith('lattice-review-');
-}
 
 function rejectPath(label: string, reason: string, value: unknown): never {
   throw new Error(`${label}: ${reason} (${JSON.stringify(value)})`);
@@ -191,7 +188,7 @@ export function captureReviewerReadEvent(
   input: unknown,
   context: ReviewerReadCaptureContext = {},
 ): ReviewerReadLogEvent | null {
-  if (!isReviewerAgent(context.agent)) return null;
+  if (!isRegisteredReviewAgent(context.agent)) return null;
   if (!input || typeof input !== 'object' || Array.isArray(input)) {
     throw new Error('read event: must be an object');
   }

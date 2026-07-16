@@ -29,19 +29,26 @@ import {
   readTrustedProofStoryScopeArtifacts,
   validateCurrentCloseoutArtifact,
 } from './closeout-trust.js';
+import { AGENT_DISPATCH_REGISTRY, resolveRegisteredAgentActor } from './agent-dispatch-registry.js';
 
 export const REVIEW_RUN_SALT = 'lattice-review-run-integrity-v1';
 
-export const REVIEW_RUN_LANES = [
-  'lattice-review-concept',
-  'lattice-review-quality',
-  'lattice-review-test-coverage',
-  'lattice-review-behavior',
-  'lattice-review-docs',
-  'lattice-review-channel',
-] as const;
+type ReviewLaneForEntry<Entry> = Entry extends {
+  readonly allowedPhases: infer Phases extends readonly string[];
+  readonly reviewerLane: infer Lane extends string;
+}
+  ? 'REVIEW' extends Phases[number] ? Lane : never
+  : never;
 
-export type ReviewRunLane = typeof REVIEW_RUN_LANES[number];
+export type ReviewRunLane = ReviewLaneForEntry<(typeof AGENT_DISPATCH_REGISTRY)[number]>;
+
+/** Stable registry-order projection; the dispatch registry is the sole lane authority. */
+export const REVIEW_RUN_LANES: readonly ReviewRunLane[] = Object.freeze(
+  AGENT_DISPATCH_REGISTRY.flatMap((entry) =>
+    entry.reviewerLane && (entry.allowedPhases as readonly string[]).includes('REVIEW')
+      ? [entry.reviewerLane as ReviewRunLane]
+      : []),
+);
 export type ReviewEvidenceKind = 'finding' | 'pass';
 export type ReviewRunIssueCode =
   | 'missing_review_run_id'
@@ -104,7 +111,8 @@ export function isReviewRunLane(value: string): value is ReviewRunLane {
 // REVIEW→TEST gate. Mirrors the predicate used at finding_add time
 // (handlers/finding.ts) and elsewhere in the codebase.
 export function isReviewerAgent(agent: string | undefined | null): boolean {
-  return !!agent && agent.startsWith('lattice-review-');
+  const entry = resolveRegisteredAgentActor(agent);
+  return !!entry?.reviewerLane && isReviewRunLane(entry.reviewerLane);
 }
 
 export function resolveReviewRunLane(agent?: string, lane?: string): ReviewRunLane {
@@ -112,10 +120,16 @@ export function resolveReviewRunLane(agent?: string, lane?: string): ReviewRunLa
   const resolvedLane = (lane || '').trim();
   const candidate = resolvedLane || resolvedAgent;
   if (!candidate) {
-    throw new Error(`review_run_start: agent/lane must provide a valid lattice-review-* reviewer (supported: ${REVIEW_RUN_LANES.join(', ')})`);
+    throw new Error(`review_run_start: agent/lane must provide a registered REVIEW reviewer (supported: ${REVIEW_RUN_LANES.join(', ')})`);
   }
-  if (resolvedAgent && !resolvedAgent.startsWith('lattice-review-')) {
-    throw new Error(`review_run_start: agent "${resolvedAgent}" is not a lattice-review-* reviewer`);
+  if (resolvedAgent) {
+    const entry = resolveRegisteredAgentActor(resolvedAgent);
+    if (!entry?.reviewerLane || !isReviewRunLane(entry.reviewerLane)) {
+      throw new Error(`review_run_start: agent "${resolvedAgent}" is not a registered REVIEW reviewer`);
+    }
+    if (resolvedLane && resolvedLane !== entry.reviewerLane) {
+      throw new Error(`review_run_start: agent "${resolvedAgent}" belongs to lane ${entry.reviewerLane}, not ${resolvedLane}`);
+    }
   }
   if (!isReviewRunLane(candidate)) {
     throw new Error(`review_run_start: lane "${candidate}" is not in the supported REVIEW reviewer lane list (supported: ${REVIEW_RUN_LANES.join(', ')})`);

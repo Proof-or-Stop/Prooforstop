@@ -1,0 +1,56 @@
+{
+  "storyId": "B-19ca",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/handlers/transition-effects.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/handlers/init-check.ts",
+    "packages/main/src/handlers/scope-check.ts",
+    "packages/main/src/handlers/delivery-check.ts",
+    "packages/main/src/core/reviewer-read-evidence.ts",
+    "packages/main/src/core/flow-fact-policy.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "scripts/verify-nested-worktree-bootstrap.mjs",
+    "packages/main/src/tasks/command-catalog-smoke.ts",
+    "packages/main/src/tasks/review-pass-discard-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+    "docs/requirements/decisions/role-separation.md"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/tasks/agent-dispatch-registry-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+    "packages/main/src/tasks/command-catalog-smoke.ts",
+    "packages/main/src/tasks/review-pass-discard-smoke.ts",
+    "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "scripts/verify-nested-worktree-bootstrap.mjs"
+  ],
+  "protectedFiles": [
+    "packages/main/package.json",
+    "package.json",
+    "package-lock.json"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/core/candidate-spec-routing.ts",
+    "packages/main/src/core/owner-session.ts",
+    "packages/main/src/core/scope-diff-pack.ts"
+  ],
+  "scopeChangeReason": "DONE-required full-suite exposed a direct regression: the nested-worktree bootstrap smoke globally supplied an unregistered LATTICE_AGENT, which the new fail-closed authority contract correctly rejects before its explicit registered reviewer payload can be evaluated. Extend scope only to update this existing regression smoke to the supported host/registered-reviewer identity contract.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-16T10:24:09.629Z",
+  "updatedAt": "2026-07-16T13:15:35.017Z"
+}

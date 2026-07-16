@@ -47,6 +47,7 @@ import {
   verificationIntentSchema,
   verificationIntentTypeSchema,
 } from './command-schemas.js';
+import { AGENT_DISPATCH_ACCEPTED_TYPES } from '../core/agent-dispatch-registry.js';
 
 const HIDDEN_LOCAL_ASSURANCE_REFUSAL = '@help-hidden local-assurance refusal sentinel';
 
@@ -2387,12 +2388,12 @@ Behavior:
 
   // Unified dispatch (B-9d95 CHK-004: story_dispatch / finding_dispatch merged into lattice dispatch, available in all phases;
   // B-a4e3 CHK-005: the deprecated story_dispatch / finding_dispatch aliases were removed — lattice dispatch is now the only entry).
-  { name: 'dispatch', description: 'Dispatch a subagent prompt for one item, finding, or cluster', schema: {
+  { name: 'dispatch', description: 'Dispatch a registered subagent prompt using registry-defined story-only or exactly-one target cardinality', schema: {
     storyId: z.string().describe('Story ID'),
-    itemId: z.string().optional().describe('Checklist item ID (CHK-xxx); mutually exclusive with findingId/clusterId, provide exactly one.'),
-    findingId: z.string().optional().describe('Finding ID (F-xxx or B-xxx:F-xxx); mutually exclusive with itemId/clusterId.'),
-    clusterId: z.string().optional().describe('Cluster ID (CL-xxx); mutually exclusive with itemId/findingId.'),
-    agentType: z.string().optional().describe('subagent type; INIT reviewer may pass only lattice-review-story-init, other cases pair it with itemId/findingId/clusterId.'),
+    itemId: z.string().optional().describe('Checklist item ID (CHK-xxx). Supply only when the registered agent type requires an item target; story-only roles must omit all identifiers.'),
+    findingId: z.string().optional().describe('Finding ID (F-xxx or B-xxx:F-xxx). Supply only for a registered finding-target role; mutually exclusive with itemId/clusterId.'),
+    clusterId: z.string().optional().describe('Cluster ID (CL-xxx). Supply only for a registered cluster-target role; mutually exclusive with itemId/findingId.'),
+    agentType: z.enum(AGENT_DISPATCH_ACCEPTED_TYPES as [string, ...string[]]).optional().describe('Registered subagent type or compatibility alias. Omit only for the deliberate lattice-implementer default; runtime enforces phase and target cardinality from the same registry.'),
   }},
 
   // Background CLI trio (B-45ed CHK-007: background.md set/append/get).

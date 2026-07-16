@@ -8,9 +8,133 @@
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#8-workstream-c--typed-agent-dispatch-contract",
         "AGENTS.md#流程事实双层契约"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-16T10:35:14.802Z",
+      "endTime": "2026-07-16T10:44:02.549Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Enumerate every canonical agent type in the typed registry and assert each entry declares role class, allowed phases, identifier cardinality/kinds, prompt class/builder, permitted mutation classes, commit guidance, reviewer lane, and evidence ownership with no missing required field -> the registry validates and yields one complete policy per type; WHY: establishes one mechanically inspectable dispatch truth source.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Resolve every supported legacy verification/test alias through the registry -> each alias maps to exactly one canonical type and inherits the canonical policy without prefix inference; WHY: preserves deliberate compatibility while preventing divergent alias behavior.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Enumerate canonical names and aliases together, including aliases that resemble reviewer or implementer prefixes -> names are unique, aliases do not collide with canonical entries or each other, and resolution is deterministic; WHY: catches ambiguous compatibility mappings at the registry boundary.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Inspect phase and identifier constraints for story-level and item-level roles -> empty/one/multiple identifier cases are represented explicitly by cardinality and allowed identifier kinds rather than implicit defaults; WHY: makes later schema and hint generation share exact boundary semantics.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Resolve an unknown, empty, case-mutated, or prefix-only agent type -> resolution fails closed before returning any role, prompt, mutation permission, commit guidance, or evidence policy; WHY: proves removed prefix fallback cannot silently classify unknown agents.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Attempt to construct a registry entry that omits a required policy field or grants an undeclared mutation class -> registry validation rejects it; WHY: prevents partial entries from recreating scattered defaults.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "The dispatch registry diagnostic lists each supported canonical role and legacy alias with its lifecycle phases, target cardinality, prompt class, and authority class; duplicate or incomplete entries fail the diagnostic.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts"
+        ],
+        "create": [
+          "packages/main/src/core/agent-dispatch-registry.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+          "result": "pass",
+          "note": "Final-head registry smoke enumerates every entry and validates all required policy fields.",
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+          "result": "pass",
+          "note": "Final-head registry smoke resolves both legacy aliases to one canonical verification role.",
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+          "result": "pass",
+          "note": "Final-head registry smoke rejects canonical and alias collisions deterministically.",
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+          "result": "pass",
+          "note": "Final-head matrix verifies story-only and exactly-one identifier constraints.",
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+          "result": "pass",
+          "note": "Final-head smoke rejects blank unknown case-mutated and prefix-lookalike agent types before authority resolution.",
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+          "result": "pass",
+          "note": "Final-head synthetic incomplete registry entries and undeclared mutation grants fail validation.",
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -20,9 +144,136 @@
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#82-required-design",
         "AGENTS.md#三方制衡"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-16T10:44:57.653Z",
+      "endTime": "2026-07-16T11:04:23.714Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "For every canonical type and compatibility alias, exercise dispatch through schema validation and handler prompt construction in each allowed phase with valid story/item identifiers -> dispatch succeeds and the emitted prompt class, reviewer lane, evidence ownership, mutation permissions, and commit guidance equal the resolved registry policy; WHY: proves schema, handler, prompt, and permissions consume one registry decision.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Generate story-level and item-level dispatch hints for roles allowed at those cardinalities, then execute the exact example payloads through the CLI schema -> every displayed hint is schema-valid and accepted by the handler under the same cardinality contract; WHY: eliminates documentation/CLI disagreement.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Dispatch each role at every phase boundary and with zero, one, and extra identifiers -> only registry-declared phase/cardinality/kind combinations pass, and all rejected combinations return a specific contract error without prompt generation; WHY: verifies boundary parity among schema and handler.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Dispatch verification-intent, legacy test-intent/test-case-reviewer aliases, and all reviewer roles -> prompts contain their declared review/verification duties but contain no implementer commit author, implementation instruction, or checklist status=done guidance; WHY: prevents non-implementers receiving mutation-producing prompts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Submit unknown or prefix-lookalike agent types directly to both command schema and handler entry points -> both fail closed before prompt construction and produce no mutation/evidence side effect; WHY: prevents schema bypass from reviving permissive routing.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Ask a reviewer or verification-intent role to invoke an implementer-only mutation class, and ask an implementer to invoke reviewer-pass/finding ownership mutations -> authorization rejects every denied command class and leaves story/checklist state unchanged; WHY: proves registry permissions are enforced, not merely described in prompts.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "lattice dispatch returns role-safe prompts for valid story/item/finding/cluster calls; verification roles see no implementer commit or status:done steps, and unknown or wrong-cardinality calls exit nonzero with an actionable accepted-shape message.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/core/review-run.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+          "result": "pass",
+          "note": "Final-head exhaustive handler matrix matches registry role phase target prompt and mutation policy.",
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "node packages/main/dist/tasks/candidate-spec-routing-smoke.js",
+          "result": "pass",
+          "note": "Final-head story-level reviewer dispatch regression proves executable schema-valid hint cardinality.",
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+          "result": "pass",
+          "note": "Final-head phase and zero one extra identifier matrix accepts only declared combinations.",
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+          "result": "pass",
+          "note": "Final-head verification and reviewer prompts contain no implementer commit or status-done guidance.",
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+          "result": "pass",
+          "note": "Final-head direct schema and handler unknown-type cases fail before prompt or process-event side effects.",
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
+          "result": "pass",
+          "note": "Final-head real checklist and review-run handlers deny reviewer checklist completion verification-role status writes and implementer review evidence.",
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -30,11 +281,137 @@
       "context": "Add table-driven positive and negative coverage, validate schema-valid example payloads, and update process-fact registry/contract verification whenever gate-consumed reviewer semantics change.",
       "relatedDocs": [
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#83-acceptance",
+        "docs/requirements/decisions/role-separation.md",
         "AGENTS.md#流程事实双层契约"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-16T11:05:01.331Z",
+      "endTime": "2026-07-16T11:14:14.544Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run a table-driven matrix containing every canonical type and alias crossed with every lifecycle phase, supported identifier kind/cardinality, and expected prompt class -> each row matches registry policy and every registry entry/alias appears at least once; WHY: supplies exhaustive positive coverage and detects untested additions.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Run process-fact contract verification after registering any changed gate-consumed reviewer lane, evidence ownership, or dispatch semantics -> registry and verification script agree and the contract check passes; WHY: preserves the required prompt-plus-mechanical-gate dual contract.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Derive test rows from the registry and compare coverage sets -> cardinality is exact for canonical types, aliases, phases, identifier forms, prompt classes, permitted mutations, and denied mutations, with no duplicate or orphan rows; WHY: makes completeness mechanically measurable rather than asserted.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Parse every CLI hint/example produced for story-level and item-level dispatch and validate it against the public command schema -> examples are valid JSON, use accepted field names, and satisfy the same phase/cardinality rules; WHY: prevents syntactically plausible but unusable guidance.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "For every matrix row, mutate one dimension at a time to an unknown type, disallowed alias spelling, wrong phase, wrong identifier kind/count, mismatched prompt class, or denied mutation class -> each negative case fails closed with no prompt or state mutation; WHY: proves all registry axes are enforcement boundaries.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Add a synthetic registry type or alias without adding corresponding matrix coverage and process-fact registration where required -> completeness/contract tests fail with the missing type or semantic explicitly identified; WHY: stops future registry growth from bypassing coverage and audit obligations.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "The table-driven dispatch smoke reports every registry entry, alias, allowed and denied phase/cardinality/prompt/command case PASS, and process-fact verification confirms the same authority contract.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "packages/main/src/tasks/command-catalog-smoke.ts",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md"
+        ],
+        "create": [
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+          "result": "pass",
+          "note": "Build and exhaustive smoke passed: all 14 canonical roles plus 2 aliases were crossed with all 12 lifecycle phases, all 8 identifier-cardinality combinations, target-derived prompt classes, and the full mutation allow/deny set.",
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "integration_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process-fact verifier passed with runtime:agent_dispatch_role_authority_gate registered at L4 and bound to dispatch admission plus role-gated mutation consumers.",
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+          "result": "pass",
+          "note": "Coverage sets were checked for every canonical name, alias, phase, identifier form, registry-resolved prompt builder, allowed mutation, and denied mutation; registry target-to-prompt mappings must cover every and only accepted target.",
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/command-catalog-smoke.js && node packages/main/dist/tasks/candidate-spec-routing-smoke.js",
+          "result": "pass",
+          "note": "The 326-command catalog smoke accepted every registered type/alias, rejected unknown/blank/null types and null identifiers, validated omitted optional fields and schema-valid target examples; lifecycle dispatch hint regression also passed.",
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js && node packages/main/dist/tasks/review-pass-discard-smoke.js",
+          "result": "pass",
+          "note": "Negative matrix rejected disallowed phases, zero/wrong/multiple identifiers, unknown/case/prefix-lookalike types, denied mutations, reviewer checklist completion, verification-alias status mutation, and implementer reviewer-evidence authority without state crossover.",
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Synthetic uncovered canonical and alias rows fail the completeness checker; an exactly-one role with an unmapped accepted target fails registry validation, and process-fact contract requires the typed dispatch L4 semantic.",
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
+        }
+      ]
     }
   ]
 }

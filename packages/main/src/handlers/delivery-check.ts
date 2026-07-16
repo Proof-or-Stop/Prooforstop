@@ -20,6 +20,7 @@ import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash, EMPTY_STORY_FILES_HASH } from '../core/evidence-freshness.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { evaluateOptionalLiveSmokeTranscript } from '../core/live-smoke-transcript-evidence.js';
+import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
 
 // Signature primitives live in core/delivery-check-hash.ts (single source of
 // truth) so core consumers can verify the hash without a core→handlers import.
@@ -107,6 +108,7 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
       closingSelfCheck: ClosingSelfCheck;
       agentId?: string;
     }): string {
+      const authority = resolveAgentMutationAuthority({ command: 'delivery_check_set', payloadActors: [args.agentId] });
       // 1) story existence check
       let reviewRound = '';
       try {
@@ -201,7 +203,7 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
         materialHash,
         storyFilesHash,
         reviewRound,
-        agentId: args.agentId ?? '',
+        agentId: authority.actor ?? '',
         docsPromises,
         realMachineTests,
         closingSelfCheck,

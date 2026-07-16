@@ -126,7 +126,8 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     assert.match(planPrompt, new RegExp(artifact.corpusDigest));
     assert.match(planPrompt, /candidateSpecSetDigest/);
     assert.equal(planPrompt.includes('Rotating credentials safely'), false, 'PLAN dispatch must not embed corpus bodies');
-    const reviewPrompt = dispatch.dispatch({ storyId: story.storyId, itemId: 'CHK-001', agentType: 'lattice-review-quality' }).prompt;
+    store.writeStory(story.storyId, { ...store.readStory(story.storyId), phase: 'REVIEW' });
+    const reviewPrompt = dispatch.dispatch({ storyId: story.storyId, agentType: 'lattice-review-quality' }).prompt;
     assert.match(reviewPrompt, new RegExp(artifact.artifactDigest));
     assert.match(reviewPrompt, /review_run_start/);
     assert.match(reviewPrompt, /candidateSpecSetDigest/);
@@ -326,6 +327,7 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
       projectRoot: root, storyId: story.storyId, corpus: first, seeds: seedsA,
       riskSignals: ['State Machine/Gate:process-fact global rename'],
     });
+    store.writeStory(story.storyId, { ...store.readStory(story.storyId), phase: 'PLAN' });
     assert.ok(highRisk.escalationReasons.includes('high_risk_lifecycle_gate_process_fact_or_global_rename'));
     assert.equal(highRisk.fullScan, false);
     store.writeCandidateSpecSet(story.storyId, highRisk);
@@ -333,7 +335,8 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     assert.match(pendingPlanPrompt, /STOP — candidate routing escalation is unresolved/);
     assert.match(pendingPlanPrompt, /high_risk_lifecycle_gate_process_fact_or_global_rename/);
     assert.match(pendingPlanPrompt, /fullScanReason/);
-    const pendingReviewPrompt = dispatch.dispatch({ storyId: story.storyId, itemId: 'CHK-001', agentType: 'lattice-review-quality' }).prompt;
+    store.writeStory(story.storyId, { ...store.readStory(story.storyId), phase: 'REVIEW' });
+    const pendingReviewPrompt = dispatch.dispatch({ storyId: story.storyId, agentType: 'lattice-review-quality' }).prompt;
     assert.match(pendingReviewPrompt, /Do not submit review_pass_set or finding evidence/);
     assert.match(pendingReviewPrompt, /high_risk_lifecycle_gate_process_fact_or_global_rename/);
 

@@ -40,6 +40,10 @@ import { deriveSignatureCandidate } from '../core/signature-candidate.js';
 import type { SignatureTagSource } from '../core/experience-layer-types.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
 import {
+  isRegisteredReviewAgent,
+  resolveAgentMutationAuthority,
+} from '../core/agent-dispatch-registry.js';
+import {
   captureReviewerReadEvent,
   diagnoseReviewerReadEvidence,
   normalizeReviewerReadLog,
@@ -483,8 +487,10 @@ export function createFindingHandlers(ctx: HandlerContext) {
       assertCwdInWorktree(store, args.storyId);
 
       // Record caller identity (env var LATTICE_AGENT is set by subagent)
-      const missingAttribution = !args.agent && !process.env.LATTICE_AGENT;
-      const agent = args.agent || process.env.LATTICE_AGENT || 'main';
+      const authority = resolveAgentMutationAuthority({ command: 'finding_add', payloadActors: [args.agent] });
+      const dispatchedActor = authority.actor;
+      const missingAttribution = !dispatchedActor;
+      const agent = dispatchedActor || 'main';
       const category = normalizeFindingCategory(args.category);
       // B-3fad CHK-001: evidenceState defaults to verified; explicit suspected/disproven requires the accompanying fields.
       const evidence = resolveEvidenceState(args);
@@ -500,7 +506,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
         // Fold the candidate through resolveTag for alias canonicalization (handler call;
         // the leaf stays pure). deriveSignatureCandidate never throws / never returns ''.
         : resolveTag(ctx.root, deriveSignatureCandidate(args.category, args.files, args.desc));
-      const isReviewerAgent = agent.startsWith('lattice-review-');
+      const isReviewerAgent = isRegisteredReviewAgent(agent);
       const reviewerLane = isReviewerAgent ? resolveReviewRunLane(agent) : undefined;
 
       const story = store.readStory(args.storyId);
@@ -608,7 +614,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
           type: 'reviewer_finding',
           storyId: args.storyId,
           command: 'finding_add',
-          role: agent.startsWith('lattice-review-') ? 'reviewer' : 'main',
+          role: isRegisteredReviewAgent(agent) ? 'reviewer' : 'main',
           agent,
           result: 'pass',
           findingId: id,
@@ -657,11 +663,13 @@ export function createFindingHandlers(ctx: HandlerContext) {
       readEvents?: unknown;
       readLog?: unknown;
     }): string {
+      const authority = resolveAgentMutationAuthority({ command: 'review_pass_set', payloadActors: [args.agent] });
+      const actor = authority.actor || 'main';
       if (!args.note || args.note.trim().length < 10) {
         throw new Error('review_pass_set: note must be ≥ 10 characters, explaining what the reviewer checked and why there is no blocker');
       }
       const readManifest = normalizeReviewerReadManifest(args.readManifest, 'review_pass_set.readManifest');
-      const agent = resolveReviewRunLane(args.agent || process.env.LATTICE_AGENT || 'main');
+      const agent = resolveReviewRunLane(actor);
       assertCwdInWorktree(store, args.storyId);
       return recordReviewPass(
         ctx,
@@ -744,6 +752,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
 
     finding_resolve(args: { storyId: string; findingId: string; resolution?: string; resolutionType?: string; resolveEvidenceStrength?: string }): string {
       assertCwdInWorktree(store, args.storyId);
+      resolveAgentMutationAuthority({ command: 'finding_resolve' });
       // B-4f46 CHK-002: validate the optional audit-only enums up front (omitted => unchanged legacy behavior).
       const resolutionType: ResolutionType | undefined = validateOptionalEnum('finding_resolve', 'resolutionType', args.resolutionType, RESOLUTION_TYPES);
       const resolveEvidenceStrength: EvidenceStrength | undefined = validateOptionalEnum('finding_resolve', 'resolveEvidenceStrength', args.resolveEvidenceStrength, EVIDENCE_STRENGTHS);

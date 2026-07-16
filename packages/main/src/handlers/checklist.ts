@@ -12,6 +12,7 @@ import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
 import { effectiveExcludedKeywords, normalizeBoundaryArray, scanExcludedKeywordHits } from '../core/scope-anti-expansion.js';
 import type { ScopeFreezeTextSource } from '../core/types.js';
+import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
 
 const INIT_REVIEWER_CHECKLIST_MUTATION_BLOCKED_AGENTS = new Set([
   'lattice-review-story-init',
@@ -555,6 +556,33 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         throw new Error('At least one of status/title/context/relatedDocs/userSees/excludes/files/verificationIntent/verificationEvidence must be provided');
       }
 
+      // USER is retained below for human audit attribution, but it is not a
+      // dispatched-agent identity. Only an explicit actor/agent or
+      // LATTICE_AGENT participates in registry authorization.
+      const authority = resolveAgentMutationAuthority({
+        command: 'checklist_update',
+        payloadActors: [args.agent, args.actor],
+      });
+      const checklistActor = authority.actor || process.env.USER?.trim() || 'main-agent';
+      const dispatchedRole = authority.entry;
+      if (dispatchedRole?.roleClass === 'verification-intent') {
+        const disallowed = [
+          args.status !== undefined && 'status',
+          args.title !== undefined && 'title',
+          args.context !== undefined && 'context',
+          args.relatedDocs !== undefined && 'relatedDocs',
+          args.userSees !== undefined && 'userSees',
+          args.excludes !== undefined && 'excludes',
+          args.files !== undefined && 'files',
+          args.verificationEvidence !== undefined && 'verificationEvidence',
+        ].filter(Boolean);
+        if (args.verificationIntent === undefined || disallowed.length > 0) {
+          throw new Error(
+            `checklist_update refused: verification-intent roles may write only verificationIntent and may not set ${disallowed.join(', ') || 'non-verification fields'}. [agent_dispatch_mutation_scope_denied]`,
+          );
+        }
+      }
+
       return withChecklistLock(ctx, args.storyId, () => {
       // Truth source protection: DEV and later phases forbid modifying the fundamental information of checklist
       // checklist is the truth source; executors (main agent / subagent) cannot tamper with the requirement definition during execution
@@ -573,7 +601,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       assertInitReviewerChecklistMutationAllowed({
         story,
         command: 'checklist_update',
-        actor: checklistActorFrom(args),
+        actor: checklistActor,
         mutatesDefinition: attemptedTitleContext.length > 0 || args.excludes !== undefined,
       });
       if (attemptedTitleContext.length > 0 && titleContextProtectedPhases.includes(story.phase)) {
