@@ -69,10 +69,10 @@
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
           "note": "Final-head registry smoke enumerates every entry and validates all required policy fields.",
-          "headHash": "21c31b7c5f4342222412c87198c3e070270c50d7",
-          "materialHash": "e2597e3483f61a2f3bb890c0d62029d634dc86671e4f93a4de3ad75739979229",
-          "storyFilesHash": "9bf008ba8c7ad49817a6ae24ea0d70ba44bb2bab5fb5efdb39a5ec5e317527e3",
-          "timestamp": "2026-07-16T12:52:52.367Z"
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -81,10 +81,10 @@
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
           "note": "Final-head registry smoke resolves both legacy aliases to one canonical verification role.",
-          "headHash": "21c31b7c5f4342222412c87198c3e070270c50d7",
-          "materialHash": "e2597e3483f61a2f3bb890c0d62029d634dc86671e4f93a4de3ad75739979229",
-          "storyFilesHash": "9bf008ba8c7ad49817a6ae24ea0d70ba44bb2bab5fb5efdb39a5ec5e317527e3",
-          "timestamp": "2026-07-16T12:52:52.367Z"
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -93,10 +93,10 @@
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
           "note": "Final-head registry smoke rejects canonical and alias collisions deterministically.",
-          "headHash": "21c31b7c5f4342222412c87198c3e070270c50d7",
-          "materialHash": "e2597e3483f61a2f3bb890c0d62029d634dc86671e4f93a4de3ad75739979229",
-          "storyFilesHash": "9bf008ba8c7ad49817a6ae24ea0d70ba44bb2bab5fb5efdb39a5ec5e317527e3",
-          "timestamp": "2026-07-16T12:52:52.367Z"
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -105,10 +105,10 @@
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
           "note": "Final-head matrix verifies story-only and exactly-one identifier constraints.",
-          "headHash": "21c31b7c5f4342222412c87198c3e070270c50d7",
-          "materialHash": "e2597e3483f61a2f3bb890c0d62029d634dc86671e4f93a4de3ad75739979229",
-          "storyFilesHash": "9bf008ba8c7ad49817a6ae24ea0d70ba44bb2bab5fb5efdb39a5ec5e317527e3",
-          "timestamp": "2026-07-16T12:52:52.367Z"
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -117,10 +117,10 @@
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
           "note": "Final-head smoke rejects blank unknown case-mutated and prefix-lookalike agent types before authority resolution.",
-          "headHash": "21c31b7c5f4342222412c87198c3e070270c50d7",
-          "materialHash": "e2597e3483f61a2f3bb890c0d62029d634dc86671e4f93a4de3ad75739979229",
-          "storyFilesHash": "9bf008ba8c7ad49817a6ae24ea0d70ba44bb2bab5fb5efdb39a5ec5e317527e3",
-          "timestamp": "2026-07-16T12:52:52.367Z"
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -129,10 +129,10 @@
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
           "note": "Final-head synthetic incomplete registry entries and undeclared mutation grants fail validation.",
-          "headHash": "21c31b7c5f4342222412c87198c3e070270c50d7",
-          "materialHash": "e2597e3483f61a2f3bb890c0d62029d634dc86671e4f93a4de3ad75739979229",
-          "storyFilesHash": "9bf008ba8c7ad49817a6ae24ea0d70ba44bb2bab5fb5efdb39a5ec5e317527e3",
-          "timestamp": "2026-07-16T12:52:52.367Z"
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
         }
       ]
     },
@@ -208,10 +208,10 @@
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
           "note": "Final-head exhaustive handler matrix matches registry role phase target prompt and mutation policy.",
-          "headHash": "21c31b7c5f4342222412c87198c3e070270c50d7",
-          "materialHash": "e2597e3483f61a2f3bb890c0d62029d634dc86671e4f93a4de3ad75739979229",
-          "storyFilesHash": "9bf008ba8c7ad49817a6ae24ea0d70ba44bb2bab5fb5efdb39a5ec5e317527e3",
-          "timestamp": "2026-07-16T12:52:52.367Z"
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -220,10 +220,10 @@
           "command": "node packages/main/dist/tasks/candidate-spec-routing-smoke.js",
           "result": "pass",
           "note": "Final-head story-level reviewer dispatch regression proves executable schema-valid hint cardinality.",
-          "headHash": "21c31b7c5f4342222412c87198c3e070270c50d7",
-          "materialHash": "e2597e3483f61a2f3bb890c0d62029d634dc86671e4f93a4de3ad75739979229",
-          "storyFilesHash": "9bf008ba8c7ad49817a6ae24ea0d70ba44bb2bab5fb5efdb39a5ec5e317527e3",
-          "timestamp": "2026-07-16T12:52:52.367Z"
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -232,10 +232,10 @@
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
           "note": "Final-head phase and zero one extra identifier matrix accepts only declared combinations.",
-          "headHash": "21c31b7c5f4342222412c87198c3e070270c50d7",
-          "materialHash": "e2597e3483f61a2f3bb890c0d62029d634dc86671e4f93a4de3ad75739979229",
-          "storyFilesHash": "9bf008ba8c7ad49817a6ae24ea0d70ba44bb2bab5fb5efdb39a5ec5e317527e3",
-          "timestamp": "2026-07-16T12:52:52.367Z"
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -244,10 +244,10 @@
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
           "note": "Final-head verification and reviewer prompts contain no implementer commit or status-done guidance.",
-          "headHash": "21c31b7c5f4342222412c87198c3e070270c50d7",
-          "materialHash": "e2597e3483f61a2f3bb890c0d62029d634dc86671e4f93a4de3ad75739979229",
-          "storyFilesHash": "9bf008ba8c7ad49817a6ae24ea0d70ba44bb2bab5fb5efdb39a5ec5e317527e3",
-          "timestamp": "2026-07-16T12:52:52.367Z"
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -256,10 +256,10 @@
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
           "note": "Final-head direct schema and handler unknown-type cases fail before prompt or process-event side effects.",
-          "headHash": "21c31b7c5f4342222412c87198c3e070270c50d7",
-          "materialHash": "e2597e3483f61a2f3bb890c0d62029d634dc86671e4f93a4de3ad75739979229",
-          "storyFilesHash": "9bf008ba8c7ad49817a6ae24ea0d70ba44bb2bab5fb5efdb39a5ec5e317527e3",
-          "timestamp": "2026-07-16T12:52:52.367Z"
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -268,10 +268,10 @@
           "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
           "result": "pass",
           "note": "Final-head real checklist and review-run handlers deny reviewer checklist completion verification-role status writes and implementer review evidence.",
-          "headHash": "21c31b7c5f4342222412c87198c3e070270c50d7",
-          "materialHash": "e2597e3483f61a2f3bb890c0d62029d634dc86671e4f93a4de3ad75739979229",
-          "storyFilesHash": "9bf008ba8c7ad49817a6ae24ea0d70ba44bb2bab5fb5efdb39a5ec5e317527e3",
-          "timestamp": "2026-07-16T12:52:52.367Z"
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
         }
       ]
     },
@@ -351,10 +351,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
           "note": "Build and exhaustive smoke passed: all 14 canonical roles plus 2 aliases were crossed with all 12 lifecycle phases, all 8 identifier-cardinality combinations, target-derived prompt classes, and the full mutation allow/deny set.",
-          "headHash": "21c31b7c5f4342222412c87198c3e070270c50d7",
-          "materialHash": "e2597e3483f61a2f3bb890c0d62029d634dc86671e4f93a4de3ad75739979229",
-          "storyFilesHash": "9bf008ba8c7ad49817a6ae24ea0d70ba44bb2bab5fb5efdb39a5ec5e317527e3",
-          "timestamp": "2026-07-16T12:52:52.367Z"
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -362,10 +362,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Process-fact verifier passed with runtime:agent_dispatch_role_authority_gate registered at L4 and bound to dispatch admission plus role-gated mutation consumers.",
-          "headHash": "21c31b7c5f4342222412c87198c3e070270c50d7",
-          "materialHash": "e2597e3483f61a2f3bb890c0d62029d634dc86671e4f93a4de3ad75739979229",
-          "storyFilesHash": "9bf008ba8c7ad49817a6ae24ea0d70ba44bb2bab5fb5efdb39a5ec5e317527e3",
-          "timestamp": "2026-07-16T12:52:52.367Z"
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -373,10 +373,10 @@
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
           "note": "Coverage sets were checked for every canonical name, alias, phase, identifier form, registry-resolved prompt builder, allowed mutation, and denied mutation; registry target-to-prompt mappings must cover every and only accepted target.",
-          "headHash": "21c31b7c5f4342222412c87198c3e070270c50d7",
-          "materialHash": "e2597e3483f61a2f3bb890c0d62029d634dc86671e4f93a4de3ad75739979229",
-          "storyFilesHash": "9bf008ba8c7ad49817a6ae24ea0d70ba44bb2bab5fb5efdb39a5ec5e317527e3",
-          "timestamp": "2026-07-16T12:52:52.367Z"
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -384,10 +384,10 @@
           "command": "node packages/main/dist/tasks/command-catalog-smoke.js && node packages/main/dist/tasks/candidate-spec-routing-smoke.js",
           "result": "pass",
           "note": "The 326-command catalog smoke accepted every registered type/alias, rejected unknown/blank/null types and null identifiers, validated omitted optional fields and schema-valid target examples; lifecycle dispatch hint regression also passed.",
-          "headHash": "21c31b7c5f4342222412c87198c3e070270c50d7",
-          "materialHash": "e2597e3483f61a2f3bb890c0d62029d634dc86671e4f93a4de3ad75739979229",
-          "storyFilesHash": "9bf008ba8c7ad49817a6ae24ea0d70ba44bb2bab5fb5efdb39a5ec5e317527e3",
-          "timestamp": "2026-07-16T12:52:52.367Z"
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -395,10 +395,10 @@
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js && node packages/main/dist/tasks/review-pass-discard-smoke.js",
           "result": "pass",
           "note": "Negative matrix rejected disallowed phases, zero/wrong/multiple identifiers, unknown/case/prefix-lookalike types, denied mutations, reviewer checklist completion, verification-alias status mutation, and implementer reviewer-evidence authority without state crossover.",
-          "headHash": "21c31b7c5f4342222412c87198c3e070270c50d7",
-          "materialHash": "e2597e3483f61a2f3bb890c0d62029d634dc86671e4f93a4de3ad75739979229",
-          "storyFilesHash": "9bf008ba8c7ad49817a6ae24ea0d70ba44bb2bab5fb5efdb39a5ec5e317527e3",
-          "timestamp": "2026-07-16T12:52:52.368Z"
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -406,10 +406,10 @@
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Synthetic uncovered canonical and alias rows fail the completeness checker; an exactly-one role with an unmapped accepted target fails registry validation, and process-fact contract requires the typed dispatch L4 semantic.",
-          "headHash": "21c31b7c5f4342222412c87198c3e070270c50d7",
-          "materialHash": "e2597e3483f61a2f3bb890c0d62029d634dc86671e4f93a4de3ad75739979229",
-          "storyFilesHash": "9bf008ba8c7ad49817a6ae24ea0d70ba44bb2bab5fb5efdb39a5ec5e317527e3",
-          "timestamp": "2026-07-16T12:52:52.368Z"
+          "headHash": "edb5cd356ca7f23773d65cc7ada67d812f118a86",
+          "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+          "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+          "timestamp": "2026-07-16T13:29:07.639Z"
         }
       ]
     }
