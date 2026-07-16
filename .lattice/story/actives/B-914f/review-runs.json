@@ -447,6 +447,70 @@
         "bindingHash": "3e20891a28620f2947b4355a4c616783c5658f1ec76ac1bac8a0ca696450533f"
       },
       "_hash": "3b3d727f05ee44f708f2963a5a7d817d9cbb52845caaded0db09747e3a5c5a33"
+    },
+    {
+      "reviewRunId": "B-914f:RR-008",
+      "storyId": "B-914f",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-07-16T14:46:04.746Z",
+      "startedAt": "2026-07-16T14:50:43.044Z",
+      "headHash": "4d612767ab257833d45eaf2d9f7e9581226fedb0",
+      "materialHash": "442de55b397b6704df008ba8605ea9c22b74553aeeb505f2367aadd0e5f3b73b",
+      "storyFilesHash": "5d54f5520e1d60279203f64de703c1f6ebc59b2bc28748d40f64343046f83dda",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "2eb30a2d8fdd314450ecf725e3b30216bef0089d134f53896e8fce3adb73c045",
+        "compositeScopeDigest": "54e5175b39e0251c6aca24572aef07ac82eda82be34cc3ae157ee2debc270614",
+        "diffPackHash": "1f2f2e1a13ec222d3602d5ef4076d7e7f44c610c29a1311e949bd82cfed39111",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/done-prepare-validation-reuse.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "253b4d19ebb91bde6e3c23e2b0109572346d3bf4fd7a12461627f4947181ec54",
+          "2b9fdb3aad9292fd51b836f33ee775ea8961f7cded4218115c9fbfabe270a617",
+          "316814740b48abd908aa0c22c7da8ea833d27cb36eceb9648f01d44321f0d9d5",
+          "3ab4ccf3f8494a6874687d5c9304d88e8a8f9ec66d3e0853d922d274f31a1cad",
+          "78d82395d4912e5c81073287b063c825eb95752e38253e94feef6786766ac87e",
+          "7e52a1bcdaf7bca46fe2c95e16552e1fd9551dbab2d585b8cc50555b14a971be",
+          "8af4f866be612d275d59b2b3fa5a13fb539d6ac9e1452a58e0505dfc0a45cde2",
+          "8c92e431d613ce5a1ce05747669a4864c1df5bee226a65ab69ca716c660b5680",
+          "92e87303aace4bfcabedaaf06f2943bfb5bc9e1712033ec884bd4eda564999ea",
+          "9629355f89aa44125c8a670612becdb781f71384d23de0f46a3e31ec4258eb77",
+          "9684f5a936d9b5f394710de9408733fb43aaebefeea6822f5b81457ba2fc1f3c",
+          "dce878da0f3f4b759dd6b1bdb84f02c5a72b1de54d978a619bad02a6b980db33",
+          "dd5c01b08a62f30b78308f59beaa3eb25857ba38ea8b160d53872b15406d539a",
+          "e0cc69a3aba13ad8d4e5e56fd50fea21930e1ed3df41cd6ea8d3955ad8587b47",
+          "f201f5325c7087a51fff1ffaaa0cdd54485c2756965c01888579f1c18645eab1",
+          "fe7f28dd7a81b57b727de59d6fe86ed9242c6dbb8ac0eb36fbb02a4fa06b7b18",
+          "ff6a8f765cc97226c774ec7fd6b369f0f63be58b4019c16eef07454bb4ac7e4e"
+        ],
+        "bindingHash": "9aee0d1199e78f07031978a8808999ee883a7f8f10eee42648d4c81588af6141"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-914f",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-914f",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-914f",
+        "workspaceMode": "story-worktree",
+        "headHash": "4d612767ab257833d45eaf2d9f7e9581226fedb0",
+        "materialHash": "442de55b397b6704df008ba8605ea9c22b74553aeeb505f2367aadd0e5f3b73b",
+        "storyFilesHash": "5d54f5520e1d60279203f64de703c1f6ebc59b2bc28748d40f64343046f83dda",
+        "bindingHash": "47785b1368009c9a0087c55bf8fc232e25960b6b1147de54a738905373f67ec4"
+      },
+      "_hash": "7ad2235dc0db638e2ef65bd1275d074f6ed4c07bdc93aad4c449537361e56ec9"
     }
   ]
 }
