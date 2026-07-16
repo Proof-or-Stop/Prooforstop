@@ -554,6 +554,11 @@ function assertProofStoryProgressiveBoundary() {
   const storyAdvanceText = read('packages/main/src/handlers/story-advance.ts');
   const phaseGatesText = read('packages/main/src/handlers/phase-gates.ts');
   const machineText = read('packages/main/src/core/machine.ts');
+  const liveSmokeGateText = read('packages/main/src/core/live-smoke-transcript-evidence.ts');
+  assert(machineText.includes('evaluateOptionalLiveSmokeTranscript')
+    && liveSmokeGateText.includes("artifact.actual.exitCode !== 0")
+    && liveSmokeGateText.includes("artifact.mode?.runCommands !== true"),
+  'DONE must fail closed when a present canonical live-smoke transcript did not execute or did not exit zero');
 
   for (const commandName of [
     'original_intent_snapshot_set',

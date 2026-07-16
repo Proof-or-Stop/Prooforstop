@@ -19,6 +19,7 @@ import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash, EMPTY_STORY_FILES_HASH } from '../core/evidence-freshness.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
+import { evaluateOptionalLiveSmokeTranscript } from '../core/live-smoke-transcript-evidence.js';
 
 // Signature primitives live in core/delivery-check-hash.ts (single source of
 // truth) so core consumers can verify the hash without a core→handlers import.
@@ -122,6 +123,11 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
 
       if (!closingSelfCheck || typeof closingSelfCheck.summary !== 'string' || closingSelfCheck.summary.trim().length < 10) {
         throw new Error('delivery_check_set: closingSelfCheck.summary must be ≥ 10 characters');
+      }
+
+      const liveSmokeTranscript = evaluateOptionalLiveSmokeTranscript(store, args.storyId);
+      if (!liveSmokeTranscript.ok) {
+        throw new Error(`delivery_check_set: ${liveSmokeTranscript.reason}; re-run live_smoke_transcript with a passing command and --write`);
       }
 
       for (const promise of docsPromises) {

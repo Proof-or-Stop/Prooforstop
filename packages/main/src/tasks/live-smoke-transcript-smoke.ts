@@ -21,6 +21,8 @@ import type { LiveSmokeTranscriptReport } from '../handlers/live-smoke-transcrip
 import { acquireOwnerLease, ownerLeasePath, resetSessionIdForTest } from '../core/story-owner-lease.js';
 import { commandCliMaxBudget, effectiveCommandCliMaxBudget, LIVE_SMOKE_CAPTURE_CLEANUP_GRACE_MS, liveSmokeCaptureBudget, NODE_TIMER_MAX_MS } from '../core/done-required-timeout-budget.js';
 import { validationExecutionLockPath, withValidationExecutionLock } from '../core/validation-execution-lock.js';
+import { evaluateOptionalLiveSmokeTranscript } from '../core/live-smoke-transcript-evidence.js';
+import { buildDoneChecklist } from '../core/done-oracle.js';
 
 const STORY_ID = 'B-livesmoke';
 const NOW = '2026-06-20T00:00:00.000Z';
@@ -1006,10 +1008,17 @@ assert.equal(
     const descendantPid = Number(readFileSync(descendantPidPath, 'utf8'));
     assert.throws(() => process.kill(descendantPid, 0), /ESRCH/, 'timed-out capture leaves no descendant process');
     assert.equal(existsSync(lockPath), false, 'dead validation lock is reclaimed after timeout cleanup');
-    assert.equal(report.transcript.status, 'present-fresh', 'timeout with --write persists a readable fresh transcript');
+    assert.equal(report.transcript.status, 'present-failed', 'timeout with --write is explicitly classified as failed, never fresh proof');
     const persisted = JSON.parse(readFileSync(artifactPath(store), 'utf8'));
     assert.equal(persisted.actual.exitCode, null, 'timeout readback remains a non-pass null exit');
     assert.match(persisted.actual.stderr, /exceeded 2000ms timeout/);
+    const failedEvidence = evaluateOptionalLiveSmokeTranscript(store, STORY_ID);
+    assert.equal(failedEvidence.ok, false, 'a timeout transcript is mechanically invalid evidence');
+    assert.match(failedEvidence.reason, /exitCode=null \(timeout\/spawn failure\)/);
+    const failedDoneRow = buildDoneChecklist(STORY_ID, store, root, { auditWriter: null })
+      .find((row) => row.id === 'live-smoke-transcript');
+    assert.equal(failedDoneRow?.status, 'fail', 'DONE oracle explicitly blocks a present timeout transcript');
+    assert.equal(failedDoneRow?.blocking, true);
 
     const validationRetry = await withValidationExecutionLock({
       root,

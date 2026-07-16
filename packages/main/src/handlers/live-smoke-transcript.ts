@@ -61,7 +61,7 @@ interface LiveSmokeTranscriptArgs {
   productionDone?: boolean;
 }
 
-type TranscriptStatus = 'missing' | 'present-fresh' | 'present-stale';
+type TranscriptStatus = 'missing' | 'present-fresh' | 'present-stale' | 'present-failed';
 
 interface CapturedActual {
   command: string;
@@ -320,13 +320,23 @@ function classifyTranscript(
   metadataRoot: string,
 ): TranscriptStatus {
   if (!existsSync(artifactPath)) return 'missing';
-  let parsed: { headHash?: unknown; materialHash?: unknown; storyFilesHash?: unknown };
+  let parsed: {
+    storyId?: unknown;
+    mode?: { runCommands?: unknown };
+    actual?: { exitCode?: unknown } | null;
+    headHash?: unknown;
+    materialHash?: unknown;
+    storyFilesHash?: unknown;
+  };
   try {
     parsed = JSON.parse(readFileSync(artifactPath, 'utf8'));
   } catch {
     // A present-but-unreadable artifact is treated as stale: it cannot prove a
     // fresh live-smoke run.
     return 'present-stale';
+  }
+  if (parsed.mode?.runCommands !== true || !parsed.actual || parsed.actual.exitCode !== 0) {
+    return 'present-failed';
   }
   const headHash = typeof parsed.headHash === 'string' ? parsed.headHash : undefined;
   const materialHash = typeof parsed.materialHash === 'string' ? parsed.materialHash : undefined;
@@ -413,6 +423,8 @@ function statusLabel(status: TranscriptStatus): string {
       return 'present(fresh)';
     case 'present-stale':
       return 'present(stale)';
+    case 'present-failed':
+      return 'present(failed)';
   }
 }
 

@@ -40,6 +40,7 @@ import {
   type EvidenceHashSnapshot,
 } from './evidence-freshness.js';
 import { evaluateDeliveryCheckFreshness } from './delivery-check-hash.js';
+import { evaluateOptionalLiveSmokeTranscript } from './live-smoke-transcript-evidence.js';
 import {
   summarizeCodexEvidence,
   storyRequiresCodexEvidence,
@@ -676,6 +677,24 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         }));
       }
     }
+  }
+
+  // 6a. Optional legacy-compatible live-smoke evidence. Missing remains the
+  // delivery reviewer's decision, but a present failed transcript is a hard
+  // contradiction and cannot count as successful closeout evidence.
+  const liveSmokeTranscript = evaluateOptionalLiveSmokeTranscript(store, storyId);
+  if (liveSmokeTranscript.status !== 'absent') {
+    rows.push(doneCheckRow({
+      id: 'live-smoke-transcript',
+      status: liveSmokeTranscript.ok ? 'pass' : 'fail',
+      label: 'live-smoke transcript',
+      detail: liveSmokeTranscript.reason,
+      hint: liveSmokeTranscript.ok
+        ? undefined
+        : 'Re-run lattice live_smoke_transcript with a passing command and --write',
+      source: 'evidence/live-smoke-transcript.json',
+      blocking: !liveSmokeTranscript.ok,
+    }));
   }
 
   // 6b. declared-artifacts referenced (B-cf60 CHK-003): every entry's
