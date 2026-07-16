@@ -361,7 +361,51 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The canonical routine-validation-fresh-pass-reuse decision document defines the implemented evidence schema and process facts exactly: commandExecution versus overall coverage verdict, versioned identity including effective child-environment digest without raw values, shared lineage, current coverage recomputation, locked double-HEAD decision, no-write reuse, and executed/refusal dispositions. WHY: gate-consumed behavior needs one reviewable truth source that matches runtime mechanics.",
+            "type": "docs",
+            "requiredIn": "light",
+            "priority": "must"
+          },
+          {
+            "desc": "The umbrella workflow convergence plan links to the canonical routine validation decision and summarizes rather than redefining its rules; maintainers can follow the link from the roadmap to the subsystem contract. WHY: duplicate normative prose would drift and recreate conflicting workflow guidance.",
+            "type": "docs",
+            "requiredIn": "light",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The canonical document specifies migration for legacy or malformed evidence, coverage-only historical FAIL with structured commandExecution PASS, schema/version mismatch, and rollback or feature-disable behavior, with every uncertain case falling back to execution. WHY: rollout must remain safe across existing receipts and permit recovery without treating old evidence as fresh.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "desc": "Documentation and contract checks enumerate configured, fallback, and validate-file sources plus full/focus/profile, command/entrypoint/effective-environment digests, policy/coverage inputs, dirty tree, and exact versus trusted-metadata lineage refusal semantics. WHY: the written contract must cover the same identity surface and branches exercised by code and tests.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A process-fact contract verification fails when code/schema/registry semantics diverge from the canonical contract on commandExecution eligibility, current coverage, identity, lineage, no-write reuse, or disposition; wording-only umbrella summaries are not accepted as gate evidence. WHY: prompt or prose promises alone cannot protect lifecycle facts.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "desc": "The canonical document and tests prohibit persisting raw effective-environment values or secrets and demonstrate that redacted evidence still changes identity when a child-visible value changes; no example contains usable credentials. WHY: auditability must prove environment sensitivity without leaking the environment it authenticates.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ],
   "auditLog": [
