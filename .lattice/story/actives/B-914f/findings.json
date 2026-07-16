@@ -119,7 +119,7 @@
       "desc": "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md:43-52 and 9-17 — MEDIUM: the canonical contract still states an absolutely clean tracked/untracked tree, but the implemented/requisite trust boundary permits only canonical Lattice story-metadata/runtime dirt (notably owner-lease heartbeat) and must reject any source/config/entrypoint/material dirt; it also does not explicitly state that commandExecution PASS must incorporate the validator semantic verdict, so validate-file exit 0 + JSON status/allPass FAIL is non-reusable (the current implementation violation is already captured by F-001). Update the canonical decision to define both rules exactly, keeping any unknown classification fail-closed to execution.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-16T14:33:09.342Z",
@@ -127,7 +127,11 @@
       "reviewRunId": "B-914f:RR-004",
       "_hash": "c510b911fdbce52fd93b1f53abd71381956f0145dc37db251c30c07e177b2497",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit e05e14fec3 documents both material-clean trusted exclusions and exit-zero semantic JSON FAIL as non-reusable. Process-fact contract PASS.",
+      "resolvedAt": "2026-07-16T14:46:26.676Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
