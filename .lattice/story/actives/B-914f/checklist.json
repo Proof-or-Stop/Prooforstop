@@ -219,16 +219,16 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-002:happy:0",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "verdict": "success",
           "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
           "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
           "result": "pass",
-          "note": "Post-main-merge regression passed: exact-head/metadata-descendant reuse stays inside the validation lock and returns commandExecutions=0.",
-          "headHash": "f0cf3eaba02f880bab56375f2317e64391373ea3",
+          "note": "Post-main-merge logic regression proves exact-head reuse is decided under the validation lock and returns commandExecutions=0.",
+          "headHash": "1a33e594ab832e7e2d83e3853b4e02250724503d",
           "materialHash": "fb855b47f1f4e0d19688fbc9e464bb8767365b2ed4ddaf79de3ba036cef3ada4",
           "storyFilesHash": "638b4b9467cc22a1a4653637312c3e04696ce35c334d6e385bada65dfc6d1107",
-          "timestamp": "2026-07-16T19:49:45.592Z"
+          "timestamp": "2026-07-16T19:51:04.733Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -380,16 +380,16 @@
         },
         {
           "intentRef": "CHK-003:happy:1",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "verdict": "success",
           "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
           "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
           "result": "pass",
-          "note": "Real CLI integration smoke: Updated dedicated smoke passed identity, malformed commandExecution matrix, coverage-only PASS separation, semantic JSON FAIL, source E2E, double-snapshot race, and no-write reuse.",
-          "headHash": "f72b556a11092f8edf78a0737c26f5923c03e2c7",
+          "note": "Post-main-merge logic regression proves reused disposition is auditable and does not rewrite evidence or churn HEAD.",
+          "headHash": "1a33e594ab832e7e2d83e3853b4e02250724503d",
           "materialHash": "fb855b47f1f4e0d19688fbc9e464bb8767365b2ed4ddaf79de3ba036cef3ada4",
           "storyFilesHash": "638b4b9467cc22a1a4653637312c3e04696ce35c334d6e385bada65dfc6d1107",
-          "timestamp": "2026-07-16T19:50:27.338Z"
+          "timestamp": "2026-07-16T19:51:04.733Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
