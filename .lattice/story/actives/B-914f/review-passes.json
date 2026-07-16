@@ -872,6 +872,27 @@
         "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
       },
       "_hash": "8d0c547e86ed99a4eb3fe67270cdc2b98ecdd16e07035d6edf2ded34a37e6cc5"
+    },
+    {
+      "id": "B-914f:RP-020",
+      "agent": "lattice-review-quality",
+      "note": "Round 11 incremental review passes. 2c1a3cd extracts only a deterministic lookup envelope: it performs no filesystem IO, writes, callbacks, process.env reads, or mutation; the supplied env contributes only PATHEXT semantics. Production resolveExecutable immediately consumes this same helper, then retains the prior exists/read digest boundary. Absolute, relative, PATH-search, PATHEXT, injected-platform, and native-platform branches preserve prior behavior. The export introduces no F-011-style production write seam or hidden backdoor.",
+      "createdAt": "2026-07-16T17:51:54.576Z",
+      "reviewRound": "2026-07-16T17:50:45.069Z",
+      "reviewRunId": "B-914f:RR-037",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4e55163217ef7903e389af48f023d05a18c79289471708a8e6c70b8c8f77e06b"
     }
   ]
 }
