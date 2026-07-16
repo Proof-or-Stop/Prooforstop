@@ -455,14 +455,14 @@
         {
           "intentRef": "CHK-003:adversarial:2",
           "kind": "integration_test",
-          "file": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && npm run test:process-fact-contract && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/validation-protocol-smoke.js",
           "result": "pass",
-          "note": "Exact cli-engine and bootstrap-runner fingerprints now match current sources; DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS and all four knownBenign bootstrap loader call shapes remain unchanged; full focused chain passes.",
-          "headHash": "5512808ff22786ed766be788f13dd8139ffa6e1b",
-          "materialHash": "d25767544d78bb35da1351603fd2cfac490ecc26727194be309ccd03055f34f4",
-          "storyFilesHash": "3e33192ae01cc3deb476966394c4b77445cc19fd6b2aea1904c8974ba9aee83e",
-          "timestamp": "2026-07-16T21:56:17.558Z"
+          "note": "Focused chain PASS: synchronized the two exact cli-engine/bootstrap fingerprints in the process-fact contract; runtime behavior, exemption set, and benign loader call shapes remain unchanged.",
+          "headHash": "25aa532cc49998d716ce0cc6ad5b94f24efa45b0",
+          "materialHash": "ff419037cdd5f65b32fa760512937c8632117800fa34852b8fe5df79678b98bf",
+          "storyFilesHash": "cad3784b60cca4f2b6d4fabf8ab4b231f0b3087514dc550549c96f76bf56e228",
+          "timestamp": "2026-07-16T22:23:12.988Z"
         }
       ]
     }
