@@ -10,7 +10,51 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Given each supported routine validation source, when the effective plan is resolved, the stored validation identity deterministically covers source kind, normalized ordered command specs and command or entrypoint digests, full/focus/profile, plus verification policy and coverage inputs; changing none reproduces the same identity. WHY: reuse is sound only when PASS evidence names every input that can alter what validation means or executes.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "must"
+          },
+          {
+            "desc": "Given exact-head and trusted story-metadata-descendant histories, when routine validation and DONE reuse classify lineage, both consumers return the same shared lineage result and reason. WHY: one lineage contract prevents routine validation from becoming weaker than the existing DONE trust boundary.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Given configured commands, fallback discovery, and validate-file execution that happen to resolve to similar text, when identities are calculated, source-specific inputs and executable digests remain represented and stable optional defaults canonicalize consistently. WHY: visually similar plans can have different trust and execution semantics.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "desc": "Given a prior identity, when command order, cwd, env, timeout, config, entrypoint content, full/focus/profile, or verification policy/coverage inputs change one at a time, the identity changes; unrelated story metadata alone does not change it. WHY: every behavior-affecting delta must invalidate reuse without metadata churn causing false invalidation.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Given legacy PASS evidence with no complete validation identity, or evidence with missing, malformed, unknown-version, or partially forged identity fields, the reuse classifier rejects it and requires execution. WHY: compatibility must fail closed to real validation, never upgrade incomplete historical evidence to PASS.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "must"
+          },
+          {
+            "desc": "Given a descendant HEAD containing any non-trusted commit among metadata commits, renamed paths, or a code/material change disguised by a trusted-looking message, shared lineage rejects metadata-descendant reuse. WHY: commit prose or endpoint hashes alone must not launder implementation changes into trusted metadata lineage.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

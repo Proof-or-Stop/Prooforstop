@@ -1,0 +1,88 @@
+{
+  "principles": [
+    "Confidence must never be manufactured from incomplete identity.",
+    "Metadata-only progress should not create repeated expensive work.",
+    "One shared lineage primitive should govern trusted metadata descendants.",
+    "Observability must distinguish execution from reuse and explain every refusal."
+  ],
+  "drivers": [
+    "Eliminate measured identical-tree validation waste.",
+    "Preserve fail-closed safety across all validation sources and modes.",
+    "Avoid new metadata churn and self-invalidating cache behavior.",
+    "Keep DONE-specific proof semantics separate from routine validation."
+  ],
+  "options": [
+    {
+      "name": "A: Shared lineage plus routine validation identity",
+      "pros": [
+        "Safely handles metadata-only HEAD movement",
+        "Binds all execution-affecting inputs",
+        "Reuses existing DONE lineage semantics without copying DONE-only proof rules",
+        "Supports precise refusal diagnostics"
+      ],
+      "cons": [
+        "Requires evidence schema extension and migration-by-execution",
+        "Needs broader table-driven tests"
+      ]
+    },
+    {
+      "name": "B: Reuse on materialHash and storyFilesHash only",
+      "pros": [
+        "Small implementation",
+        "Would eliminate the observed B-c163 duplicates"
+      ],
+      "cons": [
+        "Unsound when commands, config, entrypoint, focus/profile, or policy change",
+        "Cannot distinguish validate sources",
+        "Could incorrectly reuse PASS"
+      ]
+    },
+    {
+      "name": "C: Separate cache artifact keyed by HEAD",
+      "pros": [
+        "Keeps test-evidence schema unchanged",
+        "Simple exact-HEAD lookup"
+      ],
+      "cons": [
+        "Misses metadata-descendant cases that caused the waste",
+        "Adds another lifecycle artifact and writer",
+        "Cache writes can create more HEAD drift"
+      ]
+    }
+  ],
+  "chosen": "A: Shared lineage plus routine validation identity",
+  "rationale": "Option A is the only design that removes the measured waste while retaining fail-closed correctness. It recognizes trusted metadata-only HEAD movement, but requires exact equality of all material, story-file, command, source, entrypoint, mode and verification-policy inputs. It also avoids a second cache artifact and keeps DONE-only build proof outside routine validate.",
+  "preMortem": [
+    {
+      "scenario": "A changed command or validate config incorrectly reuses an old PASS.",
+      "trigger": "Identity omits normalized command args, cwd, shell, timeout, source or config digest.",
+      "consequence": "Validation reports PASS without executing the changed plan.",
+      "mitigation": "Canonicalize and hash the full resolved plan/source envelope; add one-dimension-at-a-time mismatch tests."
+    },
+    {
+      "scenario": "Metadata-only validation commits cause an infinite reuse/write/drift loop.",
+      "trigger": "The reused path rewrites test-evidence or auto-commits a new disposition artifact.",
+      "consequence": "Every reuse moves HEAD and repeatedly invalidates lineage or evidence.",
+      "mitigation": "Return reused disposition without writing evidence; assert byte-identical artifact and unchanged HEAD in tests."
+    },
+    {
+      "scenario": "HEAD changes between reuse check and return.",
+      "trigger": "Concurrent metadata or source write occurs after the first hash read.",
+      "consequence": "A PASS for one tree is returned for another tree.",
+      "mitigation": "Perform the decision under validation execution lock, read HEAD before and after, and execute on any drift."
+    },
+    {
+      "scenario": "Focused or fallback validation is mistaken for full configured validation.",
+      "trigger": "Identity omits focus/full/profile or source/entrypoint digest.",
+      "consequence": "A narrower PASS satisfies a broader validation request.",
+      "mitigation": "Bind mode and source-specific identity fields; add cross-mode and cross-source refusal tests."
+    },
+    {
+      "scenario": "Legacy or malformed evidence crashes validation or reuses accidentally.",
+      "trigger": "New fields are assumed present or parser defaults them permissively.",
+      "consequence": "Existing projects cannot validate safely.",
+      "mitigation": "Treat missing/malformed identity as a named refusal and execute the real plan."
+    }
+  ],
+  "timestamp": "2026-07-16T13:49:11.545Z"
+}

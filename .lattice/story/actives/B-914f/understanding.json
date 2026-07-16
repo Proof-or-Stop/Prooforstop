@@ -1,0 +1,30 @@
+{
+  "task": "Add safe fresh-PASS reuse to ordinary validation so unchanged validation work is not executed twice.",
+  "outcome": "After a complete PASS, running lattice validate again on the same clean material and identical validation identity prints a fast auditable result such as validation PASS (reused fresh evidence) with zero validation commands executed. If code, story-owned files, command specs, config, entrypoint digest, focus/full/profile, verification policy, coverage completeness, tree cleanliness, trusted lineage, or HEAD stability changes, the terminal instead reports the precise reuse refusal reason and executes the real validation plan.",
+  "facts": [
+    "B-c163 had five successful reruns on identical materialHash and storyFilesHash, wasting 1,926,151ms (32.10 minutes).",
+    "B-19ca executed 45/45 commands successfully, failed only on stale verificationEvidence, then re-executed the identical 45 commands for 370 seconds after refresh.",
+    "Ordinary verifier currently has no fresh-PASS reuse gate.",
+    "DONE reuse already implements exact-head and trusted-story-metadata-descendant lineage in done-prepare-validation-reuse.ts.",
+    "Current ordinary TestEvidenceData lacks a complete command/policy/focus identity, so three tree hashes alone are insufficient."
+  ],
+  "constraints": [
+    "Any uncertainty or mismatch falls back to execution, never PASS.",
+    "Reuse decision runs inside withValidationExecutionLock and rechecks HEAD to prevent TOCTOU.",
+    "Reused validation must not rewrite test evidence or create a metadata commit.",
+    "Legacy evidence without the new identity executes.",
+    "DONE-specific command-spec envelope and build-proof semantics remain DONE-only.",
+    "Configured commands, fallback discovery, and validate-file sources must all be covered."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/validation-types.ts",
+    "packages/main/src/core/done-prepare-validation-reuse.ts",
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks"
+  ],
+  "timestamp": "2026-07-16T13:49:11.187Z"
+}
