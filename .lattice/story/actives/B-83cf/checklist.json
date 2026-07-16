@@ -259,9 +259,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-16T18:33:50.128Z",
-      "endTime": "2026-07-16T19:01:29.601Z",
+      "endTime": "2026-07-16T19:15:09.852Z",
       "verificationIntent": {
         "happy": [
           {
@@ -347,88 +347,88 @@
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
           "result": "pass",
-          "note": "Isolated fixture executes all three literal node bin/lattice.js commands and persists complete canonical bindings.",
-          "headHash": "29fdb7e63ca266fcb9abc0f202511c12089a984a",
-          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
-          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
-          "timestamp": "2026-07-16T19:01:29.843Z"
+          "note": "Literal worktree-local guidance executes three complete derived submissions.",
+          "headHash": "7c4ff680e36a2f6483e4f63ab2cbf5eb2667578f",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:15:10.299Z"
         },
         {
           "intentRef": "CHK-003:happy:three-round-degraded",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
           "result": "pass",
-          "note": "Three distinct literal rounds persist one real host only and evaluate degraded-single-host without 3x2/Authority claims.",
-          "headHash": "29fdb7e63ca266fcb9abc0f202511c12089a984a",
-          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
-          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
-          "timestamp": "2026-07-16T19:01:30.016Z"
+          "note": "Three single-host rounds remain degraded-only without independence or Authority claims.",
+          "headHash": "7c4ff680e36a2f6483e4f63ab2cbf5eb2667578f",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:15:10.560Z"
         },
         {
           "intentRef": "CHK-003:happy:process-fact-contract",
           "kind": "logic_test",
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Registry contract pins validation lock, shared canonical PASS admissibility, full envelope, fail-closed, and legacy semantics.",
-          "headHash": "29fdb7e63ca266fcb9abc0f202511c12089a984a",
-          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
-          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
-          "timestamp": "2026-07-16T19:01:30.323Z"
+          "note": "Registry now pins the metadata/runtime-root lock authority used by validation writers and derived submissions.",
+          "headHash": "7c4ff680e36a2f6483e4f63ab2cbf5eb2667578f",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:15:10.815Z"
         },
         {
           "intentRef": "CHK-003:edge:legacy-warning",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
-          "note": "Legacy no-flag warning/non-counting behavior remains unchanged.",
-          "headHash": "29fdb7e63ca266fcb9abc0f202511c12089a984a",
-          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
-          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
-          "timestamp": "2026-07-16T19:01:30.639Z"
+          "note": "Legacy no-flag warning and non-counting behavior remains unchanged.",
+          "headHash": "7c4ff680e36a2f6483e4f63ab2cbf5eb2667578f",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:15:11.038Z"
         },
         {
           "intentRef": "CHK-003:edge:quorum-regression",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
-          "note": "Quorum canonical parity, independence, rounds, and public behavior remain green.",
-          "headHash": "29fdb7e63ca266fcb9abc0f202511c12089a984a",
-          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
-          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
-          "timestamp": "2026-07-16T19:01:31.064Z"
+          "note": "Quorum canonical derivation and host independence remain green.",
+          "headHash": "7c4ff680e36a2f6483e4f63ab2cbf5eb2667578f",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:15:11.285Z"
         },
         {
           "intentRef": "CHK-003:adversarial:stale-rejection",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/validation-protocol-smoke.js",
           "result": "pass",
-          "note": "Full validation and supplied-binding envelopes reject stale/tampered inputs before persistence.",
-          "headHash": "29fdb7e63ca266fcb9abc0f202511c12089a984a",
-          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
-          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
-          "timestamp": "2026-07-16T19:01:31.367Z"
+          "note": "Stale/tampered inputs and both plain/wrapper lock contention reject before persistence.",
+          "headHash": "7c4ff680e36a2f6483e4f63ab2cbf5eb2667578f",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:15:11.571Z"
         },
         {
           "intentRef": "CHK-003:adversarial:no-fabricated-host",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
           "result": "pass",
-          "note": "Literal commands yield one host identity across exactly three verdicts and remain degraded-only.",
-          "headHash": "29fdb7e63ca266fcb9abc0f202511c12089a984a",
-          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
-          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
-          "timestamp": "2026-07-16T19:01:31.571Z"
+          "note": "Exactly one real host is persisted across three degraded-only rounds.",
+          "headHash": "7c4ff680e36a2f6483e4f63ab2cbf5eb2667578f",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:15:11.855Z"
         },
         {
           "intentRef": "CHK-003:adversarial:command-tamper",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
-          "note": "Submission re-resolves canonical evidence under lock; dirty, changed lineage, failed concurrent validation, and stale supplied hashes reject with no verdict/event.",
-          "headHash": "29fdb7e63ca266fcb9abc0f202511c12089a984a",
-          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
-          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
-          "timestamp": "2026-07-16T19:01:31.749Z"
+          "note": "Submission re-resolves state under the canonical metadata/runtime-root validation lock; wrapper contention writes no verdict/event.",
+          "headHash": "7c4ff680e36a2f6483e4f63ab2cbf5eb2667578f",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:15:12.354Z"
         }
       ]
     }
@@ -515,6 +515,15 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Bind F-008 wrapper-root lock semantics into executable guidance and process-fact evidence."
+    },
+    {
+      "timestamp": "2026-07-16T19:15:09.852Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Refresh F-008 wrapper-root lock contract and focused regression evidence after commit d5b5af4178."
     }
   ]
 }
