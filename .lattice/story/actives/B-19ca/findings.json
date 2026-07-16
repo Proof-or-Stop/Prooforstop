@@ -35,6 +35,25 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-19ca:F-003",
+      "desc": "packages/main/src/cli/command-catalog.ts:2391-2395 — MEDIUM: the public dispatch help still says the command is only for one item/finding/cluster and that itemId should provide exactly one target, even though the new registry accepts story-only reviewer/delivery calls. `node packages/main/dist/cli.js dispatch --help` reproduces the contradictory contract, and command-catalog-smoke currently asserts the stale description instead of the new story-level behavior. Update description/argument guidance and make the smoke require story-only wording so the user-facing contract matches the handler and transition hints.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-16T11:21:31.199Z",
+      "reviewRound": "2026-07-16T11:17:22.582Z",
+      "reviewRunId": "B-19ca:RR-002",
+      "_hash": "273ae43d07a4d1966e165d5aa14d155043d3ca5e1c7ab6ee5950d0fa74fa1a73",
+      "files": [
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/tasks/command-catalog-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-command",
+      "signatureTagSource": "auto"
     }
   ]
 }
