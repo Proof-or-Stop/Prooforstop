@@ -41,7 +41,7 @@
 **Owner**: lattice-implementer
 **DependsOn**: CHK-001, CHK-002
 **Files**:
-- Modify: packages/main/src/core/process-fact-registry.ts, packages/main/src/core/process-fact-levels.ts, scripts/verify-process-fact-contract.mjs, packages/main/src/tasks/command-catalog-smoke.ts, docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md
+- Modify: packages/main/src/core/process-fact-registry.ts, packages/main/src/core/process-fact-levels.ts, scripts/verify-process-fact-contract.mjs, packages/main/src/tasks/command-catalog-smoke.ts, docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md, docs/requirements/decisions/role-separation.md
 - Create: packages/main/src/tasks/agent-dispatch-registry-smoke.ts
 - Test: packages/main/src/tasks/agent-dispatch-registry-smoke.ts, packages/main/src/tasks/command-catalog-smoke.ts, scripts/verify-process-fact-contract.mjs
 
