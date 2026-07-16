@@ -259,9 +259,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-16T18:33:50.128Z",
-      "endTime": "2026-07-16T18:37:54.219Z",
+      "endTime": "2026-07-16T19:01:29.601Z",
       "verificationIntent": {
         "happy": [
           {
@@ -345,90 +345,90 @@
         {
           "intentRef": "CHK-003:happy:executable-guidance",
           "kind": "integration_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/review-escalation-smoke.js",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
           "result": "pass",
-          "note": "Guidance emits shell-valid deriveBindings commands with current hashes; handler smoke executes the equivalent explicit command and persists canonical bindings.",
-          "headHash": "3c0243b448c2ec0c2a03cad786d507f68999b8b3",
-          "materialHash": "8d0ebe905177fc427dff677b8cb9e0b2ade1cb680f9b8b0b0a6471eacbb14cab",
-          "storyFilesHash": "ee87401dffc41a8b1670891b8f24c0df5b4527fe00a5a6973e3842601210771f",
-          "timestamp": "2026-07-16T18:40:17.662Z"
+          "note": "Isolated fixture executes all three literal node bin/lattice.js commands and persists complete canonical bindings.",
+          "headHash": "29fdb7e63ca266fcb9abc0f202511c12089a984a",
+          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
+          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
+          "timestamp": "2026-07-16T19:01:29.843Z"
         },
         {
           "intentRef": "CHK-003:happy:three-round-degraded",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
           "result": "pass",
-          "note": "Three distinct guided runIds are emitted and existing 3x1 evaluator proves degraded-single-host without Authority/3x2 claims.",
-          "headHash": "3c0243b448c2ec0c2a03cad786d507f68999b8b3",
-          "materialHash": "8d0ebe905177fc427dff677b8cb9e0b2ade1cb680f9b8b0b0a6471eacbb14cab",
-          "storyFilesHash": "ee87401dffc41a8b1670891b8f24c0df5b4527fe00a5a6973e3842601210771f",
-          "timestamp": "2026-07-16T18:40:17.662Z"
+          "note": "Three distinct literal rounds persist one real host only and evaluate degraded-single-host without 3x2/Authority claims.",
+          "headHash": "29fdb7e63ca266fcb9abc0f202511c12089a984a",
+          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
+          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
+          "timestamp": "2026-07-16T19:01:30.016Z"
         },
         {
           "intentRef": "CHK-003:happy:process-fact-contract",
           "kind": "logic_test",
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Process fact contract pins explicit complete-envelope freshness and schema semantics.",
-          "headHash": "3c0243b448c2ec0c2a03cad786d507f68999b8b3",
-          "materialHash": "8d0ebe905177fc427dff677b8cb9e0b2ade1cb680f9b8b0b0a6471eacbb14cab",
-          "storyFilesHash": "ee87401dffc41a8b1670891b8f24c0df5b4527fe00a5a6973e3842601210771f",
-          "timestamp": "2026-07-16T18:40:17.662Z"
+          "note": "Registry contract pins validation lock, shared canonical PASS admissibility, full envelope, fail-closed, and legacy semantics.",
+          "headHash": "29fdb7e63ca266fcb9abc0f202511c12089a984a",
+          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
+          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
+          "timestamp": "2026-07-16T19:01:30.323Z"
         },
         {
           "intentRef": "CHK-003:edge:legacy-warning",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
-          "note": "No-flag legacy call remains accepted with warning and no synthesized key/validation/prompt bindings.",
-          "headHash": "3c0243b448c2ec0c2a03cad786d507f68999b8b3",
-          "materialHash": "8d0ebe905177fc427dff677b8cb9e0b2ade1cb680f9b8b0b0a6471eacbb14cab",
-          "storyFilesHash": "ee87401dffc41a8b1670891b8f24c0df5b4527fe00a5a6973e3842601210771f",
-          "timestamp": "2026-07-16T18:40:17.662Z"
+          "note": "Legacy no-flag warning/non-counting behavior remains unchanged.",
+          "headHash": "29fdb7e63ca266fcb9abc0f202511c12089a984a",
+          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
+          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
+          "timestamp": "2026-07-16T19:01:30.639Z"
         },
         {
           "intentRef": "CHK-003:edge:quorum-regression",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
-          "note": "Canonical parity and existing two-host independence/quorum behavior remain green.",
-          "headHash": "3c0243b448c2ec0c2a03cad786d507f68999b8b3",
-          "materialHash": "8d0ebe905177fc427dff677b8cb9e0b2ade1cb680f9b8b0b0a6471eacbb14cab",
-          "storyFilesHash": "ee87401dffc41a8b1670891b8f24c0df5b4527fe00a5a6973e3842601210771f",
-          "timestamp": "2026-07-16T18:40:17.662Z"
+          "note": "Quorum canonical parity, independence, rounds, and public behavior remain green.",
+          "headHash": "29fdb7e63ca266fcb9abc0f202511c12089a984a",
+          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
+          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
+          "timestamp": "2026-07-16T19:01:31.064Z"
         },
         {
           "intentRef": "CHK-003:adversarial:stale-rejection",
           "kind": "integration_test",
-          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/validation-protocol-smoke.js",
           "result": "pass",
-          "note": "All five supplied envelope fields are tampered one-at-a-time and each fails before persistence.",
-          "headHash": "3c0243b448c2ec0c2a03cad786d507f68999b8b3",
-          "materialHash": "8d0ebe905177fc427dff677b8cb9e0b2ade1cb680f9b8b0b0a6471eacbb14cab",
-          "storyFilesHash": "ee87401dffc41a8b1670891b8f24c0df5b4527fe00a5a6973e3842601210771f",
-          "timestamp": "2026-07-16T18:40:17.662Z"
+          "note": "Full validation and supplied-binding envelopes reject stale/tampered inputs before persistence.",
+          "headHash": "29fdb7e63ca266fcb9abc0f202511c12089a984a",
+          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
+          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
+          "timestamp": "2026-07-16T19:01:31.367Z"
         },
         {
           "intentRef": "CHK-003:adversarial:no-fabricated-host",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
           "result": "pass",
-          "note": "Explicit path adds exactly one verdict; three same-host rounds remain degraded and never satisfy 3x2.",
-          "headHash": "3c0243b448c2ec0c2a03cad786d507f68999b8b3",
-          "materialHash": "8d0ebe905177fc427dff677b8cb9e0b2ade1cb680f9b8b0b0a6471eacbb14cab",
-          "storyFilesHash": "ee87401dffc41a8b1670891b8f24c0df5b4527fe00a5a6973e3842601210771f",
-          "timestamp": "2026-07-16T18:40:17.662Z"
+          "note": "Literal commands yield one host identity across exactly three verdicts and remain degraded-only.",
+          "headHash": "29fdb7e63ca266fcb9abc0f202511c12089a984a",
+          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
+          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
+          "timestamp": "2026-07-16T19:01:31.571Z"
         },
         {
           "intentRef": "CHK-003:adversarial:command-tamper",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
-          "note": "Execution re-resolves current evidence/material/story-files identity; stale printed bindings are rejected before write.",
-          "headHash": "3c0243b448c2ec0c2a03cad786d507f68999b8b3",
-          "materialHash": "8d0ebe905177fc427dff677b8cb9e0b2ade1cb680f9b8b0b0a6471eacbb14cab",
-          "storyFilesHash": "ee87401dffc41a8b1670891b8f24c0df5b4527fe00a5a6973e3842601210771f",
-          "timestamp": "2026-07-16T18:40:17.663Z"
+          "note": "Submission re-resolves canonical evidence under lock; dirty, changed lineage, failed concurrent validation, and stale supplied hashes reject with no verdict/event.",
+          "headHash": "29fdb7e63ca266fcb9abc0f202511c12089a984a",
+          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
+          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
+          "timestamp": "2026-07-16T19:01:31.749Z"
         }
       ]
     }
@@ -479,6 +479,15 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Record F-001/F-004 runtime-authoritative literal guidance fix."
+    },
+    {
+      "timestamp": "2026-07-16T19:01:29.601Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Fix F-001/F-004 and refresh executable guidance evidence after commit 061085c3c3."
     }
   ]
 }
