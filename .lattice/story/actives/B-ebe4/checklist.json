@@ -318,7 +318,7 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "AGENTS.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-16T21:08:34.528Z",
       "endTime": "2026-07-16T21:48:11.150Z",
       "verificationIntent": {
@@ -524,6 +524,15 @@
       "to": "done",
       "reason": "Canonical AST fingerprint refreshed without changing benign loader call shape.",
       "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-16T21:55:46.488Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Refresh guard evidence after F-005 bootstrap-runner loader fingerprint repin."
     }
   ]
 }
