@@ -113,7 +113,71 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:happy:executable-guidance",
+            "desc": "A review-assurance degraded-single-host blocker renders a concrete autopilot_review_submit command (including the explicit binding-derivation mode and current story/material identity, with no ellipsis or unresolved placeholder); executing that exact printed command through node bin/lattice.js succeeds and persists a verdict containing non-empty canonical keyId, validationDigest, and promptDigest.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:happy:three-round-degraded",
+            "desc": "Starting from fresh validation and an approved degraded fallback, execute the rendered single-host submission for three distinct rounds from one real host; review assurance counts all three current-material verdicts, reports assuranceLevel=degraded-single-host/admissible, and never claims two-host independence, authorityDone, fullAuthorityDone, or productionDone.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:happy:process-fact-contract",
+            "desc": "The process-fact registry and verify-process-fact-contract check explicitly cover the new gate-consumed binding-derivation semantics and executable fallback guidance, and the contract verifier plus focused command/handler smoke tests pass.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:edge:legacy-warning",
+            "desc": "Calling autopilot_review_submit without the explicit derivation mode preserves legacy behavior: supplied complete bindings remain accepted under existing rules, while omitted required bindings produce the existing warning/non-counting outcome rather than being silently derived or promoted.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:edge:quorum-regression",
+            "desc": "Existing quorum_submit derivation remains behaviorally unchanged: two distinct hosts across the configured rounds receive the same canonical validation binding and host-specific prompt/key/session bindings, valid 3x2 still passes, and duplicate/self-host inputs remain rejected.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:adversarial:stale-rejection",
+            "desc": "With explicit derivation enabled, any caller-supplied materialDigest, storyFilesHash, validationDigest, promptDigest, or keyId that conflicts with the canonical current values is rejected fail-closed before persistence; the rejected attempt cannot count toward any round and does not overwrite a prior fresh verdict.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:adversarial:no-fabricated-host",
+            "desc": "The single-host derivation path requires an explicit non-empty host/provider/session identity and derives bindings only for that host; it never creates a second host/verdict, never upgrades 3x1 to 3x2, and repeated use of the same run/host cannot satisfy independent-host quorum.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:adversarial:command-tamper",
+            "desc": "If repository material, story-owned files, validation evidence, or fallback approval changes after guidance is printed but before the printed command executes, submission re-resolves current state and rejects the stale command instead of accepting the formerly rendered digests.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
