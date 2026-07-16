@@ -5,7 +5,7 @@
       "desc": "packages/main/src/cli/command-catalog.ts:2391-2395 — HIGH: the public `lattice dispatch --help` contract still says dispatch is only for one item/finding/cluster and tells users to provide exactly one item identifier, even though the new registry deliberately supports story-only reviewer dispatches. This preserves the original C4 guidance/handler disagreement: a reviewer following help can add itemId and then be rejected by the story-only runtime contract. packages/main/src/tasks/command-catalog-smoke.ts:127-150 does not catch it because it requires the stale item/finding/cluster wording and validates each field separately instead of validating complete registry-derived example payloads/help semantics. Fix the catalog descriptions to explain conditional story-only vs exactly-one cardinality, and add a test that fails on the current help text and validates complete examples against the public command schema/runtime contract.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-16T11:21:10.858Z",
@@ -13,7 +13,11 @@
       "reviewRunId": "B-19ca:RR-003",
       "_hash": "aca0d8cfee26ea8e4239c93ea3c283a2194353c5ffc48dd382790bfacf944409",
       "signatureTag": "missing|unknown|packages-main-command",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Updated dispatch help to explain registry-defined story-only versus exactly-one cardinality; command-catalog smoke validates every complete registry example against both public field schemas and the shared runtime contract.",
+      "resolvedAt": "2026-07-16T11:50:39.841Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-19ca:F-002",
