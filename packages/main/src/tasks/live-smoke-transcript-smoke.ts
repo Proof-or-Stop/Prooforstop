@@ -116,35 +116,129 @@ function git(cwd: string, args: string[]): string {
 
 // ---- descendant reap uses a PID-written readiness handshake ----------------
 
-{
+type HarnessFailure = 'none' | 'readiness' | 'assertion' | 'read' | 'close-never';
+
+interface HarnessPids {
+  capture: number;
+  descendant: number;
+}
+
+async function runDescendantHarness(failure: HarnessFailure): Promise<void> {
   const { root } = createFixture(checklistWithUserSees);
+  const pidPath = join(root, 'actual-cli-descendant.json');
+  let cli: ReturnType<typeof spawn> | undefined;
+  let actualClosed: Promise<number | null> | undefined;
+  let observedPids: HarnessPids | undefined;
+  let cleanupPromise: Promise<void> | undefined;
+  const disposers = new Set<() => void>();
+
+  const bounded = async <T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> => {
+    let timer: NodeJS.Timeout | undefined;
+    const timeout = new Promise<never>((_resolve, reject) => {
+      timer = setTimeout(() => reject(new Error(message)), timeoutMs);
+      disposers.add(() => clearTimeout(timer));
+    });
+    try {
+      return await Promise.race([promise, timeout]);
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
+  };
+
+  const signal = (pid: number, signalName: NodeJS.Signals): void => {
+    try {
+      process.kill(pid, signalName);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ESRCH') throw error;
+    }
+  };
+
+  const isAlive = (pid: number): boolean => {
+    try {
+      process.kill(pid, 0);
+      return true;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ESRCH') return false;
+      throw error;
+    }
+  };
+
+  const waitUntilGone = async (pid: number): Promise<void> => {
+    if (!isAlive(pid)) return;
+    await bounded(new Promise<void>((resolveGone) => {
+      const probe = setInterval(() => {
+        if (!isAlive(pid)) {
+          clearInterval(probe);
+          disposers.delete(dispose);
+          resolveGone();
+        }
+      }, 20);
+      const dispose = () => clearInterval(probe);
+      disposers.add(dispose);
+    }), 2_000, `process ${pid} did not terminate during harness cleanup`);
+  };
+
+  const cleanup = (): Promise<void> => {
+    cleanupPromise ??= (async () => {
+      for (const dispose of [...disposers]) dispose();
+      disposers.clear();
+
+      const targets = [
+        ...(cli?.pid ? [-cli.pid] : []),
+        ...(observedPids ? [observedPids.capture, observedPids.descendant] : []),
+      ];
+      for (const pid of targets) signal(pid, 'SIGTERM');
+      if (actualClosed) {
+        try {
+          await bounded(actualClosed, 250, 'CLI ignored harness TERM grace');
+        } catch {
+          // The KILL pass below is the bounded fallback for an uncooperative CLI.
+        }
+      }
+      for (const pid of targets) signal(pid, 'SIGKILL');
+      if (actualClosed) await bounded(actualClosed, 2_000, 'CLI did not close after harness KILL');
+      for (const pid of targets.filter((pid) => pid > 0)) await waitUntilGone(pid);
+    })();
+    return cleanupPromise;
+  };
+
   try {
-    const pidPath = join(root, 'actual-cli-descendant.pid');
     const hangingScript = join(root, 'actual-cli-descendant-hang.cjs');
     writeFileSync(hangingScript, [
       "const { spawn } = require('node:child_process');",
       "const { writeFileSync } = require('node:fs');",
       "const child = spawn(process.execPath, ['-e', 'process.on(\\\"SIGTERM\\\",()=>{});setInterval(()=>{},1000)'], { stdio: 'ignore' });",
-      "writeFileSync(process.argv[2], String(child.pid));",
+      "writeFileSync(process.argv[2], JSON.stringify({ capture: process.pid, descendant: child.pid }));",
       "process.on('SIGTERM', () => {});",
       "setInterval(() => {}, 1000);",
     ].join('\n') + '\n', 'utf8');
 
-    let closeWatcher: (() => void) | undefined;
-    const ready = new Promise<void>((resolveReady, rejectReady) => {
+    const ready = new Promise<HarnessPids>((resolveReady, rejectReady) => {
       let settled = false;
-      const finishReady = () => {
-        if (settled) return;
-        settled = true;
-        closeWatcher?.();
+      const disposeReady = () => {
+        watcher.close();
         clearInterval(probe);
         clearTimeout(deadline);
-        resolveReady();
+      };
+      const finishReady = () => {
+        if (settled) return;
+        let parsed: HarnessPids;
+        try {
+          parsed = JSON.parse(readFileSync(pidPath, 'utf8')) as HarnessPids;
+          if (!Number.isInteger(parsed.capture) || !Number.isInteger(parsed.descendant)) return;
+        } catch {
+          return;
+        }
+        settled = true;
+        observedPids = parsed;
+        disposeReady();
+        disposers.delete(disposeReady);
+        if (failure === 'readiness') rejectReady(new Error('injected readiness rejection'));
+        else resolveReady(parsed);
       };
       const watcher = watch(root, (_event, filename) => {
-        if (filename === 'actual-cli-descendant.pid' && existsSync(pidPath)) finishReady();
+        if (filename === 'actual-cli-descendant.json' && existsSync(pidPath)) finishReady();
       });
-      closeWatcher = () => watcher.close();
       // fs.watch is the primary handshake; the state probe closes the narrow
       // create-before-watch-delivery race without relying on a fixed sleep.
       const probe = setInterval(() => {
@@ -153,15 +247,16 @@ function git(cwd: string, args: string[]): string {
       const deadline = setTimeout(() => {
         if (settled) return;
         settled = true;
-        watcher.close();
-        clearInterval(probe);
+        disposeReady();
+        disposers.delete(disposeReady);
         rejectReady(new Error('descendant PID readiness handshake timed out'));
       }, 15_000);
+      disposers.add(disposeReady);
       if (existsSync(pidPath)) finishReady();
     });
 
     const capture = `${JSON.stringify(process.execPath)} ${JSON.stringify(hangingScript)} ${JSON.stringify(pidPath)}`;
-    const cli = spawn(process.execPath, [
+    const spawnedCli = spawn(process.execPath, [
       CLI_ENTRYPOINT,
       'live_smoke_transcript',
       JSON.stringify({ storyId: STORY_ID, capture, json: true }),
@@ -169,28 +264,47 @@ function git(cwd: string, args: string[]): string {
       cwd: root,
       env: { ...process.env, LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS: '2000' },
       stdio: ['ignore', 'pipe', 'pipe'],
+      detached: true,
     });
+    cli = spawnedCli;
     let stdout = '';
     let stderr = '';
-    cli.stdout.on('data', (chunk: Buffer) => { stdout += chunk.toString(); });
-    cli.stderr.on('data', (chunk: Buffer) => { stderr += chunk.toString(); });
-    const closed = new Promise<number | null>((resolveClose, rejectClose) => {
-      cli.once('error', rejectClose);
-      cli.once('close', resolveClose);
+    spawnedCli.stdout?.on('data', (chunk: Buffer) => { stdout += chunk.toString(); });
+    spawnedCli.stderr?.on('data', (chunk: Buffer) => { stderr += chunk.toString(); });
+    actualClosed = new Promise<number | null>((resolveClose, rejectClose) => {
+      spawnedCli.once('error', rejectClose);
+      spawnedCli.once('close', resolveClose);
     });
 
-    await ready;
-    assert.equal(cli.exitCode, null, 'PID readiness is observed while the CLI capture is still active');
-    const descendantPid = Number(readFileSync(pidPath, 'utf8'));
-    const exitCode = await closed;
+    const pids = await ready;
+    assert.equal(spawnedCli.exitCode, null, 'PID readiness is observed while the CLI capture is still active');
+    if (failure === 'assertion') throw new Error('injected post-readiness assertion failure');
+    if (failure === 'read') {
+      writeFileSync(pidPath, '{invalid', 'utf8');
+      JSON.parse(readFileSync(pidPath, 'utf8'));
+    }
+    const closeWaiter = failure === 'close-never' ? new Promise<number | null>(() => {}) : actualClosed;
+    const exitCode = await bounded(closeWaiter, failure === 'close-never' ? 100 : 15_000, 'CLI close deadline exceeded');
     assert.equal(exitCode, 0, `actual CLI transcript producer exits successfully: ${stderr}`);
     assert.ok(stdout.trim().length > 0, 'descendant-reap run emits a terminal payload');
     const report = JSON.parse(stdout) as LiveSmokeTranscriptReport;
     assert.equal(report.actual?.exitCode, null);
-    assert.throws(() => process.kill(descendantPid, 0), /ESRCH/, 'handshake-confirmed descendant is reaped after timeout');
+    assert.throws(() => process.kill(pids.descendant, 0), /ESRCH/, 'handshake-confirmed descendant is reaped after timeout');
   } finally {
+    await Promise.all([cleanup(), cleanup()]);
     rmSync(root, { recursive: true, force: true });
+    assert.equal(existsSync(root), false, 'temp root removal happens after process cleanup');
   }
+}
+
+await runDescendantHarness('none');
+for (const failure of ['readiness', 'assertion', 'read', 'close-never'] as const) {
+  await assert.rejects(runDescendantHarness(failure), new RegExp(
+    failure === 'readiness' ? 'injected readiness rejection'
+      : failure === 'assertion' ? 'injected post-readiness assertion failure'
+        : failure === 'read' ? 'Unexpected token|JSON'
+          : 'CLI close deadline exceeded',
+  ));
 }
 
 function gitStatus(root: string): string {
