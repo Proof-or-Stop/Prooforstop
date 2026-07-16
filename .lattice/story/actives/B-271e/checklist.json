@@ -53,7 +53,26 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The guard prints `Production test seam guard: PASS — no unsafe SMOKE/TEST control reaches a filesystem or process sink.` A negative fixture using env-derived readyFile to writeFileSync is rejected, while ordinary PATH/runtime reads and sanitized bounded numeric/enum controls remain accepted.",
+      "excludes": [
+        "Repository-wide taint analysis",
+        "Universal prohibition of process.env",
+        "Refactoring done_prepare timeout behavior or its fixed bounded smoke controls",
+        "Scanning tasks/ as production source"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      }
     }
   ]
 }
