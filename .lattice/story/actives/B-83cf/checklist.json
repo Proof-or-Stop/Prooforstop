@@ -142,9 +142,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-16T18:31:09.676Z",
-      "endTime": "2026-07-16T18:33:35.671Z",
+      "endTime": "2026-07-16T19:01:11.978Z",
       "verificationIntent": {
         "happy": [
           {
@@ -200,55 +200,55 @@
           "kind": "integration_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
-          "note": "Explicit deriveBindings persists exactly one verdict with canonical complete bindings.",
-          "headHash": "3c0243b448c2ec0c2a03cad786d507f68999b8b3",
-          "materialHash": "8d0ebe905177fc427dff677b8cb9e0b2ade1cb680f9b8b0b0a6471eacbb14cab",
-          "storyFilesHash": "ee87401dffc41a8b1670891b8f24c0df5b4527fe00a5a6973e3842601210771f",
-          "timestamp": "2026-07-16T18:40:17.662Z"
+          "note": "Explicit mode derives and persists one complete envelope only after shared canonical validation admissibility passes under the validation lock.",
+          "headHash": "061085c3c39474e88a4a7c5de7616b1534d42d27",
+          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
+          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
+          "timestamp": "2026-07-16T19:01:12.299Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
-          "note": "No-flag legacy submission remains unbound and warning-based rather than silently derived.",
-          "headHash": "3c0243b448c2ec0c2a03cad786d507f68999b8b3",
-          "materialHash": "8d0ebe905177fc427dff677b8cb9e0b2ade1cb680f9b8b0b0a6471eacbb14cab",
-          "storyFilesHash": "ee87401dffc41a8b1670891b8f24c0df5b4527fe00a5a6973e3842601210771f",
-          "timestamp": "2026-07-16T18:40:17.662Z"
+          "note": "No-flag legacy submission remains synchronous, warning-based, and does not synthesize bindings.",
+          "headHash": "061085c3c39474e88a4a7c5de7616b1534d42d27",
+          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
+          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
+          "timestamp": "2026-07-16T19:01:12.509Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
-          "note": "Verdict count increases by exactly one; no second host or authority artifact is created.",
-          "headHash": "3c0243b448c2ec0c2a03cad786d507f68999b8b3",
-          "materialHash": "8d0ebe905177fc427dff677b8cb9e0b2ade1cb680f9b8b0b0a6471eacbb14cab",
-          "storyFilesHash": "ee87401dffc41a8b1670891b8f24c0df5b4527fe00a5a6973e3842601210771f",
-          "timestamp": "2026-07-16T18:40:17.662Z"
+          "note": "Explicit mode persists exactly one supplied host and no Authority or second-host artifact.",
+          "headHash": "061085c3c39474e88a4a7c5de7616b1534d42d27",
+          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
+          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
+          "timestamp": "2026-07-16T19:01:12.712Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
-          "note": "Supplied stale material mismatch rejects before verdict persistence; shared checks cover all supplied binding fields.",
-          "headHash": "3c0243b448c2ec0c2a03cad786d507f68999b8b3",
-          "materialHash": "8d0ebe905177fc427dff677b8cb9e0b2ade1cb680f9b8b0b0a6471eacbb14cab",
-          "storyFilesHash": "ee87401dffc41a8b1670891b8f24c0df5b4527fe00a5a6973e3842601210771f",
-          "timestamp": "2026-07-16T18:40:17.662Z"
+          "note": "All five supplied envelope fields plus canonical validation invariants reject before verdict/event persistence.",
+          "headHash": "061085c3c39474e88a4a7c5de7616b1534d42d27",
+          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
+          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
+          "timestamp": "2026-07-16T19:01:12.934Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
           "kind": "integration_test",
-          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/validation-protocol-smoke.js",
           "result": "pass",
-          "note": "Explicit mode requires current PASS evidence with matching material and story-files identities plus explicit host identity.",
-          "headHash": "3c0243b448c2ec0c2a03cad786d507f68999b8b3",
-          "materialHash": "8d0ebe905177fc427dff677b8cb9e0b2ade1cb680f9b8b0b0a6471eacbb14cab",
-          "storyFilesHash": "ee87401dffc41a8b1670891b8f24c0df5b4527fe00a5a6973e3842601210771f",
-          "timestamp": "2026-07-16T18:40:17.662Z"
+          "note": "Shared TEST predicate rejects wrong command/output/coverage/freshness/dirty/lineage, and lock-race regression leaves no verdict/event after failed revalidation.",
+          "headHash": "061085c3c39474e88a4a7c5de7616b1534d42d27",
+          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
+          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
+          "timestamp": "2026-07-16T19:01:13.104Z"
         }
       ]
     },
@@ -461,6 +461,15 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Fix verified REVIEW findings F-002 and F-003 with canonical validation admissibility and atomic submission."
+    },
+    {
+      "timestamp": "2026-07-16T19:01:11.978Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Fix F-002/F-003 and refresh evidence after commit 061085c3c3."
     }
   ]
 }
