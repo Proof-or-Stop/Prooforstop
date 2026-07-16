@@ -142,9 +142,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-16T18:31:09.676Z",
-      "endTime": null,
+      "endTime": "2026-07-16T18:33:35.671Z",
       "verificationIntent": {
         "happy": [
           {
@@ -193,7 +193,64 @@
         "test": [
           "packages/main/src/tasks/review-escalation-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "Explicit deriveBindings persists exactly one verdict with canonical complete bindings.",
+          "headHash": "d3e38e397776fe7d9ada468f3187992f2ee99aad",
+          "materialHash": "b11f8a153f229eaf307dc31137203288f3188adf0dff969d76c5c14963509cef",
+          "storyFilesHash": "a9e4ddc8f54e44a6d11e1c1ba9b7e20d4238d05dce6bfad17f2139898b8a7f37",
+          "timestamp": "2026-07-16T18:33:36.097Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "No-flag legacy submission remains unbound and warning-based rather than silently derived.",
+          "headHash": "d3e38e397776fe7d9ada468f3187992f2ee99aad",
+          "materialHash": "b11f8a153f229eaf307dc31137203288f3188adf0dff969d76c5c14963509cef",
+          "storyFilesHash": "a9e4ddc8f54e44a6d11e1c1ba9b7e20d4238d05dce6bfad17f2139898b8a7f37",
+          "timestamp": "2026-07-16T18:33:36.279Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "Verdict count increases by exactly one; no second host or authority artifact is created.",
+          "headHash": "d3e38e397776fe7d9ada468f3187992f2ee99aad",
+          "materialHash": "b11f8a153f229eaf307dc31137203288f3188adf0dff969d76c5c14963509cef",
+          "storyFilesHash": "a9e4ddc8f54e44a6d11e1c1ba9b7e20d4238d05dce6bfad17f2139898b8a7f37",
+          "timestamp": "2026-07-16T18:33:36.495Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "Supplied stale material mismatch rejects before verdict persistence; shared checks cover all supplied binding fields.",
+          "headHash": "d3e38e397776fe7d9ada468f3187992f2ee99aad",
+          "materialHash": "b11f8a153f229eaf307dc31137203288f3188adf0dff969d76c5c14963509cef",
+          "storyFilesHash": "a9e4ddc8f54e44a6d11e1c1ba9b7e20d4238d05dce6bfad17f2139898b8a7f37",
+          "timestamp": "2026-07-16T18:33:36.687Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "Explicit mode requires current PASS evidence with matching material and story-files identities plus explicit host identity.",
+          "headHash": "d3e38e397776fe7d9ada468f3187992f2ee99aad",
+          "materialHash": "b11f8a153f229eaf307dc31137203288f3188adf0dff969d76c5c14963509cef",
+          "storyFilesHash": "a9e4ddc8f54e44a6d11e1c1ba9b7e20d4238d05dce6bfad17f2139898b8a7f37",
+          "timestamp": "2026-07-16T18:33:36.856Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
