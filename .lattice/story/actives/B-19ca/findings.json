@@ -224,7 +224,7 @@
       "desc": "packages/main/src/handlers/checklist.ts:559-564 and packages/main/src/handlers/finding.ts:489-493 trust payload agent/actor before process.env.LATTICE_AGENT. A dispatched reviewer/verification role can submit agent=human or actor=main, enter the exact trusted-host bypass added by a5302c1a53, and evade the registry deny (for example reviewer checklist_update status=done or verification-intent finding_add). This collapses the conceptual boundary between authenticated dispatch context and self-declared attribution; trusted-host compatibility must only apply when there is no non-host dispatched env identity, with conflict/spoof cases rejected and tested through real handlers.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-16T12:18:01.248Z",
@@ -248,7 +248,11 @@
         "packages/main/src/tasks/agent-dispatch-registry-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit cc77ca20b2 introduces one shared mutation-authority resolver across all controlled handlers: a registered non-host LATTICE_AGENT is authoritative, payload attribution may only resolve to the same registry row/alias, and trusted-host spoof conflicts fail before writes with real-handler byte-equivalent state tests.",
+      "resolvedAt": "2026-07-16T12:25:39.418Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-19ca:F-012",
