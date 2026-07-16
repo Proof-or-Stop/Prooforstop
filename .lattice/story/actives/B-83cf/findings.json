@@ -90,6 +90,21 @@
       "_hash": "1357c6a3ba340d46dd07baad01afd7d88e7626bea98563742b0b4bb2ba5bbfa2",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-83cf:F-006",
+      "desc": "packages/main/src/tasks/validation-protocol-smoke.ts:1611-1653 vs packages/main/src/core/validation-evidence-admissibility.ts:82-94 — HIGH: commit 061085c3 extracted the TEST-gate admissibility diagnostics but did not update the existing validation protocol contract assertions. `node packages/main/dist/tasks/validation-protocol-smoke.js` deterministically fails at wrong-command because the test expects `existing validation PASS command is not` while the shared helper emits `validation evidence command is not`; subsequent output/missing-hash expectations also retain old wording. F-001 behavior itself is fixed, and the gate remains fail-closed, but the focused protocol suite is red. Align the protocol assertions (prefer stable reason codes or canonical shared messages) and rerun the full admissibility cases so the TEST gate and deriveBindings consumer stay mechanically synchronized.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-16T19:05:40.026Z",
+      "reviewRound": "2026-07-16T19:01:39.041Z",
+      "reviewRunId": "B-83cf:RR-007",
+      "_hash": "68fe80b48b74a2f49a5770bccf9c1055536aaf452f6cb6dcc07fa64068cf35b1",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
