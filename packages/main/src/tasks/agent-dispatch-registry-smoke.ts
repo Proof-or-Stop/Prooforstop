@@ -11,6 +11,7 @@ import {
   entryAcceptsIdentifier,
   entryPermitsMutation,
   resolveAgentDispatchType,
+  resolveAgentDispatchPromptBuilder,
   validateAgentDispatchRequest,
   validateAgentDispatchRegistry,
 } from '../core/agent-dispatch-registry.js';
@@ -18,6 +19,36 @@ import { StoryStore } from '../core/store.js';
 import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
 import { createChecklistHandlers } from '../handlers/checklist.js';
 import { resolveReviewRunLane } from '../core/review-run.js';
+import type {
+  AgentDispatchMutationCommand,
+  AgentDispatchRegistryEntry,
+  StoryPhase,
+} from '../core/types.js';
+
+const ALL_PHASES: readonly StoryPhase[] = [
+  'IDEA', 'INIT', 'INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE',
+  'DISCARDED', 'TEST_CASE', 'TEST_CASE_REVIEW', 'META',
+];
+const ALL_IDENTIFIERS = ['itemId', 'findingId', 'clusterId'] as const;
+const ALL_MUTATIONS: readonly AgentDispatchMutationCommand[] = [
+  'checklist_update', 'init_check_set', 'scope_check_save', 'review_run_start',
+  'finding_add', 'review_pass_set', 'delivery_check_set', 'finding_resolve',
+];
+
+function assertCoverageComplete(
+  entries: readonly AgentDispatchRegistryEntry[],
+  coveredCanonical: ReadonlySet<string>,
+  coveredAliases: ReadonlySet<string>,
+  coveredPromptBuilders: ReadonlySet<string>,
+): void {
+  for (const entry of entries) {
+    assert.ok(coveredCanonical.has(entry.canonicalName), `coverage missing canonical role ${entry.canonicalName}`);
+    assert.ok(coveredPromptBuilders.has(entry.promptBuilder), `coverage missing prompt class ${entry.promptBuilder}`);
+    for (const alias of entry.aliases) {
+      assert.ok(coveredAliases.has(alias), `coverage missing alias ${alias}`);
+    }
+  }
+}
 
 const canonicalNames = AGENT_DISPATCH_REGISTRY.map((entry) => entry.canonicalName);
 assert.equal(new Set(canonicalNames).size, canonicalNames.length, 'canonical agent types must be unique');
@@ -32,6 +63,11 @@ for (const entry of AGENT_DISPATCH_REGISTRY) {
   assert.equal(new Set(entry.identifierKinds).size, entry.identifierKinds.length, `${entry.canonicalName} identifiers must be unique`);
   assert.equal(new Set(entry.permittedMutations).size, entry.permittedMutations.length, `${entry.canonicalName} mutations must be unique`);
   assert.equal(new Set(entry.evidenceOwnership).size, entry.evidenceOwnership.length, `${entry.canonicalName} evidence ownership must be unique`);
+  assert.deepEqual(
+    Object.keys(entry.promptBuilderByIdentifier).sort(),
+    entry.targetCardinality === 'story-only' ? [] : [...entry.identifierKinds].sort(),
+    `${entry.canonicalName} prompt mapping must cover every and only accepted target`,
+  );
   const mutations: readonly string[] = entry.permittedMutations;
 
   if (entry.targetCardinality === 'story-only') {
@@ -109,6 +145,11 @@ assert.throws(
   'partial registry entries must fail validation',
 );
 assert.throws(
+  () => validateAgentDispatchRegistry([{ ...sample, promptBuilderByIdentifier: { itemId: 'implementer-dispatch' } }]),
+  (error: unknown) => error instanceof AgentDispatchRegistryDefinitionError && /map every and only accepted identifier kind/.test(error.message),
+  'a registry row with an unmapped accepted target must fail completeness',
+);
+assert.throws(
   () => validateAgentDispatchRegistry([{ ...sample, permittedMutations: ['story_advance'] }]),
   (error: unknown) => error instanceof AgentDispatchRegistryDefinitionError && /undeclared value/.test(error.message),
   'undeclared mutation authority must fail validation',
@@ -128,22 +169,73 @@ assert.equal(verification.commitAllowed, false);
 assert.deepEqual(verification.permittedMutations, ['checklist_update']);
 assert.equal(verification.promptBuilder, 'verification-intent-item');
 
+const coveredCanonical = new Set<string>();
+const coveredAliases = new Set<string>();
+const coveredPromptBuilders = new Set<string>();
 for (const entry of AGENT_DISPATCH_REGISTRY) {
-  const phase = entry.allowedPhases[0];
-  const target = entry.targetCardinality === 'story-only'
-    ? {}
-    : { [entry.identifierKinds[0]]: `${entry.identifierKinds[0]}-value` };
-  assert.equal(
-    validateAgentDispatchRequest({ agentType: entry.canonicalName, phase, ...target }).entry,
-    entry,
-    `${entry.canonicalName} valid phase/cardinality must resolve`,
-  );
-  assert.throws(
-    () => validateAgentDispatchRequest({ agentType: entry.canonicalName, phase, ...(entry.targetCardinality === 'story-only' ? { itemId: 'CHK-001' } : {}) }),
-    (error: unknown) => error instanceof AgentDispatchRegistryError && error.code === 'invalid_dispatch_cardinality',
-    `${entry.canonicalName} invalid cardinality must fail closed`,
-  );
+  coveredCanonical.add(entry.canonicalName);
+  coveredPromptBuilders.add(entry.promptBuilder);
+  const names = [entry.canonicalName, ...entry.aliases];
+  for (const alias of entry.aliases) coveredAliases.add(alias);
+  for (const agentType of names) {
+    for (const phase of ALL_PHASES) {
+      for (let mask = 0; mask < 8; mask += 1) {
+        const target = Object.fromEntries(ALL_IDENTIFIERS.flatMap((kind, index) => (
+          mask & (1 << index) ? [[kind, `${kind}-value`]] : []
+        )));
+        const provided = ALL_IDENTIFIERS.filter((_, index) => mask & (1 << index));
+        const acceptedIdentifiers: readonly string[] = entry.identifierKinds;
+        const allowedPhases: readonly StoryPhase[] = entry.allowedPhases;
+        const cardinalityValid = entry.targetCardinality === 'story-only'
+          ? provided.length === 0
+          : provided.length === 1 && acceptedIdentifiers.includes(provided[0]);
+        const phaseValid = allowedPhases.includes(phase);
+        if (phaseValid && cardinalityValid) {
+          assert.equal(
+            validateAgentDispatchRequest({ agentType, phase, ...target }).entry,
+            entry,
+            `${agentType} must accept ${phase}/${provided.join('+') || 'story-only'}`,
+          );
+        } else {
+          const expectedCode = phaseValid ? 'invalid_dispatch_cardinality' : 'invalid_dispatch_phase';
+          assert.throws(
+            () => validateAgentDispatchRequest({ agentType, phase, ...target }),
+            (error: unknown) => error instanceof AgentDispatchRegistryError && error.code === expectedCode,
+            `${agentType} must reject ${phase}/${provided.join('+') || 'story-only'} as ${expectedCode}`,
+          );
+        }
+      }
+    }
+    for (const mutation of ALL_MUTATIONS) {
+      const allowedMutations: readonly AgentDispatchMutationCommand[] = entry.permittedMutations;
+      const allowed = allowedMutations.includes(mutation);
+      assert.equal(entryPermitsMutation(entry, mutation), allowed, `${agentType}/${mutation} table result drifted`);
+      if (allowed) {
+        assert.equal(assertRegisteredAgentMutationAllowed(agentType, mutation), entry, `${agentType} must retain ${mutation}`);
+      } else {
+        assert.throws(
+          () => assertRegisteredAgentMutationAllowed(agentType, mutation),
+          /agent_dispatch_mutation_denied/,
+          `${agentType} must be denied ${mutation}`,
+        );
+      }
+    }
+  }
 }
+assertCoverageComplete(AGENT_DISPATCH_REGISTRY, coveredCanonical, coveredAliases, coveredPromptBuilders);
+
+const syntheticCanonical = { ...AGENT_DISPATCH_REGISTRY[0], canonicalName: 'synthetic-uncovered-role' } as unknown as AgentDispatchRegistryEntry;
+assert.throws(
+  () => assertCoverageComplete([...AGENT_DISPATCH_REGISTRY, syntheticCanonical], coveredCanonical, coveredAliases, coveredPromptBuilders),
+  /coverage missing canonical role synthetic-uncovered-role/,
+  'a new registry row without an explicit coverage ledger entry must fail completeness',
+);
+const syntheticAlias = { ...AGENT_DISPATCH_REGISTRY[0], aliases: ['synthetic-uncovered-alias'] } as unknown as AgentDispatchRegistryEntry;
+assert.throws(
+  () => assertCoverageComplete([syntheticAlias], coveredCanonical, coveredAliases, coveredPromptBuilders),
+  /coverage missing alias synthetic-uncovered-alias/,
+  'a new compatibility alias without an explicit coverage ledger entry must fail completeness',
+);
 
 for (const lane of ['lattice-review-concept', 'lattice-review-quality', 'lattice-review-test-coverage'] as const) {
   const entry = resolveAgentDispatchType(lane).entry;
@@ -181,6 +273,14 @@ try {
   store.writeChecklist(storyId, { items: [{
     id: 'CHK-001', title: 'Define verification', context: 'Synthetic context', status: 'pending', startTime: null, endTime: null,
   }] });
+  store.writeFindings(storyId, { findings: [{
+    id: `${storyId}:F-001`, desc: 'Synthetic dispatch finding', severity: 'high', category: 'missing',
+    status: 'open', agent: 'lattice-review-quality', files: ['packages/main/src/example.ts'],
+  }] });
+  store.writeClusters(storyId, { clusters: [{
+    clusterId: 'CL-001', rootCause: 'Synthetic root cause', findingIds: [`${storyId}:F-001`],
+    files: ['packages/main/src/example.ts'], severity: 'high', createdAt: now,
+  }] });
   const handlers = createStoryDispatchHandlers({ store, root, scanRoot: join(root, 'packages/main') });
   const checklistHandlers = createChecklistHandlers({ store, root, scanRoot: join(root, 'packages/main') });
   for (const agentType of ['verification-intent', 'test-intent', 'test-case-reviewer']) {
@@ -217,6 +317,42 @@ try {
     () => handlers.dispatch({ storyId, itemId: 'CHK-001', agentType: 'lattice-review-quality' }),
     /story-only; omit itemId/,
   );
+
+  const promptPatterns: Record<string, RegExp> = {
+    'implementer-dispatch': /git commit --author=.*lattice-implementer/,
+    'verification-intent-item': /define verification intent/,
+    'init-review': /INIT_REVIEW_START/,
+    'product-init-review': /product-reviewer/,
+    'scope-plan-review': /scope_check_save/,
+    'story-review': /review_run_start/,
+    'coverage-review': /review_run_start/,
+    'delivery-review': /delivery_check_set/,
+    'finding-repair': /finding_resolve/,
+    'cluster-repair': /Resolves: CL-001/,
+  };
+  const actualPromptCoverage = new Set<string>();
+  for (const entry of AGENT_DISPATCH_REGISTRY) {
+    for (const agentType of [entry.canonicalName, ...entry.aliases]) {
+      for (const identifierKind of entry.targetCardinality === 'story-only' ? [null] : entry.identifierKinds) {
+        store.writeStory(storyId, { ...store.readStory(storyId), phase: entry.allowedPhases[0] });
+        const target = identifierKind === 'itemId'
+          ? { itemId: 'CHK-001' }
+          : identifierKind === 'findingId'
+            ? { findingId: 'F-001' }
+            : identifierKind === 'clusterId'
+              ? { clusterId: 'CL-001' }
+              : {};
+        const expectedPromptBuilder = resolveAgentDispatchPromptBuilder(entry, identifierKind ?? undefined);
+        const prompt = handlers.dispatch({ storyId, agentType, ...target }).prompt;
+        assert.match(prompt, promptPatterns[expectedPromptBuilder], `${agentType}/${identifierKind || 'story'} must render ${expectedPromptBuilder}`);
+        if (!entry.commitAllowed) assert.doesNotMatch(prompt, /git commit --author=/, `${agentType} must not receive commit instructions`);
+        if (entry.roleClass === 'verification-intent') assert.doesNotMatch(prompt, /status["': ]+done/i, `${agentType} must not complete an item`);
+        if (entry.roleClass.endsWith('reviewer')) assert.doesNotMatch(prompt, /lattice checklist_update/, `${agentType} must not mutate checklist status`);
+        actualPromptCoverage.add(expectedPromptBuilder);
+      }
+    }
+  }
+  assertCoverageComplete(AGENT_DISPATCH_REGISTRY, coveredCanonical, coveredAliases, actualPromptCoverage);
 } finally {
   rmSync(root, { recursive: true, force: true });
 }

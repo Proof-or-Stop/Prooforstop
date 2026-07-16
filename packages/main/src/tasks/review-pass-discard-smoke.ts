@@ -727,7 +727,7 @@ async function assertTypedDispatchUsesRoleSafePromptsAndBoundaries(): Promise<vo
     );
     await assert.rejects(
       runLattice(root, 'dispatch', { storyId, agentType: 'unknown-reviewer' }),
-      /Invalid parameters|accepted/i,
+      /Invalid parameters|accepted|Invalid option|expected one of/i,
       'unknown explicit agent type must fail before prompt generation',
     );
     await assert.rejects(

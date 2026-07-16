@@ -292,6 +292,24 @@ the same schema they describe.
 - Process-fact registry and contract verification are updated if reviewer/gate
   semantics change.
 
+#### Implemented contract (B-19ca)
+
+The authority source is `AGENT_DISPATCH_REGISTRY`, not an agent-name prefix.
+Every canonical role and compatibility alias declares its lifecycle phases,
+story/identifier cardinality, prompt class, commit permission, reviewer lane,
+evidence ownership, and mutation allowlist. The CLI enum is derived from that
+same table; runtime request validation happens before prompt rendering or event
+writes, and role-aware mutation consumers fail closed on privilege crossover.
+
+`agent-dispatch-registry-smoke` exhaustively executes every canonical name and
+alias across all lifecycle phases, all eight item/finding/cluster cardinality
+combinations, every prompt class, and every allowed/denied mutation command.
+Its explicit completeness ledger is itself mutation-tested: injecting a new
+canonical row or alias without coverage must fail. `command-catalog-smoke`
+keeps the catalog enum and nullable/omitted-field examples schema-valid, while
+`runtime:agent_dispatch_role_authority_gate` records the gate-consumed contract
+in the process-fact registry and verifier.
+
 ### 8.4 Rollback
 
 Keep legacy aliases during migration, but route them through registry entries.

@@ -8,6 +8,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MAIN_TOOLS } from '../cli-engine.js';
 import { buildQuantumClaimCheckCase } from '../core/claim-admissibility/quantum.js';
+import { AGENT_DISPATCH_ACCEPTED_TYPES, AGENT_DISPATCH_REGISTRY } from '../core/agent-dispatch-registry.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const pkgRoot = join(here, '..', '..');
@@ -118,8 +119,34 @@ for (const command of [
   'host_runtime_probe',
   'dispatch_policy_create',
   'dispatch_auto',
+  'dispatch',
 ]) {
   findTool(command);
+}
+
+const dispatchTool = findTool('dispatch');
+assert.match(dispatchTool.description, /item, finding, or cluster/, 'dispatch catalog description must name its supported target kinds');
+for (const agentType of AGENT_DISPATCH_ACCEPTED_TYPES) {
+  assert.equal(schemaAccepts('dispatch', 'agentType', agentType), true, `dispatch schema must accept registered type/alias ${agentType}`);
+}
+for (const invalidAgentType of ['unknown-reviewer', '', null]) {
+  assert.equal(schemaAccepts('dispatch', 'agentType', invalidAgentType), false, `dispatch schema must reject ${JSON.stringify(invalidAgentType)}`);
+}
+assert.equal(schemaAccepts('dispatch', 'agentType', undefined), true, 'dispatch schema deliberately permits omitted agentType for implementer default');
+for (const identifier of ['itemId', 'findingId', 'clusterId'] as const) {
+  assert.equal(schemaAccepts('dispatch', identifier, undefined), true, `dispatch.${identifier} is optional`);
+  assert.equal(schemaAccepts('dispatch', identifier, null), false, `dispatch.${identifier} must omit absent values instead of accepting null`);
+  assert.match(schemaDescription('dispatch', identifier), /mutually exclusive|Checklist item ID/, `dispatch.${identifier} must explain cardinality`);
+}
+for (const entry of AGENT_DISPATCH_REGISTRY) {
+  const example = {
+    storyId: 'B-example',
+    agentType: entry.canonicalName,
+    ...(entry.targetCardinality === 'exactly-one' ? { [entry.identifierKinds[0]]: 'EXAMPLE-001' } : {}),
+  };
+  for (const [key, value] of Object.entries(example)) {
+    assert.equal(schemaAccepts('dispatch', key, value), true, `registered ${entry.canonicalName} example field ${key} must be schema-valid`);
+  }
 }
 
 for (const retiredCommand of [

@@ -27,6 +27,7 @@ import type { StoryStore } from '../core/store.js';
 import { reportHealthIssue } from '../core/health.js';
 import {
   resolveAgentDispatchType,
+  resolveAgentDispatchPromptBuilder,
   validateAgentDispatchRequest,
   type ResolvedAgentDispatchType,
 } from '../core/agent-dispatch-registry.js';
@@ -638,8 +639,10 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         clusterId: args.clusterId,
       });
       const canonicalType = resolved.canonicalType;
+      const identifierKind = args.itemId ? 'itemId' : args.findingId ? 'findingId' : args.clusterId ? 'clusterId' : undefined;
+      const promptBuilder = resolveAgentDispatchPromptBuilder(resolved.entry, identifierKind);
 
-      if (resolved.entry.promptBuilder === 'init-review') {
+      if (promptBuilder === 'init-review') {
         const result = buildInitReviewPrompt({
           storyId: args.storyId,
           agentType: canonicalType,
@@ -651,7 +654,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         });
         return result;
       }
-      if (resolved.entry.promptBuilder === 'product-init-review') {
+      if (promptBuilder === 'product-init-review') {
         const result = buildProductInitReviewPrompt({
           storyId: args.storyId,
           agentType: canonicalType,
@@ -663,7 +666,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         });
         return result;
       }
-      if (resolved.entry.promptBuilder === 'scope-plan-review') {
+      if (promptBuilder === 'scope-plan-review') {
         const result = buildScopePlanReviewPrompt({
           storyId: args.storyId,
           agentType: canonicalType,
@@ -675,17 +678,17 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         });
         return result;
       }
-      if (resolved.entry.promptBuilder === 'story-review' || resolved.entry.promptBuilder === 'coverage-review') {
+      if (promptBuilder === 'story-review' || promptBuilder === 'coverage-review') {
         const result = buildStoryReviewPrompt({ storyId: args.storyId, resolved });
         appendDispatchEvent({ storyId: args.storyId, agentType: canonicalType, targetKind: 'story-review' });
         return result;
       }
-      if (resolved.entry.promptBuilder === 'delivery-review') {
+      if (promptBuilder === 'delivery-review') {
         const result = buildDeliveryReviewPrompt({ storyId: args.storyId, resolved });
         appendDispatchEvent({ storyId: args.storyId, agentType: canonicalType, targetKind: 'delivery-review' });
         return result;
       }
-      if (resolved.entry.promptBuilder === 'verification-intent-item') {
+      if (promptBuilder === 'verification-intent-item') {
         const result = buildVerificationIntentPrompt({
           storyId: args.storyId,
           itemId: args.itemId!,

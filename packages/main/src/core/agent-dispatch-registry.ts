@@ -25,6 +25,7 @@ export const AGENT_DISPATCH_REGISTRY = [
     targetCardinality: 'exactly-one',
     identifierKinds: ['itemId', 'findingId', 'clusterId'],
     promptBuilder: 'implementer-dispatch',
+    promptBuilderByIdentifier: { itemId: 'implementer-dispatch', findingId: 'finding-repair', clusterId: 'cluster-repair' },
     permittedMutations: ['checklist_update', 'finding_resolve'],
     commitAllowed: true,
     reviewerLane: null,
@@ -38,6 +39,7 @@ export const AGENT_DISPATCH_REGISTRY = [
     targetCardinality: 'exactly-one',
     identifierKinds: ['itemId'],
     promptBuilder: 'verification-intent-item',
+    promptBuilderByIdentifier: { itemId: 'verification-intent-item' },
     permittedMutations: ['checklist_update'],
     commitAllowed: false,
     reviewerLane: null,
@@ -51,6 +53,7 @@ export const AGENT_DISPATCH_REGISTRY = [
     targetCardinality: 'story-only',
     identifierKinds: [],
     promptBuilder: 'init-review',
+    promptBuilderByIdentifier: {},
     permittedMutations: ['init_check_set'],
     commitAllowed: false,
     reviewerLane: 'lattice-review-story-init',
@@ -64,6 +67,7 @@ export const AGENT_DISPATCH_REGISTRY = [
     targetCardinality: 'story-only',
     identifierKinds: [],
     promptBuilder: 'product-init-review',
+    promptBuilderByIdentifier: {},
     permittedMutations: ['init_check_set'],
     commitAllowed: false,
     reviewerLane: 'product-reviewer',
@@ -77,6 +81,7 @@ export const AGENT_DISPATCH_REGISTRY = [
     targetCardinality: 'story-only',
     identifierKinds: [],
     promptBuilder: 'scope-plan-review',
+    promptBuilderByIdentifier: {},
     permittedMutations: ['scope_check_save'],
     commitAllowed: false,
     reviewerLane: 'lattice-review-scope-plan',
@@ -96,6 +101,7 @@ export const AGENT_DISPATCH_REGISTRY = [
     targetCardinality: 'story-only' as const,
     identifierKinds: [] as const,
     promptBuilder: 'story-review' as const,
+    promptBuilderByIdentifier: {},
     permittedMutations: ITEM_REVIEW_MUTATIONS,
     commitAllowed: false,
     reviewerLane: canonicalName,
@@ -109,6 +115,7 @@ export const AGENT_DISPATCH_REGISTRY = [
     targetCardinality: 'story-only',
     identifierKinds: [],
     promptBuilder: 'coverage-review',
+    promptBuilderByIdentifier: {},
     permittedMutations: ITEM_REVIEW_MUTATIONS,
     commitAllowed: false,
     reviewerLane: 'lattice-review-test-coverage',
@@ -122,6 +129,7 @@ export const AGENT_DISPATCH_REGISTRY = [
     targetCardinality: 'story-only',
     identifierKinds: [],
     promptBuilder: 'delivery-review',
+    promptBuilderByIdentifier: {},
     permittedMutations: ['delivery_check_set'],
     commitAllowed: false,
     reviewerLane: 'lattice-review-delivery',
@@ -135,6 +143,7 @@ export const AGENT_DISPATCH_REGISTRY = [
     targetCardinality: 'exactly-one',
     identifierKinds: ['findingId'],
     promptBuilder: 'finding-repair',
+    promptBuilderByIdentifier: { findingId: 'finding-repair' },
     permittedMutations: ['finding_resolve'],
     commitAllowed: true,
     reviewerLane: null,
@@ -148,6 +157,7 @@ export const AGENT_DISPATCH_REGISTRY = [
     targetCardinality: 'exactly-one',
     identifierKinds: ['clusterId'],
     promptBuilder: 'cluster-repair',
+    promptBuilderByIdentifier: { clusterId: 'cluster-repair' },
     permittedMutations: [],
     commitAllowed: true,
     reviewerLane: null,
@@ -205,6 +215,9 @@ export function validateAgentDispatchRegistry(entries: readonly unknown[]): void
     requireString(entry.targetCardinality, `${entry.canonicalName}.targetCardinality`);
     requireStringArray(entry.identifierKinds, `${entry.canonicalName}.identifierKinds`);
     requireString(entry.promptBuilder, `${entry.canonicalName}.promptBuilder`);
+    if (!entry.promptBuilderByIdentifier || typeof entry.promptBuilderByIdentifier !== 'object' || Array.isArray(entry.promptBuilderByIdentifier)) {
+      throw new AgentDispatchRegistryDefinitionError(`${entry.canonicalName}.promptBuilderByIdentifier must be an object`);
+    }
     requireStringArray(entry.permittedMutations, `${entry.canonicalName}.permittedMutations`);
     if (typeof entry.commitAllowed !== 'boolean') {
       throw new AgentDispatchRegistryDefinitionError(`${entry.canonicalName}.commitAllowed must be boolean`);
@@ -217,6 +230,12 @@ export function validateAgentDispatchRegistry(entries: readonly unknown[]): void
     if (!VALID_CARDINALITIES.has(entry.targetCardinality)) throw new AgentDispatchRegistryDefinitionError(`${entry.canonicalName}.targetCardinality is undeclared`);
     requireMembers(entry.identifierKinds, VALID_IDENTIFIERS, `${entry.canonicalName}.identifierKinds`);
     if (!VALID_PROMPT_BUILDERS.has(entry.promptBuilder)) throw new AgentDispatchRegistryDefinitionError(`${entry.canonicalName}.promptBuilder is undeclared`);
+    const promptBuilderByIdentifier = entry.promptBuilderByIdentifier as Record<string, unknown>;
+    requireMembers(Object.keys(promptBuilderByIdentifier), VALID_IDENTIFIERS, `${entry.canonicalName}.promptBuilderByIdentifier keys`);
+    for (const [kind, builder] of Object.entries(promptBuilderByIdentifier)) {
+      requireString(builder, `${entry.canonicalName}.promptBuilderByIdentifier.${kind}`);
+      if (!VALID_PROMPT_BUILDERS.has(builder)) throw new AgentDispatchRegistryDefinitionError(`${entry.canonicalName}.promptBuilderByIdentifier.${kind} is undeclared`);
+    }
     requireMembers(entry.permittedMutations, VALID_MUTATIONS, `${entry.canonicalName}.permittedMutations`);
     requireMembers(entry.evidenceOwnership, VALID_EVIDENCE_OWNERSHIP, `${entry.canonicalName}.evidenceOwnership`);
     if (entry.allowedPhases.length === 0) throw new AgentDispatchRegistryDefinitionError(`${entry.canonicalName}.allowedPhases cannot be empty`);
@@ -225,6 +244,14 @@ export function validateAgentDispatchRegistry(entries: readonly unknown[]): void
     }
     if (entry.targetCardinality === 'exactly-one' && entry.identifierKinds.length === 0) {
       throw new AgentDispatchRegistryDefinitionError(`${entry.canonicalName} exactly-one target needs an identifier kind`);
+    }
+    const mappedKinds = Object.keys(promptBuilderByIdentifier).sort();
+    const acceptedKinds = [...entry.identifierKinds].sort();
+    if (entry.targetCardinality === 'story-only' && mappedKinds.length !== 0) {
+      throw new AgentDispatchRegistryDefinitionError(`${entry.canonicalName} story-only target cannot declare identifier prompt builders`);
+    }
+    if (entry.targetCardinality === 'exactly-one' && JSON.stringify(mappedKinds) !== JSON.stringify(acceptedKinds)) {
+      throw new AgentDispatchRegistryDefinitionError(`${entry.canonicalName}.promptBuilderByIdentifier must map every and only accepted identifier kind`);
     }
     for (const name of [entry.canonicalName, ...entry.aliases]) {
       if (names.has(name)) throw new AgentDispatchRegistryDefinitionError(`duplicate canonical name or alias "${name}"`);
@@ -310,6 +337,20 @@ export function entryAcceptsIdentifier(
   identifierKind: AgentDispatchIdentifierKind,
 ): boolean {
   return entry.identifierKinds.includes(identifierKind);
+}
+
+/** Resolve prompt selection only from registry metadata; no consumer may infer it from role-name prefixes. */
+export function resolveAgentDispatchPromptBuilder(
+  entry: AgentDispatchRegistryEntry,
+  identifierKind?: AgentDispatchIdentifierKind,
+): AgentDispatchRegistryEntry['promptBuilder'] {
+  if (entry.targetCardinality === 'story-only') return entry.promptBuilder;
+  if (!identifierKind || !entry.identifierKinds.includes(identifierKind)) {
+    throw new AgentDispatchRegistryDefinitionError(`${entry.canonicalName} has no prompt builder for ${identifierKind ?? 'story-only'}`);
+  }
+  const builder = entry.promptBuilderByIdentifier[identifierKind];
+  if (!builder) throw new AgentDispatchRegistryDefinitionError(`${entry.canonicalName} has no prompt builder for ${identifierKind}`);
+  return builder;
 }
 
 export interface AgentDispatchTargetInput {

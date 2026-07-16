@@ -104,6 +104,8 @@ export interface AgentDispatchRegistryEntry {
   targetCardinality: AgentDispatchTargetCardinality;
   identifierKinds: readonly AgentDispatchIdentifierKind[];
   promptBuilder: AgentDispatchPromptBuilderKey;
+  /** Exactly-one roles declare the prompt selected for each accepted target kind. Story-only roles keep this empty. */
+  promptBuilderByIdentifier: Readonly<Partial<Record<AgentDispatchIdentifierKind, AgentDispatchPromptBuilderKey>>>;
   permittedMutations: readonly AgentDispatchMutationCommand[];
   commitAllowed: boolean;
   reviewerLane: AgentDispatchReviewerLane | null;

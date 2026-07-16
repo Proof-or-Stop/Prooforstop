@@ -2,6 +2,37 @@
 
 > 2026.04 · Split the 4 responsibilities of plan / adversarial / implementation / test-verification from "one main agent holding all of them" into roles that can evolve independently
 
+## Current typed dispatch authority
+
+The historical wave plan below explains why roles were separated. The current
+runtime contract is stricter: `packages/main/src/core/agent-dispatch-registry.ts`
+is the single mechanical authority for dispatch role, lifecycle phase, target
+cardinality, prompt class, commit permission, reviewer lane, evidence ownership,
+and permitted state-changing commands. Consumers must not infer privilege from
+prefixes such as `lattice-review-`.
+
+The canonical role families are implementer, verification-intent, INIT and
+scope reviewers, story and coverage reviewers, delivery reviewer, finding
+repair, and cluster repair. `test-intent` and `test-case-reviewer` are explicit
+aliases of `verification-intent`; they retain verification-intent-only mutation
+authority and never receive implementation/commit/status-done instructions.
+Unknown types, wrong phases, and wrong story/item/finding/cluster cardinalities
+fail before prompt generation and before dispatch event writes.
+
+Role separation is enforced twice: prompts state the role boundary, while the
+registry and mutation consumers mechanically deny privilege crossover. In
+particular, implementers/repairers cannot mint reviewer evidence, reviewers
+cannot complete checklist work, and verification-intent aliases may update only
+`verificationIntent`. This L4 process fact is registered as
+`runtime:agent_dispatch_role_authority_gate` and verified by
+`scripts/verify-process-fact-contract.mjs`.
+
+Compatibility and completeness are executable contracts. The dispatch smoke
+covers every canonical type and alias over every phase, every target cardinality
+combination, every prompt class, and the complete allow/deny mutation matrix.
+A synthetic new registry row or alias without corresponding coverage must make
+the smoke fail.
+
 ## Background
 
 lattice currently has only 1.5 actual roles:
