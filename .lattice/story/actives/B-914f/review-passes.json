@@ -673,6 +673,62 @@
         "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
       },
       "_hash": "5dafbb7ee8986e34a2440a9a33f743abce72635e07920265fb159526f323de18"
+    },
+    {
+      "id": "B-914f:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-8 incremental test-coverage review found no blocker. The six-file delta routes routine identity and child spawn through one effective-environment helper, removes only narrow launcher transport keys, canonicalizes PWD, preserves explicit overlays, and keeps CI/PATH/NODE_OPTIONS/locale semantic. Existing targeted PASS evidence covers direct-to-wrapper reuse, real-handler CI invalidation, explicit transport-named overlay identity invalidation, three source kinds, no-write reuse, and positive shared-consumer process-contract checks.",
+      "createdAt": "2026-07-16T17:12:41.451Z",
+      "reviewRound": "2026-07-16T17:09:53.264Z",
+      "reviewRunId": "B-914f:RR-030",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-914f/background.md",
+          ".lattice/story/actives/B-914f/checklist.json",
+          ".lattice/story/actives/B-914f/plan.md",
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f4062e6bdcf275041cf8fee7f195fd7bbeeef0936b843e521083c6569563a7fd",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "0f76b9f05468b06518160ac5e1089d68ff6af7a791151ea16815ff1750800c47"
     }
   ]
 }
