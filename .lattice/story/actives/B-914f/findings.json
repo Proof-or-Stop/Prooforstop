@@ -147,6 +147,21 @@
       "_hash": "8ae4975ac19adeed49c4cfa3e4d1c1c020935e3de15b7688b8e1d98ae59e695b",
       "signatureTag": "missing|unknown|lattice-story-actives",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-914f:F-009",
+      "desc": "packages/main/src/handlers/verifier.ts:1098-1114,1133-1144 and packages/main/src/tasks/validation-evidence-reuse-smoke.ts:81-84 — MEDIUM: validate-file identity still includes the raw git diff main...HEAD --name-only list, including story metadata. On a real story branch the first validation creates and commits .lattice/story/actives/<id>/test-evidence.json; that path was absent from the pre-run diff but appears in the next run changed-files argument, changing identityCommand.args even though source, material, and validator semantics are unchanged. The next validate therefore executes again instead of taking the promised fresh-PASS shortcut, contradicting the canonical rule that mutable story metadata is excluded from identity. The handler smoke misses this because it creates and runs on branch main, so git diff main...HEAD is always empty. Filter canonical story metadata/runtime paths before constructing changed-files while retaining all material files, and make the validate-file handler smoke use a real story branch with an assertion that first-run test-evidence creation does not cause a second execution.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-16T14:50:11.035Z",
+      "reviewRound": "2026-07-16T14:46:04.746Z",
+      "reviewRunId": "B-914f:RR-005",
+      "_hash": "91697ec2b0b4b56f8050d3c4b66004ea222b0ef3ca1522ddee2085e73f3ecba4",
+      "signatureTag": "missing|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
