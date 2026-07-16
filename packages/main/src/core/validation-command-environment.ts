@@ -18,14 +18,25 @@ export function effectiveValidationCommandEnvironment(
   processEnvironment: NodeJS.ProcessEnv,
   overlay: Record<string, string> | undefined,
   cwd: string,
+  platform: NodeJS.Platform = process.platform,
 ): Record<string, string> {
+  const windows = platform === 'win32';
+  const canonicalKey = (key: string): string => windows ? key.toUpperCase() : key;
+  const transportKeys = windows
+    ? new Set([...VALIDATION_TRANSPORT_ENV_KEYS].map((key) => key.toUpperCase()))
+    : VALIDATION_TRANSPORT_ENV_KEYS;
   const effective: Record<string, string> = {};
-  for (const [key, value] of Object.entries(processEnvironment)) {
-    if (value !== undefined && !VALIDATION_TRANSPORT_ENV_KEYS.has(key) && key !== 'PWD') {
-      effective[key] = value;
+  const ambientEntries = Object.entries(processEnvironment);
+  if (windows) ambientEntries.sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0);
+  for (const [key, value] of ambientEntries) {
+    const normalizedKey = canonicalKey(key);
+    if (value !== undefined && !transportKeys.has(normalizedKey) && normalizedKey !== canonicalKey('PWD')) {
+      effective[normalizedKey] = value;
     }
   }
-  effective.PWD = cwd;
-  if (overlay) Object.assign(effective, overlay);
+  effective[canonicalKey('PWD')] = cwd;
+  if (overlay) {
+    for (const [key, value] of Object.entries(overlay)) effective[canonicalKey(key)] = value;
+  }
   return effective;
 }

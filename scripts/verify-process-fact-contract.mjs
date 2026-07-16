@@ -3166,12 +3166,12 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
     assert(routineReuseText.includes(token), `shared routine validation reuse contract missing ${token}`);
   }
   const validationEnvironmentText = read('packages/main/src/core/validation-command-environment.ts');
-  for (const token of ["['_', 'OLDPWD', 'SHLVL']", "effective.PWD = cwd", 'if (overlay) Object.assign(effective, overlay)']) {
+  for (const token of ["['_', 'OLDPWD', 'SHLVL']", "platform === 'win32'", "effective[canonicalKey('PWD')] = cwd", 'effective[canonicalKey(key)] = value']) {
     assert(validationEnvironmentText.includes(token), `shared validation command environment contract missing ${token}`);
   }
   const validationExecutorEnvironmentText = read('packages/main/src/core/validation-executor.ts');
   assert(
-    routineReuseText.includes('effectiveValidationCommandEnvironment(processEnvironment, command.env, cwd)')
+    routineReuseText.includes('effectiveValidationCommandEnvironment(processEnvironment, command.env, cwd, platform)')
       && validationExecutorEnvironmentText.includes('effectiveValidationCommandEnvironment(process.env, command.env, cwd)'),
     'routine identity and validation command spawn must consume the same effective environment normalizer',
   );

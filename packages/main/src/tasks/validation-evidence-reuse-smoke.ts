@@ -257,6 +257,7 @@ function identity(root: string, sourceKind: RoutineValidationSourceKind, command
   sourceInputs: unknown;
   entrypointPath: string;
   env: NodeJS.ProcessEnv;
+  platform: NodeJS.Platform;
 }> = {}): RoutineValidationIdentity {
   return buildRoutineValidationIdentity({
     projectRoot: root,
@@ -269,6 +270,7 @@ function identity(root: string, sourceKind: RoutineValidationSourceKind, command
     verificationPolicyInputs: overrides.policy ?? { required: ['CHK-001:happy:0'], workflow: 'strict' },
     ...(overrides.entrypointPath ? { entrypointPath: overrides.entrypointPath } : {}),
     processEnvironment: overrides.env ?? { PATH: process.env.PATH, VALIDATION_SECRET: 'smoke-secret-value' },
+    ...(overrides.platform ? { platform: overrides.platform } : {}),
   });
 }
 
@@ -337,6 +339,52 @@ function main(): void {
       identity(root, 'configured', [{ ...baseCommand, env: { SHLVL: '1' } }]).digest,
       identity(root, 'configured', [{ ...baseCommand, env: { SHLVL: '2' } }]).digest,
       'explicit command.env overlay remains semantic even for a transport-named key',
+    );
+    const winPathA = join(root, 'win-path-a');
+    const winPathB = join(root, 'win-path-b');
+    mkdirSync(winPathA, { recursive: true });
+    mkdirSync(winPathB, { recursive: true });
+    writeFileSync(join(winPathA, 'validation-tool'), 'tool-a\n', 'utf8');
+    writeFileSync(join(winPathB, 'validation-tool'), 'tool-b\n', 'utf8');
+    const winCommand: ValidationCommand = {
+      ...baseCommand,
+      command: 'validation-tool',
+      args: [],
+      env: { Path: winPathB },
+    };
+    const winOverlayWins = identity(root, 'configured', [winCommand], {
+      platform: 'win32',
+      env: { Path: winPathA, PATH: winPathA, CI: 'true' },
+    });
+    const winOverlayDifferentExecutable = identity(root, 'configured', [{
+      ...winCommand,
+      env: { PATH: winPathA },
+    }], {
+      platform: 'win32',
+      env: { Path: winPathB, PATH: winPathB, CI: 'true' },
+    });
+    assert.notEqual(
+      winOverlayWins.commands[0]?.executableDigest,
+      winOverlayDifferentExecutable.commands[0]?.executableDigest,
+      'win32 Path/PATH canonicalization must resolve the executable from the explicit overlay',
+    );
+    assert.notEqual(
+      winOverlayWins.digest,
+      winOverlayDifferentExecutable.digest,
+      'a win32 explicit PATH overlay selecting a different executable must invalidate identity',
+    );
+    const winAmbientCollisionA = identity(root, 'configured', [baseCommand], {
+      platform: 'win32',
+      env: { Path: winPathA, PATH: winPathB, CI: 'true' },
+    });
+    const winAmbientCollisionB = identity(root, 'configured', [baseCommand], {
+      platform: 'win32',
+      env: { PATH: winPathB, Path: winPathA, CI: 'true' },
+    });
+    assert.equal(
+      winAmbientCollisionA.digest,
+      winAmbientCollisionB.digest,
+      'win32 duplicate ambient keys are deterministically deduplicated independent of insertion order',
     );
     const variations = [
       identity(root, 'configured', [{ ...baseCommand, args: ['--test', 'changed'] }]),

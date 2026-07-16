@@ -44,12 +44,13 @@ function fileDigest(path: string): string | null {
   }
 }
 
-function resolveExecutable(command: string, cwd: string, env: NodeJS.ProcessEnv): string | null {
+function resolveExecutable(command: string, cwd: string, env: NodeJS.ProcessEnv, platform: NodeJS.Platform): string | null {
   if (isAbsolute(command) || command.includes('/')) {
     const candidate = isAbsolute(command) ? command : resolve(cwd, command);
     return existsSync(candidate) ? candidate : null;
   }
-  for (const dir of String(env.PATH ?? '').split(delimiter).filter(Boolean)) {
+  const pathDelimiter = platform === 'win32' ? ';' : delimiter;
+  for (const dir of String(env.PATH ?? '').split(pathDelimiter).filter(Boolean)) {
     const candidate = join(dir, command);
     if (existsSync(candidate)) return candidate;
   }
@@ -67,14 +68,16 @@ export function buildRoutineValidationIdentity(args: {
   profile: string;
   verificationPolicyInputs: unknown;
   processEnvironment?: NodeJS.ProcessEnv;
+  platform?: NodeJS.Platform;
 }): RoutineValidationIdentity {
   const processEnvironment = args.processEnvironment ?? process.env;
+  const platform = args.platform ?? process.platform;
   const commands = args.commands.map((command) => {
     const cwd = command.cwd
       ? (isAbsolute(command.cwd) ? command.cwd : resolve(args.projectRoot, command.cwd))
       : args.projectRoot;
-    const effectiveEnvironment = effectiveValidationCommandEnvironment(processEnvironment, command.env, cwd);
-    const executable = resolveExecutable(command.command, cwd, effectiveEnvironment);
+    const effectiveEnvironment = effectiveValidationCommandEnvironment(processEnvironment, command.env, cwd, platform);
+    const executable = resolveExecutable(command.command, cwd, effectiveEnvironment, platform);
     return {
       label: command.label,
       command: command.command,
@@ -104,7 +107,7 @@ export function buildRoutineValidationIdentity(args: {
     },
     verificationPolicyDigest: validationIdentityDigest(args.verificationPolicyInputs),
     runtime: {
-      platform: process.platform,
+      platform,
       arch: process.arch,
       node: process.version,
     },
