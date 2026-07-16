@@ -1044,7 +1044,7 @@
       "desc": "Round 15 focused smoke is still nondeterministic in the real cleanup paths. After a successful build, the first live-smoke run failed in the injected readiness case because cleanup signalHarnessProcess received real `kill EPERM`; that cleanup error replaced the expected `injected readiness rejection`, so assert.rejects failed. An immediate rerun passed. The synthetic ESRCH/EPERM branch assertions are correct in isolation, and the disappearance-timeout seam cleans its interval/deadline without real signals, but runDescendantHarness still sends real TERM/KILL to a group plus observed capture/descendant PIDs during each injected failure. A natural EPERM race therefore makes the gate flaky and also means that run did not prove every process disappeared. Stabilize the real target selection/signalling so expected failure injections cannot intermittently be replaced by host-level EPERM while retaining the explicit synthetic EPERM fail-closed assertion. Repro: `npm --prefix packages/main run build && node packages/main/dist/tasks/live-smoke-transcript-smoke.js` failed once with actual `Error: kill EPERM` at signalHarnessProcess during readiness cleanup; immediate `node packages/main/dist/tasks/live-smoke-transcript-smoke.js` passed.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-16T01:07:09.845Z",
@@ -1055,7 +1055,11 @@
         "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
       ],
       "signatureTag": "edge|ts|round-focused-smoke",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Test-only commit 4903b28a34 makes positive capture/descendant PIDs observation-only and signals only the owned negative detached PGID after bounded natural-close wait. Round 16 coverage run B-c163:RR-070 verifies exact negative target seams, primary-error preservation, ESRCH handling, retained F-025-F-027 cases, build, and three focused smoke passes.",
+      "resolvedAt": "2026-07-16T01:16:41.478Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
