@@ -359,7 +359,7 @@
       "desc": "packages/main/src/tasks/validate-execution-lock-smoke.ts:400 — targeted wrapper/validation-lock regression is not fully runnable after the merged read-manifest contract: assertReviewerWritesAreNotBlocked calls review_pass_set without the now-required readManifest, so the smoke exits nonzero after its first three lock assertions. WHY: the B-914f reuse/protocol smokes pass and the lock assertions reached so far are sound, but this stale fixture prevents a clean end-to-end lock regression result and should be updated before claiming the complete wrapper-lock suite green. Severity medium; this is a test-harness compatibility gap, not evidence that the B-914f reuse algorithm is wrong.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-16T19:59:24.048Z",
@@ -367,7 +367,11 @@
       "reviewRunId": "B-914f:RR-048",
       "_hash": "dd71f42b7b7f378e1c2b93b3a45f2e57c45209746a73dd60fab663cccba87a58",
       "signatureTag": "missing|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 1ad92bd62d. repro: before the fix, node packages/main/dist/tasks/validate-execution-lock-smoke.js exited 1 after the first lock assertions because review_pass_set rejected readManifest=undefined. rootCause: the hermetic reviewer-write fixture predated the mandatory signed reviewer readManifest/candidate-binding contract and did not use the canonical reviewerReadManifest helper used by current review-pass smokes. reproTest: after the fixture-only helper/binding update, build passes; validate-execution-lock-smoke passes all 11 assertions; review-pass-provenance-smoke, candidate-spec-routing-smoke, and validation-evidence-reuse-smoke all pass.",
+      "resolvedAt": "2026-07-16T20:05:36.598Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
