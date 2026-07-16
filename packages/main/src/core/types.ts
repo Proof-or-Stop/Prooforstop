@@ -1554,8 +1554,9 @@ export interface DocsPromise {
   docPath: string;
   promise: string;
   /**
-   * Optional reviewer-friendly status. DONE gate treats met/verified as
-   * verified and waived as an explicit waiver, matching delivery_check_set help.
+   * Optional reviewer-friendly status. The shared delivery-promise outcome
+   * normalizer owns writer and DONE-consumer semantics, including the explicit
+   * legacy missing-status compatibility branch.
    */
   status?: 'met' | 'verified' | 'waived' | 'unverified';
   verifiedBy?: string;

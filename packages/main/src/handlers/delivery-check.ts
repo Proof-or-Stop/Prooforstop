@@ -21,6 +21,10 @@ import { currentGitHead, currentMaterialHash, currentStoryFilesHash, EMPTY_STORY
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { evaluateOptionalLiveSmokeTranscript } from '../core/live-smoke-transcript-evidence.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
+import {
+  DELIVERY_PROMISE_OUTCOME_CONTRADICTION,
+  normalizeDeliveryPromiseOutcome,
+} from '../core/delivery-promise-outcome.js';
 
 // Signature primitives live in core/delivery-check-hash.ts (single source of
 // truth) so core consumers can verify the hash without a core→handlers import.
@@ -78,8 +82,16 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
       }
 
       // 4) Set waiverReason
+      delete promise.verifiedBy;
       promise.waiverReason = args.waiverReason.trim();
       promise.status = 'waived';
+      const normalizedPromise = normalizeDeliveryPromiseOutcome(promise);
+      if (!normalizedPromise.ok) {
+        throw new Error(
+          `Blocked [${normalizedPromise.code}]: ${normalizedPromise.reason} (docPath: ${promise.docPath}); delivery-check was not written.`,
+        );
+      }
+      Object.assign(promise, normalizedPromise.normalized);
 
       // 5) Re-sign (hash changes after docsPromises includes waiverReason)
       data._hash = signDeliveryCheck(
@@ -119,7 +131,7 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
       }
 
       // 2) runtime validation
-      const docsPromises = Array.isArray(args.docsPromises) ? args.docsPromises.map(p => ({ ...p })) : [];
+      const docsPromisesInput = Array.isArray(args.docsPromises) ? args.docsPromises.map(p => ({ ...p })) : [];
       const realMachineTests = Array.isArray(args.realMachineTests) ? args.realMachineTests : [];
       const closingSelfCheck = args.closingSelfCheck;
 
@@ -132,17 +144,18 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
         throw new Error(`delivery_check_set: ${liveSmokeTranscript.reason}; re-run live_smoke_transcript with a passing command and --write`);
       }
 
-      for (const promise of docsPromises) {
-        if (promise.status === 'met' || promise.status === 'verified') {
-          promise.verifiedBy = promise.verifiedBy || `status:${promise.status}`;
-        } else if (promise.status === 'waived') {
-          if (!promise.waiverReason || promise.waiverReason.trim().length < 30) {
-            throw new Error(
-              `delivery_check_set: when docsPromises status=waived, waiverReason must be ≥ 30 characters (docPath: ${promise.docPath})`,
-            );
-          }
+      // Classify the entire envelope before signing or any delivery-check write.
+      // One contradictory row aborts the operation; explicit unverified rows
+      // remain unresolved and can never be upgraded by legacy inference.
+      const docsPromises = docsPromisesInput.map(promise => {
+        const result = normalizeDeliveryPromiseOutcome(promise);
+        if (!result.ok) {
+          throw new Error(
+            `Blocked [${DELIVERY_PROMISE_OUTCOME_CONTRADICTION}]: ${result.reason} (docPath: ${promise.docPath}); delivery-check was not written.`,
+          );
         }
-      }
+        return result.normalized;
+      });
 
       // waiverReason validation: when non-empty, must be ≥ 30 characters
       for (const test of realMachineTests) {
@@ -212,7 +225,10 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
       store.writeDeliveryCheck(args.storyId, data);
 
       // 5) return summary
-      const unverified = docsPromises.filter(p => !p.verifiedBy).length;
+      const unverified = docsPromises.filter(p => {
+        const result = normalizeDeliveryPromiseOutcome(p);
+        return !result.ok || result.outcome === 'unresolved';
+      }).length;
       const waived = realMachineTests.filter(t => !!t.waiverReason).length;
       const commitHint = autoCommitStoryMetadata(root, args.storyId, 'delivery_check_set', {
         closeoutArtifactPaths: ['delivery-check.json'],

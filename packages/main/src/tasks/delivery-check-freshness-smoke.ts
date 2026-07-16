@@ -8,6 +8,10 @@ import { dirname, join } from 'node:path';
 import { resetConfigCache } from '../core/config.js';
 import { buildDoneChecklist } from '../core/done-oracle.js';
 import { evaluateDeliveryCheckFreshness, signDeliveryCheck } from '../core/delivery-check-hash.js';
+import {
+  DELIVERY_PROMISE_OUTCOME_CONTRADICTION,
+  normalizeDeliveryPromiseOutcome,
+} from '../core/delivery-promise-outcome.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash, EMPTY_STORY_FILES_HASH } from '../core/evidence-freshness.js';
 import { buildStoryReadinessReport } from '../core/lifecycle-readiness.js';
 import { canFinishGuard, getGuardFailureReason, type StoryMachineContext } from '../core/machine.js';
@@ -15,6 +19,8 @@ import { getProcessFactRegistryEntry, hasProcessFactSemantic } from '../core/pro
 import { StoryStore } from '../core/store.js';
 import type { ClosingSelfCheck, DeliveryCheckData, DocsPromise, RealMachineTest, StoryInfo } from '../core/types.js';
 import { createDeliveryCheckHandlers } from '../handlers/delivery-check.js';
+import { MAIN_TOOLS } from '../cli-engine.js';
+import { z } from 'zod';
 
 const STORY_ID = 'B-delivery-fresh';
 const NOW = '2026-06-23T12:00:00.000Z';
@@ -284,6 +290,155 @@ function check(name: string, fn: () => void): void {
   fn();
   console.log(`  pass: ${name}`);
 }
+
+check('delivery-promise outcome table is total across single-field mutations and pairwise contradictions', () => {
+  const longWaiver = 'This delivery promise is explicitly waived with a durable auditable justification.';
+  const accepted: Array<[string, Record<string, unknown>, 'verified' | 'waived' | 'unresolved']> = [
+    ['met derives verifier', { status: 'met' }, 'verified'],
+    ['verified preserves verifier', { status: 'verified', verifiedBy: 'focused smoke' }, 'verified'],
+    ['waived requires durable reason', { status: 'waived', waiverReason: longWaiver }, 'waived'],
+    ['unverified evidence is explanation only', { status: 'unverified', evidence: 'Not yet checked.' }, 'unresolved'],
+    ['legacy verifier', { verifiedBy: 'legacy grep' }, 'verified'],
+    ['legacy waiver', { waiverReason: longWaiver }, 'waived'],
+    ['legacy empty fields', { status: ' ', verifiedBy: '', evidence: '', waiverReason: '' }, 'unresolved'],
+    ['legacy unresolved', {}, 'unresolved'],
+  ];
+  for (const [name, fields, expected] of accepted) {
+    const result = normalizeDeliveryPromiseOutcome({ docPath: `docs/${name}.md`, promise: name, ...fields });
+    assert.equal(result.ok, true, `${name} must be classified`);
+    if (result.ok) assert.equal(result.outcome, expected, `${name} outcome`);
+  }
+
+  const rejected: Array<[string, Record<string, unknown>]> = [
+    ['unknown status', { status: 'passed' }],
+    ['non-string status', { status: 1 }],
+    ['non-string verifier', { status: 'verified', verifiedBy: 1 }],
+    ['non-string evidence', { status: 'unverified', evidence: 1 }],
+    ['non-string waiver', { status: 'waived', waiverReason: 1 }],
+    ['waived missing reason', { status: 'waived' }],
+    ['waived short reason', { status: 'waived', waiverReason: 'too short' }],
+    ['unverified plus verifier', { status: 'unverified', verifiedBy: 'false certification' }],
+    ['unverified plus waiver', { status: 'unverified', waiverReason: longWaiver }],
+    ['waived plus verifier', { status: 'waived', verifiedBy: 'grep', waiverReason: longWaiver }],
+    ['met plus waiver', { status: 'met', waiverReason: longWaiver }],
+    ['verified plus waiver', { status: 'verified', verifiedBy: 'grep', waiverReason: longWaiver }],
+    ['legacy verifier plus waiver', { verifiedBy: 'grep', waiverReason: longWaiver }],
+  ];
+  for (const [name, fields] of rejected) {
+    const result = normalizeDeliveryPromiseOutcome({ docPath: `docs/${name}.md`, promise: name, ...fields });
+    assert.equal(result.ok, false, `${name} must be rejected`);
+    if (!result.ok) assert.equal(result.code, DELIVERY_PROMISE_OUTCOME_CONTRADICTION);
+  }
+
+  const schemaShape = MAIN_TOOLS.find(tool => tool.name === 'delivery_check_set')?.schema;
+  assert.ok(schemaShape, 'delivery_check_set public schema exists');
+  const schema = z.object(schemaShape);
+  const base = {
+    storyId: STORY_ID,
+    realMachineTests: realMachineTests(),
+    closingSelfCheck: closingSelfCheck(),
+  };
+  assert.equal(schema.safeParse({ ...base, docsPromises: accepted.map(([name, fields]) => ({ docPath: `docs/${name}.md`, promise: name, ...fields })) }).success, true);
+  for (const [name, fields] of rejected) {
+    const parsed = schema.safeParse({ ...base, docsPromises: [{ docPath: `docs/${name}.md`, promise: name, ...fields }] });
+    assert.equal(parsed.success, false, `CLI schema rejects ${name}`);
+    if (!parsed.success) assert.match(parsed.error.message, /delivery_promise_outcome_contradiction/);
+  }
+});
+
+check('direct handler rejects a contradictory envelope before delivery artifact or process mutation', () => {
+  const { root, store } = createFixture();
+  try {
+    const handlers = createDeliveryCheckHandlers({ store, root, scanRoot: join(root, 'packages/main') });
+    const beforeStatus = git(root, ['status', '--porcelain']);
+    assert.equal(store.readDeliveryCheck(STORY_ID), null);
+    assert.throws(() => handlers.delivery_check_set({
+      storyId: STORY_ID,
+      docsPromises: [{
+        docPath: 'docs/contradiction.md',
+        promise: 'Explicit unverified cannot self-certify.',
+        status: 'unverified',
+        verifiedBy: 'false certification',
+      }],
+      realMachineTests: realMachineTests(),
+      closingSelfCheck: closingSelfCheck(),
+      agentId: 'lattice-review-delivery',
+    }), /Blocked \[delivery_promise_outcome_contradiction\].*status=unverified cannot include verifiedBy.*delivery-check was not written/);
+    assert.equal(store.readDeliveryCheck(STORY_ID), null, 'contradiction must not write delivery-check.json');
+    assert.equal(git(root, ['status', '--porcelain']), beforeStatus, 'contradiction must not mutate story/process metadata');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+check('handler, machine readiness, and DONE oracle agree on every normalized outcome', () => {
+  const longWaiver = 'This delivery promise is explicitly waived with a durable auditable justification.';
+  const { root, store } = createFixture();
+  try {
+    const passing: DocsPromise[] = [
+      { docPath: 'docs/met.md', promise: 'met', status: 'met' },
+      { docPath: 'docs/verified.md', promise: 'verified', status: 'verified', verifiedBy: 'smoke' },
+      { docPath: 'docs/waived.md', promise: 'waived', status: 'waived', waiverReason: longWaiver },
+      { docPath: 'docs/legacy-verified.md', promise: 'legacy verified', verifiedBy: 'legacy smoke' },
+      { docPath: 'docs/legacy-waived.md', promise: 'legacy waived', waiverReason: longWaiver },
+    ];
+    for (const promise of passing) {
+      deliveryCheckSet(root, store, [promise]);
+      assert.equal(doneRow(store, root).status, 'pass', `${promise.docPath} passes DONE oracle`);
+      assert.equal(lifecycleDeliveryRow(store, root).row.code, 'delivery_check_passed', `${promise.docPath} passes readiness`);
+    }
+
+    deliveryCheckSet(root, store, [{
+      docPath: 'docs/unverified.md',
+      promise: 'Explicitly unresolved.',
+      status: 'unverified',
+      evidence: 'Evidence may explain but cannot certify.',
+    }]);
+    assert.equal(doneRow(store, root).status, 'fail');
+    assert.equal(lifecycleDeliveryRow(store, root).row.code, 'docs_promise_unresolved');
+    assert.match(getGuardFailureReason(STORY_ID, store, 'DONE', root, root) ?? '', /\[unverified_promise\]/);
+
+    const invalidRows = [
+      { status: 'passed' },
+      { status: 'unverified', verifiedBy: 'false certification' },
+      { status: 'unverified', waiverReason: longWaiver },
+      { status: 'waived', verifiedBy: 'grep', waiverReason: longWaiver },
+      { status: 'waived' },
+      { status: 'met', waiverReason: longWaiver },
+      { status: 'verified', waiverReason: longWaiver },
+      { verifiedBy: 'legacy grep', waiverReason: longWaiver },
+    ];
+    for (const [index, fields] of invalidRows.entries()) {
+      const docsPromises = [{
+        docPath: `docs/forged-${index}.md`,
+        promise: 'Hand-written contradictory row.',
+        ...fields,
+      }] as unknown as DocsPromise[];
+      const materialHash = currentMaterialHash(root, 'HEAD', root);
+      const headHash = currentGitHead(root);
+      const storyFilesHash = currentStoryFilesHash(root, 'HEAD', root);
+      assert.ok(materialHash && headHash && storyFilesHash);
+      store.writeDeliveryCheck(STORY_ID, {
+        storyId: STORY_ID,
+        checkedAt: NOW,
+        headHash,
+        materialHash,
+        storyFilesHash,
+        reviewRound: 'round-1',
+        agentId: 'lattice-review-delivery',
+        docsPromises,
+        realMachineTests: realMachineTests(),
+        closingSelfCheck: closingSelfCheck(),
+        _hash: signDeliveryCheck(STORY_ID, docsPromises, realMachineTests(), closingSelfCheck(), 'round-1', materialHash, storyFilesHash),
+      });
+      assert.equal(doneRow(store, root).status, 'fail', `forged invalid row ${index} blocks DONE oracle`);
+      assert.equal(canFinishGuard(machineContext(store, root)), false, `forged invalid row ${index} blocks machine`);
+      assert.match(getGuardFailureReason(STORY_ID, store, 'DONE', root, root) ?? '', /\[unverified_promise\]/);
+    }
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
 
 check('delivery_check_set records materialHash as binding and headHash as audit metadata', () => {
   const { root, store } = createFixture();
