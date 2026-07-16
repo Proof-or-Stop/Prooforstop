@@ -1,8 +1,8 @@
 {
   "schemaVersion": "proofbound.candidate-spec-set.v1",
   "storyId": "B-ebe4",
-  "corpusDigest": "94fde77facef77a622c96c68cd95ab5998cc0d400a27a24a411b9f47f2bbcfe0",
-  "seedDigest": "58293efd09b833c5be42b966cff0769780bbaba14e8195b94cc898a918731b39",
+  "corpusDigest": "4f1dffa9cebcc3c66c8808ed50c45d16d0c6f4d98bace2de65306436a16f0307",
+  "seedDigest": "0ada7dfb59bafaeeb0f80428f7b2d4fee68c78018ced24144345e1411e5c3310",
   "promptDigests": [],
   "candidates": [
     {
@@ -33,7 +33,7 @@
     },
     {
       "path": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
-      "contentHash": "f68d1fc7addd70b9e8881cbfdbd0dc183f184161359621896bb953dacba2acaf",
+      "contentHash": "871340fe97d6a43d8590de2cf22cbf1ad6550924cfe7a55766188701ad09cd57",
       "score": 100,
       "reasons": [
         {
@@ -84,6 +84,9 @@
       "cli engine ts"
     ],
     [
+      "runtime entrypoint authority smoke ts"
+    ],
+    [
       "runtime environment checks ts"
     ],
     [
@@ -99,6 +102,11 @@
         "documentFrequencyRatio": 0.7899159663865546
       },
       {
+        "term": "cli",
+        "documentCount": 103,
+        "documentFrequencyRatio": 0.865546218487395
+      },
+      {
         "term": "core",
         "documentCount": 82,
         "documentFrequencyRatio": 0.6890756302521008
@@ -112,16 +120,6 @@
         "term": "packages",
         "documentCount": 68,
         "documentFrequencyRatio": 0.5714285714285714
-      },
-      {
-        "term": "scripts",
-        "documentCount": 48,
-        "documentFrequencyRatio": 0.40336134453781514
-      },
-      {
-        "term": "src",
-        "documentCount": 61,
-        "documentFrequencyRatio": 0.5126050420168067
       }
     ]
   },
@@ -138,9 +136,9 @@
   "escalationReasons": [],
   "fullScan": false,
   "scanEscalationReason": null,
-  "storyInputDigest": "8a042b25b44bc0c7b8393b84746b0072a82cdaa2d126e943b744ed495df5c6f4",
-  "headHash": "6675b6359331fb94b061f4488ea3fb87daec9367",
-  "materialHash": "4085733cb282d72d04eb09f83ade263e114a37b37afec1bd4c7b73f6a482a48a",
-  "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-  "artifactDigest": "b36cd839a8ee58882c1e3484152c14e38fdbded6c59a2d4b83791f03345e9eba"
+  "storyInputDigest": "df1fe4a1f56c74e92f0de604f757995c9b45e403820b552eda21ca55ee2a8b5c",
+  "headHash": "193bff559d278931ac10e4fd7acf2fd771cd0770",
+  "materialHash": "34050b691a60a66a880c8fbaee7ee3d4cd3dbc9f6e9030a77865b89408bc2e05",
+  "storyFilesHash": "d4f8c5d6a5b437760a305e2e14f505f3333e03f4554334d5c05d2401ec0cdbb0",
+  "artifactDigest": "e53117b8080d843a0d9d1dbf2a3fffb634196cb7ae93ce2b3eacf7a695f991c3"
 }
