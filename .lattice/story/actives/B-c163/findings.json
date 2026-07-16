@@ -719,6 +719,64 @@
       ],
       "signatureTag": "edge|ts|layered-grace-applied",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c163:F-023",
+      "desc": "Distinct from F-021/F-022: the async live-smoke capture can let the CLI terminate successfully before its timeout Promise settles. runCapture unrefs timeoutTimer, heartbeatTimer, and the 250ms forceKill timer. When the 100ms timeout sends SIGTERM and the direct child closes promptly, child close records closed=true but intentionally does not call finish because timedOut=true; the only remaining path to finish is the unref force-kill timer. The local CLI entry calls runCli().catch(...) without top-level await, so no referenced handle keeps the process alive. Deterministic real CLI repro after build, three consecutive runs: `LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS=100 node packages/main/dist/cli.js live_smoke_transcript {\"storyId\":\"B-c163\",\"capture\":\"sleep 5\",\"json\":true}` prints only `[0.1s] running live_smoke_transcript...`, exits 0, emits zero stdout bytes, never prints done, and records no structured timeout JSON. The compiled focused smoke also failed once in this review with Node `Warning: Detected unsettled top-level await` at its separate-live-lock handler await, then passed on retries, confirming the same load-sensitive liveness race. Keep a referenced cleanup deadline until finish, or settle directly on close after timedOut while ensuring the process group has been terminated/reaped and all timers/listeners are cleared; add an actual CLI regression asserting non-silent structured timeout completion and non-success exit semantics. F-016/F-018/F-019 trust conditions themselves now pass: exact global realpath widens, chmod fake and PATH symlink-to-Node remain 60s, the active-entrypoint function parameter seam is removed, and all inline env/composition negatives remain 60s. Build, command-catalog, process-fact/fingerprint contract pass; live-smoke smoke is flaky as described.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-16T00:14:23.820Z",
+      "reviewRound": "2026-07-16T00:08:33.580Z",
+      "reviewRunId": "B-c163:RR-052",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/done-required-timeout-budget.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "60d2f29d48aa388193773deb5db24c8b2da1a133b121367a48d912caed738808",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "aadccc91de5ef6cd136eed4aa80e33a018a7405a617341f8f1314d63727e8c13",
+      "files": [
+        "packages/main/src/handlers/live-smoke-transcript.ts",
+        "packages/main/src/cli.ts",
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|distinct-async-live",
+      "signatureTagSource": "auto"
     }
   ]
 }
