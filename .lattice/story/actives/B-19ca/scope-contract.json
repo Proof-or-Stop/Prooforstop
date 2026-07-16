@@ -24,6 +24,7 @@
     "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
     "packages/main/src/tasks/command-catalog-smoke.ts",
     "packages/main/src/tasks/review-pass-discard-smoke.ts",
+    "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
     "scripts/verify-process-fact-contract.mjs"
   ],
   "protectedFiles": [
@@ -36,8 +37,8 @@
     "packages/main/src/core/owner-session.ts",
     "packages/main/src/core/scope-diff-pack.ts"
   ],
-  "scopeChangeReason": "OQ-B19CA-001 resolved by adding canonical owner docs/requirements/decisions/role-separation.md; no runtime scope expansion beyond C4.",
+  "scopeChangeReason": "DEV regression-only extension: correcting REVIEW agents to story-only and REVIEW-phase makes the old PLAN plus itemId invocation in candidate-spec-routing-smoke invalid; update only that existing smoke while candidate routing production code stays excluded.",
   "acknowledgements": [],
   "createdAt": "2026-07-16T10:24:09.629Z",
-  "updatedAt": "2026-07-16T10:31:37.923Z"
+  "updatedAt": "2026-07-16T10:58:08.453Z"
 }
