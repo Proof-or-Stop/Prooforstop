@@ -1,4 +1,5 @@
 import { canonicalDigest } from './authority-signing.js';
+import { isCanonicalStoryId } from './lifecycle-registry.js';
 
 export const HOST_VERDICT_VALIDATION_DIGEST_SCHEMA = 'lattice.quorum_submit.validation_digest.v1';
 export const HOST_VERDICT_PROMPT_DIGEST_SCHEMA = 'lattice.quorum_submit.prompt_digest.v1';
@@ -29,11 +30,14 @@ function requireCanonicalField(name: string, value: unknown): string {
 }
 
 export function deriveCanonicalHostKeyId(storyId: string, hostId: string): string {
-  return `quorum:${requireCanonicalField('storyId', storyId)}:${requireCanonicalField('hostId', hostId)}:key`;
+  const canonicalStoryId = requireCanonicalField('storyId', storyId);
+  if (!isCanonicalStoryId(canonicalStoryId)) throw new Error('host-verdict bindings require a canonical storyId');
+  return `quorum:${canonicalStoryId}:${requireCanonicalField('hostId', hostId)}:key`;
 }
 
 export function deriveHostVerdictBindings(input: HostVerdictBindingInput): HostVerdictBindings {
   const storyId = requireCanonicalField('storyId', input.storyId);
+  if (!isCanonicalStoryId(storyId)) throw new Error('host-verdict bindings require a canonical storyId');
   const materialDigest = requireCanonicalField('materialDigest', input.materialDigest);
   const storyFilesHash = requireCanonicalField('storyFilesHash', input.storyFilesHash);
   const hostId = requireCanonicalField('hostId', input.hostId);
