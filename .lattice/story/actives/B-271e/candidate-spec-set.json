@@ -2,7 +2,7 @@
   "schemaVersion": "proofbound.candidate-spec-set.v1",
   "storyId": "B-271e",
   "corpusDigest": "c32857bb0dce01204444115f085cb28f4df249ebca7e92092085ebdf61db9d44",
-  "seedDigest": "31da2ae2c7c816ba1e163d8408b2ddc1a12bc2314829581a6720fdb32f3682b2",
+  "seedDigest": "0e85216e6acc5020edf387b01af1db1189aba8883dbb9aae46f93710ae0b81ff",
   "promptDigests": [],
   "candidates": [
     {
@@ -1607,10 +1607,13 @@
       "done oracle ts"
     ],
     [
+      "flow stability smoke ts"
+    ],
+    [
       "handlers"
     ],
     [
-      "machine ts"
+      "lattice config json"
     ]
   ],
   "queryFiltering": {
@@ -1625,11 +1628,6 @@
         "term": "core",
         "documentCount": 82,
         "documentFrequencyRatio": 0.6890756302521008
-      },
-      {
-        "term": "main",
-        "documentCount": 114,
-        "documentFrequencyRatio": 0.957983193277311
       }
     ]
   },
@@ -1647,10 +1645,10 @@
     "high_risk_lifecycle_gate_process_fact_or_global_rename"
   ],
   "fullScan": true,
-  "scanEscalationReason": "High-risk L4 delivery-gate and production side-effect-guard change requires the policy-mandated one-time local requirements corpus scan after verificationIntent and PLAN inputs stabilized.",
-  "storyInputDigest": "15729406bb8d65ecbe3b1855ef2c2f4d2487429c4b50352ce7ad16d68284529a",
-  "headHash": "a94fd21059dd00333b8ca7b00c97b4216eda185e",
+  "scanEscalationReason": "High-risk L4 delivery-gate and production side-effect-guard change requires the policy-mandated one-time local requirements corpus scan after verificationIntent, ProofStory, understanding, decision, and execution plan stabilized.",
+  "storyInputDigest": "cd4c598dc4f28c547102b362cd884321a3b3895ee70d79b4e4167961239b978f",
+  "headHash": "e9f4343ab2ec1e048214b9fd3d3c8ecb26b8eac5",
   "materialHash": "2f6f4031e8d5450664f763dda3dcf819b026908c17c1b40fa1c98e1e0960f8cf",
   "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-  "artifactDigest": "c5c7cf39f4b6d1e4e13bfa2ff1601756ce0ec841dc3aa3c1494e0c9541dbaefc"
+  "artifactDigest": "bf42e3b97ef88d41e53c98b3f2b11fb003206b5cb98dd2db0136e0e303af6b89"
 }

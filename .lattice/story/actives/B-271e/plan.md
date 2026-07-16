@@ -1,38 +1,42 @@
 # B-271e Execution Plan
 
 ## Outcome
-A contradictory delivery promise is rejected before artifact persistence with stable reason delivery_promise_outcome_contradiction. Valid promise states still close normally. Production core/handler code cannot route arbitrary SMOKE/TEST environment data into filesystem or process sinks, while ordinary runtime environment reads and sanitized bounded controls remain valid.
+Contradictory delivery promises fail before persistence with reason delivery_promise_outcome_contradiction; valid states continue normally. A fast independent production test-seam guard rejects arbitrary SMOKE/TEST-controlled filesystem or process targets while accepting ordinary env reads and mechanically sanitized bounded controls.
 
 ## CHK-001 — Make PASS evidence envelopes total and contradiction-safe
 
-### Scope
-Create a pure delivery-promise outcome normalizer as the single semantic owner for status, verifiedBy, evidence, and waiverReason combinations. The command schema rejects contradictions at the CLI boundary; delivery_check_set repeats runtime validation before signing/writing; machine and done-oracle consume the same predicate. Existing routine validation reuse semantics remain unchanged and its mutation matrix is a regression reference.
+### Semantic owner and consumers
+Create pure core/delivery-promise-outcome.ts as the total normalizer used by delivery_check_set, machine, and done-oracle. Command-catalog schema independently rejects the same contradictions at the CLI boundary. Update types plus L4 process-fact registry/levels and verify-process-fact-contract so all writer/reader consumers are mechanically pinned. Routine validation reuse behavior is unchanged; its existing complete mutation matrix is regression reference only.
 
-### Accepted states
-- status=met or verified requires non-empty verifiedBy/evidence semantics after handler normalization.
-- status=waived requires a waiverReason of at least 30 characters and must not carry verification claims.
-- status=unverified must not carry verifiedBy or waiverReason and is unresolved/blocking.
-- documented legacy rows with missing status are accepted only through one explicit compatibility rule and never convert an explicit unverified status into PASS.
+### Exact accepted table
+- status=met or verified normalizes to verified; the handler may derive verifiedBy=status:<status> to preserve documented current behavior; evidence is optional. waiverReason is forbidden.
+- status=waived requires waiverReason length at least 30; verifiedBy is forbidden; evidence may explain the waiver but cannot convert it to verification.
+- status=unverified is always unresolved/blocking; evidence is allowed as explanation, but verifiedBy and waiverReason are forbidden.
+- missing status is legacy-compatible only as exactly one of: nonempty verifiedBy means verified, waiverReason length at least 30 means waived, or neither means unresolved. verifiedBy plus waiverReason is contradictory.
+- empty strings normalize as absent before classification. Unknown statuses fail schema/runtime validation.
 
-### Files and implementation
-Add packages/main/src/core/delivery-promise-outcome.ts; update types, command catalog, delivery handler, machine, done-oracle, process-fact registries, delivery freshness/flow tests, and process-fact contract. Reject before store.writeDeliveryCheck and include the promise path plus stable reason code without leaking content.
+### Persistence and gate behavior
+The handler classifies every row before signing or store.writeDeliveryCheck. Any invalid row aborts the entire write with stable reason delivery_promise_outcome_contradiction plus docPath. machine and done-oracle use the same classification and fail closed on invalid or unresolved rows, including hand-written legacy artifacts.
 
 ### Verification
-Generate single-field mutations and pairwise contradictions covering missing, unknown, empty, mutually exclusive, and conflicting values. Run build, delivery-check-freshness smoke, flow-stability smoke, process-fact contract, and validation-evidence-reuse smoke to prove no reuse regression. Positive controls cover met, verified, waived, unresolved unverified, and the explicit legacy compatibility case.
+Extend delivery-check-freshness and flow-stability smokes with accepted controls, every single-field mutation, pairwise contradictions, direct-handler and CLI paths, pre-write no-artifact assertion, and DONE readiness consumption. Run build, both smokes, process-fact contract, and validation-evidence-reuse smoke to prove no reuse change.
 
 ## CHK-002 — Block production test seams from reaching side-effect sinks
 
-### Scope
-Bound scanning to packages/main/src/core and packages/main/src/handlers. Flag SMOKE/TEST-named environment values that flow directly or through simple locals into filesystem path sinks mkdir/write/rm/rename and process command or argument sinks exec/execFile/spawn. Exclude tasks and ordinary environment reads. Recognize only explicit bounded numeric/enum sanitizers and fixed-command selection as safe.
+### Guard boundary
+Create packages/main/src/tasks/production-test-seam-guard.ts as a fast TypeScript AST guard over packages/main/src/core and packages/main/src/handlers only. Wire it into lattice.config.json routine validate commands and root package.json npm test. Task source is excluded from its production scan.
+
+### Forbidden flows
+Reject SMOKE/TEST-named environment values that flow directly or through simple local aliases into filesystem path sinks mkdir/write/rm/rename and into process executable/argument sinks exec/execFile/spawn. Diagnostics identify source file, env key, sink, and stable reason. No whole-repository or interprocedural taint engine is added.
+
+### Accepted controls
+Allow ordinary environment reads with no side-effect flow; validated PATH/runtime selection; envPositiveInt-style positive integer values; explicit finite enum parsing that selects fixed constants; and fixed commands whose only env influence is a bounded sanitized number/enum. These are recognized by AST/data-flow rules and positive fixtures, never by whole-file allowlist. done-prepare stays unchanged only if it passes these mechanical rules.
 
 ### Verifier seam migration
-Remove the arbitrary LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_READY_FILE and HOLD_FILE path capability from production verifier logic. Preserve lock-race coverage using a capability-limited mechanism that cannot select arbitrary filesystem paths through CLI/environment input, and update validate-execution-lock smoke to prove the real lock ordering without production arbitrary-write capability.
-
-### Guard implementation
-Extend scripts/verify-process-fact-contract.mjs with a bounded TypeScript AST guard and embedded positive/negative fixtures. Negative cases include direct and local-propagated env path into writeFileSync and env executable/args into spawn. Positive cases include PATH/runtime reads, envPositiveInt-style bounded numbers, enum selection of fixed constants, and task-only test code. The live production scan must identify source location and sink in a stable diagnostic.
+Remove arbitrary LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_READY_FILE/HOLD_FILE path capability from production verifier. Preserve the lock-order race test with a capability-limited internal mechanism unavailable from CLI/environment and unable to accept caller-selected paths, then update validate-execution-lock smoke.
 
 ### Verification
-Run build, validate-execution-lock smoke, process-fact contract, and focused negative/positive fixture assertions. Confirm the production scan reports PASS on current core/handlers after migration. No external hosts, network, fixture directory edits, or unrelated done_prepare refactor.
+Negative fixtures cover direct and simple-local env path to writeFileSync/mkdir/rm/rename and env executable/args to spawn/exec. Positive fixtures cover PATH reads, bounded numeric and enum controls, fixed commands, and task-only code. Run build, the new guard, validate-execution-lock smoke, and routine/root wiring assertions.
 
 ## Sequencing and rollback
-Implement CHK-001 and its tests first, then CHK-002. Keep each checklist item in its own implementation commit. If the seam guard creates broad false positives, roll back the guard commit and narrow data-flow/sanitizer semantics; do not add blanket allowlists. If delivery compatibility breaks a valid legacy fixture, document the exact legacy row and encode one explicit compatibility branch rather than weakening explicit unverified rejection.
+Implement CHK-001 first, then CHK-002, one implementation commit each. Do not weaken explicit unverified rejection to preserve malformed artifacts. If guard false positives appear, narrow modeled flows/sanitizers and add exact controls; never add blanket file allowlists. No external hosts, network operations, fixture-directory edits, done-prepare timeout refactor, unrelated evidence migration, or review-policy changes.
