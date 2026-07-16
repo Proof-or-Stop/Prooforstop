@@ -24,7 +24,7 @@
       "desc": "packages/main/src/handlers/verifier.ts:578-603 — reuse snapshots material dirty paths only once, then the final TOCTOU check re-reads only HEAD. A concurrent uncommitted source/config write after captureEvidenceHashSnapshot leaves HEAD unchanged, so clean remains true and cached PASS can be returned over a dirty workspace. Recheck material dirty/status immediately before accepting reuse (or use the existing snapshot reuse checker) and add a deterministic dirty-state race test; severity high because this can manufacture PASS for unvalidated working-tree code.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-16T14:31:53.870Z",
@@ -32,7 +32,11 @@
       "reviewRunId": "B-914f:RR-002",
       "_hash": "fd177a4a547385edfa6b637d09a3d3f4ed10f18b6732be9b92c58f3ad32c67cc",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit e05e14fec3 reuses captureEvidenceHashSnapshot plus checkEvidenceHashSnapshotReuse under the lock; deterministic between-snapshot source-write seam proves worktree-dirty and executes. Dedicated smoke PASS.",
+      "resolvedAt": "2026-07-16T14:46:22.718Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-914f:F-003",
