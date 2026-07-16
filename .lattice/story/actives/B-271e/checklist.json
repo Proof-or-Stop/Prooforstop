@@ -1,0 +1,30 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make PASS evidence envelopes total and contradiction-safe",
+      "context": "Use the B-914f F-010/F-012 history and B-ebe4 delivery_check_set unverified+verifiedBy false PASS as concrete regressions. Define one normalized PASS predicate/envelope, reject missing/unknown/nonzero/conflicting fields, and generate field mutation plus pairwise contradiction tests. Keep CLI schema and handler/gate enforcement aligned.",
+      "relatedDocs": [
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+        "docs/requirements/decisions/testing-completeness.md",
+        "AGENTS.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Block production test seams from reaching side-effect sinks",
+      "context": "Use B-914f F-011 as regression: an env-derived smoke seam flowed into writeFileSync arbitrary path. Add a bounded static/AST guard over production core/handlers that rejects SMOKE/TEST env switches and env-derived flows into write/rm/rename/exec/spawn sinks; race tests should use temp-repo pure helpers or capability-limited injected callbacks.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+        "AGENTS.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
