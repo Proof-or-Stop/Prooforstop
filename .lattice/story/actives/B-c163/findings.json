@@ -496,7 +496,7 @@
       "desc": "The injection boundary is fixed, but the widened budget rejects the repository actual standard global lattice executable, so a normal direct `lattice done_required_validate` capture still receives only 60000ms. In trustedLatticeExecutable, activeEntrypoint is accepted as global only when its realpath matches /node_modules/@lattice/core/dist/cli.js. Here `command -v lattice` is /Users/jek/.nvm/versions/node/v22.13.0/bin/lattice and its realpath is /Users/jek/Documents/Work/proofbound/packages/main/dist/cli.js, which is the active verified global CLI but does not match that regex and is outside the story worktree root. Repro after build: set process.argv[1] to that actual shim and call liveSmokeCaptureBudget(process.cwd(), `lattice done_required_validate --storyId=B-c163`, process.env); result is timeoutMs=60000, source=fixed-arbitrary-command, recognizedCommand=null. The project candidate does not rescue normal use: worktree bin/lattice.js is tracked mode 100644, while the smoke creates a synthetic chmod 0755 bin/lattice.js, so its positive case does not represent either shipped entrypoint. This leaves the original long direct closeout capture path functionally unrecognized despite the new safety parser. Resolve the global/project executable through the existing runtime entrypoint/realpath contract, or safely accept the current running CLI realpath when the PATH executable resolves to that same verified entrypoint; add a regression using the actual global-symlink layout rather than only a chmod fixture. PATH/LD_PRELOAD/NODE_OPTIONS/inline timeout assignments and ;, &&, pipe, redirect, command substitution, backtick and newline composition all independently remained at 60000ms in this review.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-15T23:47:56.380Z",
@@ -540,7 +540,11 @@
         "packages/main/src/core/runtime-fact-registry.ts"
       ],
       "signatureTag": "edge|ts|injection-boundary-fixed",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Round 12 quality verification confirms the real command-v lattice global symlink realpath equals the active CLI and receives the derived closeout budget with cleanup grace; path-shape hardcoding was removed.",
+      "resolvedAt": "2026-07-16T00:26:09.797Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c163:F-019",
