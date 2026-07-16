@@ -130,6 +130,13 @@ function assertHandlerExecutedThenReused(
     const first = run();
     assert.equal(first.status, 0, `${first.stdout}\n${first.stderr}`);
     assert.match(`${first.stdout}\n${first.stderr}`, /"disposition":"executed"/);
+    if (sourceKind === 'configured' || sourceKind === 'fallback') {
+      assert.match(
+        `${first.stdout}\n${first.stderr}`,
+        /ran:/,
+        `${sourceKind} execution must retain per-command ran audit logs`,
+      );
+    }
     assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, commandCount);
     // Simulate the trusted checklist verificationEvidence refresh that followed
     // B-19ca's command PASS. Some runtime audit rows intentionally remain after
@@ -180,6 +187,19 @@ function assertHandlerExecutedThenReused(
     assert.match(`${second.stdout}\n${second.stderr}`, /"disposition":"reused"/);
     assert.match(`${second.stdout}\n${second.stderr}`, /"commandExecutions":0/);
     assert.match(`${second.stdout}\n${second.stderr}`, /trusted-story-metadata-descendant/);
+    assert.match(`${second.stdout}\n${second.stderr}`, /routine validation reused; commandExecutions=0/);
+    assert.doesNotMatch(
+      `${second.stdout}\n${second.stderr}`,
+      /ran:/,
+      'reuse must not claim that any validation command ran',
+    );
+    if (sourceKind === 'validate-file') {
+      assert.doesNotMatch(
+        `${second.stdout}\n${second.stderr}`,
+        /running: npx tsx/,
+        'validate-file reuse must not claim that the validator is running',
+      );
+    }
     assert.doesNotMatch(
       `${second.stdout}\n${second.stderr}`,
       /routine validation reuse refused:/,

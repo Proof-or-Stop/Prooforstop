@@ -1020,9 +1020,6 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           : fallbackCommands;
         const usingConfigured = configuredCommands.length > 0;
         const fallbackDiscoveryDetail = 'validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery';
-        ctx.log?.(usingConfigured
-          ? `running ${commands.length} configured validate.command(s)${focus ? ` for focus=${focus}` : ''}`
-          : `validate.ts/js/mts not found and no configured validate.command(s); running ${commands.length} advisory fallback validation command(s)`);
         const runPlanAndPersist = async () => {
           const built = args.story ? buildStoryRoutineIdentity({
             ctx,
@@ -1035,7 +1032,13 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           const reuse = built && args.story
             ? evaluateStoryRoutineReuse({ ctx, storyId: args.story, gitCwd: handlerGitCwd, identity: built.identity, coverage: built.snapshot.coverage })
             : null;
-          if (reuse?.reusable && built) return reusedStoryValidationResult({ snapshot: built.snapshot, identity: built.identity, reuse, focus });
+          if (reuse?.reusable && built) {
+            ctx.log?.('routine validation reused; commandExecutions=0');
+            return reusedStoryValidationResult({ snapshot: built.snapshot, identity: built.identity, reuse, focus });
+          }
+          ctx.log?.(usingConfigured
+            ? `running ${commands.length} configured validate.command(s)${focus ? ` for focus=${focus}` : ''}`
+            : `validate.ts/js/mts not found and no configured validate.command(s); running ${commands.length} advisory fallback validation command(s)`);
           const base = await executeValidationPlan({
             provider: usingConfigured ? 'lattice-verifier-configured-commands' : 'lattice-verifier-fallback-commands',
             commands,
@@ -1084,7 +1087,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             command: 'validate',
           }, runPlanAndPersist)
           : await runPlanAndPersist();
-        for (const cmd of commands) {
+        for (const cmd of decorated.commands ?? []) {
           ctx.log?.(`ran: ${cmd.command} ${cmd.args.join(' ')}`);
         }
         if (args.json) return JSON.stringify(decorated);
@@ -1130,16 +1133,18 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         tsArgs.push('--json');
       }
 
-      ctx.log?.(`running: npx tsx ${tsArgs.join(' ')}`);
-      const runValidateFile = () => runValidationCommand({
-        label: validateFile,
-        command: 'npx',
-        args: ['tsx', ...tsArgs],
-      }, projectRoot, validateFileDefaultTimeoutMs(), {
-        progress: validationProgressReporter(ctx),
-        commandIndex: 1,
-        totalCommands: 1,
-      });
+      const runValidateFile = () => {
+        ctx.log?.(`running: npx tsx ${tsArgs.join(' ')}`);
+        return runValidationCommand({
+          label: validateFile,
+          command: 'npx',
+          args: ['tsx', ...tsArgs],
+        }, projectRoot, validateFileDefaultTimeoutMs(), {
+          progress: validationProgressReporter(ctx),
+          commandIndex: 1,
+          totalCommands: 1,
+        });
+      };
       const runValidateFileAndRender = async () => {
         const identityCommand: ValidationCommand = {
           label: validateFile,
@@ -1160,6 +1165,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           ? evaluateStoryRoutineReuse({ ctx, storyId: args.story, gitCwd: handlerGitCwd, identity: built.identity, coverage: built.snapshot.coverage })
           : null;
         if (reuse?.reusable && built) {
+          ctx.log?.('routine validation reused; commandExecutions=0');
           const reused = reusedStoryValidationResult({ snapshot: built.snapshot, identity: built.identity, reuse, focus });
           return args.json ? JSON.stringify(reused) : renderExternalResult(reused);
         }
