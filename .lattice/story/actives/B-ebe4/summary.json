@@ -1,0 +1,56 @@
+{
+  "storyId": "B-ebe4",
+  "changes": "Self-host linked worktrees now reject a stale main/global Lattice runtime before command lookup, handlers, hooks, validation, or mutation; diagnostics emit stale_global_runtime_in_worktree plus one shell-safe worktree-local node bin/lattice.js recovery command. Runtime facts, guards, docs, and both fingerprint contracts are synchronized.",
+  "usage": "From a Proofbound story worktree, use node bin/lattice.js <command>. If a stale global lattice entrypoint is invoked, copy and run the emitted cd -- <worktree> && node bin/lattice.js <same arguments> recovery command; only explicitly tagged global-fallback session_brief is exempt.",
+  "expectedOutcome": "A stale global self-host invocation is blocked before dispatch with reason stale_global_runtime_in_worktree, executes zero handlers, and prints one safe local recovery command; local worktree and external consumer runtimes continue normally.",
+  "actualTranscript": "Runtime entrypoint authority smoke: PASS — stale global calls executed 0 handlers; local and external controls passed.",
+  "outcomeDiff": "No product-visible difference from the expected outcome; the captured real-machine transcript matches the acceptance claim.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Review assurance is degraded-single-host rather than full two-host quorum because real host CLI routing stalled; root npm test passed but took 844.5 seconds with poor subtest progress visibility.",
+  "pitfalls": "A stale global CLI initially validated the wrong runtime; the new guard prevents recurrence. DONE-required first exposed two unsynchronized fingerprint literals, fixed in-story. Routine validation then passed 45/45 and DONE-required passed; avoid rerunning unchanged suites because fresh PASS reuse is now available.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 145909
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 41027
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 862031
+    },
+    "DEV": {
+      "count": 6,
+      "durationMs": 2286141
+    },
+    "REVIEW": {
+      "count": 6,
+      "durationMs": 3232269
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 1567696
+    }
+  },
+  "totalDurationMs": 8135679,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-16T22:58:26.367Z",
+  "updatedAt": "2026-07-16T22:58:26.367Z"
+}
