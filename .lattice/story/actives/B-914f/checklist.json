@@ -124,6 +124,17 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "A second unchanged full validation prints PASS with disposition=reused and runs zero validation commands; any mismatch prints a refusal reason and executes normally.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/core/validation-executor.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ]
       }
     },
     {
