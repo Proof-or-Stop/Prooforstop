@@ -4,7 +4,7 @@
   "title": "Reuse fresh routine validation PASS evidence on unchanged material",
   "description": "Prevent ordinary lattice validate and REVIEW-to-TEST validation from re-executing an unchanged validation plan when a trustworthy PASS already exists. B-c163 evidence showed 5 redundant successful re-runs on identical materialHash+storyFilesHash costing 1,926,151ms (32.10 minutes); B-19ca reproduced the control-flow gap when 45/45 commands passed but stale verification coverage forced a second identical 370-second execution after evidence refresh. Implement a fail-closed reuse decision using shared trusted metadata lineage plus a routine validation identity that binds command specs, entrypoint digests, focus/full/profile, and verification-policy inputs. Legacy/malformed/mismatched evidence must execute; reuse must occur inside the validation lock with HEAD recheck and must not rewrite evidence or create metadata commits.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "DEV",
   "priority": "high",
   "riskSignals": [
     {
@@ -56,6 +56,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-07-16T14:28:44.516Z",
+      "branch": "story/B-914f",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-16T14:33:30.996Z",
       "branch": "story/B-914f",
       "user": "Harmonygo",
       "sessionId": "codex-wa-final",
