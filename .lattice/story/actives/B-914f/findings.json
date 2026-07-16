@@ -43,7 +43,7 @@
       "desc": "packages/main/src/core/validation-evidence-reuse.ts:177-186,246-248 — isReusableCommandPass accepts PASS+complete with any nonnegative commandCount and does not bind it to currentIdentity.commands.length or reject contradictory optionalFailureCount/failureKind fields. Thus malformed evidence claiming commandCount=0 can reuse a 45-command identity without proving any command ran, violating CHK-001/004/005 forged-combination fail-closed requirements. Mechanically validate count equality and the full PASS invariant, with malformed evidence tests; severity high.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-16T14:31:56.638Z",
@@ -51,7 +51,11 @@
       "reviewRunId": "B-914f:RR-002",
       "_hash": "69e5a75e6e5ec1c84175110a6d7db8c8719199835643c951a56583fdbf3190c9",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit e05e14fec3 requires commandCount to equal current identity length and validates required/optional counts plus contradictory failureKind. Malformed matrix PASS.",
+      "resolvedAt": "2026-07-16T14:46:23.417Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-914f:F-004",
