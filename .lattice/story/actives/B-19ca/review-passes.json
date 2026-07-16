@@ -436,6 +436,29 @@
       },
       "readDiagnostics": [],
       "_hash": "daef39dc3d9024a5eabcec77b7cd3456f3f6c42a5a9b936f85dda9e843a49cb2"
+    },
+    {
+      "id": "B-19ca:RP-014",
+      "agent": "lattice-review-docs",
+      "note": "Round 7 incremental docs review: b54f43ca27 changes only a smoke environment fixture, not runtime authority semantics. The execution plan and role-separation decision already define AGENT_DISPATCH_REGISTRY as the sole reviewer authority, explicit aliases, unknown-identity fail-closed behavior, and explicit compatibility; no documentation update is required for clearing an inherited unknown LATTICE_AGENT so the existing omitted-host compatibility path can be exercised.",
+      "createdAt": "2026-07-16T13:20:42.695Z",
+      "reviewRound": "2026-07-16T13:17:00.741Z",
+      "reviewRunId": "B-19ca:RR-036",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/verify-nested-worktree-bootstrap.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/agent-dispatch-registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fe685916e1c1d2264650c547e31aef626404f4e7cfb27e2ab55ea0e53116a487"
     }
   ]
 }
