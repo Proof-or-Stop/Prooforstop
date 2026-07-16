@@ -110,7 +110,45 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run a table-driven matrix containing every canonical type and alias crossed with every lifecycle phase, supported identifier kind/cardinality, and expected prompt class -> each row matches registry policy and every registry entry/alias appears at least once; WHY: supplies exhaustive positive coverage and detects untested additions.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Run process-fact contract verification after registering any changed gate-consumed reviewer lane, evidence ownership, or dispatch semantics -> registry and verification script agree and the contract check passes; WHY: preserves the required prompt-plus-mechanical-gate dual contract.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Derive test rows from the registry and compare coverage sets -> cardinality is exact for canonical types, aliases, phases, identifier forms, prompt classes, permitted mutations, and denied mutations, with no duplicate or orphan rows; WHY: makes completeness mechanically measurable rather than asserted.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Parse every CLI hint/example produced for story-level and item-level dispatch and validate it against the public command schema -> examples are valid JSON, use accepted field names, and satisfy the same phase/cardinality rules; WHY: prevents syntactically plausible but unusable guidance.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "For every matrix row, mutate one dimension at a time to an unknown type, disallowed alias spelling, wrong phase, wrong identifier kind/count, mismatched prompt class, or denied mutation class -> each negative case fails closed with no prompt or state mutation; WHY: proves all registry axes are enforcement boundaries.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Add a synthetic registry type or alias without adding corresponding matrix coverage and process-fact registration where required -> completeness/contract tests fail with the missing type or semantic explicitly identified; WHY: stops future registry growth from bypassing coverage and audit obligations.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
