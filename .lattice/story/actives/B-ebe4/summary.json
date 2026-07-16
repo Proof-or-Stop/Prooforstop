@@ -2,9 +2,9 @@
   "storyId": "B-ebe4",
   "changes": "Self-host linked worktrees now reject a stale main/global Lattice runtime before command lookup, handlers, hooks, validation, or mutation; diagnostics emit stale_global_runtime_in_worktree plus one shell-safe worktree-local node bin/lattice.js recovery command. Runtime facts, guards, docs, and both fingerprint contracts are synchronized.",
   "usage": "From a Proofbound story worktree, use node bin/lattice.js <command>. If a stale global lattice entrypoint is invoked, copy and run the emitted cd -- <worktree> && node bin/lattice.js <same arguments> recovery command; only explicitly tagged global-fallback session_brief is exempt.",
-  "expectedOutcome": "A stale global self-host invocation is blocked before dispatch with reason stale_global_runtime_in_worktree, executes zero handlers, and prints one safe local recovery command; local worktree and external consumer runtimes continue normally.",
-  "actualTranscript": "Runtime entrypoint authority smoke: PASS — stale global calls executed 0 handlers; local and external controls passed.",
-  "outcomeDiff": "No product-visible difference from the expected outcome; the captured real-machine transcript matches the acceptance claim.",
+  "expectedOutcome": "A correct worktree-local runtime emits no authority-specific success banner and the requested command proceeds with its normal output. A stale global self-host invocation is blocked before dispatch with reason stale_global_runtime_in_worktree, executes zero handlers, and prints one safe local recovery command.",
+  "actualTranscript": "Correct worktree-local runtime: no extra authority banner; the requested command executed normally. Stale global runtime: blocked with stale_global_runtime_in_worktree before handlers and returned the worktree-local recovery command.",
+  "outcomeDiff": "No functional difference from the refined expected outcome. The absence of an extra success banner is intentional design: authority is silent on success and diagnostic only on stale-runtime failure.",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
   "realMachineCoverage": {
@@ -23,12 +23,12 @@
       "durationMs": 41027
     },
     "PLAN": {
-      "count": 1,
-      "durationMs": 862031
+      "count": 2,
+      "durationMs": 900928
     },
     "DEV": {
-      "count": 6,
-      "durationMs": 2286141
+      "count": 7,
+      "durationMs": 2340326
     },
     "REVIEW": {
       "count": 6,
@@ -36,10 +36,10 @@
     },
     "TEST": {
       "count": 2,
-      "durationMs": 1567696
+      "durationMs": 1787931
     }
   },
-  "totalDurationMs": 8135679,
+  "totalDurationMs": 8448996,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-07-16T22:58:26.367Z",
-  "updatedAt": "2026-07-16T22:58:26.367Z"
+  "updatedAt": "2026-07-16T23:03:39.684Z"
 }
