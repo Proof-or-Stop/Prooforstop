@@ -8,6 +8,13 @@ import { dirname, join } from 'node:path';
 import { canonicalDigest } from '../core/authority-signing.js';
 import { resetConfigCache } from '../core/config.js';
 import { currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import {
+  deriveCanonicalHostKeyId,
+  deriveHostVerdictBindings,
+  HOST_VERDICT_PROMPT_DIGEST_SCHEMA,
+  HOST_VERDICT_PROMPT_PURPOSE,
+  HOST_VERDICT_VALIDATION_DIGEST_SCHEMA,
+} from '../core/host-verdict-bindings.js';
 import { evaluateReviewAssuranceFloor } from '../core/review-assurance-floor.js';
 import { StoryStore } from '../core/store.js';
 import { listVerdicts, summarizeVerdicts } from '../core/verdicts.js';
@@ -201,6 +208,110 @@ const { root, store, registry } = makeFixture();
 
 try {
   process.chdir(root);
+
+  check('shared binding derivation is byte-identical to the former quorum envelopes', () => {
+    const vector = {
+      storyId: STORY_ID,
+      headHash: 'head-vector',
+      materialDigest: 'material-vector',
+      storyFilesHash: 'story-files-vector',
+      testEvidence: { result: 'PASS', command: 'vector' },
+      hostId: 'host-vector',
+      provider: 'codex',
+      sessionId: 'session-vector',
+    };
+    const keyId = `quorum:${STORY_ID}:host-vector:key`;
+    const actual = deriveHostVerdictBindings(vector);
+    assert.equal(actual.keyId, keyId);
+    assert.equal(actual.keyId, deriveCanonicalHostKeyId(STORY_ID, 'host-vector'));
+    assert.equal(actual.validationDigest, canonicalDigest({
+      schemaVersion: 'lattice.quorum_submit.validation_digest.v1',
+      storyId: STORY_ID,
+      headHash: 'head-vector',
+      materialDigest: 'material-vector',
+      storyFilesHash: 'story-files-vector',
+      testEvidence: vector.testEvidence,
+    }));
+    assert.equal(actual.promptDigest, canonicalDigest({
+      schemaVersion: 'lattice.quorum_submit.prompt_digest.v1',
+      purpose: 'local voluntary 3x2 review quorum after signed reviewer passes',
+      storyId: STORY_ID,
+      hostId: 'host-vector',
+      provider: 'codex',
+      sessionId: 'session-vector',
+      keyId,
+      materialDigest: 'material-vector',
+      storyFilesHash: 'story-files-vector',
+    }));
+    assert.equal(HOST_VERDICT_VALIDATION_DIGEST_SCHEMA, 'lattice.quorum_submit.validation_digest.v1');
+    assert.equal(HOST_VERDICT_PROMPT_DIGEST_SCHEMA, 'lattice.quorum_submit.prompt_digest.v1');
+    assert.equal(HOST_VERDICT_PROMPT_PURPOSE, 'local voluntary 3x2 review quorum after signed reviewer passes');
+  });
+
+  check('shared derivation preserves optional-head and missing-evidence envelopes', () => {
+    const base = {
+      storyId: STORY_ID,
+      materialDigest: 'material-vector',
+      storyFilesHash: 'story-files-vector',
+      hostId: 'host-vector',
+      provider: 'codex',
+      sessionId: 'session-vector',
+    };
+    const absent = deriveHostVerdictBindings({ ...base, testEvidence: null });
+    assert.equal(absent.validationDigest, canonicalDigest({
+      schemaVersion: 'lattice.quorum_submit.validation_digest.v1',
+      storyId: STORY_ID,
+      headHash: undefined,
+      materialDigest: 'material-vector',
+      storyFilesHash: 'story-files-vector',
+      testEvidence: null,
+    }));
+    const present = deriveHostVerdictBindings({ ...base, headHash: 'head-vector', testEvidence: { result: 'PASS' } });
+    assert.notEqual(absent.validationDigest, present.validationDigest);
+  });
+
+  check('shared derivation fails closed on every required envelope field', () => {
+    const valid = {
+      storyId: STORY_ID,
+      materialDigest: 'material-vector',
+      storyFilesHash: 'story-files-vector',
+      testEvidence: null,
+      hostId: 'host-vector',
+      provider: 'codex',
+      sessionId: 'session-vector',
+      keyId: 'key-vector',
+    };
+    for (const field of ['storyId', 'materialDigest', 'storyFilesHash', 'hostId', 'provider', 'sessionId', 'keyId'] as const) {
+      assert.throws(() => deriveHostVerdictBindings({ ...valid, [field]: ' ' }), new RegExp(field));
+    }
+    assert.throws(() => deriveHostVerdictBindings({ ...valid, storyId: '../not-a-story' }), /canonical storyId/);
+    assert.throws(() => deriveCanonicalHostKeyId('../not-a-story', 'host-vector'), /canonical storyId/);
+  });
+
+  check('shared derivation binds every replay-sensitive input', () => {
+    const base = {
+      storyId: STORY_ID,
+      headHash: 'head-vector',
+      materialDigest: 'material-vector',
+      storyFilesHash: 'story-files-vector',
+      testEvidence: { result: 'PASS' },
+      hostId: 'host-vector',
+      provider: 'codex',
+      sessionId: 'session-vector',
+      keyId: 'key-vector',
+    };
+    const original = deriveHostVerdictBindings(base);
+    for (const [field, value] of Object.entries({
+      storyId: 'B-other', headHash: 'other-head', materialDigest: 'other-material',
+      storyFilesHash: 'other-story-files', hostId: 'other-host', provider: 'claude',
+      sessionId: 'other-session', keyId: 'other-key',
+    })) {
+      const changed = deriveHostVerdictBindings({ ...base, [field]: value });
+      assert.ok(changed.validationDigest !== original.validationDigest || changed.promptDigest !== original.promptDigest, `${field} changes a canonical digest`);
+    }
+    const changedEvidence = deriveHostVerdictBindings({ ...base, testEvidence: { result: 'FAIL' } });
+    assert.notEqual(changedEvidence.validationDigest, original.validationDigest);
+  });
 
   check('refuses when required reviewer passes are absent and writes no verdicts', () => {
     assertQuorumRefuses(registry, store, root, 'absent reviewer pass refusal');

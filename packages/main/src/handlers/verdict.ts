@@ -1,4 +1,5 @@
 import type { HandlerContext } from './context.js';
+import { resolveStoryCommandWorkspace } from './context.js';
 import {
   submitVerdict,
   summarizeVerdictRuns,
@@ -10,6 +11,10 @@ import {
   type VerdictSummary,
 } from '../core/verdicts.js';
 import { currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { deriveHostVerdictBindings } from '../core/host-verdict-bindings.js';
+import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
+import { withValidationExecutionLock } from '../core/validation-execution-lock.js';
+import { assessStoredValidationPassAdmissibility } from './phase-gates.js';
 
 export type FormatArgs = { json?: boolean; format?: 'text' | 'json' };
 
@@ -77,7 +82,89 @@ export type SubmitArgs = {
   artifactDigest?: string;
   storyFilesHash?: string;
   note?: string;
+  deriveBindings?: boolean;
 } & FormatArgs;
+
+function normalizeString(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
+function assertMatchingBinding(name: string, supplied: unknown, canonical: string): void {
+  const value = normalizeString(supplied);
+  if (value && value !== canonical) {
+    throw new Error(`autopilot_review_submit --deriveBindings: supplied ${name} does not match the canonical current value`);
+  }
+}
+
+function validateDerivedBindingRequest(args: SubmitArgs): {
+  storyId: string;
+  hostId: string;
+  provider: string;
+  sessionId: string;
+} {
+  const storyId = normalizeString(args.storyId);
+  if (!isCanonicalStoryId(storyId)) {
+    throw new Error('autopilot_review_submit --deriveBindings requires a canonical storyId');
+  }
+  if (args.decision !== 'pass') {
+    throw new Error('autopilot_review_submit --deriveBindings is only valid for decision=pass');
+  }
+  const hostId = normalizeString(args.hostId);
+  const provider = normalizeString(args.provider);
+  const sessionId = normalizeString(args.sessionId);
+  if (!hostId || !provider || !sessionId) {
+    throw new Error('autopilot_review_submit --deriveBindings requires explicit non-empty hostId, provider, and sessionId');
+  }
+
+  return { storyId, hostId, provider, sessionId };
+}
+
+async function submitWithDerivedBindings(ctx: HandlerContext, args: SubmitArgs) {
+  const identity = validateDerivedBindingRequest(args);
+  const workspace = resolveStoryCommandWorkspace(ctx.store, identity.storyId, ctx.root);
+  const projectRoot = workspace.signedWorkspaceRoot;
+  return withValidationExecutionLock({
+    // Validation writers key this lock from ctx.root (metadata/runtime authority),
+    // while workspaceRoot is diagnostic only. Keep the same authority in wrapper layouts.
+    root: ctx.root,
+    storyId: identity.storyId,
+    workspaceRoot: projectRoot,
+    command: 'autopilot_review_submit --deriveBindings',
+  }, () => {
+    const admissibility = assessStoredValidationPassAdmissibility(ctx, identity.storyId);
+    if (!admissibility.ok || !admissibility.evidence || !admissibility.headHash || !admissibility.materialHash || !admissibility.storyFilesHash) {
+      throw new Error(`autopilot_review_submit --deriveBindings requires canonical current PASS validation evidence: ${admissibility.reasons.join('; ')}`);
+    }
+    const materialDigest = admissibility.materialHash;
+    const storyFilesHash = admissibility.storyFilesHash;
+
+    const bindings = deriveHostVerdictBindings({
+      storyId: identity.storyId,
+      headHash: admissibility.headHash,
+      materialDigest,
+      storyFilesHash,
+      testEvidence: admissibility.evidence,
+      hostId: identity.hostId,
+      provider: identity.provider,
+      sessionId: identity.sessionId,
+    });
+    assertMatchingBinding('materialDigest', args.materialDigest, materialDigest);
+    assertMatchingBinding('storyFilesHash', args.storyFilesHash, storyFilesHash);
+    assertMatchingBinding('keyId', args.keyId, bindings.keyId);
+    assertMatchingBinding('validationDigest', args.validationDigest, bindings.validationDigest);
+    assertMatchingBinding('promptDigest', args.promptDigest, bindings.promptDigest);
+
+    return submitLocalVerdict(ctx, 'local', {
+      ...args,
+      ...identity,
+      materialDigest,
+      storyFilesHash,
+      keyId: bindings.keyId,
+      validationDigest: bindings.validationDigest,
+      promptDigest: bindings.promptDigest,
+    });
+  });
+}
 
 export function submitLocalVerdict(ctx: HandlerContext, mode: VerdictMode, args: SubmitArgs) {
   const missingBindingFields = mode === 'local' && args.storyId && args.decision === 'pass'
@@ -142,6 +229,11 @@ export function createVerdictHandlers(ctx: HandlerContext) {
 
   return {
     autopilot_review_submit(args: SubmitArgs = {}) {
+      if (args.deriveBindings) {
+        return submitWithDerivedBindings(ctx, args).then(result => wantsJson(args)
+          ? result
+          : render(`Proofbound autopilot review submit (${result.schemaVersion})`, result as unknown as Record<string, unknown>));
+      }
       const result = submitLocal('local', args);
       return wantsJson(args) ? result : render(`Proofbound autopilot review submit (${result.schemaVersion})`, result as unknown as Record<string, unknown>);
     },

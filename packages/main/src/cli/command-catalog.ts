@@ -2855,6 +2855,7 @@ Behavior:
     storyFilesHash: z.string().optional().describe('Optional story-owned file hash for whole-tree material drift downgrade diagnostics'),
     validationDigest: z.string().optional(),
     promptDigest: z.string().optional(),
+    deriveBindings: z.boolean().optional().describe('Explicitly derive and verify the complete canonical binding envelope from current PASS evidence before writing one host verdict'),
     note: z.string().optional(),
     json: z.boolean().optional().describe('Output JSON'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),

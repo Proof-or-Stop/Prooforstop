@@ -1,8 +1,8 @@
 import type { HandlerContext } from './context.js';
 import { resolveStoryCommandWorkspace } from './context.js';
 import { submitLocalVerdict, type FormatArgs } from './verdict.js';
-import { canonicalDigest } from '../core/authority-signing.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { deriveCanonicalHostKeyId, deriveHostVerdictBindings } from '../core/host-verdict-bindings.js';
 import { evaluateReviewEscalation } from '../core/review-escalation.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import { collectReviewerEvidenceState } from '../core/review-run.js';
@@ -74,10 +74,6 @@ function derivedSession(storyId: string, hostId: string): string {
   return `quorum:${storyId}:${hostId}:session`;
 }
 
-function derivedKey(storyId: string, hostId: string): string {
-  return `quorum:${storyId}:${hostId}:key`;
-}
-
 function assertHostIndependence(hostA: QuorumHostInput, hostB: QuorumHostInput): void {
   const shared: string[] = [];
   if (normalizeIdentity(hostA.hostId) === normalizeIdentity(hostB.hostId)) shared.push('hostId');
@@ -146,31 +142,6 @@ function assertCurrentReviewerPasses(ctx: HandlerContext, storyId: string, proje
       passId: pass.id,
       ...(pass.reviewRunId ? { reviewRunId: pass.reviewRunId } : {}),
     };
-  });
-}
-
-function deriveValidationDigest(ctx: HandlerContext, storyId: string, materialDigest: string, storyFilesHash: string, headHash?: string): string {
-  return canonicalDigest({
-    schemaVersion: 'lattice.quorum_submit.validation_digest.v1',
-    storyId,
-    headHash,
-    materialDigest,
-    storyFilesHash,
-    testEvidence: safeReadTestEvidence(ctx, storyId),
-  });
-}
-
-function derivePromptDigest(storyId: string, host: Omit<QuorumHostInput, 'promptDigest'>, materialDigest: string, storyFilesHash: string): string {
-  return canonicalDigest({
-    schemaVersion: 'lattice.quorum_submit.prompt_digest.v1',
-    purpose: 'local voluntary 3x2 review quorum after signed reviewer passes',
-    storyId,
-    hostId: host.hostId,
-    provider: host.provider,
-    sessionId: host.sessionId,
-    keyId: host.keyId,
-    materialDigest,
-    storyFilesHash,
   });
 }
 
@@ -258,26 +229,33 @@ export function createQuorumSubmitHandlers(ctx: HandlerContext) {
         hostId: hostAId,
         provider: normalizeString(args.providerA) || 'claude',
         sessionId: normalizeString(args.sessionA) || derivedSession(storyId, hostAId),
-        keyId: normalizeString(args.keyA) || derivedKey(storyId, hostAId),
+        keyId: normalizeString(args.keyA) || deriveCanonicalHostKeyId(storyId, hostAId),
       };
       const baseHostB = {
         side: 'B' as const,
         hostId: hostBId,
         provider: normalizeString(args.providerB) || 'codex',
         sessionId: normalizeString(args.sessionB) || derivedSession(storyId, hostBId),
-        keyId: normalizeString(args.keyB) || derivedKey(storyId, hostBId),
+        keyId: normalizeString(args.keyB) || deriveCanonicalHostKeyId(storyId, hostBId),
       };
+      const testEvidence = safeReadTestEvidence(ctx, storyId);
+      const bindingsA = deriveHostVerdictBindings({
+        storyId, headHash, materialDigest, storyFilesHash, testEvidence, ...baseHostA,
+      });
+      const bindingsB = deriveHostVerdictBindings({
+        storyId, headHash, materialDigest, storyFilesHash, testEvidence, ...baseHostB,
+      });
       const hostA: QuorumHostInput = {
         ...baseHostA,
-        promptDigest: normalizeString(args.promptDigestA) || derivePromptDigest(storyId, baseHostA, materialDigest, storyFilesHash),
+        promptDigest: normalizeString(args.promptDigestA) || bindingsA.promptDigest,
       };
       const hostB: QuorumHostInput = {
         ...baseHostB,
-        promptDigest: normalizeString(args.promptDigestB) || derivePromptDigest(storyId, baseHostB, materialDigest, storyFilesHash),
+        promptDigest: normalizeString(args.promptDigestB) || bindingsB.promptDigest,
       };
       assertHostIndependence(hostA, hostB);
       const validationDigest = normalizeString(args.validationDigest)
-        || deriveValidationDigest(ctx, storyId, materialDigest, storyFilesHash, headHash);
+        || bindingsA.validationDigest;
       const note = normalizeString(args.note) || 'quorum_submit local voluntary floor quorum after current signed reviewer passes';
 
       // Guard: refuse to re-submit a quorum for a runId that already carries a verdict at the

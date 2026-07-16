@@ -5,6 +5,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { signReviewPass } from '../core/finding-verify.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
@@ -21,6 +22,7 @@ import {
   REVIEW_ASSURANCE_FLOOR_HIGH_RISK_HOSTS_PER_ROUND,
   REVIEW_ASSURANCE_FLOOR_HIGH_RISK_REQUIRED_ROUNDS,
   evaluateReviewAssuranceFloor,
+  buildReviewAssuranceFloorGuidance,
   formatReviewAssuranceFloorFailure,
   type ReviewAssuranceFloorReport,
 } from '../core/review-assurance-floor.js';
@@ -29,10 +31,12 @@ import { computeActiveReviewers } from '../handlers/reviewer-list.js';
 import { createDeliveryCheckHandlers } from '../handlers/delivery-check.js';
 import type { HandlerContext } from '../handlers/context.js';
 import type { BugData, Finding, ProcessEvent, ReviewRun, StoryInfo } from '../core/types.js';
+import { listVerdicts } from '../core/verdicts.js';
 
 const STORY_ID = 'B-review-assurance-floor';
 const REVIEW_ROUND = '2026-06-19T10:00:00.000Z';
 const SMOKE_PROMPT = 'Reply READY and do not run tools.';
+const DIST_CLI_PATH = join(dirname(fileURLToPath(import.meta.url)), '..', 'cli.js');
 
 function git(root: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -355,7 +359,9 @@ function renderedLatticeCommandFragments(text: string): string[] {
   for (const line of text.split('\n')) {
     const uncommented = line.split(' # ')[0];
     for (const segment of uncommented.split(';')) {
-      const commandStart = segment.indexOf('lattice ');
+      const localStart = segment.indexOf('node bin/lattice.js ');
+      const globalStart = segment.indexOf('lattice ');
+      const commandStart = localStart >= 0 ? localStart : globalStart;
       if (commandStart >= 0) {
         commands.push(segment.slice(commandStart).trim().replace(/[.,]$/, ''));
       }
@@ -379,7 +385,7 @@ function assertStaleRecoveryCommandsShellSafe(formatted: string): string[] {
   assert.equal(commands.length, 5, 'stale recovery must expose every inline lattice command fragment');
   assert.equal(commands.some((command) => command.startsWith('lattice validate ')), true);
   assert.equal(commands.some((command) => command.startsWith('lattice verification_evidence_refresh_stale ')), true);
-  assert.equal(commands.some((command) => command.startsWith('lattice autopilot_review_submit ')), true);
+  assert.equal(commands.some((command) => command.startsWith('node bin/lattice.js autopilot_review_submit ')), true);
   assert.equal(commands.some((command) => command.startsWith('lattice autopilot_review_status ')), true);
   assert.equal(commands.some((command) => command.startsWith('lattice review_escalation_status ')), true);
   return commands;
@@ -466,7 +472,7 @@ try {
     assert.match(formatted, new RegExp(`lattice validate --story=${STORY_ID} --json`));
     assert.match(formatted, new RegExp(`lattice verification_evidence_refresh_stale --storyId=${STORY_ID} --dryRun`));
     assert.match(formatted, new RegExp(`Legal reviewer/host only: re-submit local host verdicts over materialHash=${materialHash}`));
-    assert.match(formatted, /lattice autopilot_review_submit/);
+    assert.match(formatted, /node bin\/lattice\.js autopilot_review_submit/);
     assert.match(formatted, /--storyFilesHash=/);
     assert.match(formatted, /Do not bypass stale material checks/);
     assert.doesNotMatch(formatted, /remote receipt server|remote proof|productionDone/);
@@ -574,6 +580,19 @@ try {
     assert.match(oneRound.reasons.join('\n'), /3 rounds x 2 independent PASS hosts/);
     assert.match(oneRound.reasons.join('\n'), /no review_escalation_fallback record found/);
     assertProofAdmissibilityBlocked(oneRound);
+    const guidance = buildReviewAssuranceFloorGuidance(oneRound);
+    const singleHostCommands = guidance.legalWriterPaths.reviewerHost.filter(recipe => recipe.command.includes('autopilot_review_submit'));
+    assert.equal(singleHostCommands.length, 3, 'high-risk fallback guidance emits three distinct single-host rounds');
+    assert.equal(new Set(singleHostCommands.map(recipe => recipe.command.match(/--runId=([^ ]+)/)?.[1])).size, 3);
+    for (const recipe of singleHostCommands) {
+      assert.match(recipe.command, /--deriveBindings/);
+      assert.match(recipe.command, new RegExp(`--materialDigest=${materialHash}`));
+      assert.match(recipe.command, new RegExp(`--storyFilesHash=${storyFilesHash}`));
+      assert.match(recipe.command, /--hostId="\$\(hostname\)"/);
+      assert.match(recipe.command, /--provider=local/);
+      assert.doesNotMatch(recipe.command, /\{round-id\}|\{host\}|\{session\}|\{key\}|fresh-validation-digest|current-prompt-digest/);
+      execFileSync('zsh', ['-n', '-c', recipe.command], { stdio: ['ignore', 'pipe', 'pipe'] });
+    }
 
     const full = evaluateReviewAssuranceFloor({
       projectRoot: root,
@@ -663,6 +682,98 @@ try {
     assert.match(invalidFallbackShape.reasons.join('\n'), /fallback invalid: fallback requires evidenceRefs or approvalRef/);
     assert.match(invalidFallbackShape.reasons.join('\n'), /fallback invalid: assuranceLevel must be degraded-single-host/);
     assertProofAdmissibilityBlocked(invalidFallbackShape);
+  });
+
+  check('literal worktree-local guidance executes three complete degraded-only rounds', () => {
+    const commandRoot = makeRepo();
+    try {
+      write(commandRoot, 'bin/lattice.js', `#!/usr/bin/env node\nimport ${JSON.stringify(DIST_CLI_PATH)};\n`);
+      write(commandRoot, '.gitignore', '.lattice/autopilot-verdicts/\n');
+      write(commandRoot, 'lattice.config.json', JSON.stringify({
+        scanRoot: 'packages/main',
+        rootDir: 'src',
+        storyDir: '.lattice/story/actives',
+        proofAdmissibility: { mode: 'enforce', enforcedConsumers: ['REVIEW'] },
+      }, null, 2) + '\n');
+      git(commandRoot, ['add', '.gitignore', 'bin/lattice.js', 'lattice.config.json']);
+      git(commandRoot, ['commit', '-m', 'self-host command fixture']);
+      resetConfigCache();
+      const store = new StoryStore(commandRoot);
+      const smokeStory = story({
+        priority: 'high',
+        riskSignals: [{ category: 'state machine/gate', matched: 'gate' }],
+      });
+      store.writeStory(STORY_ID, smokeStory);
+      store.writeChecklist(STORY_ID, { items: [] });
+      const currentMaterial = currentMaterialHash(commandRoot)!;
+      const currentStoryFiles = currentStoryFilesHash(commandRoot)!;
+      const currentHead = currentGitHead(commandRoot)!;
+      const coverage = { total: 0, required: 0, covered: 0, missingRequired: 0, entries: [] };
+      store.writeTestEvidence(STORY_ID, {
+        command: `lattice validate --story=${STORY_ID} --json`,
+        output: JSON.stringify({ allPass: true, verificationCoverage: coverage }),
+        result: 'PASS',
+        timestamp: '2026-06-19T11:50:00.000Z',
+        headHash: currentHead,
+        materialHash: currentMaterial,
+        storyFilesHash: currentStoryFiles,
+        verificationCoverage: coverage,
+      });
+      const blocked = evaluateReviewAssuranceFloor({
+        projectRoot: commandRoot,
+        story: smokeStory,
+        storyId: STORY_ID,
+        changedFiles: ['packages/main/src/core/machine.ts'],
+        processEvents: [],
+        materialHash: currentMaterial,
+        storyFilesHash: currentStoryFiles,
+      });
+      const recipes = buildReviewAssuranceFloorGuidance(blocked).legalWriterPaths.reviewerHost
+        .filter(recipe => recipe.command.includes('autopilot_review_submit'));
+      assert.equal(recipes.length, 3);
+      for (const recipe of recipes) {
+        assert.match(recipe.command, /^node bin\/lattice\.js autopilot_review_submit /);
+        execFileSync('zsh', ['-c', recipe.command], {
+          cwd: commandRoot,
+          encoding: 'utf8',
+          stdio: ['ignore', 'pipe', 'pipe'],
+          env: { ...process.env, LATTICE_SESSION_ID: 'literal-guidance-smoke', LATTICE_NO_HOOKS: '1' },
+        });
+      }
+      const persisted = listVerdicts(commandRoot, 'local', STORY_ID);
+      assert.equal(persisted.length, 3, 'each literal command persists exactly one verdict');
+      assert.equal(new Set(persisted.map(item => item.hostId)).size, 1, 'single-host guidance never fabricates a second host');
+      for (const item of persisted) {
+        assert.ok(item.keyId);
+        assert.match(item.validationDigest ?? '', /^[0-9a-f]{64}$/);
+        assert.match(item.promptDigest ?? '', /^[0-9a-f]{64}$/);
+        assert.equal(item.materialDigest, currentMaterial);
+        assert.equal(item.storyFilesHash, currentStoryFiles);
+      }
+      const verdictEvents = store.readProcessEvents(STORY_ID).filter(event => event.type === 'host_verdict');
+      assert.equal(verdictEvents.length, 3);
+      const degraded = evaluateReviewAssuranceFloor({
+        projectRoot: commandRoot,
+        story: smokeStory,
+        storyId: STORY_ID,
+        changedFiles: ['packages/main/src/core/machine.ts'],
+        processEvents: [
+          ...verdictEvents,
+          fallback(currentMaterial, { eligibility: 'explicit-human-approval', storyFilesHash: currentStoryFiles }),
+        ],
+        materialHash: currentMaterial,
+        storyFilesHash: currentStoryFiles,
+      });
+      assert.equal(degraded.ok, true);
+      assert.equal(degraded.assuranceLevel, 'degraded-single-host');
+      assert.equal(degraded.localRounds.ok, false, 'three single-host rounds do not satisfy 3x2');
+      assert.equal(degraded.authorityDone, false);
+      assert.equal(degraded.fullAuthorityDone, false);
+      assert.equal(degraded.productionDone, false);
+    } finally {
+      rmSync(commandRoot, { recursive: true, force: true });
+      resetConfigCache();
+    }
   });
 
   check('missing host readiness probe blocks non-human high-risk degraded fallback', () => {

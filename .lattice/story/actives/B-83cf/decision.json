@@ -1,0 +1,74 @@
+{
+  "principles": [
+    "Gate evidence must be mechanically bound to current material and validation",
+    "Degraded single-host evidence must not dilute independent-host quorum semantics",
+    "A documented recovery command must be executable as printed"
+  ],
+  "drivers": [
+    "Unblock B-914f without forged evidence",
+    "Reuse one canonical derivation implementation",
+    "Reject stale or caller-conflicting bindings before writing evidence"
+  ],
+  "options": [
+    {
+      "name": "A: Explicit deriveBindings mode with shared helper",
+      "pros": [
+        "Makes the fallback executable",
+        "Keeps legacy behavior stable",
+        "Allows fail-closed mismatch checks"
+      ],
+      "cons": [
+        "Adds an explicit CLI flag and shared abstraction"
+      ]
+    },
+    {
+      "name": "B: Always auto-derive missing bindings",
+      "pros": [
+        "Simpler caller command"
+      ],
+      "cons": [
+        "Silently changes legacy semantics",
+        "Could turn accidental weak submissions into gate evidence"
+      ]
+    },
+    {
+      "name": "C: Document manual digest computation",
+      "pros": [
+        "Minimal code change"
+      ],
+      "cons": [
+        "Duplicates private algorithms",
+        "Error-prone and not operationally usable"
+      ]
+    }
+  ],
+  "chosen": "A: Explicit deriveBindings mode with shared helper",
+  "rationale": "It fixes the mechanical contradiction while preserving legacy warnings and two-host independence. One canonical helper prevents quorum and degraded paths from drifting.",
+  "preMortem": [
+    {
+      "scenario": "Single-host and quorum derive different digests",
+      "trigger": "Helper omits a field or retains a different purpose/schema",
+      "consequence": "Valid fallback verdict remains ignored or quorum behavior regresses",
+      "mitigation": "Golden parity test using identical story evidence and host identity"
+    },
+    {
+      "scenario": "Caller supplies stale digest and derive mode silently overwrites it",
+      "trigger": "Precedence favors computed values without comparison",
+      "consequence": "Audit trail hides stale caller state",
+      "mitigation": "Compare every supplied binding with canonical value and fail before any write"
+    },
+    {
+      "scenario": "Explicit mode accidentally creates quorum-like assurance",
+      "trigger": "Single-host handler emits more than one host identity or changes requiredHosts",
+      "consequence": "Independent-host floor is falsely satisfied",
+      "mitigation": "Emit exactly one verdict per call and test no second host is created"
+    },
+    {
+      "scenario": "Guidance still prints placeholders",
+      "trigger": "Core command recipe is not updated with the new flag",
+      "consequence": "Users remain blocked despite helper implementation",
+      "mitigation": "Snapshot guidance command and execute it in focused integration coverage"
+    }
+  ],
+  "timestamp": "2026-07-16T18:20:19.797Z"
+}
