@@ -1,0 +1,21 @@
+{
+  "storyId": "B-914f",
+  "expected": "Validation evidence reports a stable versioned identity and the same exact-head or trusted-metadata lineage classification is used by routine validate and DONE reuse.",
+  "actual": {
+    "command": "LATTICE_SESSION_ID=codex-wa-final node bin/lattice.js validate --story=B-914f --json",
+    "exitCode": 1,
+    "stdout": "",
+    "stderr": "[0.1s] running validate...\n[0.9s] validate failed: validate is blocked: validation execution for story B-914f is already running in /Users/jek/Documents/Work/proofbound/.worktrees/B-914f by validate for B-914f (pid 59701 on JekdeMacBook-Pro.local), heartbeat 1s ago. Retry after the active validation finishes; this protects story-scoped validation evidence from concurrent writes.\nError: validate is blocked: validation execution for story B-914f is already running in /Users/jek/Documents/Work/proofbound/.worktrees/B-914f by validate for B-914f (pid 59701 on JekdeMacBook-Pro.local), heartbeat 1s ago. Retry after the active validation finishes; this protects story-scoped validation evidence from concurrent writes.\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-16T16:51:41.170Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "11fd8da47065efa7f89625fbb5ece86a25ed543b",
+  "materialHash": "f9e132892cab90f5dfc25079379fc662e8313ff580b4ffa9f28c31a1e4da10f8"
+}
