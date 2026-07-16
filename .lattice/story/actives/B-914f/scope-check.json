@@ -191,9 +191,11 @@
       "q": "What exact environment identity is promised: command env/cwd and executable/config digests only, or Node/package-manager/toolchain/OS; and is config hashing limited to effective validation/policy fields?",
       "evidence": "The outcome promises execution on environment identity change, while CHK-001 does not define runtime/toolchain scope or unrelated config-key behavior.",
       "sourcePointers": [
-        ".lattice/story/actives/B-914f/understanding.json",
-        ".lattice/story/actives/B-914f/checklist.json#CHK-001"
-      ]
+        "CHK-001",
+        "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+      ],
+      "resolution": "Environment identity is a digest of the exact effective child environment after explicit command env overlays, plus platform, architecture, Node version, resolved executable path and executable or validate-entrypoint content digest. Only the digest is persisted; raw environment names or secret-bearing values are never written. Any digest change forces real execution.",
+      "resolvedAt": "2026-07-16T14:01:02.148Z"
     }
   ]
 }
