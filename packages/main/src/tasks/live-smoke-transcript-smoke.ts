@@ -126,6 +126,7 @@ interface HarnessPids {
 let activeDisappearanceProbes = 0;
 let injectedDisappearanceSignals = 0;
 let injectedDisappearanceElapsedMs = 0;
+const injectedDisappearanceTargets: number[] = [];
 
 type HarnessSignalSender = (pid: number, signalName: NodeJS.Signals) => unknown;
 
@@ -138,6 +139,25 @@ function signalHarnessProcess(
     sendSignal(pid, signalName);
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== 'ESRCH') throw error;
+  }
+}
+
+function signalOwnedProcessGroup(
+  ownerPid: number,
+  signalName: NodeJS.Signals,
+  sendSignal?: HarnessSignalSender,
+): void {
+  signalHarnessProcess(-Math.abs(ownerPid), signalName, sendSignal);
+}
+
+async function settleCleanupPreservingPrimary(
+  cleanup: () => Promise<unknown>,
+  primaryError: unknown,
+): Promise<void> {
+  try {
+    await cleanup();
+  } catch (cleanupError) {
+    if (primaryError === undefined) throw cleanupError;
   }
 }
 
@@ -183,6 +203,7 @@ async function runDescendantHarness(failure: HarnessFailure): Promise<void> {
   let observedPids: HarnessPids | undefined;
   let cleanupPromise: Promise<void> | undefined;
   let bodyCompleted = false;
+  let primaryError: unknown;
   const disposers = new Set<() => void>();
 
   const bounded = async <T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> => {
@@ -214,33 +235,42 @@ async function runDescendantHarness(failure: HarnessFailure): Promise<void> {
       disposers.clear();
 
       const targets = [
-        ...(cli?.pid ? [-cli.pid] : []),
         ...(observedPids ? [observedPids.capture, observedPids.descendant] : []),
       ];
       if (!bodyCompleted) {
-        for (const pid of targets) signalHarnessProcess(pid, 'SIGTERM');
+        let closedNaturally = false;
         if (actualClosed) {
           try {
-            await bounded(actualClosed, 250, 'CLI ignored harness TERM grace');
+            await bounded(actualClosed, 3_000, 'CLI exceeded harness natural-close grace');
+            closedNaturally = true;
           } catch {
-            // The KILL pass below is the bounded fallback for an uncooperative CLI.
+            // The owned-group signal path below is the bounded fallback.
           }
         }
-        const killTargets = [
-          ...(!cliClosed && cli?.pid ? [-cli.pid] : []),
-          ...(observedPids ? [observedPids.capture, observedPids.descendant].filter(isAlive) : []),
-        ];
-        for (const pid of killTargets) signalHarnessProcess(pid, 'SIGKILL');
-        if (actualClosed) await bounded(actualClosed, 2_000, 'CLI did not close after harness KILL');
+        if (!closedNaturally && cli?.pid) {
+          signalOwnedProcessGroup(cli.pid, 'SIGTERM');
+          if (actualClosed) {
+            try {
+              await bounded(actualClosed, 250, 'CLI ignored harness TERM grace');
+            } catch {
+              // The KILL pass below is the final bounded fallback.
+            }
+          }
+          if (!cliClosed) signalOwnedProcessGroup(cli.pid, 'SIGKILL');
+          if (actualClosed) await bounded(actualClosed, 2_000, 'CLI did not close after harness KILL');
+        }
       }
       for (const pid of targets.filter((pid) => pid > 0)) {
         await waitUntilGone(pid, isAlive);
       }
       if (failure === 'disappearance-timeout') {
         const syntheticPid = 987_654_321;
-        const injectedSignal: HarnessSignalSender = () => { injectedDisappearanceSignals += 1; };
-        signalHarnessProcess(syntheticPid, 'SIGTERM', injectedSignal);
-        signalHarnessProcess(syntheticPid, 'SIGKILL', injectedSignal);
+        const injectedSignal: HarnessSignalSender = (pid) => {
+          injectedDisappearanceSignals += 1;
+          injectedDisappearanceTargets.push(pid);
+        };
+        signalOwnedProcessGroup(syntheticPid, 'SIGTERM', injectedSignal);
+        signalOwnedProcessGroup(syntheticPid, 'SIGKILL', injectedSignal);
         const probeStartedAt = Date.now();
         try {
           await waitUntilGone(syntheticPid, () => true, 100);
@@ -347,9 +377,15 @@ async function runDescendantHarness(failure: HarnessFailure): Promise<void> {
     assert.equal(report.actual?.exitCode, null);
     assert.throws(() => process.kill(pids.descendant, 0), /ESRCH/, 'handshake-confirmed descendant is reaped after timeout');
     bodyCompleted = true;
+  } catch (error) {
+    primaryError = error;
+    throw error;
   } finally {
     try {
-      await Promise.all([cleanup(), cleanup()]);
+      await settleCleanupPreservingPrimary(
+        () => Promise.all([cleanup(), cleanup()]),
+        primaryError,
+      );
     } finally {
       rmSync(root, { recursive: true, force: true });
       assert.equal(existsSync(root), false, 'temp root removal happens after process cleanup settlement');
@@ -360,15 +396,42 @@ async function runDescendantHarness(failure: HarnessFailure): Promise<void> {
 await runDescendantHarness('none');
 const syntheticEsrch = Object.assign(new Error('gone'), { code: 'ESRCH' });
 assert.doesNotThrow(
-  () => signalHarnessProcess(123, 'SIGTERM', () => { throw syntheticEsrch; }),
+  () => signalOwnedProcessGroup(123, 'SIGTERM', () => { throw syntheticEsrch; }),
   'ESRCH signal races are treated as already cleaned',
 );
 const syntheticEperm = Object.assign(new Error('denied'), { code: 'EPERM' });
 assert.throws(
-  () => signalHarnessProcess(123, 'SIGTERM', () => { throw syntheticEperm; }),
+  () => signalOwnedProcessGroup(123, 'SIGTERM', () => { throw syntheticEperm; }),
   /denied/,
   'a genuine EPERM remains the primary cleanup error',
 );
+for (const primaryMessage of [
+  'injected readiness rejection',
+  'injected post-readiness assertion failure',
+  'injected PID read failure',
+]) {
+  const signaledTargets: number[] = [];
+  const staleObservationPids = [111_111, 222_222];
+  const failWithCleanup = async () => {
+    let primary: unknown;
+    try {
+      throw new Error(primaryMessage);
+    } catch (error) {
+      primary = error;
+      throw error;
+    } finally {
+      await settleCleanupPreservingPrimary(async () => {
+        signalOwnedProcessGroup(333_333, 'SIGKILL', (pid) => {
+          signaledTargets.push(pid);
+          throw syntheticEperm;
+        });
+      }, primary);
+    }
+  };
+  await assert.rejects(failWithCleanup(), new RegExp(primaryMessage));
+  assert.deepEqual(signaledTargets, [-333_333], `${primaryMessage} cleanup signals only the owned negative PGID`);
+  assert.ok(staleObservationPids.every((pid) => !signaledTargets.includes(pid)), 'stale/reused positive PIDs remain observation-only');
+}
 for (const failure of ['readiness', 'assertion', 'read', 'close-never', 'disappearance-timeout'] as const) {
   await assert.rejects(runDescendantHarness(failure), new RegExp(
     failure === 'readiness' ? 'injected readiness rejection'
@@ -384,6 +447,7 @@ for (const failure of ['readiness', 'assertion', 'read', 'close-never', 'disappe
       `disappearance timeout is bounded near its 100ms deadline (${injectedDisappearanceElapsedMs}ms)`,
     );
     assert.equal(injectedDisappearanceSignals, 2, 'synthetic disappearance seam injects TERM and KILL without real process signals');
+    assert.deepEqual(injectedDisappearanceTargets, [-987_654_321, -987_654_321], 'cleanup signals only its injected owned process group');
   }
 }
 
