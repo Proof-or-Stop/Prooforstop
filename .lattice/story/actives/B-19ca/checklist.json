@@ -204,68 +204,74 @@
         {
           "intentRef": "CHK-002:happy:0",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+          "file": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
-          "note": "Build and registry consumer smoke passed on commit 9161a518bf: all 14 canonical rows and 2 aliases resolve through the shared contract; direct handler checks prove role-safe prompt selection and real mutation consumers use registry authority.",
-          "headHash": "9161a518bfaf561126f034338831542289ab4c49",
-          "materialHash": "c04aee1ad7d67acb261c51e58f589441af56b03123d84b7e1a2e5d4763b0a225",
-          "storyFilesHash": "2139f14b0842dedae2c0d8d596f1e2977bd51f06dea4c1f2f9f739119c3b89e8",
-          "timestamp": "2026-07-16T11:04:24.169Z"
+          "note": "Final-head exhaustive handler matrix matches registry role phase target prompt and mutation policy.",
+          "headHash": "4cdd22786ba468fdf3a16f1976c1fd5e96377da4",
+          "materialHash": "966ccd121ae31f22e81ee7438f1f79163908b2bb8900dfecdc2d4e2d51418a1b",
+          "storyFilesHash": "f1029cc2dadc87d2952154c2439d721eb01b4732024054379ad15f093596b1fb",
+          "timestamp": "2026-07-16T11:17:12.531Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js && node packages/main/dist/tasks/candidate-spec-routing-smoke.js",
+          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "command": "node packages/main/dist/tasks/candidate-spec-routing-smoke.js",
           "result": "pass",
-          "note": "Story reviewer rows are story-only, exact story-level quality dispatch succeeds, itemId is rejected with actionable cardinality guidance, and candidate routing regression exercises the corrected lifecycle payload.",
-          "headHash": "9161a518bfaf561126f034338831542289ab4c49",
-          "materialHash": "c04aee1ad7d67acb261c51e58f589441af56b03123d84b7e1a2e5d4763b0a225",
-          "storyFilesHash": "2139f14b0842dedae2c0d8d596f1e2977bd51f06dea4c1f2f9f739119c3b89e8",
-          "timestamp": "2026-07-16T11:04:24.556Z"
+          "note": "Final-head story-level reviewer dispatch regression proves executable schema-valid hint cardinality.",
+          "headHash": "4cdd22786ba468fdf3a16f1976c1fd5e96377da4",
+          "materialHash": "966ccd121ae31f22e81ee7438f1f79163908b2bb8900dfecdc2d4e2d51418a1b",
+          "storyFilesHash": "f1029cc2dadc87d2952154c2439d721eb01b4732024054379ad15f093596b1fb",
+          "timestamp": "2026-07-16T11:17:12.829Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
+          "file": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
-          "note": "Table checks every registry row's allowed phase and valid cardinality, rejects wrong cardinality, and verifies invalid phase errors occur before prompt construction.",
-          "headHash": "9161a518bfaf561126f034338831542289ab4c49",
-          "materialHash": "c04aee1ad7d67acb261c51e58f589441af56b03123d84b7e1a2e5d4763b0a225",
-          "storyFilesHash": "2139f14b0842dedae2c0d8d596f1e2977bd51f06dea4c1f2f9f739119c3b89e8",
-          "timestamp": "2026-07-16T11:04:24.952Z"
+          "note": "Final-head phase and zero one extra identifier matrix accepts only declared combinations.",
+          "headHash": "4cdd22786ba468fdf3a16f1976c1fd5e96377da4",
+          "materialHash": "966ccd121ae31f22e81ee7438f1f79163908b2bb8900dfecdc2d4e2d51418a1b",
+          "storyFilesHash": "f1029cc2dadc87d2952154c2439d721eb01b4732024054379ad15f093596b1fb",
+          "timestamp": "2026-07-16T11:17:13.149Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
           "kind": "logic_test",
+          "file": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
-          "note": "Direct prompt construction for verification-intent, test-intent, test-case-reviewer and story reviewer roles contains no implementer git-commit or status-done guidance; aliases inherit canonical verification authority.",
-          "headHash": "9161a518bfaf561126f034338831542289ab4c49",
-          "materialHash": "c04aee1ad7d67acb261c51e58f589441af56b03123d84b7e1a2e5d4763b0a225",
-          "storyFilesHash": "2139f14b0842dedae2c0d8d596f1e2977bd51f06dea4c1f2f9f739119c3b89e8",
-          "timestamp": "2026-07-16T11:04:25.316Z"
+          "note": "Final-head verification and reviewer prompts contain no implementer commit or status-done guidance.",
+          "headHash": "4cdd22786ba468fdf3a16f1976c1fd5e96377da4",
+          "materialHash": "966ccd121ae31f22e81ee7438f1f79163908b2bb8900dfecdc2d4e2d51418a1b",
+          "storyFilesHash": "f1029cc2dadc87d2952154c2439d721eb01b4732024054379ad15f093596b1fb",
+          "timestamp": "2026-07-16T11:17:13.488Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js && node packages/main/dist/tasks/command-catalog-smoke.js",
+          "file": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
-          "note": "Unknown and prefix-lookalike types fail at registry/handler boundaries before dispatch events; the public command catalog schema accepts only the registry type/alias set and its 326-command smoke passes.",
-          "headHash": "9161a518bfaf561126f034338831542289ab4c49",
-          "materialHash": "c04aee1ad7d67acb261c51e58f589441af56b03123d84b7e1a2e5d4763b0a225",
-          "storyFilesHash": "2139f14b0842dedae2c0d8d596f1e2977bd51f06dea4c1f2f9f739119c3b89e8",
-          "timestamp": "2026-07-16T11:04:25.674Z"
+          "note": "Final-head direct schema and handler unknown-type cases fail before prompt or process-event side effects.",
+          "headHash": "4cdd22786ba468fdf3a16f1976c1fd5e96377da4",
+          "materialHash": "966ccd121ae31f22e81ee7438f1f79163908b2bb8900dfecdc2d4e2d51418a1b",
+          "storyFilesHash": "f1029cc2dadc87d2952154c2439d721eb01b4732024054379ad15f093596b1fb",
+          "timestamp": "2026-07-16T11:17:13.811Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+          "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
           "result": "pass",
-          "note": "Real checklist handler rejects reviewer checklist completion and verification-intent alias status mutation; review-run consumer rejects lattice-implementer as a reviewer lane, while registry helpers reject implementer review-pass authority.",
-          "headHash": "9161a518bfaf561126f034338831542289ab4c49",
-          "materialHash": "c04aee1ad7d67acb261c51e58f589441af56b03123d84b7e1a2e5d4763b0a225",
-          "storyFilesHash": "2139f14b0842dedae2c0d8d596f1e2977bd51f06dea4c1f2f9f739119c3b89e8",
-          "timestamp": "2026-07-16T11:04:26.035Z"
+          "note": "Final-head real checklist and review-run handlers deny reviewer checklist completion verification-role status writes and implementer review evidence.",
+          "headHash": "4cdd22786ba468fdf3a16f1976c1fd5e96377da4",
+          "materialHash": "966ccd121ae31f22e81ee7438f1f79163908b2bb8900dfecdc2d4e2d51418a1b",
+          "storyFilesHash": "f1029cc2dadc87d2952154c2439d721eb01b4732024054379ad15f093596b1fb",
+          "timestamp": "2026-07-16T11:17:14.188Z"
         }
       ]
     },
