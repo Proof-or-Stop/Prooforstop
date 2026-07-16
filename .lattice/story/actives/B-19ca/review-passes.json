@@ -109,6 +109,41 @@
       },
       "readDiagnostics": [],
       "_hash": "1aa84131cd3b919ec2f863b606c89fe34aa677e25f9d199525579d625dc73fbb"
+    },
+    {
+      "id": "B-19ca:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round 4 targeted quality review PASS: a5302c1a53 keeps trusted host authority on the exact main/main-agent/human allowlist, normalizes whitespace only at the actor boundary before audit persistence, rejects case/prefix/separator lookalikes, and preserves fail-closed byte-equivalent no-side-effect behavior for every nonblank unknown identity. npm build and agent-dispatch-registry-smoke both pass.",
+      "createdAt": "2026-07-16T12:18:39.049Z",
+      "reviewRound": "2026-07-16T12:15:37.080Z",
+      "reviewRunId": "B-19ca:RR-023",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "b7fffef7a10d2242b342528dacffd1ce27c00d97f3f492a3bde0b7d354f04495",
+        "corpusDigest": "fab7461b8085dde0edf5b3e6e93634e3382fd96e190816832e09d598eccb36de"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "6188b0a7ad938c118a10a1ec38d414fede72303a20bd82b13320a39461a84a5a"
+      },
+      "readDiagnostics": [],
+      "_hash": "7cf0a2937eb553ab45f1d2c5380b17298762445873f64787a5b6d1c30a6c215a"
     }
   ]
 }
