@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-16T18:29:00.278Z",
-      "endTime": null,
+      "endTime": "2026-07-16T18:31:00.712Z",
       "verificationIntent": {
         "happy": [
           {
@@ -65,7 +65,75 @@
         "test": [
           "packages/main/src/tasks/quorum-submit-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Golden vector proves byte-identical validation/prompt/key bindings.",
+          "headHash": "8c14dad32fb1c2128afeb9d15b0b20773c6e8f23",
+          "materialHash": "5dcccc5e56aeceed2ad2e76bd28a25bb1c9440e7417b84454108fa8a6d96782f",
+          "storyFilesHash": "11bb882e77a1be438c799161f5019960234f4ab54f46458fbf0628b57dc8efcb",
+          "timestamp": "2026-07-16T18:31:00.974Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Existing 3x2 quorum integration remains green through shared helper.",
+          "headHash": "8c14dad32fb1c2128afeb9d15b0b20773c6e8f23",
+          "materialHash": "5dcccc5e56aeceed2ad2e76bd28a25bb1c9440e7417b84454108fa8a6d96782f",
+          "storyFilesHash": "11bb882e77a1be438c799161f5019960234f4ab54f46458fbf0628b57dc8efcb",
+          "timestamp": "2026-07-16T18:31:01.142Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Optional head and missing test evidence canonical envelopes are pinned.",
+          "headHash": "8c14dad32fb1c2128afeb9d15b0b20773c6e8f23",
+          "materialHash": "5dcccc5e56aeceed2ad2e76bd28a25bb1c9440e7417b84454108fa8a6d96782f",
+          "storyFilesHash": "11bb882e77a1be438c799161f5019960234f4ab54f46458fbf0628b57dc8efcb",
+          "timestamp": "2026-07-16T18:31:01.301Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Schema versions and prompt purpose are pinned constants.",
+          "headHash": "8c14dad32fb1c2128afeb9d15b0b20773c6e8f23",
+          "materialHash": "5dcccc5e56aeceed2ad2e76bd28a25bb1c9440e7417b84454108fa8a6d96782f",
+          "storyFilesHash": "11bb882e77a1be438c799161f5019960234f4ab54f46458fbf0628b57dc8efcb",
+          "timestamp": "2026-07-16T18:31:01.470Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Every required identity/freshness field fails closed when empty.",
+          "headHash": "8c14dad32fb1c2128afeb9d15b0b20773c6e8f23",
+          "materialHash": "5dcccc5e56aeceed2ad2e76bd28a25bb1c9440e7417b84454108fa8a6d96782f",
+          "storyFilesHash": "11bb882e77a1be438c799161f5019960234f4ab54f46458fbf0628b57dc8efcb",
+          "timestamp": "2026-07-16T18:31:01.634Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Replay vectors vary each bound field; quorum independence tests remain green.",
+          "headHash": "8c14dad32fb1c2128afeb9d15b0b20773c6e8f23",
+          "materialHash": "5dcccc5e56aeceed2ad2e76bd28a25bb1c9440e7417b84454108fa8a6d96782f",
+          "storyFilesHash": "11bb882e77a1be438c799161f5019960234f4ab54f46458fbf0628b57dc8efcb",
+          "timestamp": "2026-07-16T18:31:01.791Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
