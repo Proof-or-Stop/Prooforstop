@@ -66,7 +66,51 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Given a clean tree and prior complete PASS evidence whose materialHash, storyFilesHash, validation identity, coverage, and exact HEAD all match, validate decides inside withValidationExecutionLock, confirms HEAD is unchanged on a second read, returns reused, and invokes zero validation commands. WHY: the common unchanged-tree case must remove redundant work without weakening serialization.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "must"
+          },
+          {
+            "desc": "Given a clean trusted-story-metadata-descendant HEAD with unchanged material, story files, identity, and complete coverage, validate reuses the PASS under the same lock after a stable second HEAD read. WHY: metadata-only commits were the measured source of repeated full-suite waste.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Given concurrent validate callers, the evidence read, identity and lineage decision, both HEAD reads, and the execute-or-reuse branch occur within the existing validation execution lock so only one caller owns the decision at a time. WHY: a pre-lock freshness check would create a race even when each individual predicate is correct.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "desc": "Given prior FAIL evidence, incomplete or stale coverage, dirty worktree state, mismatched material/story files/identity, or untrusted lineage, validate executes the real resolved plan and uses its result rather than returning prior PASS. WHY: reuse is an optimization and every uncertainty must fall back to the authoritative operation.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Given HEAD changes after the initial reuse checks but before return, the second HEAD read detects TOCTOU drift and forces real execution against a newly resolved or revalidated state; it never emits reused. WHY: a concurrent metadata or material commit must not make a stale decision appear atomic.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "desc": "Given evidence-read, hash, git-status, lineage, identity, or HEAD-read errors and malformed values, validate handles them as explicit reuse refusals and runs validation rather than failing open to PASS. WHY: attacker-controlled or damaged metadata must be able to cost time, not manufacture success.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
