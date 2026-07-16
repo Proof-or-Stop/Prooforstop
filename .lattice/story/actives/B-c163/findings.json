@@ -1072,6 +1072,30 @@
       "resolvedAt": "2026-07-16T01:16:41.478Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-030",
+      "desc": "Round 17 adds the correct fail-closed evaluator, but gate-consumer regression coverage is incomplete. live-smoke-transcript-smoke behaviorally covers a timeout/null exit, write-only actual=null, passing capture, and a DONE-oracle failure row. It never invokes delivery_check_set while failed/write-only evidence is present, and closeout-trust-smoke calls delivery_check_set before any live-smoke artifact exists; therefore deleting the new delivery-check.ts rejection leaves all focused tests green. Likewise no behavioral test drives canFinishGuard/getGuardFailureReason with a failed transcript: verify-process-fact-contract only checks that machine.ts contains the evaluator name and the helper contains two token predicates, so removing the canFinish guard while leaving the diagnostic import/use would still pass. The registered runtime fact also promises malformed, cross-story, and non-zero rejection, but those variants are not exercised. Add table-driven invalid artifacts and assert evaluator result, delivery_check_set rejection/no write, canFinishGuard=false with live_smoke_transcript_failed diagnostic, and DONE-oracle blocking. The async-await regression itself is covered: closeout-trust now awaits capture before its immediate writer-receipt assertion. Build, live-smoke, closeout-trust, and process-fact contract all pass, confirming a verified coverage gap rather than a current implementation failure.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-16T01:47:36.643Z",
+      "reviewRound": "2026-07-16T01:45:18.901Z",
+      "reviewRunId": "B-c163:RR-075",
+      "_hash": "a7e5858acd90a86dea90594acc29cf4fbcee0def87e28bfd422ddf32aa2ee1b3",
+      "files": [
+        "packages/main/src/core/live-smoke-transcript-evidence.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/src/handlers/delivery-check.ts",
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "missing|ts|round-adds-correct",
+      "signatureTagSource": "auto"
     }
   ]
 }
