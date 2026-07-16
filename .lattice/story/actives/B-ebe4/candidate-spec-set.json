@@ -1,0 +1,146 @@
+{
+  "schemaVersion": "proofbound.candidate-spec-set.v1",
+  "storyId": "B-ebe4",
+  "corpusDigest": "94fde77facef77a622c96c68cd95ab5998cc0d400a27a24a411b9f47f2bbcfe0",
+  "seedDigest": "58293efd09b833c5be42b966cff0769780bbaba14e8195b94cc898a918731b39",
+  "promptDigests": [],
+  "candidates": [
+    {
+      "path": "docs/requirements/decisions/story-lifecycle.md",
+      "contentHash": "25359e172485aec5b9cafabf56659a0736e346aef073b2a78d0a2a5da4a1cbc0",
+      "score": 100,
+      "reasons": [
+        {
+          "kind": "related-doc",
+          "term": "docs/requirements/decisions/story-lifecycle.md",
+          "source": "relatedDoc",
+          "points": 100
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/testing-infra.md",
+      "contentHash": "5545a3c8efed5c97256c51ed7459d25f32eb97cc633f97f90fce6294419c3a65",
+      "score": 100,
+      "reasons": [
+        {
+          "kind": "related-doc",
+          "term": "docs/requirements/decisions/testing-infra.md",
+          "source": "relatedDoc",
+          "points": 100
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+      "contentHash": "f68d1fc7addd70b9e8881cbfdbd0dc183f184161359621896bb953dacba2acaf",
+      "score": 100,
+      "reasons": [
+        {
+          "kind": "related-doc",
+          "term": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "source": "relatedDoc",
+          "points": 100
+        }
+      ]
+    }
+  ],
+  "candidateSpecSet": [
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/testing-infra.md",
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+  ],
+  "candidateBasis": {
+    "docs/requirements/decisions/story-lifecycle.md": [
+      {
+        "kind": "related-doc",
+        "term": "docs/requirements/decisions/story-lifecycle.md",
+        "source": "relatedDoc",
+        "points": 100
+      }
+    ],
+    "docs/requirements/decisions/testing-infra.md": [
+      {
+        "kind": "related-doc",
+        "term": "docs/requirements/decisions/testing-infra.md",
+        "source": "relatedDoc",
+        "points": 100
+      }
+    ],
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md": [
+      {
+        "kind": "related-doc",
+        "term": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+        "source": "relatedDoc",
+        "points": 100
+      }
+    ]
+  },
+  "queryGroups": [
+    [
+      "bootstrap runner js"
+    ],
+    [
+      "cli engine ts"
+    ],
+    [
+      "runtime environment checks ts"
+    ],
+    [
+      "runtime fact registry ts"
+    ]
+  ],
+  "queryFiltering": {
+    "maxDocumentFrequencyRatio": 0.4,
+    "filteredTerms": [
+      {
+        "term": "bin",
+        "documentCount": 94,
+        "documentFrequencyRatio": 0.7899159663865546
+      },
+      {
+        "term": "core",
+        "documentCount": 82,
+        "documentFrequencyRatio": 0.6890756302521008
+      },
+      {
+        "term": "main",
+        "documentCount": 114,
+        "documentFrequencyRatio": 0.957983193277311
+      },
+      {
+        "term": "packages",
+        "documentCount": 68,
+        "documentFrequencyRatio": 0.5714285714285714
+      },
+      {
+        "term": "scripts",
+        "documentCount": 48,
+        "documentFrequencyRatio": 0.40336134453781514
+      },
+      {
+        "term": "src",
+        "documentCount": 61,
+        "documentFrequencyRatio": 0.5126050420168067
+      }
+    ]
+  },
+  "rankingPolicy": {
+    "minRankingAffectingCutoffScore": 15
+  },
+  "budgets": {
+    "candidates": 8,
+    "queryGroups": 10,
+    "rawHitsPerGroup": 50
+  },
+  "ambiguitySignals": [],
+  "requiresEscalation": false,
+  "escalationReasons": [],
+  "fullScan": false,
+  "scanEscalationReason": null,
+  "storyInputDigest": "8a042b25b44bc0c7b8393b84746b0072a82cdaa2d126e943b744ed495df5c6f4",
+  "headHash": "6675b6359331fb94b061f4488ea3fb87daec9367",
+  "materialHash": "4085733cb282d72d04eb09f83ade263e114a37b37afec1bd4c7b73f6a482a48a",
+  "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "artifactDigest": "b36cd839a8ee58882c1e3484152c14e38fdbded6c59a2d4b83791f03345e9eba"
+}
