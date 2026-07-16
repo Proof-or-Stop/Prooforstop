@@ -49,7 +49,7 @@
       "desc": "packages/main/src/cli/command-catalog.ts:2391-2395 — MEDIUM: the public dispatch help still says the command is only for one item/finding/cluster and that itemId should provide exactly one target, even though the new registry accepts story-only reviewer/delivery calls. `node packages/main/dist/cli.js dispatch --help` reproduces the contradictory contract, and command-catalog-smoke currently asserts the stale description instead of the new story-level behavior. Update description/argument guidance and make the smoke require story-only wording so the user-facing contract matches the handler and transition hints.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-16T11:21:31.199Z",
@@ -61,7 +61,11 @@
         "packages/main/src/tasks/command-catalog-smoke.ts"
       ],
       "signatureTag": "edge|ts|packages-main-command",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Replaced the stale item/finding/cluster-only help text and added conditional-cardinality assertions in command-catalog-smoke.",
+      "resolvedAt": "2026-07-16T11:50:41.845Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-19ca:F-004",
