@@ -224,11 +224,11 @@
           "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
           "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
           "result": "pass",
-          "note": "Real handler integration matrix passed configured, fallback, validate-file, locked material TOCTOU refusal, and zero-command reuse.",
-          "headHash": "2c1a3cd94202a54fcbe017afb53b67a146964351",
-          "materialHash": "66ea454ef84caa543fc8914493f4414a866f47305028cd0a0844902b2f33a6a3",
-          "storyFilesHash": "9918f27bcb68a601c52bada74c6c24a588011cd799ab18da2293725f2b951263",
-          "timestamp": "2026-07-16T17:50:28.449Z"
+          "note": "Post-main-merge regression passed: exact-head/metadata-descendant reuse stays inside the validation lock and returns commandExecutions=0.",
+          "headHash": "f0cf3eaba02f880bab56375f2317e64391373ea3",
+          "materialHash": "fb855b47f1f4e0d19688fbc9e464bb8767365b2ed4ddaf79de3ba036cef3ada4",
+          "storyFilesHash": "638b4b9467cc22a1a4653637312c3e04696ce35c334d6e385bada65dfc6d1107",
+          "timestamp": "2026-07-16T19:49:45.592Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -237,24 +237,24 @@
           "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
           "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
           "result": "pass",
-          "note": "Real handler integration matrix passed configured, fallback, validate-file, locked material TOCTOU refusal, and zero-command reuse.",
-          "headHash": "2c1a3cd94202a54fcbe017afb53b67a146964351",
-          "materialHash": "66ea454ef84caa543fc8914493f4414a866f47305028cd0a0844902b2f33a6a3",
-          "storyFilesHash": "9918f27bcb68a601c52bada74c6c24a588011cd799ab18da2293725f2b951263",
-          "timestamp": "2026-07-16T17:50:28.449Z"
+          "note": "Post-main-merge regression passed across configured, fallback, and validate-file sources with trusted metadata lineage.",
+          "headHash": "f0cf3eaba02f880bab56375f2317e64391373ea3",
+          "materialHash": "fb855b47f1f4e0d19688fbc9e464bb8767365b2ed4ddaf79de3ba036cef3ada4",
+          "storyFilesHash": "638b4b9467cc22a1a4653637312c3e04696ce35c334d6e385bada65dfc6d1107",
+          "timestamp": "2026-07-16T19:49:45.592Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "integration_test",
           "verdict": "success",
-          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
-          "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "file": "packages/main/src/tasks/review-escalation-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
-          "note": "Real handler integration matrix passed configured, fallback, validate-file, locked material TOCTOU refusal, and zero-command reuse.",
-          "headHash": "2c1a3cd94202a54fcbe017afb53b67a146964351",
-          "materialHash": "66ea454ef84caa543fc8914493f4414a866f47305028cd0a0844902b2f33a6a3",
-          "storyFilesHash": "9918f27bcb68a601c52bada74c6c24a588011cd799ab18da2293725f2b951263",
-          "timestamp": "2026-07-16T17:50:28.449Z"
+          "note": "Post-main-merge wrapper-root smoke proves validation and derived verdict paths share one lock authority.",
+          "headHash": "f0cf3eaba02f880bab56375f2317e64391373ea3",
+          "materialHash": "fb855b47f1f4e0d19688fbc9e464bb8767365b2ed4ddaf79de3ba036cef3ada4",
+          "storyFilesHash": "638b4b9467cc22a1a4653637312c3e04696ce35c334d6e385bada65dfc6d1107",
+          "timestamp": "2026-07-16T19:49:45.592Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -263,11 +263,11 @@
           "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
           "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
           "result": "pass",
-          "note": "Fail-closed malformed evidence and dirty snapshot matrix passed in the dedicated smoke.",
-          "headHash": "2c1a3cd94202a54fcbe017afb53b67a146964351",
-          "materialHash": "66ea454ef84caa543fc8914493f4414a866f47305028cd0a0844902b2f33a6a3",
-          "storyFilesHash": "9918f27bcb68a601c52bada74c6c24a588011cd799ab18da2293725f2b951263",
-          "timestamp": "2026-07-16T17:50:28.449Z"
+          "note": "Post-main-merge fail-closed matrix passed for non-PASS command evidence, coverage-only state, identity, dirty paths, and lineage.",
+          "headHash": "f0cf3eaba02f880bab56375f2317e64391373ea3",
+          "materialHash": "fb855b47f1f4e0d19688fbc9e464bb8767365b2ed4ddaf79de3ba036cef3ada4",
+          "storyFilesHash": "638b4b9467cc22a1a4653637312c3e04696ce35c334d6e385bada65dfc6d1107",
+          "timestamp": "2026-07-16T19:49:45.592Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -276,24 +276,24 @@
           "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
           "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
           "result": "pass",
-          "note": "Real CLI integration smoke: Second material snapshot deterministically rejects a source write inserted between capture and reuse return.",
-          "headHash": "2c1a3cd94202a54fcbe017afb53b67a146964351",
-          "materialHash": "66ea454ef84caa543fc8914493f4414a866f47305028cd0a0844902b2f33a6a3",
-          "storyFilesHash": "9918f27bcb68a601c52bada74c6c24a588011cd799ab18da2293725f2b951263",
-          "timestamp": "2026-07-16T17:50:28.449Z"
+          "note": "Post-main-merge locked TOCTOU regression detects material drift before reuse return and executes instead.",
+          "headHash": "f0cf3eaba02f880bab56375f2317e64391373ea3",
+          "materialHash": "fb855b47f1f4e0d19688fbc9e464bb8767365b2ed4ddaf79de3ba036cef3ada4",
+          "storyFilesHash": "638b4b9467cc22a1a4653637312c3e04696ce35c334d6e385bada65dfc6d1107",
+          "timestamp": "2026-07-16T19:49:45.592Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
           "kind": "integration_test",
           "verdict": "success",
-          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
-          "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "node packages/main/dist/tasks/validation-protocol-smoke.js",
           "result": "pass",
-          "note": "Real handler integration matrix passed configured, fallback, validate-file, locked material TOCTOU refusal, and zero-command reuse.",
-          "headHash": "2c1a3cd94202a54fcbe017afb53b67a146964351",
-          "materialHash": "66ea454ef84caa543fc8914493f4414a866f47305028cd0a0844902b2f33a6a3",
-          "storyFilesHash": "9918f27bcb68a601c52bada74c6c24a588011cd799ab18da2293725f2b951263",
-          "timestamp": "2026-07-16T17:50:28.449Z"
+          "note": "Canonical admissibility regression passed malformed output, stale coverage, stable reason-code diagnostics, and fail-closed execution fallback.",
+          "headHash": "f0cf3eaba02f880bab56375f2317e64391373ea3",
+          "materialHash": "fb855b47f1f4e0d19688fbc9e464bb8767365b2ed4ddaf79de3ba036cef3ada4",
+          "storyFilesHash": "638b4b9467cc22a1a4653637312c3e04696ce35c334d6e385bada65dfc6d1107",
+          "timestamp": "2026-07-16T19:49:45.592Z"
         }
       ]
     },
