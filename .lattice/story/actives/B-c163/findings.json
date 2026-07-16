@@ -1002,7 +1002,7 @@
       "desc": "Round 15 smoke is not stable and the cleanup still real-signals unowned/stale positive PIDs. In the first independent full smoke run, the injected `read` case should reject with its JSON parse error but instead failed with `Error: kill EPERM` from signalHarnessProcess during cleanup, causing the assert.rejects regex to fail. Source cause: targets contains the owned detached group `-cli.pid` plus observed positive capture/descendant PIDs; cleanup sends TERM to every target. Once the owned group is signaled, a recorded positive PID may already have exited/reaped and may be stale or reused. The later `filter(isAlive)` before KILL only proves some process currently has that number, not that it is still owned by this harness, so it also cannot authorize a real signal. This directly violates the requested never-signal-foreign-PID boundary and lets cleanup mask the injected primary failure with a genuine EPERM. Signal only the owned detached process group (and direct child through its ChildProcess handle if needed); treat capture/descendant PIDs as observation-only for bounded disappearance checks, ideally bound to process identity/start metadata rather than raw PID reuse. A genuine EPERM from signaling the still-owned group may remain the primary cleanup error, but no real signal should be sent solely on a recorded positive PID. Add a deterministic race seam where observed PIDs become stale/reused after group TERM and assert the signal sender receives only the negative owned PGID, original read/assert failure remains primary, and no external PID is touched. The local waitUntilGone try/finally, synthetic signal+liveness seam, detached group, double cleanup memoization and normal no-signal branch otherwise inspect correctly; production is unchanged.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-16T01:06:58.168Z",
@@ -1045,7 +1045,11 @@
         "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|round-smoke-stable",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 4903b28a34 signals exclusively the canonical negative owned PGID; observed positive PIDs are wait-only. Stale/reuse seam records only negative targets and preserves original injected errors, ESRCH is benign, and owned no-primary EPERM propagates. Round 16 quality build, six smokes, process-fact contract and orphan scan pass.",
+      "resolvedAt": "2026-07-16T01:19:27.398Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c163:F-029",
