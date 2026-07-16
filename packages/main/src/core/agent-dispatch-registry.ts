@@ -421,15 +421,31 @@ export function entryPermitsMutation(
   return entry.permittedMutations.includes(command);
 }
 
+/**
+ * Explicit non-dispatch identities used by trusted host/human callers.
+ * Keep this list deliberately small and exact: spelling variants and prefix
+ * lookalikes must not acquire host authority.
+ */
+export const TRUSTED_HOST_ACTOR_IDENTITIES = ['main', 'main-agent', 'human'] as const;
+
+export type TrustedHostActorIdentity = typeof TRUSTED_HOST_ACTOR_IDENTITIES[number];
+
+const trustedHostActorIdentities = new Set<string>(TRUSTED_HOST_ACTOR_IDENTITIES);
+
+export function isTrustedHostActor(actor: string | undefined | null): boolean {
+  const actorName = actor?.trim();
+  return !actorName || trustedHostActorIdentities.has(actorName);
+}
+
 export function assertRegisteredAgentMutationAllowed(
   actor: string | undefined | null,
   command: AgentDispatchMutationCommand,
 ): AgentDispatchRegistryEntry | null {
   const actorName = actor?.trim();
-  // An omitted actor is the explicit main-host compatibility path. Once a
-  // caller supplies an identity, however, that identity must be registered:
-  // prefix lookalikes and misspellings must never inherit host authority.
-  if (!actorName) return null;
+  // Omitted identities and the small, explicit trusted-host set retain the
+  // compatibility path. Every other supplied identity must be registered:
+  // prefix lookalikes and misspellings never inherit host authority.
+  if (isTrustedHostActor(actor)) return null;
   const entry = resolveRegisteredAgentActor(actor);
   if (!entry) {
     throw new Error(

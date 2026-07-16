@@ -10,8 +10,10 @@ import {
   assertRegisteredAgentMutationAllowed,
   entryAcceptsIdentifier,
   entryPermitsMutation,
+  isTrustedHostActor,
   resolveAgentDispatchType,
   resolveAgentDispatchPromptBuilder,
+  TRUSTED_HOST_ACTOR_IDENTITIES,
   validateAgentDispatchRequest,
   validateAgentDispatchRegistry,
 } from '../core/agent-dispatch-registry.js';
@@ -276,7 +278,13 @@ assert.throws(
   'implementers must not receive review-pass authority',
 );
 assert.equal(assertRegisteredAgentMutationAllowed(undefined, 'finding_add'), null, 'omitted actor retains explicit main-host compatibility');
+assert.equal(assertRegisteredAgentMutationAllowed(null, 'finding_add'), null, 'null actor retains explicit main-host compatibility');
 assert.equal(assertRegisteredAgentMutationAllowed('   ', 'finding_add'), null, 'blank actor retains explicit main-host compatibility');
+assert.deepEqual(TRUSTED_HOST_ACTOR_IDENTITIES, ['main', 'main-agent', 'human'], 'trusted host actor set stays minimal and auditable');
+for (const actor of TRUSTED_HOST_ACTOR_IDENTITIES) {
+  assert.equal(isTrustedHostActor(actor), true, `${actor} is an explicit trusted host identity`);
+  assert.equal(assertRegisteredAgentMutationAllowed(actor, 'finding_add'), null, `${actor} retains host mutation compatibility`);
+}
 assert.throws(
   () => assertRegisteredAgentMutationAllowed('lattice-review-lookalike', 'finding_add'),
   /agent_dispatch_actor_unknown/,
@@ -329,6 +337,57 @@ try {
     assert.throws(invoke, /agent_dispatch_actor_unknown/, `${command} must fail closed for a nonblank unknown actor`);
     assert.equal(mutationState(), before, `${command} unknown-actor rejection must leave story state byte-equivalent`);
   };
+  const previousHostAgent = process.env.LATTICE_AGENT;
+  delete process.env.LATTICE_AGENT;
+  try {
+    const hostCases: Array<{ label: string; agent?: string | null; expectedAgent: string }> = [
+      { label: 'omitted', expectedAgent: 'main' },
+      { label: 'null', agent: null, expectedAgent: 'main' },
+      { label: 'blank', agent: '   ', expectedAgent: 'main' },
+      { label: 'main', agent: 'main', expectedAgent: 'main' },
+      { label: 'main-agent', agent: 'main-agent', expectedAgent: 'main-agent' },
+      { label: 'human', agent: 'human', expectedAgent: 'human' },
+    ];
+    for (const hostCase of hostCases) {
+      const result = findingHandlers.finding_add({
+        storyId,
+        desc: `trusted host compatibility ${hostCase.label}`,
+        severity: 'low',
+        category: 'edge',
+        ...(hostCase.agent === undefined ? {} : { agent: hostCase.agent }),
+      } as Parameters<typeof findingHandlers.finding_add>[0]);
+      assert.match(result, new RegExp(`created by ${hostCase.expectedAgent}:`), `${hostCase.label} must use the real host handler path`);
+    }
+    const hostFindings = store.readFindings(storyId).findings.slice(-hostCases.length);
+    assert.deepEqual(
+      hostFindings.map((finding) => finding.agent),
+      hostCases.map((hostCase) => hostCase.expectedAgent),
+      'real finding handler preserves explicit trusted host identities and normalizes absent identities to main',
+    );
+
+    for (const lookalike of [
+      'Main',
+      'main_agent',
+      'mainagent',
+      'main-agent-extra',
+      'human-agent',
+      'human-reviewer',
+      'main/agent',
+      'main.agent',
+    ]) {
+      assert.equal(isTrustedHostActor(lookalike), false, `${lookalike} must not match the exact trusted-host set`);
+      assertUnknownActorRejectedWithoutMutation(`finding_add actor=${lookalike}`, () => findingHandlers.finding_add({
+        storyId,
+        desc: 'trusted host lookalike must not persist',
+        severity: 'high',
+        category: 'missing',
+        agent: lookalike,
+      }));
+    }
+  } finally {
+    if (previousHostAgent === undefined) delete process.env.LATTICE_AGENT;
+    else process.env.LATTICE_AGENT = previousHostAgent;
+  }
   for (const agentType of ['verification-intent', 'test-intent', 'test-case-reviewer']) {
     const prompt = handlers.dispatch({ storyId, itemId: 'CHK-001', agentType }).prompt;
     assert.match(prompt, /define verification intent/);

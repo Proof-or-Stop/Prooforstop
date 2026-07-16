@@ -487,7 +487,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
       assertCwdInWorktree(store, args.storyId);
 
       // Record caller identity (env var LATTICE_AGENT is set by subagent)
-      const dispatchedActor = args.agent || process.env.LATTICE_AGENT;
+      const dispatchedActor = args.agent?.trim() || process.env.LATTICE_AGENT?.trim();
       const missingAttribution = !dispatchedActor;
       assertRegisteredAgentMutationAllowed(dispatchedActor, 'finding_add');
       const agent = dispatchedActor || 'main';
@@ -663,7 +663,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
       readEvents?: unknown;
       readLog?: unknown;
     }): string {
-      const actor = args.agent || process.env.LATTICE_AGENT || 'main';
+      const actor = args.agent?.trim() || process.env.LATTICE_AGENT?.trim() || 'main';
       assertRegisteredAgentMutationAllowed(actor, 'review_pass_set');
       if (!args.note || args.note.trim().length < 10) {
         throw new Error('review_pass_set: note must be ≥ 10 characters, explaining what the reviewer checked and why there is no blocker');
