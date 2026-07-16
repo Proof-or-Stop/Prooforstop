@@ -1565,6 +1565,10 @@ try {
     store.writeTestEvidence(storyId, evidence);
     gitQuiet(gateFreshRoot, ['add', `.lattice/story/actives/${storyId}`]);
     gitQuiet(gateFreshRoot, ['commit', '-m', 'record fresh validation evidence']);
+    evidence.headHash = currentGitHead(gateFreshRoot)!;
+    evidence.materialHash = currentMaterialHash(gateFreshRoot, 'HEAD', gateFreshRoot)!;
+    evidence.storyFilesHash = currentStoryFilesHash(gateFreshRoot, 'HEAD', gateFreshRoot)!;
+    store.writeTestEvidence(storyId, evidence);
     let stopped = false;
     const logs: string[] = [];
     const actor = { stop() { stopped = true; } };
@@ -1597,14 +1601,16 @@ try {
     let stopped = false;
     const logs: string[] = [];
     const actor = { stop() { stopped = true; } };
-    await runValidateGate({ store: gateWarningRoot.store, root: gateWarningRoot.root, scanRoot: join(gateWarningRoot.root, 'packages/main'), log: line => logs.push(line) }, gateWarningRoot.storyId, actor);
+    await assert.rejects(
+      () => runValidateGate({ store: gateWarningRoot.store, root: gateWarningRoot.root, scanRoot: join(gateWarningRoot.root, 'packages/main'), log: line => logs.push(line) }, gateWarningRoot.storyId, actor),
+      /Cannot enter TEST: lattice validate did not pass/,
+    );
     const after = gateWarningRoot.store.readTestEvidence(gateWarningRoot.storyId);
     assert.equal(stopped, false, 'fresh warning skip path must leave actor stop to transition-orchestrator');
-    assert.equal(after?.result, 'PASS', 'fresh warning skip path must preserve PASS evidence');
-    assert.equal(after?.timestamp, gateWarningRoot.evidence.timestamp, 'fresh warning skip path must not rewrite test-evidence timestamp');
+    assert.equal(after?.result, 'FAIL', 'whole-tree material drift must rerun rather than reuse PASS evidence');
     assert.ok(
-      logs.some(line => line.includes('whole-tree materialHash drift detected while storyFilesHash matches')),
-      'fresh warning skip path must surface the re-attestation warning',
+      logs.some(line => line.includes('materialHash does not match current materialHash')),
+      'whole-tree material drift must fail the exact validation admissibility envelope',
     );
   } finally {
     rmSync(gateWarningRoot.root, { recursive: true, force: true });

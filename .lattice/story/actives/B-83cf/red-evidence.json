@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-83cf",
+  "records": [
+    {
+      "id": "RED-20260716182402",
+      "trigger": "The documented single-host fallback command cannot request canonical binding derivation.",
+      "acceptanceTargetRef": "REQ-001",
+      "baselineHeadHash": "4201fc824965013693a3d29cb533f6143a969640",
+      "baselineMaterialHash": "bc56cb1d24054836b0cb5c862fecd813e2626cecc13ce5313aa2573f2df0b8da",
+      "observedFailure": "Before the fix, autopilot_review_submit exposes no --deriveBindings option; its guidance requires callers to manually supply private validation and prompt digests, and unbound PASS verdicts are ignored by the assurance gate.",
+      "failingCommand": "set -o pipefail; node bin/lattice.js autopilot_review_submit --help | rg -- --deriveBindings",
+      "expectedGreenCommand": "set -o pipefail; node bin/lattice.js autopilot_review_submit --help | rg -- --deriveBindings",
+      "greenRelation": {
+        "targetRef": "REQ-001",
+        "relation": "regression_to_green",
+        "command": "set -o pipefail; node bin/lattice.js autopilot_review_submit --help | rg -- --deriveBindings"
+      },
+      "note": "Observed in the B-83cf worktree before implementation: the command exited 1 with no matching option. B-914f verdict verdict-04a475a7d4e1cbb5 additionally demonstrated that missing canonical bindings are not counted.",
+      "createdAt": "2026-07-16T18:24:02.829Z"
+    },
+    {
+      "id": "RED-20260716182700",
+      "trigger": "The documented single-host fallback command cannot request canonical binding derivation.",
+      "acceptanceTargetRef": "sha256:497d0be5e44ef61c97bf3bb174320435c56f4958d50c05d550ae410857ed678f",
+      "baselineHeadHash": "0d5540319eabd27f0be25fde98e23d3121eb719d",
+      "baselineMaterialHash": "bc56cb1d24054836b0cb5c862fecd813e2626cecc13ce5313aa2573f2df0b8da",
+      "observedFailure": "Before the fix, autopilot_review_submit exposes no --deriveBindings option, so the printed recovery command cannot derive gate-admissible bindings.",
+      "failingCommand": "set -o pipefail; node bin/lattice.js autopilot_review_submit --help | rg -- --deriveBindings",
+      "expectedGreenCommand": "set -o pipefail; node bin/lattice.js autopilot_review_submit --help | rg -- --deriveBindings",
+      "greenRelation": {
+        "targetRef": "sha256:497d0be5e44ef61c97bf3bb174320435c56f4958d50c05d550ae410857ed678f",
+        "relation": "regression_to_green",
+        "command": "set -o pipefail; node bin/lattice.js autopilot_review_submit --help | rg -- --deriveBindings"
+      },
+      "note": "Observed exit 1 before implementation; target is the immutable original-intent request hash.",
+      "createdAt": "2026-07-16T18:27:00.975Z"
+    }
+  ],
+  "createdAt": "2026-07-16T18:24:02.829Z",
+  "updatedAt": "2026-07-16T18:27:00.975Z"
+}

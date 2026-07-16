@@ -1,0 +1,36 @@
+{
+  "storyId": "B-83cf",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/quorum-submit.ts",
+    "packages/main/src/handlers/verdict.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/review-assurance-floor.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/host-verdict-bindings.ts",
+    "packages/main/src/core/validation-evidence-admissibility.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/quorum-submit-smoke.ts",
+    "packages/main/src/tasks/review-escalation-smoke.ts",
+    "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+    "packages/main/src/tasks/command-catalog-smoke.ts",
+    "packages/main/src/tasks/validation-protocol-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/verifier.ts",
+    "packages/main/src/core/done-prepare-validation-reuse.ts",
+    "packages/main/src/core/owner-session.ts"
+  ],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Reviewer-verified F-001/F-002/F-003/F-004 require sharing the existing TEST validation-evidence admissibility predicate and testing it at the phase gate, plus executing runtime-authoritative rendered guidance. User authorized continuing and fixing encountered workflow blockers; this extension remains bounded and does not change global runtime routing or quorum host counts.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-16T18:25:12.548Z",
+  "updatedAt": "2026-07-16T18:46:37.249Z"
+}

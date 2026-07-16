@@ -1,0 +1,529 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Share canonical host-verdict binding derivation",
+      "context": "Extract the keyId, validationDigest, and promptDigest derivation currently private to quorum submission into a shared fail-closed helper while preserving quorum semantics.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": "2026-07-16T18:29:00.278Z",
+      "endTime": "2026-07-16T18:39:41.901Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Golden-vector logic test calls the extracted shared derivation helper and the pre-extraction quorum derivation oracle with identical canonical storyId, headHash, materialDigest, storyFilesHash, testEvidence, hostId, provider, sessionId, and keyId; keyId, validationDigest, and promptDigest must be byte-for-byte equal.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "desc": "Quorum integration smoke submits the same valid two-independent-host, current-reviewer-pass fixture before and after delegation to the shared helper and proves the public lattice.quorum_submit.v1 result, verdict count/run ids, stored binding fields, and gate-counted assurance outcome are unchanged.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Canonical vectors cover both present and absent optional headHash plus present and unreadable/missing test evidence; validationDigest stays deterministic and exactly matches the existing canonicalDigest envelope for each case rather than silently dropping or inventing fields.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "desc": "Regression assertions pin validation schemaVersion lattice.quorum_submit.validation_digest.v1, prompt schemaVersion lattice.quorum_submit.prompt_digest.v1, and purpose local voluntary 3x2 review quorum after signed reviewer passes, so extraction or reuse cannot drift the digest namespace or semantic purpose.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The shared helper fails closed and emits no usable bindings when required canonical identity or freshness inputs are empty/invalid, including storyId, materialDigest, storyFilesHash, hostId, provider, sessionId, or keyId; callers cannot obtain a gate-counting digest from partial/defaulted data.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "desc": "Replay/collision tests vary one of storyId, headHash or testEvidence, materialDigest, storyFilesHash, hostId, provider, sessionId, and keyId at a time and prove the affected canonical digest changes; quorum still rejects hosts sharing normalized hostId, sessionId, or keyId and never collapses 3x2 independence through the refactor.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "The focused parity test reports that single-host and quorum derivation produce identical canonical keyId, validationDigest, and promptDigest, and quorum 3x2 behavior still passes.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/quorum-submit.ts"
+        ],
+        "create": [
+          "packages/main/src/core/host-verdict-bindings.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Golden vector proves byte-identical validation/prompt/key bindings.",
+          "headHash": "c1c63eba66dfa4fb7abb36279534254f78ba5eec",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:15:56.928Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Existing 3x2 quorum integration remains green through shared helper.",
+          "headHash": "c1c63eba66dfa4fb7abb36279534254f78ba5eec",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:15:56.928Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Optional head and missing test evidence canonical envelopes are pinned.",
+          "headHash": "c1c63eba66dfa4fb7abb36279534254f78ba5eec",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:15:56.928Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Schema versions and prompt purpose are pinned constants.",
+          "headHash": "c1c63eba66dfa4fb7abb36279534254f78ba5eec",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:15:56.928Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Required fields and non-canonical story ids fail closed in the pure helper.",
+          "headHash": "c1c63eba66dfa4fb7abb36279534254f78ba5eec",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:15:56.928Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Replay vectors vary each bound field; quorum independence tests remain green.",
+          "headHash": "c1c63eba66dfa4fb7abb36279534254f78ba5eec",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:15:56.928Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add explicit single-host binding derivation mode",
+      "context": "Allow autopilot_review_submit to derive current canonical bindings only when explicitly requested; reject supplied stale or inconsistent bindings and never invent a second host.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": "2026-07-16T18:31:09.676Z",
+      "endTime": "2026-07-16T19:14:52.610Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "With the explicit single-host binding-derivation mode enabled and a current story/evidence snapshot plus one real host identity supplied, autopilot_review_submit derives keyId, validationDigest, and promptDigest through the canonical shared derivation, accepts the submission, and persists exactly one verdict whose bindings equal the canonical values for the same inputs.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Without the explicit derivation flag, autopilot_review_submit preserves the legacy contract: it does not synthesize missing bindings, retains the existing warning or acceptance behavior for legacy callers, and does not silently opt the caller into derived bindings.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "desc": "A valid explicit-derivation submission records only the single supplied host identity and one verdict; it creates no second host, independence claim, quorum verdict, Authority receipt, or assurance stronger than degraded-single-host.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "When explicit derivation is requested but any caller-supplied keyId, validationDigest, or promptDigest conflicts with the current canonical derived value, the command fails closed before persistence; a before-and-after verdict-state comparison proves no verdict or partial artifact was written.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "desc": "When story material, story-files binding, validation evidence, or required host identity is stale, missing, or inconsistent at submission time, explicit derivation fails before write rather than deriving from stale evidence or accepting caller assertions; existing verdict state remains logically unchanged.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "Running autopilot_review_submit with --deriveBindings reports one PASS verdict with canonical bindings; stale supplied bindings fail before any verdict is written.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-escalation-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "Explicit derivation persists one canonical verdict; wrapper-root path shares the validation writer lock.",
+          "headHash": "d5b5af4178eaa419dd8d4326f442adc8c10f1069",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:14:52.894Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "Legacy no-flag behavior remains unchanged.",
+          "headHash": "d5b5af4178eaa419dd8d4326f442adc8c10f1069",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:14:53.076Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "One supplied host only; no fabricated independence or Authority artifact.",
+          "headHash": "d5b5af4178eaa419dd8d4326f442adc8c10f1069",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:14:53.271Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "Canonical envelope mismatches and every PASS admissibility invariant reject before persistence.",
+          "headHash": "d5b5af4178eaa419dd8d4326f442adc8c10f1069",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:14:53.449Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Plain and wrapper-root lock races leave zero verdict/events; phase-gate diagnostics retain exact legacy contracts.",
+          "headHash": "d5b5af4178eaa419dd8d4326f442adc8c10f1069",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:14:53.747Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Align fallback guidance and regression coverage",
+      "context": "Emit an executable degraded single-host command and cover valid three-round use, stale rejection, legacy warning behavior, and unchanged quorum behavior.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": "2026-07-16T18:33:50.128Z",
+      "endTime": "2026-07-16T19:15:09.852Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:happy:executable-guidance",
+            "desc": "A review-assurance degraded-single-host blocker renders a concrete autopilot_review_submit command (including the explicit binding-derivation mode and current story/material identity, with no ellipsis or unresolved placeholder); executing that exact printed command through node bin/lattice.js succeeds and persists a verdict containing non-empty canonical keyId, validationDigest, and promptDigest.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:happy:three-round-degraded",
+            "desc": "Starting from fresh validation and an approved degraded fallback, execute the rendered single-host submission for three distinct rounds from one real host; review assurance counts all three current-material verdicts, reports assuranceLevel=degraded-single-host/admissible, and never claims two-host independence, authorityDone, fullAuthorityDone, or productionDone.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:happy:process-fact-contract",
+            "desc": "The process-fact registry and verify-process-fact-contract check explicitly cover the new gate-consumed binding-derivation semantics and executable fallback guidance, and the contract verifier plus focused command/handler smoke tests pass.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:edge:legacy-warning",
+            "desc": "Calling autopilot_review_submit without the explicit derivation mode preserves legacy behavior: supplied complete bindings remain accepted under existing rules, while omitted required bindings produce the existing warning/non-counting outcome rather than being silently derived or promoted.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:edge:quorum-regression",
+            "desc": "Existing quorum_submit derivation remains behaviorally unchanged: two distinct hosts across the configured rounds receive the same canonical validation binding and host-specific prompt/key/session bindings, valid 3x2 still passes, and duplicate/self-host inputs remain rejected.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:adversarial:stale-rejection",
+            "desc": "With explicit derivation enabled, any caller-supplied materialDigest, storyFilesHash, validationDigest, promptDigest, or keyId that conflicts with the canonical current values is rejected fail-closed before persistence; the rejected attempt cannot count toward any round and does not overwrite a prior fresh verdict.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:adversarial:no-fabricated-host",
+            "desc": "The single-host derivation path requires an explicit non-empty host/provider/session identity and derives bindings only for that host; it never creates a second host/verdict, never upgrades 3x1 to 3x2, and repeated use of the same run/host cannot satisfy independent-host quorum.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:adversarial:command-tamper",
+            "desc": "If repository material, story-owned files, validation evidence, or fallback approval changes after guidance is printed but before the printed command executes, submission re-resolves current state and rejects the stale command instead of accepting the formerly rendered digests.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "Review-assurance guidance prints a directly executable --deriveBindings command, and three fresh single-host rounds satisfy only the explicitly approved degraded fallback.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:executable-guidance",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "Literal worktree-local guidance executes three complete derived submissions.",
+          "headHash": "7c4ff680e36a2f6483e4f63ab2cbf5eb2667578f",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:15:10.299Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:three-round-degraded",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "Three single-host rounds remain degraded-only without independence or Authority claims.",
+          "headHash": "7c4ff680e36a2f6483e4f63ab2cbf5eb2667578f",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:15:10.560Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:process-fact-contract",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Registry now pins the metadata/runtime-root lock authority used by validation writers and derived submissions.",
+          "headHash": "7c4ff680e36a2f6483e4f63ab2cbf5eb2667578f",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:15:10.815Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:legacy-warning",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "Legacy no-flag warning and non-counting behavior remains unchanged.",
+          "headHash": "7c4ff680e36a2f6483e4f63ab2cbf5eb2667578f",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:15:11.038Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:quorum-regression",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Quorum canonical derivation and host independence remain green.",
+          "headHash": "7c4ff680e36a2f6483e4f63ab2cbf5eb2667578f",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:15:11.285Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:stale-rejection",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Stale/tampered inputs and both plain/wrapper lock contention reject before persistence.",
+          "headHash": "7c4ff680e36a2f6483e4f63ab2cbf5eb2667578f",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:15:11.571Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:no-fabricated-host",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "Exactly one real host is persisted across three degraded-only rounds.",
+          "headHash": "7c4ff680e36a2f6483e4f63ab2cbf5eb2667578f",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:15:11.855Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:command-tamper",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "Submission re-resolves state under the canonical metadata/runtime-root validation lock; wrapper contention writes no verdict/event.",
+          "headHash": "7c4ff680e36a2f6483e4f63ab2cbf5eb2667578f",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:15:12.354Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-16T18:38:25.044Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Harden the shared helper itself against non-canonical story ids before review."
+    },
+    {
+      "timestamp": "2026-07-16T18:38:55.463Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation commit 8c14dad32f exists and all 6/6 frozen verification intents have passing evidence; repair implementer metadata status that remained in_progress after later item updates.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-16T18:47:13.562Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Fix verified REVIEW findings F-002 and F-003 with canonical validation admissibility and atomic submission."
+    },
+    {
+      "timestamp": "2026-07-16T19:01:11.978Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Fix F-002/F-003 and refresh evidence after commit 061085c3c3."
+    },
+    {
+      "timestamp": "2026-07-16T19:01:14.423Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Record F-001/F-004 runtime-authoritative literal guidance fix."
+    },
+    {
+      "timestamp": "2026-07-16T19:01:29.601Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Fix F-001/F-004 and refresh executable guidance evidence after commit 061085c3c3."
+    },
+    {
+      "timestamp": "2026-07-16T19:08:22.673Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Fix F-005/F-006/F-007 wrapper lock authority and stable diagnostics."
+    },
+    {
+      "timestamp": "2026-07-16T19:14:52.610Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Fix F-005/F-006/F-007/F-008 with canonical wrapper-root lock authority and stable structured diagnostics after commit d5b5af4178."
+    },
+    {
+      "timestamp": "2026-07-16T19:14:58.967Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Bind F-008 wrapper-root lock semantics into executable guidance and process-fact evidence."
+    },
+    {
+      "timestamp": "2026-07-16T19:15:09.852Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Refresh F-008 wrapper-root lock contract and focused regression evidence after commit d5b5af4178."
+    }
+  ]
+}

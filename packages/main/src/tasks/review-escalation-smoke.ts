@@ -5,7 +5,8 @@ import { execFileSync } from 'node:child_process';
 import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { delimiter, dirname, join } from 'node:path';
-import { currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { resetConfigCache } from '../core/config.js';
 import {
   REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE,
   REVIEW_ESCALATION_REQUIRED_ROUNDS,
@@ -18,6 +19,8 @@ import { StoryStore } from '../core/store.js';
 import { createVerdictHandlers } from '../handlers/verdict.js';
 import { createReviewEscalationHandlers } from '../handlers/review-escalation.js';
 import { canonicalReviewHostLauncherSpec, type CanonicalReviewHost } from '../core/host-execution-readiness.js';
+import { listVerdicts } from '../core/verdicts.js';
+import { withValidationExecutionLock } from '../core/validation-execution-lock.js';
 
 const STORY_ID = 'B-review-escalation';
 const ROUND_1 = '2026-06-13T10:00:00.000Z';
@@ -243,6 +246,12 @@ function check(name: string, fn: () => void): void {
   console.log(`  ✓ ${name}`);
 }
 
+async function asyncCheck(name: string, fn: () => Promise<void>): Promise<void> {
+  await fn();
+  passed++;
+  console.log(`  ✓ ${name}`);
+}
+
 const root = makeRepo();
 try {
   const materialHash = currentMaterialHash(root);
@@ -287,7 +296,7 @@ try {
     assert.match(formatReviewEscalationReport(report), /voluntaryLocalRounds: 3\/3/);
   });
 
-  check('producer commands persist storyFilesHash on host verdict and degraded fallback records', () => {
+  await asyncCheck('producer commands persist storyFilesHash on host verdict and degraded fallback records', async () => {
     const commandRoot = makeRepo();
     try {
       write(commandRoot, 'packages/main/src/story.ts', 'export const story = 1;\n');
@@ -295,6 +304,7 @@ try {
       git(commandRoot, ['commit', '-m', 'story file']);
       const store = new StoryStore(commandRoot);
       store.writeStory(STORY_ID, story());
+      store.writeChecklist(STORY_ID, { items: [] });
       const material = currentMaterialHash(commandRoot)!;
       const storyFilesHash = currentStoryFilesHash(commandRoot)!;
       const ctx = { store, root: commandRoot, scanRoot: join(commandRoot, 'packages/main') };
@@ -313,13 +323,162 @@ try {
         json: true,
       }) as any;
       assert.equal(verdict.storyFilesHash, storyFilesHash);
+      write(commandRoot, '.gitignore', '.lattice/autopilot-verdicts/\n');
+      git(commandRoot, ['add', '-A']);
+      git(commandRoot, ['commit', '-m', 'commit legacy verdict fixture']);
+
+      const commandPreviousCwd = process.cwd();
+      process.chdir(commandRoot);
+      const derivedMaterial = currentMaterialHash(commandRoot)!;
+      const derivedStoryFilesHash = currentStoryFilesHash(commandRoot)!;
+      const canonicalCoverage = { total: 0, required: 0, covered: 0, missingRequired: 0, entries: [] };
+      const canonicalEvidence = {
+        result: 'PASS',
+        command: `lattice validate --story=${STORY_ID} --json`,
+        output: JSON.stringify({ allPass: true, verificationCoverage: canonicalCoverage }),
+        timestamp: '2026-06-13T11:30:00.000Z',
+        headHash: git(commandRoot, ['rev-parse', 'HEAD']),
+        materialHash: derivedMaterial,
+        storyFilesHash: derivedStoryFilesHash,
+        verificationCoverage: canonicalCoverage,
+      } as const;
+      store.writeTestEvidence(STORY_ID, canonicalEvidence);
+      const beforeDerived = listVerdicts(commandRoot, 'local', STORY_ID).length;
+      const derived = await createVerdictHandlers(ctx).autopilot_review_submit({
+        storyId: STORY_ID,
+        runId: 'round-derived-command',
+        hostId: 'codex-derived',
+        provider: 'codex',
+        sessionId: 'codex-derived-session',
+        decision: 'pass',
+        deriveBindings: true,
+        json: true,
+      }) as any;
+      assert.match(derived.keyId, /^quorum:B-review-escalation:codex-derived:key$/);
+      assert.match(derived.validationDigest, /^[0-9a-f]{64}$/);
+      assert.match(derived.promptDigest, /^[0-9a-f]{64}$/);
+      assert.equal(derived.materialDigest, derivedMaterial);
+      assert.equal(derived.storyFilesHash, derivedStoryFilesHash);
+      assert.equal(listVerdicts(commandRoot, 'local', STORY_ID).length, beforeDerived + 1, 'explicit derivation writes exactly one host verdict');
+
+      const beforeRefusal = listVerdicts(commandRoot, 'local', STORY_ID).length;
+      for (const field of ['materialDigest', 'storyFilesHash', 'keyId', 'validationDigest', 'promptDigest'] as const) {
+        await assert.rejects(async () => await createVerdictHandlers(ctx).autopilot_review_submit({
+          storyId: STORY_ID,
+          runId: `round-derived-stale-${field}`,
+          hostId: 'codex-derived',
+          provider: 'codex',
+          sessionId: 'codex-derived-session',
+          decision: 'pass',
+          deriveBindings: true,
+          [field]: `stale-${field}`,
+          json: true,
+        }), new RegExp(`supplied ${field} does not match`));
+        assert.equal(listVerdicts(commandRoot, 'local', STORY_ID).length, beforeRefusal, `${field} mismatch fails before verdict persistence`);
+      }
+
+      const invalidEvidenceCases = [
+        ['wrong command', { command: 'npm test' }, /command is not lattice validate/],
+        ['non-allPass output', { output: '{"allPass":false}' }, /not allPass\/allPassed=true/],
+        ['missing coverage', { verificationCoverage: undefined }, /missing verificationCoverage/],
+        ['stale coverage snapshot', { verificationCoverage: { ...canonicalCoverage, total: 1 } }, /does not match current checklist/],
+        ['missing freshness binding', { headHash: undefined }, /missing headHash/],
+        ['invalid head lineage', { headHash: 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeef' }, /not an ancestor/],
+      ] as const;
+      for (const [label, override, pattern] of invalidEvidenceCases) {
+        store.writeTestEvidence(STORY_ID, { ...canonicalEvidence, ...override } as any);
+        const beforeInvalidVerdicts = listVerdicts(commandRoot, 'local', STORY_ID).length;
+        const beforeInvalidEvents = store.readProcessEvents(STORY_ID).filter(event => event.type === 'host_verdict').length;
+        await assert.rejects(async () => await createVerdictHandlers(ctx).autopilot_review_submit({
+          storyId: STORY_ID,
+          runId: `round-invalid-${label.replaceAll(' ', '-')}`,
+          hostId: 'codex-derived',
+          provider: 'codex',
+          sessionId: 'codex-derived-session',
+          decision: 'pass',
+          deriveBindings: true,
+          json: true,
+        }), pattern, label);
+        assert.equal(listVerdicts(commandRoot, 'local', STORY_ID).length, beforeInvalidVerdicts, `${label}: no verdict persisted`);
+        assert.equal(store.readProcessEvents(STORY_ID).filter(event => event.type === 'host_verdict').length, beforeInvalidEvents, `${label}: no host_verdict event persisted`);
+      }
+
+      store.writeTestEvidence(STORY_ID, canonicalEvidence);
+      write(commandRoot, 'packages/main/src/story.ts', 'export const story = 2;\n');
+      await assert.rejects(async () => await createVerdictHandlers(ctx).autopilot_review_submit({
+        storyId: STORY_ID,
+        runId: 'round-blocking-dirty',
+        hostId: 'codex-derived',
+        provider: 'codex',
+        sessionId: 'codex-derived-session',
+        decision: 'pass',
+        deriveBindings: true,
+        json: true,
+      }), /blocking dirty path/);
+      git(commandRoot, ['checkout', '--', 'packages/main/src/story.ts']);
+
+      let releaseRevalidationNow!: () => void;
+      let markRevalidationReady!: () => void;
+      const revalidationReady = new Promise<void>(resolveReady => { markRevalidationReady = resolveReady; });
+      const releaseRevalidation = new Promise<void>(resolveRelease => { releaseRevalidationNow = resolveRelease; });
+      const holder = withValidationExecutionLock({
+        root: commandRoot,
+        storyId: STORY_ID,
+        workspaceRoot: commandRoot,
+        command: 'concurrent revalidation smoke',
+      }, async () => {
+        markRevalidationReady();
+        await releaseRevalidation;
+        store.writeTestEvidence(STORY_ID, { ...canonicalEvidence, result: 'FAIL', output: JSON.stringify({ allPass: false }) });
+      });
+      await revalidationReady;
+      const beforeRaceVerdicts = listVerdicts(commandRoot, 'local', STORY_ID).length;
+      const beforeRaceEvents = store.readProcessEvents(STORY_ID).filter(event => event.type === 'host_verdict').length;
+      await assert.rejects(async () => await createVerdictHandlers(ctx).autopilot_review_submit({
+        storyId: STORY_ID,
+        runId: 'round-racing-revalidation',
+        hostId: 'codex-derived',
+        provider: 'codex',
+        sessionId: 'codex-derived-session',
+        decision: 'pass',
+        deriveBindings: true,
+        json: true,
+      }), /validation execution.*already running/);
+      releaseRevalidationNow();
+      await holder;
+      assert.equal(listVerdicts(commandRoot, 'local', STORY_ID).length, beforeRaceVerdicts, 'racing revalidation leaves no verdict');
+      assert.equal(store.readProcessEvents(STORY_ID).filter(event => event.type === 'host_verdict').length, beforeRaceEvents, 'racing revalidation leaves no host_verdict event');
+      await assert.rejects(async () => await createVerdictHandlers(ctx).autopilot_review_submit({
+        storyId: STORY_ID,
+        runId: 'round-after-failed-revalidation',
+        hostId: 'codex-derived',
+        provider: 'codex',
+        sessionId: 'codex-derived-session',
+        decision: 'pass',
+        deriveBindings: true,
+        json: true,
+      }), /result is not PASS/);
+
+      const legacy = createVerdictHandlers(ctx).autopilot_review_submit({
+        storyId: STORY_ID,
+        runId: 'round-legacy-unbound',
+        hostId: 'legacy-host',
+        provider: 'legacy-provider',
+        sessionId: 'legacy-session',
+        decision: 'pass',
+        json: true,
+      }) as any;
+      assert.equal(legacy.keyId, undefined, 'legacy no-flag path does not synthesize keyId');
+      assert.equal(legacy.validationDigest, undefined, 'legacy no-flag path does not synthesize validationDigest');
+      assert.equal(legacy.promptDigest, undefined, 'legacy no-flag path does not synthesize promptDigest');
+      process.chdir(commandPreviousCwd);
 
       withFakeCanonicalHostPath(commandRoot, ['codex'], () => {
         const probeResult = createReviewEscalationHandlers(ctx).review_host_availability_probe({
           storyId: STORY_ID,
           json: true,
         }) as any;
-        assert.equal(probeResult.storyFilesHash, storyFilesHash);
+        assert.equal(probeResult.storyFilesHash, derivedStoryFilesHash);
         assert.equal(probeResult.availableHostCount, 1);
 
         const fallbackResult = createReviewEscalationHandlers(ctx).review_escalation_fallback_set({
@@ -329,17 +488,74 @@ try {
           evidenceRefs: ['manual-approval:ticket-456'],
           json: true,
         }) as any;
-        assert.equal(fallbackResult.storyFilesHash, storyFilesHash);
+        assert.equal(fallbackResult.storyFilesHash, derivedStoryFilesHash);
         assert.equal(fallbackResult.hostAvailabilityProbeId, probeResult.probeId);
       });
 
       const events = store.readProcessEvents(STORY_ID);
       assert.equal(events.find(event => event.type === 'host_verdict')?.storyFilesHash, storyFilesHash);
-      assert.equal(events.find(event => event.type === 'review_host_availability_probe')?.storyFilesHash, storyFilesHash);
-      assert.equal(events.find(event => event.type === 'review_escalation_fallback')?.storyFilesHash, storyFilesHash);
+      assert.equal(events.find(event => event.type === 'review_host_availability_probe')?.storyFilesHash, derivedStoryFilesHash);
+      assert.equal(events.find(event => event.type === 'review_escalation_fallback')?.storyFilesHash, derivedStoryFilesHash);
       assert.equal(events.find(event => event.type === 'review_escalation_fallback')?.hostAvailabilityProbeId, events.find(event => event.type === 'review_host_availability_probe')?.probeId);
     } finally {
       rmSync(commandRoot, { recursive: true, force: true });
+    }
+  });
+
+  await asyncCheck('wrapper-root validation and derived verdict share one lock authority', async () => {
+    const metadataRoot = mkdtempSync(join(tmpdir(), 'review-escalation-wrapper-lock-'));
+    const gitRoot = join(metadataRoot, 'repo');
+    const previousCwd = process.cwd();
+    try {
+      mkdirSync(gitRoot, { recursive: true });
+      write(metadataRoot, 'lattice.config.json', JSON.stringify({ gitRoot: 'repo', scanRoot: 'repo/packages/main', rootDir: 'src', storyDir: '.lattice/story/actives' }, null, 2));
+      write(gitRoot, 'packages/main/src/story.ts', 'export const wrapper = true;\n');
+      git(gitRoot, ['init']);
+      git(gitRoot, ['config', 'user.email', 'smoke@example.invalid']);
+      git(gitRoot, ['config', 'user.name', 'Wrapper Lock Smoke']);
+      git(gitRoot, ['checkout', '-B', 'main']);
+      git(gitRoot, ['add', '.']);
+      git(gitRoot, ['commit', '-m', 'seed']);
+      git(gitRoot, ['checkout', '-B', `story/${STORY_ID}`]);
+      write(gitRoot, 'packages/main/src/story.ts', 'export const wrapper = 2;\n');
+      git(gitRoot, ['add', '.']);
+      git(gitRoot, ['commit', '-m', 'story change']);
+      resetConfigCache();
+      const store = new StoryStore(metadataRoot);
+      store.writeStory(STORY_ID, story());
+      store.writeChecklist(STORY_ID, { items: [] });
+      const coverage = { total: 0, required: 0, covered: 0, missingRequired: 0, entries: [] };
+      store.writeTestEvidence(STORY_ID, {
+        command: `lattice validate --story=${STORY_ID} --json`,
+        output: JSON.stringify({ allPass: true, verificationCoverage: coverage }),
+        result: 'PASS', timestamp: '2026-06-13T11:30:00.000Z',
+        headHash: currentGitHead(gitRoot)!,
+        materialHash: currentMaterialHash(gitRoot, 'HEAD', metadataRoot)!,
+        storyFilesHash: currentStoryFilesHash(gitRoot, 'HEAD', metadataRoot)!,
+        verificationCoverage: coverage,
+      });
+      process.chdir(gitRoot);
+      let release!: () => void;
+      let ready!: () => void;
+      const readyPromise = new Promise<void>(resolve => { ready = resolve; });
+      const releasePromise = new Promise<void>(resolve => { release = resolve; });
+      const holder = withValidationExecutionLock({ root: metadataRoot, storyId: STORY_ID, workspaceRoot: gitRoot, command: 'wrapper validate' }, async () => {
+        ready();
+        await releasePromise;
+      });
+      await readyPromise;
+      const beforeEvents = store.readProcessEvents(STORY_ID).filter(event => event.type === 'host_verdict').length;
+      await assert.rejects(async () => await createVerdictHandlers({ store, root: metadataRoot, scanRoot: join(gitRoot, 'packages/main') }).autopilot_review_submit({
+        storyId: STORY_ID, runId: 'wrapper-race', hostId: 'wrapper-host', provider: 'local', sessionId: 'wrapper-session', decision: 'pass', deriveBindings: true, json: true,
+      }), /validation execution.*already running/);
+      release();
+      await holder;
+      assert.equal(listVerdicts(metadataRoot, 'local', STORY_ID).length, 0);
+      assert.equal(store.readProcessEvents(STORY_ID).filter(event => event.type === 'host_verdict').length, beforeEvents);
+    } finally {
+      process.chdir(previousCwd);
+      rmSync(metadataRoot, { recursive: true, force: true });
+      resetConfigCache();
     }
   });
 

@@ -126,7 +126,7 @@ const requiredProcessFactSemantics = {
   finding_add: ['finding-state', 'blocker-state', 'gate-evidence'],
   finding_resolve: ['finding-state', 'blocker-state', 'gate-evidence'],
   finding_dismiss: ['finding-state', 'blocker-state', 'gate-evidence'],
-  autopilot_review_submit: ['host-verdict', 'execution-evidence', 'gate-evidence'],
+  autopilot_review_submit: ['host-verdict', 'execution-evidence', 'freshness-policy', 'schema-contract', 'gate-evidence'],
   quorum_submit: ['host-verdict', 'execution-evidence', 'gate-evidence'],
   decision_doc_proposal: ['schema-contract', 'gate-evidence'],
   decision_doc_save: ['artifact', 'schema-contract', 'execution-evidence', 'gate-evidence'],
@@ -3458,6 +3458,9 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     assert(levelEntry.category === 'lattice-local-host-verdict', `${processFactLevelRegistryPath}: ${commandName} category must stay lattice-local-host-verdict`);
     assert(levelEntry.owner === 'handlers/verdict', `${processFactLevelRegistryPath}: ${commandName} owner drifted`);
     assert(/storyFilesHash/i.test(levelEntry.rationale), `${processFactLevelRegistryPath}: ${commandName} rationale must name storyFilesHash`);
+    for (const token of ['deriveBindings', 'validation execution lock', 'canonical PASS-admissibility', 'trusted story-metadata-descendant', 'keyId', 'validationDigest', 'promptDigest', 'fails closed', 'exactly one', 'legacy']) {
+      assert(new RegExp(token, 'i').test(levelEntry.rationale), `${processFactLevelRegistryPath}: ${commandName} rationale must name ${token}`);
+    }
     assert(/review escalation/i.test(levelEntry.gateConsumer || ''), `${processFactLevelRegistryPath}: ${commandName} gateConsumer drifted`);
     assert(/review assurance floor/i.test(levelEntry.gateConsumer || ''), `${processFactLevelRegistryPath}: ${commandName} gateConsumer must name review assurance floor`);
   }
@@ -3469,7 +3472,7 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     assert(registryEntry.kind === 'host-verdict', `${processFactRegistryPath}: ${commandName} registry kind must stay host-verdict`);
     assert(registryEntry.gateEvidence === true, `${processFactRegistryPath}: ${commandName} registry gateEvidence must stay true`);
     assert(registryEntry.artifact?.path === 'process-events.jsonl', `${processFactRegistryPath}: ${commandName} must record process-events.jsonl evidence`);
-    for (const semantic of ['host-verdict', 'execution-evidence', 'gate-evidence']) {
+    for (const semantic of ['host-verdict', 'execution-evidence', 'freshness-policy', 'schema-contract', 'gate-evidence']) {
       assert(registryEntry.semantics.includes(semantic), `${processFactRegistryPath}: ${commandName} missing ${semantic} semantic`);
     }
     assert(/review escalation/i.test(registryEntry.consumerGate), `${processFactRegistryPath}: ${commandName} consumerGate drifted (${registryEntry.consumerGate})`);

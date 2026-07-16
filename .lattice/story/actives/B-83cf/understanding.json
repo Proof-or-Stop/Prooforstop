@@ -1,0 +1,34 @@
+{
+  "task": "Make the approved degraded single-host review-assurance path emit gate-admissible canonical verdict bindings without inventing a second host.",
+  "outcome": "When the user follows the printed fallback command, the terminal reports a PASS host verdict with derived keyId, validationDigest, and promptDigest; three fresh single-host rounds satisfy the approved fallback, while stale inputs are rejected with a clear error.",
+  "facts": [
+    "autopilot_review_submit currently warns but accepts missing materialDigest/validationDigest/promptDigest",
+    "quorum_submit privately derives keyId, validationDigest, and promptDigest",
+    "B-914f has explicit-human-approval fallback but its unbound single-host verdict is ignored by the gate",
+    "quorum and cross-host paths must retain independent-host semantics"
+  ],
+  "constraints": [
+    "Explicit opt-in only; no silent behavior change for legacy submissions",
+    "Fail closed on stale or conflicting supplied hashes/digests",
+    "Never fabricate a second host",
+    "Same evidence and host identity must yield the same canonical bindings in single-host and quorum paths",
+    "Update process-fact contract because gate-consumed evidence semantics change"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/host-verdict-bindings.ts",
+    "packages/main/src/handlers/quorum-submit.ts",
+    "packages/main/src/handlers/verdict.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/review-assurance-floor.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/tasks/quorum-submit-smoke.ts",
+    "packages/main/src/tasks/review-escalation-smoke.ts",
+    "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+    "packages/main/src/tasks/command-catalog-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+  ],
+  "timestamp": "2026-07-16T18:26:57.220Z"
+}
