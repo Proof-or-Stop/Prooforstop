@@ -861,16 +861,16 @@
         },
         {
           "intentRef": "CHK-006:adversarial:0",
-          "kind": "docs_check",
+          "kind": "integration_test",
           "verdict": "success",
-          "file": "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "file": "scripts/verify-process-fact-contract.mjs",
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Canonical contract now specifies trusted metadata/runtime dirt, material-clean double snapshots, and exit-zero semantic JSON FAIL; process-fact verification passed.",
-          "headHash": "0912b79dc53cb3602cc46ef7fa9d5501bb1991e4",
+          "note": "Runtime registry and canonical decision integration contract verified against the implemented gate semantics.",
+          "headHash": "2ec95a3977b12ba1c3bcdb5da83bd5741f73056d",
           "materialHash": "442de55b397b6704df008ba8605ea9c22b74553aeeb505f2367aadd0e5f3b73b",
           "storyFilesHash": "5d54f5520e1d60279203f64de703c1f6ebc59b2bc28748d40f64343046f83dda",
-          "timestamp": "2026-07-16T14:44:06.678Z"
+          "timestamp": "2026-07-16T14:45:19.223Z"
         },
         {
           "intentRef": "CHK-006:adversarial:1",
