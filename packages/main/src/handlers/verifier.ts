@@ -57,6 +57,7 @@ import type { ChecklistData, VerificationEvidence } from '../core/types.js';
 import {
   buildRoutineValidationIdentity,
   evaluateRoutineValidationReuse,
+  isCompleteRoutineValidationIdentity,
   summarizeRoutineCommandExecution,
   type RoutineValidationReuseEvaluation,
 } from '../core/validation-evidence-reuse.js';
@@ -596,7 +597,7 @@ function evaluateStoryRoutineReuse(args: {
       args.ctx.log?.(`routine validation reuse refused by dirty worktree: ${reuseCheck.materialDirtyFiles.join(' | ')}`);
     }
   } catch { /* refusal below */ }
-  return evaluateRoutineValidationReuse({
+  const evaluation = evaluateRoutineValidationReuse({
     root: args.ctx.root,
     gitCwd: args.gitCwd,
     evidence,
@@ -608,6 +609,17 @@ function evaluateStoryRoutineReuse(args: {
     headBefore,
     headAfter,
   });
+  if (!evaluation.reusable) {
+    const priorIdentityDigest = isCompleteRoutineValidationIdentity(evidence?.routineValidationIdentity)
+      ? evidence.routineValidationIdentity.digest
+      : 'missing-or-malformed';
+    const refusalReasons = [...new Set(evaluation.refusalReasons)].sort();
+    args.ctx.log?.(
+      `routine validation reuse refused: refusalReasons=${refusalReasons.join(',') || 'unknown'} `
+      + `priorIdentityDigest=${priorIdentityDigest} currentIdentityDigest=${args.identity.digest}`,
+    );
+  }
+  return evaluation;
 }
 
 function reusedStoryValidationResult(args: {

@@ -152,6 +152,23 @@ function assertHandlerExecutedThenReused(
       const secondFailure = run();
       assert.equal(secondFailure.status, 0, `${secondFailure.stdout}\n${secondFailure.stderr}`);
       assert.match(`${secondFailure.stdout}\n${secondFailure.stderr}`, /"disposition":"executed"/);
+      const expectedRefusalReasons = parsedEvidence.result === 'PASS'
+        ? 'prior-command-execution-not-pass'
+        : 'prior-command-execution-not-pass,prior-overall-result-not-reusable';
+      assert.match(
+        `${secondFailure.stdout}\n${secondFailure.stderr}`,
+        new RegExp(
+          `routine validation reuse refused: refusalReasons=${expectedRefusalReasons} `
+          + `priorIdentityDigest=${parsedEvidence.routineValidationIdentity?.digest} `
+          + `currentIdentityDigest=${parsedEvidence.routineValidationIdentity?.digest}`,
+        ),
+        'refused reuse must expose stable reasons and only identity digests',
+      );
+      assert.doesNotMatch(
+        `${secondFailure.stdout}\n${secondFailure.stderr}`,
+        /VALIDATION_REUSE_SMOKE_COUNTER=/,
+        'reuse refusal diagnostics must not expose raw environment values',
+      );
       assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, commandCount * 2, 'semantic validator non-PASS must never reuse');
       return;
     }
@@ -163,6 +180,11 @@ function assertHandlerExecutedThenReused(
     assert.match(`${second.stdout}\n${second.stderr}`, /"disposition":"reused"/);
     assert.match(`${second.stdout}\n${second.stderr}`, /"commandExecutions":0/);
     assert.match(`${second.stdout}\n${second.stderr}`, /trusted-story-metadata-descendant/);
+    assert.doesNotMatch(
+      `${second.stdout}\n${second.stderr}`,
+      /routine validation reuse refused:/,
+      'successful reuse must not emit refusal diagnostics',
+    );
     assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, commandCount, 'reuse must invoke zero project commands');
     assert.equal(readFileSync(evidencePath, 'utf8'), evidenceBefore, 'real reused handler path must not rewrite evidence');
     assert.equal(git(root, ['rev-parse', 'HEAD']), headBefore, 'real reused handler path must not auto-commit or move HEAD');
