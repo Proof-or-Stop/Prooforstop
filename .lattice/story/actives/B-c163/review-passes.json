@@ -331,6 +331,40 @@
         "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
       },
       "_hash": "93d85168cdf1e8cf412101c05dd13f4248d6c6318099a42ae2d6936286c87536"
+    },
+    {
+      "id": "B-c163:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 10 incremental coverage review passes. The live-smoke smoke asserts inherited max numeric ordering nested business bound < capture cleanup wrapper < outer CLI watchdog, preserves raw explicit max for unrelated commands, resolves a real installed lattice path and exercises a symlink whose realpath exactly matches the active CLI, retains shell-composition and executable-affecting inline-environment negatives, and retains real timeout descendant cleanup, stale-lock reclamation, timeout artifact readback, immediate lock/capture retries, and separate-live-lock preservation. Build, compiled live-smoke smoke, and process-fact contract all pass.",
+      "createdAt": "2026-07-16T00:00:26.923Z",
+      "reviewRound": "2026-07-15T23:58:38.447Z",
+      "reviewRunId": "B-c163:RR-046",
+      "writerSessionId": "review-bc163-coverage-r10",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/done-required-timeout-budget.ts",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "93f859032826364147439563acbd2b97f1f39a8238abc3c7751b9a0929516716",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "_hash": "1f49b4a13f55d2b702d74832104e7e67d1185c1e8355ecb88155b31231e6213b"
     }
   ]
 }
