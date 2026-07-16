@@ -1,0 +1,53 @@
+{
+  "storyId": "B-83cf",
+  "checkedAt": "2026-07-16T19:32:57.884Z",
+  "headHash": "6176342576c27ee5cc0e9a2083faa9de255d0c7b",
+  "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+  "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+  "reviewRound": "2026-07-16T19:15:22.799Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "promise": "Degraded single-host guidance emits one executable worktree-local node bin/lattice.js autopilot_review_submit command per round with explicit --deriveBindings and current material/story-files bindings.",
+      "status": "verified",
+      "verifiedBy": "review_escalation_status current TEST output plus focused real-machine smoke",
+      "evidence": "Current guidance printed three complete B-83cf-degraded-r1/r2/r3 worktree-local commands; review-assurance-floor smoke passed 'literal worktree-local guidance executes three complete degraded-only rounds'."
+    },
+    {
+      "docPath": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "promise": "Three single-host rounds may satisfy only an explicitly approved degraded-single-host fallback and must not claim two-host independence.",
+      "status": "verified",
+      "verifiedBy": "review_escalation_status and per-run autopilot_review_status --json",
+      "evidence": "Fallback B-83cf:REF-mrnwlud9 is valid; degradedFallback=pass 3/3 x 1 host. Runs r1/r2/r3 each contain exactly one fresh PASS verdict from the same real host, while multiHostVerified=false."
+    },
+    {
+      "docPath": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "promise": "Local host verdicts and degraded fallback evidence remain non-authority and do not set authorityDone, fullAuthorityDone, or productionDone.",
+      "status": "verified",
+      "verifiedBy": "three current per-run verdict summaries and regression smoke",
+      "evidence": "Each r1/r2/r3 summary reports authorityDone=false, receiptVerified=false, fullAuthorityDone=false, multiHostVerified=false, authorityServerContact=false; smoke passed forged-local-Authority rejection."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "On current TEST material 5bb83ae9/storyFiles 716f6a48, node packages/main/dist/tasks/review-assurance-floor-smoke.js passed 17/17 checks and node scripts/verify-process-fact-contract.mjs ended 'Process fact contract verified', confirming canonical shared bindings and unchanged process-fact semantics."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "autopilot_review_status --json for B-83cf-degraded-r1/r2/r3 returned one fresh PASS verdict per run, each with non-empty keyId, validationDigest, promptDigest and identical current material/story-files bindings; verdict ids verdict-6a58c47ee272f33a, verdict-b3a4523aac2ed6db, verdict-48b06f8d5e61ab79."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "review_escalation_status on current TEST evidence returned ok=true, assuranceLevel=degraded-single-host, degradedFallback=pass (3/3 rounds x 1 host), fallback record valid, and printed three directly executable worktree-local --deriveBindings commands. Per-run status explicitly remained blocked for 2-host quorum and all Authority flags were false."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery promises are verified against current TEST hashes and live CLI status. Three complete single-host verdicts satisfy only the approved degraded fallback; no 3x2, multi-host, Authority, full-Authority, or production completion claim is made. Focused smoke covers stale/tampered input, legacy behavior, host non-fabrication, and Authority-boundary edge cases; changed diff contains no unresolved TODO/FIXME/XXX markers."
+  },
+  "_hash": "d7a407735e046ee330c05188c43d14a9e2d8d842b0c124b4341956531203b4d9"
+}
