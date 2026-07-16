@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-16T18:29:00.278Z",
-      "endTime": "2026-07-16T18:31:00.712Z",
+      "endTime": "2026-07-16T18:38:55.463Z",
       "verificationIntent": {
         "happy": [
           {
@@ -442,6 +442,16 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Harden the shared helper itself against non-canonical story ids before review."
+    },
+    {
+      "timestamp": "2026-07-16T18:38:55.463Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation commit 8c14dad32f exists and all 6/6 frozen verification intents have passing evidence; repair implementer metadata status that remained in_progress after later item updates.",
+      "agent": "lattice-implementer"
     }
   ]
 }
