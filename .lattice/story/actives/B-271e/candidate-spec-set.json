@@ -1,0 +1,264 @@
+{
+  "schemaVersion": "proofbound.candidate-spec-set.v1",
+  "storyId": "B-271e",
+  "corpusDigest": "c32857bb0dce01204444115f085cb28f4df249ebca7e92092085ebdf61db9d44",
+  "seedDigest": "31da2ae2c7c816ba1e163d8408b2ddc1a12bc2314829581a6720fdb32f3682b2",
+  "promptDigests": [],
+  "candidates": [
+    {
+      "path": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+      "contentHash": "5139fc3fac39eb8a69b92013f80ac5ada8a77a36713b309f79a62a9066090670",
+      "score": 108,
+      "reasons": [
+        {
+          "kind": "related-doc",
+          "term": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "source": "relatedDoc",
+          "points": 100
+        },
+        {
+          "kind": "body",
+          "term": "handlers",
+          "source": "handlers",
+          "points": 8
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/testing-completeness.md",
+      "contentHash": "ac14c16d121716b77eba2448010dfdbf56546c5f97a0c3623fe10bd289332b49",
+      "score": 100,
+      "reasons": [
+        {
+          "kind": "related-doc",
+          "term": "docs/requirements/decisions/testing-completeness.md",
+          "source": "relatedDoc",
+          "points": 100
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/testing-infra.md",
+      "contentHash": "5545a3c8efed5c97256c51ed7459d25f32eb97cc633f97f90fce6294419c3a65",
+      "score": 100,
+      "reasons": [
+        {
+          "kind": "related-doc",
+          "term": "docs/requirements/decisions/testing-infra.md",
+          "source": "relatedDoc",
+          "points": 100
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+      "contentHash": "dcddc3f6fad9597c8a68df50d4739127a2b94df1b3c5c34ae8f62aede78f8325",
+      "score": 8,
+      "reasons": [
+        {
+          "kind": "body",
+          "term": "handlers",
+          "source": "handlers",
+          "points": 8
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+      "contentHash": "8016febb01e614a20da45dc93f7baf7c2b8a51c1a0098165b568f5687d2020f7",
+      "score": 8,
+      "reasons": [
+        {
+          "kind": "body",
+          "term": "handlers",
+          "source": "handlers",
+          "points": 8
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/cc-learnings.md",
+      "contentHash": "87e90902982779e02ef6aebf18e4a5f23d9c1e328fb5ce5cfd97f2dddf39dacc",
+      "score": 8,
+      "reasons": [
+        {
+          "kind": "body",
+          "term": "handlers",
+          "source": "handlers",
+          "points": 8
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+      "contentHash": "450a02e03d90d73f3120f53f470e03a8e16293c7ef8eae24fbb5ea1197f42de6",
+      "score": 8,
+      "reasons": [
+        {
+          "kind": "body",
+          "term": "handlers",
+          "source": "handlers",
+          "points": 8
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+      "contentHash": "016e7f06fab17b32dceddb6133bc4bcc4ad133fc412aaf8553bfece4462b35b6",
+      "score": 8,
+      "reasons": [
+        {
+          "kind": "body",
+          "term": "handlers",
+          "source": "handlers",
+          "points": 8
+        }
+      ]
+    }
+  ],
+  "candidateSpecSet": [
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+    "docs/requirements/decisions/testing-completeness.md",
+    "docs/requirements/decisions/testing-infra.md",
+    "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+    "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+    "docs/requirements/decisions/cc-learnings.md",
+    "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+    "docs/requirements/decisions/cli-engine-modularization-execution-plan.md"
+  ],
+  "candidateBasis": {
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md": [
+      {
+        "kind": "related-doc",
+        "term": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+        "source": "relatedDoc",
+        "points": 100
+      },
+      {
+        "kind": "body",
+        "term": "handlers",
+        "source": "handlers",
+        "points": 8
+      }
+    ],
+    "docs/requirements/decisions/testing-completeness.md": [
+      {
+        "kind": "related-doc",
+        "term": "docs/requirements/decisions/testing-completeness.md",
+        "source": "relatedDoc",
+        "points": 100
+      }
+    ],
+    "docs/requirements/decisions/testing-infra.md": [
+      {
+        "kind": "related-doc",
+        "term": "docs/requirements/decisions/testing-infra.md",
+        "source": "relatedDoc",
+        "points": 100
+      }
+    ],
+    "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md": [
+      {
+        "kind": "body",
+        "term": "handlers",
+        "source": "handlers",
+        "points": 8
+      }
+    ],
+    "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md": [
+      {
+        "kind": "body",
+        "term": "handlers",
+        "source": "handlers",
+        "points": 8
+      }
+    ],
+    "docs/requirements/decisions/cc-learnings.md": [
+      {
+        "kind": "body",
+        "term": "handlers",
+        "source": "handlers",
+        "points": 8
+      }
+    ],
+    "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md": [
+      {
+        "kind": "body",
+        "term": "handlers",
+        "source": "handlers",
+        "points": 8
+      }
+    ],
+    "docs/requirements/decisions/cli-engine-modularization-execution-plan.md": [
+      {
+        "kind": "body",
+        "term": "handlers",
+        "source": "handlers",
+        "points": 8
+      }
+    ]
+  },
+  "queryGroups": [
+    [
+      "command catalog ts"
+    ],
+    [
+      "delivery check freshness smoke ts"
+    ],
+    [
+      "delivery check ts"
+    ],
+    [
+      "delivery promise outcome ts"
+    ],
+    [
+      "done oracle ts"
+    ],
+    [
+      "handlers"
+    ],
+    [
+      "machine ts"
+    ]
+  ],
+  "queryFiltering": {
+    "maxDocumentFrequencyRatio": 0.4,
+    "filteredTerms": [
+      {
+        "term": "cli",
+        "documentCount": 103,
+        "documentFrequencyRatio": 0.865546218487395
+      },
+      {
+        "term": "core",
+        "documentCount": 82,
+        "documentFrequencyRatio": 0.6890756302521008
+      },
+      {
+        "term": "main",
+        "documentCount": 114,
+        "documentFrequencyRatio": 0.957983193277311
+      }
+    ]
+  },
+  "rankingPolicy": {
+    "minRankingAffectingCutoffScore": 15
+  },
+  "budgets": {
+    "candidates": 8,
+    "queryGroups": 10,
+    "rawHitsPerGroup": 50
+  },
+  "ambiguitySignals": [],
+  "requiresEscalation": true,
+  "escalationReasons": [
+    "high_risk_lifecycle_gate_process_fact_or_global_rename"
+  ],
+  "fullScan": false,
+  "scanEscalationReason": null,
+  "storyInputDigest": "15729406bb8d65ecbe3b1855ef2c2f4d2487429c4b50352ce7ad16d68284529a",
+  "headHash": "6ca6530d4a714e0ca339e34b31d7fbf4d3ecfcb3",
+  "materialHash": "2f6f4031e8d5450664f763dda3dcf819b026908c17c1b40fa1c98e1e0960f8cf",
+  "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "artifactDigest": "351bc6e287ba6828fbb57a92454b7911f31d93d8a72f2fe7fa16c47e72e79175"
+}
