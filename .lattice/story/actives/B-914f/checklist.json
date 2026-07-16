@@ -104,7 +104,7 @@
             "priority": "must"
           },
           {
-            "desc": "Given prior FAIL evidence, incomplete or stale coverage, dirty worktree state, mismatched material/story files/identity, or untrusted lineage, validate executes the real resolved plan and uses its result rather than returning prior PASS. WHY: reuse is an optimization and every uncertainty must fall back to the authoritative operation.",
+            "desc": "Given prior commandExecution FAIL/infra/timeout/cancel/skipped/partial evidence, incomplete or stale current coverage, dirty worktree state, mismatched material/story files/identity, or untrusted lineage, validate executes the real resolved plan and uses its result rather than returning prior PASS. An overall FAIL solely from stale coverage with structured commandExecution PASS is not this command-execution refusal class; once current coverage recomputes complete and every other reuse predicate passes, it may reuse. WHY: reuse is an optimization, genuine command non-PASS and every remaining uncertainty must fall back to the authoritative operation without conflating coverage-only failure with command failure.",
             "type": "logic",
             "requiredIn": "light",
             "priority": "must"
