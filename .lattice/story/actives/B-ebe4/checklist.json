@@ -54,6 +54,18 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "Runtime authority check: PASS — active CLI resolves inside the current story worktree; self-host runtime and worktree are aligned.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/runtime-fact-registry.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ]
       }
     },
     {
