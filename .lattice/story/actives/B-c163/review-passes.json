@@ -752,6 +752,32 @@
         "scanEscalationReason": null
       },
       "_hash": "c513e43132ab364e30a3dc55d22bf9762f6cdcc432d7364aa5fd724f1f72a324"
+    },
+    {
+      "id": "B-c163:RP-024",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 19 final targeted coverage passes after strong F-032 resolution. A valid present transcript now behaviorally exercises delivery_check_set, asserts saved output, reads delivery-check.json, and recomputes its signature. Each of five invalid variants then reuses that signed baseline, must be rejected, and asserts delivery-check.json remains byte-identical, while DONE guard and tagged reason checks remain. Build, review-assurance-floor smoke, and process-fact contract pass with no new coverage gap.",
+      "createdAt": "2026-07-16T02:01:57.097Z",
+      "reviewRound": "2026-07-16T02:00:13.990Z",
+      "reviewRunId": "B-c163:RR-081",
+      "writerSessionId": "review-bc163-coverage-r19",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "4fba6c4013bf401ec7f9863a0eb4a9be2097cd19aaa3d95c2d995449598ff20f",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "_hash": "fcb5484d31c10f52fa984b5393973d3d1a0807c3a769402f966fbe2de35c5f57"
     }
   ]
 }
