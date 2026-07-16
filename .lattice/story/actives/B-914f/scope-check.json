@@ -1,6 +1,6 @@
 {
   "storyId": "B-914f",
-  "checkedAt": "2026-07-16T14:03:03.525Z",
+  "checkedAt": "2026-07-16T14:06:18.058Z",
   "features": [
     {
       "feature": "Unchanged clean material plus identical validation identity returns a fast auditable PASS with zero command executions.",
@@ -127,13 +127,6 @@
       "status": "excluded",
       "excluded_by": "This story targets redundant routine execution; timeout and phase-backstep hardening remain separate.",
       "source": ".lattice/story/actives/B-914f/background.md"
-    },
-    {
-      "feature": "All prior overall FAIL evidence must execute, and changing the prior overall result alone must always force execution.",
-      "covered_by": "CHK-002, CHK-004",
-      "status": "drift",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-914f/checklist.json"
     }
   ],
   "readManifest": {
@@ -155,18 +148,18 @@
     ],
     "filesTriagedByName": [],
     "scanEscalationReason": null,
-    "candidateSpecSetDigest": "42ce1e9cfb8e520d9ee1095afee5ad66d55cdcfc69b5d4e70a60d38f2aa4b79d",
+    "candidateSpecSetDigest": "bb1ee323368033d8d993c9d4b5dcfb5b95ae03d0923675b7c14c5a4fc5678e96",
     "corpusDigest": "fab7461b8085dde0edf5b3e6e93634e3382fd96e190816832e09d598eccb36de"
   },
   "summary": {
-    "total": 19,
+    "total": 18,
     "covered": 16,
     "excluded": 2,
     "gaps": 0,
     "orphanSuspect": 0,
-    "drift": 1
+    "drift": 0
   },
   "reviewRound": "",
-  "_hash": "76d5f24f770367f74553c535d29421823bdc378fa994614e224a675350befe8a",
+  "_hash": "ed1dbc4cac8bbc6f2b72b2771bff1e33cd67501039f5c7034cf1ff54f6ac13b8",
   "openQuestions": []
 }
