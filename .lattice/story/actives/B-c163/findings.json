@@ -537,6 +537,65 @@
       ],
       "signatureTag": "edge|ts|injection-boundary-fixed",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c163:F-019",
+      "desc": "The actual global lattice symlink now widens correctly and all inline-env/shell-composition negatives stay at 60s, but trustedLatticeExecutable still violates the requested exact-active-realpath boundary by independently trusting root/packages/main/dist/cli.js and root/bin/lattice.js. Each project candidate is resolved and then compared against a candidate list containing its own realpath, so chmod or symlink makes it self-authorizing even when it does not equal the active CLI. Deterministic repro after build in a fresh temp root with activeCliEntrypoint set to the real global CLI: (1) create root/bin/lattice.js containing an arbitrary shell script and chmod 0755; liveSmokeCaptureBudget(root, `<that path> done_required_validate --storyId=B-test`, env, active) returns recognizedCommand=done_required_validate, source=derived-done-required-command, timeoutMs=30000 instead of fixed 60000; (2) symlink root/bin/lattice.js to process.execPath and the same call again recognizes Node itself and grants the derived budget. The realpaths differ from active `/Users/jek/Documents/Work/proofbound/packages/main/dist/cli.js`. Remove the independent project-path candidates and require resolvedExecutable === resolved activeCliEntrypoint; a project CLI is naturally accepted when it is the active entrypoint. Add explicit chmod-fake and project-bin-symlink-to-node negatives. Positive actual `command -v lattice` resolves and receives 1520000ms; PATH/LD_PRELOAD/NODE_OPTIONS/inline timeout assignments plus semicolon, &&, pipe, redirect, command substitution, backticks and newline remain 60000ms. Build, live-smoke smoke, command-catalog smoke and process-fact fingerprint contract pass.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-16T00:01:21.182Z",
+      "reviewRound": "2026-07-15T23:58:38.447Z",
+      "reviewRunId": "B-c163:RR-047",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/done-required-timeout-budget.ts",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "93f859032826364147439563acbd2b97f1f39a8238abc3c7751b9a0929516716",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "05aed936f81099e677817df5953f95d978a8661acbd55d3efede5ecb170fed84",
+      "files": [
+        "packages/main/src/core/done-required-timeout-budget.ts",
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|actual-global-lattice",
+      "signatureTagSource": "auto"
     }
   ]
 }
