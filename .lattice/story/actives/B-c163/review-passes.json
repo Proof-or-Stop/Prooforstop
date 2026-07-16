@@ -541,6 +541,49 @@
       },
       "readDiagnostics": [],
       "_hash": "7d84b83d6d6635a70bc6cedd6ceb26305bf3908d4b0caaceb7ad1c76fac41325"
+    },
+    {
+      "id": "B-c163:RP-018",
+      "agent": "lattice-review-concept",
+      "note": "Round 15 incremental concept PASS: d0bc74739e remains test-harness-only. The disappearance-timeout case now uses an injected sender and synthetic probe, so synthetic PID 987654321 never reaches real process.kill; successful harness completion skips TERM/KILL, while actual failure cleanup targets only the spawned process group and handshake-observed descendants. Terminal JSON, zero-exit, liveness-at-readiness, descendant ESRCH, and bounded timeout assertions remain intact. Build, focused live_smoke_transcript smoke, and process-fact contract passed; no F-024 regression.",
+      "createdAt": "2026-07-16T01:06:58.225Z",
+      "reviewRound": "2026-07-16T01:04:55.795Z",
+      "reviewRunId": "B-c163:RR-068",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "93d3288763a94fa25fa6b47345a20af34d05895417a88d75a0dc11c042cf2ed0",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "ba7a54982b05e3438afaac0d19f89cc10d0fd141c154c666fe96957cb072379d"
     }
   ]
 }
