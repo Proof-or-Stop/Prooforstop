@@ -47,6 +47,58 @@
       },
       "readDiagnostics": [],
       "_hash": "394e64b227a5fc67b14f16e37b1ed44425ed0b5a861aefcdd714928f64e0d356"
+    },
+    {
+      "id": "B-914f:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round-3 concept PASS: b87ee57 closes F-009 by filtering validate-file changed-files through the same story-metadata/runtime material exclusion used by freshness, with a real story-branch executed→reused handler smoke; it closes F-010 by allowing prior overall FAIL only when stored coverage is present and missingRequired>0, while missing/zero/unknown cases execute. Dedicated smoke, TypeScript build, and process-fact contract pass; no blocker found.",
+      "createdAt": "2026-07-16T15:07:47.350Z",
+      "reviewRound": "2026-07-16T15:02:21.339Z",
+      "reviewRunId": "B-914f:RR-010",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "387330fa078861b67c1ade3fe817a8b838725c8ec7592c3c815b1990dcae762f",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "1d71cb2a66201813abb123eecdd27c8c5734d340b82a1bf298153915fd203089"
     }
   ]
 }
