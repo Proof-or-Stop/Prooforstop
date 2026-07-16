@@ -121,7 +121,51 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Given a real validation execution, its PASS evidence persists the complete versioned validation identity needed by a later decision and the result reports disposition executed. WHY: future reuse must be auditable from structured facts rather than reconstructed assumptions.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "must"
+          },
+          {
+            "desc": "Given an eligible fresh PASS, validate reports disposition reused with lineage and identity basis while test-evidence bytes, git HEAD, git status, and metadata commit count remain unchanged. WHY: the shortcut only pays off if observing reuse does not itself create the next stale HEAD or evidence rewrite.",
+            "type": "cli",
+            "requiredIn": "light",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Given each refusal class including changed commands/config/entrypoint/full/focus/profile/policy, dirty tree, malformed or legacy evidence, incomplete coverage, untrusted lineage, and TOCTOU drift, output exposes a stable precise refusal reason and disposition executed. WHY: operators must distinguish intentional fallback from a broken reuse feature without inspecting private artifacts.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "desc": "Given configured, fallback, and validate-file plans, executed evidence records the same identity schema while retaining source-specific components, and a subsequent unchanged run can consume it. WHY: auditability and reuse cannot depend on which discovery branch produced the plan.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Given a fallback execution after a failed reuse predicate, no output, receipt, or event may claim disposition reused or preserve a PASS independently of the commands actually run. WHY: mixed executed/reused reporting could let consumers treat a failing execution as cached success.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "desc": "Given repeated eligible reuse calls, they remain idempotent and create no evidence rewrite, auto-commit, activity-driven material drift, or headHash churn while still returning an auditable in-memory or command result. WHY: a cache hit that mutates its cache key recreates the convergence loop this story exists to remove.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
