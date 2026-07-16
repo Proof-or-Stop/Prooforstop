@@ -596,6 +596,58 @@
       ],
       "signatureTag": "adversarial|ts|actual-global-lattice",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c163:F-020",
+      "desc": "Layer ordering is correct for ordinary inherited maxima, but collapses at the supported Node timer clamp: `positiveInt` clamps the nested inherited max to NODE_TIMER_MAX_MS, then both `safeTimeoutSum([nested, cleanupGrace])` and the outer wrapper sum saturate to the same NODE_TIMER_MAX_MS. Repro after build: `ACTIVE=$(realpath \"$(command -v lattice)\") node --input-type=module -e \"import { liveSmokeCaptureBudget,effectiveCommandCliMaxBudget,NODE_TIMER_MAX_MS } from './packages/main/dist/core/done-required-timeout-budget.js'; const active=process.env.ACTIVE,cmd='lattice done_required_validate --storyId=B-c163 --json',env={...process.env,LATTICE_MAX_TIMEOUT_MS:String(Number.MAX_SAFE_INTEGER)}; const c=liveSmokeCaptureBudget(process.cwd(),cmd,env,active); const o=effectiveCommandCliMaxBudget(process.cwd(),'live_smoke_transcript',{capture:cmd},env,active); console.log(JSON.stringify({nested:c.nestedMaxTimeoutMs,capture:c.timeoutMs,outer:o.timeoutMs,nodeMax:NODE_TIMER_MAX_MS}));\"` prints nested=capture=outer=2147483647. Because the outer CLI watchdog starts before capture spawn and the capture timer starts before nested CLI initialization, equal numeric ceilings still allow the outer layer to fire first and preempt the intended nested structured timeout plus TERM/KILL/reap cleanup. This affects only the ~24.8-day saturation edge and remains fail-closed, so severity is medium, but it does not satisfy the requested ordered/fail-closed clamp boundary. Reserve wrapper grace below the clamp (including ensuring the nested child receives the reserved effective max), or implement an explicit saturated-edge policy/test that guarantees cleanup and structured outcome without relying on equal-start timers. Ordinary 1000ms evidence is correct: nested=1000, capture=4000, outer=34000, unrelated command=1000; focused live-smoke/process-fact/retired-vocabulary tests all pass.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-16T00:01:46.965Z",
+      "reviewRound": "2026-07-15T23:58:38.447Z",
+      "reviewRunId": "B-c163:RR-048",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "93f859032826364147439563acbd2b97f1f39a8238abc3c7751b9a0929516716",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "2295333f2e495ab16fe9d68f5b3e527e03f81da3c4dd12c78f1f20de52f1c002",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/done-required-timeout-budget.ts",
+        "packages/main/src/handlers/live-smoke-transcript.ts",
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|layer-ordering-correct",
+      "signatureTagSource": "auto"
     }
   ]
 }
