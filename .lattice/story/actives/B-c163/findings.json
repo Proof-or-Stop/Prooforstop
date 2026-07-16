@@ -912,6 +912,24 @@
       ],
       "signatureTag": "missing|ts|readiness-harness-cleans",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c163:F-026",
+      "desc": "F-024 readiness synchronization fixes the normal missed-watch/current-state race, and the 10-iteration tight terminal row no longer assumes a PID, but the new descendant-handshake test has no failure-path process-group cleanup. If `await ready` rejects at its 15s deadline (or after a regression prevents the CLI capture from settling), control jumps directly to the outer finally, which only rmSyncs the fixture directory; it never SIGTERM/SIGKILLs `cli.pid` or awaits `closed`. Thus the stabilization test can leak the spawned CLI/capture group precisely on the failure path it is meant to diagnose. The product timeout normally ends it after 2s, but a cleanup regression or startup hang makes the test harness unsafe and can leave the suite hanging/orphaned. Add a catch/finally around readiness/close that terminates the CLI process group and awaits settlement before removing the fixture. Focused smoke passes on rerun; the first build+smoke attempt transiently hit a concurrent dist import mismatch, not this assertion.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-16T00:38:19.320Z",
+      "reviewRound": "2026-07-16T00:35:36.874Z",
+      "reviewRunId": "B-c163:RR-058",
+      "_hash": "25d8d797f86dc1b1748a1bcd7f511a691f3aed26c59f4c533cd3507bf79a5b56",
+      "files": [
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|readiness-synchronization-fixes",
+      "signatureTagSource": "auto"
     }
   ]
 }
