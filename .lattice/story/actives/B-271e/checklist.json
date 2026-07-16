@@ -9,9 +9,9 @@
         "docs/requirements/decisions/testing-completeness.md",
         "AGENTS.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-16T23:35:51.690Z",
-      "endTime": null,
+      "endTime": "2026-07-16T23:45:28.552Z",
       "userSees": "Contradictory input prints `Blocked [delivery_promise_outcome_contradiction]: status=unverified cannot include verifiedBy; delivery-check was not written.` Valid verified/met/waived and documented legacy inputs still save and DONE readiness consumes the same normalized outcome.",
       "excludes": [
         "Changing routine validation reuse behavior",
@@ -259,6 +259,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Implement the shared total delivery-promise outcome contract and contradiction-safe consumers.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-16T23:45:28.552Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Shared delivery-promise outcome contract implemented, committed, and targeted verification passed.",
       "agent": "lattice-implementer"
     }
   ]
