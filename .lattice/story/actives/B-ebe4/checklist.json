@@ -123,7 +123,50 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A hermetic main-plus-story-worktree fixture reproduces B-914f: the global launcher resolves to an older main dist, is rejected immediately, and the emitted worktree-local command executes the newer behavior successfully.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "The end-to-end proof asserts the stale-global rejection reason, canonical recovery command, worktree-local success result, and zero handler/validation execution on the rejected attempt.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Hermetic cases cover direct paths, symlinked launchers, linked-worktree .git/common-dir resolution, nested cwd, correctly local runtime, read-only session_brief global fallback, and a non-self-host external consumer.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Doctor and runtime-fact contract checks expose the canonical entrypoint/global realpath/project-local bin facts without moving them into the process-fact registry or hard-failing external-reference advisories.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Instrument the dispatch boundary so rejection proves pre-dispatch zero handler invocation, zero evidence/story mutation, and zero spawned expensive command even if the requested command is validate or story_advance.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A stale global runtime cannot pass by spoofing argv[0], PATH order, cwd text, repository basename, or symlink aliases; authority is derived from canonical filesystem and git identities.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A correctly local runtime and an external consumer remain executable under the same harness, preventing a universal global-runtime ban from satisfying the negative tests.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
