@@ -1,0 +1,54 @@
+{
+  "passes": [
+    {
+      "id": "B-83cf:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 PASS: wrapper-root validate and derive use identical ctx.root validation lock authority; deterministic contender persists zero verdict/event; focused build and 20-check smoke pass; pure binding helper remains free of IO, callback, and write seams.",
+      "createdAt": "2026-07-16T19:19:46.030Z",
+      "reviewRound": "2026-07-16T19:15:22.799Z",
+      "reviewRunId": "B-83cf:RR-012",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+          "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md",
+          "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "packages/main/src/core/host-verdict-bindings.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/tasks/review-escalation-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "bd67c72aa38fc6222fadd3759c2151a24dbffb71165e4a8e912716fc742c5422",
+        "corpusDigest": "f1124aa9a8d90aeb8ccf4eadae68f27adad5d60008193a43bfe78ab27ff7d1b7"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+          "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md",
+          "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "af0478f5832c11adb82d5473e89aef24287488b609351a9d704501334f924f9b"
+      },
+      "readDiagnostics": [],
+      "_hash": "1b3a07148198bc5ed15de16a14284a7f17444a09260fdad088ee0daccf94e0b7"
+    }
+  ]
+}
