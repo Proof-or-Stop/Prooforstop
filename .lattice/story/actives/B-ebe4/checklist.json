@@ -191,6 +191,21 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "Runtime entrypoint authority smoke: PASS — stale global worktree calls were rejected with zero handler executions; local worktree and external consumer controls succeeded.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "create": [
+          "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ]
       }
     }
   ]
