@@ -893,6 +893,59 @@
         "scanEscalationReason": null
       },
       "_hash": "4e55163217ef7903e389af48f023d05a18c79289471708a8e6c70b8c8f77e06b"
+    },
+    {
+      "id": "B-914f:RP-021",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-11 incremental re-review confirms F-016 is fixed by commit 2c1a3cd. The pure buildValidationExecutableLookup seam has no filesystem writes, callbacks, or global environment override; platform-injected drive-absolute and UNC assertions require absolute:true and explicit classification with PATHEXT candidates, so reverting to the host-native absolute predicate fails on the smoke host. Existing relative-path mutation assertions retain executable-content invalidation coverage. No remaining test-coverage blocker found.",
+      "createdAt": "2026-07-16T17:52:12.489Z",
+      "reviewRound": "2026-07-16T17:50:45.069Z",
+      "reviewRunId": "B-914f:RR-038",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-914f/background.md",
+          ".lattice/story/actives/B-914f/checklist.json",
+          ".lattice/story/actives/B-914f/plan.md",
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "cc74485b6562fc262d1419ee723e5f0ee4f22df0c08cab68c15867f3e70b1e68",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "0caced9a8b9ee754dac7f73f887139c565314192805e20ec4c72b64b946a193c"
     }
   ]
 }
