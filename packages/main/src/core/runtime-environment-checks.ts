@@ -81,6 +81,7 @@ export interface RuntimeEntrypointAuthorityInput {
   commandArgs: string[];
   projectRoot: string;
   invokedEntrypoint?: string | null;
+  loadedCorePackageRoot?: string | null;
   env?: Record<string, string | undefined>;
   requiresAuthoritativeRuntime?: boolean;
 }
@@ -230,21 +231,22 @@ function checkEntrypointAuthority(
   context: RuntimeCheckContext,
   severity: RuntimeFactSeverity,
 ): Pick<RuntimeFactCheckResult, 'status' | 'actual' | 'expected' | 'warnings'> {
-  const decision = classifyRuntimeEntrypointAuthority({
+  const runtimeEntrypointAuthority = classifyRuntimeEntrypointAuthority({
     command: process.argv[2] ?? 'doctor',
     commandArgs: process.argv.slice(3),
     projectRoot: context.projectRoot,
     invokedEntrypoint: context.activeCliEntrypoint,
+    loadedCorePackageRoot: context.corePackageRoot,
     env: process.env,
   });
-  const status = decision.status === 'blocked' ? statusForDrift(severity) : 'pass';
+  const status = runtimeEntrypointAuthority.status === 'blocked' ? statusForDrift(severity) : 'pass';
   return {
     status,
-    actual: decision,
+    actual: runtimeEntrypointAuthority,
     expected: context.isSelfProject
       ? 'active CLI runtime belongs to the current worktree'
       : 'external consumer runtime remains advisory',
-    ...(status === 'pass' ? {} : { warnings: [decision.detail] }),
+    ...(status === 'pass' ? {} : { warnings: [runtimeEntrypointAuthority.detail] }),
   };
 }
 
@@ -260,6 +262,9 @@ export function classifyRuntimeEntrypointAuthority(
   const invokedEntrypoint = input.invokedEntrypoint
     ? safeRealpath(resolve(input.invokedEntrypoint)) ?? resolve(input.invokedEntrypoint)
     : null;
+  const loadedCorePackageRoot = input.loadedCorePackageRoot
+    ? safeRealpath(resolve(input.loadedCorePackageRoot)) ?? resolve(input.loadedCorePackageRoot)
+    : currentCorePackageRoot();
   const base = {
     projectRoot,
     invokedEntrypoint,
@@ -273,7 +278,8 @@ export function classifyRuntimeEntrypointAuthority(
       worktreeRoot: null,
       mainRoot: null,
       gitCommonDir: null,
-      runtimeRoot: invokedEntrypoint ? gitTopLevel(dirname(invokedEntrypoint)) : null,
+      runtimeRoot: gitTopLevel(loadedCorePackageRoot)
+        ?? (invokedEntrypoint ? gitTopLevel(dirname(invokedEntrypoint)) : null),
       detail: 'External consumer repository: self-host runtime authority is advisory.',
     };
   }
@@ -285,7 +291,28 @@ export function classifyRuntimeEntrypointAuthority(
     && !!gitCommonDir
     && !!mainRoot
     && !samePath(worktreeRoot, mainRoot);
-  const runtimeRoot = invokedEntrypoint ? gitTopLevel(dirname(invokedEntrypoint)) : null;
+  // The loaded module root is authoritative. A launcher can live outside git
+  // (or spoof argv/PATH) while importing main-checkout dist; process.argv[1]
+  // alone cannot identify that runtime. Entrypoint git identity is only the
+  // fallback for packaged/compatibility launchers without a package root.
+  const runtimeRoot = gitTopLevel(loadedCorePackageRoot)
+    ?? (invokedEntrypoint ? gitTopLevel(dirname(invokedEntrypoint)) : null);
+
+  if ((!worktreeRoot || !gitCommonDir || !mainRoot) && input.requiresAuthoritativeRuntime !== false) {
+    const recoveryRoot = worktreeRoot ?? projectRoot;
+    return {
+      status: 'blocked',
+      reasonCode: 'runtime_authority_unresolved_in_worktree',
+      selfHostWorktree: false,
+      ...base,
+      worktreeRoot,
+      mainRoot,
+      gitCommonDir,
+      runtimeRoot,
+      recoveryCommand: renderLocalEntrypointRecoveryCommand(recoveryRoot, input.command, input.commandArgs),
+      detail: 'Self-host runtime authority could not resolve a complete git worktree/common-dir/main-worktree identity.',
+    };
+  }
 
   if (!selfHostWorktree) {
     return {

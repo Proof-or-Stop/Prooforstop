@@ -10,6 +10,7 @@ import { pathToFileURL } from 'node:url';
 const failures = [];
 
 const requiredFacts = [
+  ['entrypoint-authority', 'runtimeEntrypointAuthority'],
   ['cli-entrypoint', 'cliEntrypoint'],
   ['global-core-realpath', 'globalCoreRealpath'],
   ['project-local-bin', 'projectLocalBin'],
@@ -88,6 +89,10 @@ async function main() {
   check(doctorSource.includes('runRuntimeEnvironmentChecks'), 'doctor should call runRuntimeEnvironmentChecks');
   check(doctorSource.includes('runtime,'), 'doctor JSON should expose runtime');
   check(doctorSource.includes('renderRuntimeEnvironmentReport'), 'doctor text should render runtime scan');
+  check(checksSource.includes('stale_global_runtime_in_worktree'), 'runtime authority checker must expose the stable stale-global reason code');
+  check(checksSource.includes('renderLocalEntrypointRecoveryCommand'), 'runtime authority checker must expose one canonical local recovery renderer');
+  check(checksSource.includes("LATTICE_CODEX_ENTRYPOINT === 'global-fallback'"), 'runtime authority checker must narrowly bind the explicit global fallback');
+  check(checksSource.includes("input.command === 'session_brief'"), 'global fallback exemption must be session_brief-only');
 
   const registryModule = await importDist(root, 'packages/main/dist/core/runtime-fact-registry.js');
   const checksModule = await importDist(root, 'packages/main/dist/core/runtime-environment-checks.js');
