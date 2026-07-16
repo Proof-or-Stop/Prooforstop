@@ -195,7 +195,7 @@
       "desc": "packages/main/src/handlers/verifier.ts:588-591 — HIGH: the deterministic TOCTOU smoke seam is compiled into the production validate handler and trusts LATTICE_VALIDATE_REUSE_SMOKE_DIRTY_FILE_BEFORE_FINAL_SNAPSHOT as an arbitrary write target. Any inherited/mistyped environment value makes every story validation overwrite that path with writeFileSync before executing; the path is not restricted to a temp fixture or even the project root, so a test hook can corrupt source, config, credentials, or another writable file. Move the race injection behind an injected test dependency/callback used only by the smoke (or otherwise make production builds incapable of this write), while retaining the two-snapshot integration proof.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-16T15:07:45.292Z",
@@ -239,7 +239,11 @@
         "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in e9b305f771: removed production arbitrary-path smoke seam; race coverage now tests shared snapshot helper in a temp repo; reusable command PASS now requires zero optional failures; validate-file requires explicit normalized status=pass and rejects fail/warn/error/unknown/missing/false semantic flags. Build, dedicated handler smoke, protocol, DONE-required and process-fact checks pass.",
+      "resolvedAt": "2026-07-16T15:16:17.941Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-914f:F-012",
