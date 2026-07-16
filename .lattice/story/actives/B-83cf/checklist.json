@@ -1,0 +1,37 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Share canonical host-verdict binding derivation",
+      "context": "Extract the keyId, validationDigest, and promptDigest derivation currently private to quorum submission into a shared fail-closed helper while preserving quorum semantics.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add explicit single-host binding derivation mode",
+      "context": "Allow autopilot_review_submit to derive current canonical bindings only when explicitly requested; reject supplied stale or inconsistent bindings and never invent a second host.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Align fallback guidance and regression coverage",
+      "context": "Emit an executable degraded single-host command and cover valid three-round use, stale rejection, legacy warning behavior, and unchanged quorum behavior.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
