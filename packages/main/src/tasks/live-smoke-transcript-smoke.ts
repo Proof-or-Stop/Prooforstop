@@ -124,6 +124,22 @@ interface HarnessPids {
 }
 
 let activeDisappearanceProbes = 0;
+let injectedDisappearanceSignals = 0;
+let injectedDisappearanceElapsedMs = 0;
+
+type HarnessSignalSender = (pid: number, signalName: NodeJS.Signals) => unknown;
+
+function signalHarnessProcess(
+  pid: number,
+  signalName: NodeJS.Signals,
+  sendSignal: HarnessSignalSender = process.kill,
+): void {
+  try {
+    sendSignal(pid, signalName);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ESRCH') throw error;
+  }
+}
 
 async function waitUntilGone(
   pid: number,
@@ -163,8 +179,10 @@ async function runDescendantHarness(failure: HarnessFailure): Promise<void> {
   const pidPath = join(root, 'actual-cli-descendant.json');
   let cli: ReturnType<typeof spawn> | undefined;
   let actualClosed: Promise<number | null> | undefined;
+  let cliClosed = false;
   let observedPids: HarnessPids | undefined;
   let cleanupPromise: Promise<void> | undefined;
+  let bodyCompleted = false;
   const disposers = new Set<() => void>();
 
   const bounded = async <T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> => {
@@ -177,14 +195,6 @@ async function runDescendantHarness(failure: HarnessFailure): Promise<void> {
       return await Promise.race([promise, timeout]);
     } finally {
       if (timer) clearTimeout(timer);
-    }
-  };
-
-  const signal = (pid: number, signalName: NodeJS.Signals): void => {
-    try {
-      process.kill(pid, signalName);
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== 'ESRCH') throw error;
     }
   };
 
@@ -207,20 +217,36 @@ async function runDescendantHarness(failure: HarnessFailure): Promise<void> {
         ...(cli?.pid ? [-cli.pid] : []),
         ...(observedPids ? [observedPids.capture, observedPids.descendant] : []),
       ];
-      for (const pid of targets) signal(pid, 'SIGTERM');
-      if (actualClosed) {
-        try {
-          await bounded(actualClosed, 250, 'CLI ignored harness TERM grace');
-        } catch {
-          // The KILL pass below is the bounded fallback for an uncooperative CLI.
+      if (!bodyCompleted) {
+        for (const pid of targets) signalHarnessProcess(pid, 'SIGTERM');
+        if (actualClosed) {
+          try {
+            await bounded(actualClosed, 250, 'CLI ignored harness TERM grace');
+          } catch {
+            // The KILL pass below is the bounded fallback for an uncooperative CLI.
+          }
         }
+        const killTargets = [
+          ...(!cliClosed && cli?.pid ? [-cli.pid] : []),
+          ...(observedPids ? [observedPids.capture, observedPids.descendant].filter(isAlive) : []),
+        ];
+        for (const pid of killTargets) signalHarnessProcess(pid, 'SIGKILL');
+        if (actualClosed) await bounded(actualClosed, 2_000, 'CLI did not close after harness KILL');
       }
-      for (const pid of targets) signal(pid, 'SIGKILL');
-      if (actualClosed) await bounded(actualClosed, 2_000, 'CLI did not close after harness KILL');
-      const goneProbe = failure === 'disappearance-timeout' ? () => true : isAlive;
-      const goneDeadlineMs = failure === 'disappearance-timeout' ? 100 : 2_000;
       for (const pid of targets.filter((pid) => pid > 0)) {
-        await waitUntilGone(pid, goneProbe, goneDeadlineMs);
+        await waitUntilGone(pid, isAlive);
+      }
+      if (failure === 'disappearance-timeout') {
+        const syntheticPid = 987_654_321;
+        const injectedSignal: HarnessSignalSender = () => { injectedDisappearanceSignals += 1; };
+        signalHarnessProcess(syntheticPid, 'SIGTERM', injectedSignal);
+        signalHarnessProcess(syntheticPid, 'SIGKILL', injectedSignal);
+        const probeStartedAt = Date.now();
+        try {
+          await waitUntilGone(syntheticPid, () => true, 100);
+        } finally {
+          injectedDisappearanceElapsedMs = Date.now() - probeStartedAt;
+        }
       }
     })();
     return cleanupPromise;
@@ -296,14 +322,19 @@ async function runDescendantHarness(failure: HarnessFailure): Promise<void> {
     spawnedCli.stdout?.on('data', (chunk: Buffer) => { stdout += chunk.toString(); });
     spawnedCli.stderr?.on('data', (chunk: Buffer) => { stderr += chunk.toString(); });
     actualClosed = new Promise<number | null>((resolveClose, rejectClose) => {
-      spawnedCli.once('error', rejectClose);
-      spawnedCli.once('close', resolveClose);
+      spawnedCli.once('error', (error) => {
+        cliClosed = true;
+        rejectClose(error);
+      });
+      spawnedCli.once('close', (exitCode) => {
+        cliClosed = true;
+        resolveClose(exitCode);
+      });
     });
 
     const pids = await ready;
     assert.equal(spawnedCli.exitCode, null, 'PID readiness is observed while the CLI capture is still active');
     if (failure === 'assertion') throw new Error('injected post-readiness assertion failure');
-    if (failure === 'disappearance-timeout') throw new Error('injected disappearance-timeout cleanup');
     if (failure === 'read') {
       writeFileSync(pidPath, '{invalid', 'utf8');
       JSON.parse(readFileSync(pidPath, 'utf8'));
@@ -315,6 +346,7 @@ async function runDescendantHarness(failure: HarnessFailure): Promise<void> {
     const report = JSON.parse(stdout) as LiveSmokeTranscriptReport;
     assert.equal(report.actual?.exitCode, null);
     assert.throws(() => process.kill(pids.descendant, 0), /ESRCH/, 'handshake-confirmed descendant is reaped after timeout');
+    bodyCompleted = true;
   } finally {
     try {
       await Promise.all([cleanup(), cleanup()]);
@@ -326,8 +358,18 @@ async function runDescendantHarness(failure: HarnessFailure): Promise<void> {
 }
 
 await runDescendantHarness('none');
+const syntheticEsrch = Object.assign(new Error('gone'), { code: 'ESRCH' });
+assert.doesNotThrow(
+  () => signalHarnessProcess(123, 'SIGTERM', () => { throw syntheticEsrch; }),
+  'ESRCH signal races are treated as already cleaned',
+);
+const syntheticEperm = Object.assign(new Error('denied'), { code: 'EPERM' });
+assert.throws(
+  () => signalHarnessProcess(123, 'SIGTERM', () => { throw syntheticEperm; }),
+  /denied/,
+  'a genuine EPERM remains the primary cleanup error',
+);
 for (const failure of ['readiness', 'assertion', 'read', 'close-never', 'disappearance-timeout'] as const) {
-  const startedAt = Date.now();
   await assert.rejects(runDescendantHarness(failure), new RegExp(
     failure === 'readiness' ? 'injected readiness rejection'
       : failure === 'assertion' ? 'injected post-readiness assertion failure'
@@ -337,8 +379,11 @@ for (const failure of ['readiness', 'assertion', 'read', 'close-never', 'disappe
   ));
   assert.equal(activeDisappearanceProbes, 0, `${failure} leaves no active disappearance probe handles`);
   if (failure === 'disappearance-timeout') {
-    const elapsedMs = Date.now() - startedAt;
-    assert.ok(elapsedMs >= 80 && elapsedMs < 5_000, `disappearance timeout is bounded near its 100ms deadline (${elapsedMs}ms)`);
+    assert.ok(
+      injectedDisappearanceElapsedMs >= 80 && injectedDisappearanceElapsedMs < 1_000,
+      `disappearance timeout is bounded near its 100ms deadline (${injectedDisappearanceElapsedMs}ms)`,
+    );
+    assert.equal(injectedDisappearanceSignals, 2, 'synthetic disappearance seam injects TERM and KILL without real process signals');
   }
 }
 
@@ -857,25 +902,50 @@ assert.equal(
       "process.on('SIGTERM', () => {});",
       "setInterval(() => {}, 1000);",
     ].join('\n') + '\n', 'utf8');
-    process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS = '150';
+    process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS = '2000';
     const handler = createMainRegistry(ctx).get('live_smoke_transcript');
     assert.ok(handler);
-    const report = await handler!({
+    const pidReady = new Promise<void>((resolveReady, rejectReady) => {
+      let settled = false;
+      const watcher = watch(root, (_event, filename) => {
+        if (filename === 'descendant.pid' && existsSync(descendantPidPath)) settle();
+      });
+      const probe = setInterval(() => {
+        if (existsSync(descendantPidPath)) settle();
+      }, 25);
+      const deadline = setTimeout(
+        () => settle(new Error('in-process descendant PID readiness handshake timed out')),
+        15_000,
+      );
+      const settle = (error?: Error) => {
+        if (settled) return;
+        settled = true;
+        watcher.close();
+        clearInterval(probe);
+        clearTimeout(deadline);
+        if (error) rejectReady(error);
+        else resolveReady();
+      };
+      if (existsSync(descendantPidPath)) settle();
+    });
+    const reportPromise = handler!({
       storyId: STORY_ID,
       capture: `${JSON.stringify(process.execPath)} ${JSON.stringify(scriptPath)}`,
       write: true,
       json: true,
-    }) as LiveSmokeTranscriptReport;
+    }) as Promise<LiveSmokeTranscriptReport>;
+    await pidReady;
+    const report = await reportPromise;
 
     assert.equal(report.actual?.exitCode, null, 'capture timeout is represented as a null terminal exit');
-    assert.match(report.actual?.stderr ?? '', /exceeded 150ms timeout; process group terminated/);
+    assert.match(report.actual?.stderr ?? '', /exceeded 2000ms timeout; process group terminated/);
     const descendantPid = Number(readFileSync(descendantPidPath, 'utf8'));
     assert.throws(() => process.kill(descendantPid, 0), /ESRCH/, 'timed-out capture leaves no descendant process');
     assert.equal(existsSync(lockPath), false, 'dead validation lock is reclaimed after timeout cleanup');
     assert.equal(report.transcript.status, 'present-fresh', 'timeout with --write persists a readable fresh transcript');
     const persisted = JSON.parse(readFileSync(artifactPath(store), 'utf8'));
     assert.equal(persisted.actual.exitCode, null, 'timeout readback remains a non-pass null exit');
-    assert.match(persisted.actual.stderr, /exceeded 150ms timeout/);
+    assert.match(persisted.actual.stderr, /exceeded 2000ms timeout/);
 
     const validationRetry = await withValidationExecutionLock({
       root,
