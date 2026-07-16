@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-914f:F-001",
+      "desc": "packages/main/src/handlers/verifier.ts:1163-1172 and packages/main/src/core/validation-evidence-reuse.ts:149-186 — HIGH: validate-file JSON can report status/allPass=fail while the wrapper process exits 0. Persistence passes only the outer ValidationCommandResult into summarizeRoutineCommandExecution, which marks commandExecution PASS solely from exit code; after coverage is complete, reuse then returns an unconditional PASS and launders the prior semantic validation failure. Bind commandExecution eligibility to the parsed validator verdict (or synthesize a failed command receipt when parsed status/allPass is non-pass), and add an integration case for exit 0 + JSON FAIL proving the next call executes rather than reuses.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-16T14:30:55.226Z",
+      "reviewRound": "2026-07-16T14:28:44.516Z",
+      "reviewRunId": "B-914f:RR-001",
+      "_hash": "71e04ccefcd5562bd73a03d73aac7439b8538a441e1843d776b73fcdaa4a674b",
+      "signatureTag": "adversarial|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
