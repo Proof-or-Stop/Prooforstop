@@ -120,6 +120,21 @@
       "_hash": "400e725b037e5775bd3f8cb2705f341623a44c5b52d88368c4b72163d7f9163f",
       "signatureTag": "edge|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-83cf:F-008",
+      "desc": "docs/requirements/decisions/review-assurance-floor-execution-plan.md:97-103 — HIGH: the updated truth source now promises that --deriveBindings holds the story validation-execution lock across canonical admissibility, verdict persistence, and process-event persistence. That is true for plain repos but false for wrapper-root layouts: packages/main/src/handlers/verdict.ts:124-130 keys the lock from signedWorkspaceRoot, while packages/main/src/handlers/verifier.ts:633,800-806 keys validate from ctx.root; validation-execution-lock.ts:128-133,235 derives the lock path solely from that root. Two different roots therefore permit concurrent validation evidence replacement during the supposedly locked transaction. Align both writers on one canonical lock root, add wrapper-root contention coverage, and retain this wording only once the mechanical guarantee is layout-independent. F-006/F-007 diagnostic-message regressions do not independently require a decision-doc change because this document does not promise exact rejection text.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-16T19:07:09.119Z",
+      "reviewRound": "2026-07-16T19:01:39.041Z",
+      "reviewRunId": "B-83cf:RR-008",
+      "_hash": "1f79820bb453f41fab22c32b572137685f54a84e65c79b618bd81b7d888ff38d",
+      "signatureTag": "adversarial|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
