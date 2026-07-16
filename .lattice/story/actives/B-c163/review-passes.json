@@ -728,6 +728,30 @@
         "scanEscalationReason": null
       },
       "_hash": "9fb32656024dcf69bf100488d880e3c4f8284caf7c2d26b13b6218cfbfd60a81"
+    },
+    {
+      "id": "B-c163:RP-023",
+      "agent": "lattice-review-concept",
+      "note": "Round 18 targeted conceptual re-review PASS. evaluateLiveSmokeTranscriptValue is now the shared semantic classifier: the producer maps every structurally invalid or unsuccessful artifact to present-failed before freshness classification, while delivery_check_set, the DONE oracle, canFinishGuard, and failure rendering consume the same optional evaluator. Absence remains legacy-compatible; a successful executed zero-exit capture restores producer and DONE acceptance. The existing L4 process fact accurately names the shared owner and gate consumers. Build, live-smoke-transcript-smoke, review-assurance-floor-smoke, and process-fact contract all PASS.",
+      "createdAt": "2026-07-16T01:55:19.769Z",
+      "reviewRound": "2026-07-16T01:52:42.626Z",
+      "reviewRunId": "B-c163:RR-077",
+      "writerSessionId": "bc163-concept-r18",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/live-smoke-transcript-evidence.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c513e43132ab364e30a3dc55d22bf9762f6cdcc432d7364aa5fd724f1f72a324"
     }
   ]
 }
