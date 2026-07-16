@@ -840,6 +840,38 @@
         "scanEscalationReason": null
       },
       "_hash": "cbe2fad598169208173c1328ffa382f5b34c8f31776c067f1c4ed647c3564e41"
+    },
+    {
+      "id": "B-914f:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "Round 10 incremental concept re-review found no blocker. Commit 57e2a7c fully closes F-014: executable resolution now selects posix/win32 path semantics, recognizes both Win32 separators, treats drive/UNC/rooted paths through win32.isAbsolute, resolves slash/backslash cwd-relative commands against command.cwd, applies PATHEXT to extensionless explicit/absolute/bare candidates, and restricts PATH search to bare names. Tests prove backslash/slash relative equivalence, explicit-extension behavior, separation from a same-name PATH binary, PATHEXT binding, and executable-content invalidation. F-014 is resolved; F-015 is the duplicate quality-lane report of the same fixed cause.",
+      "createdAt": "2026-07-16T17:40:13.960Z",
+      "reviewRound": "2026-07-16T17:36:52.743Z",
+      "reviewRunId": "B-914f:RR-035",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "153db4b415f29079fe5e0c2beddf44b358384f7540b46f4bdbb2e75e78587767",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "_hash": "8d0c547e86ed99a4eb3fe67270cdc2b98ecdd16e07035d6edf2ded34a37e6cc5"
     }
   ]
 }
