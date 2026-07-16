@@ -1,29 +1,31 @@
 # B-914f Execution Plan
 
 ## CHK-001
-Extract the exact-head and trusted story-metadata-descendant classifier from DONE reuse into a shared pure helper. Define a versioned RoutineValidationIdentity covering the resolved validation source, normalized command envelopes, entrypoint content digests, full/focus/profile mode, and verification policy inputs. Extend TestEvidenceData so only new PASS evidence with a complete identity can be reused; missing or malformed legacy fields produce an execute fallback.
+Extract exact-head and trusted story-metadata-descendant classification into a shared pure helper. Define a versioned routine validation identity over source kind, normalized ordered commands, command/entrypoint digests, full/focus/profile, stable required-intent/workflow policy, effective child-environment digest, platform/arch/Node, material and story-file bindings. Legacy or malformed identity executes.
 
-Verification: table-driven identity equality and one-field drift cases; exact-head, trusted metadata descendant, untrusted descendant and non-ancestor lineage cases; build and process-fact contract.
-
-Rollback: remove the optional identity field and shared call sites; validation continues executing exactly as before.
+Verification: equality plus one-field drift matrices; exact, metadata-descendant, untrusted and non-ancestor lineage. Rollback removes the optional identity and restores always-execute behavior.
 
 ## CHK-002
-Add the reuse decision inside withValidationExecutionLock before each execution branch. Require prior PASS, zero missing required coverage, clean tree, matching materialHash/storyFilesHash and identity, accepted lineage, and unchanged HEAD after the decision. Apply consistently to configured commands, fallback discovery and validate-file flows. Any exception or mismatch returns an executed disposition and runs the normal plan.
+Inside withValidationExecutionLock, recompute current coverage and decide reuse before each execution branch. Require stored commandExecution PASS, current missingRequired=0, matching identity/material/story files, clean tree, accepted lineage and stable second HEAD read. Any exception or mismatch executes.
 
-Verification: zero-command counters for exact and metadata-descendant reuse; real execution counters for dirty tree, mismatch, incomplete coverage, previous FAIL, malformed evidence, untrusted lineage and TOCTOU.
-
-Rollback: disable/remove the pre-execution branch; normal validation execution remains intact.
+Verification: zero-command exact/metadata reuse and real execution for dirty, mismatch, incomplete current coverage, command FAIL, malformed evidence, untrusted lineage and TOCTOU.
 
 ## CHK-003
-Return a structured executed-versus-reused disposition and precise refusal reasons. On reuse, decorate the existing PASS for the current request without calling writeTestEvidence or autoCommitStoryMetadata, preserving artifact bytes and HEAD. On execution, persist the new identity with the ordinary evidence write. Register any gate-consumed runtime semantic in the process-fact registry and verifier.
+Return executed-versus-reused disposition and precise refusal reasons. Executed runs persist commandExecution plus identity. Reused runs compose the stored command PASS with freshly recomputed coverage but never write test-evidence or metadata, preserving bytes and HEAD. Register gate-consumed semantics in the process-fact registry.
 
-Verification: assert reused output names the basis and lineage, prior evidence file digest/mtime and HEAD remain unchanged, and each mismatch has a stable refusal reason while still executing.
-
-Rollback: disposition can remain diagnostic while reuse is disabled; no evidence migration is destructive.
+Verification: reused output basis/lineage, byte-identical evidence, unchanged HEAD/status/commit count, stable refusal diagnostics.
 
 ## CHK-004
-Add an end-to-end regression matching B-19ca: first validation executes and all commands PASS; verificationEvidence metadata is refreshed without product material or validation identity changes; the next validation returns PASS with zero command executions. Cover configured, fallback and validate-file sources plus focus/full/profile/policy and entrypoint drift. Update the workflow decision document with the final identity and reuse contract.
+Build table-driven and end-to-end coverage for configured commands, fallback discovery, validate-file and no-validator behavior. Reproduce B-19ca with an initial 45-command PASS plus overall coverage-only FAIL, trusted verificationEvidence refresh, then PASS reused with zero command executions.
 
-Verification: dedicated smoke, TypeScript build, process-fact contract, routine configured validation, DONE-required suite, and real-machine transcript showing the second invocation is reused.
+Verification: dedicated smoke, build, process-fact contract, routine and DONE-required suites, and live transcript.
 
-Rollback: the smoke fails if reuse is removed or becomes permissive, making rollback explicit and observable.
+## CHK-005
+Extend TestEvidenceData with a structured commandExecution fact independent of the overall coverage-composed result. A prior overall FAIL is reusable only when commandExecution itself is PASS and the prior failure is coverage-only; current coverage is always recomputed and must be complete. Real command failure, infra failure, partial execution or missing receipt never qualifies.
+
+Verification: command PASS + stale coverage -> refresh -> reuse; command FAIL/infra/partial -> execute; forged combinations fail closed.
+
+## CHK-006
+Create docs/requirements/decisions/routine-validation-fresh-pass-reuse.md as the canonical subsystem contract for evidence composition, identity fields, environment hashing, lineage, locking, no-write reuse, refusal semantics, migration and rollback. Link the umbrella workflow plan to it without duplicating authority.
+
+Verification: docs reviewer and process-fact contract confirm documentation, types, handler behavior and registry semantics agree.

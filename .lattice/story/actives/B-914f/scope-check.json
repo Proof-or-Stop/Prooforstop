@@ -167,12 +167,11 @@
       "q": "Must previous overall TestEvidenceData.result be PASS, or can a separately persisted command-execution PASS be reused when overall FAIL was caused only by stale verification coverage?",
       "evidence": "verifier folds coverage into allPass and persists FAIL; CHK-002 requires prior PASS, while CHK-004 requires B-19ca zero-command reuse after coverage refresh.",
       "sourcePointers": [
-        "packages/main/src/handlers/verifier.ts:458",
-        "packages/main/src/handlers/verifier.ts:496",
-        "packages/main/src/handlers/verifier.ts:502",
-        ".lattice/story/actives/B-914f/checklist.json#CHK-002",
-        ".lattice/story/actives/B-914f/checklist.json#CHK-004"
-      ]
+        "CHK-005",
+        "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+      ],
+      "resolution": "Previous overall TestEvidenceData.result need not be PASS. Reuse requires a separately persisted commandExecution.status=PASS with complete receipts and identity; the old overall FAIL must be coverage-only, and current verification coverage is recomputed and must have missingRequired=0 before returning reused PASS.",
+      "resolvedAt": "2026-07-16T14:01:00.402Z"
     },
     {
       "id": "OQ-002",
