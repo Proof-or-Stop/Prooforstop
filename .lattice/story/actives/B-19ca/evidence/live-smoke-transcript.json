@@ -1,0 +1,20 @@
+{
+  "storyId": "B-19ca",
+  "expected": "The dispatch registry diagnostic lists each supported canonical role and legacy alias with its lifecycle phases, target cardinality, prompt class, and authority class; duplicate or incomplete entries fail the diagnostic.",
+  "actual": {
+    "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+    "exitCode": 0,
+    "stdout": "agent-dispatch-registry-smoke PASS (14 canonical roles, 2 aliases)\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-16T12:59:23.998Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "63d9922d276f2c3dcc5163eee01ab3d6ca4df369",
+  "materialHash": "e2597e3483f61a2f3bb890c0d62029d634dc86671e4f93a4de3ad75739979229"
+}
