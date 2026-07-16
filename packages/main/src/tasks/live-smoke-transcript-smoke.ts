@@ -116,11 +116,46 @@ function git(cwd: string, args: string[]): string {
 
 // ---- descendant reap uses a PID-written readiness handshake ----------------
 
-type HarnessFailure = 'none' | 'readiness' | 'assertion' | 'read' | 'close-never';
+type HarnessFailure = 'none' | 'readiness' | 'assertion' | 'read' | 'close-never' | 'disappearance-timeout';
 
 interface HarnessPids {
   capture: number;
   descendant: number;
+}
+
+let activeDisappearanceProbes = 0;
+
+async function waitUntilGone(
+  pid: number,
+  isAlive: (candidate: number) => boolean,
+  timeoutMs = 2_000,
+): Promise<void> {
+  if (!isAlive(pid)) return;
+  activeDisappearanceProbes += 1;
+  let probe: NodeJS.Timeout | undefined;
+  let deadline: NodeJS.Timeout | undefined;
+  try {
+    await new Promise<void>((resolveGone, rejectGone) => {
+      let settled = false;
+      const settle = (error?: Error) => {
+        if (settled) return;
+        settled = true;
+        if (error) rejectGone(error);
+        else resolveGone();
+      };
+      probe = setInterval(() => {
+        if (!isAlive(pid)) settle();
+      }, 20);
+      deadline = setTimeout(
+        () => settle(new Error(`process ${pid} did not terminate during harness cleanup`)),
+        timeoutMs,
+      );
+    });
+  } finally {
+    if (probe) clearInterval(probe);
+    if (deadline) clearTimeout(deadline);
+    activeDisappearanceProbes -= 1;
+  }
 }
 
 async function runDescendantHarness(failure: HarnessFailure): Promise<void> {
@@ -163,21 +198,6 @@ async function runDescendantHarness(failure: HarnessFailure): Promise<void> {
     }
   };
 
-  const waitUntilGone = async (pid: number): Promise<void> => {
-    if (!isAlive(pid)) return;
-    await bounded(new Promise<void>((resolveGone) => {
-      const probe = setInterval(() => {
-        if (!isAlive(pid)) {
-          clearInterval(probe);
-          disposers.delete(dispose);
-          resolveGone();
-        }
-      }, 20);
-      const dispose = () => clearInterval(probe);
-      disposers.add(dispose);
-    }), 2_000, `process ${pid} did not terminate during harness cleanup`);
-  };
-
   const cleanup = (): Promise<void> => {
     cleanupPromise ??= (async () => {
       for (const dispose of [...disposers]) dispose();
@@ -197,7 +217,11 @@ async function runDescendantHarness(failure: HarnessFailure): Promise<void> {
       }
       for (const pid of targets) signal(pid, 'SIGKILL');
       if (actualClosed) await bounded(actualClosed, 2_000, 'CLI did not close after harness KILL');
-      for (const pid of targets.filter((pid) => pid > 0)) await waitUntilGone(pid);
+      const goneProbe = failure === 'disappearance-timeout' ? () => true : isAlive;
+      const goneDeadlineMs = failure === 'disappearance-timeout' ? 100 : 2_000;
+      for (const pid of targets.filter((pid) => pid > 0)) {
+        await waitUntilGone(pid, goneProbe, goneDeadlineMs);
+      }
     })();
     return cleanupPromise;
   };
@@ -279,6 +303,7 @@ async function runDescendantHarness(failure: HarnessFailure): Promise<void> {
     const pids = await ready;
     assert.equal(spawnedCli.exitCode, null, 'PID readiness is observed while the CLI capture is still active');
     if (failure === 'assertion') throw new Error('injected post-readiness assertion failure');
+    if (failure === 'disappearance-timeout') throw new Error('injected disappearance-timeout cleanup');
     if (failure === 'read') {
       writeFileSync(pidPath, '{invalid', 'utf8');
       JSON.parse(readFileSync(pidPath, 'utf8'));
@@ -291,20 +316,30 @@ async function runDescendantHarness(failure: HarnessFailure): Promise<void> {
     assert.equal(report.actual?.exitCode, null);
     assert.throws(() => process.kill(pids.descendant, 0), /ESRCH/, 'handshake-confirmed descendant is reaped after timeout');
   } finally {
-    await Promise.all([cleanup(), cleanup()]);
-    rmSync(root, { recursive: true, force: true });
-    assert.equal(existsSync(root), false, 'temp root removal happens after process cleanup');
+    try {
+      await Promise.all([cleanup(), cleanup()]);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+      assert.equal(existsSync(root), false, 'temp root removal happens after process cleanup settlement');
+    }
   }
 }
 
 await runDescendantHarness('none');
-for (const failure of ['readiness', 'assertion', 'read', 'close-never'] as const) {
+for (const failure of ['readiness', 'assertion', 'read', 'close-never', 'disappearance-timeout'] as const) {
+  const startedAt = Date.now();
   await assert.rejects(runDescendantHarness(failure), new RegExp(
     failure === 'readiness' ? 'injected readiness rejection'
       : failure === 'assertion' ? 'injected post-readiness assertion failure'
         : failure === 'read' ? 'Unexpected token|JSON'
-          : 'CLI close deadline exceeded',
+          : failure === 'close-never' ? 'CLI close deadline exceeded'
+            : 'did not terminate during harness cleanup',
   ));
+  assert.equal(activeDisappearanceProbes, 0, `${failure} leaves no active disappearance probe handles`);
+  if (failure === 'disappearance-timeout') {
+    const elapsedMs = Date.now() - startedAt;
+    assert.ok(elapsedMs >= 80 && elapsedMs < 5_000, `disappearance timeout is bounded near its 100ms deadline (${elapsedMs}ms)`);
+  }
 }
 
 function gitStatus(root: string): string {
