@@ -1,6 +1,6 @@
 {
   "storyId": "B-ebe4",
-  "checkedAt": "2026-07-16T20:59:01.515Z",
+  "checkedAt": "2026-07-16T23:07:58.567Z",
   "features": [
     {
       "feature": "Self-host story worktree rejects a runtime whose canonical realpath belongs to the main or another checkout before story-scoped mutation",
@@ -10,11 +10,11 @@
       "source": ".lattice/story/actives/B-ebe4/background.md"
     },
     {
-      "feature": "Worktree-local node bin/lattice.js remains authoritative and reaches normal dispatch",
+      "feature": "A correct worktree-local node bin/lattice.js runtime is accepted silently, emits no authority-specific PASS banner, and reaches normal command dispatch",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-ebe4/understanding.json"
+      "source": ".lattice/story/actives/B-ebe4/checklist.json"
     },
     {
       "feature": "Ordinary external consumer repositories may continue using a global Lattice installation",
@@ -100,6 +100,7 @@
       ".lattice/story/actives/B-ebe4/checklist.json",
       ".lattice/story/actives/B-ebe4/decision.json",
       ".lattice/story/actives/B-ebe4/plan.md",
+      ".lattice/story/actives/B-ebe4/summary.json",
       ".lattice/story/actives/B-ebe4/understanding.json",
       "AGENTS.md",
       "docs/CLI.md",
@@ -109,8 +110,8 @@
     ],
     "filesTriagedByName": [],
     "scanEscalationReason": null,
-    "candidateSpecSetDigest": "b36cd839a8ee58882c1e3484152c14e38fdbded6c59a2d4b83791f03345e9eba",
-    "corpusDigest": "94fde77facef77a622c96c68cd95ab5998cc0d400a27a24a411b9f47f2bbcfe0"
+    "candidateSpecSetDigest": "b3e5b6701ba2cb8adfce62327dd53f5d7966cd9854ca9a9181c3b60690de31c5",
+    "corpusDigest": "c32857bb0dce01204444115f085cb28f4df249ebca7e92092085ebdf61db9d44"
   },
   "summary": {
     "total": 13,
@@ -120,7 +121,7 @@
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "",
-  "_hash": "bda1f9934a17843e4b49729ad1134dd8bb7a64ca1592efec7d6a59b8ba8b7c67",
+  "reviewRound": "2026-07-16T22:24:16.250Z",
+  "_hash": "70ad31ab87eca6cd61425aa634b3cc909e04fd1a4c897eff4ed3fac66d166a27",
   "openQuestions": []
 }
