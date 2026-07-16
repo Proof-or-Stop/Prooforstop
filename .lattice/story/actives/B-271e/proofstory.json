@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-271e",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:b751be2d7c63301956f94e44b0df81f5838af5b8442c2ab29cc4fba87ecbac58",
+  "acceptanceBindings": [
+    {
+      "id": "ACCEPT-ENVELOPE-TOTALITY",
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:happy:1",
+        "CHK-001:edge:0",
+        "CHK-001:edge:1",
+        "CHK-001:adversarial:0",
+        "CHK-001:adversarial:1",
+        "CHK-001:adversarial:2"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "Contradictory delivery promise outcomes are rejected before persistence and every writer/reader uses one total predicate while valid and explicit legacy controls remain accepted.",
+      "note": "Covers schema, handler, store no-write, machine, done-oracle, mutation and pairwise contradiction matrix."
+    },
+    {
+      "id": "ACCEPT-TEST-SEAM-CAPABILITY",
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:happy:1",
+        "CHK-002:edge:0",
+        "CHK-002:edge:1",
+        "CHK-002:adversarial:0",
+        "CHK-002:adversarial:1",
+        "CHK-002:adversarial:2"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "Production test control data cannot select arbitrary filesystem or process side-effect targets, while legitimate env reads and bounded sanitized controls continue to pass.",
+      "note": "Covers verifier seam migration, production AST scan, negative direct/local propagation fixtures, positive sanitizers, and CLI-unreachable test capability."
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "Two bindings jointly prove the original combined acceptance claim without widening into unrelated evidence schemas or a repository-wide taint engine.",
+  "createdAt": "2026-07-16T23:28:50.914Z",
+  "updatedAt": "2026-07-16T23:28:50.914Z"
+}

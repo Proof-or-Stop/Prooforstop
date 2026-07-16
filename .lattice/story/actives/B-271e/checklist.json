@@ -108,12 +108,15 @@
         "modify": [
           "packages/main/src/handlers/verifier.ts",
           "packages/main/src/tasks/validate-execution-lock-smoke.ts",
-          "scripts/verify-process-fact-contract.mjs"
+          "package.json",
+          "lattice.config.json"
         ],
-        "create": [],
+        "create": [
+          "packages/main/src/tasks/production-test-seam-guard.ts"
+        ],
         "test": [
           "packages/main/src/tasks/validate-execution-lock-smoke.ts",
-          "scripts/verify-process-fact-contract.mjs"
+          "packages/main/src/tasks/production-test-seam-guard.ts"
         ]
       },
       "verificationIntent": {
