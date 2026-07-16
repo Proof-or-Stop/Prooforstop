@@ -276,6 +276,56 @@
       "resolvedAt": "2026-07-16T12:25:42.316Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-19ca:F-013",
+      "desc": "resolveAgentMutationAuthority does not fail closed when LATTICE_AGENT is present but unknown. Because only registered env actors enter the authoritative branch, an unknown/lookalike env actor is silently discarded whenever payloadActors supplies human/main or any registered reviewer. Repro against the built candidate: envActor=lattice-review-lookalike + payloadActors=[human] returns trusted host authority, and the same env + payloadActors=[lattice-review-quality] returns reviewer authority instead of agent_dispatch_actor_unknown. This lets an unknown dispatched identity cross the trusted-host/reviewer boundary through payload attribution, contradicting the shared invariant that unknown identities inherit no privileged default. Treat only omitted or explicitly trusted env identities as legacy compatibility; any nonblank unknown env identity must reject before payload selection, with real-handler byte-equivalence regression coverage.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-16T12:29:52.223Z",
+      "reviewRound": "2026-07-16T12:25:28.504Z",
+      "reviewRunId": "B-19ca:RR-024",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/delivery-check.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/init-check.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/scope-check.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "67ccafd031f0832c7aab820e8d90e9f15a768e599ddf897659a50277acc49ce2",
+        "corpusDigest": "fab7461b8085dde0edf5b3e6e93634e3382fd96e190816832e09d598eccb36de"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "6188b0a7ad938c118a10a1ec38d414fede72303a20bd82b13320a39461a84a5a"
+      },
+      "readDiagnostics": [],
+      "_hash": "ebee2440194cdc57820b8969847f3dbd57c0084ec5c09ed194b708b7a9c3a0cd",
+      "files": [
+        "packages/main/src/core/agent-dispatch-registry.ts",
+        "packages/main/src/tasks/agent-dispatch-registry-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|resolveagentmutationauthority-fail-closed",
+      "signatureTagSource": "auto"
     }
   ]
 }
