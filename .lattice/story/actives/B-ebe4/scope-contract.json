@@ -1,0 +1,34 @@
+{
+  "storyId": "B-ebe4",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/runtime-environment-checks.ts",
+    "packages/main/src/core/runtime-fact-registry.ts",
+    "packages/main/src/cli-engine.ts",
+    "bin/bootstrap-runner.js",
+    "docs/CLI.md",
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+    "packages/main/src/tasks/validation-protocol-smoke.ts",
+    "scripts/verify-runtime-fact-contract.mjs"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+    "scripts/verify-runtime-fact-contract.mjs",
+    "packages/main/src/tasks/validation-protocol-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/process-fact-registry.ts"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/core/candidate-spec-routing.ts",
+    "packages/main/src/core/story-owner-lease.ts",
+    "packages/main/src/core/scope-diff-pack.ts"
+  ],
+  "scopeChangeReason": "Initialize exact PLAN file contract for the user-approved runtime entrypoint authority story.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-16T21:00:06.525Z",
+  "updatedAt": "2026-07-16T21:00:06.525Z"
+}
