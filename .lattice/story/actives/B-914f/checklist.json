@@ -125,13 +125,15 @@
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
           "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
           "result": "pass",
-          "note": "Dedicated smoke passed real executed-to-reused handler flow, identity mutations, fail-closed refusals, B-19ca coverage-only reuse, lineage, TOCTOU, and no-write assertions.",
-          "headHash": "12f0e4b8f03b1f0a566d6f08c102c2fe942539df",
-          "materialHash": "2c34a5dee73bc4863912aa7be0dbad685624dc1ba2a5f0edf793932d8c34d97d",
-          "storyFilesHash": "117a8d4c12760110cf7556ddf36c2dde023b56ebf03ce6de550a5daa6b325675",
-          "timestamp": "2026-07-16T14:27:28.209Z"
+          "note": "Updated dedicated smoke passed identity, malformed commandExecution matrix, coverage-only PASS separation, semantic JSON FAIL, source E2E, double-snapshot race, and no-write reuse.",
+          "headHash": "630093c02d0638fa58f2196acd6a847acfa84010",
+          "materialHash": "442de55b397b6704df008ba8605ea9c22b74553aeeb505f2367aadd0e5f3b73b",
+          "storyFilesHash": "5d54f5520e1d60279203f64de703c1f6ebc59b2bc28748d40f64343046f83dda",
+          "timestamp": "2026-07-16T14:44:41.060Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
