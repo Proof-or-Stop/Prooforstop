@@ -881,6 +881,33 @@
         "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
       },
       "_hash": "44a9122f9fdc75912e0b5d28eb855b2b9e3ec6813dbb64e7f50d721321e0973e"
+    },
+    {
+      "id": "B-c163:RP-028",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 20 minimal coverage review passes. feb31fd2a7 changes only the pinned structural fingerprint for closeout-trust-smoke; no behavioral test or production source changed, and the prior F-032 positive signer/hash plus five byte-atomic rejection controls remain unchanged. Build, retired-authority vocabulary guard, closeout-trust smoke, and review-assurance-floor smoke all pass.",
+      "createdAt": "2026-07-16T02:14:32.953Z",
+      "reviewRound": "2026-07-16T02:11:57.124Z",
+      "reviewRunId": "B-c163:RR-084",
+      "writerSessionId": "review-bc163-coverage-r20",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "bd6b45ef241ef9572ddceab444dd5e8bd4d8f804acea8da3682feec7da95c831",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "_hash": "d55b79162e254819dd2228c1dc08ed5d5e4f7e24a2c526871f1185c7bfbf934a"
     }
   ]
 }
