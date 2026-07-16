@@ -2,7 +2,7 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { hostname, tmpdir } from 'node:os';
 import { delimiter, join, relative } from 'node:path';
 import {
@@ -368,6 +368,7 @@ assert.equal(
 {
   const { root } = createFixture(checklistWithUserSees);
   const savedOverride = process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
+  const savedArgv1 = process.argv[1];
   try {
     writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
       scanRoot: 'packages/main',
@@ -380,6 +381,7 @@ assert.equal(
     resetConfigCache();
     const installedLattice = execFileSync('/bin/sh', ['-c', 'command -v lattice'], { encoding: 'utf8' }).trim();
     const activeCliEntrypoint = realpathSync(installedLattice);
+    process.argv[1] = activeCliEntrypoint;
     const globalBin = join(root, 'global-bin');
     const latticeSymlink = join(globalBin, 'lattice');
     mkdirSync(globalBin, { recursive: true });
@@ -389,27 +391,50 @@ assert.equal(
     const doneRequiredCommand = 'lattice done_required_validate --storyId=B-livesmoke --json';
     const donePrepareCommand = 'lattice done_prepare --storyId=B-livesmoke --json';
 
-    const direct = liveSmokeCaptureBudget(root, `LATTICE_SESSION_ID=stable ${doneRequiredCommand}`, budgetEnv, activeCliEntrypoint);
+    const direct = liveSmokeCaptureBudget(root, `LATTICE_SESSION_ID=stable ${doneRequiredCommand}`, budgetEnv);
     assert.equal(direct.timeoutMs, 150_000, 'direct DONE-required capture derives command timeout plus grace');
     assert.equal(direct.recognizedCommand, 'done_required_validate');
+
+    const fakeProjectCli = join(root, 'bin', 'lattice.js');
+    mkdirSync(join(root, 'bin'), { recursive: true });
+    writeFileSync(fakeProjectCli, '#!/bin/sh\nexit 0\n', 'utf8');
+    chmodSync(fakeProjectCli, 0o755);
+    const selfAuthorized = liveSmokeCaptureBudget(
+      root,
+      `${fakeProjectCli} done_required_validate --storyId=B-livesmoke`,
+      budgetEnv,
+    );
+    assert.equal(selfAuthorized.recognizedCommand, null, 'chmod fake project CLI cannot self-authorize a widened budget');
+    assert.equal(selfAuthorized.timeoutMs, 60_000);
+
+    const nodeAliasBin = join(root, 'node-alias-bin');
+    mkdirSync(nodeAliasBin, { recursive: true });
+    symlinkSync(process.execPath, join(nodeAliasBin, 'lattice'));
+    const nodeAlias = liveSmokeCaptureBudget(
+      root,
+      doneRequiredCommand,
+      { ...budgetEnv, PATH: `${nodeAliasBin}${delimiter}${budgetEnv.PATH ?? ''}` },
+    );
+    assert.equal(nodeAlias.recognizedCommand, null, 'PATH lattice symlink to node cannot impersonate the active CLI');
+    assert.equal(nodeAlias.timeoutMs, 60_000);
     assert.equal(
       commandCliMaxBudget(root, 'live_smoke_transcript', {
         capture: doneRequiredCommand,
-      }, budgetEnv, activeCliEntrypoint).timeoutMs,
+      }, budgetEnv).timeoutMs,
       180_000,
       'outer CLI max watchdog allows the derived capture budget plus handler grace',
     );
-    const directDonePrepare = liveSmokeCaptureBudget(root, donePrepareCommand, budgetEnv, activeCliEntrypoint);
+    const directDonePrepare = liveSmokeCaptureBudget(root, donePrepareCommand, budgetEnv);
     assert.equal(directDonePrepare.recognizedCommand, 'done_prepare');
     assert.equal(
       directDonePrepare.timeoutMs,
-      commandCliMaxBudget(root, 'done_prepare', { validate: true }, budgetEnv, activeCliEntrypoint).timeoutMs,
+      commandCliMaxBudget(root, 'done_prepare', { validate: true }, budgetEnv).timeoutMs,
       'direct done_prepare capture derives the complete configured closeout budget',
     );
 
-    const arbitrary = liveSmokeCaptureBudget(root, 'node long-arbitrary-script.js', budgetEnv, activeCliEntrypoint);
+    const arbitrary = liveSmokeCaptureBudget(root, 'node long-arbitrary-script.js', budgetEnv);
     assert.equal(arbitrary.timeoutMs, 60_000, 'arbitrary captures retain the fixed safety ceiling');
-    const composed = liveSmokeCaptureBudget(root, 'lattice done_required_validate --storyId=B-livesmoke; node extra.js', budgetEnv, activeCliEntrypoint);
+    const composed = liveSmokeCaptureBudget(root, 'lattice done_required_validate --storyId=B-livesmoke; node extra.js', budgetEnv);
     assert.equal(composed.timeoutMs, 60_000, 'shell-composed input cannot obtain the wider closeout budget');
     for (const injected of [
       `PATH=/tmp/attacker ${doneRequiredCommand}`,
@@ -418,13 +443,13 @@ assert.equal(
       `LATTICE_MAX_TIMEOUT_MS=90000 ${doneRequiredCommand}`,
       `LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS=75 ${doneRequiredCommand}`,
     ]) {
-      const budget = liveSmokeCaptureBudget(root, injected, budgetEnv, activeCliEntrypoint);
+      const budget = liveSmokeCaptureBudget(root, injected, budgetEnv);
       assert.equal(budget.timeoutMs, 60_000, `${injected.split('=')[0]} injection retains arbitrary-command ceiling`);
       assert.equal(budget.recognizedCommand, null);
     }
 
     const inheritedMaxEnv = { ...budgetEnv, LATTICE_MAX_TIMEOUT_MS: '1000' };
-    const inheritedMax = liveSmokeCaptureBudget(root, doneRequiredCommand, inheritedMaxEnv, activeCliEntrypoint);
+    const inheritedMax = liveSmokeCaptureBudget(root, doneRequiredCommand, inheritedMaxEnv);
     assert.equal(inheritedMax.nestedMaxTimeoutMs, 1_000, 'nested closeout keeps inherited max as its business bound');
     assert.equal(inheritedMax.timeoutMs, 1_000 + LIVE_SMOKE_CAPTURE_CLEANUP_GRACE_MS, 'capture wrapper outlives nested max by cleanup grace');
     assert.equal(inheritedMax.source, 'inherited-cli-max');
@@ -433,34 +458,51 @@ assert.equal(
       'live_smoke_transcript',
       { capture: doneRequiredCommand },
       inheritedMaxEnv,
-      activeCliEntrypoint,
     );
     assert.equal(outerBudget.timeoutMs, inheritedMax.timeoutMs + 30_000, 'outer live-smoke watchdog outlives capture cleanup by wrapper grace');
     assert.ok(outerBudget.timeoutMs > inheritedMax.timeoutMs && inheritedMax.timeoutMs > inheritedMax.nestedMaxTimeoutMs!);
     assert.equal(
-      effectiveCommandCliMaxBudget(root, 'story_get', {}, inheritedMaxEnv, activeCliEntrypoint).timeoutMs,
+      effectiveCommandCliMaxBudget(root, 'story_get', {}, inheritedMaxEnv).timeoutMs,
       1_000,
       'unrelated commands still honor the raw explicit CLI max',
     );
-    const clampedInheritedMax = liveSmokeCaptureBudget(root, doneRequiredCommand, {
+    const saturatedEnv = {
       ...budgetEnv,
       LATTICE_MAX_TIMEOUT_MS: String(Number.MAX_SAFE_INTEGER),
-    }, activeCliEntrypoint);
-    assert.equal(clampedInheritedMax.timeoutMs, NODE_TIMER_MAX_MS, 'inherited authoritative CLI max is clamped to Node timer maximum');
+    };
+    const clampedInheritedMax = liveSmokeCaptureBudget(root, doneRequiredCommand, saturatedEnv);
+    const expectedSaturatedNested = NODE_TIMER_MAX_MS - LIVE_SMOKE_CAPTURE_CLEANUP_GRACE_MS - 30_000;
+    assert.equal(clampedInheritedMax.requestedNestedMaxTimeoutMs, NODE_TIMER_MAX_MS, 'oversized inherited max is first clamped to Node timer maximum');
+    assert.equal(clampedInheritedMax.nestedMaxTimeoutMs, expectedSaturatedNested, 'saturation reserves both cleanup layers below Node max');
+    assert.equal(clampedInheritedMax.timeoutMs, expectedSaturatedNested + LIVE_SMOKE_CAPTURE_CLEANUP_GRACE_MS);
+    assert.equal(clampedInheritedMax.source, 'inherited-cli-max-saturation-adjusted');
+    assert.equal(clampedInheritedMax.saturationAdjusted, true);
+    const saturatedOuter = effectiveCommandCliMaxBudget(
+      root,
+      'live_smoke_transcript',
+      { capture: doneRequiredCommand },
+      saturatedEnv,
+    );
+    assert.equal(saturatedOuter.timeoutMs, NODE_TIMER_MAX_MS);
+    assert.ok(
+      clampedInheritedMax.nestedMaxTimeoutMs! < clampedInheritedMax.timeoutMs && clampedInheritedMax.timeoutMs < saturatedOuter.timeoutMs,
+      'recognized saturated budgets preserve strict nested < capture < outer ordering',
+    );
 
     const boundedHighOverride = liveSmokeCaptureBudget(root, 'node arbitrary.js', {
       ...budgetEnv,
       LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS: '999999999',
-    }, activeCliEntrypoint);
+    });
     assert.equal(boundedHighOverride.timeoutMs, 60_000, 'explicit override cannot raise arbitrary-command safety ceiling');
     const boundedLowOverride = liveSmokeCaptureBudget(root, doneRequiredCommand, {
       ...budgetEnv,
       LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS: '75',
-    }, activeCliEntrypoint);
+    });
     assert.equal(boundedLowOverride.timeoutMs, 75, 'explicit override may lower a recognized command budget for testing/operations');
   } finally {
     if (savedOverride === undefined) delete process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
     else process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS = savedOverride;
+    process.argv[1] = savedArgv1;
     resetConfigCache();
     rmSync(root, { recursive: true, force: true });
   }

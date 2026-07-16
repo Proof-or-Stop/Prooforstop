@@ -209,6 +209,7 @@ async function runCapture(
   cwd: string,
   timeoutMs: number,
   heartbeat?: (message: string) => void,
+  env: NodeJS.ProcessEnv = process.env,
 ): Promise<{ actual: CapturedActual; timedOut: boolean }> {
   return await new Promise((resolve) => {
     const startedAt = Date.now();
@@ -223,6 +224,7 @@ async function runCapture(
       cwd,
       shell: true,
       stdio: ['ignore', 'pipe', 'pipe'],
+      env,
       ...(isWindows ? {} : { detached: true }),
     });
 
@@ -514,7 +516,10 @@ export function createLiveSmokeTranscriptHandlers(ctx: HandlerContext): Record<s
     const command = captureCommand(args);
     if (command !== null) {
       const budget = liveSmokeCaptureBudget(ctx.root, command);
-      return runCapture(command, gitCwd, budget.timeoutMs, ctx.log).then(({ actual, timedOut }) => {
+      const captureEnv = budget.nestedMaxTimeoutMs === undefined
+        ? process.env
+        : { ...process.env, LATTICE_MAX_TIMEOUT_MS: String(budget.nestedMaxTimeoutMs) };
+      return runCapture(command, gitCwd, budget.timeoutMs, ctx.log, captureEnv).then(({ actual, timedOut }) => {
         if (timedOut) reclaimStaleValidationExecutionLock(ctx.root, args.storyId);
         return finish(actual);
       });
