@@ -404,6 +404,38 @@
         "scanEscalationReason": null
       },
       "_hash": "77fedc417a6993f1bfaefe64a25a95c217b078dcbbf5dbd5dea3ceb30a465b0a"
+    },
+    {
+      "id": "B-19ca:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 7 incremental coverage PASS for b54f43ca27. The prior failure is explained by the smoke hard-coding an unregistered LATTICE_AGENT, which the new fail-closed authority resolver correctly rejects before payload identity. The smoke is a host-driven nested-worktree bootstrap regression, so deleting inherited LATTICE_AGENT is correct fixture isolation while preserving LATTICE_SESSION_ID. Verified build, nested-worktree smoke, dispatch-registry smoke, and an adversarial inherited LATTICE_AGENT run; all pass. Existing smokes separately cover fixture isolation and runtime unknown-agent rejection, so no additional persisted counterexample is needed.",
+      "createdAt": "2026-07-16T13:20:17.213Z",
+      "reviewRound": "2026-07-16T13:17:00.741Z",
+      "reviewRunId": "B-19ca:RR-035",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/verify-nested-worktree-bootstrap.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "daef39dc3d9024a5eabcec77b7cd3456f3f6c42a5a9b936f85dda9e843a49cb2"
     }
   ]
 }
