@@ -3,19 +3,19 @@
   "expected": "Validation evidence reports a stable versioned identity and the same exact-head or trusted-metadata lineage classification is used by routine validate and DONE reuse.",
   "actual": {
     "command": "node bin/lattice.js validate --story=B-914f --json",
-    "exitCode": 1,
+    "exitCode": null,
     "stdout": "",
-    "stderr": "[0.6s] running validate...\n[3.2s] validate failed: validate is blocked: validation execution for story B-914f is already running in /Users/jek/Documents/Work/proofbound/.worktrees/B-914f by validate for B-914f (pid 59701 on JekdeMacBook-Pro.local), heartbeat 0s ago. Retry after the active validation finishes; this protects story-scoped validation evidence from concurrent writes.\nError: validate is blocked: validation execution for story B-914f is already running in /Users/jek/Documents/Work/proofbound/.worktrees/B-914f by validate for B-914f (pid 59701 on JekdeMacBook-Pro.local), heartbeat 0s ago. Retry after the active validation finishes; this protects story-scoped validation evidence from concurrent writes.\n"
+    "stderr": "[0.1s] running validate...\n[12.7s] routine validation reuse refused: refusalReasons=validation-identity-changed priorIdentityDigest=7825d4c9a1ba08b2f6c2c43661178f85a863da60a604ccfe28e4f58595e0ab89 currentIdentityDigest=1fcdf2cad2e7b0fc35f09952a82d864bf4f47c4d3f663267da31526e99075cd4\n[12.7s] running 45 configured validate.command(s)\n[13.5s] validate progress: command 1/45 started configured validate.commands[0]: npm --prefix packages/main run build timeoutMs=290000\n[38.1s] validate progress: command 1/45 ended configured validate.commands[0]: code=0 elapsedMs=25320\n[38.2s] validate progress: command 2/45 started configured validate.commands[1]: node packages/main/tests/milestone-status.test.mjs timeoutMs=270000\n\n[capture error] command exceeded 60000ms timeout; process group terminated"
   },
   "mode": {
     "runCommands": true,
     "writeEvidence": true
   },
-  "capturedAtIso": "2026-07-16T16:54:01.204Z",
+  "capturedAtIso": "2026-07-16T16:58:48.425Z",
   "claims": {
     "authorityDone": false,
     "productionDone": false
   },
-  "headHash": "15d0ecb0de9545afaceaa6a6a358bea546a96c71",
+  "headHash": "b21e66417db84a1094d497d3d7fc3113f6a0ec53",
   "materialHash": "f9e132892cab90f5dfc25079379fc662e8313ff580b4ffa9f28c31a1e4da10f8"
 }
