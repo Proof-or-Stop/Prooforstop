@@ -1,136 +1,40 @@
 {
   "schemaVersion": "proofbound.candidate-spec-set.v1",
   "storyId": "B-19ca",
-  "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface",
-  "seedDigest": "8965995487b1f853b571eccb9bb57835cf2a009abf7af731c75d505f04d4a6a9",
+  "corpusDigest": "fab7461b8085dde0edf5b3e6e93634e3382fd96e190816832e09d598eccb36de",
+  "seedDigest": "03b9a51d19713966b46b141c9a00ad63e90a9237b32f4e29041bb9f5f329c316",
   "promptDigests": [],
   "candidates": [
     {
       "path": "docs/requirements/decisions/role-separation.md",
-      "contentHash": "a515fd9d63ed3f87846f3f93e68a012b5db2735d1d1d20ea517ceaf5a6ac3ed5",
-      "score": 108,
+      "contentHash": "6d7634e137331d2b0b05bf485594af81340baec6a0cc60e593fcd5f87eb2912d",
+      "score": 100,
       "reasons": [
         {
           "kind": "related-doc",
           "term": "docs/requirements/decisions/role-separation.md",
           "source": "relatedDoc",
           "points": 100
-        },
-        {
-          "kind": "body",
-          "term": "handlers",
-          "source": "handlers",
-          "points": 8
         }
       ]
     },
     {
       "path": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
-      "contentHash": "6a3515794e941f70033cf940a381223427e112c7d40009cad39477fc75225ec1",
-      "score": 108,
+      "contentHash": "133161a3749ab5b770adcdea7ecdb7ca3f0a4e696d40fcea24cf2e2b756e1b42",
+      "score": 100,
       "reasons": [
         {
           "kind": "related-doc",
           "term": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
           "source": "relatedDoc",
           "points": 100
-        },
-        {
-          "kind": "body",
-          "term": "handlers",
-          "source": "handlers",
-          "points": 8
-        }
-      ]
-    },
-    {
-      "path": "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
-      "contentHash": "dcddc3f6fad9597c8a68df50d4739127a2b94df1b3c5c34ae8f62aede78f8325",
-      "score": 8,
-      "reasons": [
-        {
-          "kind": "body",
-          "term": "handlers",
-          "source": "handlers",
-          "points": 8
-        }
-      ]
-    },
-    {
-      "path": "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
-      "contentHash": "8016febb01e614a20da45dc93f7baf7c2b8a51c1a0098165b568f5687d2020f7",
-      "score": 8,
-      "reasons": [
-        {
-          "kind": "body",
-          "term": "handlers",
-          "source": "handlers",
-          "points": 8
-        }
-      ]
-    },
-    {
-      "path": "docs/requirements/decisions/cc-learnings.md",
-      "contentHash": "87e90902982779e02ef6aebf18e4a5f23d9c1e328fb5ce5cfd97f2dddf39dacc",
-      "score": 8,
-      "reasons": [
-        {
-          "kind": "body",
-          "term": "handlers",
-          "source": "handlers",
-          "points": 8
-        }
-      ]
-    },
-    {
-      "path": "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
-      "contentHash": "450a02e03d90d73f3120f53f470e03a8e16293c7ef8eae24fbb5ea1197f42de6",
-      "score": 8,
-      "reasons": [
-        {
-          "kind": "body",
-          "term": "handlers",
-          "source": "handlers",
-          "points": 8
-        }
-      ]
-    },
-    {
-      "path": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
-      "contentHash": "016e7f06fab17b32dceddb6133bc4bcc4ad133fc412aaf8553bfece4462b35b6",
-      "score": 8,
-      "reasons": [
-        {
-          "kind": "body",
-          "term": "handlers",
-          "source": "handlers",
-          "points": 8
-        }
-      ]
-    },
-    {
-      "path": "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md",
-      "contentHash": "7a08721beaaa00a30f0ac894066a96f79e11e767837ce45771ca88806edc9035",
-      "score": 8,
-      "reasons": [
-        {
-          "kind": "body",
-          "term": "handlers",
-          "source": "handlers",
-          "points": 8
         }
       ]
     }
   ],
   "candidateSpecSet": [
     "docs/requirements/decisions/role-separation.md",
-    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
-    "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
-    "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
-    "docs/requirements/decisions/cc-learnings.md",
-    "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
-    "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
-    "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md"
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
   ],
   "candidateBasis": {
     "docs/requirements/decisions/role-separation.md": [
@@ -139,12 +43,6 @@
         "term": "docs/requirements/decisions/role-separation.md",
         "source": "relatedDoc",
         "points": 100
-      },
-      {
-        "kind": "body",
-        "term": "handlers",
-        "source": "handlers",
-        "points": 8
       }
     ],
     "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md": [
@@ -153,66 +51,18 @@
         "term": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
         "source": "relatedDoc",
         "points": 100
-      },
-      {
-        "kind": "body",
-        "term": "handlers",
-        "source": "handlers",
-        "points": 8
-      }
-    ],
-    "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md": [
-      {
-        "kind": "body",
-        "term": "handlers",
-        "source": "handlers",
-        "points": 8
-      }
-    ],
-    "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md": [
-      {
-        "kind": "body",
-        "term": "handlers",
-        "source": "handlers",
-        "points": 8
-      }
-    ],
-    "docs/requirements/decisions/cc-learnings.md": [
-      {
-        "kind": "body",
-        "term": "handlers",
-        "source": "handlers",
-        "points": 8
-      }
-    ],
-    "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md": [
-      {
-        "kind": "body",
-        "term": "handlers",
-        "source": "handlers",
-        "points": 8
-      }
-    ],
-    "docs/requirements/decisions/cli-engine-modularization-execution-plan.md": [
-      {
-        "kind": "body",
-        "term": "handlers",
-        "source": "handlers",
-        "points": 8
-      }
-    ],
-    "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md": [
-      {
-        "kind": "body",
-        "term": "handlers",
-        "source": "handlers",
-        "points": 8
       }
     ]
   },
   "queryGroups": [
     [
+      "agent dispatch registry smoke ts"
+    ],
+    [
       "agent dispatch registry ts"
+    ],
+    [
+      "candidate spec routing smoke ts"
     ],
     [
       "checklist ts"
@@ -224,10 +74,10 @@
       "command catalog ts"
     ],
     [
-      "handlers"
+      "delivery check ts"
     ],
     [
-      "process fact registry ts"
+      "finding ts"
     ]
   ],
   "queryFiltering": {
@@ -242,16 +92,6 @@
         "term": "core",
         "documentCount": 82,
         "documentFrequencyRatio": 0.6949152542372882
-      },
-      {
-        "term": "main",
-        "documentCount": 113,
-        "documentFrequencyRatio": 0.9576271186440678
-      },
-      {
-        "term": "packages",
-        "documentCount": 68,
-        "documentFrequencyRatio": 0.576271186440678
       }
     ]
   },
@@ -268,9 +108,9 @@
   "escalationReasons": [],
   "fullScan": false,
   "scanEscalationReason": null,
-  "storyInputDigest": "87e69787ce059007ce4401bd506b03c11a7002260e30224bdb2e4f76911bdea7",
-  "headHash": "3f5f01fd30fce4769d4452b3ef1588701f1f0097",
-  "materialHash": "b217c65ee81f6cb6dd7d2b1040f146c8497ad5b697657e24c7d5161fe4a33647",
-  "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-  "artifactDigest": "ac01f291a52865e824c40a0396a1564a7d5f3b82f4686ba54cd42f6d3a01c6ca"
+  "storyInputDigest": "fc40c843e6271d400a39f07fd3a4db70b81248c28db2352bdf1f4515c1f0b5a4",
+  "headHash": "e043e96e027545a6dfa7e1a17ba6d1216ecbe2a7",
+  "materialHash": "9305caf3d932e95ca5c7c36eb82db5ff70950d03647d8681325178ec5c3160be",
+  "storyFilesHash": "16bac265dbac0f8981be16a750d082e32b8fc2866ae9ed2d50e1d208f87e83d2",
+  "artifactDigest": "bece73fc7c48804ddedae9963ce661b6a2699dd2dd2c6ae5a3a4d6c9b216ffda"
 }
