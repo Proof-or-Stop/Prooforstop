@@ -271,16 +271,16 @@
         },
         {
           "intentRef": "CHK-002:adversarial:0",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "verdict": "success",
           "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
           "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
           "result": "pass",
-          "note": "Real handler integration matrix passed configured, fallback, validate-file, locked material TOCTOU refusal, and zero-command reuse.",
-          "headHash": "2dcb6f6e4388c471e8291d4ea2e8b652a8b8ba8a",
+          "note": "Second material snapshot deterministically rejects a source write inserted between capture and reuse return.",
+          "headHash": "e6e1a956162f1101466919a2673e51844cf53f86",
           "materialHash": "442de55b397b6704df008ba8605ea9c22b74553aeeb505f2367aadd0e5f3b73b",
           "storyFilesHash": "5d54f5520e1d60279203f64de703c1f6ebc59b2bc28748d40f64343046f83dda",
-          "timestamp": "2026-07-16T14:43:46.137Z"
+          "timestamp": "2026-07-16T14:45:28.000Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
