@@ -258,16 +258,16 @@
         },
         {
           "intentRef": "CHK-002:edge:1",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "verdict": "success",
           "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
           "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
           "result": "pass",
-          "note": "Real handler integration matrix passed configured, fallback, validate-file, locked material TOCTOU refusal, and zero-command reuse.",
-          "headHash": "51b163bebdce6d15d49e18bcbc6aab72b3ec63b0",
+          "note": "Fail-closed malformed evidence and dirty snapshot matrix passed in the dedicated smoke.",
+          "headHash": "bc61af0aca9e3f993b1eb117538f77c5cf0373d2",
           "materialHash": "442de55b397b6704df008ba8605ea9c22b74553aeeb505f2367aadd0e5f3b73b",
           "storyFilesHash": "5d54f5520e1d60279203f64de703c1f6ebc59b2bc28748d40f64343046f83dda",
-          "timestamp": "2026-07-16T14:43:44.239Z"
+          "timestamp": "2026-07-16T14:45:17.908Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
