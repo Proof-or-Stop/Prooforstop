@@ -653,6 +653,49 @@
         "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
       },
       "_hash": "4f1e46417136e1597baaf86ba81023ca9b9cf5ed0caa8af45509f83c4fc98d50"
+    },
+    {
+      "id": "B-c163:RP-021",
+      "agent": "lattice-review-quality",
+      "note": "Round 16 quality pass: F-025/F-027/F-028 are strongly resolved. Source inspection confirms positive observed PIDs are wait-only and all signals target the owned negative PGID; bounded natural close precedes TERM/KILL fallback; ESRCH, EPERM, primary-error preservation, and probe cleanup semantics are covered. Build, six consecutive live smoke runs, process-fact contract, and post-run orphan scan all passed.",
+      "createdAt": "2026-07-16T01:20:04.487Z",
+      "reviewRound": "2026-07-16T01:13:53.484Z",
+      "reviewRunId": "B-c163:RR-072",
+      "writerSessionId": "review-bc163-quality-r16",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "bee82b69b686adc190cfd3661cea648653e23a4070ffca9385ac4200215d1ba1",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "a774b34b7735e48b553252b2adcd8a64e3eabdda8b4841f9bbd484d9c16537f8"
     }
   ]
 }
