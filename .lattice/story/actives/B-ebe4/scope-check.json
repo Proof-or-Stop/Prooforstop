@@ -1,0 +1,126 @@
+{
+  "storyId": "B-ebe4",
+  "checkedAt": "2026-07-16T20:59:01.515Z",
+  "features": [
+    {
+      "feature": "Self-host story worktree rejects a runtime whose canonical realpath belongs to the main or another checkout before story-scoped mutation",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-ebe4/background.md"
+    },
+    {
+      "feature": "Worktree-local node bin/lattice.js remains authoritative and reaches normal dispatch",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-ebe4/understanding.json"
+    },
+    {
+      "feature": "Ordinary external consumer repositories may continue using a global Lattice installation",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-ebe4/understanding.json"
+    },
+    {
+      "feature": "Only explicitly marked global-fallback session_brief heartbeat is exempt in a self-host worktree; help/version behavior remains intact",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-ebe4/plan.md"
+    },
+    {
+      "feature": "Canonical filesystem and git worktree/common-dir identity withstand symlinks, nested cwd, aliases, dot segments, malformed metadata, and spoofed argv/PATH",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-ebe4/checklist.json"
+    },
+    {
+      "feature": "Mismatch fails nonzero before expensive work with stable reasonCode=stale_global_runtime_in_worktree and exactly one copyable local recovery command",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-ebe4/understanding.json"
+    },
+    {
+      "feature": "Recovery rendering preserves normalized command and arguments safely, including spaces, quotes, JSON, and shell metacharacters",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-ebe4/checklist.json"
+    },
+    {
+      "feature": "Diagnostics distinguish stale-global mismatch from missing local build, wrong cwd, and external-project advisory cases",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-ebe4/plan.md"
+    },
+    {
+      "feature": "Rejected validate or lifecycle calls execute zero handlers, validation subprocesses, evidence writes, story mutations, or metadata commits",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-ebe4/checklist.json"
+    },
+    {
+      "feature": "Hermetic main-plus-linked-worktree tests reproduce B-914f and prove stale-global rejection plus local and external control success",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-ebe4/checklist.json"
+    },
+    {
+      "feature": "Doctor and runtime contract expose entrypoint/global realpath/project-local bin facts without expanding the process-fact registry",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/testing-infra.md"
+    },
+    {
+      "feature": "A universal ban on global Lattice for external consumers",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Decision option C is rejected; the guard is narrowly limited to Proofbound self-host story-worktree mismatches.",
+      "source": ".lattice/story/actives/B-ebe4/decision.json"
+    },
+    {
+      "feature": "Warning-only behavior for stale self-host runtime mismatches",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Decision option B is rejected because it permits invalid expensive or mutating work to continue.",
+      "source": ".lattice/story/actives/B-ebe4/decision.json"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-ebe4/background.md",
+      ".lattice/story/actives/B-ebe4/checklist.json",
+      ".lattice/story/actives/B-ebe4/decision.json",
+      ".lattice/story/actives/B-ebe4/plan.md",
+      ".lattice/story/actives/B-ebe4/understanding.json",
+      "AGENTS.md",
+      "docs/CLI.md",
+      "docs/requirements/decisions/story-lifecycle.md",
+      "docs/requirements/decisions/testing-infra.md",
+      "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null,
+    "candidateSpecSetDigest": "b36cd839a8ee58882c1e3484152c14e38fdbded6c59a2d4b83791f03345e9eba",
+    "corpusDigest": "94fde77facef77a622c96c68cd95ab5998cc0d400a27a24a411b9f47f2bbcfe0"
+  },
+  "summary": {
+    "total": 13,
+    "covered": 11,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "bda1f9934a17843e4b49729ad1134dd8bb7a64ca1592efec7d6a59b8ba8b7c67",
+  "openQuestions": []
+}
