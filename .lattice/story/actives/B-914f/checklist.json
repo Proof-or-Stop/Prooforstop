@@ -259,6 +259,17 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "The B-19ca regression transcript shows the first 45-command execution once and the post-refresh validation returning PASS reused with commandExecutions=0.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ]
       }
     }
   ]
