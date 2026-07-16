@@ -157,7 +157,7 @@
       "desc": "packages/main/src/core/review-run.ts:36-45,97-129 still defines and enforces an independent hard-coded REVIEW_RUN_LANES list after packages/main/src/core/agent-dispatch-registry.ts declared reviewerLane/evidenceOwnership as the single mechanical authority. A future registry-valid REVIEW reviewer can pass dispatch resolution and mutation policy yet be rejected by resolveReviewRunLane unless this second list is edited in lockstep. WHY: the central concept of B-19ca is one typed authority with no distributed role inference; requiring registry AND a duplicate lane allowlist preserves the exact divergence class this story is intended to remove. Derive the review-run lane set/type/validation from registry entries (or make the registry row consume the canonical lane set, with one authoritative definition) and add a perturbation test showing a registry reviewer cannot drift from review-run acceptance. [high]",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-16T11:53:53.824Z",
@@ -165,7 +165,11 @@
       "reviewRunId": "B-19ca:RR-009",
       "_hash": "473c2542e39cd1fcca47243afc6988d217fa1422df699b6a8e5c7521275c4d03",
       "signatureTag": "missing|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "REVIEW_RUN_LANES and ReviewRunLane are now mechanically derived from AGENT_DISPATCH_REGISTRY REVIEW-phase rows in stable registry order; no second hard-coded lane authority remains.",
+      "resolvedAt": "2026-07-16T12:04:44.190Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-19ca:F-009",
