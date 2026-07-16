@@ -233,7 +233,7 @@
         ],
         "edge": [
           {
-            "desc": "Table rows independently mutate command spec/order/digest, config source, executable entrypoint, full/focus/profile, policy/coverage inputs, materialHash, storyFilesHash, prior result, and coverage completeness; every row executes and refreshes evidence rather than reusing. WHY: one-at-a-time mutation tests reveal identity omissions hidden by broad integration scenarios.",
+            "desc": "Table rows independently mutate command spec/order/digest, config source, executable entrypoint, full/focus/profile, policy/coverage inputs, materialHash, storyFilesHash, commandExecution result/status to FAIL/infra/timeout/cancel/skipped/partial, and coverage completeness; each behavior-affecting mutation executes and refreshes evidence rather than reusing. An overall coverage-only FAIL with structured commandExecution PASS is not command identity drift and may reuse once current coverage recomputes complete and all other predicates pass. WHY: one-at-a-time mutation tests reveal identity omissions while preserving the required separation between command execution truth and the overall coverage verdict.",
             "type": "logic",
             "requiredIn": "balanced",
             "priority": "must"
