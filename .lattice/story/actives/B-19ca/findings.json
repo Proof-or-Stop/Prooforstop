@@ -176,7 +176,7 @@
       "desc": "packages/main/src/core/agent-dispatch-registry.ts:424-435 + packages/main/src/handlers/finding.ts:489-493 — HIGH: unknown nonblank actor identities still bypass mutation authorization. assertRegisteredAgentMutationAllowed() returns null for every unregistered actor, so a prefix-lookalike such as lattice-review-lookalike reaches real finding_add/review_run_start/checklist/etc handlers as an unrestricted host identity instead of failing closed. Direct reproduction after build: assertRegisteredAgentMutationAllowed(\"lattice-review-lookalike\",\"finding_add\") prints BYPASS:null. The smoke at agent-dispatch-registry-smoke.ts:308-390 rejects lookalikes only at dispatch/read-evidence boundaries and exercises real mutation denial only for registered roles, so it misses the state-changing bypass and zero-side-effect assertion required by CHK-002 adversarial:1. Distinguish an explicit allowlist of trusted host identities (main/main-agent/human or absent actor) from any other nonblank actor, reject unknowns before reads/writes, and add lookalike cases across every real mutation handler with before/after state equality.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-16T11:54:22.450Z",
@@ -188,7 +188,11 @@
         "packages/main/src/tasks/agent-dispatch-registry-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Same root cause as F-007 fixed in commit 65f50d2676: all eight real mutation handler classes reject unregistered nonblank actors with no state changes; exhaustive smoke passes.",
+      "resolvedAt": "2026-07-16T12:04:45.599Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
