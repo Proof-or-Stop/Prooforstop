@@ -696,6 +696,38 @@
       },
       "readDiagnostics": [],
       "_hash": "a774b34b7735e48b553252b2adcd8a64e3eabdda8b4841f9bbd484d9c16537f8"
+    },
+    {
+      "id": "B-c163:RP-022",
+      "agent": "lattice-review-concept",
+      "note": "Round 17 targeted concept re-review PASS. The canonical transcript remains optional only when absent; once present, malformed, cross-story, write-only, unexecuted, timeout, spawn-failed, and non-zero artifacts fail closed in delivery_check_set, the DONE oracle, and the actual TEST-to-DONE guard. A successful executed zero-exit capture remains admissible local transcript evidence. Canonical write continues through autoCommitStoryMetadata and produces an auditable local writer receipt without treating that receipt as proof. Process-fact L4 registration and mechanical contract guard match the runtime consumers. Verified by npm build, live-smoke-transcript-smoke, closeout-trust-smoke, and verify-process-fact-contract, all PASS.",
+      "createdAt": "2026-07-16T01:48:45.083Z",
+      "reviewRound": "2026-07-16T01:45:18.901Z",
+      "reviewRunId": "B-c163:RR-073",
+      "writerSessionId": "bc163-concept-r17",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/core/live-smoke-transcript-evidence.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/delivery-check.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9fb32656024dcf69bf100488d880e3c4f8284caf7c2d26b13b6218cfbfd60a81"
     }
   ]
 }
