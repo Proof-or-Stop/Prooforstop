@@ -9,7 +9,51 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Golden-vector logic test calls the extracted shared derivation helper and the pre-extraction quorum derivation oracle with identical canonical storyId, headHash, materialDigest, storyFilesHash, testEvidence, hostId, provider, sessionId, and keyId; keyId, validationDigest, and promptDigest must be byte-for-byte equal.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "desc": "Quorum integration smoke submits the same valid two-independent-host, current-reviewer-pass fixture before and after delegation to the shared helper and proves the public lattice.quorum_submit.v1 result, verdict count/run ids, stored binding fields, and gate-counted assurance outcome are unchanged.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Canonical vectors cover both present and absent optional headHash plus present and unreadable/missing test evidence; validationDigest stays deterministic and exactly matches the existing canonicalDigest envelope for each case rather than silently dropping or inventing fields.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "desc": "Regression assertions pin validation schemaVersion lattice.quorum_submit.validation_digest.v1, prompt schemaVersion lattice.quorum_submit.prompt_digest.v1, and purpose local voluntary 3x2 review quorum after signed reviewer passes, so extraction or reuse cannot drift the digest namespace or semantic purpose.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The shared helper fails closed and emits no usable bindings when required canonical identity or freshness inputs are empty/invalid, including storyId, materialDigest, storyFilesHash, hostId, provider, sessionId, or keyId; callers cannot obtain a gate-counting digest from partial/defaulted data.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "desc": "Replay/collision tests vary one of storyId, headHash or testEvidence, materialDigest, storyFilesHash, hostId, provider, sessionId, and keyId at a time and prove the affected canonical digest changes; quorum still rejects hosts sharing normalized hostId, sessionId, or keyId and never collapses 3x2 independence through the refactor.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
