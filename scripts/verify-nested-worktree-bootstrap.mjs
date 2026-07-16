@@ -26,8 +26,8 @@ const cli = join(root, 'packages/main/dist/cli.js');
 const sessionEnv = {
   ...process.env,
   LATTICE_SESSION_ID: 'nested-worktree-bootstrap-smoke',
-  LATTICE_AGENT: 'nested-worktree-bootstrap-smoke',
 };
+delete sessionEnv.LATTICE_AGENT;
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
