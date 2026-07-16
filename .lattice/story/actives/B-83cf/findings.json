@@ -100,7 +100,7 @@
       "desc": "packages/main/src/tasks/validation-protocol-smoke.ts:1611-1653 vs packages/main/src/core/validation-evidence-admissibility.ts:82-94 — HIGH: commit 061085c3 extracted the TEST-gate admissibility diagnostics but did not update the existing validation protocol contract assertions. `node packages/main/dist/tasks/validation-protocol-smoke.js` deterministically fails at wrong-command because the test expects `existing validation PASS command is not` while the shared helper emits `validation evidence command is not`; subsequent output/missing-hash expectations also retain old wording. F-001 behavior itself is fixed, and the gate remains fail-closed, but the focused protocol suite is red. Align the protocol assertions (prefer stable reason codes or canonical shared messages) and rerun the full admissibility cases so the TEST gate and deriveBindings consumer stay mechanically synchronized.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-16T19:05:40.026Z",
@@ -108,7 +108,11 @@
       "reviewRunId": "B-83cf:RR-007",
       "_hash": "68fe80b48b74a2f49a5770bccf9c1055536aaf452f6cb6dcc07fa64068cf35b1",
       "signatureTag": "missing|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: fresh-build validation-protocol assertions failed after shared admissibility changed exact phase-gate diagnostics. Root cause: free-form shared reasons were rendered directly into a legacy user-facing contract. Fix: shared predicate emits stable structured reasonCodes and phase-gates maps them to the exact legacy diagnostics, distinguishing invalid JSON from non-allPass. ReproTest: fresh tsc build followed by validation-protocol smoke passes.",
+      "resolvedAt": "2026-07-16T19:15:46.913Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-83cf:F-007",
