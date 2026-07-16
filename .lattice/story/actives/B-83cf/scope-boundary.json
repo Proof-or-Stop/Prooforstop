@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-83cf",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add explicit fail-closed single-host binding derivation to autopilot_review_submit",
+    "Share canonical host-verdict binding derivation used by quorum and explicit single-host fallback",
+    "Update review assurance guidance and focused regression tests"
+  ],
+  "excluded": [
+    "Fabricate a second host verdict",
+    "Fix self-host runtime entrypoint routing in this story",
+    "Modify B-914f validation reuse implementation",
+    "Weaken or bypass two-host quorum independence"
+  ],
+  "confirmedBy": "codex-wa-final",
+  "confirmationNote": "User approved executing the remediation plan without repeated confirmations; this bounded unblocker is required to make the documented degraded single-host assurance path mechanically executable.",
+  "createdAt": "2026-07-16T18:18:31.973Z",
+  "updatedAt": "2026-07-16T18:18:31.973Z",
+  "_hash": "92bbf17ccd9d25147d7c94336173db1cddd33f707aaaf6a8de1271c7bdc95ee8"
+}

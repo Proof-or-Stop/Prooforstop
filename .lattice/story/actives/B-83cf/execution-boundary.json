@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-83cf",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git status *",
+    "node bin/lattice.js *",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main test -- *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "collaboration",
+    "exec_command"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/tests",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git clean *",
+    "git push *",
+    "git reset --hard *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "codex-wa-final",
+  "createdAt": "2026-07-16T18:18:26.074Z",
+  "updatedAt": "2026-07-16T18:18:26.074Z",
+  "_hash": "56d7d6770c77f87f331ea5dbdcbd1fcb4bd4d29b1aaa718ca481f2ed5db37f7a"
+}
