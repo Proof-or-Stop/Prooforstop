@@ -9,7 +9,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-16T18:29:00.278Z",
-      "endTime": "2026-07-16T18:38:55.463Z",
+      "endTime": "2026-07-16T18:39:41.901Z",
       "verificationIntent": {
         "happy": [
           {
@@ -73,10 +73,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Golden vector proves byte-identical validation/prompt/key bindings.",
-          "headHash": "8c14dad32fb1c2128afeb9d15b0b20773c6e8f23",
-          "materialHash": "5dcccc5e56aeceed2ad2e76bd28a25bb1c9440e7417b84454108fa8a6d96782f",
-          "storyFilesHash": "11bb882e77a1be438c799161f5019960234f4ab54f46458fbf0628b57dc8efcb",
-          "timestamp": "2026-07-16T18:31:00.974Z"
+          "headHash": "567779e2e23d696cd3bc133d7f153b6c926af8b8",
+          "materialHash": "8d0ebe905177fc427dff677b8cb9e0b2ade1cb680f9b8b0b0a6471eacbb14cab",
+          "storyFilesHash": "ee87401dffc41a8b1670891b8f24c0df5b4527fe00a5a6973e3842601210771f",
+          "timestamp": "2026-07-16T18:39:42.526Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -84,10 +84,10 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Existing 3x2 quorum integration remains green through shared helper.",
-          "headHash": "8c14dad32fb1c2128afeb9d15b0b20773c6e8f23",
-          "materialHash": "5dcccc5e56aeceed2ad2e76bd28a25bb1c9440e7417b84454108fa8a6d96782f",
-          "storyFilesHash": "11bb882e77a1be438c799161f5019960234f4ab54f46458fbf0628b57dc8efcb",
-          "timestamp": "2026-07-16T18:31:01.142Z"
+          "headHash": "567779e2e23d696cd3bc133d7f153b6c926af8b8",
+          "materialHash": "8d0ebe905177fc427dff677b8cb9e0b2ade1cb680f9b8b0b0a6471eacbb14cab",
+          "storyFilesHash": "ee87401dffc41a8b1670891b8f24c0df5b4527fe00a5a6973e3842601210771f",
+          "timestamp": "2026-07-16T18:39:42.967Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -95,10 +95,10 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Optional head and missing test evidence canonical envelopes are pinned.",
-          "headHash": "8c14dad32fb1c2128afeb9d15b0b20773c6e8f23",
-          "materialHash": "5dcccc5e56aeceed2ad2e76bd28a25bb1c9440e7417b84454108fa8a6d96782f",
-          "storyFilesHash": "11bb882e77a1be438c799161f5019960234f4ab54f46458fbf0628b57dc8efcb",
-          "timestamp": "2026-07-16T18:31:01.301Z"
+          "headHash": "567779e2e23d696cd3bc133d7f153b6c926af8b8",
+          "materialHash": "8d0ebe905177fc427dff677b8cb9e0b2ade1cb680f9b8b0b0a6471eacbb14cab",
+          "storyFilesHash": "ee87401dffc41a8b1670891b8f24c0df5b4527fe00a5a6973e3842601210771f",
+          "timestamp": "2026-07-16T18:39:43.402Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -106,21 +106,21 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Schema versions and prompt purpose are pinned constants.",
-          "headHash": "8c14dad32fb1c2128afeb9d15b0b20773c6e8f23",
-          "materialHash": "5dcccc5e56aeceed2ad2e76bd28a25bb1c9440e7417b84454108fa8a6d96782f",
-          "storyFilesHash": "11bb882e77a1be438c799161f5019960234f4ab54f46458fbf0628b57dc8efcb",
-          "timestamp": "2026-07-16T18:31:01.470Z"
+          "headHash": "567779e2e23d696cd3bc133d7f153b6c926af8b8",
+          "materialHash": "8d0ebe905177fc427dff677b8cb9e0b2ade1cb680f9b8b0b0a6471eacbb14cab",
+          "storyFilesHash": "ee87401dffc41a8b1670891b8f24c0df5b4527fe00a5a6973e3842601210771f",
+          "timestamp": "2026-07-16T18:39:43.821Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
-          "note": "Every required identity/freshness field fails closed when empty.",
-          "headHash": "8c14dad32fb1c2128afeb9d15b0b20773c6e8f23",
-          "materialHash": "5dcccc5e56aeceed2ad2e76bd28a25bb1c9440e7417b84454108fa8a6d96782f",
-          "storyFilesHash": "11bb882e77a1be438c799161f5019960234f4ab54f46458fbf0628b57dc8efcb",
-          "timestamp": "2026-07-16T18:31:01.634Z"
+          "note": "Required fields and non-canonical story ids fail closed in the pure helper.",
+          "headHash": "567779e2e23d696cd3bc133d7f153b6c926af8b8",
+          "materialHash": "8d0ebe905177fc427dff677b8cb9e0b2ade1cb680f9b8b0b0a6471eacbb14cab",
+          "storyFilesHash": "ee87401dffc41a8b1670891b8f24c0df5b4527fe00a5a6973e3842601210771f",
+          "timestamp": "2026-07-16T18:39:44.355Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -128,10 +128,10 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Replay vectors vary each bound field; quorum independence tests remain green.",
-          "headHash": "8c14dad32fb1c2128afeb9d15b0b20773c6e8f23",
-          "materialHash": "5dcccc5e56aeceed2ad2e76bd28a25bb1c9440e7417b84454108fa8a6d96782f",
-          "storyFilesHash": "11bb882e77a1be438c799161f5019960234f4ab54f46458fbf0628b57dc8efcb",
-          "timestamp": "2026-07-16T18:31:01.791Z"
+          "headHash": "567779e2e23d696cd3bc133d7f153b6c926af8b8",
+          "materialHash": "8d0ebe905177fc427dff677b8cb9e0b2ade1cb680f9b8b0b0a6471eacbb14cab",
+          "storyFilesHash": "ee87401dffc41a8b1670891b8f24c0df5b4527fe00a5a6973e3842601210771f",
+          "timestamp": "2026-07-16T18:39:44.811Z"
         }
       ]
     },
