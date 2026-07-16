@@ -548,8 +548,8 @@ async function runStoryTransitionInner(
       await runReviewToTestPreflightGate(ctx, args.storyId, actor);
     }
 
-    // B-56d3: DEV→TEST lattice validate gate (runValidateGate). It still writes
-    // test-evidence.json on PASS and on execution-error — timing unchanged.
+    // B-56d3: DEV→TEST lattice validate gate (runValidateGate). The verifier is
+    // the sole writer of canonical test-evidence; the gate only consumes JSON.
     // B-6974: gate no longer stops the actor; the orchestrator's finally does.
     if (args.phase === 'TEST') {
       await runValidateGate(ctx, args.storyId, actor);

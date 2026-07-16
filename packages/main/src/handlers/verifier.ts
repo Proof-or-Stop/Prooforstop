@@ -33,6 +33,7 @@ import { assertCwdInWorktree } from './context.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { loadConfig } from '../core/config.js';
 import type { ValidationCommand, ValidationProgressReporter } from '../core/validation-types.js';
+import type { RoutineValidationIdentity, RoutineValidationSourceKind, ValidationCommandResult } from '../core/validation-types.js';
 import {
   executeValidationPlan,
   formatValidationProgressEvent,
@@ -48,11 +49,18 @@ import { runChannelGateCli } from './validate-channel.js';
 import { runConceptGateCli } from './validate-concept.js';
 import { runLintGateCli, resolveChangedFiles } from './validate-lint.js';
 import { buildVerificationCoverage, renderVerificationCoverage, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
-import { checkEvidenceFreshnessForGit, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { captureEvidenceHashSnapshot, checkEvidenceFreshnessForGit, checkEvidenceHashSnapshotReuse, currentMaterialHash, currentStoryFilesHash, isMaterialExcludedPath } from '../core/evidence-freshness.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
 import { resolveGitCwd, resolveProjectGitCwd, evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
 import { resolveVerificationIntentPolicy, resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import type { ChecklistData, VerificationEvidence } from '../core/types.js';
+import {
+  buildRoutineValidationIdentity,
+  evaluateRoutineValidationReuse,
+  isCompleteRoutineValidationIdentity,
+  summarizeRoutineCommandExecution,
+  type RoutineValidationReuseEvaluation,
+} from '../core/validation-evidence-reuse.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
 const SHELL_META_RE = /[;&|<>$()`]/;
@@ -470,6 +478,186 @@ function decorateStoryVerification(ctx: HandlerContext, storyId: string, result:
   };
 }
 
+function requiredVerificationIntentDefinitions(checklist: ChecklistData): unknown {
+  return checklist.items.map((item) => ({
+    itemId: item.id,
+    verificationIntent: Object.fromEntries(
+      Object.entries(item.verificationIntent ?? {}).map(([lane, intents]) => [
+        lane,
+        (intents ?? []).filter((intent) => (intent.priority ?? 'must') === 'must').map((intent) => ({
+          desc: intent.desc,
+          type: intent.type,
+          requiredIn: intent.requiredIn,
+          priority: intent.priority ?? 'must',
+        })),
+      ]),
+    ),
+  }));
+}
+
+function routineVerificationSnapshot(ctx: HandlerContext, storyId: string) {
+  const story = ctx.store.readStory(storyId);
+  const checklist = ctx.store.readChecklist(storyId);
+  let decision = null;
+  try { decision = ctx.store.readDecision(storyId); } catch { /* optional */ }
+  const verificationPolicy = resolveVerificationIntentPolicy(story, checklist, decision);
+  const workflowPolicy = resolveWorkflowPolicy(loadConfig(ctx.root), story);
+  const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+  const head = currentHead(gitCwd);
+  const coverage = buildVerificationCoverage(
+    checklist,
+    head,
+    (headHash, evidence) => evidenceFreshness(gitCwd, ctx.root, headHash, evidence).fresh,
+    { deferredGateEvidence: 'missing', evidenceQualityProfile: workflowPolicy.profile },
+  );
+  return {
+    checklist,
+    verificationPolicy,
+    workflowPolicy,
+    coverage,
+    identityPolicyInputs: {
+      requiredVerificationIntentDefinitions: requiredVerificationIntentDefinitions(checklist),
+      verificationPolicy,
+      workflowPolicy,
+    },
+  };
+}
+
+function sourceInputSnapshot(projectRoot: string, sourceKind: RoutineValidationSourceKind): unknown {
+  const names = sourceKind === 'configured'
+    ? ['lattice.config.json']
+    : sourceKind === 'fallback'
+      ? ['package.json', 'go.mod', 'Cargo.toml', 'pom.xml', 'build.gradle', 'build.gradle.kts', 'settings.gradle', 'settings.gradle.kts', 'pyproject.toml', 'pytest.ini', 'setup.cfg', 'tox.ini']
+      : [];
+  return Object.fromEntries(names.map((name) => {
+    const path = join(projectRoot, name);
+    try { return [name, existsSync(path) ? readFileSync(path, 'utf8') : null]; }
+    catch { return [name, 'unreadable']; }
+  }));
+}
+
+function buildStoryRoutineIdentity(args: {
+  ctx: HandlerContext;
+  storyId: string;
+  sourceKind: RoutineValidationSourceKind;
+  commands: ValidationCommand[];
+  full?: boolean | string;
+  focus?: string;
+  entrypointPath?: string;
+}) {
+  try {
+    const snapshot = routineVerificationSnapshot(args.ctx, args.storyId);
+    return {
+      snapshot,
+      identity: buildRoutineValidationIdentity({
+        projectRoot: args.ctx.root,
+        sourceKind: args.sourceKind,
+        sourceInputs: sourceInputSnapshot(args.ctx.root, args.sourceKind),
+        ...(args.entrypointPath ? { entrypointPath: args.entrypointPath } : {}),
+        commands: args.commands,
+        ...(args.full !== undefined ? { full: args.full } : {}),
+        ...(args.focus ? { focus: args.focus } : {}),
+        profile: snapshot.workflowPolicy.profile,
+        verificationPolicyInputs: snapshot.identityPolicyInputs,
+      }),
+    };
+  } catch (error) {
+    args.ctx.log?.(`routine validation reuse identity unavailable; executing: ${error instanceof Error ? error.message : String(error)}`);
+    return null;
+  }
+}
+
+function evaluateStoryRoutineReuse(args: {
+  ctx: HandlerContext;
+  storyId: string;
+  gitCwd: string;
+  identity: RoutineValidationIdentity;
+  coverage: ReturnType<typeof routineVerificationSnapshot>['coverage'];
+}): RoutineValidationReuseEvaluation {
+  let evidence = null;
+  try { evidence = args.ctx.store.readTestEvidence(args.storyId); } catch { /* refusal below */ }
+  let headBefore: string | undefined;
+  let headAfter: string | undefined;
+  let materialHash: string | undefined;
+  let storyFilesHash: string | undefined;
+  let clean = false;
+  try {
+    const snapshot = captureEvidenceHashSnapshot({ gitCwd: args.gitCwd, metadataRoot: args.ctx.root });
+    headBefore = snapshot.headHash;
+    materialHash = snapshot.materialHash;
+    storyFilesHash = snapshot.storyFilesHash;
+    const reuseCheck = checkEvidenceHashSnapshotReuse(snapshot, {
+      gitCwd: args.gitCwd,
+      metadataRoot: args.ctx.root,
+      ref: 'HEAD',
+    });
+    headAfter = reuseCheck.currentHead;
+    clean = reuseCheck.reusable;
+    if (reuseCheck.materialDirty) {
+      args.ctx.log?.(`routine validation reuse refused by dirty worktree: ${reuseCheck.materialDirtyFiles.join(' | ')}`);
+    }
+  } catch { /* refusal below */ }
+  const evaluation = evaluateRoutineValidationReuse({
+    root: args.ctx.root,
+    gitCwd: args.gitCwd,
+    evidence,
+    currentIdentity: args.identity,
+    currentCoverage: args.coverage,
+    currentMaterialHash: materialHash,
+    currentStoryFilesHash: storyFilesHash,
+    clean,
+    headBefore,
+    headAfter,
+  });
+  if (!evaluation.reusable) {
+    const priorIdentityDigest = isCompleteRoutineValidationIdentity(evidence?.routineValidationIdentity)
+      ? evidence.routineValidationIdentity.digest
+      : 'missing-or-malformed';
+    const refusalReasons = [...new Set(evaluation.refusalReasons)].sort();
+    args.ctx.log?.(
+      `routine validation reuse refused: refusalReasons=${refusalReasons.join(',') || 'unknown'} `
+      + `priorIdentityDigest=${priorIdentityDigest} currentIdentityDigest=${args.identity.digest}`,
+    );
+  }
+  return evaluation;
+}
+
+function reusedStoryValidationResult(args: {
+  snapshot: ReturnType<typeof routineVerificationSnapshot>;
+  identity: RoutineValidationIdentity;
+  reuse: RoutineValidationReuseEvaluation;
+  focus?: string;
+  warn?: boolean;
+}): any {
+  const result = externalResult({
+    provider: 'lattice-verifier-reused',
+    status: args.warn ? 'warn' : 'pass',
+    summary: `Validation PASS reused (${args.reuse.lineage}); commandExecutions=0`,
+    details: [
+      `disposition=reused existingEvidenceBasis=fresh lineage=${args.reuse.lineage}`,
+      `identityDigest=${args.identity.digest}`,
+      'commandExecutions=0',
+      ...renderVerificationCoverage(args.snapshot.coverage, args.snapshot.verificationPolicy).split('\n'),
+    ],
+    warnings: [],
+    commands: [],
+    ...(args.focus ? { focus: { name: args.focus, mode: 'focused', finalFullValidation: false, doneRequiredProof: false } } : {}),
+  });
+  return {
+    ...result,
+    disposition: 'reused',
+    commandExecutions: 0,
+    verificationPolicy: args.snapshot.verificationPolicy,
+    verificationCoverage: args.snapshot.coverage,
+    reuse: {
+      lineage: args.reuse.lineage,
+      existingEvidenceBasis: args.reuse.existingEvidenceBasis,
+      refusalReasons: [],
+      identityDigest: args.identity.digest,
+    },
+  };
+}
+
 function resolveStoryVerificationPolicy(ctx: HandlerContext, storyId: string) {
   const story = ctx.store.readStory(storyId);
   const cl = ctx.store.readChecklist(storyId);
@@ -491,7 +679,16 @@ function validationFailureKindFromResult(result: any, allPass: boolean): Validat
   return 'validation_failure';
 }
 
-function persistStoryValidationEvidence(ctx: HandlerContext, storyId: string, result: any, command: string): void {
+function persistStoryValidationEvidence(
+  ctx: HandlerContext,
+  storyId: string,
+  result: any,
+  command: string,
+  identity: RoutineValidationIdentity | undefined,
+  commandResults: ValidationCommandResult[],
+  expectedCommandCount: number,
+  semanticCommandPass?: boolean,
+): void {
   const statusPass = result.status === 'pass';
   const allPass = Boolean(result.allPass ?? result.allPassed ?? statusPass);
   const failureKind = validationFailureKindFromResult(result, allPass);
@@ -509,6 +706,11 @@ function persistStoryValidationEvidence(ctx: HandlerContext, storyId: string, re
     ...(materialHash ? { materialHash } : {}),
     ...(storyFilesHash ? { storyFilesHash } : {}),
     ...(result.verificationCoverage ? { verificationCoverage: result.verificationCoverage } : {}),
+    commandExecution: summarizeRoutineCommandExecution(commandResults, expectedCommandCount, {
+      ...(semanticCommandPass !== undefined ? { semanticPass: semanticCommandPass } : {}),
+    }),
+    disposition: 'executed',
+    ...(identity ? { routineValidationIdentity: identity } : {}),
   });
   autoCommitStoryMetadata(ctx.root, storyId, 'validate', {
     closeoutArtifactPaths: ['test-evidence.json'],
@@ -551,6 +753,10 @@ function renderExternalResult(result: any): string {
   const lines = [`${mark} ${result.summary}`];
   for (const detail of result.details || []) lines.push(`  ${detail}`);
   for (const warning of result.warnings || []) lines.push(`  warning: ${warning}`);
+  if (result.disposition) lines.push(`  disposition=${result.disposition} commandExecutions=${result.commandExecutions ?? result.commands?.length ?? 0}`);
+  if (result.reuse) {
+    lines.push(`  existingEvidenceBasis=${result.reuse.existingEvidenceBasis} lineage=${result.reuse.lineage} refusalReasons=${result.reuse.refusalReasons?.join(',') || 'none'}`);
+  }
   return lines.join('\n');
 }
 
@@ -589,11 +795,34 @@ function decorateAndMaybePersistStoryValidation(
   storyId: string | undefined,
   focus: string | undefined,
   result: any,
+  identity?: RoutineValidationIdentity,
+  commandResults?: ValidationCommandResult[],
+  expectedCommandCount?: number,
+  semanticCommandPass?: boolean,
 ): any {
   if (!storyId) return result;
   const decorated = decorateStoryVerification(ctx, storyId, result);
-  if (!focus) persistStoryValidationEvidence(ctx, storyId, decorated, `lattice validate --story=${storyId} --json`);
-  return decorated;
+  const executed = {
+    ...decorated,
+    disposition: 'executed',
+    commandExecutions: commandResults?.length ?? 0,
+  };
+  if (!focus) {
+    if (!commandResults || expectedCommandCount === undefined) {
+      throw new Error('routine validation command execution is required before evidence persistence');
+    }
+    persistStoryValidationEvidence(
+      ctx,
+      storyId,
+      executed,
+      `lattice validate --story=${storyId} --json`,
+      identity,
+      commandResults,
+      expectedCommandCount,
+      semanticCommandPass,
+    );
+  }
+  return executed;
 }
 
 export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
@@ -728,6 +957,32 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         }
         if (configuredCommands.length === 0 && fallbackCommands.length === 0) {
           const buildNoValidatorResult = () => {
+            if (!args.story) {
+              return externalResult({
+                provider: 'lattice-verifier-no-validation-entry',
+                status: 'warn',
+                summary: 'No project validator configured; skipped project-specific validation',
+                details: [
+                  `当前目录: ${projectRoot}`,
+                  '未找到 validate.ts/js/mts，也未在 lattice.config.json 配置 validate.command(s)',
+                  '未自动发现 npm test / pytest / go test / cargo test / mvn test / gradle test 等 fallback 标准入口',
+                  'Swift / Package.swift 不在自动 fallback 列表（Mac Native App 已退役）；如需运行 swift test，请显式配置 validate.commands。',
+                ],
+                warnings: ['这是 skip/warn，不是代码失败。需要强门禁时请在 lattice.config.json 配置 validate.command 或 validate.commands。'],
+                headSha: currentHead(handlerGitCwd),
+              });
+            }
+            const built = buildStoryRoutineIdentity({
+              ctx,
+              storyId: args.story,
+              sourceKind: 'no-validator',
+              commands: [],
+              full: args.full,
+            });
+            const reuse = built
+              ? evaluateStoryRoutineReuse({ ctx, storyId: args.story, gitCwd: handlerGitCwd, identity: built.identity, coverage: built.snapshot.coverage })
+              : null;
+            if (reuse?.reusable && built) return reusedStoryValidationResult({ snapshot: built.snapshot, identity: built.identity, reuse, warn: true });
             const base = externalResult({
               provider: 'lattice-verifier-no-validation-entry',
               status: 'warn',
@@ -743,7 +998,10 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               ],
               headSha: currentHead(handlerGitCwd),
             });
-            return decorateAndMaybePersistStoryValidation(ctx, args.story, focus, base);
+            return {
+              ...decorateAndMaybePersistStoryValidation(ctx, args.story, focus, base, built?.identity, [], 0),
+              ...(reuse && built ? { reuse: { ...reuse, identityDigest: built.identity.digest } } : {}),
+            };
           };
           const decorated = args.story
             ? await withValidationExecutionLock({
@@ -762,10 +1020,25 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           : fallbackCommands;
         const usingConfigured = configuredCommands.length > 0;
         const fallbackDiscoveryDetail = 'validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery';
-        ctx.log?.(usingConfigured
-          ? `running ${commands.length} configured validate.command(s)${focus ? ` for focus=${focus}` : ''}`
-          : `validate.ts/js/mts not found and no configured validate.command(s); running ${commands.length} advisory fallback validation command(s)`);
         const runPlanAndPersist = async () => {
+          const built = args.story ? buildStoryRoutineIdentity({
+            ctx,
+            storyId: args.story,
+            sourceKind: usingConfigured ? 'configured' : 'fallback',
+            commands,
+            full: args.full,
+            focus,
+          }) : null;
+          const reuse = built && args.story
+            ? evaluateStoryRoutineReuse({ ctx, storyId: args.story, gitCwd: handlerGitCwd, identity: built.identity, coverage: built.snapshot.coverage })
+            : null;
+          if (reuse?.reusable && built) {
+            ctx.log?.('routine validation reused; commandExecutions=0');
+            return reusedStoryValidationResult({ snapshot: built.snapshot, identity: built.identity, reuse, focus });
+          }
+          ctx.log?.(usingConfigured
+            ? `running ${commands.length} configured validate.command(s)${focus ? ` for focus=${focus}` : ''}`
+            : `validate.ts/js/mts not found and no configured validate.command(s); running ${commands.length} advisory fallback validation command(s)`);
           const base = await executeValidationPlan({
             provider: usingConfigured ? 'lattice-verifier-configured-commands' : 'lattice-verifier-fallback-commands',
             commands,
@@ -795,7 +1068,16 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             failureKind: base.failureKind,
             ...(base.focus ? { focus: base.focus } : {}),
           });
-          return decorateAndMaybePersistStoryValidation(ctx, args.story, focus, result);
+          const decorated = decorateAndMaybePersistStoryValidation(
+            ctx,
+            args.story,
+            focus,
+            result,
+            built?.identity,
+            base.commands,
+            commands.length,
+          );
+          return reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated;
         };
         const decorated = args.story
           ? await withValidationExecutionLock({
@@ -805,7 +1087,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             command: 'validate',
           }, runPlanAndPersist)
           : await runPlanAndPersist();
-        for (const cmd of commands) {
+        for (const cmd of decorated.commands ?? []) {
           ctx.log?.(`ran: ${cmd.command} ${cmd.args.join(' ')}`);
         }
         if (args.json) return JSON.stringify(decorated);
@@ -837,10 +1119,13 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             stdio: ['pipe', 'pipe', 'pipe'],
           }).trim();
           if (diff) {
-            const changedFiles = diff.split('\n').filter(Boolean);
-            // 传全部改动文件给 validate.ts，不假设项目遵循 D/M/F 范式
-            tsArgs.push(`--changed-files=${changedFiles.join(',')}`);
-            ctx.log?.(`story ${args.story}: git diff 发现 ${changedFiles.length} 个改动文件`);
+            const changedFiles = diff.split('\n')
+              .filter(Boolean)
+              .filter((path) => !isMaterialExcludedPath(path, projectRoot));
+            // validate.ts only consumes material changes. Story metadata and
+            // registered runtime artifacts must not perturb command identity.
+            if (changedFiles.length > 0) tsArgs.push(`--changed-files=${changedFiles.join(',')}`);
+            ctx.log?.(`story ${args.story}: git diff 发现 ${changedFiles.length} 个 material 改动文件`);
           }
         } catch { /* git diff 失败不阻塞 */ }
       }
@@ -848,17 +1133,42 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         tsArgs.push('--json');
       }
 
-      ctx.log?.(`running: npx tsx ${tsArgs.join(' ')}`);
-      const runValidateFile = () => runValidationCommand({
-        label: validateFile,
-        command: 'npx',
-        args: ['tsx', ...tsArgs],
-      }, projectRoot, validateFileDefaultTimeoutMs(), {
-        progress: validationProgressReporter(ctx),
-        commandIndex: 1,
-        totalCommands: 1,
-      });
+      const runValidateFile = () => {
+        ctx.log?.(`running: npx tsx ${tsArgs.join(' ')}`);
+        return runValidationCommand({
+          label: validateFile,
+          command: 'npx',
+          args: ['tsx', ...tsArgs],
+        }, projectRoot, validateFileDefaultTimeoutMs(), {
+          progress: validationProgressReporter(ctx),
+          commandIndex: 1,
+          totalCommands: 1,
+        });
+      };
       const runValidateFileAndRender = async () => {
+        const identityCommand: ValidationCommand = {
+          label: validateFile,
+          command: 'npx',
+          args: ['tsx', ...tsArgs],
+          ...(validateFileDefaultTimeoutMs() ? { timeoutMs: validateFileDefaultTimeoutMs() } : {}),
+        };
+        const built = args.story ? buildStoryRoutineIdentity({
+          ctx,
+          storyId: args.story,
+          sourceKind: 'validate-file',
+          commands: [identityCommand],
+          full: args.full,
+          focus,
+          entrypointPath: join(projectRoot, validateFile),
+        }) : null;
+        const reuse = built && args.story
+          ? evaluateStoryRoutineReuse({ ctx, storyId: args.story, gitCwd: handlerGitCwd, identity: built.identity, coverage: built.snapshot.coverage })
+          : null;
+        if (reuse?.reusable && built) {
+          ctx.log?.('routine validation reused; commandExecutions=0');
+          const reused = reusedStoryValidationResult({ snapshot: built.snapshot, identity: built.identity, reuse, focus });
+          return args.json ? JSON.stringify(reused) : renderExternalResult(reused);
+        }
         const commandResult = await runValidateFile();
         await maybeHoldValidationLockSmokeHook(projectRoot, args.story);
         const { code, output } = commandResult;
@@ -885,9 +1195,10 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             commands: [commandResult],
           });
           const focusedPolluted = focus ? markFocusedResult(polluted, focus) : polluted;
-          const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, focusedPolluted);
-          if (args.json) return JSON.stringify(decorated);
-          return renderExternalResult(decorated);
+          const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, focusedPolluted, built?.identity, [commandResult], 1);
+          const surfaced = reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated;
+          if (args.json) return JSON.stringify(surfaced);
+          return renderExternalResult(surfaced);
         }
 
         if (args.json) {
@@ -897,9 +1208,21 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           const jsonMatch = stripped.match(/\{[\s\S]*"provider"\s*:\s*"[^"]+"[\s\S]*\}/);
           if (jsonMatch) {
             const parsed = JSON.parse(jsonMatch[0]);
+            const semanticCommandPass = String(parsed?.status ?? '').trim().toLowerCase() === 'pass'
+              && parsed?.allPass !== false
+              && parsed?.allPassed !== false;
             const focusedParsed = focus ? markFocusedResult(parsed, focus) : parsed;
-            const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, focusedParsed);
-            return JSON.stringify(decorated);
+            const decorated = decorateAndMaybePersistStoryValidation(
+              ctx,
+              args.story,
+              focus,
+              focusedParsed,
+              built?.identity,
+              [commandResult],
+              1,
+              semanticCommandPass,
+            );
+            return JSON.stringify(reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated);
           }
           // If validate.ts doesn't support --json yet, wrap the output
           let headSha: string | undefined;
@@ -919,8 +1242,8 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             commands: [commandResult],
             ...(code === 0 ? {} : { failureKind: commandResult.failureKind ?? 'validation_failure' }),
           }, focus ?? '');
-          const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, wrapped);
-          return JSON.stringify(decorated);
+          const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, wrapped, built?.identity, [commandResult], 1);
+          return JSON.stringify(reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated);
         }
 
         if (args.story) {

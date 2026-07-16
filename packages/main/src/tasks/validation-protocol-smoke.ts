@@ -1414,9 +1414,9 @@ try {
   // The DEV->TEST lattice validate gate was extracted into handlers/phase-gates.ts
   // (runValidateGate), and B-6974 moved actor lifecycle ownership up to
   // transition-orchestrator.ts. The gate must still fail-closed: a failing
-  // validate run must throw "Cannot enter TEST" and persist a FAIL
-  // test-evidence record — never silently advance. Direct gate calls must not
-  // stop the actor themselves.
+  // validate run must throw "Cannot enter TEST" while preserving the verifier's
+  // canonical FAIL test-evidence record — never silently advance or rewrite it.
+  // Direct gate calls must not stop the actor themselves.
   const { runValidateGate } = await import('../handlers/phase-gates.js');
 
   function seedValidateGateSkipRoot(prefix: string, storyId: string): {
@@ -1494,6 +1494,15 @@ try {
       const after = fixture.store.readTestEvidence(fixture.storyId);
       assert.equal(stopped, false, `${args.name}: rerun path must leave actor stop to transition-orchestrator`);
       assert.equal(after?.result, 'FAIL', `${args.name}: failing validate rerun must persist FAIL evidence`);
+      assert.equal(after?.disposition, 'executed', `${args.name}: gate must preserve verifier disposition`);
+      assert.equal(after?.commandExecution?.status, 'FAIL', `${args.name}: gate must preserve verifier command execution summary`);
+      assert.equal(after?.commandExecution?.commandCount, 1, `${args.name}: gate must preserve verifier command count`);
+      assert.equal(typeof after?.routineValidationIdentity?.digest, 'string', `${args.name}: gate must preserve verifier validation identity`);
+      assert.doesNotMatch(
+        spawnSync('git', ['status', '--porcelain'], { cwd: fixture.root, encoding: 'utf8' }).stdout,
+        /test-evidence\.json/,
+        `${args.name}: gate must not dirty canonical test evidence after verifier auto-commit`,
+      );
       assert.ok(
         logs.some(line => line.includes(args.reason)),
         `${args.name}: rerun log should include "${args.reason}"`,

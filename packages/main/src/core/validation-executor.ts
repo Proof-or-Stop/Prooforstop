@@ -20,6 +20,7 @@ import type {
   ValidationProgressReporter,
   ValidationResult,
 } from './validation-types.js';
+import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
 
 const MAX_OUTPUT_CHARS = 12000;
 
@@ -392,7 +393,7 @@ export function runValidationCommand(
     const isWindows = process.platform === 'win32';
     const child = spawn(command.command, command.args, {
       cwd,
-      env: command.env ? { ...process.env, ...command.env } : process.env,
+      env: effectiveValidationCommandEnvironment(process.env, command.env, cwd),
       shell: command.shell || isWindows,
       stdio: ['ignore', 'pipe', 'pipe'],
       // POSIX: give the child its own process group (it becomes group leader) so the

@@ -1,0 +1,1744 @@
+{
+  "passes": [
+    {
+      "id": "B-914f:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-3 test-coverage PASS: independently rebuilt and ran the real CLI smoke plus process-fact contract. All 4 current CLI intents carry integration_test evidence; the smoke creates a real story/B-reuse-handler branch and exercises configured, fallback, validate-file, 45-command zero-run reuse, semantic FAIL, locked double-snapshot dirty refusal, owner-lease-only runtime churn, no evidence rewrite, and no HEAD movement. Prior overall FAIL is reusable only for explicit prior missing coverage with complete structured commandExecution PASS and repaired current coverage; contradictory/malformed/non-PASS rows execute.",
+      "createdAt": "2026-07-16T15:06:57.287Z",
+      "reviewRound": "2026-07-16T15:02:21.339Z",
+      "reviewRunId": "B-914f:RR-011",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "387330fa078861b67c1ade3fe817a8b838725c8ec7592c3c815b1990dcae762f",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "394e64b227a5fc67b14f16e37b1ed44425ed0b5a861aefcdd714928f64e0d356"
+    },
+    {
+      "id": "B-914f:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round-3 concept PASS: b87ee57 closes F-009 by filtering validate-file changed-files through the same story-metadata/runtime material exclusion used by freshness, with a real story-branch executed→reused handler smoke; it closes F-010 by allowing prior overall FAIL only when stored coverage is present and missingRequired>0, while missing/zero/unknown cases execute. Dedicated smoke, TypeScript build, and process-fact contract pass; no blocker found.",
+      "createdAt": "2026-07-16T15:07:47.350Z",
+      "reviewRound": "2026-07-16T15:02:21.339Z",
+      "reviewRunId": "B-914f:RR-010",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "387330fa078861b67c1ade3fe817a8b838725c8ec7592c3c815b1990dcae762f",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "1d71cb2a66201813abb123eecdd27c8c5734d340b82a1bf298153915fd203089"
+    },
+    {
+      "id": "B-914f:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round-4 concept PASS for e9b305f771: production verifier no longer exposes the deterministic dirty-race test seam; the race assertion now directly exercises capture/check freshness helpers. validate-file semantic command truth requires explicit normalized status=pass and rejects fail/warn/error/unknown/missing status plus false allPass/allPassed. Reuse also requires optionalFailureCount exactly zero. TypeScript build, dedicated real-handler smoke, and diff whitespace check pass; no blocker found.",
+      "createdAt": "2026-07-16T15:18:51.006Z",
+      "reviewRound": "2026-07-16T15:16:04.095Z",
+      "reviewRunId": "B-914f:RR-013",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "36fd0b6b673f00f718edc630e1956af07c9b48ea43b997ac7f95fd8ef57c392b",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "4ba8b8eb35ce266ac7452ef34d43b8f0c762603aae0d41b7e26e80aba75666be"
+    },
+    {
+      "id": "B-914f:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-4 test-coverage PASS after e9b305f771. Independent build, validation-evidence-reuse smoke, and process-fact contract passed. Seven real validate-file handler semantic non-PASS cases (fail, warn, error, unknown, missing status, allPass=false, allPassed=false) each persist commandExecution FAIL and execute again; optionalFailureCount=1 is rejected; the production-only race env seam is removed and shared freshness helper deterministically rejects post-snapshot source dirt; configured/fallback/validate-file, 45-command, zero-command reuse, no-write/no-HEAD E2E remain green.",
+      "createdAt": "2026-07-16T15:19:42.105Z",
+      "reviewRound": "2026-07-16T15:16:04.095Z",
+      "reviewRunId": "B-914f:RR-015",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "36fd0b6b673f00f718edc630e1956af07c9b48ea43b997ac7f95fd8ef57c392b",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "a48f575289d8361b31f154b762a70282a0cf25baff36c03293defaac880b80ec"
+    },
+    {
+      "id": "B-914f:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Round-4 docs review: canonical routine validation reuse contract remains consistent with e9b305f771; optional failures and every non-explicit validate-file PASS execute fail-closed, and the production arbitrary-write smoke seam is removed. No documentation blocker.",
+      "createdAt": "2026-07-16T15:20:29.952Z",
+      "reviewRound": "2026-07-16T15:16:04.095Z",
+      "reviewRunId": "B-914f:RR-016",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "36fd0b6b673f00f718edc630e1956af07c9b48ea43b997ac7f95fd8ef57c392b",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "bdf869af687b101c2fcb2a2489af9aa8cc6f71e3469423d0b400ab3f20c4faab"
+    },
+    {
+      "id": "B-914f:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round-4 quality re-review PASS: e9b305f771 removes the production arbitrary-path race seam, retains double-snapshot coverage in an isolated temp-repo helper test, rejects every nonzero optionalFailureCount, and requires explicit normalized validate-file status=pass with no false allPass/allPassed. The prior optional-failure laundering repro now refuses reuse; build and dedicated handler smoke pass. No blocker, dead code, type-safety, or promised-but-undelivered issue remains in the bounded fix.",
+      "createdAt": "2026-07-16T15:21:40.087Z",
+      "reviewRound": "2026-07-16T15:16:04.095Z",
+      "reviewRunId": "B-914f:RR-014",
+      "writerSessionId": "sess-ac976e8d100d9e58",
+      "sessionSource": "derived-ppid",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "36fd0b6b673f00f718edc630e1956af07c9b48ea43b997ac7f95fd8ef57c392b",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "26f2b7293c5ed2cca9d8896b40cac88f9619c92247a8f9e55c370b22a4d07cc4"
+    },
+    {
+      "id": "B-914f:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round-5 metadata-only rebind PASS: since prior concept approval, git diff contains only B-914f lifecycle metadata. Checklist relatedDocs replaced CJK-fragment references with AGENTS.md; implementation files, verification intents, user-visible outcomes, scope binding, and storyFilesHash 8816d7c are unchanged. Current candidate list is identical to the already fully read eight-document set and english-only guard was reported passing; no source tests need rerun and no blocker exists.",
+      "createdAt": "2026-07-16T15:27:49.764Z",
+      "reviewRound": "2026-07-16T15:26:36.036Z",
+      "reviewRunId": "B-914f:RR-017",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "0b4483877ab94a63f1be9b55ca36fc9cbaf6eb82039a992a23d38c09aceabbfd",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "7e00b6faa840008db10b1b1591563b196066abbb25edb2bbc10109d51385b677"
+    },
+    {
+      "id": "B-914f:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-5 metadata-only rebind PASS. Since e9b305f771 there are no packages/main/src, scripts, decision-doc, storyFiles, verification-intent, evidence, or test changes. Only checklist relatedDocs anchors/order changed: unstable AGENTS.md Chinese section anchors were canonicalized to AGENTS.md. Candidate corpus and all previously reviewed candidate file hashes are unchanged; prior round-4 build, seven semantic non-PASS handler cases, optionalFailureCount rejection, helper race, three-source and 45-command E2E conclusions remain applicable. English-only guard is PASS. The one-minute smoke was intentionally not rerun for metadata-only drift.",
+      "createdAt": "2026-07-16T15:28:16.059Z",
+      "reviewRound": "2026-07-16T15:26:36.036Z",
+      "reviewRunId": "B-914f:RR-018",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "0b4483877ab94a63f1be9b55ca36fc9cbaf6eb82039a992a23d38c09aceabbfd",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "971da0f3ad2408685255b5ded39cc5c2548d6a64ff68348c6cc347838397538c"
+    },
+    {
+      "id": "B-914f:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Round-5 metadata-only rebind PASS: since the prior quality pass, git name-status shows only .lattice/story/actives/B-914f metadata changed; no source, test, configuration, or command surface changed. CLI checklist inspection confirms the intended relatedDocs CJK-anchor replacements now bind to AGENTS.md. The candidate set contains the same eight decision documents under the new digest, so the prior full reads and code review remain applicable. Per the bounded rebind scope, build and smoke were not rerun.",
+      "createdAt": "2026-07-16T15:28:27.931Z",
+      "reviewRound": "2026-07-16T15:26:36.036Z",
+      "reviewRunId": "B-914f:RR-019",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "0b4483877ab94a63f1be9b55ca36fc9cbaf6eb82039a992a23d38c09aceabbfd",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "05c643fcff5aa866f900a6e2caa89e9300d9b7e75f775124bbdad0ec86cc7ecf"
+    },
+    {
+      "id": "B-914f:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Round-5 metadata-only docs rebind: incremental context reports no changed source or canonical documentation, scope is unchanged, and the relatedDocs anchor normalization preserves the previously reviewed contract. English-artifacts guard passed; no documentation blocker.",
+      "createdAt": "2026-07-16T15:29:31.705Z",
+      "reviewRound": "2026-07-16T15:26:36.036Z",
+      "reviewRunId": "B-914f:RR-020",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "0b4483877ab94a63f1be9b55ca36fc9cbaf6eb82039a992a23d38c09aceabbfd",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "595def6e962d1aea0e5390be04ecfb0e428cd1e264203b0aca73297175db186f"
+    },
+    {
+      "id": "B-914f:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Round 7 incremental concept review found no blocker. The six-file delta preserves the routine-validation reuse boundary: verifier is the sole canonical test-evidence writer, refusals expose stable reasons and digests without raw inputs, executed/reused logs are mutually truthful, and the fail-closed commandExecution envelope binds schema/version/status/complete/counts/failureKind. The phase-gates, transition-orchestrator, and validation-protocol paths acknowledged in scope are necessary integration surfaces for eliminating the observed double-write; they do not broaden product behavior beyond validation evidence production/consumption. Process-fact contract passes.",
+      "createdAt": "2026-07-16T16:45:11.919Z",
+      "reviewRound": "2026-07-16T16:44:42.963Z",
+      "reviewRunId": "B-914f:RR-024",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "aeacabc0befe78d13890d88ad3cb8d79b38e96e88f093baaaebdbd9e835013cc",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "_hash": "81940a91dee9ae16cf0483bfd8c6df4f5963da0bc30254e41a87146b70c29ab6"
+    },
+    {
+      "id": "B-914f:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "Incremental round-7 test-coverage review reused the frozen round-5 candidate/read evidence and round-6 targeted PASS results. The six changed files cover the full commandExecution refusal envelope, verifier-only persistence with preserved identity/disposition and clean evidence, zero-command/no-phantom-run reuse for configured/fallback/validate-file sources, and positive/negative process-contract assertions; no blocker found.",
+      "createdAt": "2026-07-16T16:45:28.599Z",
+      "reviewRound": "2026-07-16T16:44:42.963Z",
+      "reviewRunId": "B-914f:RR-026",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-914f/background.md",
+          ".lattice/story/actives/B-914f/checklist.json",
+          ".lattice/story/actives/B-914f/plan.md",
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "aeacabc0befe78d13890d88ad3cb8d79b38e96e88f093baaaebdbd9e835013cc",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "efe7374a37319c1744f4bcdbdb46de3de56080fde3f9905a1d65cb9ff369ae9a"
+    },
+    {
+      "id": "B-914f:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Round 7 rebind of the completed incremental quality review after candidate artifact refresh. This pass reuses the same quality-lane full-read basis from round 5 and the no-blocker six-file delta review completed in round 6; verifier is the sole writer, logs are truthful and secret-safe, the negative contract passes, and scope acknowledgement is bounded.",
+      "createdAt": "2026-07-16T16:45:32.981Z",
+      "reviewRound": "2026-07-16T16:44:42.963Z",
+      "reviewRunId": "B-914f:RR-025",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "aeacabc0befe78d13890d88ad3cb8d79b38e96e88f093baaaebdbd9e835013cc",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "335ce092566feb31f163cf47cedcdbae4cc26a6bf6a771853e6c96d1959887fc"
+    },
+    {
+      "id": "B-914f:RP-014",
+      "agent": "lattice-review-docs",
+      "note": "Round 7 incremental docs review found no blocker. No Markdown or canonical decision document changed since the prior docs PASS. The existing routine-validation-fresh-pass-reuse contract already documents versioned commandExecution, fail-closed reuse conditions, material-clean metadata allowances, stable refusal behavior, commandExecutions=0, and no test-evidence rewrite. New source comments and process-fact inventory consistently clarify verifier single-writer ownership and truthful executed/reused logging. The acknowledged phase-gates, transition-orchestrator, and validation-protocol integration paths therefore require no additional documentation update.",
+      "createdAt": "2026-07-16T16:46:36.020Z",
+      "reviewRound": "2026-07-16T16:44:42.963Z",
+      "reviewRunId": "B-914f:RR-027",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "aeacabc0befe78d13890d88ad3cb8d79b38e96e88f093baaaebdbd9e835013cc",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "_hash": "5dafbb7ee8986e34a2440a9a33f743abce72635e07920265fb159526f323de18"
+    },
+    {
+      "id": "B-914f:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-8 incremental test-coverage review found no blocker. The six-file delta routes routine identity and child spawn through one effective-environment helper, removes only narrow launcher transport keys, canonicalizes PWD, preserves explicit overlays, and keeps CI/PATH/NODE_OPTIONS/locale semantic. Existing targeted PASS evidence covers direct-to-wrapper reuse, real-handler CI invalidation, explicit transport-named overlay identity invalidation, three source kinds, no-write reuse, and positive shared-consumer process-contract checks.",
+      "createdAt": "2026-07-16T17:12:41.451Z",
+      "reviewRound": "2026-07-16T17:09:53.264Z",
+      "reviewRunId": "B-914f:RR-030",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-914f/background.md",
+          ".lattice/story/actives/B-914f/checklist.json",
+          ".lattice/story/actives/B-914f/plan.md",
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f4062e6bdcf275041cf8fee7f195fd7bbeeef0936b843e521083c6569563a7fd",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "0f76b9f05468b06518160ac5e1089d68ff6af7a791151ea16815ff1750800c47"
+    },
+    {
+      "id": "B-914f:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "Round 8 incremental concept review found no blocker. The six-file delta fixes the observed launcher identity drift without weakening environment soundness: one shared helper constructs the exact environment consumed by both identity hashing and child spawn; only narrow launcher bookkeeping keys _, OLDPWD, and SHLVL are removed, PWD is canonicalized to the effective command cwd, and explicit command.env overlays apply last. PATH, NODE_OPTIONS, CI, locale, secrets, and every other ambient value remain semantic and still invalidate reuse when changed. Tests bind direct-versus-wrapper equivalence, semantic CI drift, explicit transport-named overlays, and real executed-to-reused behavior. Process-fact text and contract accurately encode the same invariant.",
+      "createdAt": "2026-07-16T17:12:44.506Z",
+      "reviewRound": "2026-07-16T17:09:53.264Z",
+      "reviewRunId": "B-914f:RR-028",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f4062e6bdcf275041cf8fee7f195fd7bbeeef0936b843e521083c6569563a7fd",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "_hash": "f2e3704d5d4cce211993a82bde58e1000ec8a1ffad4fa6185550e46ec6889ca4"
+    },
+    {
+      "id": "B-914f:RP-017",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-9 incremental test-coverage review found no blocker. Existing PASS evidence covers Win32 case-insensitive Path/PATH canonicalization and insertion-order-independent ambient deduplication, explicit overlay precedence, PATHEXT order/content selecting and binding distinct executables, explicit-extension resolution without substitution, and identity invalidation whenever the selected executable changes. The tests isolate Win32 semantics through the platform injection while production uses process.platform.",
+      "createdAt": "2026-07-16T17:27:47.896Z",
+      "reviewRound": "2026-07-16T17:25:51.351Z",
+      "reviewRunId": "B-914f:RR-033",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-914f/background.md",
+          ".lattice/story/actives/B-914f/checklist.json",
+          ".lattice/story/actives/B-914f/plan.md",
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "24e9a2b8263d8f50ddd7bfa70ae8fdab89d43e3537230377db95059a33c29dcc",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "c8363a2bae85df0714a3d9f579ed24e7f3df3fc613c0bbda8b43d862c90d5fb0"
+    },
+    {
+      "id": "B-914f:RP-018",
+      "agent": "lattice-review-quality",
+      "note": "Round 10 incremental review confirms 57e2a7c fixes both duplicate Windows relative-path findings: win32 slash/backslash and drive/UNC absolute classification use platform paths; explicit relatives bind cwd before PATHEXT; bare commands alone use semicolon PATH; executable content is bound; POSIX behavior is unchanged. Existing targeted PASS evidence reused, with no new blocker.",
+      "createdAt": "2026-07-16T17:39:37.165Z",
+      "reviewRound": "2026-07-16T17:36:52.743Z",
+      "reviewRunId": "B-914f:RR-034",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cbe2fad598169208173c1328ffa382f5b34c8f31776c067f1c4ed647c3564e41"
+    },
+    {
+      "id": "B-914f:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "Round 10 incremental concept re-review found no blocker. Commit 57e2a7c fully closes F-014: executable resolution now selects posix/win32 path semantics, recognizes both Win32 separators, treats drive/UNC/rooted paths through win32.isAbsolute, resolves slash/backslash cwd-relative commands against command.cwd, applies PATHEXT to extensionless explicit/absolute/bare candidates, and restricts PATH search to bare names. Tests prove backslash/slash relative equivalence, explicit-extension behavior, separation from a same-name PATH binary, PATHEXT binding, and executable-content invalidation. F-014 is resolved; F-015 is the duplicate quality-lane report of the same fixed cause.",
+      "createdAt": "2026-07-16T17:40:13.960Z",
+      "reviewRound": "2026-07-16T17:36:52.743Z",
+      "reviewRunId": "B-914f:RR-035",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "153db4b415f29079fe5e0c2beddf44b358384f7540b46f4bdbb2e75e78587767",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "_hash": "8d0c547e86ed99a4eb3fe67270cdc2b98ecdd16e07035d6edf2ded34a37e6cc5"
+    },
+    {
+      "id": "B-914f:RP-020",
+      "agent": "lattice-review-quality",
+      "note": "Round 11 incremental review passes. 2c1a3cd extracts only a deterministic lookup envelope: it performs no filesystem IO, writes, callbacks, process.env reads, or mutation; the supplied env contributes only PATHEXT semantics. Production resolveExecutable immediately consumes this same helper, then retains the prior exists/read digest boundary. Absolute, relative, PATH-search, PATHEXT, injected-platform, and native-platform branches preserve prior behavior. The export introduces no F-011-style production write seam or hidden backdoor.",
+      "createdAt": "2026-07-16T17:51:54.576Z",
+      "reviewRound": "2026-07-16T17:50:45.069Z",
+      "reviewRunId": "B-914f:RR-037",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4e55163217ef7903e389af48f023d05a18c79289471708a8e6c70b8c8f77e06b"
+    },
+    {
+      "id": "B-914f:RP-021",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-11 incremental re-review confirms F-016 is fixed by commit 2c1a3cd. The pure buildValidationExecutableLookup seam has no filesystem writes, callbacks, or global environment override; platform-injected drive-absolute and UNC assertions require absolute:true and explicit classification with PATHEXT candidates, so reverting to the host-native absolute predicate fails on the smoke host. Existing relative-path mutation assertions retain executable-content invalidation coverage. No remaining test-coverage blocker found.",
+      "createdAt": "2026-07-16T17:52:12.489Z",
+      "reviewRound": "2026-07-16T17:50:45.069Z",
+      "reviewRunId": "B-914f:RR-038",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-914f/background.md",
+          ".lattice/story/actives/B-914f/checklist.json",
+          ".lattice/story/actives/B-914f/plan.md",
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "cc74485b6562fc262d1419ee723e5f0ee4f22df0c08cab68c15867f3e70b1e68",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "0caced9a8b9ee754dac7f73f887139c565314192805e20ec4c72b64b946a193c"
+    },
+    {
+      "id": "B-914f:RP-022",
+      "agent": "lattice-review-concept",
+      "note": "Round-11 incremental concept review found no blocker. Commit 2c1a3cd extracts a pure platform lookup envelope whose only inputs are command, environment, and platform; it exposes no filesystem write, callback, mutable-global, or environment-override seam. The production resolver consumes that exact helper for both explicit-path and PATH-search branches, preserving native relative/absolute resolution while making Win32 drive-absolute, UNC, separator-relative, bare PATH, and PATHEXT classification mechanically testable. This closes the prior seam-risk pattern without changing the routine-validation reuse contract.",
+      "createdAt": "2026-07-16T17:52:42.207Z",
+      "reviewRound": "2026-07-16T17:50:45.069Z",
+      "reviewRunId": "B-914f:RR-039",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-914f/background.md",
+          ".lattice/story/actives/B-914f/checklist.json",
+          ".lattice/story/actives/B-914f/plan.md",
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "cc74485b6562fc262d1419ee723e5f0ee4f22df0c08cab68c15867f3e70b1e68",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "4404aa8d2082d77f5d8a35f69ea7ad8da22c7ac926230a17ba64d5553886984e"
+    },
+    {
+      "id": "B-914f:RP-023",
+      "agent": "lattice-review-docs",
+      "note": "Round-11 incremental docs review found no blocker and no Markdown delta since the prior docs pass. The expanded process-fact rationale and pure executable-lookup tests remain consistent with the canonical routine-validation decision: that document already requires a complete versioned command identity binding resolved cwd, executable digest, effective child-environment digest, platform, and fail-closed execution on identity uncertainty. Win32 drive/UNC, separator-relative, bare PATH, and PATHEXT details clarify implementation mechanics without changing the user-facing reuse contract, so no documentation synchronization is required.",
+      "createdAt": "2026-07-16T17:53:42.501Z",
+      "reviewRound": "2026-07-16T17:50:45.069Z",
+      "reviewRunId": "B-914f:RR-040",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-914f/background.md",
+          ".lattice/story/actives/B-914f/checklist.json",
+          ".lattice/story/actives/B-914f/plan.md",
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "cc74485b6562fc262d1419ee723e5f0ee4f22df0c08cab68c15867f3e70b1e68",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "129b073aeb009942eeaa77f7ffb9f714199e0212457ef6e8490d34c4c5331fea"
+    },
+    {
+      "id": "B-914f:RP-024",
+      "agent": "lattice-review-concept",
+      "note": "Round-12 receipt-only incremental concept review reuses the round-11 conclusion. review_incremental_context reports scopeChanged=false and changedFiles=[], so the previously accepted pure executable-lookup contract, production-resolver equivalence, fail-closed identity semantics, and seam-safety analysis remain valid with no new blocker.",
+      "createdAt": "2026-07-16T18:06:31.860Z",
+      "reviewRound": "2026-07-16T18:05:44.263Z",
+      "reviewRunId": "B-914f:RR-041",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-914f/background.md",
+          ".lattice/story/actives/B-914f/checklist.json",
+          ".lattice/story/actives/B-914f/plan.md",
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "1744dd0047f1a999bfc23c530fa4acb9f920516c7744d24c316286cab7f44167",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "31c1506e961b8675d1553cab84697e2a8f55cc76c254d7cfb6f016df786101f2"
+    },
+    {
+      "id": "B-914f:RP-025",
+      "agent": "lattice-review-quality",
+      "note": "Round 12 receipt-only quality pass reuses round 11 evidence. Incremental context reports scopeChanged=false and changedFiles=[], so the pure executable lookup extraction and seam-safety verdict remain valid with no new blocker.",
+      "createdAt": "2026-07-16T18:08:05.981Z",
+      "reviewRound": "2026-07-16T18:05:44.263Z",
+      "reviewRunId": "B-914f:RR-042",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "248f00bf4cadd022dc62a4cc810e22143634a8ae6d0a3177121f8ad574bd92b9"
+    },
+    {
+      "id": "B-914f:RP-026",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-12 receipt-only sequential review: review_incremental_context reports scopeChanged=false and changedFiles=[], so the round-11 RR-038/RP-021 test-coverage conclusion and evidence remain applicable without rereading or rerunning. F-016 remains fixed and no new blocker exists.",
+      "createdAt": "2026-07-16T18:08:51.069Z",
+      "reviewRound": "2026-07-16T18:05:44.263Z",
+      "reviewRunId": "B-914f:RR-043",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-914f/background.md",
+          ".lattice/story/actives/B-914f/checklist.json",
+          ".lattice/story/actives/B-914f/plan.md",
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "1744dd0047f1a999bfc23c530fa4acb9f920516c7744d24c316286cab7f44167",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "3f44c20abbec0c2cca00b5e0d3e2990bda535fc9761c9d475c01c78e8427db24"
+    },
+    {
+      "id": "B-914f:RP-027",
+      "agent": "lattice-review-docs",
+      "note": "Round-12 receipt-only incremental docs review reuses the round-11 docs conclusion. review_incremental_context reports scopeChanged=false and changedFiles=[], so the canonical routine-validation decision remains aligned with the implementation and no documentation synchronization or new blocker is required.",
+      "createdAt": "2026-07-16T18:09:26.816Z",
+      "reviewRound": "2026-07-16T18:05:44.263Z",
+      "reviewRunId": "B-914f:RR-044",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-914f/background.md",
+          ".lattice/story/actives/B-914f/checklist.json",
+          ".lattice/story/actives/B-914f/plan.md",
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "1744dd0047f1a999bfc23c530fa4acb9f920516c7744d24c316286cab7f44167",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "c84271120ca6fdda34f7175d267cc73af60f853be4cda0d78f91287c75f0435d"
+    },
+    {
+      "id": "B-914f:RP-028",
+      "agent": "lattice-review-concept",
+      "note": "Round 13 targeted concept review after merge f0cf3eaba0: canonical TEST PASS admissibility remains fail-closed on command/output/coverage/dirty/hash/lineage/HEAD; deriveBindings consumes it and persists one host under the shared validation lock. Routine reuse remains exact-head or trusted-story-metadata-descendant only. Dedicated reuse, escalation, quorum, build, and process-fact checks passed; live stale merged evidence correctly refused reuse and began execution (manually aborted as redundant to this targeted lane). No fake PASS, Authority claim, or quorum semantics regression found.",
+      "createdAt": "2026-07-16T20:00:06.084Z",
+      "reviewRound": "2026-07-16T19:51:46.376Z",
+      "reviewRunId": "B-914f:RR-050",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/host-verdict-bindings.ts",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/handlers/verdict.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "3b588d5bdd77e9f16f7f7a345c2ea9bec0610b116326df632a0b23e879833986",
+        "corpusDigest": "94fde77facef77a622c96c68cd95ab5998cc0d400a27a24a411b9f47f2bbcfe0"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "6b2ad527a7247fe44f4d9dfe663f48e2caf5e3f71a1359eb9f5195fe4cbd14ab"
+    },
+    {
+      "id": "B-914f:RP-029",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 14 test-coverage review found no blocker. F-017 is closed by commit 1ad92bd62d: the fixture supplies the required readManifest, and the complete validate-execution-lock smoke passes all 11 assertions. Current evidence remains 36/36 passing across six checklist items; milestone_status reports M1-M6 completed. No npm test full-suite rerun was performed.",
+      "createdAt": "2026-07-16T20:09:34.130Z",
+      "reviewRound": "2026-07-16T20:05:26.354Z",
+      "reviewRunId": "B-914f:RR-054",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "a4077c2bd82f1c8cbcd5a4ba56d7632a27ec9b53734b1896d45a96c37c0b8bf2",
+        "corpusDigest": "94fde77facef77a622c96c68cd95ab5998cc0d400a27a24a411b9f47f2bbcfe0"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "e5e33dca6b6d699b1c74fd7a58674ccb22b143394a3496ec78e31ce873a93f28"
+    },
+    {
+      "id": "B-914f:RP-030",
+      "agent": "lattice-review-concept",
+      "note": "Round 14 targeted re-review after 1ad92bd62d and F-017 resolution. The only production-tree delta is in packages/main/src/tasks/validate-execution-lock-smoke.ts: a hermetic fixture helper now supplies the mandatory reviewer readManifest to review_pass_set. No core, handler, Authority, quorum, validation admissibility, lineage, or lock implementation changed, so Round 13 concept conclusions remain valid. Focused build, validate-execution-lock (11 assertions), review-pass-provenance, candidate-spec-routing, and validation-evidence-reuse smokes pass.",
+      "createdAt": "2026-07-16T20:10:12.302Z",
+      "reviewRound": "2026-07-16T20:05:26.354Z",
+      "reviewRunId": "B-914f:RR-055",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/host-verdict-bindings.ts",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "a4077c2bd82f1c8cbcd5a4ba56d7632a27ec9b53734b1896d45a96c37c0b8bf2",
+        "corpusDigest": "94fde77facef77a622c96c68cd95ab5998cc0d400a27a24a411b9f47f2bbcfe0"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "b290d70daa68910c3ae927bd2795bde6344919490aa4fa6ea3aa890016acc3aa"
+    },
+    {
+      "id": "B-914f:RP-031",
+      "agent": "lattice-review-docs",
+      "note": "Round 14 targeted docs PASS. The merge-main refresh and fixture-manifest-only commit 1ad92bd62d do not change the documented product contract. routine-validation-fresh-pass-reuse.md remains aligned with the fail-closed implementation and observable commandExecutions=0 behavior. The umbrella workflow plan only links this separate routine-validate decision and remains accurate. Runtime entrypoint authority is outside B-914f. Minimal checks passed: npm run test:process-fact-contract; npm run test:docs-drift-smoke.",
+      "createdAt": "2026-07-16T20:12:03.674Z",
+      "reviewRound": "2026-07-16T20:05:26.354Z",
+      "reviewRunId": "B-914f:RR-056",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": 900
+        },
+        "digest": "89e1670dc4ed0ce790178caac08f7dd042978e4e789f55b616d576ec82b37986"
+      },
+      "readDiagnostics": [],
+      "_hash": "5aa3940c809abd40dd8ad52350c9d140b4cca26a9d4077a5fca9fdcf4767fef9"
+    },
+    {
+      "id": "B-914f:RP-032",
+      "agent": "lattice-review-test-coverage",
+      "note": "Current stable HEAD changes since prior test-coverage PASS are reviewer/candidate metadata only; production and test sources are unchanged. Rebound the existing 36/36 verification evidence, validation reuse focused smokes, and 11 validate-lock assertions to the current diff. No blocking coverage gap found.",
+      "createdAt": "2026-07-16T20:15:49.385Z",
+      "reviewRound": "2026-07-16T20:05:26.354Z",
+      "reviewRunId": "B-914f:RR-061",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "a65f565bf6e259e1c168f4aed985d95d785c03558c51cff45bf5aa388a2ba9fb"
+      },
+      "readDiagnostics": [],
+      "_hash": "d72b075b783694a128f799c5a2a72164ed4399b5cd21b40a87dfb429fac01f53"
+    },
+    {
+      "id": "B-914f:RP-033",
+      "agent": "lattice-review-concept",
+      "note": "Final concept review on stable HEAD f9531f7: candidate content hashes match the bound set and the implementation remains fail-closed, identity-complete, zero-command only on accepted reuse, with strict material/story-files and metadata-only lineage semantics; no new conceptual blocker after F-017 fixture-only repair.",
+      "createdAt": "2026-07-16T20:16:15.655Z",
+      "reviewRound": "2026-07-16T20:05:26.354Z",
+      "reviewRunId": "B-914f:RR-060",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "ad62a05449f952a2bef280e3957de3ff0a27d315e1c5be30c8638fcd519dcfcf",
+        "corpusDigest": "94fde77facef77a622c96c68cd95ab5998cc0d400a27a24a411b9f47f2bbcfe0"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "19caaffc4e569417c3117c6cc5fe049fe1710b338f67e41291283fbc4cfadcf0"
+    },
+    {
+      "id": "B-914f:RP-034",
+      "agent": "lattice-review-quality",
+      "note": "Final quality re-attestation on latest stable HEAD: intervening commits are review and candidate metadata only; production, test, script, and decision-document content remains identical to the completed quality technical review. No blocking finding.",
+      "createdAt": "2026-07-16T20:17:23.662Z",
+      "reviewRound": "2026-07-16T20:05:26.354Z",
+      "reviewRunId": "B-914f:RR-062",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "b9469a2bb6cfa1a2d16cba5a337daba915a29d4244f23dc21b89a731be0afe0d"
+      },
+      "readDiagnostics": [],
+      "_hash": "4ae561d60281527718a1d3b13d7a4d85b53a82fb0b5f94556803eca5e7ff83ae"
+    },
+    {
+      "id": "B-914f:RP-035",
+      "agent": "lattice-review-docs",
+      "note": "Current HEAD changes since the prior docs PASS are review/candidate metadata only. The bounded documentation diff remains accurate: the canonical decision states complete identity, fail-closed reuse, trusted metadata lineage, zero-command disposition, and rollback; the convergence plan links to that decision without redefining it. No blocking documentation gap found.",
+      "createdAt": "2026-07-16T20:17:35.676Z",
+      "reviewRound": "2026-07-16T20:05:26.354Z",
+      "reviewRunId": "B-914f:RR-063",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "585f04e2d85567a25c9355e986bc487bc5833eac3772ec1618e44b7aa3afc522"
+      },
+      "readDiagnostics": [],
+      "_hash": "2a7f6a15d87c516f79bbf82e8a76e9e3de47e271a9d5bf2612bd93477abab6a5"
+    },
+    {
+      "id": "B-914f:RP-036",
+      "agent": "lattice-review-quality",
+      "note": "Round 15 lightweight quality rebind: CLI reports no active reviewer scope change; current production and verification material is identical to the already completed bounded quality review. No blocking finding.",
+      "createdAt": "2026-07-16T20:25:44.604Z",
+      "reviewRound": "2026-07-16T20:25:04.730Z",
+      "reviewRunId": "B-914f:RR-064",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "b9469a2bb6cfa1a2d16cba5a337daba915a29d4244f23dc21b89a731be0afe0d"
+      },
+      "readDiagnostics": [],
+      "_hash": "db696d016f8775c3ce292378678d021857262efaec3874a2f18b64ee9b65a573"
+    },
+    {
+      "id": "B-914f:RP-037",
+      "agent": "lattice-review-quality",
+      "note": "Final closeout quality receipt: summary is accepted and records the real zero-command reuse transcript; delivery context reports a present PASS delivery-check bound to current material; done-required evidence and live-smoke transcript are present in the current retained artifact set. No blocking finding.",
+      "createdAt": "2026-07-16T20:36:22.823Z",
+      "reviewRound": "2026-07-16T20:35:27.869Z",
+      "reviewRunId": "B-914f:RR-065",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "b9469a2bb6cfa1a2d16cba5a337daba915a29d4244f23dc21b89a731be0afe0d"
+      },
+      "readDiagnostics": [],
+      "_hash": "5754cf1ee0864c66a81d7a994f3024a50fda9b20a62c8fddb0c8c3d9f1a0dd5d"
+    },
+    {
+      "id": "B-914f:RP-038",
+      "agent": "lattice-review-quality",
+      "note": "Final quality receipt: parent-ledger rollup is configured, internally hashed, marks milestones M1-M6 done, and binds PASS references for routine validation, DONE-required validation, zero-command live smoke, delivery check, and accepted summary. Closeout retention is complete; no blocking finding.",
+      "createdAt": "2026-07-16T20:39:41.212Z",
+      "reviewRound": "2026-07-16T20:38:51.965Z",
+      "reviewRunId": "B-914f:RR-066",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "b9469a2bb6cfa1a2d16cba5a337daba915a29d4244f23dc21b89a731be0afe0d"
+      },
+      "readDiagnostics": [],
+      "_hash": "1617e944dd896952685bf589a160ece3cd3f4742da4b6d1eaddc39a8e480b15f"
+    }
+  ]
+}

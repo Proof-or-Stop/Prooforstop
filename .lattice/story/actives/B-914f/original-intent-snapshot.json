@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-914f",
+  "sourceText": "After B-19ca, solve routine validate fresh-PASS reuse before roadmap #2/#3: unchanged material with an already successful command suite must reuse instead of rerunning, especially after verification evidence refresh; any meaningful identity change must execute.",
+  "normalizedOutcome": "A repeated ordinary validation on unchanged clean material returns an auditable reused PASS with zero command executions after current coverage becomes complete, while changed or uncertain inputs execute the real plan.",
+  "acceptanceClaim": "A B-19ca regression runs the command plan once, records commandExecution PASS with stale coverage, refreshes only verificationEvidence, then the next validation reports disposition=reused and commandExecutions=0 with no evidence or HEAD write.",
+  "keyRequirementIds": [
+    "REQ-AUDIT",
+    "REQ-CANONICAL-DOC",
+    "REQ-COMMAND-COVERAGE",
+    "REQ-IDENTITY",
+    "REQ-LOCKED-REUSE",
+    "REQ-SOURCES"
+  ],
+  "requestHash": "sha256:5eb56d5ad50ec015cf29e0a5aaffaf580643dd98931ed38569fe8f31b5067499",
+  "createdAt": "2026-07-16T14:01:59.858Z",
+  "updatedAt": "2026-07-16T14:01:59.858Z"
+}

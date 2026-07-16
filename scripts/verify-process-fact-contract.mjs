@@ -3158,9 +3158,23 @@ function assertDoneClosureCommandContract(cliToolNameSet, registry, levelRegistr
 function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, levelRegistry, policyByName) {
   const commandName = 'done_required_validate';
   const reuseText = read('packages/main/src/core/done-prepare-validation-reuse.ts');
-  for (const token of ['evaluateDoneRequiredEvidence', 'merge-base', '--is-ancestor', 'rev-list', 'diff-tree', 'isStoryMetadataPath', 'untrusted-lineage-path', 'head-changed-during-reuse-evaluation', 'evidence-malformed-or-unreadable']) {
-    assert(reuseText.includes(token), `DONE-required pre-run reuse must preserve canonical/lineage check: ${token}`);
+  for (const token of ['evaluateDoneRequiredEvidence', 'classifyTrustedValidationLineage', 'head-changed-during-reuse-evaluation', 'evidence-malformed-or-unreadable']) {
+    assert(reuseText.includes(token), `DONE-required pre-run reuse must preserve canonical/shared-lineage check: ${token}`);
   }
+  const routineReuseText = read('packages/main/src/core/validation-evidence-reuse.ts');
+  for (const token of ['merge-base', '--is-ancestor', 'rev-list', 'diff-tree', 'isStoryMetadataPath', 'untrusted-lineage-path', 'effectiveEnvironmentDigest', 'buildValidationExecutableLookup', "env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD'", "command.includes('\\\\')", 'platformPath.isAbsolute(command)', 'identity-missing-malformed-or-legacy', 'current-verification-coverage-incomplete', 'head-changed-during-reuse-evaluation']) {
+    assert(routineReuseText.includes(token), `shared routine validation reuse contract missing ${token}`);
+  }
+  const validationEnvironmentText = read('packages/main/src/core/validation-command-environment.ts');
+  for (const token of ["['_', 'OLDPWD', 'SHLVL']", "platform === 'win32'", "effective[canonicalKey('PWD')] = cwd", 'effective[canonicalKey(key)] = value']) {
+    assert(validationEnvironmentText.includes(token), `shared validation command environment contract missing ${token}`);
+  }
+  const validationExecutorEnvironmentText = read('packages/main/src/core/validation-executor.ts');
+  assert(
+    routineReuseText.includes('effectiveValidationCommandEnvironment(processEnvironment, command.env, cwd, platform)')
+      && validationExecutorEnvironmentText.includes('effectiveValidationCommandEnvironment(process.env, command.env, cwd)'),
+    'routine identity and validation command spawn must consume the same effective environment normalizer',
+  );
   const budgetText = read('packages/main/src/core/done-required-timeout-budget.ts');
   for (const token of ['NODE_TIMER_MAX_MS', 'resolveCommandTimeoutMs', 'derived-command-budget', 'LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS']) {
     assert(budgetText.includes(token), `DONE-required timeout budget contract missing ${token}`);
@@ -5189,6 +5203,20 @@ function assertFilePatterns(entryName, relPath, patterns) {
     }
     if (pattern.regex) {
       assert(pattern.regex.test(text), `${entryName}: ${relPath} missing ${pattern.label || pattern.regex}`);
+      continue;
+    }
+    if (pattern.absent) {
+      assert(
+        !text.includes(pattern.absent),
+        `${entryName}: ${relPath} must not contain ${pattern.label || `"${pattern.absent}"`}`,
+      );
+      continue;
+    }
+    if (pattern.absentRegex) {
+      assert(
+        !pattern.absentRegex.test(text),
+        `${entryName}: ${relPath} must not contain ${pattern.label || pattern.absentRegex}`,
+      );
     }
   }
 }
@@ -5231,9 +5259,22 @@ const inventory = [
           'getGuardFailureReason',
           'runReviewCliGates',
           'lattice validate --json',
-          'writeTestEvidence',
+          'verifierHandlers.validate',
+          { label: 'test-evidence writer call', absentRegex: /\.writeTestEvidence\s*\(/ },
           'Cannot enter TEST: CLI gate preflight execution error',
           'Cannot enter TEST: lattice validate execution error',
+        ],
+      },
+      {
+        // B-914f: verifier is the single canonical writer for routine
+        // validation evidence. Phase gates invoke it and consume its JSON;
+        // they must not persist the same artifact a second time.
+        relPath: 'packages/main/src/handlers/verifier.ts',
+        patterns: [
+          'persistStoryValidationEvidence',
+          'ctx.store.writeTestEvidence',
+          "autoCommitStoryMetadata(ctx.root, storyId, 'validate'",
+          "closeoutArtifactPaths: ['test-evidence.json']",
         ],
       },
       {
@@ -5529,15 +5570,33 @@ const inventory = [
     files: [
       {
         // B-3fad CHK-003: B-56d3 moved the REVIEW→TEST gate machinery
-        // (runReviewCliGates / writeTestEvidence / the `lattice validate --json`
-        // gate / the two English `Cannot enter TEST` strings) into phase-gates.ts.
+        // (runReviewCliGates / the `lattice validate --json` gate / the two
+        // English `Cannot enter TEST` strings) into phase-gates.ts. B-914f
+        // keeps test-evidence persistence exclusively in verifier.ts.
         // story-advance.ts keeps buildDoneChecklist (DONE checklist assembly).
         relPath: 'packages/main/src/handlers/story-advance.ts',
         patterns: ['buildDoneChecklist'],
       },
       {
         relPath: 'packages/main/src/handlers/phase-gates.ts',
-        patterns: ['runReviewCliGates', 'lattice validate --json', 'buildDoneChecklist', 'writeTestEvidence', 'Cannot enter TEST: CLI gate preflight execution error', 'Cannot enter TEST: lattice validate execution error'],
+        patterns: [
+          'runReviewCliGates',
+          'lattice validate --json',
+          'buildDoneChecklist',
+          'verifierHandlers.validate',
+          { label: 'test-evidence writer call', absentRegex: /\.writeTestEvidence\s*\(/ },
+          'Cannot enter TEST: CLI gate preflight execution error',
+          'Cannot enter TEST: lattice validate execution error',
+        ],
+      },
+      {
+        relPath: 'packages/main/src/handlers/verifier.ts',
+        patterns: [
+          'persistStoryValidationEvidence',
+          'ctx.store.writeTestEvidence',
+          "autoCommitStoryMetadata(ctx.root, storyId, 'validate'",
+          "closeoutArtifactPaths: ['test-evidence.json']",
+        ],
       },
       {
         relPath: 'packages/main/src/handlers/review-preflight.ts',

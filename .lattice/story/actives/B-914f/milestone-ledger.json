@@ -1,0 +1,120 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-914f",
+  "state": "confirmed",
+  "ledgerHash": "sha256:72560a88287627b4f10198ed20128fd50d20c729f218d4f35dc05ba7ccbcfb00",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-IDENTITY",
+      "claim": "Complete versioned validation identity and shared lineage contract",
+      "doneMeans": "Identity drift matrix and shared lineage tests pass",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:happy:1"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-LOCKED-REUSE",
+      "claim": "Locked zero-command reuse with fail-closed fallback",
+      "doneMeans": "Exact and metadata-descendant reuse run zero commands; mismatch and TOCTOU execute",
+      "requiredEvidence": [
+        "logic_test",
+        "integration_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-AUDIT",
+      "claim": "Auditable disposition without metadata churn",
+      "doneMeans": "Reused result reports basis while evidence bytes and HEAD remain unchanged",
+      "requiredEvidence": [
+        "cli",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:1",
+        "CHK-003:adversarial:1"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-SOURCES",
+      "claim": "All validation sources and B-19ca regression covered",
+      "doneMeans": "Configured, fallback and validate-file rows plus 45-command coverage-refresh regression pass",
+      "requiredEvidence": [
+        "integration_test"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:happy:1"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "REQ-COMMAND-COVERAGE",
+      "claim": "Command execution truth separated from coverage verdict",
+      "doneMeans": "Coverage-only overall FAIL can reuse command PASS after current coverage repair; command failures cannot",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M6",
+      "sourceRequirementId": "REQ-CANONICAL-DOC",
+      "claim": "Canonical subsystem contract matches implementation",
+      "doneMeans": "Decision doc, types, process registry and verifier behavior agree under contract checks",
+      "requiredEvidence": [
+        "docs_check",
+        "integration_test"
+      ],
+      "checklistRefs": [
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [
+        "CHK-006:happy:0",
+        "CHK-006:edge:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-16T14:02:00.432Z",
+  "updatedAt": "2026-07-16T14:02:01.122Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260716140201",
+    "acceptedInterpretationHash": "sha256:ec56c6b1c2ff141e65dd36986db5b83adf13a70585d8880fe0e09e4dbd55823f",
+    "acceptedAt": "2026-07-16T14:02:01.122Z"
+  }
+}

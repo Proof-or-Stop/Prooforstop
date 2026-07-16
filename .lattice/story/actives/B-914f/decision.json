@@ -1,0 +1,98 @@
+{
+  "principles": [
+    "Confidence must never be manufactured from incomplete identity.",
+    "Command execution truth and current coverage truth are separate facts that compose into the overall verdict.",
+    "Metadata-only progress should not create repeated expensive work.",
+    "One shared lineage primitive should govern trusted metadata descendants.",
+    "Observability must distinguish execution from reuse and explain every refusal."
+  ],
+  "drivers": [
+    "Eliminate measured identical-command validation waste after evidence refresh.",
+    "Preserve fail-closed safety across all validation sources and modes.",
+    "Allow current coverage repair to consume an already successful command execution.",
+    "Avoid new metadata churn and self-invalidating cache behavior.",
+    "Keep DONE-specific proof semantics separate from routine validation."
+  ],
+  "options": [
+    {
+      "name": "A: Shared lineage plus separate commandExecution identity",
+      "pros": [
+        "Handles B-19ca coverage-only FAIL without rerunning commands",
+        "Safely handles metadata-only HEAD movement",
+        "Binds all execution-affecting inputs",
+        "Recomputes current coverage independently",
+        "Supports precise refusal diagnostics"
+      ],
+      "cons": [
+        "Requires evidence schema extension and migration-by-execution",
+        "Needs broad table-driven tests and a subsystem decision doc"
+      ]
+    },
+    {
+      "name": "B: Reuse only prior overall PASS on material and story hashes",
+      "pros": [
+        "Small implementation",
+        "Eliminates some B-c163 duplicates"
+      ],
+      "cons": [
+        "Cannot solve B-19ca coverage-only FAIL",
+        "Unsound when commands, config, environment, entrypoint, focus/profile or policy change",
+        "Conflates execution and coverage facts"
+      ]
+    },
+    {
+      "name": "C: Separate HEAD-keyed cache artifact",
+      "pros": [
+        "Keeps test-evidence schema unchanged",
+        "Simple exact-HEAD lookup"
+      ],
+      "cons": [
+        "Misses metadata-descendant cases",
+        "Adds another lifecycle writer",
+        "Cache writes can create more HEAD drift",
+        "Still needs a separate command-versus-coverage model"
+      ]
+    }
+  ],
+  "chosen": "A: Shared lineage plus separate commandExecution identity",
+  "rationale": "Option A directly models the evidence observed in B-19ca: commandExecution can be PASS while the old overall verdict is FAIL because coverage is stale. A later request may reuse that command PASS only after it recomputes current coverage as complete and matches the complete plan, effective-environment, mode, policy, material, story-file and lineage identity under the lock. Mutable verificationEvidence records are excluded from the command identity so repairing them does not invalidate execution; required intent definitions and workflow policy remain bound. A dedicated subsystem decision document is the canonical contract.",
+  "preMortem": [
+    {
+      "scenario": "A changed command, effective environment or validate config incorrectly reuses an old command PASS.",
+      "trigger": "Identity omits normalized command args, cwd, shell, timeout, explicit env overlay, effective environment digest, source or entrypoint digest.",
+      "consequence": "Validation reports PASS without executing a behaviorally changed plan.",
+      "mitigation": "Canonicalize and hash the full resolved plan and effective child environment; persist only hashes; add one-dimension-at-a-time mismatch tests."
+    },
+    {
+      "scenario": "A coverage-only old FAIL is reused even though current coverage remains incomplete.",
+      "trigger": "Eligibility trusts stored overall/result or stored coverage instead of recomputing the current checklist policy.",
+      "consequence": "Missing verification evidence is laundered into PASS.",
+      "mitigation": "Require stored commandExecution.status=PASS but always recompute current coverage and require missingRequired=0 before reuse."
+    },
+    {
+      "scenario": "Metadata-only validation commits cause an infinite reuse/write/drift loop.",
+      "trigger": "The reused path rewrites test-evidence or auto-commits a disposition artifact.",
+      "consequence": "Every reuse moves HEAD and invalidates itself.",
+      "mitigation": "Return reused disposition without writing; assert artifact bytes and HEAD unchanged."
+    },
+    {
+      "scenario": "HEAD changes between reuse check and return.",
+      "trigger": "Concurrent metadata or source write occurs after the first read.",
+      "consequence": "A PASS for one tree is returned for another.",
+      "mitigation": "Decide under the validation lock, read HEAD before and after, and execute on drift."
+    },
+    {
+      "scenario": "Focused or fallback validation is mistaken for full configured validation.",
+      "trigger": "Identity omits source kind, focus/full/profile or entrypoint digest.",
+      "consequence": "A narrower PASS satisfies a broader request.",
+      "mitigation": "Bind mode and source-specific fields; add cross-mode/source refusal tests."
+    },
+    {
+      "scenario": "Legacy or malformed evidence crashes or reuses accidentally.",
+      "trigger": "New commandExecution/identity fields default permissively.",
+      "consequence": "Historical evidence manufactures fresh PASS.",
+      "mitigation": "Missing or malformed fields produce named refusal and real execution."
+    }
+  ],
+  "timestamp": "2026-07-16T14:00:40.563Z"
+}

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-914f",
+  "id": "IC-20260716140201",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Reuse is a command-execution optimization, not a waiver of current verification coverage. A stored commandExecution PASS may survive a coverage-only overall FAIL, but a reused overall PASS is emitted only after current coverage is recomputed complete and all identity, material, story-file, environment, lineage, clean-tree and TOCTOU predicates pass. Any uncertainty executes.",
+  "acceptedInterpretationHash": "sha256:ec56c6b1c2ff141e65dd36986db5b83adf13a70585d8880fe0e09e4dbd55823f",
+  "notes": "This interpretation resolves the apparent collision between prior overall PASS wording and the B-19ca measured scenario, and confirms the six-row milestone ledger.",
+  "ledgerHashBeforeDecision": "sha256:72560a88287627b4f10198ed20128fd50d20c729f218d4f35dc05ba7ccbcfb00",
+  "confirmedLedgerHash": "sha256:72560a88287627b4f10198ed20128fd50d20c729f218d4f35dc05ba7ccbcfb00",
+  "createdAt": "2026-07-16T14:02:01.122Z",
+  "updatedAt": "2026-07-16T14:02:01.122Z"
+}

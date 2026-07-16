@@ -214,6 +214,14 @@ function extractReviewRunId(output: string): string {
   return match![0];
 }
 
+function reviewerReadManifest(agent: string): Record<string, unknown> {
+  return {
+    filesReadFully: [`docs/requirements/decisions/${agent}.md`],
+    filesTriagedByName: [],
+    scanEscalationReason: null,
+  };
+}
+
 function setupFixture(options: FixtureOptions = {}): { root: string; storyId: string } {
   const storyId = options.storyId ?? DEFAULT_STORY_ID;
   const root = mkdtempSync(join(tmpdir(), 'lattice-validate-lock-'));
@@ -402,6 +410,7 @@ async function assertReviewerWritesAreNotBlocked(): Promise<void> {
       agent: 'lattice-review-quality',
       reviewRunId,
       note: 'lattice-review-quality checked validate lock scope and found no blocker.',
+      readManifest: reviewerReadManifest('lattice-review-quality'),
     });
 
     const passes = new StoryStore(root).readReviewPasses(storyId).passes;
