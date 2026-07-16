@@ -110,6 +110,21 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "lattice dispatch returns role-safe prompts for valid story/item/finding/cluster calls; verification roles see no implementer commit or status:done steps, and unknown or wrong-cardinality calls exit nonzero with an actionable accepted-shape message.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/core/review-run.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts"
+        ]
       }
     },
     {
