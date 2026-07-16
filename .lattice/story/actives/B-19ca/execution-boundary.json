@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-19ca",
+  "allowedCommands": [
+    "lattice lifecycle and evidence commands scoped to B-19ca",
+    "lattice validate and done_required_validate",
+    "npm --prefix packages/main run build",
+    "rg and read-only git inspection",
+    "targeted node smoke tests"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "independent reviewer lanes",
+    "Lattice CLI"
+  ],
+  "allowedPaths": [
+    ".claude",
+    ".lattice-codex",
+    "AGENTS.md",
+    "docs/requirements/decisions",
+    "packages/main/src",
+    "packages/main/tests",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "direct writes to story or fixture JSON",
+    "git clean",
+    "git push",
+    "git reset --hard"
+  ],
+  "excludedTools": [
+    ".omx",
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "codex-wa-final",
+  "confirmationNote": "Preserve unrelated dirty main-worktree files; implementation occurs only in the B-19ca worktree during DEV.",
+  "createdAt": "2026-07-16T10:16:28.255Z",
+  "updatedAt": "2026-07-16T10:16:28.255Z",
+  "_hash": "c79d395fd5fc723eb9fde639912fbcc92ed05bea6962d59623881538b677d60a"
+}

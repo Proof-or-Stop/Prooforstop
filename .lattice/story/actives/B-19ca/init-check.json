@@ -1,0 +1,30 @@
+{
+  "storyId": "B-19ca",
+  "checkedAt": "2026-07-16T10:18:12.019Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [
+    {
+      "severity": "medium",
+      "desc": "The INIT explains the dispatch defect and chosen architecture, but CHK-001 is framed only as an internal registry deliverable and the background never states one concise user-observable completion outcome. Add an outcome such as: supported roles/aliases dispatch with the correct story/item cardinality and role-safe prompt; unknown or invalid combinations fail with clear diagnostics; reviewers and verification-intent agents never receive implementer mutation/commit guidance. This gives the user a direct way to recognize completion, while the existing CHK-002/003 coverage makes the issue advisory rather than blocking."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-16T10:16:47.804Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-16T10:18:12.019Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "The INIT explains the dispatch defect and chosen architecture, but CHK-001 is framed only as an internal registry deliverable and the background never states one concise user-observable completion outcome. Add an outcome such as: supported roles/aliases dispatch with the correct story/item cardinality and role-safe prompt; unknown or invalid combinations fail with clear diagnostics; reviewers and verification-intent agents never receive implementer mutation/commit guidance. This gives the user a direct way to recognize completion, while the existing CHK-002/003 coverage makes the issue advisory rather than blocking."
+        }
+      ]
+    }
+  ],
+  "_hash": "bf04f21227bd93961248e58b01d4c8a8d4cd7618e14bee81c26d4ca313bd73b3"
+}
