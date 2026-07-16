@@ -67,7 +67,50 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A stale-global self-host invocation fails before expensive or mutating work with one stable machine-readable reason code and one copyable worktree-local node bin/lattice.js recovery command.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Running the emitted recovery command with the same original command and arguments executes through the current worktree runtime and proceeds normally.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Diagnostics distinguish stale-global-runtime mismatch from missing local build, wrong cwd, and external-consumer advisory cases, with a specific next action for each.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Repeated identical mismatches return the same reason code and canonical recovery command independent of symlink spelling, cwd spelling, or terminal session.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Global-fallback guidance is offered only for read-only session_brief recovery; it never recommends a global entrypoint for validation, lifecycle, review, or other mutating/expensive commands.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The rejection path records zero mutating-handler invocations and starts zero validation/dispatch subprocesses before returning the diagnostic.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Command names or arguments containing spaces, quotes, JSON, or shell metacharacters are rendered as a safe, semantically identical recovery command rather than truncated or executable diagnostic text.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
