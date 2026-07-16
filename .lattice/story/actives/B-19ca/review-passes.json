@@ -189,6 +189,41 @@
       },
       "readDiagnostics": [],
       "_hash": "03ac47c4d567702d59ed448d0dac52039c4fd17c662b32ab187e0746b5e9e46a"
+    },
+    {
+      "id": "B-19ca:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 5 final coverage PASS: F-011 env-vs-payload trusted-host spoof rejection is exercised through real handlers with byte-equivalent no-write assertions; F-012 flow-stability implementer fixture uses legal DEV phase. Build, 14-role registry smoke, full flow-stability, review-pass provenance/discard, finding enums 21/21, command catalog 326, and process-fact verifier all pass.",
+      "createdAt": "2026-07-16T12:30:45.747Z",
+      "reviewRound": "2026-07-16T12:25:28.504Z",
+      "reviewRunId": "B-19ca:RR-026",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "67ccafd031f0832c7aab820e8d90e9f15a768e599ddf897659a50277acc49ce2",
+        "corpusDigest": "fab7461b8085dde0edf5b3e6e93634e3382fd96e190816832e09d598eccb36de"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "6188b0a7ad938c118a10a1ec38d414fede72303a20bd82b13320a39461a84a5a"
+      },
+      "readDiagnostics": [],
+      "_hash": "302de740f1d3467357d4ed964ae792d0e15aae586db8a84582519ee2f53e6ecf"
     }
   ]
 }
