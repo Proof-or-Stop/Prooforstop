@@ -218,6 +218,37 @@
       "resolvedAt": "2026-07-16T12:15:47.907Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-19ca:F-011",
+      "desc": "packages/main/src/handlers/checklist.ts:559-564 and packages/main/src/handlers/finding.ts:489-493 trust payload agent/actor before process.env.LATTICE_AGENT. A dispatched reviewer/verification role can submit agent=human or actor=main, enter the exact trusted-host bypass added by a5302c1a53, and evade the registry deny (for example reviewer checklist_update status=done or verification-intent finding_add). This collapses the conceptual boundary between authenticated dispatch context and self-declared attribution; trusted-host compatibility must only apply when there is no non-host dispatched env identity, with conflict/spoof cases rejected and tested through real handlers.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-16T12:18:01.248Z",
+      "reviewRound": "2026-07-16T12:15:37.080Z",
+      "reviewRunId": "B-19ca:RR-021",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "b7fffef7a10d2242b342528dacffd1ce27c00d97f3f492a3bde0b7d354f04495",
+        "corpusDigest": "fab7461b8085dde0edf5b3e6e93634e3382fd96e190816832e09d598eccb36de"
+      },
+      "_hash": "59679fb232b79f2f5af4c00d12a62c7b4421c598f94ed11cf36ab4bfc0c31c88",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/handlers/finding.ts",
+        "packages/main/src/core/agent-dispatch-registry.ts",
+        "packages/main/src/tasks/agent-dispatch-registry-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
