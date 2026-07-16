@@ -73,10 +73,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Golden vector proves byte-identical validation/prompt/key bindings.",
-          "headHash": "825e1596cfc4ba5edbcf0cdeaf2f293ae6b1aabe",
-          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
-          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
-          "timestamp": "2026-07-16T19:02:03.228Z"
+          "headHash": "c1c63eba66dfa4fb7abb36279534254f78ba5eec",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:15:56.928Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -84,10 +84,10 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Existing 3x2 quorum integration remains green through shared helper.",
-          "headHash": "825e1596cfc4ba5edbcf0cdeaf2f293ae6b1aabe",
-          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
-          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
-          "timestamp": "2026-07-16T19:02:03.228Z"
+          "headHash": "c1c63eba66dfa4fb7abb36279534254f78ba5eec",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:15:56.928Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -95,10 +95,10 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Optional head and missing test evidence canonical envelopes are pinned.",
-          "headHash": "825e1596cfc4ba5edbcf0cdeaf2f293ae6b1aabe",
-          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
-          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
-          "timestamp": "2026-07-16T19:02:03.228Z"
+          "headHash": "c1c63eba66dfa4fb7abb36279534254f78ba5eec",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:15:56.928Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -106,10 +106,10 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Schema versions and prompt purpose are pinned constants.",
-          "headHash": "825e1596cfc4ba5edbcf0cdeaf2f293ae6b1aabe",
-          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
-          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
-          "timestamp": "2026-07-16T19:02:03.228Z"
+          "headHash": "c1c63eba66dfa4fb7abb36279534254f78ba5eec",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:15:56.928Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -117,10 +117,10 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Required fields and non-canonical story ids fail closed in the pure helper.",
-          "headHash": "825e1596cfc4ba5edbcf0cdeaf2f293ae6b1aabe",
-          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
-          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
-          "timestamp": "2026-07-16T19:02:03.228Z"
+          "headHash": "c1c63eba66dfa4fb7abb36279534254f78ba5eec",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:15:56.928Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -128,10 +128,10 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Replay vectors vary each bound field; quorum independence tests remain green.",
-          "headHash": "825e1596cfc4ba5edbcf0cdeaf2f293ae6b1aabe",
-          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
-          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
-          "timestamp": "2026-07-16T19:02:03.228Z"
+          "headHash": "c1c63eba66dfa4fb7abb36279534254f78ba5eec",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:15:56.928Z"
         }
       ]
     },
