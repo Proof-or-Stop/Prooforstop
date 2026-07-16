@@ -1038,6 +1038,24 @@
       ],
       "signatureTag": "adversarial|ts|round-smoke-stable",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c163:F-029",
+      "desc": "Round 15 focused smoke is still nondeterministic in the real cleanup paths. After a successful build, the first live-smoke run failed in the injected readiness case because cleanup signalHarnessProcess received real `kill EPERM`; that cleanup error replaced the expected `injected readiness rejection`, so assert.rejects failed. An immediate rerun passed. The synthetic ESRCH/EPERM branch assertions are correct in isolation, and the disappearance-timeout seam cleans its interval/deadline without real signals, but runDescendantHarness still sends real TERM/KILL to a group plus observed capture/descendant PIDs during each injected failure. A natural EPERM race therefore makes the gate flaky and also means that run did not prove every process disappeared. Stabilize the real target selection/signalling so expected failure injections cannot intermittently be replaced by host-level EPERM while retaining the explicit synthetic EPERM fail-closed assertion. Repro: `npm --prefix packages/main run build && node packages/main/dist/tasks/live-smoke-transcript-smoke.js` failed once with actual `Error: kill EPERM` at signalHarnessProcess during readiness cleanup; immediate `node packages/main/dist/tasks/live-smoke-transcript-smoke.js` passed.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-16T01:07:09.845Z",
+      "reviewRound": "2026-07-16T01:04:55.795Z",
+      "reviewRunId": "B-c163:RR-066",
+      "_hash": "b8cf6e0e867d2cfdca80406f330785ed88e044a6e36e53d8360a53ab3a0298c0",
+      "files": [
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|round-focused-smoke",
+      "signatureTagSource": "auto"
     }
   ]
 }
