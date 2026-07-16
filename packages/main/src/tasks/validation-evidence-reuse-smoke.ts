@@ -126,7 +126,9 @@ function assertHandlerExecutedThenReused(
       encoding: 'utf8',
       env: { ...process.env, LATTICE_PROJECT_ROOT: root, LATTICE_SESSION_ID: 'validation-reuse-smoke', VALIDATION_REUSE_SMOKE_COUNTER: counterPath, ...extraEnv },
     });
-    const run = () => runWith();
+    const directTransport = { CI: 'true', _: '/usr/bin/node', OLDPWD: '/direct/launcher', SHLVL: '1', PWD: '/direct/launcher' };
+    const wrapperTransport = { CI: 'true', _: '/bin/zsh', OLDPWD: '/live-smoke/wrapper', SHLVL: '9', PWD: '/live-smoke/wrapper' };
+    const run = () => runWith(directTransport);
     const first = run();
     assert.equal(first.status, 0, `${first.stdout}\n${first.stderr}`);
     assert.match(`${first.stdout}\n${first.stderr}`, /"disposition":"executed"/);
@@ -182,7 +184,7 @@ function assertHandlerExecutedThenReused(
     const headBefore = git(root, ['rev-parse', 'HEAD']);
     const statusBefore = git(root, ['status', '--porcelain=v1', '--untracked-files=all']);
 
-    const second = run();
+    const second = runWith(wrapperTransport);
     assert.equal(second.status, 0, `${second.stdout}\n${second.stderr}`);
     assert.match(`${second.stdout}\n${second.stderr}`, /"disposition":"reused"/);
     assert.match(`${second.stdout}\n${second.stderr}`, /"commandExecutions":0/);
@@ -214,6 +216,17 @@ function assertHandlerExecutedThenReused(
       statusBefore.split('\n').filter(Boolean).filter((line) => !line.includes('/owner-lease.json')),
       'real reused handler path must not create any dirty path beyond the CLI owner heartbeat',
     );
+    if (sourceKind === 'configured' && commandCount === 1) {
+      const semanticEnvironmentChange = runWith({ ...wrapperTransport, CI: 'false' });
+      assert.equal(semanticEnvironmentChange.status, 0, `${semanticEnvironmentChange.stdout}\n${semanticEnvironmentChange.stderr}`);
+      assert.match(`${semanticEnvironmentChange.stdout}\n${semanticEnvironmentChange.stderr}`, /"disposition":"executed"/);
+      assert.match(
+        `${semanticEnvironmentChange.stdout}\n${semanticEnvironmentChange.stderr}`,
+        /refusalReasons=validation-identity-changed/,
+        'behavior-affecting ambient environment changes must execute instead of reuse',
+      );
+      assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, commandCount + 1);
+    }
   } finally {
     rmSync(root, { recursive: true, force: true });
     rmSync(counterPath, { force: true });
@@ -290,6 +303,41 @@ function main(): void {
     }
 
     const configured = identity(root, 'configured', [baseCommand]);
+    const directWrapperIdentity = identity(root, 'configured', [baseCommand], {
+      env: {
+        PATH: process.env.PATH,
+        CI: 'true',
+        _: '/usr/bin/node',
+        OLDPWD: '/direct/launcher',
+        SHLVL: '1',
+        PWD: '/direct/launcher',
+      },
+    });
+    const liveSmokeWrapperIdentity = identity(root, 'configured', [baseCommand], {
+      env: {
+        PATH: process.env.PATH,
+        CI: 'true',
+        _: '/bin/zsh',
+        OLDPWD: '/live-smoke/wrapper',
+        SHLVL: '9',
+        PWD: '/live-smoke/wrapper',
+      },
+    });
+    assert.equal(
+      liveSmokeWrapperIdentity.digest,
+      directWrapperIdentity.digest,
+      'direct CLI and shell/live-smoke wrapper transport fields must share one identity',
+    );
+    assert.notEqual(
+      identity(root, 'configured', [baseCommand], { env: { PATH: process.env.PATH, CI: 'false' } }).digest,
+      identity(root, 'configured', [baseCommand], { env: { PATH: process.env.PATH, CI: 'true' } }).digest,
+      'behavior-affecting ambient environment changes must invalidate identity',
+    );
+    assert.notEqual(
+      identity(root, 'configured', [{ ...baseCommand, env: { SHLVL: '1' } }]).digest,
+      identity(root, 'configured', [{ ...baseCommand, env: { SHLVL: '2' } }]).digest,
+      'explicit command.env overlay remains semantic even for a transport-named key',
+    );
     const variations = [
       identity(root, 'configured', [{ ...baseCommand, args: ['--test', 'changed'] }]),
       identity(root, 'configured', [{ ...baseCommand, cwd: 'nested' }]),

@@ -3165,6 +3165,16 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
   for (const token of ['merge-base', '--is-ancestor', 'rev-list', 'diff-tree', 'isStoryMetadataPath', 'untrusted-lineage-path', 'effectiveEnvironmentDigest', 'identity-missing-malformed-or-legacy', 'current-verification-coverage-incomplete', 'head-changed-during-reuse-evaluation']) {
     assert(routineReuseText.includes(token), `shared routine validation reuse contract missing ${token}`);
   }
+  const validationEnvironmentText = read('packages/main/src/core/validation-command-environment.ts');
+  for (const token of ["['_', 'OLDPWD', 'SHLVL']", "effective.PWD = cwd", 'if (overlay) Object.assign(effective, overlay)']) {
+    assert(validationEnvironmentText.includes(token), `shared validation command environment contract missing ${token}`);
+  }
+  const validationExecutorEnvironmentText = read('packages/main/src/core/validation-executor.ts');
+  assert(
+    routineReuseText.includes('effectiveValidationCommandEnvironment(processEnvironment, command.env, cwd)')
+      && validationExecutorEnvironmentText.includes('effectiveValidationCommandEnvironment(process.env, command.env, cwd)'),
+    'routine identity and validation command spawn must consume the same effective environment normalizer',
+  );
   const budgetText = read('packages/main/src/core/done-required-timeout-budget.ts');
   for (const token of ['NODE_TIMER_MAX_MS', 'resolveCommandTimeoutMs', 'derived-command-budget', 'LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS']) {
     assert(budgetText.includes(token), `DONE-required timeout budget contract missing ${token}`);

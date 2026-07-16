@@ -11,6 +11,7 @@ import type {
   ValidationCommand,
   ValidationCommandResult,
 } from './validation-types.js';
+import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
 import { resolveCommandTimeoutMs } from './validation-executor.js';
 
 export type TrustedValidationLineage = 'exact-head' | 'trusted-story-metadata-descendant' | 'rejected';
@@ -55,18 +56,6 @@ function resolveExecutable(command: string, cwd: string, env: NodeJS.ProcessEnv)
   return null;
 }
 
-function normalizedEffectiveEnvironment(
-  processEnvironment: NodeJS.ProcessEnv,
-  overlay: Record<string, string> | undefined,
-): Record<string, string> {
-  const effective: Record<string, string> = {};
-  for (const [key, value] of Object.entries(processEnvironment)) {
-    if (value !== undefined) effective[key] = value;
-  }
-  if (overlay) Object.assign(effective, overlay);
-  return effective;
-}
-
 export function buildRoutineValidationIdentity(args: {
   projectRoot: string;
   sourceKind: RoutineValidationSourceKind;
@@ -84,7 +73,7 @@ export function buildRoutineValidationIdentity(args: {
     const cwd = command.cwd
       ? (isAbsolute(command.cwd) ? command.cwd : resolve(args.projectRoot, command.cwd))
       : args.projectRoot;
-    const effectiveEnvironment = normalizedEffectiveEnvironment(processEnvironment, command.env);
+    const effectiveEnvironment = effectiveValidationCommandEnvironment(processEnvironment, command.env, cwd);
     const executable = resolveExecutable(command.command, cwd, effectiveEnvironment);
     return {
       label: command.label,
