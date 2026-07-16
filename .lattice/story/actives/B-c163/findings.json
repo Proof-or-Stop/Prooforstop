@@ -389,7 +389,7 @@
       "desc": "BUG-015 still allows an arbitrary executable to obtain the derived closeout timeout through an accepted shell environment prefix. recognizedLiveSmokeCommand accepts unrestricted NAME=value assignments before lattice. Because runCapture later executes through shell:true, PATH=/tmp/fake:$PATH lattice done_required_validate resolves /tmp/fake/lattice, and LD_PRELOAD=/tmp/arbitrary.so lattice done_required_validate injects arbitrary code, yet both are classified as recognized closeout commands. Repro after build: importing liveSmokeCaptureBudget for node arbitrary.js returns 60000, while PATH=/tmp/fake:$PATH lattice done_required_validate --storyId=B-c163 and LD_PRELOAD=/tmp/arbitrary.so lattice done_required_validate --storyId=B-c163 each return recognizedCommand=done_required_validate and timeoutMs=1520000 in this repo. This violates the fixed 60-second arbitrary-command safety ceiling and the direct-command recognition boundary. Reject inline environment assignments for the widened path, or narrowly allowlist inert assignments such as LATTICE_SESSION_ID while rejecting executable-resolution/runtime-injection variables and resolving the intended lattice executable before granting the derived budget. Add PATH and LD_PRELOAD/NODE_OPTIONS adversarial budget assertions. The persisted candidate digest 79fc8a964ff94df0740750b1b0a967b329c8274d211a1909c76141ebd26e13ea is stale; the last independently recomputed digest before the concurrent finding commits was 286e849c16a844a368a84188612e86ae40e370453b60d8f00f1a3109c7fff402, so owner must reroute for the exact current digest; corpus digest is unchanged.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-15T23:34:39.958Z",
@@ -433,7 +433,11 @@
         "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|still-allows-arbitrary",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Round 12 quality verification confirms unsafe PATH, LD_PRELOAD, NODE_OPTIONS, inline timeout assignments, and shell composition remain unrecognized at the 60-second arbitrary-command ceiling; only validated LATTICE_SESSION_ID plus exact active CLI qualifies.",
+      "resolvedAt": "2026-07-16T00:26:08.028Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c163:F-017",
