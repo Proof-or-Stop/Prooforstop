@@ -5190,6 +5190,20 @@ function assertFilePatterns(entryName, relPath, patterns) {
     }
     if (pattern.regex) {
       assert(pattern.regex.test(text), `${entryName}: ${relPath} missing ${pattern.label || pattern.regex}`);
+      continue;
+    }
+    if (pattern.absent) {
+      assert(
+        !text.includes(pattern.absent),
+        `${entryName}: ${relPath} must not contain ${pattern.label || `"${pattern.absent}"`}`,
+      );
+      continue;
+    }
+    if (pattern.absentRegex) {
+      assert(
+        !pattern.absentRegex.test(text),
+        `${entryName}: ${relPath} must not contain ${pattern.label || pattern.absentRegex}`,
+      );
     }
   }
 }
@@ -5232,9 +5246,22 @@ const inventory = [
           'getGuardFailureReason',
           'runReviewCliGates',
           'lattice validate --json',
-          'writeTestEvidence',
+          'verifierHandlers.validate',
+          { label: 'test-evidence writer call', absentRegex: /\.writeTestEvidence\s*\(/ },
           'Cannot enter TEST: CLI gate preflight execution error',
           'Cannot enter TEST: lattice validate execution error',
+        ],
+      },
+      {
+        // B-914f: verifier is the single canonical writer for routine
+        // validation evidence. Phase gates invoke it and consume its JSON;
+        // they must not persist the same artifact a second time.
+        relPath: 'packages/main/src/handlers/verifier.ts',
+        patterns: [
+          'persistStoryValidationEvidence',
+          'ctx.store.writeTestEvidence',
+          "autoCommitStoryMetadata(ctx.root, storyId, 'validate'",
+          "closeoutArtifactPaths: ['test-evidence.json']",
         ],
       },
       {
@@ -5530,15 +5557,33 @@ const inventory = [
     files: [
       {
         // B-3fad CHK-003: B-56d3 moved the REVIEW→TEST gate machinery
-        // (runReviewCliGates / writeTestEvidence / the `lattice validate --json`
-        // gate / the two English `Cannot enter TEST` strings) into phase-gates.ts.
+        // (runReviewCliGates / the `lattice validate --json` gate / the two
+        // English `Cannot enter TEST` strings) into phase-gates.ts. B-914f
+        // keeps test-evidence persistence exclusively in verifier.ts.
         // story-advance.ts keeps buildDoneChecklist (DONE checklist assembly).
         relPath: 'packages/main/src/handlers/story-advance.ts',
         patterns: ['buildDoneChecklist'],
       },
       {
         relPath: 'packages/main/src/handlers/phase-gates.ts',
-        patterns: ['runReviewCliGates', 'lattice validate --json', 'buildDoneChecklist', 'writeTestEvidence', 'Cannot enter TEST: CLI gate preflight execution error', 'Cannot enter TEST: lattice validate execution error'],
+        patterns: [
+          'runReviewCliGates',
+          'lattice validate --json',
+          'buildDoneChecklist',
+          'verifierHandlers.validate',
+          { label: 'test-evidence writer call', absentRegex: /\.writeTestEvidence\s*\(/ },
+          'Cannot enter TEST: CLI gate preflight execution error',
+          'Cannot enter TEST: lattice validate execution error',
+        ],
+      },
+      {
+        relPath: 'packages/main/src/handlers/verifier.ts',
+        patterns: [
+          'persistStoryValidationEvidence',
+          'ctx.store.writeTestEvidence',
+          "autoCommitStoryMetadata(ctx.root, storyId, 'validate'",
+          "closeoutArtifactPaths: ['test-evidence.json']",
+        ],
       },
       {
         relPath: 'packages/main/src/handlers/review-preflight.ts',
