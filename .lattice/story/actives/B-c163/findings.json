@@ -551,7 +551,7 @@
       "desc": "The actual global lattice symlink now widens correctly and all inline-env/shell-composition negatives stay at 60s, but trustedLatticeExecutable still violates the requested exact-active-realpath boundary by independently trusting root/packages/main/dist/cli.js and root/bin/lattice.js. Each project candidate is resolved and then compared against a candidate list containing its own realpath, so chmod or symlink makes it self-authorizing even when it does not equal the active CLI. Deterministic repro after build in a fresh temp root with activeCliEntrypoint set to the real global CLI: (1) create root/bin/lattice.js containing an arbitrary shell script and chmod 0755; liveSmokeCaptureBudget(root, `<that path> done_required_validate --storyId=B-test`, env, active) returns recognizedCommand=done_required_validate, source=derived-done-required-command, timeoutMs=30000 instead of fixed 60000; (2) symlink root/bin/lattice.js to process.execPath and the same call again recognizes Node itself and grants the derived budget. The realpaths differ from active `/Users/jek/Documents/Work/proofbound/packages/main/dist/cli.js`. Remove the independent project-path candidates and require resolvedExecutable === resolved activeCliEntrypoint; a project CLI is naturally accepted when it is the active entrypoint. Add explicit chmod-fake and project-bin-symlink-to-node negatives. Positive actual `command -v lattice` resolves and receives 1520000ms; PATH/LD_PRELOAD/NODE_OPTIONS/inline timeout assignments plus semicolon, &&, pipe, redirect, command substitution, backticks and newline remain 60000ms. Build, live-smoke smoke, command-catalog smoke and process-fact fingerprint contract pass.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-16T00:01:21.182Z",
@@ -603,7 +603,11 @@
         "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|actual-global-lattice",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit ce35dc7f7c removes project candidate self-authorization and requires resolvedExecutable equal realpath(process.argv[1]); chmod fake project bin and PATH symlink to Node both remain unrecognized at 60 seconds in independent Round 12 quality verification.",
+      "resolvedAt": "2026-07-16T00:26:10.865Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c163:F-020",
