@@ -180,8 +180,8 @@
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
         "AGENTS.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-16T23:45:36.627Z",
       "endTime": null,
       "userSees": "The guard prints `Production test seam guard: PASS — no unsafe SMOKE/TEST control reaches a filesystem or process sink.` A negative fixture using env-derived readyFile to writeFileSync is rejected, while ordinary PATH/runtime reads and sanitized bounded numeric/enum controls remain accepted.",
       "excludes": [
@@ -269,6 +269,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Shared delivery-promise outcome contract implemented, committed, and targeted verification passed.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-16T23:45:36.627Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Remove environment-selected verifier side-effect seams and add the bounded production AST guard.",
       "agent": "lattice-implementer"
     }
   ]
