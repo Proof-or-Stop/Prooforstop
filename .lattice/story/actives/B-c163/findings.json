@@ -702,7 +702,7 @@
       "desc": "The layered-grace fix is applied only when inherited `LATTICE_MAX_TIMEOUT_MS` is present; trusted closeout captures using the normal derived/configured budget still arm the handler at exactly the nested CLI max, so the handler timer starts earlier and can preempt nested structured timeout/cleanup. Default repro after build: `env -u LATTICE_MAX_TIMEOUT_MS ACTIVE=$(realpath \"$(command -v lattice)\") node --input-type=module -e \"import { liveSmokeCaptureBudget,effectiveCommandCliMaxBudget,commandCliMaxBudget } from './packages/main/dist/core/done-required-timeout-budget.js'; process.argv[1]=process.env.ACTIVE; const cmd='lattice done_required_validate --storyId=B-c163 --json'; const nested=commandCliMaxBudget(process.cwd(),'done_required_validate',{},process.env).timeoutMs; const capture=liveSmokeCaptureBudget(process.cwd(),cmd,process.env); const outer=effectiveCommandCliMaxBudget(process.cwd(),'live_smoke_transcript',{capture:cmd},process.env).timeoutMs; console.log(JSON.stringify({nested,capture:capture.timeoutMs,outer,strict:nested<capture.timeoutMs&&capture.timeoutMs<outer,source:capture.source}));\"` prints nested=1520000, capture=1520000, outer=1550000, strict=false. The same omission reappears at a configured/phase-derived Node saturation without LATTICE_MAX: setting `LATTICE_DONE_PREPARE_DONE_CLOSURE_TIMEOUT_MS=Number.MAX_SAFE_INTEGER` yields nested=capture=outer=2147483647 and saturationAdjusted=false. ce35dc7f7c correctly adjusts/passes the child env for inherited-max saturation, reports requested/effective/saturation fields, preserves unrelated raw explicit max, and blocks project-path self-authorization, but it does not generalize nested effective-max reservation to ordinary derived/configured budgets. Compute a requested/effective nested business bound for every recognized closeout capture, add cleanup grace regardless of source, reserve both grace layers at saturation, and pass an adjusted child `LATTICE_MAX_TIMEOUT_MS` whenever the effective nested bound differs from what the nested CLI would otherwise derive. Add default-derived and phase/config-saturated strict-order assertions plus an actual child-env observation.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-16T00:11:04.863Z",
@@ -746,7 +746,11 @@
         "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
       ],
       "signatureTag": "edge|ts|layered-grace-applied",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 2134c9e7a1 applies nested-bound selection and 3000ms cleanup grace to default/config/phase-derived trusted closeouts, not only inherited max. RR-055 independently shows default DONE-required nested=1520000, capture=1523000, outer=1553000; phase-derived saturation reports derived-closeout-saturation-adjusted and strict ordering. Compiled smoke covers configured saturation, phase saturation, effective child env, unrelated raw explicit max, active-CLI trust, structured terminal, reap and immediate repeat.",
+      "resolvedAt": "2026-07-16T00:26:32.851Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c163:F-023",
