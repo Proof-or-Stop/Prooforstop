@@ -316,6 +316,68 @@ function main(): void {
     assert.equal(readFileSync(evidencePath, 'utf8'), beforeBytes, 'reuse classifier must not rewrite evidence');
     assert.equal(git(root, ['rev-parse', 'HEAD']), baseHead, 'reuse classifier must not move HEAD');
 
+    const semanticFailureExecution = summarizeRoutineCommandExecution([{
+      label: baseCommand.label,
+      command: baseCommand.command,
+      args: baseCommand.args,
+      code: 0,
+      output: '',
+      durationMs: 1,
+    }], 1, { semanticPass: false });
+    const invalidCommandExecutionRows: Array<[string, Record<string, unknown>]> = [
+      ['schema mismatch', { ...commandExecution, schema: 'lattice.legacy-command-execution' }],
+      ['schema missing', { ...commandExecution, schema: undefined }],
+      ['version mismatch', { ...commandExecution, version: 2 }],
+      ['version missing', { ...commandExecution, version: undefined }],
+      ['status FAIL', { ...commandExecution, status: 'FAIL' }],
+      ['status unknown', { ...commandExecution, status: 'WARN' }],
+      ['status missing', { ...commandExecution, status: undefined }],
+      ['complete false', { ...commandExecution, complete: false }],
+      ['complete missing', { ...commandExecution, complete: undefined }],
+      ['commandCount zero', { ...commandExecution, commandCount: 0 }],
+      ['commandCount mismatch', { ...commandExecution, commandCount: 2 }],
+      ['commandCount negative', { ...commandExecution, commandCount: -1 }],
+      ['commandCount fractional', { ...commandExecution, commandCount: 1.5 }],
+      ['commandCount wrong type', { ...commandExecution, commandCount: '1' }],
+      ['commandCount missing', { ...commandExecution, commandCount: undefined }],
+      ['requiredFailureCount nonzero', { ...commandExecution, requiredFailureCount: 1 }],
+      ['requiredFailureCount negative', { ...commandExecution, requiredFailureCount: -1 }],
+      ['requiredFailureCount fractional', { ...commandExecution, requiredFailureCount: 0.5 }],
+      ['requiredFailureCount wrong type', { ...commandExecution, requiredFailureCount: '0' }],
+      ['requiredFailureCount missing', { ...commandExecution, requiredFailureCount: undefined }],
+      ['optionalFailureCount nonzero', { ...commandExecution, optionalFailureCount: 1 }],
+      ['optionalFailureCount negative', { ...commandExecution, optionalFailureCount: -1 }],
+      ['optionalFailureCount fractional', { ...commandExecution, optionalFailureCount: 0.5 }],
+      ['optionalFailureCount wrong type', { ...commandExecution, optionalFailureCount: '0' }],
+      ['optionalFailureCount missing', { ...commandExecution, optionalFailureCount: undefined }],
+      ['failureKind validation', { ...commandExecution, failureKind: 'validation_failure' }],
+      ['failureKind infra', { ...commandExecution, failureKind: 'infra_failure' }],
+      ['failureKind unknown', { ...commandExecution, failureKind: 'unknown_failure' }],
+      ['semanticPass false summary', semanticFailureExecution],
+    ];
+    for (const [label, invalidCommandExecution] of invalidCommandExecutionRows) {
+      const result = evaluateRoutineValidationReuse({
+        root,
+        gitCwd: root,
+        evidence: {
+          ...evidence,
+          commandExecution: invalidCommandExecution as unknown as NonNullable<TestEvidenceData['commandExecution']>,
+        },
+        currentIdentity: configured,
+        currentCoverage: coverage,
+        currentMaterialHash: 'material',
+        currentStoryFilesHash: 'story-files',
+        clean: true,
+        headBefore: baseHead,
+        headAfter: baseHead,
+      });
+      assert.equal(result.reusable, false, `${label} must execute instead of reusing prior evidence`);
+      assert.ok(
+        result.refusalReasons.includes('prior-command-execution-not-pass'),
+        `${label} must report the command-execution refusal reason`,
+      );
+    }
+
     const refusalRows: Array<[string, Partial<Parameters<typeof evaluateRoutineValidationReuse>[0]>]> = [
       ['current-verification-coverage-incomplete', { currentCoverage: { ...coverage, missingRequired: 1 } }],
       ['worktree-dirty', { clean: false }],
@@ -323,13 +385,6 @@ function main(): void {
       ['story-files-hash-changed-or-missing', { currentStoryFilesHash: 'changed' }],
       ['validation-identity-changed', { currentIdentity: variations[0] }],
       ['head-changed-during-reuse-evaluation', { headAfter: 'changed-head' }],
-      ['prior-command-execution-not-pass', { evidence: { ...evidence, commandExecution: { ...commandExecution, status: 'FAIL', requiredFailureCount: 1 } } }],
-      ['prior-command-execution-not-pass', { evidence: { ...evidence, commandExecution: { ...commandExecution, commandCount: 0 } } }],
-      ['prior-command-execution-not-pass', { evidence: { ...evidence, commandExecution: { ...commandExecution, commandCount: 2 } } }],
-      ['prior-command-execution-not-pass', { evidence: { ...evidence, commandExecution: { ...commandExecution, optionalFailureCount: -1 } } }],
-      ['prior-command-execution-not-pass', { evidence: { ...evidence, commandExecution: { ...commandExecution, optionalFailureCount: 1 } } }],
-      ['prior-command-execution-not-pass', { evidence: { ...evidence, commandExecution: { ...commandExecution, optionalFailureCount: 2 } } }],
-      ['prior-command-execution-not-pass', { evidence: { ...evidence, commandExecution: { ...commandExecution, failureKind: 'validation_failure' } } }],
       ['prior-overall-result-not-reusable', { evidence: { ...evidence, result: 'FAIL', verificationCoverage: undefined } }],
       ['prior-overall-result-not-reusable', { evidence: { ...evidence, result: 'FAIL', verificationCoverage: { ...coverage, missingRequired: 0 } } }],
       ['prior-overall-result-not-reusable', { evidence: { ...evidence, result: undefined as unknown as 'PASS' } }],
@@ -403,18 +458,7 @@ function main(): void {
     });
     assert.equal(b19.reusable, true, 'B-19ca 45-command PASS plus coverage refresh must reuse with zero command runner invocations');
 
-    assert.equal(
-      summarizeRoutineCommandExecution([{
-        label: baseCommand.label,
-        command: baseCommand.command,
-        args: baseCommand.args,
-        code: 0,
-        output: '',
-        durationMs: 1,
-      }], 1, { semanticPass: false }).status,
-      'FAIL',
-      'exit-zero command with semantic validator FAIL must not be reusable command truth',
-    );
+    assert.equal(semanticFailureExecution.status, 'FAIL', 'exit-zero command with semantic validator FAIL must not be reusable command truth');
 
     assertHandlerExecutedThenReused('configured');
     assertHandlerExecutedThenReused('fallback');
