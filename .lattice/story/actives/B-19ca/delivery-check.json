@@ -1,81 +1,85 @@
 {
   "storyId": "B-19ca",
-  "checkedAt": "2026-07-16T13:01:24.712Z",
-  "headHash": "1d2d7a2a8a8259402a42cf44812f78abea0dfef0",
-  "materialHash": "e2597e3483f61a2f3bb890c0d62029d634dc86671e4f93a4de3ad75739979229",
-  "storyFilesHash": "9bf008ba8c7ad49817a6ae24ea0d70ba44bb2bab5fb5efdb39a5ec5e317527e3",
-  "reviewRound": "2026-07-16T12:36:17.693Z",
+  "checkedAt": "2026-07-16T13:39:57.702Z",
+  "headHash": "f92108a65941d395f7eb783a1856a3ac9559f9b1",
+  "materialHash": "beec97c841ff1e125d86535b3a981655ecb3dc8ae8844e12c1247f31697131c6",
+  "storyFilesHash": "6f6293abfc85ea2221299d41f69d4bf5187451bcf3d998ced587d4f500eb8534",
+  "reviewRound": "2026-07-16T13:17:00.741Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
-      "docPath": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#8.2-required-design",
-      "promise": "One explicit typed registry is shared by schema, handler, prompt routing, hints, and tests, with complete role, phase, target, prompt, mutation, commit, lane, evidence, and alias metadata.",
+      "docPath": "docs/requirements/decisions/role-separation.md",
+      "promise": "AGENT_DISPATCH_REGISTRY is the single mechanical authority for role, lifecycle phase, target cardinality, prompt class, commit permission, reviewer lane, evidence ownership, and mutation permissions.",
       "status": "verified",
-      "verifiedBy": "source inspection plus independent registry smoke",
-      "evidence": "AGENT_DISPATCH_REGISTRY declares 14 canonical entries and 2 deliberate aliases with all required fields; command-catalog.ts derives its enum from AGENT_DISPATCH_ACCEPTED_TYPES; agent-dispatch-registry-smoke independently exited 0."
+      "verifiedBy": "source review + agent-dispatch-registry-smoke",
+      "evidence": "role-separation.md:7-12; fresh smoke PASS for 14 canonical roles and 2 aliases."
     },
     {
-      "docPath": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#8.2-required-design",
-      "promise": "Unknown types fail before prompt generation and hints use the same cardinality contract.",
+      "docPath": "docs/requirements/decisions/role-separation.md",
+      "promise": "test-intent and test-case-reviewer remain explicit verification-intent aliases without implementer commit or status-done authority.",
       "status": "verified",
-      "verifiedBy": "handler and assertion inspection",
-      "evidence": "story-dispatch.ts calls validateAgentDispatchRequest before selecting a prompt builder or appending events; smoke asserts unknown, phase, story/item/finding/cluster cardinality failures and story-level reviewer dispatch."
+      "verifiedBy": "source review + exhaustive dispatch smoke",
+      "evidence": "role-separation.md:14-20; fresh agent-dispatch-registry-smoke PASS."
     },
     {
-      "docPath": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#8.3-acceptance",
-      "promise": "Verification aliases never receive implementer guidance, and reviewer versus implementer mutation authority fails closed.",
+      "docPath": "docs/requirements/decisions/role-separation.md",
+      "promise": "Unknown roles, wrong phases, and wrong identifier cardinalities fail before prompt generation and dispatch event writes.",
       "status": "verified",
-      "verifiedBy": "real handler assertion inspection",
-      "evidence": "Smoke dispatches verification-intent, test-intent, and test-case-reviewer and rejects git commit/status:done text; real checklist, finding, review-run, init, scope, delivery, and finding-resolution handlers reject unauthorized actors without state mutation."
+      "verifiedBy": "Round 7 review + exhaustive negative matrix",
+      "evidence": "role-separation.md:19-20; current Round 7 four-lane PASS; validation 45/45."
     },
     {
-      "docPath": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#implemented-contract-b-19ca",
-      "promise": "The exhaustive dispatch smoke covers every canonical role, alias, lifecycle phase, eight identifier combinations, prompt class, and allowed or denied mutation, with synthetic completeness failures and L4 process-fact registration.",
+      "docPath": "docs/requirements/decisions/role-separation.md",
+      "promise": "No active item-reviewer role exists; implementation review is folded into story quality/behavior lanes while item acceptance remains verification-intent-owned.",
       "status": "verified",
-      "verifiedBy": "independent execution and source grep",
-      "evidence": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js printed PASS (14 canonical roles, 2 aliases); source loops all phases, masks 0..7, prompt builders, and mutation commands; synthetic uncovered canonical and alias assertions exist; runtime:agent_dispatch_role_authority_gate is registered at L4 and contract-verified."
+      "verifiedBy": "registry/source review",
+      "evidence": "role-separation.md:22-25; registry smoke enumerates exactly 14 canonical roles and 2 aliases."
     },
     {
-      "docPath": "docs/requirements/decisions/role-separation.md#current-typed-dispatch-authority",
-      "promise": "The registry is the single dispatch authority; test-intent and test-case-reviewer are explicit verification-intent aliases, prefix inference grants no privilege, and no active item-reviewer row exists.",
+      "docPath": "docs/requirements/decisions/role-separation.md",
+      "promise": "Role separation is enforced by both prompts and mechanical mutation consumers, including blocking reviewer checklist completion and implementer reviewer evidence.",
       "status": "verified",
-      "verifiedBy": "registry and smoke inspection",
-      "evidence": "Registry contains explicit aliases on verification-intent and no item-reviewer entry; resolve tests reject prefix lookalikes and case-mutated names; smoke asserts the no-item-reviewer contract."
+      "verifiedBy": "real handler smoke + process-fact verification",
+      "evidence": "role-separation.md:27-33; configured validation commands all PASS, including review-pass-discard and process-fact checks."
     },
     {
-      "docPath": "docs/requirements/decisions/role-separation.md#current-typed-dispatch-authority",
-      "promise": "Role separation is enforced in prompts and mechanical mutation consumers, including denial of reviewer checklist completion and implementer reviewer evidence minting.",
+      "docPath": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+      "promise": "Dispatch hints and prompts use registry-declared role/cardinality contracts and fail closed for unknown agents instead of adding prefix checks.",
       "status": "verified",
-      "verifiedBy": "consumer source grep plus real-handler assertions",
-      "evidence": "resolveAgentMutationAuthority is called by checklist, finding, review-run, init-check, scope-check, and delivery-check handlers; smoke proves denial and byte-equivalent or empty state after rejected calls."
+      "verifiedBy": "source review + command catalog/candidate routing validation",
+      "evidence": "execution plan sections 8.1-8.4; current validation 45/45 PASS and Round 7 docs/quality/concept/coverage current-pass."
     },
     {
-      "docPath": "docs/requirements/decisions/role-separation.md#current-typed-dispatch-authority",
-      "promise": "Compatibility and coverage completeness are executable and missing future rows or aliases cause explicit failure.",
+      "docPath": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+      "promise": "A table-driven smoke covers every registry entry, alias, lifecycle phase, identifier cardinality, prompt class, and allowed/denied mutation class, with process-fact contract verification for gate-consumed semantics.",
       "status": "verified",
-      "verifiedBy": "test source inspection plus independent execution",
-      "evidence": "assertCoverageComplete checks all canonical types, aliases, and prompt builders; synthetic-uncovered-role and synthetic-uncovered-alias cases assert explicit failure; independent smoke exited 0 on the current registry."
+      "verifiedBy": "fresh live smoke + validation evidence",
+      "evidence": "fresh `node packages/main/dist/tasks/agent-dispatch-registry-smoke.js` PASS (14 canonical roles, 2 aliases); latest routine validation PASS has configured commands [0] through [44]."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "Independent TEST-worktree execution: node packages/main/dist/tasks/agent-dispatch-registry-smoke.js -> exit 0, agent-dispatch-registry-smoke PASS (14 canonical roles, 2 aliases). Assertions cover complete fields, alias resolution, collisions, incomplete rows, and undeclared mutations."
+      "transcript": "Fresh current-worktree run: `env -u LATTICE_AGENT LATTICE_SESSION_ID=codex-wa-final node packages/main/dist/tasks/agent-dispatch-registry-smoke.js` exited 0: agent-dispatch-registry-smoke PASS (14 canonical roles, 2 aliases)."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "The same independently executed real-handler smoke exited 0 after dispatching every role/alias and asserting unknown or invalid phase/cardinality failures, role-safe prompts, and no state side effects for denied checklist/reviewer/delivery mutations."
+      "transcript": "Round 7 read-only reviewer_batch reports concept RP-011, quality RP-012, test-coverage RP-013, and docs RP-014 as current-pass with no blocking findings; gate ready=true."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "The independently executed table-driven smoke exited 0 after crossing all registry entries and aliases with all lifecycle phases, all eight identifier masks, prompt classes, and full allow/deny mutation set; synthetic missing-row and missing-alias coverage assertions are present."
+      "transcript": "Latest `lattice validate --story=B-19ca --json` evidence is PASS on current materialHash beec97c841ff; configured PASS rows count 45, from validate.commands[0] through [44], and verification coverage is 18/18."
+    },
+    {
+      "featureId": "B-19ca-regression",
+      "transcript": "Fresh current-worktree run: `env -u LATTICE_AGENT LATTICE_SESSION_ID=codex-wa-final npm run test:nested-worktree-bootstrap` exited 0 and verified both worktree-root and main-root nested bootstrap targets after the one-line environment fix."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Seven changed-document promises are source-mapped and verified. An independent machine run passed for 14 canonical roles and 2 aliases; assertions cover unknown, alias, phase, cardinality, prompt leakage, privilege crossover, completeness mutation, and no-side-effect rejection paths, and the non-test source diff contains no added TODO, FIXME, or HACK markers."
+    "summary": "PASS: all three user-visible outcomes and seven documentation promises are verified on current material; Round 7 has four current reviewer passes; routine validation is fresh 45/45; registry and nested-worktree live smokes pass; no new TODO/FIXME markers or unresolved delivery blockers were found within this story scope."
   },
-  "_hash": "57dd1cab15ec69f4497b1743720a78978dcd9f72faed9f9456f639e1ba3b61e1"
+  "_hash": "8052b1a6f64663705acb26eee7b292a6582f233701b20587acc809c2b3460804"
 }
