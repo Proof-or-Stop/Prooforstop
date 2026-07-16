@@ -271,6 +271,121 @@
           "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
         ]
       }
+    },
+    {
+      "id": "CHK-005",
+      "title": "Preserve command-execution PASS separately from the current coverage verdict",
+      "context": "B-19ca proved all 45 commands can PASS while overall validation is FAIL solely because verificationEvidence is stale. Persist a structured commandExecution verdict and identity independently of the recomputed coverage gate. Reuse eligibility may consume a prior commandExecution PASS even when the old overall result was FAIL, but only after current coverage is recomputed complete and every other identity/lineage/cleanliness/TOCTOU predicate passes.",
+      "relatedDocs": [
+        "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+        "AGENTS.md#TEST阶段详细流程"
+      ],
+      "userSees": "After verificationEvidence refresh, validation reuses the already-PASS command execution and recomputes coverage to PASS without running commands again.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Given prior evidence whose overall result is FAIL only because recorded verification coverage was stale or incomplete while structured commandExecution is PASS with a matching identity, when current verification coverage is recomputed complete and all lineage, hash, cleanliness, and stable-HEAD predicates pass, validate returns overall PASS with disposition reused and invokes zero commands. WHY: command success must survive coverage-only metadata repair, which is the exact B-19ca waste pattern.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "must"
+          },
+          {
+            "desc": "Given a normal executed validation, evidence records commandExecution verdict, completeness, and identity separately from the current overall coverage-derived verdict; a later unchanged run consumes the structured commandExecution PASS rather than inferring success from overall result text. WHY: separating the two facts makes reuse both safe and independently auditable.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Given matching commandExecution PASS but current recomputed coverage is still missing, stale, or policy-incomplete, validate must not take the zero-command reuse path and must not report overall PASS; its refusal identifies current coverage as the blocker. WHY: an old command PASS cannot waive today’s verification obligations.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "desc": "Environment identity tests resolve the exact effective child environment after inherited process values and command overrides are merged: changing an inherited or overridden value changes the digest and forces execution, while evidence stores only deterministic key/value digests or an aggregate digest and never raw secret values. WHY: command behavior depends on the spawned environment, but validation evidence must not become a credential leak.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Given prior overall FAIL caused by any real command failure, infrastructure failure, timeout, cancellation, skipped command, or partial execution, later complete coverage never makes it reusable and validation executes the real plan. WHY: only a complete commandExecution PASS may be cached; coverage repair cannot convert non-execution or failure into success.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "desc": "Given evidence with overall PASS but missing, malformed, contradictory, forged, identity-mismatched, or non-PASS commandExecution data, reuse is refused and actual command failure remains final FAIL with disposition executed. WHY: legacy overall status and attacker-controlled metadata must not override the structured command-execution fact.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-006",
+      "title": "Establish the canonical routine validation evidence and reuse contract",
+      "context": "Create a dedicated subsystem decision document defining commandExecution versus overall verdict, identity fields, effective-environment digest, lineage, current coverage recomputation, no-write reuse, refusal semantics, migration and rollback. Update the umbrella workflow plan only to link to this canonical source.",
+      "relatedDocs": [
+        "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+      ],
+      "userSees": "Maintainers can open one canonical decision document that exactly matches the CLI evidence schema and reuse/refusal behavior.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-16T14:00:02.783Z",
+      "phase": "PLAN",
+      "itemId": "CHK-005",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Resolve signed scope gap: command PASS must survive an overall coverage-only FAIL.",
+      "addedTitle": "Preserve command-execution PASS separately from the current coverage verdict",
+      "addedContext": "B-19ca proved all 45 commands can PASS while overall validation is FAIL solely because verificationEvidence is stale. Persist a structured commandExecution verdict and identity independently of the recomputed coverage gate. Reuse eligibility may consume a prior commandExecution PASS even when the old overall result was FAIL, but only after current coverage is recomputed complete and every other identity/lineage/cleanliness/TOCTOU predicate passes."
+    },
+    {
+      "timestamp": "2026-07-16T14:00:03.139Z",
+      "phase": "PLAN",
+      "itemId": "CHK-006",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Resolve signed scope gap: new gate-consumed validate semantics require a subsystem truth source.",
+      "addedTitle": "Establish the canonical routine validation evidence and reuse contract",
+      "addedContext": "Create a dedicated subsystem decision document defining commandExecution versus overall verdict, identity fields, effective-environment digest, lineage, current coverage recomputation, no-write reuse, refusal semantics, migration and rollback. Update the umbrella workflow plan only to link to this canonical source."
     }
   ]
 }
