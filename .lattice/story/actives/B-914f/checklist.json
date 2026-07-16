@@ -490,14 +490,16 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-004:happy:0",
-          "kind": "logic_test",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
           "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
           "result": "pass",
-          "note": "Dedicated smoke passed real executed-to-reused handler flow, identity mutations, fail-closed refusals, B-19ca coverage-only reuse, lineage, TOCTOU, and no-write assertions.",
-          "headHash": "286354fbdd875f874db056ada47285d3f3bfeaf3",
-          "materialHash": "2c34a5dee73bc4863912aa7be0dbad685624dc1ba2a5f0edf793932d8c34d97d",
-          "storyFilesHash": "117a8d4c12760110cf7556ddf36c2dde023b56ebf03ce6de550a5daa6b325675",
-          "timestamp": "2026-07-16T14:27:42.522Z"
+          "note": "Real source matrix and 45-command handler integration passed: first execution runs all commands and unchanged second validation runs zero.",
+          "headHash": "006b6f4ec2aad6ab1fe6b06959867c38475b5ac6",
+          "materialHash": "442de55b397b6704df008ba8605ea9c22b74553aeeb505f2367aadd0e5f3b73b",
+          "storyFilesHash": "5d54f5520e1d60279203f64de703c1f6ebc59b2bc28748d40f64343046f83dda",
+          "timestamp": "2026-07-16T14:43:49.344Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
