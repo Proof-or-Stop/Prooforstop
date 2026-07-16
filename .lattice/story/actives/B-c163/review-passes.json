@@ -821,6 +821,38 @@
       },
       "readDiagnostics": [],
       "_hash": "e952d8a03707cc6c3cbdfe166885fb66709b1117e952a3380e93e3e6ff638bab"
+    },
+    {
+      "id": "B-c163:RP-026",
+      "agent": "lattice-review-concept",
+      "note": "Round 19 final targeted concept review PASS. F-032 regression adds a valid present-transcript positive control, verifies the resulting delivery-check signature, snapshots signed bytes, and proves each invalid transcript rejection occurs before any delivery-check overwrite. Restoring a passing transcript reopens the actual DONE guard. This is test-only evidence of the existing shared evaluator and preserves producer, delivery, DONE, legacy-absence, receipt, proof-admissibility, and process-fact semantics. Build, review-assurance-floor-smoke, and process-fact contract all PASS.",
+      "createdAt": "2026-07-16T02:03:26.877Z",
+      "reviewRound": "2026-07-16T02:00:13.990Z",
+      "reviewRunId": "B-c163:RR-080",
+      "writerSessionId": "bc163-concept-r19",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/live-smoke-transcript-evidence.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/delivery-check.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "4fba6c4013bf401ec7f9863a0eb4a9be2097cd19aaa3d95c2d995449598ff20f",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "_hash": "96331359b1ba4d08148eb36ae994fcf700868c10728df03a403827052dfd52eb"
     }
   ]
 }
