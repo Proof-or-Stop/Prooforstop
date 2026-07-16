@@ -124,7 +124,9 @@ async function submitWithDerivedBindings(ctx: HandlerContext, args: SubmitArgs) 
   const workspace = resolveStoryCommandWorkspace(ctx.store, identity.storyId, ctx.root);
   const projectRoot = workspace.signedWorkspaceRoot;
   return withValidationExecutionLock({
-    root: projectRoot,
+    // Validation writers key this lock from ctx.root (metadata/runtime authority),
+    // while workspaceRoot is diagnostic only. Keep the same authority in wrapper layouts.
+    root: ctx.root,
     storyId: identity.storyId,
     workspaceRoot: projectRoot,
     command: 'autopilot_review_submit --deriveBindings',

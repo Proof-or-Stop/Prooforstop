@@ -5,7 +5,8 @@ import { execFileSync } from 'node:child_process';
 import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { delimiter, dirname, join } from 'node:path';
-import { currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { resetConfigCache } from '../core/config.js';
 import {
   REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE,
   REVIEW_ESCALATION_REQUIRED_ROUNDS,
@@ -378,7 +379,7 @@ try {
 
       const invalidEvidenceCases = [
         ['wrong command', { command: 'npm test' }, /command is not lattice validate/],
-        ['non-allPass output', { output: '{"allPass":false}' }, /not parseable allPass/],
+        ['non-allPass output', { output: '{"allPass":false}' }, /not allPass\/allPassed=true/],
         ['missing coverage', { verificationCoverage: undefined }, /missing verificationCoverage/],
         ['stale coverage snapshot', { verificationCoverage: { ...canonicalCoverage, total: 1 } }, /does not match current checklist/],
         ['missing freshness binding', { headHash: undefined }, /missing headHash/],
@@ -498,6 +499,63 @@ try {
       assert.equal(events.find(event => event.type === 'review_escalation_fallback')?.hostAvailabilityProbeId, events.find(event => event.type === 'review_host_availability_probe')?.probeId);
     } finally {
       rmSync(commandRoot, { recursive: true, force: true });
+    }
+  });
+
+  await asyncCheck('wrapper-root validation and derived verdict share one lock authority', async () => {
+    const metadataRoot = mkdtempSync(join(tmpdir(), 'review-escalation-wrapper-lock-'));
+    const gitRoot = join(metadataRoot, 'repo');
+    const previousCwd = process.cwd();
+    try {
+      mkdirSync(gitRoot, { recursive: true });
+      write(metadataRoot, 'lattice.config.json', JSON.stringify({ gitRoot: 'repo', scanRoot: 'repo/packages/main', rootDir: 'src', storyDir: '.lattice/story/actives' }, null, 2));
+      write(gitRoot, 'packages/main/src/story.ts', 'export const wrapper = true;\n');
+      git(gitRoot, ['init']);
+      git(gitRoot, ['config', 'user.email', 'smoke@example.invalid']);
+      git(gitRoot, ['config', 'user.name', 'Wrapper Lock Smoke']);
+      git(gitRoot, ['checkout', '-B', 'main']);
+      git(gitRoot, ['add', '.']);
+      git(gitRoot, ['commit', '-m', 'seed']);
+      git(gitRoot, ['checkout', '-B', `story/${STORY_ID}`]);
+      write(gitRoot, 'packages/main/src/story.ts', 'export const wrapper = 2;\n');
+      git(gitRoot, ['add', '.']);
+      git(gitRoot, ['commit', '-m', 'story change']);
+      resetConfigCache();
+      const store = new StoryStore(metadataRoot);
+      store.writeStory(STORY_ID, story());
+      store.writeChecklist(STORY_ID, { items: [] });
+      const coverage = { total: 0, required: 0, covered: 0, missingRequired: 0, entries: [] };
+      store.writeTestEvidence(STORY_ID, {
+        command: `lattice validate --story=${STORY_ID} --json`,
+        output: JSON.stringify({ allPass: true, verificationCoverage: coverage }),
+        result: 'PASS', timestamp: '2026-06-13T11:30:00.000Z',
+        headHash: currentGitHead(gitRoot)!,
+        materialHash: currentMaterialHash(gitRoot, 'HEAD', metadataRoot)!,
+        storyFilesHash: currentStoryFilesHash(gitRoot, 'HEAD', metadataRoot)!,
+        verificationCoverage: coverage,
+      });
+      process.chdir(gitRoot);
+      let release!: () => void;
+      let ready!: () => void;
+      const readyPromise = new Promise<void>(resolve => { ready = resolve; });
+      const releasePromise = new Promise<void>(resolve => { release = resolve; });
+      const holder = withValidationExecutionLock({ root: metadataRoot, storyId: STORY_ID, workspaceRoot: gitRoot, command: 'wrapper validate' }, async () => {
+        ready();
+        await releasePromise;
+      });
+      await readyPromise;
+      const beforeEvents = store.readProcessEvents(STORY_ID).filter(event => event.type === 'host_verdict').length;
+      await assert.rejects(async () => await createVerdictHandlers({ store, root: metadataRoot, scanRoot: join(gitRoot, 'packages/main') }).autopilot_review_submit({
+        storyId: STORY_ID, runId: 'wrapper-race', hostId: 'wrapper-host', provider: 'local', sessionId: 'wrapper-session', decision: 'pass', deriveBindings: true, json: true,
+      }), /validation execution.*already running/);
+      release();
+      await holder;
+      assert.equal(listVerdicts(metadataRoot, 'local', STORY_ID).length, 0);
+      assert.equal(store.readProcessEvents(STORY_ID).filter(event => event.type === 'host_verdict').length, beforeEvents);
+    } finally {
+      process.chdir(previousCwd);
+      rmSync(metadataRoot, { recursive: true, force: true });
+      resetConfigCache();
     }
   });
 

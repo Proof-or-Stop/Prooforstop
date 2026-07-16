@@ -94,7 +94,9 @@ capability.
   does not rely on a global `lattice` runtime that may resolve an older main
   build. Each command uses explicit `--deriveBindings`, a real local
   hostname/session identity, and the current material/story-files hashes. The
-  handler holds the story validation-execution lock while applying the same
+  handler holds the story validation-execution lock keyed by the same canonical
+  metadata/runtime root used by validation writers (including wrapper-root
+  layouts) while applying the same
   canonical PASS-admissibility predicate as the TEST gate: canonical command,
   parseable `allPass`, current complete verification-coverage snapshot, no
   blocking dirty paths, exact material/story-files identity, and exact-head or

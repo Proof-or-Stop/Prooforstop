@@ -578,6 +578,27 @@ function blockingDirtyWorktreeReason(ctx: HandlerContext, storyId: string, gitCw
 
 export function assessStoredValidationPassAdmissibility(ctx: HandlerContext, storyId: string): ValidationEvidenceAdmissibility {
   const evidence = ctx.store.readTestEvidence(storyId);
+  // Preserve the legacy gate's cheap path: absent or failed evidence means
+  // "run validate", not "load every PASS-only freshness dependency first".
+  // Some execution-error fixtures intentionally have no checklist yet.
+  if (!evidence) {
+    return {
+      ok: false,
+      reasons: ['validation evidence is missing'],
+      reasonCodes: ['evidence_missing'],
+      lineage: 'rejected',
+      evidence: null,
+    };
+  }
+  if (evidence.result !== 'PASS') {
+    return {
+      ok: false,
+      reasons: ['validation evidence result is not PASS'],
+      reasonCodes: ['result_not_pass'],
+      lineage: 'rejected',
+      evidence,
+    };
+  }
   const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
   return evaluateValidationEvidenceAdmissibility({
     evidence,
@@ -588,6 +609,28 @@ export function assessStoredValidationPassAdmissibility(ctx: HandlerContext, sto
     gitCwd,
     metadataRoot: ctx.root,
   });
+}
+
+function renderPhaseGateAdmissibilityReasons(result: ValidationEvidenceAdmissibility, validateCommand: string): string {
+  const rendered = result.reasonCodes.map((code, index) => {
+    const detail = result.reasons[index] ?? code;
+    switch (code) {
+      case 'evidence_missing':
+      case 'result_not_pass': return '';
+      case 'command_mismatch': return `existing validation PASS command is not ${validateCommand}`;
+      case 'output_invalid_json': return 'existing validation PASS output is not valid JSON';
+      case 'output_not_all_pass': return 'existing validation PASS output is not allPass/allPassed=true';
+      case 'coverage_missing': return 'existing validation PASS is missing verificationCoverage from lattice validate';
+      case 'coverage_missing_required': return 'existing validation PASS verificationCoverage is missing missingRequired';
+      case 'coverage_gap': return `existing validation PASS has ${result.evidence?.verificationCoverage?.missingRequired ?? '?'} required verification coverage gap(s)`;
+      case 'coverage_entries_missing': return 'existing validation PASS verificationCoverage has no entries snapshot';
+      case 'coverage_stale': return 'existing validation PASS verificationCoverage does not match current checklist verificationIntent inputs or current verificationEvidence records';
+      case 'freshness_bindings_missing': return 'existing validation PASS is missing headHash/materialHash freshness bindings';
+      case 'blocking_dirty': return detail;
+      default: return `existing validation PASS is stale (${detail})`;
+    }
+  }).filter(Boolean);
+  return [...new Set(rendered)].join('; ');
 }
 
 /**
@@ -626,7 +669,7 @@ export async function runValidateGate(
     ctx.log?.(`DEV→TEST gate: existing validation PASS is fresh; skipping lattice validate rerun (admissible lineage=${admissibility.lineage}).`);
     return;
   }
-  const rerunReason = admissibility.reasons.join('; ');
+  const rerunReason = renderPhaseGateAdmissibilityReasons(admissibility, validateCommand);
 
   ctx.log?.(rerunReason
     ? `DEV→TEST gate: ${rerunReason}; running lattice validate --json...`
