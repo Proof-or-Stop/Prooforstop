@@ -191,8 +191,7 @@ export function isReusableCommandPass(
     && Number.isInteger(execution.requiredFailureCount)
     && execution.requiredFailureCount === 0
     && Number.isInteger(execution.optionalFailureCount)
-    && execution.optionalFailureCount >= 0
-    && execution.optionalFailureCount <= execution.commandCount
+    && execution.optionalFailureCount === 0
     && execution.failureKind === undefined;
 }
 

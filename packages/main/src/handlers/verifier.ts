@@ -585,10 +585,6 @@ function evaluateStoryRoutineReuse(args: {
     headBefore = snapshot.headHash;
     materialHash = snapshot.materialHash;
     storyFilesHash = snapshot.storyFilesHash;
-    // Internal deterministic race seam. It is inert unless explicitly enabled
-    // by the validation reuse smoke process.
-    const racePath = process.env.LATTICE_VALIDATE_REUSE_SMOKE_DIRTY_FILE_BEFORE_FINAL_SNAPSHOT;
-    if (racePath) writeFileSync(racePath, `${Date.now()}\n`, 'utf8');
     const reuseCheck = checkEvidenceHashSnapshotReuse(snapshot, {
       gitCwd: args.gitCwd,
       metadataRoot: args.ctx.root,
@@ -1194,7 +1190,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           const jsonMatch = stripped.match(/\{[\s\S]*"provider"\s*:\s*"[^"]+"[\s\S]*\}/);
           if (jsonMatch) {
             const parsed = JSON.parse(jsonMatch[0]);
-            const semanticCommandPass = String(parsed?.status ?? '').toLowerCase() !== 'fail'
+            const semanticCommandPass = String(parsed?.status ?? '').trim().toLowerCase() === 'pass'
               && parsed?.allPass !== false
               && parsed?.allPassed !== false;
             const focusedParsed = focus ? markFocusedResult(parsed, focus) : parsed;

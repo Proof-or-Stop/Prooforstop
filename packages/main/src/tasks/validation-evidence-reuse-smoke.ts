@@ -13,6 +13,7 @@ import {
   isCompleteRoutineValidationIdentity,
   summarizeRoutineCommandExecution,
 } from '../core/validation-evidence-reuse.js';
+import { captureEvidenceHashSnapshot, checkEvidenceHashSnapshotReuse } from '../core/evidence-freshness.js';
 import type { TestEvidenceData, VerificationCoverageReport } from '../core/types.js';
 import type { RoutineValidationIdentity, RoutineValidationSourceKind, ValidationCommand } from '../core/validation-types.js';
 import { StoryStore } from '../core/store.js';
@@ -40,7 +41,7 @@ function cliPath(): string {
 function assertHandlerExecutedThenReused(
   sourceKind: 'configured' | 'fallback' | 'validate-file',
   commandCount = 1,
-  semanticFail = false,
+  semanticResult?: Record<string, unknown>,
 ): void {
   const root = mkdtempSync(join(tmpdir(), `lattice-validation-reuse-${sourceKind}-`));
   const counterPath = join(tmpdir(), `lattice-validation-reuse-counter-${process.pid}-${Date.now()}.log`);
@@ -71,10 +72,18 @@ function assertHandlerExecutedThenReused(
       }, null, 2), 'utf8');
     }
     if (sourceKind === 'validate-file') {
+      const result = semanticResult ?? {
+        provider: 'validate-file-smoke',
+        status: 'pass',
+        allPass: true,
+        summary: 'semantic PASS',
+        details: [],
+        warnings: [],
+      };
       writeFileSync(join(root, 'validate.ts'), [
         "import { appendFileSync } from 'node:fs';",
         "appendFileSync(process.env.VALIDATION_REUSE_SMOKE_COUNTER!, 'run\\n');",
-        `console.log(JSON.stringify({ provider: 'validate-file-smoke', status: '${semanticFail ? 'fail' : 'pass'}', allPass: ${semanticFail ? 'false' : 'true'}, summary: 'semantic ${semanticFail ? 'FAIL' : 'PASS'}', details: [], warnings: [] }));`,
+        `console.log(JSON.stringify(${JSON.stringify(result)}));`,
         '',
       ].join('\n'), 'utf8');
     }
@@ -133,12 +142,17 @@ function assertHandlerExecutedThenReused(
     const evidencePath = join(root, '.lattice/story/actives', storyId, 'test-evidence.json');
     const evidenceBefore = readFileSync(evidencePath, 'utf8');
     const parsedEvidence = JSON.parse(evidenceBefore) as TestEvidenceData;
-    if (semanticFail) {
-      assert.equal(parsedEvidence.commandExecution?.status, 'FAIL', 'exit-zero semantic JSON FAIL must record commandExecution FAIL');
+    const semanticPass = sourceKind !== 'validate-file'
+      || semanticResult === undefined
+      || (String(semanticResult.status ?? '').trim().toLowerCase() === 'pass'
+        && semanticResult.allPass !== false
+        && semanticResult.allPassed !== false);
+    if (!semanticPass) {
+      assert.equal(parsedEvidence.commandExecution?.status, 'FAIL', 'non-PASS semantic JSON must record commandExecution FAIL');
       const secondFailure = run();
       assert.equal(secondFailure.status, 0, `${secondFailure.stdout}\n${secondFailure.stderr}`);
       assert.match(`${secondFailure.stdout}\n${secondFailure.stderr}`, /"disposition":"executed"/);
-      assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, commandCount * 2, 'semantic validator FAIL must never reuse');
+      assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, commandCount * 2, 'semantic validator non-PASS must never reuse');
       return;
     }
     const headBefore = git(root, ['rev-parse', 'HEAD']);
@@ -158,14 +172,6 @@ function assertHandlerExecutedThenReused(
       statusBefore.split('\n').filter(Boolean).filter((line) => !line.includes('/owner-lease.json')),
       'real reused handler path must not create any dirty path beyond the CLI owner heartbeat',
     );
-
-    if (sourceKind === 'configured' && commandCount === 1) {
-      const raced = runWith({ LATTICE_VALIDATE_REUSE_SMOKE_DIRTY_FILE_BEFORE_FINAL_SNAPSHOT: join(root, 'source.ts') });
-      assert.equal(raced.status, 0, `${raced.stdout}\n${raced.stderr}`);
-      assert.match(`${raced.stdout}\n${raced.stderr}`, /"disposition":"executed"/);
-      assert.match(`${raced.stdout}\n${raced.stderr}`, /worktree-dirty/);
-      assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, 2, 'material dirt introduced after the first snapshot must execute');
-    }
   } finally {
     rmSync(root, { recursive: true, force: true });
     rmSync(counterPath, { force: true });
@@ -321,6 +327,7 @@ function main(): void {
       ['prior-command-execution-not-pass', { evidence: { ...evidence, commandExecution: { ...commandExecution, commandCount: 0 } } }],
       ['prior-command-execution-not-pass', { evidence: { ...evidence, commandExecution: { ...commandExecution, commandCount: 2 } } }],
       ['prior-command-execution-not-pass', { evidence: { ...evidence, commandExecution: { ...commandExecution, optionalFailureCount: -1 } } }],
+      ['prior-command-execution-not-pass', { evidence: { ...evidence, commandExecution: { ...commandExecution, optionalFailureCount: 1 } } }],
       ['prior-command-execution-not-pass', { evidence: { ...evidence, commandExecution: { ...commandExecution, optionalFailureCount: 2 } } }],
       ['prior-command-execution-not-pass', { evidence: { ...evidence, commandExecution: { ...commandExecution, failureKind: 'validation_failure' } } }],
       ['prior-overall-result-not-reusable', { evidence: { ...evidence, result: 'FAIL', verificationCoverage: undefined } }],
@@ -361,6 +368,15 @@ function main(): void {
     const rejected = classifyTrustedValidationLineage({ root, gitCwd: root, evidenceHead: baseHead, currentHead: codeHead });
     assert.equal(rejected.lineage, 'rejected');
     assert.ok(rejected.reasons.some((reason) => reason === 'untrusted-lineage-path:source.ts'));
+
+    git(root, ['checkout', '--', 'source.ts']);
+    const freshnessSnapshot = captureEvidenceHashSnapshot({ gitCwd: root, metadataRoot: root, ref: 'HEAD' });
+    writeFileSync(join(root, 'source.ts'), 'export const value = 3;\n', 'utf8');
+    const racedFreshness = checkEvidenceHashSnapshotReuse(freshnessSnapshot, { gitCwd: root, metadataRoot: root, ref: 'HEAD' });
+    assert.equal(racedFreshness.reusable, false, 'material dirt introduced after the first snapshot must reject reuse');
+    assert.equal(racedFreshness.materialDirty, true);
+    assert.ok(racedFreshness.materialDirtyFiles.includes('source.ts'));
+    git(root, ['checkout', '--', 'source.ts']);
 
     const fortyFive = Array.from({ length: 45 }, (_, index) => ({ ...baseCommand, label: `command-${index + 1}`, args: ['--test', String(index + 1)] }));
     const b19Identity = identity(root, 'configured', fortyFive);
@@ -403,7 +419,15 @@ function main(): void {
     assertHandlerExecutedThenReused('configured');
     assertHandlerExecutedThenReused('fallback');
     assertHandlerExecutedThenReused('validate-file');
-    assertHandlerExecutedThenReused('validate-file', 1, true);
+    for (const semanticResult of [
+      { provider: 'validate-file-smoke', status: 'fail', allPass: true },
+      { provider: 'validate-file-smoke', status: 'warn', allPass: true },
+      { provider: 'validate-file-smoke', status: 'error', allPass: true },
+      { provider: 'validate-file-smoke', status: 'unknown', allPass: true },
+      { provider: 'validate-file-smoke', allPass: true },
+      { provider: 'validate-file-smoke', status: 'pass', allPass: false },
+      { provider: 'validate-file-smoke', status: 'pass', allPass: true, allPassed: false },
+    ]) assertHandlerExecutedThenReused('validate-file', 1, semanticResult);
     assertHandlerExecutedThenReused('configured', 45);
 
     console.log('validation-evidence-reuse-smoke PASS (real executed→metadata reuse, 3 sources, B-19ca 45-command reuse, fail-closed matrix, lineage, no-write, secret absence)');
