@@ -56,6 +56,7 @@ import { createVerifierHandlers } from '../handlers/verifier.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { computeActiveReviewers } from '../handlers/reviewer-list.js';
 import { createLegacyLocalOnlyDeliveryClaims } from '../core/legacy-delivery-claims-compat.js';
+import { evaluateOptionalLiveSmokeTranscript } from '../core/live-smoke-transcript-evidence.js';
 
 const storyId = 'B-closeout';
 const ledger = buildMilestoneLedger({
@@ -471,8 +472,18 @@ try {
   assertWriterReceipt('delivery-check.json', 'delivery_check_set');
   deliveryHandlers.delivery_waiver_add({ storyId: runtimeStoryId, promiseId: 'README.md', waiverReason: 'Integration smoke intentionally exercises the waiver writer branch.' });
   assertWriterReceipt('delivery-check.json', 'delivery_waiver_add');
-  createLiveSmokeTranscriptHandlers(handlerCtx).live_smoke_transcript({ storyId: runtimeStoryId, capture: 'node -e "process.stdout.write(\'ok\')"', write: true });
+  const liveSmokeHandlers = createLiveSmokeTranscriptHandlers(handlerCtx);
+  await liveSmokeHandlers.live_smoke_transcript({ storyId: runtimeStoryId, capture: 'node -e "process.stdout.write(\'ok\')"', write: true });
   assertWriterReceipt('evidence/live-smoke-transcript.json', 'live_smoke_transcript');
+  liveSmokeHandlers.live_smoke_transcript({ storyId: runtimeStoryId, write: true });
+  assertWriterReceipt('evidence/live-smoke-transcript.json', 'live_smoke_transcript');
+  assert.equal(
+    evaluateOptionalLiveSmokeTranscript(store, runtimeStoryId).status,
+    'invalid',
+    'write-only remains a causally valid canonical write but is not successful executed evidence',
+  );
+  await liveSmokeHandlers.live_smoke_transcript({ storyId: runtimeStoryId, capture: 'node -e "process.stdout.write(\'ok\')"', write: true });
+  assert.equal(evaluateOptionalLiveSmokeTranscript(store, runtimeStoryId).status, 'valid', 'a passing capture restores valid executed evidence');
   createDeliveryContextPackHandlers(handlerCtx).delivery_context_pack({ storyId: runtimeStoryId, write: true });
   assertWriterReceipt('evidence/delivery-context-pack.json', 'delivery_context_pack');
   await createDoneRequiredValidationHandlers(handlerCtx).done_required_validate({ storyId: runtimeStoryId });

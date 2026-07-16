@@ -1097,6 +1097,11 @@ assert.equal(
     assert.equal(persisted.actual, null, 'write-without-capture records actual=null (no command was run)');
     assert.equal(persisted.expected, USER_SEES, 'write-without-capture still records the expected output');
     assert.equal(persisted.mode.runCommands, false, 'artifact mode records that no command ran');
+    assert.equal(
+      evaluateOptionalLiveSmokeTranscript(store, STORY_ID).status,
+      'invalid',
+      'write-only remains a legal snapshot but cannot prove a real-machine command passed',
+    );
     assertNoAuthorityOrEvidenceArtifacts(store);
   } finally {
     rmSync(root, { recursive: true, force: true });
