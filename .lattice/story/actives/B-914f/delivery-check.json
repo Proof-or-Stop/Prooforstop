@@ -1,0 +1,42 @@
+{
+  "storyId": "B-914f",
+  "checkedAt": "2026-07-16T18:12:41.161Z",
+  "headHash": "498204efddad5371f0045279e14e6441c02d4211",
+  "materialHash": "66ea454ef84caa543fc8914493f4414a866f47305028cd0a0844902b2f33a6a3",
+  "storyFilesHash": "9918f27bcb68a601c52bada74c6c24a588011cd799ab18da2293725f2b951263",
+  "reviewRound": "2026-07-16T18:05:44.263Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+      "promise": "A fresh structured routine-validation PASS is reused only for unchanged trusted material and complete identity, returning an auditable reused disposition with zero command executions and no evidence rewrite.",
+      "status": "verified",
+      "verifiedBy": "Fresh TEST live-smoke transcript plus existing signed review and validation evidence",
+      "evidence": "Worktree-local validate exited 0 in 6.8 seconds with disposition=reused and commandExecutions=0; session_brief reports fresh PASS evidence, 36/36 required verification coverage, clean tree, and fresh successful live-smoke transcript."
+    },
+    {
+      "docPath": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+      "promise": "Routine validation fresh-PASS reuse is implemented as an independent remediation before subsequent workflow items.",
+      "status": "verified",
+      "verifiedBy": "Story checklist, implementation diff, and current TEST evidence",
+      "evidence": "B-914f has 6/6 checklist items done, all 36 verification intents covered, current validation PASS, and the implementation diff contains the identity, lineage, lock-scoped reuse, execution disposition, and fail-closed fallback paths."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-002/CHK-003",
+      "transcript": "Fresh worktree-local live smoke invoked routine validate against unchanged material. The command exited 0 in 6.8 seconds and reported disposition=reused with commandExecutions=0, directly demonstrating the user-visible fast path and auditable no-command result."
+    },
+    {
+      "featureId": "CHK-001/CHK-004/CHK-005/CHK-006",
+      "transcript": "Current TEST evidence is PASS and fresh; verification coverage is 36/36 with zero missing required intents. Signed concept, quality, test-coverage, and docs reviews accepted the complete identity, trusted-lineage, fail-closed fallback, command-PASS separation, and canonical documentation contract after all findings were resolved."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "User value is demonstrated on the real CLI path: unchanged routine validation now returns a successful reused result in seconds with zero command executions. The changed-material, identity, lineage, coverage, environment, executable-resolution, and TOCTOU cases are covered by 36/36 passing intent evidence and current reviewer passes; no unresolved delivery TODO remains."
+  },
+  "_hash": "cfe3a05ea1cc561bd5325fa80edd5481666b062c035f2066d3ba81fdbc0f1072"
+}
