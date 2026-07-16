@@ -9,6 +9,9 @@ import {
 import type { ValidationProgressReporter } from '../core/validation-types.js';
 import { withValidationExecutionLock } from '../core/validation-execution-lock.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
+import { formatValidationProgressEvent } from '../core/validation-executor.js';
+import { evaluateDoneRequiredPreRunReuse } from '../core/done-prepare-validation-reuse.js';
+import { timeoutLayerFromReason } from '../core/done-required-timeout-budget.js';
 
 export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
@@ -36,34 +39,81 @@ export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Recor
           summary: 'No doneRequiredCommands policy configured; DONE-required validation is advisory only',
           warnings: policy.warnings,
           timestamp: new Date().toISOString(),
+          disposition: 'skipped_explicitly',
+          result: 'not_run',
+          refusalReasons: [],
+          timeoutLayer: null,
+          existingEvidenceBasis: 'missing',
         };
-        return args.json ? JSON.stringify(result) : `${result.summary}\n${policy.warnings.join('\n')}`;
+        return args.json ? JSON.stringify(result) : [
+          result.summary,
+          ...policy.warnings,
+          'disposition=skipped_explicitly result=not_run refusalReasons=none timeoutLayer=null existingEvidenceBasis=missing',
+        ].join('\n');
       }
 
       const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
-      const evidence = await withValidationExecutionLock({
-        root: ctx.root,
-        storyId,
-        workspaceRoot: gitCwd,
-        command: 'done_required_validate',
-      }, () => runDoneRequiredValidation({
-        projectRoot: ctx.root,
-        storyId,
-        store: ctx.store,
-        gitCwd,
-        options: {
-          progress: args.progress,
-          heartbeatMs: args.heartbeatMs,
-          abortSignal: args.abortSignal,
-          deadlineAt: args.deadlineAt,
-          deadlineError: args.deadlineError,
-        },
-      }));
+      const prior = evaluateDoneRequiredPreRunReuse({ root: ctx.root, gitCwd, storyId, store: ctx.store });
+      let evidence;
+      try {
+        evidence = await withValidationExecutionLock({
+          root: ctx.root,
+          storyId,
+          workspaceRoot: gitCwd,
+          command: 'done_required_validate',
+        }, () => runDoneRequiredValidation({
+          projectRoot: ctx.root,
+          storyId,
+          store: ctx.store,
+          gitCwd,
+          options: {
+            progress: args.progress ?? ((event) => {
+              ctx.log?.(formatValidationProgressEvent(event));
+            }),
+            heartbeatMs: args.heartbeatMs,
+            abortSignal: args.abortSignal,
+            deadlineAt: args.deadlineAt,
+            deadlineError: args.deadlineError,
+          },
+        }));
+      } catch (error) {
+        const timeoutLayer = timeoutLayerFromReason(args.abortSignal?.reason) ?? timeoutLayerFromReason(error);
+        const terminal = {
+          provider: 'lattice-done-required-validation',
+          status: 'fail',
+          allPass: false,
+          storyId,
+          disposition: 'executed',
+          result: timeoutLayer ? 'timed_out' : 'blocked',
+          refusalReasons: [error instanceof Error ? error.message : String(error)],
+          timeoutLayer,
+          existingEvidenceBasis: prior.existingEvidenceBasis,
+        };
+        return args.json ? JSON.stringify(terminal) : [
+          'DONE-required validation: FAIL',
+          `disposition=${terminal.disposition} result=${terminal.result} refusalReasons=${terminal.refusalReasons.join(',')} timeoutLayer=${terminal.timeoutLayer ?? 'null'} existingEvidenceBasis=${terminal.existingEvidenceBasis}`,
+        ].join('\n');
+      }
       autoCommitStoryMetadata(ctx.root, storyId, 'done_required_validate', {
         closeoutArtifactPaths: ['done-required-evidence.json'],
       });
-      if (args.json) return JSON.stringify(evidence);
-      return renderDoneRequiredEvidence(evidence);
+      const timedOut = evidence.receipts.some((receipt) => receipt.timedOut === true);
+      const timeoutLayer = timedOut
+        ? (timeoutLayerFromReason(args.abortSignal?.reason) ?? 'command')
+        : null;
+      const structuredResult = timedOut ? 'timed_out' : evidence.status === 'PASS' ? 'pass' : 'failed';
+      if (args.json) return JSON.stringify({
+        ...evidence,
+        disposition: 'executed',
+        result: structuredResult,
+        refusalReasons: evidence.reasons,
+        timeoutLayer,
+        existingEvidenceBasis: prior.existingEvidenceBasis,
+      });
+      return [
+        renderDoneRequiredEvidence(evidence),
+        `disposition=executed result=${structuredResult} refusalReasons=${evidence.reasons.join(',') || 'none'} timeoutLayer=${timeoutLayer ?? 'null'} existingEvidenceBasis=${prior.existingEvidenceBasis}`,
+      ].join('\n');
     },
   };
 }

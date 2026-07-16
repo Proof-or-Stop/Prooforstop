@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
-import { spawnSync } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import type { HandlerContext } from './context.js';
 import {
   buildStoryReadinessReport,
@@ -12,6 +12,9 @@ import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import type { ChecklistData } from '../core/types.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
+import { liveSmokeCaptureBudget } from '../core/done-required-timeout-budget.js';
+import { reclaimStaleValidationExecutionLock } from '../core/validation-execution-lock.js';
+import { evaluateLiveSmokeTranscriptValue } from '../core/live-smoke-transcript-evidence.js';
 
 /**
  * P5 (B-9b5e) — `live_smoke_transcript`: the explicit live-smoke transcript
@@ -21,7 +24,7 @@ import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
  *
  * Two INDEPENDENT opt-ins (plan lines 113-116):
  *   - --capture="<command>" (runCommands): run ONLY that one explicitly-provided
- *     command via spawnSync with a bounded timeout, capturing stdout/stderr/exit,
+ *     command in an isolated process group with a bounded timeout, capturing stdout/stderr/exit,
  *     and record it as the "actual" transcript. NEVER derives/appends a command.
  *     Capture alone persists NOTHING.
  *   - --write (writeEvidence): persist the structured expected-vs-actual artifact
@@ -40,7 +43,7 @@ import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
  */
 
 const READINESS_TARGET = 'DONE' as const;
-const CAPTURE_TIMEOUT_MS = 60_000;
+const CAPTURE_BUFFER_MAX = 16 * 1024 * 1024;
 const STDOUT_MAX = 4000;
 const STDERR_MAX = 2000;
 const TRANSCRIPT_ARTIFACT = 'evidence/live-smoke-transcript.json';
@@ -59,7 +62,7 @@ interface LiveSmokeTranscriptArgs {
   productionDone?: boolean;
 }
 
-type TranscriptStatus = 'missing' | 'present-fresh' | 'present-stale';
+type TranscriptStatus = 'missing' | 'present-fresh' | 'present-stale' | 'present-failed';
 
 interface CapturedActual {
   command: string;
@@ -202,29 +205,109 @@ function truncate(value: string, max: number): string {
  * NEVER derives, appends, or runs any second command. A truncated-but-sufficient
  * stdout/stderr is recorded.
  */
-function runCapture(command: string, cwd: string): CapturedActual {
-  const result = spawnSync(command, {
-    cwd,
-    shell: true,
-    encoding: 'utf8',
-    timeout: CAPTURE_TIMEOUT_MS,
-    maxBuffer: 16 * 1024 * 1024,
+async function runCapture(
+  command: string,
+  cwd: string,
+  timeoutMs: number,
+  heartbeat?: (message: string) => void,
+  env: NodeJS.ProcessEnv = process.env,
+): Promise<{ actual: CapturedActual; timedOut: boolean }> {
+  return await new Promise((resolve) => {
+    const startedAt = Date.now();
+    let stdout = '';
+    let stderr = '';
+    let timedOut = false;
+    let closed = false;
+    let closeCode: number | null = null;
+    let settled = false;
+    const isWindows = process.platform === 'win32';
+    const child = spawn(command, {
+      cwd,
+      shell: true,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      env,
+      ...(isWindows ? {} : { detached: true }),
+    });
+
+    const killTree = (signal: 'SIGTERM' | 'SIGKILL'): void => {
+      if (child.pid === undefined) return;
+      try {
+        if (isWindows) {
+          spawn('taskkill', ['/pid', String(child.pid), '/t', '/f'], { stdio: 'ignore' })
+            .on('error', () => { try { child.kill(signal); } catch { /* already gone */ } });
+        } else {
+          process.kill(-child.pid, signal);
+        }
+      } catch {
+        try { child.kill(signal); } catch { /* already gone */ }
+      }
+    };
+
+    const appendBounded = (current: string, chunk: Buffer): string => {
+      if (current.length >= CAPTURE_BUFFER_MAX) return current;
+      return current + chunk.toString().slice(0, CAPTURE_BUFFER_MAX - current.length);
+    };
+
+    const finish = (): void => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeoutTimer);
+      clearInterval(heartbeatTimer);
+      const failureNote = timedOut ? `[capture error] command exceeded ${timeoutMs}ms timeout; process group terminated` : '';
+      const combinedStderr = [stderr, failureNote].filter((part) => part.length > 0).join('\n');
+      const actual: CapturedActual = {
+        command,
+        exitCode: timedOut ? null : closeCode,
+        stdout: truncate(stdout, STDOUT_MAX),
+        capturedAtIso: new Date().toISOString(),
+      };
+      if (combinedStderr.length > 0) actual.stderr = truncate(combinedStderr, STDERR_MAX);
+      resolve({ actual, timedOut });
+    };
+
+    const forceKillAndFinish = (): void => {
+      killTree('SIGKILL');
+      // Let the close event reap the direct child and its inherited pipes. The
+      // fallback keeps a broken platform spawn from hanging the caller forever.
+      const reapDeadline = Date.now() + 2_000;
+      const poll = setInterval(() => {
+        if (closed || Date.now() >= reapDeadline) {
+          clearInterval(poll);
+          finish();
+        }
+      }, 25);
+    };
+
+    const timeoutTimer = setTimeout(() => {
+      if (settled) return;
+      timedOut = true;
+      killTree('SIGTERM');
+      // Keep this escalation timer referenced. The shell leader may exit on
+      // SIGTERM before descendants close inherited handles; if every cleanup
+      // handle is unref'd, Node can exit with the capture Promise unresolved
+      // and print no terminal report at all.
+      setTimeout(forceKillAndFinish, 250);
+    }, timeoutMs);
+    timeoutTimer.unref?.();
+    const heartbeatTimer = setInterval(() => {
+      heartbeat?.(`live_smoke_transcript capture heartbeat: elapsed=${Date.now() - startedAt}ms timeoutMs=${timeoutMs}`);
+    }, 30_000);
+    heartbeatTimer.unref?.();
+
+    child.stdout?.on('data', (chunk: Buffer) => { stdout = appendBounded(stdout, chunk); });
+    child.stderr?.on('data', (chunk: Buffer) => { stderr = appendBounded(stderr, chunk); });
+    child.on('error', (error) => {
+      stderr += `${stderr ? '\n' : ''}[capture error] ${error.message}`;
+      closed = true;
+      closeCode = null;
+      if (!timedOut) finish();
+    });
+    child.on('close', (code) => {
+      closed = true;
+      closeCode = code;
+      if (!timedOut) finish();
+    });
   });
-  const stdout = typeof result.stdout === 'string' ? result.stdout : '';
-  const stderrRaw = typeof result.stderr === 'string' ? result.stderr : '';
-  // spawnSync sets result.status=null + result.signal/result.error on
-  // timeout/spawn failure: surface that as a non-zero-ish null exit with the
-  // failure reason folded into stderr so the actual transcript is honest.
-  const failureNote = result.error ? `[capture error] ${result.error.message}` : '';
-  const stderr = [stderrRaw, failureNote].filter((s) => s.length > 0).join('\n');
-  const actual: CapturedActual = {
-    command,
-    exitCode: typeof result.status === 'number' ? result.status : null,
-    stdout: truncate(stdout, STDOUT_MAX),
-    capturedAtIso: new Date().toISOString(),
-  };
-  if (stderr.length > 0) actual.stderr = truncate(stderr, STDERR_MAX);
-  return actual;
 }
 
 /**
@@ -234,17 +317,26 @@ function runCapture(command: string, cwd: string): CapturedActual {
  */
 function classifyTranscript(
   artifactPath: string,
+  storyId: string,
   gitCwd: string,
   metadataRoot: string,
 ): TranscriptStatus {
   if (!existsSync(artifactPath)) return 'missing';
-  let parsed: { headHash?: unknown; materialHash?: unknown; storyFilesHash?: unknown };
+  let parsed: {
+    storyId?: unknown;
+    mode?: { runCommands?: unknown };
+    actual?: { exitCode?: unknown } | null;
+    headHash?: unknown;
+    materialHash?: unknown;
+    storyFilesHash?: unknown;
+  };
   try {
     parsed = JSON.parse(readFileSync(artifactPath, 'utf8'));
   } catch {
-    // A present-but-unreadable artifact is treated as stale: it cannot prove a
-    // fresh live-smoke run.
-    return 'present-stale';
+    return 'present-failed';
+  }
+  if (!evaluateLiveSmokeTranscriptValue(parsed, storyId).ok) {
+    return 'present-failed';
   }
   const headHash = typeof parsed.headHash === 'string' ? parsed.headHash : undefined;
   const materialHash = typeof parsed.materialHash === 'string' ? parsed.materialHash : undefined;
@@ -331,6 +423,8 @@ function statusLabel(status: TranscriptStatus): string {
       return 'present(fresh)';
     case 'present-stale':
       return 'present(stale)';
+    case 'present-failed':
+      return 'present(failed)';
   }
 }
 
@@ -402,7 +496,9 @@ export function renderLiveSmokeTranscriptReport(report: LiveSmokeTranscriptRepor
 }
 
 export function createLiveSmokeTranscriptHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
-  function liveSmokeTranscript(args: LiveSmokeTranscriptArgs): LiveSmokeTranscriptReport | string {
+  function liveSmokeTranscript(
+    args: LiveSmokeTranscriptArgs,
+  ): LiveSmokeTranscriptReport | string | Promise<LiveSmokeTranscriptReport | string> {
     assertBoundary(args);
     assertSafeStoryId(args.storyId);
 
@@ -434,7 +530,19 @@ export function createLiveSmokeTranscriptHandlers(ctx: HandlerContext): Record<s
 
     // --capture: run ONLY the provided command (independent of --write).
     const command = captureCommand(args);
-    const actual = command !== null ? runCapture(command, gitCwd) : null;
+    if (command !== null) {
+      const budget = liveSmokeCaptureBudget(ctx.root, command);
+      const captureEnv = budget.nestedMaxTimeoutMs === undefined
+        ? process.env
+        : { ...process.env, LATTICE_MAX_TIMEOUT_MS: String(budget.nestedMaxTimeoutMs) };
+      return runCapture(command, gitCwd, budget.timeoutMs, ctx.log, captureEnv).then(({ actual, timedOut }) => {
+        if (timedOut) reclaimStaleValidationExecutionLock(ctx.root, args.storyId);
+        return finish(actual);
+      });
+    }
+    return finish(null);
+
+    function finish(actual: CapturedActual | null): LiveSmokeTranscriptReport | string {
 
     // --write: persist (independent of --capture). Write alone runs no command;
     // it persists whatever actual was captured this invocation (else null).
@@ -451,7 +559,7 @@ export function createLiveSmokeTranscriptHandlers(ctx: HandlerContext): Record<s
     // Classify the CURRENT durable artifact AFTER any write so a fresh --write run
     // reports present-fresh; a read-only/capture-only run reports the pre-existing
     // artifact's status.
-    const transcriptStatus = classifyTranscript(artifactPath, gitCwd, ctx.root);
+    const transcriptStatus = classifyTranscript(artifactPath, args.storyId, gitCwd, ctx.root);
 
     const report: LiveSmokeTranscriptReport = {
       storyId: args.storyId,
@@ -479,7 +587,8 @@ export function createLiveSmokeTranscriptHandlers(ctx: HandlerContext): Record<s
       },
     };
 
-    return wantsJson(args) ? report : renderLiveSmokeTranscriptReport(report);
+      return wantsJson(args) ? report : renderLiveSmokeTranscriptReport(report);
+    }
   }
 
   return {

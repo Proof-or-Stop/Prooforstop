@@ -40,6 +40,8 @@ const MAX_OUTPUT_CHARS = 12000;
  */
 export const DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS = 270_000;
 export const DEFAULT_VALIDATE_HEARTBEAT_MS = 30_000;
+/** Node clamps larger setTimeout delays to ~1ms and emits TimeoutOverflowWarning. */
+export const MAX_NODE_TIMER_DELAY_MS = 2_147_483_647;
 
 export interface RunValidationCommandOptions {
   progress?: ValidationProgressReporter;
@@ -48,11 +50,15 @@ export interface RunValidationCommandOptions {
   heartbeatMs?: number;
   abortSignal?: AbortSignal;
   deadlineAt?: number;
+  deadlineError?: () => Error;
 }
 
 export interface ExecuteValidationPlanOptions {
   progress?: ValidationProgressReporter;
   heartbeatMs?: number;
+  abortSignal?: AbortSignal;
+  deadlineAt?: number;
+  deadlineError?: () => Error;
 }
 
 /**
@@ -66,9 +72,10 @@ export function resolveCommandTimeoutMs(
   command: ValidationCommand,
   defaultMs: number = DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
 ): number {
-  return typeof command.timeoutMs === 'number' && Number.isFinite(command.timeoutMs) && command.timeoutMs > 0
+  const effective = typeof command.timeoutMs === 'number' && Number.isFinite(command.timeoutMs) && command.timeoutMs > 0
     ? command.timeoutMs
     : defaultMs;
+  return Math.max(1, Math.min(MAX_NODE_TIMER_DELAY_MS, Math.floor(effective)));
 }
 
 export function resolveValidateHeartbeatMs(env: NodeJS.ProcessEnv = process.env): number {
@@ -116,7 +123,10 @@ function trimOutput(output: string): string {
 function emitValidationProgress(progress: ValidationProgressReporter | undefined, event: ValidationProgressEvent): void {
   if (!progress) return;
   try {
-    progress(event);
+    const result = progress(event) as unknown;
+    if (result && typeof (result as { then?: unknown }).then === 'function') {
+      void Promise.resolve(result).catch(() => { /* diagnostic-only async sink rejection */ });
+    }
   } catch {
     // Progress is diagnostic-only; validation results must not depend on a
     // caller's logging sink.
@@ -500,7 +510,17 @@ export async function executeValidationPlan(
       heartbeatMs: options.heartbeatMs,
       commandIndex: i + 1,
       totalCommands: plan.commands.length,
+      abortSignal: options.abortSignal,
+      deadlineAt: options.deadlineAt,
+      deadlineError: options.deadlineError,
     });
+    if (
+      result.timedOut
+      && typeof options.deadlineAt === 'number'
+      && Date.now() >= options.deadlineAt
+    ) {
+      throw options.deadlineError?.() ?? new Error(`validation plan deadline exceeded at ${options.deadlineAt}`);
+    }
     commands.push(result);
 
     const failed = result.code !== 0 || Boolean(result.timedOut);

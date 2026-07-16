@@ -12,6 +12,7 @@ import { TERMINAL_PHASES } from './parallel-policy.js';
 import { REQUIRED_INIT_CHECK_AGENTS, blockingInitCheckIssues, missingRequiredInitCheckAgents, recomputeInitCheckHash } from './init-check-gate.js';
 import { deriveLatestLoopRecord, listActiveLoops } from './review-loop.js';
 import { evaluateDeliveryCheckFreshness } from './delivery-check-hash.js';
+import { evaluateOptionalLiveSmokeTranscript } from './live-smoke-transcript-evidence.js';
 import { getBlockingVerificationEvidenceIssues } from './verification.js';
 import { normalizeLegacyPhase } from './phase-flow.js';
 import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
@@ -769,6 +770,11 @@ export function canFinishGuard(context: StoryMachineContext): boolean {
   const deliveryCheck = deliveryCheckFreshness.deliveryCheck;
   if (!deliveryCheck) return false;
 
+  // A canonical live-smoke artifact is optional for legacy stories. Once one
+  // exists, however, a timeout/spawn failure/non-zero exit cannot be laundered
+  // through a later signed delivery-check.
+  if (!evaluateOptionalLiveSmokeTranscript(context.store, context.storyId).ok) return false;
+
   // every docsPromise must be verified or waived
   const unverified = deliveryCheck.docsPromises.filter(
     p => !p.verifiedBy && !p.waiverReason && !['met', 'verified', 'waived'].includes(p.status || ''),
@@ -1186,6 +1192,10 @@ export function getGuardFailureReason(
     const deliveryCheck = deliveryCheckFreshness.deliveryCheck;
     if (!deliveryCheck) {
       return `Cannot enter DONE: missing delivery-check.json (requires lattice-review-delivery reviewer signature). [missing_delivery_check] → Run story_advance DEV to rework and fill in`;
+    }
+    const liveSmokeTranscript = evaluateOptionalLiveSmokeTranscript(store, storyId);
+    if (!liveSmokeTranscript.ok) {
+      return `Cannot enter DONE: ${liveSmokeTranscript.reason}. [live_smoke_transcript_failed] → Re-run lattice live_smoke_transcript with a passing command and --write`;
     }
     if (deliveryCheckFreshness.code === 'delivery_check_tampered') {
       return `Cannot enter DONE: delivery-check.json _hash mismatch (content has been tampered with); please re-run lattice-review-delivery reviewer. [delivery_check_tampered] → Run story_advance DEV to rework and fill in`;

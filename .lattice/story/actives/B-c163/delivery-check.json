@@ -1,0 +1,81 @@
+{
+  "storyId": "B-c163",
+  "checkedAt": "2026-07-16T09:26:23.831Z",
+  "headHash": "c138927713877dadb3f99e70af2a2edd6a740b12",
+  "materialHash": "2f4c4f97522d6020e6b00b0b5b7b4fe8408bd63da945d157ea481fd77e2338fb",
+  "storyFilesHash": "ddb7ae12ce30d52d97bb2dc6655e4b0de2b8b0adfa22e52f48abd535612be3ce",
+  "reviewRound": "2026-07-16T09:00:10.819Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#B-c163-convergence-contract-implemented",
+      "promise": "DONE-required outer budgets are derived from legal sequential command timeouts plus bounded grace, with phase/global/explicit-max precedence and safe timer capping.",
+      "status": "verified",
+      "verifiedBy": "source diff plus independent compiled smoke",
+      "evidence": "done-required-timeout-budget.ts implements safeTimeoutSum, doneRequiredDerivedBudget, donePreparePhaseBudget and command CLI maxima; done-required-validation-smoke and done-prepare-closure-heartbeat-smoke passed independently."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md#B-c163-convergence-contract-implemented",
+      "promise": "done_prepare preserves observed validation context across later closeout timeout and returns structured, attributed timeout terminals without deterministic rerun guidance.",
+      "status": "verified",
+      "verifiedBy": "handler diff plus independent closure smoke",
+      "evidence": "done-prepare.ts carries ObservedValidationTerminalContext into idle/max terminals; closure smoke asserts preserved disposition, evidence basis and refusal reasons and passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-full-test-gate-execution-plan.md#B-c163-convergence-contract-implemented",
+      "promise": "Fresh DONE-required evidence may be reused only for exact HEAD or trusted story-metadata-only descendant lineage with canonical bindings and a final HEAD stability check.",
+      "status": "verified",
+      "verifiedBy": "source diff plus adversarial smoke",
+      "evidence": "evaluateDoneRequiredPreRunReuse consumes canonical evaluator, checks git ancestry and every intervening path, rejects untrusted/non-ancestor/TOCTOU movement; smoke covers trusted descendant and head-changed refusal."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md#B-c163-convergence-contract-implemented",
+      "promise": "validate=false reports skipped_explicitly/not_run and observes but neither reuses nor creates DONE-required proof.",
+      "status": "verified",
+      "verifiedBy": "handler diff plus independent closure smoke",
+      "evidence": "done-prepare.ts branches before execution/reuse and emits existingEvidenceBasis; closure smoke verifies fresh/stale/missing evidence remains byte-for-byte unchanged."
+    },
+    {
+      "docPath": "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md#B-c163-convergence-contract-implemented",
+      "promise": "Progress and heartbeat stay off JSON stdout, reporter failures are diagnostic-only, and command/phase/idle/max bounds clean descendants, timers and locks.",
+      "status": "verified",
+      "verifiedBy": "executor and CLI diff plus smoke assertions",
+      "evidence": "validation-executor.ts isolates progress sink failures and performs process-group TERM/KILL cleanup; validate-progress-heartbeat, done-required-validation and closure smokes cover JSON singularity, timeout layers, no post-terminal heartbeat and immediate rerun."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#B-c163-convergence-contract-implemented",
+      "promise": "Long active validation emits progress/heartbeat while heartbeat extends idle liveness only, not absolute execution permission.",
+      "status": "verified",
+      "verifiedBy": "real-machine transcript plus source inspection",
+      "evidence": "Fresh live-smoke transcript records 276659ms DONE-required PASS with periodic 30s heartbeats; cli-engine and validation executor retain independent command and max deadlines."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-full-test-gate-execution-plan.md#B-c163-convergence-contract-implemented",
+      "promise": "A present failed or unexecuted live-smoke transcript cannot satisfy closeout delivery/DONE evidence.",
+      "status": "verified",
+      "verifiedBy": "gate consumer diff plus independent live-smoke smoke",
+      "evidence": "live-smoke-transcript-evidence.ts validates story/mode/exit; done-oracle adds a blocking row for present failed artifacts and delivery-check rejects them; live_smoke_transcript smoke passed."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Fresh live-smoke artifact executed the actual dist CLI done_required_validate for 276659ms: build PASS, root npm test PASS, exitCode=0, periodic heartbeats, no 60s outer preemption. Independent done-required-validation and closure smokes also passed. Limitation: this real-machine capture exercised the direct entry path; the exact done_prepare display phrase is source/smoke-verified rather than separately live-captured."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Independent done-required-validation and done-prepare-closure-heartbeat smokes passed, covering exact/trusted-metadata lineage, malformed/stale/non-ancestor/TOCTOU refusal, reuse disable, and validate=false no-mutation semantics."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Independent closure-heartbeat and live-smoke-transcript smokes passed; actual 278s transcript shows periodic stderr heartbeat and singular JSON success. Smokes cover command/phase/idle/max terminal attribution, descendant process-group reap, lock release, reporter failure isolation and no post-terminal heartbeat."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Seven documentation promises are mechanically verified. The actual long-running DONE-required capture passed at 276659ms and all three independent focused smokes passed; four scope expansions are recorded as acknowledged and no unresolved TODO/FIXME/HACK was introduced. The only delivery limitation is that the exact done_prepare display wording was verified through source/smoke rather than a separate real-machine done_prepare capture."
+  },
+  "_hash": "54b3c4a34dce5247f6cccf09d7d42ec1142e700006899a54f5479738b006dfe1"
+}

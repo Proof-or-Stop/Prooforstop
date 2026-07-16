@@ -133,7 +133,7 @@ commands is also rejected.
 Before rerunning DONE-required commands, `done_prepare` may reuse an existing
 receipt only when all policy-required bindings match, including at minimum:
 
-- post-merge HEAD;
+- post-merge HEAD lineage: exact current HEAD, or an evidence HEAD that is an ancestor with only trusted story-metadata paths intervening;
 - material hash;
 - story-files hash where applicable;
 - DONE-required policy/config digest;
@@ -153,8 +153,8 @@ receipt already exists, output must say that directly.
 - A deliberately hung child still stops at its own command deadline and leaves
   no process, concurrency slot, or temporary state behind.
 - A fresh, fully bound receipt avoids redundant execution.
-- Changes to HEAD, material, story files, policy, command order, args, timeout,
-  or build-proof dependency make the receipt stale.
+- Material/story-files drift, non-metadata HEAD lineage, policy, command order,
+  args, timeout, or build-proof dependency changes make the receipt stale.
 - Human and JSON output identify whether validation ran, was reused, was skipped
   explicitly, timed out, or failed.
 - The timeout hint does not recommend an identical rerun that deterministically
@@ -551,3 +551,17 @@ Metrics and DONE evidence:
 The story description must identify one workstream from this plan and cite its
 canonical subsystem document. Cross-workstream changes require a new explicit
 decision rather than silent scope expansion.
+
+
+## B-c163 convergence contract (implemented)
+
+- A later closeout idle/max timeout preserves any already-observed validation disposition, evidence basis, and refusal reasons; only the later terminal result/layer changes to `timed_out` and `idle|max`. The command-level `done_prepare` budget is the exact sum of routine validation plus each enabled closeout phase once (five non-validation phases, plus DONE-required only when enabled). CLI named deadline errors propagate through routine verifier execution so a command deadline that lands between watchdog polling ticks retains `timeoutLayer=max`.
+
+- Closeout segments check the parent watchdog before and after each segment and await cooperative abort cleanup. Synchronous JavaScript is inherently non-preemptible, so it stops at the first deadline/checkpoint boundary. Pure in-process closeout segments spawn no descendants, making process-tree ESRCH evidence not applicable there; descendant cleanup is required and tested only for validation/phase paths that actually spawn children.
+
+DONE-required execution and reuse use one bounded contract:
+
+- The DONE-required phase budget is the safe sum of effective sequential command timeouts plus bounded grace. A phase-specific override wins the global phase override, which wins the derived budget. The direct `done_required_validate` CLI max covers that derived phase; the `done_prepare` CLI max covers routine validation plus every enabled closeout phase. An explicit `LATTICE_MAX_TIMEOUT_MS` remains authoritative. Each effective command timeout is capped at Node's maximum legal timer delay before arming the real timer, so a huge configured value cannot overflow into an immediate timeout. Structured `failed` / `timed_out` / `blocked` results remain parseable on stdout and exit nonzero; routine `done_prepare` idle/max aborts use the same terminal timeout shape and release child processes, timers, and locks for an immediate rerun.
+- `done_prepare` defaults `reuseFreshDoneRequired=true`, independently of post-closeout `reuseFreshValidation`. Reuse requires the canonical DONE-required evaluator to pass and evidence HEAD to equal current HEAD, or be its ancestor with every path touched by every intervening commit classified as trusted story metadata (including modify-then-revert history). HEAD must remain unchanged across evaluation. Any code, config, non-metadata, non-ancestor, unreadable evidence/lineage, or concurrent HEAD movement refuses reuse.
+- `validate:false` means `disposition=skipped_explicitly` and `result=not_run`; it neither executes nor reuses nor manufactures evidence, while reporting `existingEvidenceBasis=fresh|stale|missing`. Executed and reused paths report `disposition`, `result`, `refusalReasons`, and any `timeoutLayer` in human and JSON output.
+- Progress and heartbeat output uses stderr/the logging side channel, never JSON stdout. Reporter failures are diagnostic-only. Heartbeats refresh idle liveness only; command, phase, idle, and absolute max deadlines, child-tree termination, lock release, and timer cleanup remain independent.

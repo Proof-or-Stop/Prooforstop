@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join, relative } from 'node:path';
+import { execFileSync, spawn } from 'node:child_process';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, symlinkSync, watch, writeFileSync } from 'node:fs';
+import { hostname, tmpdir } from 'node:os';
+import { delimiter, join, relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   enforceStoryOwnerLeaseGate,
   MAIN_TOOLS,
@@ -18,12 +19,17 @@ import { createMainRegistry } from '../registry.js';
 import type { HandlerContext } from '../handlers/context.js';
 import type { LiveSmokeTranscriptReport } from '../handlers/live-smoke-transcript.js';
 import { acquireOwnerLease, ownerLeasePath, resetSessionIdForTest } from '../core/story-owner-lease.js';
+import { commandCliMaxBudget, effectiveCommandCliMaxBudget, LIVE_SMOKE_CAPTURE_CLEANUP_GRACE_MS, liveSmokeCaptureBudget, NODE_TIMER_MAX_MS } from '../core/done-required-timeout-budget.js';
+import { validationExecutionLockPath, withValidationExecutionLock } from '../core/validation-execution-lock.js';
+import { evaluateOptionalLiveSmokeTranscript } from '../core/live-smoke-transcript-evidence.js';
+import { buildDoneChecklist } from '../core/done-oracle.js';
 
 const STORY_ID = 'B-livesmoke';
 const NOW = '2026-06-20T00:00:00.000Z';
 const MARKER = 'P5-MARKER-7f3a';
 const USER_SEES = 'lattice live_smoke_transcript --storyId=<story> prints the expected output and transcript status.';
 const ARTIFACT_REL = 'evidence/live-smoke-transcript.json';
+const CLI_ENTRYPOINT = fileURLToPath(new URL('../cli.js', import.meta.url));
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -38,6 +44,413 @@ function git(cwd: string, args: string[]): string {
       GIT_COMMITTER_EMAIL: 'live-smoke-transcript-smoke@example.com',
     },
   }).trim();
+}
+
+// ---- handler forwards the mechanically selected nested max to the child ----
+
+{
+  const { root, ctx } = createFixture(checklistWithUserSees);
+  const savedArgv1 = process.argv[1];
+  const savedMax = process.env.LATTICE_MAX_TIMEOUT_MS;
+  try {
+    const observer = join(root, 'active-lattice-observer');
+    writeFileSync(observer, [
+      '#!/usr/bin/env node',
+      "process.stdout.write(JSON.stringify({ max: process.env.LATTICE_MAX_TIMEOUT_MS ?? null }));",
+    ].join('\n') + '\n', 'utf8');
+    chmodSync(observer, 0o755);
+    process.argv[1] = observer;
+    const handler = createMainRegistry(ctx).get('live_smoke_transcript');
+
+    delete process.env.LATTICE_MAX_TIMEOUT_MS;
+    const derived = await handler!({
+      storyId: STORY_ID,
+      capture: `${observer} done_required_validate --storyId=${STORY_ID}`,
+      json: true,
+    }) as LiveSmokeTranscriptReport;
+    assert.equal(JSON.parse(derived.actual?.stdout ?? '{}').max, '30000', 'default-derived nested max is forwarded to the trusted child');
+
+    process.env.LATTICE_MAX_TIMEOUT_MS = String(Number.MAX_SAFE_INTEGER);
+    const saturated = await handler!({
+      storyId: STORY_ID,
+      capture: `${observer} done_required_validate --storyId=${STORY_ID}`,
+      json: true,
+    }) as LiveSmokeTranscriptReport;
+    assert.equal(
+      JSON.parse(saturated.actual?.stdout ?? '{}').max,
+      String(NODE_TIMER_MAX_MS - LIVE_SMOKE_CAPTURE_CLEANUP_GRACE_MS - 30_000),
+      'saturation-adjusted effective nested max is forwarded to the trusted child',
+    );
+  } finally {
+    process.argv[1] = savedArgv1;
+    if (savedMax === undefined) delete process.env.LATTICE_MAX_TIMEOUT_MS;
+    else process.env.LATTICE_MAX_TIMEOUT_MS = savedMax;
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// ---- actual CLI always prints one structured timeout terminal --------------
+
+{
+  const { root } = createFixture(checklistWithUserSees);
+  try {
+    for (let index = 0; index < 10; index += 1) {
+      const stdout = execFileSync(process.execPath, [
+        CLI_ENTRYPOINT,
+        'live_smoke_transcript',
+        JSON.stringify({ storyId: STORY_ID, capture: 'sleep 5', json: true }),
+      ], {
+        cwd: root,
+        env: { ...process.env, LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS: '100' },
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+        timeout: 5_000,
+      });
+      assert.ok(stdout.trim().length > 0, `actual CLI timeout run ${index + 1} emits a terminal payload`);
+      const report = JSON.parse(stdout) as LiveSmokeTranscriptReport;
+      assert.equal(report.actual?.exitCode, null, `actual CLI timeout run ${index + 1} remains non-pass`);
+      assert.match(report.actual?.stderr ?? '', /process group terminated/);
+    }
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// ---- descendant reap uses a PID-written readiness handshake ----------------
+
+type HarnessFailure = 'none' | 'readiness' | 'assertion' | 'read' | 'close-never' | 'disappearance-timeout';
+
+interface HarnessPids {
+  capture: number;
+  descendant: number;
+}
+
+let activeDisappearanceProbes = 0;
+let injectedDisappearanceSignals = 0;
+let injectedDisappearanceElapsedMs = 0;
+const injectedDisappearanceTargets: number[] = [];
+
+type HarnessSignalSender = (pid: number, signalName: NodeJS.Signals) => unknown;
+
+function signalHarnessProcess(
+  pid: number,
+  signalName: NodeJS.Signals,
+  sendSignal: HarnessSignalSender = process.kill,
+): void {
+  try {
+    sendSignal(pid, signalName);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ESRCH') throw error;
+  }
+}
+
+function signalOwnedProcessGroup(
+  ownerPid: number,
+  signalName: NodeJS.Signals,
+  sendSignal?: HarnessSignalSender,
+): void {
+  signalHarnessProcess(-Math.abs(ownerPid), signalName, sendSignal);
+}
+
+async function settleCleanupPreservingPrimary(
+  cleanup: () => Promise<unknown>,
+  primaryError: unknown,
+): Promise<void> {
+  try {
+    await cleanup();
+  } catch (cleanupError) {
+    if (primaryError === undefined) throw cleanupError;
+  }
+}
+
+async function waitUntilGone(
+  pid: number,
+  isAlive: (candidate: number) => boolean,
+  timeoutMs = 2_000,
+): Promise<void> {
+  if (!isAlive(pid)) return;
+  activeDisappearanceProbes += 1;
+  let probe: NodeJS.Timeout | undefined;
+  let deadline: NodeJS.Timeout | undefined;
+  try {
+    await new Promise<void>((resolveGone, rejectGone) => {
+      let settled = false;
+      const settle = (error?: Error) => {
+        if (settled) return;
+        settled = true;
+        if (error) rejectGone(error);
+        else resolveGone();
+      };
+      probe = setInterval(() => {
+        if (!isAlive(pid)) settle();
+      }, 20);
+      deadline = setTimeout(
+        () => settle(new Error(`process ${pid} did not terminate during harness cleanup`)),
+        timeoutMs,
+      );
+    });
+  } finally {
+    if (probe) clearInterval(probe);
+    if (deadline) clearTimeout(deadline);
+    activeDisappearanceProbes -= 1;
+  }
+}
+
+async function runDescendantHarness(failure: HarnessFailure): Promise<void> {
+  const { root } = createFixture(checklistWithUserSees);
+  const pidPath = join(root, 'actual-cli-descendant.json');
+  let cli: ReturnType<typeof spawn> | undefined;
+  let actualClosed: Promise<number | null> | undefined;
+  let cliClosed = false;
+  let observedPids: HarnessPids | undefined;
+  let cleanupPromise: Promise<void> | undefined;
+  let bodyCompleted = false;
+  let primaryError: unknown;
+  const disposers = new Set<() => void>();
+
+  const bounded = async <T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> => {
+    let timer: NodeJS.Timeout | undefined;
+    const timeout = new Promise<never>((_resolve, reject) => {
+      timer = setTimeout(() => reject(new Error(message)), timeoutMs);
+      disposers.add(() => clearTimeout(timer));
+    });
+    try {
+      return await Promise.race([promise, timeout]);
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
+  };
+
+  const isAlive = (pid: number): boolean => {
+    try {
+      process.kill(pid, 0);
+      return true;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ESRCH') return false;
+      throw error;
+    }
+  };
+
+  const cleanup = (): Promise<void> => {
+    cleanupPromise ??= (async () => {
+      for (const dispose of [...disposers]) dispose();
+      disposers.clear();
+
+      const targets = [
+        ...(observedPids ? [observedPids.capture, observedPids.descendant] : []),
+      ];
+      if (!bodyCompleted) {
+        let closedNaturally = false;
+        if (actualClosed) {
+          try {
+            await bounded(actualClosed, 3_000, 'CLI exceeded harness natural-close grace');
+            closedNaturally = true;
+          } catch {
+            // The owned-group signal path below is the bounded fallback.
+          }
+        }
+        if (!closedNaturally && cli?.pid) {
+          signalOwnedProcessGroup(cli.pid, 'SIGTERM');
+          if (actualClosed) {
+            try {
+              await bounded(actualClosed, 250, 'CLI ignored harness TERM grace');
+            } catch {
+              // The KILL pass below is the final bounded fallback.
+            }
+          }
+          if (!cliClosed) signalOwnedProcessGroup(cli.pid, 'SIGKILL');
+          if (actualClosed) await bounded(actualClosed, 2_000, 'CLI did not close after harness KILL');
+        }
+      }
+      for (const pid of targets.filter((pid) => pid > 0)) {
+        await waitUntilGone(pid, isAlive);
+      }
+      if (failure === 'disappearance-timeout') {
+        const syntheticPid = 987_654_321;
+        const injectedSignal: HarnessSignalSender = (pid) => {
+          injectedDisappearanceSignals += 1;
+          injectedDisappearanceTargets.push(pid);
+        };
+        signalOwnedProcessGroup(syntheticPid, 'SIGTERM', injectedSignal);
+        signalOwnedProcessGroup(syntheticPid, 'SIGKILL', injectedSignal);
+        const probeStartedAt = Date.now();
+        try {
+          await waitUntilGone(syntheticPid, () => true, 100);
+        } finally {
+          injectedDisappearanceElapsedMs = Date.now() - probeStartedAt;
+        }
+      }
+    })();
+    return cleanupPromise;
+  };
+
+  try {
+    const hangingScript = join(root, 'actual-cli-descendant-hang.cjs');
+    writeFileSync(hangingScript, [
+      "const { spawn } = require('node:child_process');",
+      "const { writeFileSync } = require('node:fs');",
+      "const child = spawn(process.execPath, ['-e', 'process.on(\\\"SIGTERM\\\",()=>{});setInterval(()=>{},1000)'], { stdio: 'ignore' });",
+      "writeFileSync(process.argv[2], JSON.stringify({ capture: process.pid, descendant: child.pid }));",
+      "process.on('SIGTERM', () => {});",
+      "setInterval(() => {}, 1000);",
+    ].join('\n') + '\n', 'utf8');
+
+    const ready = new Promise<HarnessPids>((resolveReady, rejectReady) => {
+      let settled = false;
+      const disposeReady = () => {
+        watcher.close();
+        clearInterval(probe);
+        clearTimeout(deadline);
+      };
+      const finishReady = () => {
+        if (settled) return;
+        let parsed: HarnessPids;
+        try {
+          parsed = JSON.parse(readFileSync(pidPath, 'utf8')) as HarnessPids;
+          if (!Number.isInteger(parsed.capture) || !Number.isInteger(parsed.descendant)) return;
+        } catch {
+          return;
+        }
+        settled = true;
+        observedPids = parsed;
+        disposeReady();
+        disposers.delete(disposeReady);
+        if (failure === 'readiness') rejectReady(new Error('injected readiness rejection'));
+        else resolveReady(parsed);
+      };
+      const watcher = watch(root, (_event, filename) => {
+        if (filename === 'actual-cli-descendant.json' && existsSync(pidPath)) finishReady();
+      });
+      // fs.watch is the primary handshake; the state probe closes the narrow
+      // create-before-watch-delivery race without relying on a fixed sleep.
+      const probe = setInterval(() => {
+        if (existsSync(pidPath)) finishReady();
+      }, 25);
+      const deadline = setTimeout(() => {
+        if (settled) return;
+        settled = true;
+        disposeReady();
+        disposers.delete(disposeReady);
+        rejectReady(new Error('descendant PID readiness handshake timed out'));
+      }, 15_000);
+      disposers.add(disposeReady);
+      if (existsSync(pidPath)) finishReady();
+    });
+
+    const capture = `${JSON.stringify(process.execPath)} ${JSON.stringify(hangingScript)} ${JSON.stringify(pidPath)}`;
+    const spawnedCli = spawn(process.execPath, [
+      CLI_ENTRYPOINT,
+      'live_smoke_transcript',
+      JSON.stringify({ storyId: STORY_ID, capture, json: true }),
+    ], {
+      cwd: root,
+      env: { ...process.env, LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS: '2000' },
+      stdio: ['ignore', 'pipe', 'pipe'],
+      detached: true,
+    });
+    cli = spawnedCli;
+    let stdout = '';
+    let stderr = '';
+    spawnedCli.stdout?.on('data', (chunk: Buffer) => { stdout += chunk.toString(); });
+    spawnedCli.stderr?.on('data', (chunk: Buffer) => { stderr += chunk.toString(); });
+    actualClosed = new Promise<number | null>((resolveClose, rejectClose) => {
+      spawnedCli.once('error', (error) => {
+        cliClosed = true;
+        rejectClose(error);
+      });
+      spawnedCli.once('close', (exitCode) => {
+        cliClosed = true;
+        resolveClose(exitCode);
+      });
+    });
+
+    const pids = await ready;
+    assert.equal(spawnedCli.exitCode, null, 'PID readiness is observed while the CLI capture is still active');
+    if (failure === 'assertion') throw new Error('injected post-readiness assertion failure');
+    if (failure === 'read') {
+      writeFileSync(pidPath, '{invalid', 'utf8');
+      JSON.parse(readFileSync(pidPath, 'utf8'));
+    }
+    const closeWaiter = failure === 'close-never' ? new Promise<number | null>(() => {}) : actualClosed;
+    const exitCode = await bounded(closeWaiter, failure === 'close-never' ? 100 : 15_000, 'CLI close deadline exceeded');
+    assert.equal(exitCode, 0, `actual CLI transcript producer exits successfully: ${stderr}`);
+    assert.ok(stdout.trim().length > 0, 'descendant-reap run emits a terminal payload');
+    const report = JSON.parse(stdout) as LiveSmokeTranscriptReport;
+    assert.equal(report.actual?.exitCode, null);
+    assert.throws(() => process.kill(pids.descendant, 0), /ESRCH/, 'handshake-confirmed descendant is reaped after timeout');
+    bodyCompleted = true;
+  } catch (error) {
+    primaryError = error;
+    throw error;
+  } finally {
+    try {
+      await settleCleanupPreservingPrimary(
+        () => Promise.all([cleanup(), cleanup()]),
+        primaryError,
+      );
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+      assert.equal(existsSync(root), false, 'temp root removal happens after process cleanup settlement');
+    }
+  }
+}
+
+await runDescendantHarness('none');
+const syntheticEsrch = Object.assign(new Error('gone'), { code: 'ESRCH' });
+assert.doesNotThrow(
+  () => signalOwnedProcessGroup(123, 'SIGTERM', () => { throw syntheticEsrch; }),
+  'ESRCH signal races are treated as already cleaned',
+);
+const syntheticEperm = Object.assign(new Error('denied'), { code: 'EPERM' });
+assert.throws(
+  () => signalOwnedProcessGroup(123, 'SIGTERM', () => { throw syntheticEperm; }),
+  /denied/,
+  'a genuine EPERM remains the primary cleanup error',
+);
+for (const primaryMessage of [
+  'injected readiness rejection',
+  'injected post-readiness assertion failure',
+  'injected PID read failure',
+]) {
+  const signaledTargets: number[] = [];
+  const staleObservationPids = [111_111, 222_222];
+  const failWithCleanup = async () => {
+    let primary: unknown;
+    try {
+      throw new Error(primaryMessage);
+    } catch (error) {
+      primary = error;
+      throw error;
+    } finally {
+      await settleCleanupPreservingPrimary(async () => {
+        signalOwnedProcessGroup(333_333, 'SIGKILL', (pid) => {
+          signaledTargets.push(pid);
+          throw syntheticEperm;
+        });
+      }, primary);
+    }
+  };
+  await assert.rejects(failWithCleanup(), new RegExp(primaryMessage));
+  assert.deepEqual(signaledTargets, [-333_333], `${primaryMessage} cleanup signals only the owned negative PGID`);
+  assert.ok(staleObservationPids.every((pid) => !signaledTargets.includes(pid)), 'stale/reused positive PIDs remain observation-only');
+}
+for (const failure of ['readiness', 'assertion', 'read', 'close-never', 'disappearance-timeout'] as const) {
+  await assert.rejects(runDescendantHarness(failure), new RegExp(
+    failure === 'readiness' ? 'injected readiness rejection'
+      : failure === 'assertion' ? 'injected post-readiness assertion failure'
+        : failure === 'read' ? 'Unexpected token|JSON'
+          : failure === 'close-never' ? 'CLI close deadline exceeded'
+            : 'did not terminate during harness cleanup',
+  ));
+  assert.equal(activeDisappearanceProbes, 0, `${failure} leaves no active disappearance probe handles`);
+  if (failure === 'disappearance-timeout') {
+    assert.ok(
+      injectedDisappearanceElapsedMs >= 80 && injectedDisappearanceElapsedMs < 1_000,
+      `disappearance timeout is bounded near its 100ms deadline (${injectedDisappearanceElapsedMs}ms)`,
+    );
+    assert.equal(injectedDisappearanceSignals, 2, 'synthetic disappearance seam injects TERM and KILL without real process signals');
+    assert.deepEqual(injectedDisappearanceTargets, [-987_654_321, -987_654_321], 'cleanup signals only its injected owned process group');
+  }
 }
 
 function gitStatus(root: string): string {
@@ -282,7 +695,7 @@ assert.equal(
     assert.match(text, /expected \(from userSees\):/);
     assert.match(text, /current transcript: missing/);
     assert.match(text, /Live-smoke readiness row:/);
-    assert.match(text, /authorityDone: false/);
+    assert.match(text, /admissibilityStatus: transcript-context/);
 
     assert.equal(existsSync(artifactPath(store)), false, 'default writes no transcript artifact');
     assert.deepEqual(snapshotDir(root, storyDir), beforeSnapshot, 'default must not mutate story metadata files');
@@ -305,7 +718,7 @@ assert.equal(
     const storyDir = store.storyDirPath(STORY_ID);
     const beforeSnapshot = snapshotDir(root, storyDir);
 
-    const report = handler!({ storyId: STORY_ID, capture: `echo ${MARKER}`, json: true }) as LiveSmokeTranscriptReport;
+    const report = await handler!({ storyId: STORY_ID, capture: `echo ${MARKER}`, json: true }) as LiveSmokeTranscriptReport;
     assert.equal(report.mode.runCommands, true, '--capture ran the provided command');
     assert.equal(report.mode.writeEvidence, false, '--capture alone writes nothing (writeEvidence=false)');
     assert.ok(report.actual, '--capture records an actual transcript');
@@ -331,7 +744,7 @@ assert.equal(
     const handler = createMainRegistry(ctx).get('live_smoke_transcript');
     assert.ok(handler, 'registry exposes live_smoke_transcript for write test');
 
-    const report = handler!({ storyId: STORY_ID, capture: `echo ${MARKER}`, write: true, json: true }) as LiveSmokeTranscriptReport;
+    const report = await handler!({ storyId: STORY_ID, capture: `echo ${MARKER}`, write: true, json: true }) as LiveSmokeTranscriptReport;
     assert.equal(report.mode.runCommands, true, '--capture + --write ran the command');
     assert.equal(report.mode.writeEvidence, true, '--write persisted the artifact');
     assert.equal(report.write.requested, true);
@@ -361,6 +774,306 @@ assert.equal(
   }
 }
 
+// ---- capture budgets: direct closeout commands get their legal budget only --
+
+{
+  const { root } = createFixture(checklistWithUserSees);
+  const savedOverride = process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
+  const savedArgv1 = process.argv[1];
+  const phaseEnvName = 'LATTICE_DONE_PREPARE_DONE_CLOSURE_TIMEOUT_MS';
+  const savedPhaseTimeout = process.env[phaseEnvName];
+  try {
+    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      workflow: { profile: 'balanced' },
+      doneRequiredCommands: [{ label: 'long legal suite', command: 'npm', args: ['test'], timeoutMs: 120_000 }],
+    }, null, 2) + '\n', 'utf8');
+    resetConfigCache();
+    const installedLattice = execFileSync('/bin/sh', ['-c', 'command -v lattice'], { encoding: 'utf8' }).trim();
+    const activeCliEntrypoint = realpathSync(installedLattice);
+    process.argv[1] = activeCliEntrypoint;
+    const globalBin = join(root, 'global-bin');
+    const latticeSymlink = join(globalBin, 'lattice');
+    mkdirSync(globalBin, { recursive: true });
+    symlinkSync(activeCliEntrypoint, latticeSymlink);
+    assert.equal(realpathSync(latticeSymlink), activeCliEntrypoint, 'fixture mirrors a global lattice symlink to the exact active CLI realpath');
+    const budgetEnv = { ...process.env, PATH: `${globalBin}${delimiter}${process.env.PATH ?? ''}` };
+    const doneRequiredCommand = 'lattice done_required_validate --storyId=B-livesmoke --json';
+    const donePrepareCommand = 'lattice done_prepare --storyId=B-livesmoke --json';
+
+    const direct = liveSmokeCaptureBudget(root, `LATTICE_SESSION_ID=stable ${doneRequiredCommand}`, budgetEnv);
+    assert.equal(direct.nestedMaxTimeoutMs, 150_000, 'direct DONE-required nested max derives command timeout plus validation grace');
+    assert.equal(direct.timeoutMs, 153_000, 'direct DONE-required capture adds cleanup grace above the nested max');
+    assert.equal(direct.recognizedCommand, 'done_required_validate');
+
+    const fakeProjectCli = join(root, 'bin', 'lattice.js');
+    mkdirSync(join(root, 'bin'), { recursive: true });
+    writeFileSync(fakeProjectCli, '#!/bin/sh\nexit 0\n', 'utf8');
+    chmodSync(fakeProjectCli, 0o755);
+    const selfAuthorized = liveSmokeCaptureBudget(
+      root,
+      `${fakeProjectCli} done_required_validate --storyId=B-livesmoke`,
+      budgetEnv,
+    );
+    assert.equal(selfAuthorized.recognizedCommand, null, 'chmod fake project CLI cannot self-authorize a widened budget');
+    assert.equal(selfAuthorized.timeoutMs, 60_000);
+
+    const nodeAliasBin = join(root, 'node-alias-bin');
+    mkdirSync(nodeAliasBin, { recursive: true });
+    symlinkSync(process.execPath, join(nodeAliasBin, 'lattice'));
+    const nodeAlias = liveSmokeCaptureBudget(
+      root,
+      doneRequiredCommand,
+      { ...budgetEnv, PATH: `${nodeAliasBin}${delimiter}${budgetEnv.PATH ?? ''}` },
+    );
+    assert.equal(nodeAlias.recognizedCommand, null, 'PATH lattice symlink to node cannot impersonate the active CLI');
+    assert.equal(nodeAlias.timeoutMs, 60_000);
+    assert.equal(
+      commandCliMaxBudget(root, 'live_smoke_transcript', {
+        capture: doneRequiredCommand,
+      }, budgetEnv).timeoutMs,
+      183_000,
+      'outer CLI max watchdog allows the derived capture budget plus handler grace',
+    );
+    const directDonePrepare = liveSmokeCaptureBudget(root, donePrepareCommand, budgetEnv);
+    assert.equal(directDonePrepare.recognizedCommand, 'done_prepare');
+    assert.equal(
+      directDonePrepare.timeoutMs,
+      commandCliMaxBudget(root, 'done_prepare', { validate: true }, budgetEnv).timeoutMs + LIVE_SMOKE_CAPTURE_CLEANUP_GRACE_MS,
+      'direct done_prepare capture adds cleanup grace above the complete configured nested closeout budget',
+    );
+
+    const arbitrary = liveSmokeCaptureBudget(root, 'node long-arbitrary-script.js', budgetEnv);
+    assert.equal(arbitrary.timeoutMs, 60_000, 'arbitrary captures retain the fixed safety ceiling');
+    const composed = liveSmokeCaptureBudget(root, 'lattice done_required_validate --storyId=B-livesmoke; node extra.js', budgetEnv);
+    assert.equal(composed.timeoutMs, 60_000, 'shell-composed input cannot obtain the wider closeout budget');
+    for (const injected of [
+      `PATH=/tmp/attacker ${doneRequiredCommand}`,
+      `LD_PRELOAD=/tmp/attacker.so ${doneRequiredCommand}`,
+      `NODE_OPTIONS=--require=/tmp/attacker.cjs ${doneRequiredCommand}`,
+      `LATTICE_MAX_TIMEOUT_MS=90000 ${doneRequiredCommand}`,
+      `LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS=75 ${doneRequiredCommand}`,
+    ]) {
+      const budget = liveSmokeCaptureBudget(root, injected, budgetEnv);
+      assert.equal(budget.timeoutMs, 60_000, `${injected.split('=')[0]} injection retains arbitrary-command ceiling`);
+      assert.equal(budget.recognizedCommand, null);
+    }
+
+    const inheritedMaxEnv = { ...budgetEnv, LATTICE_MAX_TIMEOUT_MS: '1000' };
+    const inheritedMax = liveSmokeCaptureBudget(root, doneRequiredCommand, inheritedMaxEnv);
+    assert.equal(inheritedMax.nestedMaxTimeoutMs, 1_000, 'nested closeout keeps inherited max as its business bound');
+    assert.equal(inheritedMax.timeoutMs, 1_000 + LIVE_SMOKE_CAPTURE_CLEANUP_GRACE_MS, 'capture wrapper outlives nested max by cleanup grace');
+    assert.equal(inheritedMax.source, 'inherited-cli-max');
+    const outerBudget = effectiveCommandCliMaxBudget(
+      root,
+      'live_smoke_transcript',
+      { capture: doneRequiredCommand },
+      inheritedMaxEnv,
+    );
+    assert.equal(outerBudget.timeoutMs, inheritedMax.timeoutMs + 30_000, 'outer live-smoke watchdog outlives capture cleanup by wrapper grace');
+    assert.ok(outerBudget.timeoutMs > inheritedMax.timeoutMs && inheritedMax.timeoutMs > inheritedMax.nestedMaxTimeoutMs!);
+    assert.equal(
+      effectiveCommandCliMaxBudget(root, 'story_get', {}, inheritedMaxEnv).timeoutMs,
+      1_000,
+      'unrelated commands still honor the raw explicit CLI max',
+    );
+    const saturatedEnv = {
+      ...budgetEnv,
+      LATTICE_MAX_TIMEOUT_MS: String(Number.MAX_SAFE_INTEGER),
+    };
+    const clampedInheritedMax = liveSmokeCaptureBudget(root, doneRequiredCommand, saturatedEnv);
+    const expectedSaturatedNested = NODE_TIMER_MAX_MS - LIVE_SMOKE_CAPTURE_CLEANUP_GRACE_MS - 30_000;
+    assert.equal(clampedInheritedMax.requestedNestedMaxTimeoutMs, NODE_TIMER_MAX_MS, 'oversized inherited max is first clamped to Node timer maximum');
+    assert.equal(clampedInheritedMax.nestedMaxTimeoutMs, expectedSaturatedNested, 'saturation reserves both cleanup layers below Node max');
+    assert.equal(clampedInheritedMax.timeoutMs, expectedSaturatedNested + LIVE_SMOKE_CAPTURE_CLEANUP_GRACE_MS);
+    assert.equal(clampedInheritedMax.source, 'inherited-cli-max-saturation-adjusted');
+    assert.equal(clampedInheritedMax.saturationAdjusted, true);
+    const saturatedOuter = effectiveCommandCliMaxBudget(
+      root,
+      'live_smoke_transcript',
+      { capture: doneRequiredCommand },
+      saturatedEnv,
+    );
+    assert.equal(saturatedOuter.timeoutMs, NODE_TIMER_MAX_MS);
+    assert.ok(
+      clampedInheritedMax.nestedMaxTimeoutMs! < clampedInheritedMax.timeoutMs && clampedInheritedMax.timeoutMs < saturatedOuter.timeoutMs,
+      'recognized saturated budgets preserve strict nested < capture < outer ordering',
+    );
+
+    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      workflow: { profile: 'balanced' },
+      doneRequiredCommands: [{ label: 'saturated configured suite', command: 'npm', args: ['test'], timeoutMs: Number.MAX_SAFE_INTEGER }],
+    }, null, 2) + '\n', 'utf8');
+    resetConfigCache();
+    const configSaturated = liveSmokeCaptureBudget(root, doneRequiredCommand, budgetEnv);
+    assert.equal(configSaturated.source, 'derived-closeout-saturation-adjusted');
+    assert.equal(configSaturated.nestedMaxTimeoutMs, expectedSaturatedNested, 'configured saturation reserves both wrapper grace layers');
+    const configOuter = effectiveCommandCliMaxBudget(root, 'live_smoke_transcript', { capture: doneRequiredCommand }, budgetEnv);
+    assert.ok(configSaturated.nestedMaxTimeoutMs! < configSaturated.timeoutMs && configSaturated.timeoutMs < configOuter.timeoutMs);
+
+    process.env[phaseEnvName] = String(Number.MAX_SAFE_INTEGER);
+    const phaseSaturated = liveSmokeCaptureBudget(root, donePrepareCommand, budgetEnv);
+    assert.equal(phaseSaturated.source, 'derived-closeout-saturation-adjusted');
+    assert.equal(phaseSaturated.nestedMaxTimeoutMs, expectedSaturatedNested, 'phase-derived saturation reserves both wrapper grace layers');
+    const phaseOuter = effectiveCommandCliMaxBudget(root, 'live_smoke_transcript', { capture: donePrepareCommand }, budgetEnv);
+    assert.ok(phaseSaturated.nestedMaxTimeoutMs! < phaseSaturated.timeoutMs && phaseSaturated.timeoutMs < phaseOuter.timeoutMs);
+
+    const boundedHighOverride = liveSmokeCaptureBudget(root, 'node arbitrary.js', {
+      ...budgetEnv,
+      LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS: '999999999',
+    });
+    assert.equal(boundedHighOverride.timeoutMs, 60_000, 'explicit override cannot raise arbitrary-command safety ceiling');
+    const boundedLowOverride = liveSmokeCaptureBudget(root, doneRequiredCommand, {
+      ...budgetEnv,
+      LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS: '75',
+    });
+    assert.equal(boundedLowOverride.timeoutMs, 75, 'explicit override may lower a recognized command budget for testing/operations');
+  } finally {
+    if (savedOverride === undefined) delete process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
+    else process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS = savedOverride;
+    process.argv[1] = savedArgv1;
+    if (savedPhaseTimeout === undefined) delete process.env[phaseEnvName];
+    else process.env[phaseEnvName] = savedPhaseTimeout;
+    resetConfigCache();
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// ---- timeout kills the process group and reclaims its dead validation lock --
+
+{
+  const { root, store, ctx } = createFixture(checklistWithUserSees);
+  const savedOverride = process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
+  try {
+    const lockPath = validationExecutionLockPath(root, STORY_ID);
+    const descendantPidPath = join(root, 'descendant.pid');
+    const scriptPath = join(root, 'hanging-capture.cjs');
+    writeFileSync(scriptPath, [
+      "const { spawn } = require('node:child_process');",
+      "const { mkdirSync, writeFileSync } = require('node:fs');",
+      "const { hostname } = require('node:os');",
+      `const lockPath = ${JSON.stringify(lockPath)};`,
+      `const pidPath = ${JSON.stringify(descendantPidPath)};`,
+      "mkdirSync(lockPath, { recursive: true });",
+      "writeFileSync(lockPath + '/holder.json', JSON.stringify({ pid: process.pid, hostname: hostname(), command: 'done_required_validate for B-livesmoke', acquiredAt: new Date().toISOString() }));",
+      "const child = spawn(process.execPath, ['-e', 'process.on(\\\"SIGTERM\\\",()=>{});setInterval(()=>{},1000)'], { stdio: 'ignore' });",
+      "writeFileSync(pidPath, String(child.pid));",
+      "process.on('SIGTERM', () => {});",
+      "setInterval(() => {}, 1000);",
+    ].join('\n') + '\n', 'utf8');
+    process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS = '2000';
+    const handler = createMainRegistry(ctx).get('live_smoke_transcript');
+    assert.ok(handler);
+    const pidReady = new Promise<void>((resolveReady, rejectReady) => {
+      let settled = false;
+      const watcher = watch(root, (_event, filename) => {
+        if (filename === 'descendant.pid' && existsSync(descendantPidPath)) settle();
+      });
+      const probe = setInterval(() => {
+        if (existsSync(descendantPidPath)) settle();
+      }, 25);
+      const deadline = setTimeout(
+        () => settle(new Error('in-process descendant PID readiness handshake timed out')),
+        15_000,
+      );
+      const settle = (error?: Error) => {
+        if (settled) return;
+        settled = true;
+        watcher.close();
+        clearInterval(probe);
+        clearTimeout(deadline);
+        if (error) rejectReady(error);
+        else resolveReady();
+      };
+      if (existsSync(descendantPidPath)) settle();
+    });
+    const reportPromise = handler!({
+      storyId: STORY_ID,
+      capture: `${JSON.stringify(process.execPath)} ${JSON.stringify(scriptPath)}`,
+      write: true,
+      json: true,
+    }) as Promise<LiveSmokeTranscriptReport>;
+    await pidReady;
+    const report = await reportPromise;
+
+    assert.equal(report.actual?.exitCode, null, 'capture timeout is represented as a null terminal exit');
+    assert.match(report.actual?.stderr ?? '', /exceeded 2000ms timeout; process group terminated/);
+    const descendantPid = Number(readFileSync(descendantPidPath, 'utf8'));
+    assert.throws(() => process.kill(descendantPid, 0), /ESRCH/, 'timed-out capture leaves no descendant process');
+    assert.equal(existsSync(lockPath), false, 'dead validation lock is reclaimed after timeout cleanup');
+    assert.equal(report.transcript.status, 'present-failed', 'timeout with --write is explicitly classified as failed, never fresh proof');
+    const persisted = JSON.parse(readFileSync(artifactPath(store), 'utf8'));
+    assert.equal(persisted.actual.exitCode, null, 'timeout readback remains a non-pass null exit');
+    assert.match(persisted.actual.stderr, /exceeded 2000ms timeout/);
+    const failedEvidence = evaluateOptionalLiveSmokeTranscript(store, STORY_ID);
+    assert.equal(failedEvidence.ok, false, 'a timeout transcript is mechanically invalid evidence');
+    assert.match(failedEvidence.reason, /exitCode=null \(timeout\/spawn failure\)/);
+    const failedDoneRow = buildDoneChecklist(STORY_ID, store, root, { auditWriter: null })
+      .find((row) => row.id === 'live-smoke-transcript');
+    assert.equal(failedDoneRow?.status, 'fail', 'DONE oracle explicitly blocks a present timeout transcript');
+    assert.equal(failedDoneRow?.blocking, true);
+
+    const validationRetry = await withValidationExecutionLock({
+      root,
+      storyId: STORY_ID,
+      workspaceRoot: root,
+      command: 'immediate post-timeout validation rerun',
+    }, () => 'rerun-pass');
+    assert.equal(validationRetry, 'rerun-pass', 'validation writer can reacquire the story lock immediately after timeout cleanup');
+
+    const immediateRetry = await handler!({
+      storyId: STORY_ID,
+      capture: `echo ${MARKER}-RETRY`,
+      json: true,
+    }) as LiveSmokeTranscriptReport;
+    assert.equal(immediateRetry.actual?.exitCode, 0, 'capture can rerun immediately after timeout cleanup');
+    assert.match(immediateRetry.actual?.stdout ?? '', new RegExp(`${MARKER}-RETRY`));
+  } finally {
+    if (savedOverride === undefined) delete process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
+    else process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS = savedOverride;
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// A timeout may reclaim its dead nested validator lock, but must preserve a
+// separate live validator owned by another process/context.
+{
+  const { root, ctx } = createFixture(checklistWithUserSees);
+  const savedOverride = process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
+  try {
+    const lockPath = validationExecutionLockPath(root, STORY_ID);
+    mkdirSync(lockPath, { recursive: true });
+    writeFileSync(join(lockPath, 'holder.json'), JSON.stringify({
+      pid: process.pid,
+      hostname: hostname(),
+      command: 'separate live validate for B-livesmoke',
+      acquiredAt: new Date().toISOString(),
+    }, null, 2) + '\n', 'utf8');
+    const scriptPath = join(root, 'unrelated-hang.cjs');
+    writeFileSync(scriptPath, "process.on('SIGTERM', () => {}); setInterval(() => {}, 1000);\n", 'utf8');
+    process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS = '100';
+    const handler = createMainRegistry(ctx).get('live_smoke_transcript');
+    const report = await handler!({
+      storyId: STORY_ID,
+      capture: `${JSON.stringify(process.execPath)} ${JSON.stringify(scriptPath)}`,
+      json: true,
+    }) as LiveSmokeTranscriptReport;
+    assert.equal(report.actual?.exitCode, null);
+    assert.equal(existsSync(lockPath), true, 'timeout cleanup preserves a separately live validation lock');
+  } finally {
+    if (savedOverride === undefined) delete process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
+    else process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS = savedOverride;
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 // ---- (d) INDEPENDENCE: capture-without-write & write-without-capture --------
 
 {
@@ -384,7 +1097,43 @@ assert.equal(
     assert.equal(persisted.actual, null, 'write-without-capture records actual=null (no command was run)');
     assert.equal(persisted.expected, USER_SEES, 'write-without-capture still records the expected output');
     assert.equal(persisted.mode.runCommands, false, 'artifact mode records that no command ran');
+    assert.equal(
+      evaluateOptionalLiveSmokeTranscript(store, STORY_ID).status,
+      'invalid',
+      'write-only remains a legal snapshot but cannot prove a real-machine command passed',
+    );
     assertNoAuthorityOrEvidenceArtifacts(store);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// Producer status consumes the same failed-evidence evaluator as delivery/DONE:
+// invalid content is failed, while a valid successful transcript with only hash
+// drift remains stale.
+{
+  const { root, store, ctx } = createFixture(checklistWithUserSees);
+  try {
+    const handler = createMainRegistry(ctx).get('live_smoke_transcript');
+    assert.ok(handler);
+    const path = artifactPath(store);
+    mkdirSync(join(store.storyDirPath(STORY_ID), 'evidence'), { recursive: true });
+    const status = (raw: string): string => {
+      writeFileSync(path, raw, 'utf8');
+      const report = handler!({ storyId: STORY_ID, json: true }) as LiveSmokeTranscriptReport;
+      return report.transcript.status;
+    };
+    assert.equal(status('{'), 'present-failed', 'malformed JSON is failed, not stale');
+    assert.equal(status(JSON.stringify({ storyId: 'B-other', mode: { runCommands: true }, actual: { exitCode: 0 } })), 'present-failed', 'cross-story transcript is failed');
+    assert.equal(status(JSON.stringify({ storyId: STORY_ID, mode: { runCommands: false }, actual: null })), 'present-failed', 'write-only transcript is failed evidence');
+    assert.equal(status(JSON.stringify({ storyId: STORY_ID, mode: { runCommands: true }, actual: { exitCode: null } })), 'present-failed', 'timeout transcript is failed');
+    assert.equal(status(JSON.stringify({ storyId: STORY_ID, mode: { runCommands: true }, actual: { exitCode: 7 } })), 'present-failed', 'non-zero transcript is failed');
+    assert.equal(status(JSON.stringify({
+      storyId: STORY_ID,
+      mode: { runCommands: true },
+      actual: { exitCode: 0 },
+      headHash: '0000000000000000000000000000000000000000',
+    })), 'present-stale', 'a structurally valid successful transcript with hash drift remains stale');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

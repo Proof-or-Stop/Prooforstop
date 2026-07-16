@@ -1,0 +1,1078 @@
+{
+  "passes": [
+    {
+      "id": "B-c163:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 thorough quality review found no remaining high/critical blocker. F-004 now classifies malformed/truncated/invalid-shape prior evidence stale and direct execution overwrites it. Real runner caps huge delays at Node safe max; focused CLI matrices prove command/idle/max attribution, one JSON payload, nonzero failure exit, process-tree and lock cleanup, immediate retry, async/sync progress-sink containment, per-commit lineage and TOCTOU refusal. Full focused build/smoke/contract suite passed. Nonblocking maintainability note: the validate=false outer catch is broader than the malformed-evidence case and could be narrowed later to avoid misattributing unrelated unexpected errors.",
+      "createdAt": "2026-07-15T20:01:44.001Z",
+      "reviewRound": "2026-07-15T19:56:48.039Z",
+      "reviewRunId": "B-c163:RR-013",
+      "writerSessionId": "review-bc163-quality-r2",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/done-prepare-validation-reuse.ts",
+          "packages/main/src/core/done-required-timeout-budget.ts",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a701ab59fbfbd33f26cfb906ab563cec84f8406ce5033b44f32c80a8e79f733c"
+    },
+    {
+      "id": "B-c163:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-4 targeted coverage PASS. F-009 exact arithmetic now asserts direct derived max and exact done_prepare totals for required/no-policy, validate true/false, six unique phase overrides, and global overrides; omission of any enabled phase fails. CHK-002 exact-head evidence is correctly scoped to evaluator coverage, trusted metadata descendant to actual done_prepare integration, and affected structured timeout mappings no longer overclaim. Independently reran all three affected smokes; all passed.",
+      "createdAt": "2026-07-15T20:37:51.948Z",
+      "reviewRound": "2026-07-15T20:34:31.035Z",
+      "reviewRunId": "B-c163:RR-020",
+      "writerSessionId": "review-bc163-coverage-r4",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f8647b5f65bcc2f333f6762cd59226754ee21b78ea1302607a19880a0066a729"
+    },
+    {
+      "id": "B-c163:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Final targeted quality review found no blocker. F-010 is fixed by propagating deadlineError through verifier and executeValidationPlan; a timed-out command at deadline now throws the named max error even before watchdog signal polling. The real 1005ms/251ms non-divisible CLI fixture returns one JSON object, exit 1, result=timed_out, timeoutLayer=max, then immediately reruns successfully. Post-validation closeout timeouts preserve observed disposition, evidence basis and refusal context while appending the watchdog reason. Exact total budgets cover all enabled phases. Build, validate-progress heartbeat, done-prepare closure, done-required validation, command-catalog and process-fact contract all pass.",
+      "createdAt": "2026-07-15T20:39:09.395Z",
+      "reviewRound": "2026-07-15T20:34:31.035Z",
+      "reviewRunId": "B-c163:RR-021",
+      "writerSessionId": "review-bc163-quality-r4",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6b91c884cdbef1c709787bb82ecf42c9a9173815e75c63188ab5db5a6c271789"
+    },
+    {
+      "id": "B-c163:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 5 final concept review found no remaining blocker: dry-run timeout output omits unobserved validation fields, validate=false preserves observed context, named max semantics remain intact, and phase-owned sync timeouts force-reap SIGTERM-resistant children before returning.",
+      "createdAt": "2026-07-15T20:57:24.080Z",
+      "reviewRound": "2026-07-15T20:54:04.151Z",
+      "reviewRunId": "B-c163:RR-025",
+      "writerSessionId": "review-bc163-concept-r5",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "4e4b874f11e2dfd6ad32cba8cf515d64555807c299af64f44a985c8b2aa06309",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "_hash": "43f90687111df940c29ac8128627ed941ec7dc3b36c2c110ce476d2ff9d556a1"
+    },
+    {
+      "id": "B-c163:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Final incremental concept review found no blocker: test-only timeout ceiling changes isolate command/idle/max classifications without changing runtime semantics, and evidence updates remain aligned with the six canonical decision documents.",
+      "createdAt": "2026-07-15T22:34:17.796Z",
+      "reviewRound": "2026-07-15T22:32:04.933Z",
+      "reviewRunId": "B-c163:RR-027",
+      "writerSessionId": "review-bc163-concept-final",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "79abffc292067a079d27d34045a074eb3035c6cb6e484cdadabaed3d3c9541f2",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "_hash": "493804649c1be407360d34b2b8f6b223fa7759fbee6a0a70014d7074e683607b"
+    },
+    {
+      "id": "B-c163:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final coverage PASS after F-012. All 28 must intent refs were re-audited. The three corrected rows now combine original and focused assertions: CHK-002 edge:2 binds failure/block/skip plus command/phase/idle/max structured terminals; CHK-003 edge:1 binds direct and done_prepare JSON-safe progress plus dryRun no-context behavior; CHK-003 adversarial:0 binds validate-progress descendant cleanup and closure SIGTERM-resistant sync SIGKILL/reap coverage. Exact current combined smoke suite and process-fact contract passed.",
+      "createdAt": "2026-07-15T22:37:13.375Z",
+      "reviewRound": "2026-07-15T22:32:04.933Z",
+      "reviewRunId": "B-c163:RR-029",
+      "writerSessionId": "review-bc163-coverage-final",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2ea99fa8ad571bc44f8e8534e98a27d26c2f4436fdd218076b84eb24819957ac"
+    },
+    {
+      "id": "B-c163:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Final quality review PASS. F-013 ceiling isolation is correct: non-max command/idle/phase/retry rows use a 120000ms outer watchdog and 60000ms harness ceiling, while only explicit max rows retain tight max values. Recorded evidence contains three complete focused sequences with substantial load variance and all PASS. Independent reviewer rerun of done-required-validation, done-prepare-closure-heartbeat, validate-progress-heartbeat, command-catalog, and process-fact contract also passed end-to-end. DryRun omission, phase-owned SIGKILL versus caller-shorter timeout preservation, child reap/wrapper restore, structured JSON/nonzero exits, cleanup and context semantics remain correct.",
+      "createdAt": "2026-07-15T22:38:05.880Z",
+      "reviewRound": "2026-07-15T22:32:04.933Z",
+      "reviewRunId": "B-c163:RR-031",
+      "writerSessionId": "review-bc163-quality-final",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "79abffc292067a079d27d34045a074eb3035c6cb6e484cdadabaed3d3c9541f2",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "_hash": "ae6a02c6a55716df5ef5bb5543153033ffb3b176381efc3cbb2a3fdb3f8d9928"
+    },
+    {
+      "id": "B-c163:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Incremental Round 7 quality PASS. review_incremental_context identified only retired-authority-vocabulary-guard-smoke.ts since RP-007. Commit d8cee89719 changes exactly one 64-character cli-engine canonical AST fingerprint; no allowlist, matcher, retired vocabulary rule, approved call shape, occurrence count, or positive/negative control changed. Build and the real retired-authority vocabulary guard pass with the repinned fingerprint, confirming exact current cli-engine structure while existing mutation controls remain fail-closed.",
+      "createdAt": "2026-07-15T22:59:12.649Z",
+      "reviewRound": "2026-07-15T22:55:48.933Z",
+      "reviewRunId": "B-c163:RR-035",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "798c1504cc047ce5972fa3d11454edd63616a44848895ac022bc247b138a1a16",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "_hash": "455ed065e6fa32e492b9f91937b71839865fd087247279a813b3dad92e4a5bff"
+    },
+    {
+      "id": "B-c163:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Incremental BUG-014 coverage PASS. review_incremental_context limited material change to retired-authority-vocabulary-guard-smoke.ts. Diff is exactly one fingerprint replacement for cli-engine.ts; guard algorithm, approved compatibility surfaces, positive cases, extensive negative controls, and fail-closed diagnostics are byte-unchanged. After rebuilding current dist, the exact guard smoke passed with builds=733, fullAnalysis=1169, astCandidates=460, reachability=34, proving the new canonical AST fingerprint matches current cli-engine structure without weakening negatives.",
+      "createdAt": "2026-07-15T23:00:23.209Z",
+      "reviewRound": "2026-07-15T22:55:48.933Z",
+      "reviewRunId": "B-c163:RR-033",
+      "writerSessionId": "review-bc163-coverage-r7",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "798c1504cc047ce5972fa3d11454edd63616a44848895ac022bc247b138a1a16",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "_hash": "604797cfc5e98a4d23c80766bad1661385851bc3b64cb1c4be3e20a9a9529ec1"
+    },
+    {
+      "id": "B-c163:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Incremental Round 7 PASS: BUG-014 only re-pins cli-engine.ts to its exact canonical AST after the in-scope runCli DONE-timeout/structured-failure changes. The fingerprint remains a fail-closed structural prerequisite for the already-approved non-literal loader call; no scanner rule, loader allowlist, compatibility call shape, executable authority, or runtime dispatch capability is broadened. All six bounded candidate decisions were read in full; build and retired-authority-vocabulary-guard-smoke passed.",
+      "createdAt": "2026-07-15T23:01:07.845Z",
+      "reviewRound": "2026-07-15T22:55:48.933Z",
+      "reviewRunId": "B-c163:RR-034",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "798c1504cc047ce5972fa3d11454edd63616a44848895ac022bc247b138a1a16",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "60140587cea35ad9cb4e5843bdc242550895c1e1ad81d30a94168e8e2cc9e862"
+    },
+    {
+      "id": "B-c163:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 9 targeted verification confirms fix bc619c4471 closes F-014: direct done_prepare receives the derived closeout budget; timeout --write persists a readable artifact with actual.exitCode null and timeout stderr; the validation lock and capture both rerun immediately after cleanup; and a separate live validation lock is preserved. TypeScript build and compiled live-smoke smoke both pass.",
+      "createdAt": "2026-07-15T23:46:51.886Z",
+      "reviewRound": "2026-07-15T23:44:04.607Z",
+      "reviewRunId": "B-c163:RR-040",
+      "writerSessionId": "review-bc163-coverage-r9",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/done-required-timeout-budget.ts",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "364433de10b0f68af5e6a2e165dc25feefc75810abf86ce521a1bc09097e8a26",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "_hash": "93d85168cdf1e8cf412101c05dd13f4248d6c6318099a42ae2d6936286c87536"
+    },
+    {
+      "id": "B-c163:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 10 incremental coverage review passes. The live-smoke smoke asserts inherited max numeric ordering nested business bound < capture cleanup wrapper < outer CLI watchdog, preserves raw explicit max for unrelated commands, resolves a real installed lattice path and exercises a symlink whose realpath exactly matches the active CLI, retains shell-composition and executable-affecting inline-environment negatives, and retains real timeout descendant cleanup, stale-lock reclamation, timeout artifact readback, immediate lock/capture retries, and separate-live-lock preservation. Build, compiled live-smoke smoke, and process-fact contract all pass.",
+      "createdAt": "2026-07-16T00:00:26.923Z",
+      "reviewRound": "2026-07-15T23:58:38.447Z",
+      "reviewRunId": "B-c163:RR-046",
+      "writerSessionId": "review-bc163-coverage-r10",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/done-required-timeout-budget.ts",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "93f859032826364147439563acbd2b97f1f39a8238abc3c7751b9a0929516716",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "_hash": "1f49b4a13f55d2b702d74832104e7e67d1185c1e8355ecb88155b31231e6213b"
+    },
+    {
+      "id": "B-c163:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 12 coverage passes after owner resolved F-021 with strong evidence. Handler-level observers prove the default derived and MAX_SAFE saturation-adjusted nested max reaches the child, so removing or misrouting captureEnv fails. Budget assertions cover ordinary default layering plus config- and phase-derived saturation with strict nested < capture < outer. Two actual CLI timeout repetitions require a singular parseable non-pass terminal and descendant ESRCH, protecting the referenced force-kill cleanup. Build, compiled live-smoke smoke, and process-fact contract pass. F-022/F-023 remain for their originating reviewers to resolve.",
+      "createdAt": "2026-07-16T00:25:35.036Z",
+      "reviewRound": "2026-07-16T00:23:12.416Z",
+      "reviewRunId": "B-c163:RR-054",
+      "writerSessionId": "review-bc163-coverage-r12",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/done-required-timeout-budget.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2b923db20867089826017b71f66713290b4f711fcce50c880d4cdf100c655c46",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "_hash": "3977743fd877e18d6122767d828d8371f43bee8048af2b1666535b20a0ecb6f3"
+    },
+    {
+      "id": "B-c163:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "Round 12 quality PASS at current metadata HEAD with story-owned code unchanged. F-016/F-018/F-019 trust boundary remains closed: only the executable whose realpath equals process.argv[1] active CLI plus a sole validated LATTICE_SESSION_ID widens; actual global symlink is positive; chmod fake project bin, PATH symlink to Node, unsafe inline env and shell composition remain null/60s; no injectable active-entrypoint parameter remains. F-023 is closed: TERM-to-KILL escalation remains referenced until force-kill/reap and single finish; two independent actual packages/main/dist/cli.js timeout runs each emitted exactly one nonempty parseable JSON terminal (1088 bytes), actual.exitCode=null, explicit exceeded-100ms/process-group-terminated diagnostic, one done log, and no sleep orphan. Build, compiled live-smoke smoke, command-catalog smoke, and process-fact/fingerprint contract pass.",
+      "createdAt": "2026-07-16T00:26:51.579Z",
+      "reviewRound": "2026-07-16T00:23:12.416Z",
+      "reviewRunId": "B-c163:RR-056",
+      "writerSessionId": "review-bc163-quality-r12",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/done-required-timeout-budget.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2b923db20867089826017b71f66713290b4f711fcce50c880d4cdf100c655c46",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "_hash": "7e788da088fd4a9e7129c498720e21ef31565052e54c809b4933fc55a0d6396c"
+    },
+    {
+      "id": "B-c163:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "Round 13 concept re-review passes. dcff390222 is test-only and removes F-024's startup race by separating tight structured-terminal proof from readiness-confirmed descendant reap. fs.watch/state-probe/deadline settlement is idempotent and cleanup-bounded. Independent build, four complete live-smoke executions (30 tight runs plus one additional full run), and process-fact contract all pass; production timeout semantics remain unchanged.",
+      "createdAt": "2026-07-16T00:39:20.175Z",
+      "reviewRound": "2026-07-16T00:35:36.874Z",
+      "reviewRunId": "B-c163:RR-060",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "ee43d3e2b5469d538009a5b942ce6b763cfbfb3744b1dd186c99d8e6637afd05",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "1adf147b634f2e81ceca93973550fb8f21b6daa276dc7e851f2d98894a3c8f58"
+    },
+    {
+      "id": "B-c163:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 14 targeted coverage passes after owner resolved F-026 strong. Failure injection traverses readiness rejection, assertion failure, PID-file read/parse failure, and never-closing waiter; every path executes idempotent detached-group plus observed-process TERM/KILL cleanup, bounded close waits, and waitUntilGone enforcement. Normal readiness/descendant reap and the 10-iteration real-CLI tight terminal row remain. Build and focused live-smoke pass.",
+      "createdAt": "2026-07-16T00:49:10.828Z",
+      "reviewRound": "2026-07-16T00:47:27.592Z",
+      "reviewRunId": "B-c163:RR-062",
+      "writerSessionId": "review-bc163-coverage-r14",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "5ec90adff037398a7d41f0d0b29ff5549d2125e7caa538bdc20a97b7c6c59b39",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "_hash": "c40e548b8626b76a041fcd5918da68cfb86605cca26a7aeebafe4ce0b3fa9827"
+    },
+    {
+      "id": "B-c163:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Round 14 incremental concept PASS: d23d0afff4 is test-harness-only. Readiness, assertion, invalid-read, and never-close failure paths converge through one memoized idempotent cleanup; terminal JSON, zero exit, CLI liveness-at-readiness, and descendant ESRCH product assertions remain intact. Build, live_smoke_transcript smoke, and process-fact contract all passed; no F-024 startup-race regression observed.",
+      "createdAt": "2026-07-16T00:50:08.114Z",
+      "reviewRound": "2026-07-16T00:47:27.592Z",
+      "reviewRunId": "B-c163:RR-064",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "5ec90adff037398a7d41f0d0b29ff5549d2125e7caa538bdc20a97b7c6c59b39",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "7d84b83d6d6635a70bc6cedd6ceb26305bf3908d4b0caaceb7ad1c76fac41325"
+    },
+    {
+      "id": "B-c163:RP-018",
+      "agent": "lattice-review-concept",
+      "note": "Round 15 incremental concept PASS: d0bc74739e remains test-harness-only. The disappearance-timeout case now uses an injected sender and synthetic probe, so synthetic PID 987654321 never reaches real process.kill; successful harness completion skips TERM/KILL, while actual failure cleanup targets only the spawned process group and handshake-observed descendants. Terminal JSON, zero-exit, liveness-at-readiness, descendant ESRCH, and bounded timeout assertions remain intact. Build, focused live_smoke_transcript smoke, and process-fact contract passed; no F-024 regression.",
+      "createdAt": "2026-07-16T01:06:58.225Z",
+      "reviewRound": "2026-07-16T01:04:55.795Z",
+      "reviewRunId": "B-c163:RR-068",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "93d3288763a94fa25fa6b47345a20af34d05895417a88d75a0dc11c042cf2ed0",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "ba7a54982b05e3438afaac0d19f89cc10d0fd141c154c666fe96957cb072379d"
+    },
+    {
+      "id": "B-c163:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "Round 16 incremental concept PASS: 4903b28a34 is test-harness-only and tightens cleanup ownership. TERM/KILL is sent only to the spawned CLI negative PGID; handshake-observed positive capture/descendant PIDs are observation-only, preventing stale or reused foreign PID signaling. Synthetic signal seams assert negative targets, primary failures remain primary, and terminal JSON, zero-exit, liveness-at-readiness, descendant ESRCH, timeout persistence, and lock-reclaim product assertions remain unchanged. Build, focused live_smoke_transcript smoke, and process-fact contract passed; no F-024 regression.",
+      "createdAt": "2026-07-16T01:16:05.221Z",
+      "reviewRound": "2026-07-16T01:13:53.484Z",
+      "reviewRunId": "B-c163:RR-071",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "bee82b69b686adc190cfd3661cea648653e23a4070ffca9385ac4200215d1ba1",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "010c6c26af3fb5fe422a27ac4ee8e43c32a418a009b6eb762a2ed9a27e819f6f"
+    },
+    {
+      "id": "B-c163:RP-020",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 16 coverage passes after owner resolved F-029 strong. Cleanup waits a bounded natural-close grace then signals only the owned negative process-group id; observed positive capture/descendant PIDs remain disappearance probes only. Deterministic stale/reuse seams assert exact negative targets and preserve readiness, assertion, and read primary errors across injected EPERM. ESRCH, disappearance timeout, close-never, idempotent cleanup, readiness races, and 10 real CLI terminal runs remain covered. Build and three focused smoke executions pass.",
+      "createdAt": "2026-07-16T01:16:54.577Z",
+      "reviewRound": "2026-07-16T01:13:53.484Z",
+      "reviewRunId": "B-c163:RR-070",
+      "writerSessionId": "review-bc163-coverage-r16",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "bee82b69b686adc190cfd3661cea648653e23a4070ffca9385ac4200215d1ba1",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "_hash": "4f1e46417136e1597baaf86ba81023ca9b9cf5ed0caa8af45509f83c4fc98d50"
+    },
+    {
+      "id": "B-c163:RP-021",
+      "agent": "lattice-review-quality",
+      "note": "Round 16 quality pass: F-025/F-027/F-028 are strongly resolved. Source inspection confirms positive observed PIDs are wait-only and all signals target the owned negative PGID; bounded natural close precedes TERM/KILL fallback; ESRCH, EPERM, primary-error preservation, and probe cleanup semantics are covered. Build, six consecutive live smoke runs, process-fact contract, and post-run orphan scan all passed.",
+      "createdAt": "2026-07-16T01:20:04.487Z",
+      "reviewRound": "2026-07-16T01:13:53.484Z",
+      "reviewRunId": "B-c163:RR-072",
+      "writerSessionId": "review-bc163-quality-r16",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "bee82b69b686adc190cfd3661cea648653e23a4070ffca9385ac4200215d1ba1",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "a774b34b7735e48b553252b2adcd8a64e3eabdda8b4841f9bbd484d9c16537f8"
+    },
+    {
+      "id": "B-c163:RP-022",
+      "agent": "lattice-review-concept",
+      "note": "Round 17 targeted concept re-review PASS. The canonical transcript remains optional only when absent; once present, malformed, cross-story, write-only, unexecuted, timeout, spawn-failed, and non-zero artifacts fail closed in delivery_check_set, the DONE oracle, and the actual TEST-to-DONE guard. A successful executed zero-exit capture remains admissible local transcript evidence. Canonical write continues through autoCommitStoryMetadata and produces an auditable local writer receipt without treating that receipt as proof. Process-fact L4 registration and mechanical contract guard match the runtime consumers. Verified by npm build, live-smoke-transcript-smoke, closeout-trust-smoke, and verify-process-fact-contract, all PASS.",
+      "createdAt": "2026-07-16T01:48:45.083Z",
+      "reviewRound": "2026-07-16T01:45:18.901Z",
+      "reviewRunId": "B-c163:RR-073",
+      "writerSessionId": "bc163-concept-r17",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/core/live-smoke-transcript-evidence.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/delivery-check.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9fb32656024dcf69bf100488d880e3c4f8284caf7c2d26b13b6218cfbfd60a81"
+    },
+    {
+      "id": "B-c163:RP-023",
+      "agent": "lattice-review-concept",
+      "note": "Round 18 targeted conceptual re-review PASS. evaluateLiveSmokeTranscriptValue is now the shared semantic classifier: the producer maps every structurally invalid or unsuccessful artifact to present-failed before freshness classification, while delivery_check_set, the DONE oracle, canFinishGuard, and failure rendering consume the same optional evaluator. Absence remains legacy-compatible; a successful executed zero-exit capture restores producer and DONE acceptance. The existing L4 process fact accurately names the shared owner and gate consumers. Build, live-smoke-transcript-smoke, review-assurance-floor-smoke, and process-fact contract all PASS.",
+      "createdAt": "2026-07-16T01:55:19.769Z",
+      "reviewRound": "2026-07-16T01:52:42.626Z",
+      "reviewRunId": "B-c163:RR-077",
+      "writerSessionId": "bc163-concept-r18",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/live-smoke-transcript-evidence.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c513e43132ab364e30a3dc55d22bf9762f6cdcc432d7364aa5fd724f1f72a324"
+    },
+    {
+      "id": "B-c163:RP-024",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 19 final targeted coverage passes after strong F-032 resolution. A valid present transcript now behaviorally exercises delivery_check_set, asserts saved output, reads delivery-check.json, and recomputes its signature. Each of five invalid variants then reuses that signed baseline, must be rejected, and asserts delivery-check.json remains byte-identical, while DONE guard and tagged reason checks remain. Build, review-assurance-floor smoke, and process-fact contract pass with no new coverage gap.",
+      "createdAt": "2026-07-16T02:01:57.097Z",
+      "reviewRound": "2026-07-16T02:00:13.990Z",
+      "reviewRunId": "B-c163:RR-081",
+      "writerSessionId": "review-bc163-coverage-r19",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "4fba6c4013bf401ec7f9863a0eb4a9be2097cd19aaa3d95c2d995449598ff20f",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "_hash": "fcb5484d31c10f52fa984b5393973d3d1a0807c3a769402f966fbe2de35c5f57"
+    },
+    {
+      "id": "B-c163:RP-025",
+      "agent": "lattice-review-quality",
+      "note": "Round 19 final quality pass: present zero-exit live-smoke evidence permits delivery_check_set, produces a delivery-check whose signature recomputes exactly, and all five invalid evidence variants reject before any delivery-check mutation, preserving prior bytes. Shared evaluator, producer status, machine diagnostics, missing compatibility, and process-fact registration remain aligned; focused build and smoke suites all passed.",
+      "createdAt": "2026-07-16T02:03:04.315Z",
+      "reviewRound": "2026-07-16T02:00:13.990Z",
+      "reviewRunId": "B-c163:RR-079",
+      "writerSessionId": "review-bc163-quality-r19",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/live-smoke-transcript-evidence.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "4fba6c4013bf401ec7f9863a0eb4a9be2097cd19aaa3d95c2d995449598ff20f",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "e952d8a03707cc6c3cbdfe166885fb66709b1117e952a3380e93e3e6ff638bab"
+    },
+    {
+      "id": "B-c163:RP-026",
+      "agent": "lattice-review-concept",
+      "note": "Round 19 final targeted concept review PASS. F-032 regression adds a valid present-transcript positive control, verifies the resulting delivery-check signature, snapshots signed bytes, and proves each invalid transcript rejection occurs before any delivery-check overwrite. Restoring a passing transcript reopens the actual DONE guard. This is test-only evidence of the existing shared evaluator and preserves producer, delivery, DONE, legacy-absence, receipt, proof-admissibility, and process-fact semantics. Build, review-assurance-floor-smoke, and process-fact contract all PASS.",
+      "createdAt": "2026-07-16T02:03:26.877Z",
+      "reviewRound": "2026-07-16T02:00:13.990Z",
+      "reviewRunId": "B-c163:RR-080",
+      "writerSessionId": "bc163-concept-r19",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/live-smoke-transcript-evidence.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/delivery-check.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "4fba6c4013bf401ec7f9863a0eb4a9be2097cd19aaa3d95c2d995449598ff20f",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "_hash": "96331359b1ba4d08148eb36ae994fcf700868c10728df03a403827052dfd52eb"
+    },
+    {
+      "id": "B-c163:RP-027",
+      "agent": "lattice-review-concept",
+      "note": "Round 20 minimal fingerprint-only concept review PASS. Commit feb31fd2a7 changes exactly one pinned canonical AST SHA-256 for closeout-trust-smoke and no executable or production semantics. The refreshed value is an intentional exact structural pin after the reviewed test-only changes; the guard still checks approved compatibility symbols, call shapes, occurrence counts, and mutation drift. TypeScript build and the complete retired-authority-vocabulary guard PASS.",
+      "createdAt": "2026-07-16T02:14:22.026Z",
+      "reviewRound": "2026-07-16T02:11:57.124Z",
+      "reviewRunId": "B-c163:RR-083",
+      "writerSessionId": "bc163-concept-r20",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "bd6b45ef241ef9572ddceab444dd5e8bd4d8f804acea8da3682feec7da95c831",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "_hash": "44a9122f9fdc75912e0b5d28eb855b2b9e3ec6813dbb64e7f50d721321e0973e"
+    },
+    {
+      "id": "B-c163:RP-028",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 20 minimal coverage review passes. feb31fd2a7 changes only the pinned structural fingerprint for closeout-trust-smoke; no behavioral test or production source changed, and the prior F-032 positive signer/hash plus five byte-atomic rejection controls remain unchanged. Build, retired-authority vocabulary guard, closeout-trust smoke, and review-assurance-floor smoke all pass.",
+      "createdAt": "2026-07-16T02:14:32.953Z",
+      "reviewRound": "2026-07-16T02:11:57.124Z",
+      "reviewRunId": "B-c163:RR-084",
+      "writerSessionId": "review-bc163-coverage-r20",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "bd6b45ef241ef9572ddceab444dd5e8bd4d8f804acea8da3682feec7da95c831",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "_hash": "d55b79162e254819dd2228c1dc08ed5d5e4f7e24a2c526871f1185c7bfbf934a"
+    },
+    {
+      "id": "B-c163:RP-029",
+      "agent": "lattice-review-quality",
+      "note": "Round 20 minimal quality pass: feb31fd2a7 changes exactly one canonical AST fingerprint entry for closeout-trust-smoke and no other path. The new pin corresponds to the intentional delivery-signing/atomicity test structure; build, retired-authority vocabulary/fingerprint guard, and closeout-trust smoke all pass with no semantic regression.",
+      "createdAt": "2026-07-16T02:14:33.796Z",
+      "reviewRound": "2026-07-16T02:11:57.124Z",
+      "reviewRunId": "B-c163:RR-082",
+      "writerSessionId": "review-bc163-quality-r20",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "bd6b45ef241ef9572ddceab444dd5e8bd4d8f804acea8da3682feec7da95c831",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "daad816922beaef5438b6b1ee83cf79f7768d7a376553283e3a88546098109a2"
+    },
+    {
+      "id": "B-c163:RP-030",
+      "agent": "lattice-review-concept",
+      "note": "Round 21 focused concept review passed: c857063af9 changes only one mirror hash in scripts/verify-process-fact-contract.mjs. The new value exactly equals the canonical PINNED_EXECUTABLE_SOURCE_FINGERPRINTS entry for packages/main/src/tasks/closeout-trust-smoke.ts; runtime guard code and semantics are unchanged. All routed decision contracts remain consistent with this mirror-only closeout correction. node scripts/verify-process-fact-contract.mjs, packages/main build, and test:retired-root-guard all pass.",
+      "createdAt": "2026-07-16T09:03:43.852Z",
+      "reviewRound": "2026-07-16T09:00:10.819Z",
+      "reviewRunId": "B-c163:RR-087",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "7e1c00fab0dbebf0dcc104d32f42b1b9cfde7ee5aa8dbdf2cf89312259732cab",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "8e0580d8abeebaf40726c453ef88d1e23ca1804c9e6eef45867e400126924bc3"
+    },
+    {
+      "id": "B-c163:RP-031",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 21 coverage PASS for c857063af9. The only source change updates the process-contract mirror to the canonical closeout-trust-smoke fingerprint 0a10f408... already pinned by the executable guard. Mechanical checks passed: test:process-fact-contract, test:closeout-trust, and retired-authority-vocabulary-guard-smoke (734 builds, 1170 full analyses, 457 AST candidates, 34 reachability cases). The guard recomputed all eight pinned fingerprints and retained mutation, relocation, loader, compatibility escape, extension, symlink, and reachability adversarial coverage. Checklist remains 28/28 passing; no verification intent or behavior changed.",
+      "createdAt": "2026-07-16T09:05:01.440Z",
+      "reviewRound": "2026-07-16T09:00:10.819Z",
+      "reviewRunId": "B-c163:RR-085",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "7e1c00fab0dbebf0dcc104d32f42b1b9cfde7ee5aa8dbdf2cf89312259732cab",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "31ceb40cbfa38a520d3a93dd975a8e561a986734aa6d0a88a003e498d694d049"
+    },
+    {
+      "id": "B-c163:RP-032",
+      "agent": "lattice-review-quality",
+      "note": "Round 21 focused quality review passed. Commit c857063af9 is a one-line test-contract mirror correction: the process-fact verifier now expects 0a10f408..., exactly matching PINNED_EXECUTABLE_SOURCE_FINGERPRINTS for closeout-trust-smoke.ts. It does not relax or change the production retired-authority guard, fingerprint algorithm, approved compatibility surface, DONE-required timeout/reuse contract, or closeout trust semantics. Verified npm --prefix packages/main run build, retired-authority-vocabulary-guard-smoke (PASS builds=734 cacheHits=2 fullAnalysis=1170 astCandidates=457 reachability=34), npm run test:process-fact-contract, and npm run test:closeout-trust (all checks PASS). No blocking finding.",
+      "createdAt": "2026-07-16T09:05:30.825Z",
+      "reviewRound": "2026-07-16T09:00:10.819Z",
+      "reviewRunId": "B-c163:RR-086",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "7e1c00fab0dbebf0dcc104d32f42b1b9cfde7ee5aa8dbdf2cf89312259732cab",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "_hash": "74c3aa7ac8b42d4c0cccf9f598af00e9b73a83afd229566bbd019f27bc9e5bab"
+    }
+  ]
+}

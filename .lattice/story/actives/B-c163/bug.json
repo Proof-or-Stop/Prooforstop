@@ -1,0 +1,41 @@
+{
+  "bugs": [
+    {
+      "id": "BUG-014",
+      "title": "Retired-authority guard fingerprint was not synchronized after runCli changed",
+      "status": "fixed",
+      "foundAt": "2026-07-15T22:50:55.919Z",
+      "fixedAt": "2026-07-15T22:55:59.673Z",
+      "checklistId": "CHK-003",
+      "evidence": {
+        "symptom": "Configured validation command 3 failed because the exact registered cli-engine non-literal loader call site was reported as unapproved.",
+        "reproSteps": [
+          "Run node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "Observe cli-engine.ts:766 reported with canonical fingerprint b1e13538 while the pinned fingerprint is f8a151cb"
+        ],
+        "rootCause": "B-c163 changed the runCli AST in cli-engine.ts but left PINNED_EXECUTABLE_SOURCE_FINGERPRINTS on the pre-change fingerprint.",
+        "fixEvidence": "Commit d8cee89719 synchronizes only the exact cli-engine canonical AST fingerprint without changing the finite allowlist or matcher; independent guard smoke passes.",
+        "reproTest": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+      }
+    },
+    {
+      "id": "BUG-015",
+      "title": "Live-smoke capture times out long DONE-required validation and orphans its npm test process group",
+      "status": "fixed",
+      "foundAt": "2026-07-15T23:16:33.253Z",
+      "fixedAt": "2026-07-15T23:29:08.607Z",
+      "checklistId": "CHK-003",
+      "evidence": {
+        "symptom": "live_smoke_transcript capture returned spawnSync ETIMEDOUT after about 63.5 seconds, persisted exitCode null, orphaned npm test as ppid 1, and left validationLock active.",
+        "reproSteps": [
+          "In TEST run live_smoke_transcript capturing direct lattice done_required_validate for B-c163",
+          "Observe capture error spawnSync /bin/sh ETIMEDOUT at the fixed 60-second ceiling",
+          "Run ps and runtime_closure_status; observe orphaned npm test process group and active validation lock"
+        ],
+        "rootCause": "live-smoke capture used a hard-coded 60-second spawnSync timeout that was shorter than DONE-required legal budgets; timeout only terminated the direct shell and bypassed nested validator cleanup, leaving descendants and the lock.",
+        "fixEvidence": "Commits 65c5580a17 and 2098b0ec91 derive budget only for exact direct DONE-required/done_prepare captures, keep arbitrary captures at 60 seconds with lowering-only override, use a detached process group with TERM-to-KILL reap, and safely recover only classifier-proven stale locks. Focused live-smoke, DONE-required, command catalog/ownership, retired vocabulary, and process-fact contract checks pass.",
+        "reproTest": "node packages/main/dist/tasks/live-smoke-transcript-smoke.js && node scripts/verify-process-fact-contract.mjs"
+      }
+    }
+  ]
+}

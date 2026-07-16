@@ -9,9 +9,9 @@
         "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-07-15T19:08:41.063Z",
+      "endTime": "2026-07-15T20:32:04.578Z",
       "userSees": "done_prepare prints “DONE-required validation budget: <N>ms (derived|global_override|phase_override)” and direct/done_prepare commands are not killed by a shorter default CLI maximum.",
       "files": {
         "modify": [
@@ -28,7 +28,171 @@
           "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
           "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
         ]
-      }
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Given ordered DONE-required commands with effective timeoutMs 290000 and 1200000, the shared budget calculator returns their sequential sum plus the documented bounded grace; done_prepare reports DONE-required validation budget: <N>ms (derived), and the default phase deadline and DONE-required CLI absolute max are each no shorter than that legal budget. WHY: proves outer defaults cannot deterministically preempt valid inner work.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Run the same policy through done_prepare and direct done_required_validate without timeout env overrides; both consume the same shared derived budget and complete with disposition=executed, result=pass, refusalReasons=[], timeoutLayer=null, while human output identifies the derived source. WHY: prevents handler and CLI budget drift.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Exercise one command, multiple sequential commands, explicit per-command timeouts, and commands using the default effective timeout; total uses each effective ordered timeout exactly once and adds bounded grace exactly once. WHY: covers sum-plus-grace arithmetic boundaries.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Set phase-specific, global phase, and LATTICE_MAX_TIMEOUT_MS overrides in combinations: phase-specific wins over global for the DONE-required phase, global wins over derived phase default when phase-specific is absent, and explicit max remains authoritative over derived max; selected source/value is reported. WHY: locks operator override precedence.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Supply timeout values whose sum is non-finite, non-positive, malformed, or beyond Node safe timer range; construction fails closed or applies the documented finite safe cap without overflow, wraparound, immediate accidental timeout, or an unbounded timer. WHY: protects timer-range boundaries.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Invoke unrelated ordinary CLI commands and both DONE-required entry paths; only done_required_validate and done_prepare validation receive the command-specific derived default max, unrelated commands retain the generic max, and positive LATTICE_MAX_TIMEOUT_MS overrides both. WHY: verifies command-specific CLI max derivation without globally weakening watchdog safety.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "For done_prepare with validation enabled, compute its command-level default CLI max from the complete legal end-to-end closeout budget: the routine validate commands sequential budget plus every enabled closeout phase budget, including the derived DONE-required phase and any selected phase-specific or global phase overrides; the default max is not shorter than that total, while an explicit positive LATTICE_MAX_TIMEOUT_MS may intentionally terminate earlier and is attributed as max. WHY: prevents the top-level watchdog from preempting a legal multi-phase done_prepare run.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Race phase/max abort against final child completion at the deadline; exactly one terminal classification is emitted, result is pass or timed_out consistently, timeoutLayer names command|phase|max as applicable, and timers/listeners/processes are cleaned once. WHY: catches double settlement and deadline race leaks.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Force a derived phase timeout and inspect human plus JSON responses; disposition=executed, result=timed_out, refusalReasons and timeoutLayer identify the controlling layer/command, and the hint proposes inspection or a changed override/action rather than the identical deterministic rerun. WHY: ensures actionable non-looping failure UX.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Sequential 290000+1200000 timeout arithmetic is summed once plus bounded grace; effective runner timeout is capped legally.",
+          "headHash": "b4c5ecc4f93823adda663ac300b4cbd1ff0480b8",
+          "materialHash": "2f4c4f97522d6020e6b00b0b5b7b4fe8408bd63da945d157ea481fd77e2338fb",
+          "storyFilesHash": "ddb7ae12ce30d52d97bb2dc6655e4b0de2b8b0adfa22e52f48abd535612be3ce",
+          "timestamp": "2026-07-16T09:05:56.805Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Actual done_prepare and direct entry paths consume the shared budget and expose explicit structured reuse/execution terminals.",
+          "headHash": "b4c5ecc4f93823adda663ac300b4cbd1ff0480b8",
+          "materialHash": "2f4c4f97522d6020e6b00b0b5b7b4fe8408bd63da945d157ea481fd77e2338fb",
+          "storyFilesHash": "ddb7ae12ce30d52d97bb2dc6655e4b0de2b8b0adfa22e52f48abd535612be3ce",
+          "timestamp": "2026-07-16T09:05:56.806Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Table covers one/multiple/default/explicit effective timeouts, invalid values, bounded grace once, and real runner fallback.",
+          "headHash": "b4c5ecc4f93823adda663ac300b4cbd1ff0480b8",
+          "materialHash": "2f4c4f97522d6020e6b00b0b5b7b4fe8408bd63da945d157ea481fd77e2338fb",
+          "storyFilesHash": "ddb7ae12ce30d52d97bb2dc6655e4b0de2b8b0adfa22e52f48abd535612be3ce",
+          "timestamp": "2026-07-16T09:05:56.806Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Phase-specific, global phase, derived, and explicit CLI max precedence are asserted with selected values and timeout attribution.",
+          "headHash": "b4c5ecc4f93823adda663ac300b4cbd1ff0480b8",
+          "materialHash": "2f4c4f97522d6020e6b00b0b5b7b4fe8408bd63da945d157ea481fd77e2338fb",
+          "storyFilesHash": "ddb7ae12ce30d52d97bb2dc6655e4b0de2b8b0adfa22e52f48abd535612be3ce",
+          "timestamp": "2026-07-16T09:05:56.806Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Real runValidationCommand proves Number.MAX_SAFE_INTEGER is capped at MAX_NODE_TIMER_DELAY_MS and zero/negative/Infinity fall back without overflow.",
+          "headHash": "b4c5ecc4f93823adda663ac300b4cbd1ff0480b8",
+          "materialHash": "2f4c4f97522d6020e6b00b0b5b7b4fe8408bd63da945d157ea481fd77e2338fb",
+          "storyFilesHash": "ddb7ae12ce30d52d97bb2dc6655e4b0de2b8b0adfa22e52f48abd535612be3ce",
+          "timestamp": "2026-07-16T09:05:56.806Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Unrelated CLI generic max remains unchanged while DONE entry paths use derived budgets; explicit positive max remains authoritative.",
+          "headHash": "b4c5ecc4f93823adda663ac300b4cbd1ff0480b8",
+          "materialHash": "2f4c4f97522d6020e6b00b0b5b7b4fe8408bd63da945d157ea481fd77e2338fb",
+          "storyFilesHash": "ddb7ae12ce30d52d97bb2dc6655e4b0de2b8b0adfa22e52f48abd535612be3ce",
+          "timestamp": "2026-07-16T09:05:56.806Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:4",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Exact commandCliMaxBudget matrix asserts routine sequential budget plus each enabled phase exactly once: required/no-policy, validate true/false, six unique phase overrides and global override; omitting any of the five common closeout phases changes the expected total and fails.",
+          "headHash": "b4c5ecc4f93823adda663ac300b4cbd1ff0480b8",
+          "materialHash": "2f4c4f97522d6020e6b00b0b5b7b4fe8408bd63da945d157ea481fd77e2338fb",
+          "storyFilesHash": "ddb7ae12ce30d52d97bb2dc6655e4b0de2b8b0adfa22e52f48abd535612be3ce",
+          "timestamp": "2026-07-16T09:05:56.806Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Deterministic future/expired deadline seams plus abort-at-command-start event ordering prove one stable terminal, no late heartbeat, and no duplicate evidence; real CLI matrix covers command/idle/max.",
+          "headHash": "b4c5ecc4f93823adda663ac300b4cbd1ff0480b8",
+          "materialHash": "2f4c4f97522d6020e6b00b0b5b7b4fe8408bd63da945d157ea481fd77e2338fb",
+          "storyFilesHash": "ddb7ae12ce30d52d97bb2dc6655e4b0de2b8b0adfa22e52f48abd535612be3ce",
+          "timestamp": "2026-07-16T09:05:56.806Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Derived phase and parent idle/max timeout JSON assert executed/timed_out/refusalReasons/layer, nonzero status, and actionable non-looping guidance.",
+          "headHash": "b4c5ecc4f93823adda663ac300b4cbd1ff0480b8",
+          "materialHash": "2f4c4f97522d6020e6b00b0b5b7b4fe8408bd63da945d157ea481fd77e2338fb",
+          "storyFilesHash": "ddb7ae12ce30d52d97bb2dc6655e4b0de2b8b0adfa22e52f48abd535612be3ce",
+          "timestamp": "2026-07-16T09:05:56.806Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -39,9 +203,9 @@
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-07-15T19:30:58.283Z",
+      "endTime": "2026-07-15T22:29:14.906Z",
       "userSees": "done_prepare reports disposition “reused”, “executed”, or “skipped_explicitly”; JSON separately reports result, refusalReasons, timeoutLayer, and existingEvidenceBasis “fresh|stale|missing”.",
       "files": {
         "modify": [
@@ -59,7 +223,190 @@
           "packages/main/src/tasks/command-catalog-smoke.ts",
           "scripts/verify-process-fact-contract.mjs"
         ]
-      }
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "With reuseFreshDoneRequired omitted/default true and a canonical PASS receipt bound to current schema, policy, ordered command specs, material/story-files hashes, build proof, proof admissibility, and exact HEAD lineage, done_prepare does not spawn validation and reports disposition=reused, result=pass, refusalReasons=[], timeoutLayer=null, existingEvidenceBasis=fresh. WHY: proves redundant work is avoided only from admissible proof.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Repeat with evidence HEAD as an ancestor of current HEAD and every intervening changed path classified as trusted story metadata while story-owned material and canonical bindings remain current; reuse succeeds and records trusted metadata-only lineage. WHY: covers the legitimate evidence-commit fixed point.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Set reuseFreshDoneRequired=false with validate=true and otherwise fresh evidence; done_prepare forces one execution, reports disposition=executed, and refreshes evidence from the run. WHY: proves reuse is independently disableable and not coupled to other validation reuse switches.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Set validate=false with fresh, stale, and missing evidence; every case reports disposition=skipped_explicitly, result=not_run, performs neither reuse nor execution, and creates/modifies no DONE-required evidence. WHY: prevents skipped validation from manufacturing assurance.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "For executed failure, timeout, policy/config block, and explicit skip, structured output stays within disposition executed|reused|skipped_explicitly and result pass|failed|timed_out|blocked|not_run, with deterministic refusalReasons and timeoutLayer only when relevant; human wording matches. WHY: keeps automation and operator UX aligned.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Under validate=false, present canonical fresh evidence, structurally stale evidence, and no evidence in turn; existingEvidenceBasis is respectively fresh, stale, and missing while disposition remains skipped_explicitly and result remains not_run in all three cases. WHY: separates observation of prior proof from authorization to consume or create proof.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Mutate each binding independently—schema, policy hash, command-set/order/spec digest, material hash, storyFilesHash, build proof, proof admissibility, and receipt coverage; reuse fails closed with precise refusalReasons and validate=true executes or blocks rather than claiming reused. WHY: defends against stale or partial proof.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Present malformed, failed, partial, or unreadable evidence and race a metadata change between freshness evaluation and execution decision; no PASS is synthesized, disposition is never reused unless one consistent snapshot satisfies the canonical evaluator, and fallback has one terminal outcome. WHY: closes corruption and TOCTOU paths.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Compare exact current HEAD, trusted metadata-only descendant lineage, unrelated metadata-like paths outside the allowlist, a non-ancestor evidence HEAD, and any lineage containing even one code/config/non-metadata path; only exact HEAD and the fully trusted metadata-only descendant may reuse, every other path is rejected with lineage-specific refusalReasons. WHY: prevents a broad metadata classifier from admitting intervening material drift.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Mechanically inspect all six canonical Workstream A documents after the change; each states the same exact-or-trusted-metadata-only HEAD rule, validate:false semantics, structured disposition/result/evidence-basis vocabulary, timeout precedence, and heartbeat safety, with no surviving exact-HEAD-only contradiction. WHY: prevents runtime, gate registry, and operator guidance from diverging.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "The evaluator-level exact-HEAD fixture independently asserts reusable=true and lineage=exact-head before any metadata auto-commit.",
+          "headHash": "b4c5ecc4f93823adda663ac300b4cbd1ff0480b8",
+          "materialHash": "2f4c4f97522d6020e6b00b0b5b7b4fe8408bd63da945d157ea481fd77e2338fb",
+          "storyFilesHash": "ddb7ae12ce30d52d97bb2dc6655e4b0de2b8b0adfa22e52f48abd535612be3ce",
+          "timestamp": "2026-07-16T09:05:56.806Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Actual done_prepare CLI integration observes the evidence auto-commit as a trusted story-metadata descendant and asserts disposition=reused/result=pass with lineage=trusted-story-metadata-descendant.",
+          "headHash": "b4c5ecc4f93823adda663ac300b4cbd1ff0480b8",
+          "materialHash": "2f4c4f97522d6020e6b00b0b5b7b4fe8408bd63da945d157ea481fd77e2338fb",
+          "storyFilesHash": "ddb7ae12ce30d52d97bb2dc6655e4b0de2b8b0adfa22e52f48abd535612be3ce",
+          "timestamp": "2026-07-16T09:05:56.806Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "reuseFreshDoneRequired=false asserts disposition=executed/result=pass, execution progress, and changed receipt endedAt proving evidence refresh.",
+          "headHash": "b4c5ecc4f93823adda663ac300b4cbd1ff0480b8",
+          "materialHash": "2f4c4f97522d6020e6b00b0b5b7b4fe8408bd63da945d157ea481fd77e2338fb",
+          "storyFilesHash": "ddb7ae12ce30d52d97bb2dc6655e4b0de2b8b0adfa22e52f48abd535612be3ce",
+          "timestamp": "2026-07-16T09:05:56.806Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "validate=false fresh/stale/missing/malformed matrix asserts skipped_explicitly/not_run and byte-for-byte evidence immutability.",
+          "headHash": "b4c5ecc4f93823adda663ac300b4cbd1ff0480b8",
+          "materialHash": "2f4c4f97522d6020e6b00b0b5b7b4fe8408bd63da945d157ea481fd77e2338fb",
+          "storyFilesHash": "ddb7ae12ce30d52d97bb2dc6655e4b0de2b8b0adfa22e52f48abd535612be3ce",
+          "timestamp": "2026-07-16T09:05:56.806Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Combined original+focused coverage, PASS in three consecutive focused rounds after build: done-required smoke covers executed failure and policy/config/binding refusal without false reuse; closure smoke covers explicit validate=false skip, closeout idle|max, and validate=true+dryRun no-context timeout with absent unobserved fields; validate-progress covers command/idle/max structured timed_out attribution and nonzero shell status. Together disposition/result/refusalReasons/timeoutLayer remain truthful for executed failure, timeout, block, and explicit skip.",
+          "headHash": "b4c5ecc4f93823adda663ac300b4cbd1ff0480b8",
+          "materialHash": "2f4c4f97522d6020e6b00b0b5b7b4fe8408bd63da945d157ea481fd77e2338fb",
+          "storyFilesHash": "ddb7ae12ce30d52d97bb2dc6655e4b0de2b8b0adfa22e52f48abd535612be3ce",
+          "timestamp": "2026-07-16T09:05:56.806Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "validate=false independently observes existingEvidenceBasis fresh, stale, and missing without authorizing reuse or execution.",
+          "headHash": "b4c5ecc4f93823adda663ac300b4cbd1ff0480b8",
+          "materialHash": "2f4c4f97522d6020e6b00b0b5b7b4fe8408bd63da945d157ea481fd77e2338fb",
+          "storyFilesHash": "ddb7ae12ce30d52d97bb2dc6655e4b0de2b8b0adfa22e52f48abd535612be3ce",
+          "timestamp": "2026-07-16T09:05:56.806Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Independent mutations cover evidence schema, policy/command identity and order, receipt coverage, material/story hashes, build proof, and enforced proof-admissibility command-spec failure.",
+          "headHash": "b4c5ecc4f93823adda663ac300b4cbd1ff0480b8",
+          "materialHash": "2f4c4f97522d6020e6b00b0b5b7b4fe8408bd63da945d157ea481fd77e2338fb",
+          "storyFilesHash": "ddb7ae12ce30d52d97bb2dc6655e4b0de2b8b0adfa22e52f48abd535612be3ce",
+          "timestamp": "2026-07-16T09:05:56.806Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Truncated JSON and malformed shape become stale and recover by execution; injected concurrent HEAD move refuses reuse with one terminal outcome.",
+          "headHash": "b4c5ecc4f93823adda663ac300b4cbd1ff0480b8",
+          "materialHash": "2f4c4f97522d6020e6b00b0b5b7b4fe8408bd63da945d157ea481fd77e2338fb",
+          "storyFilesHash": "ddb7ae12ce30d52d97bb2dc6655e4b0de2b8b0adfa22e52f48abd535612be3ce",
+          "timestamp": "2026-07-16T09:05:56.806Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Lineage matrix separately covers exact HEAD, trusted descendant, non-ancestor HEAD, metadata-like path outside allowlist, code/config path, modify-then-revert, and rename history.",
+          "headHash": "b4c5ecc4f93823adda663ac300b4cbd1ff0480b8",
+          "materialHash": "2f4c4f97522d6020e6b00b0b5b7b4fe8408bd63da945d157ea481fd77e2338fb",
+          "storyFilesHash": "ddb7ae12ce30d52d97bb2dc6655e4b0de2b8b0adfa22e52f48abd535612be3ce",
+          "timestamp": "2026-07-16T09:05:56.806Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "docs_check",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Contract verifier and all six canonical documents align on lineage, validation structure, cooperative timeout cleanup, and precise no-child not-applicable semantics.",
+          "headHash": "b4c5ecc4f93823adda663ac300b4cbd1ff0480b8",
+          "materialHash": "2f4c4f97522d6020e6b00b0b5b7b4fe8408bd63da945d157ea481fd77e2338fb",
+          "storyFilesHash": "ddb7ae12ce30d52d97bb2dc6655e4b0de2b8b0adfa22e52f48abd535612be3ce",
+          "timestamp": "2026-07-16T09:05:56.806Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -70,9 +417,9 @@
         "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
         "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-07-15T19:30:58.806Z",
+      "endTime": "2026-07-15T22:29:19.127Z",
       "userSees": "direct done_required_validate prints periodic “validate heartbeat” lines; --json remains one result, and a throwing/closed progress sink cannot change command PASS/FAIL.",
       "files": {
         "modify": [
@@ -86,7 +433,421 @@
           "packages/main/src/tasks/done-required-validation-smoke.ts",
           "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
         ]
-      }
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run direct done_required_validate with an active command silent longer than default idle but within command, derived phase, and max budgets; periodic validate heartbeat reaches ctx.log, resets CLI liveness, and the command ends PASS. WHY: reproduces and prevents the observed false idle kill.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run direct done_required_validate --json for the same heartbeat-producing command; stdout contains exactly one parseable result object with disposition=executed/result=pass, while progress uses logging/stderr and never contaminates JSON. WHY: preserves machine-readable output.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Set explicit LATTICE_IDLE_TIMEOUT_MS and LATTICE_MAX_TIMEOUT_MS above and below derived defaults; both remain authoritative, heartbeat only refreshes idle activity, and max expiry is classified timeoutLayer=max rather than phase/command. WHY: proves liveness does not weaken explicit safety bounds.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Verify done_prepare and direct CLI progress bridges use the same JSON-safe formatter without duplicate heartbeat lines or result records; frequently noisy and completely silent commands both settle once. WHY: covers reporter composition boundaries.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Complete just before and just after command, derived phase, idle, and max boundaries; each run yields one stable result and attributes the earliest controlling bound without contradictory result/refusalReasons/timeoutLayer fields. WHY: exercises deadline ordering.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Use a progress sink that throws, closes, or rejects writes while the validation command independently passes and fails; sink errors are contained as diagnostic-only, never change command PASS/FAIL, never replace evidence, and do not produce an unhandled rejection. WHY: keeps observability failure outside assurance semantics.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Hang a child that spawns descendants and trigger command, phase, idle, and max termination separately; each path kills the process tree, clears heartbeat/deadline timers, releases the validation lock, and permits an immediate subsequent validation. WHY: verifies cleanup across every timeout layer.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Emit heartbeat concurrently with abort/exit/error events at the deadline; no heartbeat occurs after terminal output, no double resolve/reject or duplicate evidence write occurs, and lock/process cleanup remains idempotent. WHY: catches event-loop deadline races.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Keep the heartbeat timer alive while the child is genuinely wedged; per-command, derived phase, and explicit absolute max still terminate it with result=timed_out and correct timeoutLayer. WHY: proves heartbeat is liveness reporting, not deadline extension.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Real direct silent command stays alive beyond idle through periodic heartbeat and completes PASS within command/derived/max budgets.",
+          "headHash": "b4c5ecc4f93823adda663ac300b4cbd1ff0480b8",
+          "materialHash": "2f4c4f97522d6020e6b00b0b5b7b4fe8408bd63da945d157ea481fd77e2338fb",
+          "storyFilesHash": "ddb7ae12ce30d52d97bb2dc6655e4b0de2b8b0adfa22e52f48abd535612be3ce",
+          "timestamp": "2026-07-16T09:05:56.806Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Direct --json stdout is exactly one parseable terminal object while progress and heartbeat remain on stderr.",
+          "headHash": "b4c5ecc4f93823adda663ac300b4cbd1ff0480b8",
+          "materialHash": "2f4c4f97522d6020e6b00b0b5b7b4fe8408bd63da945d157ea481fd77e2338fb",
+          "storyFilesHash": "ddb7ae12ce30d52d97bb2dc6655e4b0de2b8b0adfa22e52f48abd535612be3ce",
+          "timestamp": "2026-07-16T09:05:56.806Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Explicit max remains authoritative, including non-divisible 1005ms max / 251ms watchdog polling: named deadline propagation returns result=timed_out, timeoutLayer=max, stale basis and exit 1 rather than generic validation failure, then immediately reruns successfully.",
+          "headHash": "b4c5ecc4f93823adda663ac300b4cbd1ff0480b8",
+          "materialHash": "2f4c4f97522d6020e6b00b0b5b7b4fe8408bd63da945d157ea481fd77e2338fb",
+          "storyFilesHash": "ddb7ae12ce30d52d97bb2dc6655e4b0de2b8b0adfa22e52f48abd535612be3ce",
+          "timestamp": "2026-07-16T09:05:56.806Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Combined original+focused coverage, PASS in three consecutive focused rounds after build: closure smoke verifies done_prepare human/JSON progress composition, singular JSON for noisy/silent and closeout timeout paths, plus validate=true+dryRun no-context timeout omitting disposition/existingEvidenceBasis/refusalReasons; validate-progress verifies the direct CLI bridge emits progress on stderr, exactly one JSON result, and noisy/silent commands settle once without duplicate heartbeat/result records.",
+          "headHash": "b4c5ecc4f93823adda663ac300b4cbd1ff0480b8",
+          "materialHash": "2f4c4f97522d6020e6b00b0b5b7b4fe8408bd63da945d157ea481fd77e2338fb",
+          "storyFilesHash": "ddb7ae12ce30d52d97bb2dc6655e4b0de2b8b0adfa22e52f48abd535612be3ce",
+          "timestamp": "2026-07-16T09:05:56.806Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Deterministic injected future/expired deadline seams and abort-at-start ordering complement real pass/command/idle/max subprocess terminals without narrow just-before wall-clock races.",
+          "headHash": "b4c5ecc4f93823adda663ac300b4cbd1ff0480b8",
+          "materialHash": "2f4c4f97522d6020e6b00b0b5b7b4fe8408bd63da945d157ea481fd77e2338fb",
+          "storyFilesHash": "ddb7ae12ce30d52d97bb2dc6655e4b0de2b8b0adfa22e52f48abd535612be3ce",
+          "timestamp": "2026-07-16T09:05:56.806Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Synchronous throwing and asynchronous rejecting diagnostic sinks preserve independent FAIL/PASS and do not produce unhandled rejection.",
+          "headHash": "b4c5ecc4f93823adda663ac300b4cbd1ff0480b8",
+          "materialHash": "2f4c4f97522d6020e6b00b0b5b7b4fe8408bd63da945d157ea481fd77e2338fb",
+          "storyFilesHash": "ddb7ae12ce30d52d97bb2dc6655e4b0de2b8b0adfa22e52f48abd535612be3ce",
+          "timestamp": "2026-07-16T09:05:56.806Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js && node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Combined original+focused cleanup coverage, PASS in three consecutive focused rounds after build: validate-progress forces command, phase, CLI idle, and CLI max termination, verifies spawned descendant ESRCH for command/idle/max paths, no post-terminal heartbeat, released locks/timers, and immediate reruns; closure smoke adds SIGTERM-resistant synchronous execFileSync/execSync children, phase-controlled SIGKILL, bounded return, child reap, wrapper restore, no story-evidence mutation, and immediate post-timeout sync execution. This preserves the original multi-layer descendant proof and the newer sync SIGTERM regression in one evidence row.",
+          "headHash": "b4c5ecc4f93823adda663ac300b4cbd1ff0480b8",
+          "materialHash": "2f4c4f97522d6020e6b00b0b5b7b4fe8408bd63da945d157ea481fd77e2338fb",
+          "storyFilesHash": "ddb7ae12ce30d52d97bb2dc6655e4b0de2b8b0adfa22e52f48abd535612be3ce",
+          "timestamp": "2026-07-16T09:05:56.806Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Abort triggered concurrently at command_start asserts exactly one command_timeout/end, no heartbeat after terminal, and at most one evidence write.",
+          "headHash": "b4c5ecc4f93823adda663ac300b4cbd1ff0480b8",
+          "materialHash": "2f4c4f97522d6020e6b00b0b5b7b4fe8408bd63da945d157ea481fd77e2338fb",
+          "storyFilesHash": "ddb7ae12ce30d52d97bb2dc6655e4b0de2b8b0adfa22e52f48abd535612be3ce",
+          "timestamp": "2026-07-16T09:05:56.806Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Genuinely wedged children continue diagnostic heartbeats yet command/idle/max absolute bounds terminate with structured timed_out and correct layer.",
+          "headHash": "b4c5ecc4f93823adda663ac300b4cbd1ff0480b8",
+          "materialHash": "2f4c4f97522d6020e6b00b0b5b7b4fe8408bd63da945d157ea481fd77e2338fb",
+          "storyFilesHash": "ddb7ae12ce30d52d97bb2dc6655e4b0de2b8b0adfa22e52f48abd535612be3ce",
+          "timestamp": "2026-07-16T09:05:56.806Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-15T19:46:12.389Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-001..F-004 remediation implemented, committed, and assertion-specific verification evidence recorded.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-15T19:46:13.208Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-001..F-004 remediation implemented, committed, and assertion-specific verification evidence recorded.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-15T19:46:13.993Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-001..F-004 remediation implemented, committed, and assertion-specific verification evidence recorded.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-15T19:54:02.752Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Real timer overflow and structured terminal follow-up implemented, committed, and verified."
+    },
+    {
+      "timestamp": "2026-07-15T19:54:11.393Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Direct and done_prepare routine timeout terminal semantics are implemented, committed, and verified through real CLI subprocesses."
+    },
+    {
+      "timestamp": "2026-07-15T20:03:01.734Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Round 3 findings F-005/F-006/F-007 require implementation and assertion-specific evidence corrections."
+    },
+    {
+      "timestamp": "2026-07-15T20:03:02.657Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Round 3 findings F-005/F-006/F-007 require implementation and assertion-specific evidence corrections."
+    },
+    {
+      "timestamp": "2026-07-15T20:03:03.570Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Round 3 findings F-005/F-006/F-007 require implementation and assertion-specific evidence corrections."
+    },
+    {
+      "timestamp": "2026-07-15T20:17:02.410Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Round 3 watchdog/deadline implementation and complete assertion-specific evidence verified."
+    },
+    {
+      "timestamp": "2026-07-15T20:17:18.648Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Round 3 reuse matrix and corrected 10/10 evidence mapping verified."
+    },
+    {
+      "timestamp": "2026-07-15T20:17:37.807Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Round 3 liveness, deterministic race, descendant cleanup, and complete 9/9 evidence verified."
+    },
+    {
+      "timestamp": "2026-07-15T20:25:28.726Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Round 4 findings F-008/F-009/F-010 require implementation and affected-evidence correction."
+    },
+    {
+      "timestamp": "2026-07-15T20:25:29.660Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Round 4 findings F-008/F-009/F-010 require implementation and affected-evidence correction."
+    },
+    {
+      "timestamp": "2026-07-15T20:25:30.563Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Round 4 findings F-008/F-009/F-010 require implementation and affected-evidence correction."
+    },
+    {
+      "timestamp": "2026-07-15T20:32:04.578Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Round 4 F-008/F-009/F-010 implementation committed, full target suite passed, and only affected verification evidence refs were refreshed."
+    },
+    {
+      "timestamp": "2026-07-15T20:32:05.486Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Round 4 F-008/F-009/F-010 implementation committed, full target suite passed, and only affected verification evidence refs were refreshed."
+    },
+    {
+      "timestamp": "2026-07-15T20:32:06.387Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Round 4 F-008/F-009/F-010 implementation committed, full target suite passed, and only affected verification evidence refs were refreshed."
+    },
+    {
+      "timestamp": "2026-07-15T20:40:27.926Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "F-011: prevent unobserved validation context from being fabricated in closeout timeout output"
+    },
+    {
+      "timestamp": "2026-07-15T20:40:28.301Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "F-011: add validate=true dryRun closeout-timeout JSON regression coverage"
+    },
+    {
+      "timestamp": "2026-07-15T20:43:18.422Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-011 implementation and targeted regression passed"
+    },
+    {
+      "timestamp": "2026-07-15T20:43:22.319Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-011 implementation and targeted regression passed"
+    },
+    {
+      "timestamp": "2026-07-15T20:47:16.738Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Focused closure smoke exposed sync child deadline/reap robustness gap; harden phase-bounded sync timeout and regression"
+    },
+    {
+      "timestamp": "2026-07-15T20:52:33.976Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Focused sync deadline/reap hardening committed; RED old path at 5041ms and three consecutive hardened closure smokes passed"
+    },
+    {
+      "timestamp": "2026-07-15T22:19:46.446Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "F-012 restore combined original and focused coverage for CHK-002 edge evidence"
+    },
+    {
+      "timestamp": "2026-07-15T22:19:52.130Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "F-012/F-013 restore combined evidence and isolate non-max timeout rows from outer harness preemption"
+    },
+    {
+      "timestamp": "2026-07-15T22:29:14.906Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-012 combined original and focused structured-terminal evidence restored; three focused rounds passed"
+    },
+    {
+      "timestamp": "2026-07-15T22:29:19.127Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-012 combined bridge/cleanup evidence restored and F-013 non-max harness isolation passed three full focused rounds"
     }
   ]
 }

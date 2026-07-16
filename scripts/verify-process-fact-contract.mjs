@@ -554,6 +554,11 @@ function assertProofStoryProgressiveBoundary() {
   const storyAdvanceText = read('packages/main/src/handlers/story-advance.ts');
   const phaseGatesText = read('packages/main/src/handlers/phase-gates.ts');
   const machineText = read('packages/main/src/core/machine.ts');
+  const liveSmokeGateText = read('packages/main/src/core/live-smoke-transcript-evidence.ts');
+  assert(machineText.includes('evaluateOptionalLiveSmokeTranscript')
+    && liveSmokeGateText.includes("artifact.actual.exitCode !== 0")
+    && liveSmokeGateText.includes("artifact.mode?.runCommands !== true"),
+  'DONE must fail closed when a present canonical live-smoke transcript did not execute or did not exit zero');
 
   for (const commandName of [
     'original_intent_snapshot_set',
@@ -844,8 +849,8 @@ function assertCloseoutTrustBoundary() {
     'b2c006a5becbd456a5728bb7615cf999cb514137383bc935b128073240899d98',
     'ccd079414da1e7aabbbc9afcd96a25ef37ae72d50d6817c340b37f152f711b06',
     '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844',
-    'd252c161562e00797371438a52f16c889e10a0551673e24b62162978b7447c3e',
-    'f8a151cb9d24125a0ad95e51db3fddd31235b1c7a5ac0a6a37f5dca7abbd5bae',
+    '0a10f408fa80e342b4bf2426fdd618cc3aa6f003e3f5da16a0856684f84d57a1',
+    '9943fd169d5ecc85d350f331bbcd9458b60cff764e06bc16452e05fc6ae12af3',
     '20149fa438b1ec78fc9c9713eb3cc4a890bc58a1d82e7a5fa0d588e9c4e7ee91',
     '518890b58fd8e369488721d66d954f9589a049a42066635f42c057227788ae45',
     'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83',
@@ -3152,6 +3157,28 @@ function assertDoneClosureCommandContract(cliToolNameSet, registry, levelRegistr
 
 function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, levelRegistry, policyByName) {
   const commandName = 'done_required_validate';
+  const reuseText = read('packages/main/src/core/done-prepare-validation-reuse.ts');
+  for (const token of ['evaluateDoneRequiredEvidence', 'merge-base', '--is-ancestor', 'rev-list', 'diff-tree', 'isStoryMetadataPath', 'untrusted-lineage-path', 'head-changed-during-reuse-evaluation', 'evidence-malformed-or-unreadable']) {
+    assert(reuseText.includes(token), `DONE-required pre-run reuse must preserve canonical/lineage check: ${token}`);
+  }
+  const budgetText = read('packages/main/src/core/done-required-timeout-budget.ts');
+  for (const token of ['NODE_TIMER_MAX_MS', 'resolveCommandTimeoutMs', 'derived-command-budget', 'LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS']) {
+    assert(budgetText.includes(token), `DONE-required timeout budget contract missing ${token}`);
+  }
+  const validationExecutorText = read('packages/main/src/core/validation-executor.ts');
+  for (const token of ['MAX_NODE_TIMER_DELAY_MS', 'Math.min(MAX_NODE_TIMER_DELAY_MS', 'resolveCommandTimeoutMs', 'deadlineError']) {
+    assert(validationExecutorText.includes(token), `validation timer overflow contract missing ${token}`);
+  }
+  const verifierText = read('packages/main/src/handlers/verifier.ts');
+  assert(verifierText.includes('deadlineError: args.deadlineError'), 'routine verifier must preserve the named CLI deadline source');
+  const cliEngineText = read('packages/main/src/cli-engine.ts');
+  for (const token of ['structuredWatchdog', 'watchdogAbort.abort', 'CliWatchdogTimeoutError', 'isStructuredDoneFailure', "process.exitCode = structuredDoneFailure ? 1 : 0"]) {
+    assert(cliEngineText.includes(token), `DONE-required structured CLI watchdog contract missing ${token}`);
+  }
+  const donePrepareText = read('packages/main/src/handlers/done-prepare.ts');
+  for (const token of ['cliWatchdogTimeoutBlock', 'throwIfParentTimedOut', 'deadlineAt', 'Await the cooperative task after aborting it']) {
+    assert(donePrepareText.includes(token), `done_prepare cooperative watchdog/cleanup contract missing ${token}`);
+  }
   assert(cliToolNameSet.has(commandName), `CLI schema: required DONE-required validation command missing from MAIN_TOOLS: ${commandName}`);
 
   const policy = policyByName.get(commandName);

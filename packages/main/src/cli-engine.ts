@@ -74,6 +74,7 @@ import {
   runStoryAdvanceInitCheckLifecycleDispatch,
   runStoryCreateLifecycleDispatch,
 } from './cli/lifecycle-dispatch.js';
+import { CliWatchdogTimeoutError, effectiveCommandCliMaxBudget, NODE_TIMER_MAX_MS } from './core/done-required-timeout-budget.js';
 
 export {
   READ_ONLY_COMMANDS,
@@ -1000,26 +1001,66 @@ export async function runCli(opts?: {
   // Heartbeat: by default, 5 minutes without output means stuck; 15 minutes is the absolute safety limit.
   // Can be overridden with LATTICE_IDLE_TIMEOUT_MS / LATTICE_MAX_TIMEOUT_MS,
   // A single LLM call in real-machine smoke tests can occasionally exceed 2 minutes (non-deterministic cases such as text-adventure uninstall).
-  const IDLE_TIMEOUT = Number(process.env.LATTICE_IDLE_TIMEOUT_MS) || (5 * 60 * 1000);
-  const MAX_TIMEOUT = Number(process.env.LATTICE_MAX_TIMEOUT_MS) || (15 * 60 * 1000);
+  const explicitIdle = Number(process.env.LATTICE_IDLE_TIMEOUT_MS);
+  const effectiveMaxBudget = effectiveCommandCliMaxBudget(root, cmd, parsed);
+  const IDLE_TIMEOUT = Number.isFinite(explicitIdle) && explicitIdle > 0
+    ? Math.min(NODE_TIMER_MAX_MS, Math.floor(explicitIdle))
+    : (5 * 60 * 1000);
+  const MAX_TIMEOUT = effectiveMaxBudget.timeoutMs;
   const startTime = Date.now();
   let lastActivity = Date.now();
   const originalLog = log;
   log = (msg: string) => { lastActivity = Date.now(); originalLog(msg); };
   ctx.log = log;
+  if (cmd === 'done_prepare' || cmd === 'done_required_validate') {
+    originalLog(`${cmd} timeout budget: maxMs=${MAX_TIMEOUT} source=${effectiveMaxBudget.source === 'explicit-max-env' ? 'LATTICE_MAX_TIMEOUT_MS' : effectiveMaxBudget.source}`);
+  }
+
+  const structuredWatchdog = cmd === 'done_prepare' || cmd === 'done_required_validate';
+  const watchdogAbort = new AbortController();
+  if (structuredWatchdog) {
+    Object.assign(parsed, {
+      abortSignal: watchdogAbort.signal,
+      deadlineAt: startTime + MAX_TIMEOUT,
+      deadlineError: () => watchdogAbort.signal.reason instanceof Error
+        ? watchdogAbort.signal.reason
+        : new CliWatchdogTimeoutError('max', MAX_TIMEOUT),
+    });
+  }
 
   const watchdog = setInterval(() => {
     const now = Date.now();
     if (now - startTime > MAX_TIMEOUT) {
-      originalLog(`${cmd} exceeded 10 minutes; forcing exit`);
-      process.exit(2);
+      const error = new CliWatchdogTimeoutError('max', MAX_TIMEOUT);
+      originalLog(`${cmd} exceeded max timeout ${MAX_TIMEOUT}ms; aborting with structured result`);
+      if (structuredWatchdog) watchdogAbort.abort(error);
+      else process.exit(2);
+      return;
     }
     if (now - lastActivity > IDLE_TIMEOUT) {
-      originalLog(`${cmd} stuck: ${IDLE_TIMEOUT / 1000} seconds without output; forcing exit`);
-      process.exit(2);
+      const error = new CliWatchdogTimeoutError('idle', IDLE_TIMEOUT);
+      originalLog(`${cmd} stuck: ${IDLE_TIMEOUT / 1000} seconds without output; aborting with structured result`);
+      if (structuredWatchdog) watchdogAbort.abort(error);
+      else process.exit(2);
     }
-  }, 10000);
+  }, Math.max(10, Math.min(10_000, Math.floor(IDLE_TIMEOUT / 4), Math.floor(MAX_TIMEOUT / 4))));
   watchdog.unref();
+
+  function isStructuredDoneFailure(result: unknown): boolean {
+    if (!structuredWatchdog) return false;
+    let value: any = result;
+    if (typeof result === 'string') {
+      try { value = JSON.parse(result); } catch {
+        return /\bresult=(?:failed|timed_out|blocked)\b|^DONE prepare: BLOCKED/m.test(result);
+      }
+    }
+    return value?.allPass === false
+      || value?.status === 'fail'
+      || value?.status === 'blocked'
+      || value?.result === 'failed'
+      || value?.result === 'timed_out'
+      || value?.result === 'blocked';
+  }
 
   // Unified logging: write to .lattice/activity.jsonl (dual-source module, legacy path is read-compatible only).
   // Write failure is a PERSIST issue (incomplete audit means it cannot be traced later), so reportHealthIssue is used instead.
@@ -1234,8 +1275,9 @@ export async function runCli(opts?: {
       });
       let result = fn();
       if (result && typeof (result as any).then === 'function') result = await result;
+      const structuredDoneFailure = isStructuredDoneFailure(result);
       clearInterval(watchdog);
-      log(`${cmd} done`);
+      log(`${cmd} ${structuredDoneFailure ? 'completed with structured failure' : 'done'}`);
       // B-bbaf CHK-006: a SUCCESSFUL story_advance is real progress THROUGH the
       // gate, so reset that story's repeated-gate-failure counter. Scoped to
       // story_advance specifically (codex host-B #3): resetting on ANY successful
@@ -1253,12 +1295,12 @@ export async function runCli(opts?: {
         } catch { /* best-effort: never fail a successful command on counter reset */ }
       }
       if (shouldWriteActivityLog(cmd, parsed) || staleWarnings.length > 0) {
-        writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: true, staleWarnings });
+        writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: !structuredDoneFailure, ...(structuredDoneFailure ? { error: 'structured terminal failure' } : {}), staleWarnings });
       }
       // F-032: writeCodexProcessEvent self-gates on isReadOnlyCommand (same
       // read-only contract as the activity log above and the pre/post hooks
       // below), so a plain (no --out) usage_sweep appends NO story process event.
-      writeCodexProcessEvent({ command: cmd, args: parsed, success: true });
+      writeCodexProcessEvent({ command: cmd, args: parsed, success: !structuredDoneFailure, ...(structuredDoneFailure ? { error: 'structured terminal failure' } : {}) });
       // Append next-step guidance. Only commands registered in hints.ts are decorated; other commands are returned unchanged.
       // B-7fc2: `--json` / `--format=json` stdout is a machine-only payload.
       // Skip hint decoration entirely in machine JSON mode so JSON.parse(stdout)
@@ -1292,7 +1334,7 @@ export async function runCli(opts?: {
       let output = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
       output = appendMilestoneStatusAfterMutation(output);
       process.stdout.write(`${output}\n`);
-      process.exitCode = 0;
+      process.exitCode = structuredDoneFailure ? 1 : 0;
       return;
     } catch (e: any) {
       clearInterval(watchdog);

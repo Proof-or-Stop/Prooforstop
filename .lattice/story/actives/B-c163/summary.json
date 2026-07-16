@@ -1,0 +1,55 @@
+{
+  "storyId": "B-c163",
+  "changes": "DONE-required validation now derives legal outer and phase budgets from configured command timeouts, reuses only trustworthy fresh proof, emits heartbeats and structured timeout results, cleans child process groups and locks, and rejects failed live-smoke transcripts at delivery and DONE gates.",
+  "usage": "Run lattice done_required_validate directly or lattice done_prepare with validation enabled; slow configured suites receive their configured timeout budget plus bounded cleanup grace, while arbitrary live-smoke commands retain the fixed safety ceiling.",
+  "expectedOutcome": "A full DONE-required suite taking longer than four minutes completes without the outer 240-second phase watchdog killing it, produces fresh admissible evidence, and leaves no orphan process or validation lock.",
+  "actualTranscript": "Candidate CLI live smoke ran direct done_required_validate for 276659ms with 30-second heartbeats; packages/main build and root npm test both passed, exitCode was 0, transcript became present-fresh, and no orphan process remained.",
+  "outcomeDiff": "Expected and actual behavior match for direct DONE-required validation. The exact done_prepare budget display wording was verified by source and smoke tests rather than a second separate real-machine capture.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Direct done_required_validate was live-captured; done_prepare display wording is covered by deterministic smoke/source verification but was not separately live-captured.",
+  "pitfalls": "Use the same candidate CLI realpath for the outer live-smoke command and captured closeout command in a worktree; the global lattice binary may still point at main until the story is merged and version-bumped.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 110282
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 5421
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 506045
+    },
+    "DEV": {
+      "count": 21,
+      "durationMs": 36385130
+    },
+    "REVIEW": {
+      "count": 21,
+      "durationMs": 13168181
+    },
+    "TEST": {
+      "count": 4,
+      "durationMs": 2053583
+    }
+  },
+  "totalDurationMs": 52231933,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 2,
+    "fixed": 2,
+    "open": 0
+  },
+  "createdAt": "2026-07-16T09:27:38.471Z",
+  "updatedAt": "2026-07-16T09:27:38.471Z"
+}

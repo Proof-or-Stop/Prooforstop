@@ -1,0 +1,127 @@
+{
+  "storyId": "B-c163",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/cli-engine.ts",
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+    "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+    "packages/main/src/core/done-prepare-validation-reuse.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "packages/main/src/handlers/done-required-validation.ts",
+    "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/handlers/verifier.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/done-required-timeout-budget.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+    "packages/main/src/tasks/command-catalog-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/done-required-validation-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/core/story-machine.ts"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/core/candidate-spec-routing.ts",
+    "packages/main/src/core/host-execution-readiness.ts",
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/core/owner-session.ts",
+    "packages/main/src/core/scope-path-classifier.ts",
+    "packages/main/src/core/scope-diff-pack.ts"
+  ],
+  "scopeChangeReason": "Verified HIGH findings F-001 and F-003 require minimal AbortSignal and deadline propagation through verifier and validation-executor so idle/max timeout can terminate child trees, release locks and timers, and produce a structured terminal result. No unrelated behavior is authorized.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "BUG-014 requires synchronizing the exact cli-engine AST fingerprint after the in-scope runCli implementation changed; this preserves the finite allowlist and is covered by the independently passing guard smoke.",
+      "timestamp": "2026-07-15T22:55:47.928Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "d8cee89719bf9b54bc1a46717f08aa13ab92d022",
+      "materialHash": "8586ae2baef0f365f2df89404aca9010476723f84894977d0bd16423c7dff8e2"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "BUG-015 was reproduced through the required TEST live-smoke path: its 60-second capture ceiling orphaned DONE-required npm test and left the validation lock active. These files are the minimum runtime policy, process-fact, safe lock recovery, handler, and regression-test surface needed to derive the legal budget and reap the full process group without widening arbitrary captures.",
+      "timestamp": "2026-07-15T23:28:17.795Z",
+      "paths": [
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/src/core/validation-execution-lock.ts",
+        "packages/main/src/handlers/live-smoke-transcript.ts",
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/src/core/validation-execution-lock.ts",
+        "packages/main/src/handlers/live-smoke-transcript.ts",
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "2098b0ec91818d72400a1405e6051c6e5e28a9cc",
+      "materialHash": "6cbf8fd142bda72ccd43502f3b43f26eaf1e1afc000b4533271cd66416083932"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required fail-closed consumers and regression coverage discovered by the real candidate live-smoke timeout: failed or unexecuted transcripts must not satisfy delivery or DONE while canonical writer receipts remain auditable.",
+      "timestamp": "2026-07-16T01:45:18.135Z",
+      "paths": [
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/src/core/live-smoke-transcript-evidence.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/handlers/delivery-check.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/src/core/live-smoke-transcript-evidence.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/handlers/delivery-check.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "e47c73f26be6d0aa9d068349efeea755bb532ec7",
+      "materialHash": "5306243ecb710a6e0346a2a848b14a100f40b8f1e456871c79af3f24011711cf"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Round 17 F-030 requires a behavioral canFinishGuard/getGuardFailureReason regression on an existing fully-green DONE fixture; this test file is the minimal mutation-resistant location.",
+      "timestamp": "2026-07-16T01:52:38.266Z",
+      "paths": [
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "7cc26ccb9d7d73d7be6371e02d9b2de9a988664a",
+      "materialHash": "76a595f1b796a7222ada92da7ba6644151837aebec2c39e68b098218b3c50cba"
+    }
+  ],
+  "createdAt": "2026-07-15T19:01:11.957Z",
+  "updatedAt": "2026-07-16T01:52:38.266Z"
+}

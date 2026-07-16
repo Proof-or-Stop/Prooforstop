@@ -1,0 +1,1153 @@
+{
+  "findings": [
+    {
+      "id": "B-c163:F-001",
+      "desc": "DONE-required timeout classification is not implemented across the promised layers. `runDoneRequiredValidation` records a command timeout as a FAIL receipt, but `handlers/done-required-validation.ts` maps every non-PASS to result=failed and always emits timeoutLayer=null; `done_prepare` then parses that as failed and omits timeoutLayer. The CLI idle/max watchdog in `cli-engine.ts` still calls process.exit(2), so direct/done_prepare JSON receives no terminal result at all for idle/max expiry. Even successful done_prepare reused/executed output omits timeoutLayer=null because `donePrepareJsonResult` only adds a recognized non-null token. This contradicts CHK-001/003 requirements for result=timed_out and timeoutLayer=command|phase|idle|max, and leaves the JSON contract unable to distinguish timeout from validation failure.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T19:27:38.007Z",
+      "reviewRound": "2026-07-15T19:24:16.796Z",
+      "reviewRunId": "B-c163:RR-006",
+      "_hash": "6b67b155d8761afb09b61ac604ee1bd7f35cebddac68b99f451f89e0c1797982",
+      "files": [
+        "packages/main/src/handlers/done-required-validation.ts",
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/cli-engine.ts"
+      ],
+      "signatureTag": "spec-boundary|ts|required-timeout-classification",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: real subprocess matrices force command, phase, CLI idle, and CLI max expiry and inspect JSON plus shell status. Root cause: command receipts collapsed timeout into generic failure, done_prepare omitted routine watchdog attribution, and cli-engine force-exited before handlers could settle. Fix: timeout receipts now map to result=timed_out/timeoutLayer=command; AbortController-backed structured watchdogs propagate idle|max to direct validation and done_prepare; phase remains phase-attributed; structured failed/timed_out/blocked output stays parseable and exits nonzero. ReproTest: npm --prefix packages/main run build; node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js; node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js. Both smoke commands PASS at HEAD a6cefb0 and assert nonzero timeout status plus immediate rerun cleanup.",
+      "resolvedAt": "2026-07-15T19:57:27.172Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-002",
+      "desc": "The trusted metadata-only reuse lineage checks only the net tree diff (`git diff --name-only evidenceHead..currentHead`), not paths touched by every intervening commit. A descendant history can modify a code/config path and later restore it; that path disappears from the net diff, so this function can classify the lineage as trusted-story-metadata-descendant. This violates the documented and CHK-002 requirement that every intervening changed path be trusted metadata and that any intervening code/config path refuse reuse. Enumerate changed paths per commit across the ancestry range (including deletes/renames) or explicitly narrow the contract to final-tree equivalence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T19:27:50.060Z",
+      "reviewRound": "2026-07-15T19:24:16.796Z",
+      "reviewRunId": "B-c163:RR-007",
+      "_hash": "c5a58f1df0dde637e67fe20bba2a96459cfccc49deb75cf99babc0719fb3db78",
+      "files": [
+        "packages/main/src/core/done-prepare-validation-reuse.ts",
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+      ],
+      "signatureTag": "spec-boundary|ts|trusted-metadata-reuse",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: create evidence at an ancestor, modify a non-metadata path in one intervening commit, restore it in a later commit, then evaluate reuse; the former net diff hid the touched path. Root cause: lineage trust used only git diff evidenceHead..currentHead instead of enumerating paths touched by every commit. Fix: reuse now verifies ancestry, enumerates rev-list commits, reads each commit with diff-tree --no-renames, rejects any untrusted touched path including modify-then-revert and rename history, and rechecks HEAD to close TOCTOU. ReproTest: node packages/main/dist/tasks/done-required-validation-smoke.js; node scripts/verify-process-fact-contract.mjs. Both PASS at HEAD a6cefb0 and mechanically cover per-commit lineage, non-ancestor, code/config paths, modify-revert, rename, and concurrent HEAD movement.",
+      "resolvedAt": "2026-07-15T19:57:38.835Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-003",
+      "desc": "All 28 must intents are marked covered by four smoke commands, but the assertions exercise only a small subset. Budget tests use one 1,200,000ms command: no 290,000+1,200,000 sequence, default-timeout command, malformed/non-positive inputs, unrelated CLI max, LATTICE_MAX_TIMEOUT_MS, or phase/max race; phase-timeout JSON does not assert disposition/result/refusalReasons/timeoutLayer. Reuse tests call the evaluator only and never exercise done_prepare default reuse, reuseFreshDoneRequired=false, fresh/stale/missing validate=false immutability, structured failure/timeout/block outputs, malformed/unreadable evidence, full lineage matrix, or TOCTOU. Direct-handler tests run an instant child and synchronous throwing sink only: no silent heartbeat past idle, real direct CLI watchdog, explicit idle/max, passing and failing rejected sinks, boundary ordering, descendant cleanup, lock reacquisition, or late-heartbeat race. Add table-driven budget tests and hermetic real-CLI fixtures per omitted intent, then bind each evidence ref to assertions that actually exist.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-15T19:28:24.619Z",
+      "reviewRound": "2026-07-15T19:24:16.796Z",
+      "reviewRunId": "B-c163:RR-005",
+      "_hash": "1c445de659fc43c9ffa0fc13efad52b83caf3dea2093061eb3e9f9dade2e0d24",
+      "files": [
+        "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+        "packages/main/src/tasks/done-required-validation-smoke.ts",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+        "packages/main/src/tasks/command-catalog-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|intents-marked-covered",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: compare all 28 must intent descriptions with their former smoke assertions; budget, reuse, malformed evidence, real CLI watchdog, process-tree cleanup, and sink rejection paths were absent. Root cause: broad command-level evidence was recorded without assertion-specific coverage. Fix: added table-driven arithmetic and override tests, real runValidationCommand overflow/fallback tests, actual done_prepare reuse/validate=false matrices, malformed evidence recovery, per-commit lineage and TOCTOU tests, real direct command/idle/max and routine done_prepare idle/max subprocesses, descendant kill plus immediate rerun, and sync/async progress-sink containment. ReproTest: node packages/main/dist/tasks/done-required-validation-smoke.js; node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js; node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js; node packages/main/dist/tasks/command-catalog-smoke.js; node scripts/verify-process-fact-contract.mjs. All PASS at HEAD a6cefb0; checklist evidence is assertion-specific and complete at 9/9, 10/10, 9/9.",
+      "resolvedAt": "2026-07-15T19:57:45.658Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-004",
+      "desc": "Malformed or unreadable existing done-required evidence aborts the recovery path instead of being classified stale and replaced. evaluateDoneRequiredPreRunReuse calls evaluateDoneRequiredEvidence without a containment boundary (done-prepare-validation-reuse.ts:97), while StoryStore deliberately rethrows JSON parse/read errors for this artifact (store.ts:236-241). Both direct done_required_validate (done-required-validation.ts:46) and done_prepare validate=false/validate=true invoke that evaluator before they can execute or report structured status. A truncated JSON file therefore throws out of the command; even a valid JSON object with missing arrays can trigger TypeErrors in the canonical evaluator. This violates the fail-closed-but-convergent contract: malformed evidence must yield existingEvidenceBasis=stale with a refusal reason, validate=false must remain observation-only, and validate=true/direct validation must be able to run once and overwrite bad evidence. Catch artifact/evaluator shape/read failures in the pre-run reuse wrapper, return reusable=false/stale with a stable malformed-or-unreadable reason, and ensure execution does not depend on parsing prior evidence.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T19:29:16.388Z",
+      "reviewRound": "2026-07-15T19:24:16.796Z",
+      "reviewRunId": "B-c163:RR-008",
+      "_hash": "6b9012af35d76c48bd9ad9b1a9587f48421bc5c6dbe5456d71d7613595618794",
+      "files": [
+        "packages/main/src/core/done-prepare-validation-reuse.ts",
+        "packages/main/src/core/store.ts",
+        "packages/main/src/handlers/done-required-validation.ts",
+        "packages/main/src/handlers/done-prepare.ts"
+      ],
+      "signatureTag": "error-handling|ts|malformed-prior-evidence-deadlock",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Repro: replace done-required-evidence.json with truncated JSON and then with a valid object missing required arrays; invoke validate=false observation and validate=true/direct execution. Root cause: evaluateDoneRequiredPreRunReuse allowed store read/parse and canonical evaluator shape exceptions to escape before execution. Fix: the reuse wrapper contains unreadable/malformed artifact and evaluator failures, returns reusable=false with existingEvidenceBasis=stale and stable evidence-malformed-or-unreadable refusal, while validate=false remains non-mutating and validate=true/direct validation overwrite bad evidence with a fresh receipt. ReproTest: node packages/main/dist/tasks/done-required-validation-smoke.js; node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js. Both PASS at HEAD a6cefb0 and assert malformed JSON/shape classification, byte-for-byte validate=false immutability, and successful recovery execution.",
+      "resolvedAt": "2026-07-15T19:57:55.934Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-005",
+      "desc": "F-001 remains incomplete for done_prepare CLI idle/max timeouts. cli-engine now aborts a signal instead of exiting, but done_prepare only threads that parent signal into routine verifier.validate and the DONE-required runCloseoutPhase. The later doneClosure/reviewAssurance/runtimeChange/cleanTree/produceCommand runCloseoutPhase calls do not receive rawArgs.abortSignal, so an explicit max expiry during those phases is logged but does not terminate or structure the result. Even inside DONE-required validation, a parent CliWatchdogTimeoutError is not a DonePreparePhaseTimeoutError, so the catch falls through to `result=blocked` without timeoutLayer instead of `result=timed_out` with idle|max. The watchdog also has no top-level Promise.race fallback, so any uncooperative/synchronous done_prepare segment can outlive the absolute max. Thread/race the CLI watchdog across the whole handler and classify its reason before the generic blocked path; verify nonzero JSON outcomes for idle and max in both routine and post-validation closeout phases.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T19:59:39.007Z",
+      "reviewRound": "2026-07-15T19:56:48.039Z",
+      "reviewRunId": "B-c163:RR-010",
+      "_hash": "fabc1b6e01301199f2717b61cca4b44e98cc1041e522068e687a6b68d2d0cbae",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/handlers/done-prepare.ts"
+      ],
+      "signatureTag": "spec-boundary|ts|remains-incomplete-prepare",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Source correction: the reviewer subclaim that later doneClosure/reviewAssurance/runtimeChange/cleanTree/produceCommand calls lacked the parent signal was disproven; every current call already passed rawArgs.abortSignal before this fix, so no false repro or worker redesign was used. Verified gaps: a parent CliWatchdogTimeoutError inside DONE-required closeout fell through generic blocked classification; closeout segments lacked explicit parent deadline checkpoints; and Promise.race could return before cooperative child/lock cleanup settled. Fix: all closeout segments now receive the full parent timeout control, check signal/deadline before and after work, classify parent idle|max as executed/timed_out at the active phase, abort cooperatively and await task/child settlement, while bounded sync-child wrappers enforce the first safe boundary. ReproTest: npm --prefix packages/main run build; node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js; node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js. PASS at REVIEW HEAD 2d5b5a6; real JSON/nonzero tests cover DONE-required phase plus post-validation closeout idle|max, descendant cleanup where a child exists, and immediate rerun.",
+      "resolvedAt": "2026-07-15T20:20:33.339Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-006",
+      "desc": "The additive done_prepare JSON defaults misclassify any transcript that blocks before validation. `donePrepareJsonResult` now fills missing fields with disposition=skipped_explicitly, result=blocked/not_run, existingEvidenceBasis=missing, but `skipped_explicitly` is contractually reserved for validate=false. A merge/preflight/stale-evidence blocker did not explicitly skip validation and its existing evidence basis was never evaluated, so the emitted structure asserts false facts. Preserve nullable/not_applicable fields for pre-validation blockers, or evaluate and emit a distinct disposition that does not claim an explicit operator skip.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T19:59:53.750Z",
+      "reviewRound": "2026-07-15T19:56:48.039Z",
+      "reviewRunId": "B-c163:RR-012",
+      "_hash": "bee9434317d339713955ad65b359603b9c2b45152075e3c8c955705466a47973",
+      "files": [
+        "packages/main/src/handlers/done-prepare.ts"
+      ],
+      "signatureTag": "spec-boundary|ts|additive-prepare-json",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: request done_prepare --json for a nonexistent/unreadable story so preflight blocks before validation; prior additive defaults incorrectly emitted disposition=skipped_explicitly and existingEvidenceBasis=missing despite neither fact being observed. Root cause: donePrepareJsonResult synthesized validation fields whenever transcript tokens were absent. Fix: disposition, result, existingEvidenceBasis, timeoutLayer, and refusalReasons are emitted only when explicitly present in the transcript; explicit timeoutLayer=null remains distinguishable. validate=false, reuse, and execution paths retain their exact observed fields. ReproTest: node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js. PASS at REVIEW HEAD 2d5b5a6; preflight JSON exits nonzero, remains parseable, reports blockedAt=preflight, and omits all five unobserved validation fields.",
+      "resolvedAt": "2026-07-15T20:20:40.720Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-007",
+      "desc": "Round-2 smokes pass, but the 28 must refs are still not assertion-specific and several safety cases remain unproved. The CHK-002 evidence map is shifted: happy:1 points to reuse-disabled execution (the edge:0 requirement), edge:0 points to validate=false (edge:1), edge:1 to canonical mutations (adversarial:0), edge:2 to lineage, edge:3 to malformed evidence, and adversarial:2 to generic output fields. More importantly, done-prepare-closure-heartbeat-smoke.ts:326-345 does not exercise actual exact-HEAD versus trusted-descendant reuse separately; reuse disabled only asserts a progress line, not disposition=executed or evidence refresh. done-required-validation-smoke.ts:429-655 lacks independent evidence-schema mutation, proof-admissibility failure mutation, non-ancestor HEAD, and metadata-like-outside-allowlist cases required by CHK-002 adversarial:0/2. The timeout matrices at validate-progress-heartbeat-smoke.ts:277-399 use wide timing margins rather than just-before/just-after command/phase/idle/max races; descendant ESRCH is asserted only for command timeout, while CHK-003 adversarial:0 requires descendant-tree termination separately for command, phase, idle, and max. No test emits heartbeat concurrently with abort/exit/error or asserts no post-terminal heartbeat/duplicate evidence. Add the missing matrix rows/race instrumentation, assert disabled-reuse terminal fields and refreshed receipt, and remap each verificationEvidence intentRef to its actual assertion before accepting coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-15T20:00:42.604Z",
+      "reviewRound": "2026-07-15T19:56:48.039Z",
+      "reviewRunId": "B-c163:RR-011",
+      "_hash": "e5e70329cd7db37960312c5f4865d573ad090e167e31877b35ff4977507ab79a",
+      "files": [
+        "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+        "packages/main/src/tasks/done-required-validation-smoke.ts",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|round-smokes-pass",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: audit each of 28 must intent refs against its actual assertion; CHK-002 mappings were shifted and exact/descendant actual reuse, disabled receipt refresh, independent schema/proof/nonancestor/outside-allowlist, deterministic boundary seams, multi-layer descendant cleanup, and concurrent terminal ordering were missing. Root cause: command-level PASS evidence was mapped by theme rather than assertion identity. Fix: added separate actual done_prepare exact-head and trusted-descendant reuse, disabled-reuse executed/refreshed receipt assertions, independent schema/proof-admissibility/nonancestor/outside-allowlist rows, deterministic future/expired deadline seams, command-start concurrent abort ordering with no late heartbeat/duplicate evidence, and real command/phase/idle/max descendant ESRCH plus immediate rerun where children exist. Pure in-process closeout phases spawn no child and are precisely documented/evidenced as not applicable rather than fake ESRCH. ReproTest: node packages/main/dist/tasks/done-required-validation-smoke.js; node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js; node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js; node packages/main/dist/tasks/command-catalog-smoke.js; node scripts/verify-process-fact-contract.mjs. All PASS at REVIEW HEAD 2d5b5a6; complete evidence is correctly remapped 9/9, 10/10, 9/9.",
+      "resolvedAt": "2026-07-15T20:20:52.163Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-008",
+      "desc": "Post-validation closeout watchdog blocks overwrite already-observed validation facts. `cliWatchdogTimeoutBlock` always emits `disposition=executed` and `existingEvidenceBasis=stale`, even when done_prepare ran with validate=false and had already recorded `disposition=skipped_explicitly` plus a computed missing/fresh/stale basis. The new post-validation timeout smoke uses exactly validate=false/dryRun but asserts the fabricated executed disposition, locking in the contradiction. Keep overall `result=timed_out`/timeoutLayer=idle|max, but carry the validation disposition and evidence basis observed at the validate step (or separate validation outcome from overall command outcome). This is distinct from the fixed preflight case: here the fields were observed and are then replaced with false values.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T20:22:01.186Z",
+      "reviewRound": "2026-07-15T20:20:04.456Z",
+      "reviewRunId": "B-c163:RR-014",
+      "_hash": "75b1f432eefc8037f1fc4d5a0ebdbe3d980db71ab3136c1d6a55aaf1333fbad9",
+      "files": [
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts"
+      ],
+      "signatureTag": "spec-boundary|ts|post-validation-closeout",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: run validate=false to observe disposition=skipped_explicitly/result=not_run with the actual existingEvidenceBasis/refusalReasons, then force a later doneClosure idle or max timeout. The prior timeout block overwrote that context with fabricated disposition=executed and basis=stale. Root cause: cliWatchdogTimeoutBlock constructed a fresh generic validation terminal instead of carrying the already-observed validate step context. Fix: parse the completed validate step into an ObservedValidationTerminalContext; later closeout watchdog blocks preserve disposition, evidence basis, and refusals, append the real CLI timeout refusal, and change only result/timeoutLayer to timed_out/idle|max. ReproTest: node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js. PASS at REVIEW HEAD 7ffa19b; baseline-vs-timeout assertions cover idle and max, singular JSON, nonzero status, no story-evidence mutation, and immediate rerun.",
+      "resolvedAt": "2026-07-15T20:34:57.527Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-009",
+      "desc": "Round-3 cleanup/race/lineage matrices pass, but the core top-level budget regression still lacks an assertion that can detect omitted closeout phases. In done-prepare-closure-heartbeat-smoke.ts:90-100 the fixture selects DONE-required phase=1,500,000ms and global phase=1,400,000ms, yet only asserts total >= 1,500,000 + 330,000. An implementation summing routine validation plus DONE-required while omitting all five other enabled closeout phases would still pass, contrary to CHK-001:edge:4. CHK-001:edge:3 also claims both DONE entry paths use derived command-specific maxima, but tests only assert story_get stays 900,000ms; there is no exact commandCliMaxBudget assertion for done_required_validate or done_prepare. Add exact expected totals for validate=true required-policy, validate=false, no-policy, global override, and phase-specific override combinations, plus exact derived maxima for both DONE entry paths. Also correct CHK-002:happy:0 evidence wording or add an actual exact-HEAD done_prepare fixture: seedDoneRequiredViaCli auto-commits evidence, so the current integration run proves trusted-metadata-descendant reuse, while exact-head is only covered at the evaluator unit level.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-15T20:23:36.194Z",
+      "reviewRound": "2026-07-15T20:20:04.456Z",
+      "reviewRunId": "B-c163:RR-016",
+      "_hash": "5fdded2c412b45b127888ac4097e9ba881987cd071f881bea4a3caaa4b5bb1ca",
+      "files": [
+        "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+        "packages/main/src/tasks/done-required-validation-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|round-cleanup-race",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: inspect commandCliMaxBudget totals under required/no-policy and validate true/false; prior tests only asserted a lower bound, so omission or double-counting of a closeout phase could pass. Root cause: evidence described broad budget coverage without exact arithmetic for every enabled phase and the CHK-002 reuse notes conflated evaluator exact-HEAD with CLI metadata auto-commit lineage. Fix: exact totals now use six unique phase overrides plus a global override and assert routine sequential budget plus each enabled phase exactly once: five common closeout phases always, DONE-required only when required+validate, routine only when validate. Evidence correction: CHK-002 happy:0 now points to the evaluator exact-HEAD assertion; happy:1 points to actual done_prepare CLI integration, whose evidence auto-commit correctly proves trusted-story-metadata-descendant rather than exact HEAD. ReproTest: node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js; node packages/main/dist/tasks/done-required-validation-smoke.js. PASS at REVIEW HEAD 7ffa19b; any omission of the five common phases changes exact totals and fails.",
+      "resolvedAt": "2026-07-15T20:35:05.198Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-010",
+      "desc": "Routine done_prepare can still misclassify an explicit CLI max deadline as an ordinary validation failure. cli-engine passes both deadlineAt and an AbortSignal, but the validation runner independently shortens its command timer to deadlineAt (validation-executor.ts:309-314). If that timer settles before the polling watchdog aborts the signal—which is deterministic for MAX values not aligned with the watchdog interval, e.g. 1005ms with a 251ms poll—the verifier returns a failed/timed-out routine result while abortSignal.reason is still empty. done-prepare.ts:1651 only derives routineTimeoutLayer from the signal, then lines 1657-1663 take the generic parsed failure path, omitting disposition=executed, result=timed_out, timeoutLayer=max and existingEvidenceBasis. The new max smoke uses 180ms with a 45ms interval, aligning poll and deadline and masking this window. Treat Date.now() >= rawArgs.deadlineAt as max using rawArgs.deadlineError even before the signal fires, or propagate a named max-deadline reason through executeValidationPlan; add a deliberately non-divisible max fixture proving JSON classification and exit/event behavior.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T20:24:33.783Z",
+      "reviewRound": "2026-07-15T20:20:04.456Z",
+      "reviewRunId": "B-c163:RR-017",
+      "_hash": "1f5cb4e11cd06b984afedd6358788f1978fd62dc3595e0695bf6a7895b2ce5b2",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+      ],
+      "signatureTag": "timeout-classification|ts|deadline-before-watchdog-signal",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Repro: configure a silent routine validate command longer than LATTICE_MAX_TIMEOUT_MS=1005 while the CLI watchdog polls every floor(1005/4)=251ms. The command deadline could settle between watchdog ticks before abortSignal carried a named reason, so routine validation returned generic failure instead of timed_out/max. Root cause: cli-engine created deadlineError but done_prepare/verifier/ExecuteValidationPlan propagated only deadlineAt; the runner therefore lost the controlling deadline source. Fix: deadlineError now flows cli-engine -> done_prepare -> verifier -> ExecuteValidationPlan -> command options; after child cleanup, a deadline-owned timedOut result throws the named max error for structured classification. ReproTest: node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js. PASS at REVIEW HEAD 7ffa19b; the 1005/251 real CLI regression asserts status=blocked, result=timed_out, timeoutLayer=max, existingEvidenceBasis=stale, exit 1, no generic validation-failed reason, and immediate successful rerun cleanup.",
+      "resolvedAt": "2026-07-15T20:35:13.096Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-011",
+      "desc": "A remaining no-invented-fields gap exists for `validate=true,dryRun=true`. That branch records only `planned mutation skipped: dryRun does not run lattice validate`, so `observedValidationTerminalContext` correctly returns undefined. If a later closeout phase hits idle/max, `cliWatchdogTimeoutBlock` nevertheless falls back to disposition=executed and existingEvidenceBasis=stale, even though validation did not execute and the evidence basis was never evaluated. This is the same false-fact class F-006 prohibited, now reachable after the validate step. When validationContext is absent, emit only the observed overall timeout fields (result/refusalReasons/timeoutLayer) and omit disposition/basis, or explicitly record a truthful dry-run validation context before closeout.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T20:36:31.321Z",
+      "reviewRound": "2026-07-15T20:34:31.035Z",
+      "reviewRunId": "B-c163:RR-018",
+      "_hash": "a673cfd27b21f2ec9cc0e5488058ea3d8991b6e52e00697557a36fbcd2491cef",
+      "files": [
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts"
+      ],
+      "signatureTag": "spec-boundary|ts|remaining-invented-fields",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: run done_prepare --validate=true --dryRun=true --json, force a later doneClosure idle timeout, and inspect the terminal JSON. Because dryRun skips actual validation, there is no observed validation terminal context; the old path nevertheless emitted disposition=executed, existingEvidenceBasis=stale, and a synthetic refusalReasons entry. Root cause: cliWatchdogTimeoutBlock used fallback executed/stale values and always constructed refusalReasons when validationContext was undefined. Fix: the watchdog now conditionally composes terminal context—when observed validationContext exists it preserves disposition/evidence basis/refusals and appends the real watchdog refusal; when none exists it emits only the true result=timed_out and timeoutLayer=idle|max plus the ordinary blocked reason. ReproTest: npm --prefix packages/main run build; node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js; node scripts/verify-process-fact-contract.mjs. PASS at REVIEW HEAD 2155e94; validate=true+dryRun JSON exits nonzero, reports blockedAt=doneClosure/result=timed_out/timeoutLayer=idle, emits one parseable object, and asserts disposition/existingEvidenceBasis/refusalReasons are absent, while existing validate=false idle|max cases retain observed context. Additional independent focused verification found no separate finding ID but exposed a sync-child cleanup gap: phase-bounded execFileSync/execSync used default SIGTERM and a resistant child reproduced 5041ms. Commit 47eb092 switches only phase-controlled deadlines to SIGKILL; the closure smoke now uses a SIGTERM-resistant child, verifies phase-bounded return plus immediate reap/restore, and passed three consecutive runs.",
+      "resolvedAt": "2026-07-15T20:54:46.007Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-012",
+      "desc": "The new dryRun and SIGTERM-resistant sync regressions pass (including three consecutive closure-smoke runs), but refreshing evidence replaced rather than supplemented three broader must bindings, so the 28-ref map now overclaims coverage. CHK-003:adversarial:0 now runs only done-prepare-closure-heartbeat three times and its note covers SIGKILL/reap for phase-bounded execFileSync/execSync; it no longer binds validate-progress-heartbeat, which contains the command/CLI-idle/CLI-max spawned-descendant ESRCH and immediate-retry assertions required by that intent. CHK-003:edge:1 now cites only the validate=true dryRun closeout-idle case and no longer binds the direct done_required_validate formatter/noisy/silent/single-result coverage. CHK-002:edge:2 similarly replaced the broader executed pass/fail/command/phase/idle/max/policy/skip vocabulary evidence with one dryRun closeout timeout. Preserve the new focused evidence but use combined commands/notes (or multiple evidence rows per intent) so each must ref still names every required assertion; for adversarial:0 include validate-progress-heartbeat plus the triple closure smoke, not the triple closure smoke alone.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-15T20:58:10.322Z",
+      "reviewRound": "2026-07-15T20:54:04.151Z",
+      "reviewRunId": "B-c163:RR-024",
+      "_hash": "00ed5b6295bc84766da46a9aaa994718deea59d16889b82e12774a9a9da27575",
+      "files": [
+        "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|dryrun-sigterm-resistant",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: inspect CHK-002:edge:2, CHK-003:edge:1, and CHK-003:adversarial:0 after the focused dryRun/SIGTERM updates; verification_evidence_add had replaced each prior broad command/note with the newest narrow proof, so the row no longer cited every assertion required by its intent. Root cause: verification evidence is one row per intentRef and focused updates replace rather than merge the existing row. Fix: restore exact combined commands and notes. CHK-002:edge:2 now runs done-required-validation + done-prepare-closure-heartbeat + validate-progress-heartbeat and cites executed failure, policy/config/binding refusal, explicit skip, dryRun no-context omission, and command/idle/max structured attribution. CHK-003:edge:1 now runs closure + validate-progress and cites both done_prepare and direct JSON-safe progress bridges, singular JSON, noisy/silent settlement, and dryRun absent-field proof. CHK-003:adversarial:0 now runs validate-progress + closure and cites command/phase/idle/max termination, command/idle/max descendant ESRCH, no late heartbeat, lock/timer cleanup and immediate rerun, plus SIGTERM-resistant sync SIGKILL, bounded return, reap and wrapper restore. Verification: build once, then the full sequence done-required-validation-smoke; done-prepare-closure-heartbeat-smoke; validate-progress-heartbeat-smoke; command-catalog-smoke; verify-process-fact-contract ran three consecutive times at REVIEW HEAD a5bc524. R1 seconds=11.22/48.51/52.05/5.83/1.84 total119.45; R2=17.99/54.81/52.27/3.75/1.34 total130.16; R3=13.17/46.31/54.06/3.97/2.35 total119.86. All PASS; final evidence rows mechanically show the combined commands and notes.",
+      "resolvedAt": "2026-07-15T22:32:54.931Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-013",
+      "desc": "The real CLI timeout matrix is flaky under the full focused sequence: running build -> done-prepare-closure-heartbeat -> validate-progress-heartbeat failed with `max !== command` at the command-timeout row, while immediately rerunning validate-progress-heartbeat alone passed. The row at validate-progress-heartbeat-smoke.ts:280 gives the command only 180ms but caps the entire CLI at 5000ms; under load, post-command evidence/git/CLI settlement can cross that outer cap, allowing the max watchdog to overwrite the intended command classification before output. This makes a required regression nondeterministic and can block REVIEW/TEST despite correct runtime behavior. Give command/phase attribution rows a much wider outer max and matching harness ceiling (well above worst observed process startup/evidence commit time), reserving tight max only for the explicit max row; optionally assert elapsed diagnostics on failure. Re-run the exact combined sequence repeatedly to demonstrate stability.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T20:58:51.748Z",
+      "reviewRound": "2026-07-15T20:54:04.151Z",
+      "reviewRunId": "B-c163:RR-026",
+      "_hash": "67224a06d80d4f13157b05e521b61fcd5245597e8f6acb6f62e8ef89f3217844",
+      "files": [
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+        "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts"
+      ],
+      "signatureTag": "test-reliability|ts|outer-max-overrides-command-row",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Repro: run build followed by the full focused sequence under host load; direct command/phase/idle rows used 3-5s outer LATTICE_MAX_TIMEOUT_MS and 5-8s harness ceilings measured from CLI spawn, while the intended inner timeout began only after process startup and fixture work. The outer max could therefore win first and misclassify a command/phase/idle row as max. Root cause: the test harness conflated infrastructure startup budget with the timeout layer under test. Fix in d374c96740: define NON_MAX_OUTER_TIMEOUT_MS=120000 and NON_MAX_HARNESS_CEILING_MS=60000; apply them to direct pass/command/idle, command-descendant, done_prepare idle, outer-idle descendant, story heartbeat, true command-timeout, and all non-max immediate retries. Only rows explicitly testing max retain tight values: direct/done_prepare max=180ms, descendant max=700ms, named non-divisible max=1005ms. Verification: npm --prefix packages/main run build PASS in 15.29s, then three full focused sequences all PASS at REVIEW HEAD a5bc524. R1 done-required/closure/validate-progress/catalog/contract=11.22/48.51/52.05/5.83/1.84s total119.45s; R2=17.99/54.81/52.27/3.75/1.34s total130.16s; R3=13.17/46.31/54.06/3.97/2.35s total119.86s; aggregate369.47s. Despite visible load variance, no non-max row was preempted or misattributed, and explicit max rows remained tight and passed.",
+      "resolvedAt": "2026-07-15T22:33:04.469Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-014",
+      "desc": "BUG-015 regression coverage is incomplete. The added budget block proves only direct done_required_validate (lines 382-390), not direct done_prepare. The timeout block (lines 414-450) proves stale-lock cleanup and capture-only behavior, but never creates a separate still-live validation lock to prove it is preserved, never immediately reruns capture after cleanup, and never combines the timeout with --write then reads evidence/live-smoke-transcript.json to prove the persisted timeout has exitCode:null/non-pass semantics. These are four explicit safety regressions requested for this round; without them a future change could delete an active validator lock, leave the command unusable after timeout, or serialize a timed-out capture as successful while the smoke remains green. Repro/audit: npm --prefix packages/main run build && node packages/main/dist/tasks/live-smoke-transcript-smoke.js passes, while inspection of packages/main/src/tasks/live-smoke-transcript-smoke.ts:370-450 shows the missing cases.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-15T23:31:09.623Z",
+      "reviewRound": "2026-07-15T23:28:18.819Z",
+      "reviewRunId": "B-c163:RR-036",
+      "_hash": "9ff5242d1d74091444658d8a33f09e92cd9a424a7b0fbb4fbde6dd5124eff395",
+      "files": [
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts",
+        "packages/main/src/core/validation-execution-lock.ts",
+        "packages/main/src/handlers/live-smoke-transcript.ts",
+        "packages/main/src/core/done-required-timeout-budget.ts"
+      ],
+      "signatureTag": "missing|ts|regression-coverage-incomplete",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit bc619c4471 adds direct done_prepare derived-budget assertions, timeout --write/readback exitCode:null non-pass checks, immediate validation-lock reacquire plus immediate capture retry, and preservation of a separate live lock. Independent reviewer build and live-smoke transcript smoke both PASS on signed run B-c163:RR-040.",
+      "resolvedAt": "2026-07-15T23:46:18.940Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-015",
+      "desc": "BUG-015 remains reproducible for a supported explicit max override: liveSmokeCaptureBudget recognizes a direct `lattice done_required_validate`/`done_prepare` command but derives only the default/config phase budget and ignores the command's authoritative inherited `LATTICE_MAX_TIMEOUT_MS`. The nested CLI honors that env at cli-engine.ts:1005-1014, while the capture timer arms the shorter value at done-required-timeout-budget.ts:127-144 and live-smoke-transcript.ts:516-518, so capture can SIGTERM/SIGKILL a still-legally-running closeout. Repro after build: `LATTICE_MAX_TIMEOUT_MS=2147483647 node --input-type=module -e \"import { liveSmokeCaptureBudget } from './packages/main/dist/core/done-required-timeout-budget.js'; const b=liveSmokeCaptureBudget(process.cwd(),'lattice done_required_validate --storyId=B-c163',process.env); console.log(JSON.stringify({explicitMax:Number(process.env.LATTICE_MAX_TIMEOUT_MS),capture:b})); if (!(b.timeoutMs < Number(process.env.LATTICE_MAX_TIMEOUT_MS))) process.exit(2);\"` prints explicitMax=2147483647 versus capture.timeoutMs=1520000. This contradicts the decisions contract that explicit LATTICE_MAX_TIMEOUT_MS remains authoritative and the Round-8 requirement that capture never impose a shorter ceiling on a recognized closeout command. Include the clamped explicit max in the recognized-command legal ceiling (and account deliberately for allowed inline env assignments), while preserving the 60s arbitrary-command ceiling and lower-only LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS override. The persisted candidate digest 79fc8a964ff94df0740750b1b0a967b329c8274d211a1909c76141ebd26e13ea is stale; exact current local recomputation after review_run_start is 286e849c16a844a368a84188612e86ae40e370453b60d8f00f1a3109c7fff402; corpus digest is unchanged.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T23:33:39.829Z",
+      "reviewRound": "2026-07-15T23:28:18.819Z",
+      "reviewRunId": "B-c163:RR-038",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "79fc8a964ff94df0740750b1b0a967b329c8274d211a1909c76141ebd26e13ea",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "da94eefafc80c6bd3fd54a596a65690dd364f4adac97234f34591dc85b2e7b2a",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/done-required-timeout-budget.ts",
+        "packages/main/src/handlers/live-smoke-transcript.ts",
+        "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md"
+      ],
+      "signatureTag": "edge|ts|remains-reproducible-supported",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 2134c9e7a1 generalizes trusted closeout capture budgeting. Independent RR-055 numeric verification shows inherited max 1000 produces requested/effective nested=1000, capture=4000, outer=34000; MAX_SAFE is clamped and saturation-adjusted to nested=2147450647, capture=2147453647, outer=2147483647. The handler forwards effective nested LATTICE_MAX_TIMEOUT_MS to the child. Build and live-smoke regression verify active-CLI trust, lower-only capture override, structured timeout terminal and process-group reap.",
+      "resolvedAt": "2026-07-16T00:26:27.268Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-016",
+      "desc": "BUG-015 still allows an arbitrary executable to obtain the derived closeout timeout through an accepted shell environment prefix. recognizedLiveSmokeCommand accepts unrestricted NAME=value assignments before lattice. Because runCapture later executes through shell:true, PATH=/tmp/fake:$PATH lattice done_required_validate resolves /tmp/fake/lattice, and LD_PRELOAD=/tmp/arbitrary.so lattice done_required_validate injects arbitrary code, yet both are classified as recognized closeout commands. Repro after build: importing liveSmokeCaptureBudget for node arbitrary.js returns 60000, while PATH=/tmp/fake:$PATH lattice done_required_validate --storyId=B-c163 and LD_PRELOAD=/tmp/arbitrary.so lattice done_required_validate --storyId=B-c163 each return recognizedCommand=done_required_validate and timeoutMs=1520000 in this repo. This violates the fixed 60-second arbitrary-command safety ceiling and the direct-command recognition boundary. Reject inline environment assignments for the widened path, or narrowly allowlist inert assignments such as LATTICE_SESSION_ID while rejecting executable-resolution/runtime-injection variables and resolving the intended lattice executable before granting the derived budget. Add PATH and LD_PRELOAD/NODE_OPTIONS adversarial budget assertions. The persisted candidate digest 79fc8a964ff94df0740750b1b0a967b329c8274d211a1909c76141ebd26e13ea is stale; the last independently recomputed digest before the concurrent finding commits was 286e849c16a844a368a84188612e86ae40e370453b60d8f00f1a3109c7fff402, so owner must reroute for the exact current digest; corpus digest is unchanged.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T23:34:39.958Z",
+      "reviewRound": "2026-07-15T23:28:18.819Z",
+      "reviewRunId": "B-c163:RR-039",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "79fc8a964ff94df0740750b1b0a967b329c8274d211a1909c76141ebd26e13ea",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "1217d1398293fec7f7d1de84926b0401a7b8a5f216e044c9c3b3cb1dcc473474",
+      "files": [
+        "packages/main/src/core/done-required-timeout-budget.ts",
+        "packages/main/src/handlers/live-smoke-transcript.ts",
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|still-allows-arbitrary",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Round 12 quality verification confirms unsafe PATH, LD_PRELOAD, NODE_OPTIONS, inline timeout assignments, and shell composition remain unrecognized at the 60-second arbitrary-command ceiling; only validated LATTICE_SESSION_ID plus exact active CLI qualifies.",
+      "resolvedAt": "2026-07-16T00:26:08.028Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-017",
+      "desc": "The inherited-max fix still lets the outer live-smoke wrapper terminate before the nested closeout reaches its authoritative deadline and cleanup. `liveSmokeCaptureBudget` sets the handler timer to exactly inherited `LATTICE_MAX_TIMEOUT_MS` (done-required-timeout-budget.ts:200-215), while the nested done_required_validate/done_prepare starts its own same-duration watchdog only after process spawn and CLI startup. More directly, cli-engine.ts:1005-1013 applies the same explicit max to the outer `live_smoke_transcript` invocation, overriding commandCliMaxBudget's intended capture+30s grace. Repro after build: `LATTICE_MAX_TIMEOUT_MS=1000 node --input-type=module -e \"import { resolve } from 'node:path'; import { liveSmokeCaptureBudget, commandCliMaxBudget, NODE_TIMER_MAX_MS } from './packages/main/dist/core/done-required-timeout-budget.js'; const cmd=resolve('bin/lattice.js')+' done_required_validate --storyId=B-c163 --json'; const capture=liveSmokeCaptureBudget(process.cwd(),cmd,process.env); const derivedOuter=commandCliMaxBudget(process.cwd(),'live_smoke_transcript',{capture:cmd}); const explicit=Math.min(NODE_TIMER_MAX_MS,Math.floor(Number(process.env.LATTICE_MAX_TIMEOUT_MS))); console.log(JSON.stringify({captureTimeoutMs:capture.timeoutMs,derivedOuterTimeoutMs:derivedOuter.timeoutMs,effectiveOuterCliTimeoutMs:explicit,effectiveNestedCliTimeoutMs:explicit})); if (!(capture.timeoutMs===explicit && explicit<derivedOuter.timeoutMs)) process.exit(2);\"` prints capture=1000, derivedOuter=31000, but effective outer CLI=1000 and effective nested CLI=1000. Since the outer watchdog starts before spawn and the handler timer starts before nested CLI initialization, equality is an effective shorter ceiling; structured nested timeout output/cleanup can be preempted. Preserve the nested inherited max as authoritative, but give the handler a bounded post-deadline cleanup/reap grace and make the outer live_smoke CLI use its derived wrapper budget (which already incorporates inherited max) rather than reapplying the raw explicit max. `LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS` may intentionally remain lower-only. Inline executable-affecting env assignments correctly remain unrecognized/60s and must stay so.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-15T23:47:21.998Z",
+      "reviewRound": "2026-07-15T23:44:04.607Z",
+      "reviewRunId": "B-c163:RR-042",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "364433de10b0f68af5e6a2e165dc25feefc75810abf86ce521a1bc09097e8a26",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "6cc8c7573f5ee3ffb430635a7eb36d7d3ceb7d2bb15f0b1c2fdeb4cdebe04ce0",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/done-required-timeout-budget.ts",
+        "packages/main/src/handlers/live-smoke-transcript.ts",
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|inherited-still-lets",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 2134c9e7a1 gives every trusted nested closeout a business deadline, 3000ms capture termination/reap grace, and 30000ms outer wrapper grace; effectiveCommandCliMaxBudget preserves the derived outer wrapper instead of reapplying raw explicit max. RR-055 confirms strict ordering for inherited and default paths and actual CLI timeout emits one JSON terminal with exitCode null and no orphan. The force-kill escalation timer remains referenced until Promise settlement.",
+      "resolvedAt": "2026-07-16T00:26:29.198Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-018",
+      "desc": "The injection boundary is fixed, but the widened budget rejects the repository actual standard global lattice executable, so a normal direct `lattice done_required_validate` capture still receives only 60000ms. In trustedLatticeExecutable, activeEntrypoint is accepted as global only when its realpath matches /node_modules/@lattice/core/dist/cli.js. Here `command -v lattice` is /Users/jek/.nvm/versions/node/v22.13.0/bin/lattice and its realpath is /Users/jek/Documents/Work/proofbound/packages/main/dist/cli.js, which is the active verified global CLI but does not match that regex and is outside the story worktree root. Repro after build: set process.argv[1] to that actual shim and call liveSmokeCaptureBudget(process.cwd(), `lattice done_required_validate --storyId=B-c163`, process.env); result is timeoutMs=60000, source=fixed-arbitrary-command, recognizedCommand=null. The project candidate does not rescue normal use: worktree bin/lattice.js is tracked mode 100644, while the smoke creates a synthetic chmod 0755 bin/lattice.js, so its positive case does not represent either shipped entrypoint. This leaves the original long direct closeout capture path functionally unrecognized despite the new safety parser. Resolve the global/project executable through the existing runtime entrypoint/realpath contract, or safely accept the current running CLI realpath when the PATH executable resolves to that same verified entrypoint; add a regression using the actual global-symlink layout rather than only a chmod fixture. PATH/LD_PRELOAD/NODE_OPTIONS/inline timeout assignments and ;, &&, pipe, redirect, command substitution, backtick and newline composition all independently remained at 60000ms in this review.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-15T23:47:56.380Z",
+      "reviewRound": "2026-07-15T23:44:04.607Z",
+      "reviewRunId": "B-c163:RR-044",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "364433de10b0f68af5e6a2e165dc25feefc75810abf86ce521a1bc09097e8a26",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "ce3c99115b4c7c0132aefc29584152ec5a8bc25929466da4f04721f3d9cee1dd",
+      "files": [
+        "packages/main/src/core/done-required-timeout-budget.ts",
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts",
+        "packages/main/src/core/runtime-fact-registry.ts"
+      ],
+      "signatureTag": "edge|ts|injection-boundary-fixed",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Round 12 quality verification confirms the real command-v lattice global symlink realpath equals the active CLI and receives the derived closeout budget with cleanup grace; path-shape hardcoding was removed.",
+      "resolvedAt": "2026-07-16T00:26:09.797Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-019",
+      "desc": "The actual global lattice symlink now widens correctly and all inline-env/shell-composition negatives stay at 60s, but trustedLatticeExecutable still violates the requested exact-active-realpath boundary by independently trusting root/packages/main/dist/cli.js and root/bin/lattice.js. Each project candidate is resolved and then compared against a candidate list containing its own realpath, so chmod or symlink makes it self-authorizing even when it does not equal the active CLI. Deterministic repro after build in a fresh temp root with activeCliEntrypoint set to the real global CLI: (1) create root/bin/lattice.js containing an arbitrary shell script and chmod 0755; liveSmokeCaptureBudget(root, `<that path> done_required_validate --storyId=B-test`, env, active) returns recognizedCommand=done_required_validate, source=derived-done-required-command, timeoutMs=30000 instead of fixed 60000; (2) symlink root/bin/lattice.js to process.execPath and the same call again recognizes Node itself and grants the derived budget. The realpaths differ from active `/Users/jek/Documents/Work/proofbound/packages/main/dist/cli.js`. Remove the independent project-path candidates and require resolvedExecutable === resolved activeCliEntrypoint; a project CLI is naturally accepted when it is the active entrypoint. Add explicit chmod-fake and project-bin-symlink-to-node negatives. Positive actual `command -v lattice` resolves and receives 1520000ms; PATH/LD_PRELOAD/NODE_OPTIONS/inline timeout assignments plus semicolon, &&, pipe, redirect, command substitution, backticks and newline remain 60000ms. Build, live-smoke smoke, command-catalog smoke and process-fact fingerprint contract pass.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-16T00:01:21.182Z",
+      "reviewRound": "2026-07-15T23:58:38.447Z",
+      "reviewRunId": "B-c163:RR-047",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/done-required-timeout-budget.ts",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "93f859032826364147439563acbd2b97f1f39a8238abc3c7751b9a0929516716",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "05aed936f81099e677817df5953f95d978a8661acbd55d3efede5ecb170fed84",
+      "files": [
+        "packages/main/src/core/done-required-timeout-budget.ts",
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|actual-global-lattice",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit ce35dc7f7c removes project candidate self-authorization and requires resolvedExecutable equal realpath(process.argv[1]); chmod fake project bin and PATH symlink to Node both remain unrecognized at 60 seconds in independent Round 12 quality verification.",
+      "resolvedAt": "2026-07-16T00:26:10.865Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-020",
+      "desc": "Layer ordering is correct for ordinary inherited maxima, but collapses at the supported Node timer clamp: `positiveInt` clamps the nested inherited max to NODE_TIMER_MAX_MS, then both `safeTimeoutSum([nested, cleanupGrace])` and the outer wrapper sum saturate to the same NODE_TIMER_MAX_MS. Repro after build: `ACTIVE=$(realpath \"$(command -v lattice)\") node --input-type=module -e \"import { liveSmokeCaptureBudget,effectiveCommandCliMaxBudget,NODE_TIMER_MAX_MS } from './packages/main/dist/core/done-required-timeout-budget.js'; const active=process.env.ACTIVE,cmd='lattice done_required_validate --storyId=B-c163 --json',env={...process.env,LATTICE_MAX_TIMEOUT_MS:String(Number.MAX_SAFE_INTEGER)}; const c=liveSmokeCaptureBudget(process.cwd(),cmd,env,active); const o=effectiveCommandCliMaxBudget(process.cwd(),'live_smoke_transcript',{capture:cmd},env,active); console.log(JSON.stringify({nested:c.nestedMaxTimeoutMs,capture:c.timeoutMs,outer:o.timeoutMs,nodeMax:NODE_TIMER_MAX_MS}));\"` prints nested=capture=outer=2147483647. Because the outer CLI watchdog starts before capture spawn and the capture timer starts before nested CLI initialization, equal numeric ceilings still allow the outer layer to fire first and preempt the intended nested structured timeout plus TERM/KILL/reap cleanup. This affects only the ~24.8-day saturation edge and remains fail-closed, so severity is medium, but it does not satisfy the requested ordered/fail-closed clamp boundary. Reserve wrapper grace below the clamp (including ensuring the nested child receives the reserved effective max), or implement an explicit saturated-edge policy/test that guarantees cleanup and structured outcome without relying on equal-start timers. Ordinary 1000ms evidence is correct: nested=1000, capture=4000, outer=34000, unrelated command=1000; focused live-smoke/process-fact/retired-vocabulary tests all pass.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-16T00:01:46.965Z",
+      "reviewRound": "2026-07-15T23:58:38.447Z",
+      "reviewRunId": "B-c163:RR-048",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "93f859032826364147439563acbd2b97f1f39a8238abc3c7751b9a0929516716",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "2295333f2e495ab16fe9d68f5b3e527e03f81da3c4dd12c78f1f20de52f1c002",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/done-required-timeout-budget.ts",
+        "packages/main/src/handlers/live-smoke-transcript.ts",
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|layer-ordering-correct",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 2134c9e7a1 reserves both wrapper grace layers below NODE_TIMER_MAX_MS and reports requestedNestedMaxTimeoutMs, nestedMaxTimeoutMs, saturationAdjusted, and saturation-adjusted source. RR-055 verifies MAX_SAFE => requested=2147483647, effective=2147450647, capture=2147453647, outer=2147483647 with strict ordering; handler child-env observer confirms the effective value is executed, not merely reported.",
+      "resolvedAt": "2026-07-16T00:26:31.028Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-021",
+      "desc": "Round 11 still lacks a mechanical regression proving the handler passes the saturation-adjusted nested max into the spawned child. The new assertions at live-smoke-transcript-smoke.ts:471-489 call liveSmokeCaptureBudget/effectiveCommandCliMaxBudget directly and validate requestedNestedMaxTimeoutMs, nestedMaxTimeoutMs, capture, and outer values, but no handler invocation runs a recognized trusted lattice command under MAX_SAFE and observes the child environment. The handler wiring at live-smoke-transcript.ts:519-522 could be removed, use requestedNestedMaxTimeoutMs instead of nestedMaxTimeoutMs, or omit the env override entirely while every added smoke assertion remains green. Existing handler timeout/write/retry tests use an arbitrary Node command and only LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS, so they do not cover this path. Build, compiled live-smoke smoke, and process-fact contract all pass, confirming this is a verified coverage gap rather than a current runtime failure.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-16T00:10:27.329Z",
+      "reviewRound": "2026-07-16T00:08:33.580Z",
+      "reviewRunId": "B-c163:RR-050",
+      "_hash": "442b6d92c83e681695c71ebbc4ed215774b54228ad257b6a0772165b9ab1f45b",
+      "files": [
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts",
+        "packages/main/src/handlers/live-smoke-transcript.ts",
+        "packages/main/src/core/done-required-timeout-budget.ts"
+      ],
+      "signatureTag": "missing|ts|round-still-lacks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 2134c9e7a1 adds handler-level child-environment observers for default-derived and MAX_SAFE saturation-adjusted effective nested max. Round 12 coverage run B-c163:RR-054 independently confirms missing or requested-instead-of-effective wiring would fail; build, compiled live-smoke, and process-fact contract pass.",
+      "resolvedAt": "2026-07-16T00:25:19.785Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-022",
+      "desc": "The layered-grace fix is applied only when inherited `LATTICE_MAX_TIMEOUT_MS` is present; trusted closeout captures using the normal derived/configured budget still arm the handler at exactly the nested CLI max, so the handler timer starts earlier and can preempt nested structured timeout/cleanup. Default repro after build: `env -u LATTICE_MAX_TIMEOUT_MS ACTIVE=$(realpath \"$(command -v lattice)\") node --input-type=module -e \"import { liveSmokeCaptureBudget,effectiveCommandCliMaxBudget,commandCliMaxBudget } from './packages/main/dist/core/done-required-timeout-budget.js'; process.argv[1]=process.env.ACTIVE; const cmd='lattice done_required_validate --storyId=B-c163 --json'; const nested=commandCliMaxBudget(process.cwd(),'done_required_validate',{},process.env).timeoutMs; const capture=liveSmokeCaptureBudget(process.cwd(),cmd,process.env); const outer=effectiveCommandCliMaxBudget(process.cwd(),'live_smoke_transcript',{capture:cmd},process.env).timeoutMs; console.log(JSON.stringify({nested,capture:capture.timeoutMs,outer,strict:nested<capture.timeoutMs&&capture.timeoutMs<outer,source:capture.source}));\"` prints nested=1520000, capture=1520000, outer=1550000, strict=false. The same omission reappears at a configured/phase-derived Node saturation without LATTICE_MAX: setting `LATTICE_DONE_PREPARE_DONE_CLOSURE_TIMEOUT_MS=Number.MAX_SAFE_INTEGER` yields nested=capture=outer=2147483647 and saturationAdjusted=false. ce35dc7f7c correctly adjusts/passes the child env for inherited-max saturation, reports requested/effective/saturation fields, preserves unrelated raw explicit max, and blocks project-path self-authorization, but it does not generalize nested effective-max reservation to ordinary derived/configured budgets. Compute a requested/effective nested business bound for every recognized closeout capture, add cleanup grace regardless of source, reserve both grace layers at saturation, and pass an adjusted child `LATTICE_MAX_TIMEOUT_MS` whenever the effective nested bound differs from what the nested CLI would otherwise derive. Add default-derived and phase/config-saturated strict-order assertions plus an actual child-env observation.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-16T00:11:04.863Z",
+      "reviewRound": "2026-07-16T00:08:33.580Z",
+      "reviewRunId": "B-c163:RR-051",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "60d2f29d48aa388193773deb5db24c8b2da1a133b121367a48d912caed738808",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "1e44e982518211c0ceff398f7c9c63760ffedbf0543e79c442a9797d054f0c6f",
+      "files": [
+        "packages/main/src/core/done-required-timeout-budget.ts",
+        "packages/main/src/handlers/live-smoke-transcript.ts",
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|layered-grace-applied",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 2134c9e7a1 applies nested-bound selection and 3000ms cleanup grace to default/config/phase-derived trusted closeouts, not only inherited max. RR-055 independently shows default DONE-required nested=1520000, capture=1523000, outer=1553000; phase-derived saturation reports derived-closeout-saturation-adjusted and strict ordering. Compiled smoke covers configured saturation, phase saturation, effective child env, unrelated raw explicit max, active-CLI trust, structured terminal, reap and immediate repeat.",
+      "resolvedAt": "2026-07-16T00:26:32.851Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-023",
+      "desc": "Distinct from F-021/F-022: the async live-smoke capture can let the CLI terminate successfully before its timeout Promise settles. runCapture unrefs timeoutTimer, heartbeatTimer, and the 250ms forceKill timer. When the 100ms timeout sends SIGTERM and the direct child closes promptly, child close records closed=true but intentionally does not call finish because timedOut=true; the only remaining path to finish is the unref force-kill timer. The local CLI entry calls runCli().catch(...) without top-level await, so no referenced handle keeps the process alive. Deterministic real CLI repro after build, three consecutive runs: `LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS=100 node packages/main/dist/cli.js live_smoke_transcript {\"storyId\":\"B-c163\",\"capture\":\"sleep 5\",\"json\":true}` prints only `[0.1s] running live_smoke_transcript...`, exits 0, emits zero stdout bytes, never prints done, and records no structured timeout JSON. The compiled focused smoke also failed once in this review with Node `Warning: Detected unsettled top-level await` at its separate-live-lock handler await, then passed on retries, confirming the same load-sensitive liveness race. Keep a referenced cleanup deadline until finish, or settle directly on close after timedOut while ensuring the process group has been terminated/reaped and all timers/listeners are cleared; add an actual CLI regression asserting non-silent structured timeout completion and non-success exit semantics. F-016/F-018/F-019 trust conditions themselves now pass: exact global realpath widens, chmod fake and PATH symlink-to-Node remain 60s, the active-entrypoint function parameter seam is removed, and all inline env/composition negatives remain 60s. Build, command-catalog, process-fact/fingerprint contract pass; live-smoke smoke is flaky as described.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-16T00:14:23.820Z",
+      "reviewRound": "2026-07-16T00:08:33.580Z",
+      "reviewRunId": "B-c163:RR-052",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/done-required-timeout-budget.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "60d2f29d48aa388193773deb5db24c8b2da1a133b121367a48d912caed738808",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "aadccc91de5ef6cd136eed4aa80e33a018a7405a617341f8f1314d63727e8c13",
+      "files": [
+        "packages/main/src/handlers/live-smoke-transcript.ts",
+        "packages/main/src/cli.ts",
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|distinct-async-live",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 2134c9e7a1 keeps TERM-to-KILL escalation referenced through reap. Round 12 quality ran the actual dist CLI twice; each produced exactly one nonempty parseable JSON timeout terminal with null child exit, termination diagnostic, one done log, and no sleep orphan.",
+      "resolvedAt": "2026-07-16T00:26:11.786Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-024",
+      "desc": "The new actual-CLI structured-terminal regression is nondeterministic because it arms `LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS=100` before the captured Node script has necessarily started and written `actual-cli-descendant-<n>.pid`, then unconditionally reads that file. Independent RR-055 build+smoke failed once with `ENOENT ... actual-cli-descendant-0.pid` at compiled live-smoke-transcript-smoke.js:105; an immediate rerun and three subsequent consecutive runs passed. This does not reopen F-015/F-017/F-020/F-022—the product budget matrices, effective child env, referenced cleanup timer, structured terminal and reaping paths are correct—but the required actual CLI regression can fail solely from host startup scheduling and therefore is not stable gate evidence. Split the proof: keep a tight terminal-emission test that does not require the child to have reached PID creation, and use a separate deterministic descendant-reap row with sufficient startup/ready synchronization before the tested timeout, or otherwise wait for a mechanically guaranteed ready signal. Do not suppress ENOENT in the descendant proof, because that would stop proving a descendant existed.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-16T00:26:55.090Z",
+      "reviewRound": "2026-07-16T00:23:12.416Z",
+      "reviewRunId": "B-c163:RR-055",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2b923db20867089826017b71f66713290b4f711fcce50c880d4cdf100c655c46",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "db5c48e7f8462186a9d527f7705576495af888939ba51fbc25b8aa7e684ee0f5",
+      "files": [
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|actual-structured-terminal",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit dcff390222 separates the race-prone proof into two deterministic contracts. The tight actual-CLI terminal loop runs `sleep 5` ten times at a 100ms capture timeout and asserts only parseable terminal JSON, null/non-pass exit, and process-group termination text—no PID-file assumption. A separate descendant-reap row starts the CLI asynchronously with a 2000ms capture window, waits for a PID-written readiness handshake using fs.watch plus a 25ms existence probe, uses an idempotent settled guard, closes watcher/probe/deadline on every readiness settlement, then verifies the CLI was active at readiness, emitted a structured terminal, and the confirmed descendant is ESRCH. The capture's own bounded process-group cleanup remains the failure-path process backstop. Independent RR-060 verification: build PASS; four consecutive complete live-smoke runs PASS, with the first three covering 30 tight terminal iterations and the fourth an additional main run; process-fact contract PASS. Production files are unchanged.",
+      "resolvedAt": "2026-07-16T00:39:10.690Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-025",
+      "desc": "The new PID-readiness harness cleans fs.watch, its probe, and its 15s readiness deadline idempotently on ready success/timeout, but it is not resource-safe after spawning the CLI. The spawned `cli` is not detached into its own process group and there is no outer try/finally that terminates it and awaits close. If `await ready` rejects, the readiness assertion/readFile throws, or another pre-close assertion fails, control reaches the block finally which only rmSyncs the fixture root; the CLI and descendants can remain alive. After readiness succeeds, `await closed` has no deadline, so the harness can hang forever precisely when a cleanup regression prevents CLI settlement. This means the test can leak the process tree or run unbounded on its failure paths even though its normal path passes. Spawn the CLI in an isolated group, add a single idempotent harness settle/cleanup routine that closes watcher/probe/deadlines, TERM->bounded KILLs the CLI group on every failure, awaits direct-child close/reap, and add a bounded post-readiness close deadline; ensure cleanup errors do not mask the original assertion. Add an injected handshake/close failure regression proving no surviving CLI/descendant and bounded completion. Production code is unchanged. Static audit: live-smoke-transcript-smoke.ts descendant block creates `cli` after the readiness Promise, then awaits ready/closed inside the outer try, while its finally only removes root. Normal smoke runs under review continue to execute, but their success cannot exercise this failure cleanup.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-16T00:38:04.706Z",
+      "reviewRound": "2026-07-16T00:35:36.874Z",
+      "reviewRunId": "B-c163:RR-059",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "ee43d3e2b5469d538009a5b942ce6b763cfbfb3744b1dd186c99d8e6637afd05",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "0a82fae49a41cf7fab4b7a52fff05801fee4ce9189e43827b1403c9c7951dfa9",
+      "files": [
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|readiness-harness-cleans",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Test-only commits d23d0afff4 through 4903b28a34 establish detached owned-group cleanup on every harness exit with bounded natural close, TERM-to-KILL fallback, close/reap waits, and injected readiness/assert/read/close-never coverage. Round 16 quality ran six consecutive focused smokes PASS and found no orphan.",
+      "resolvedAt": "2026-07-16T01:19:25.831Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-026",
+      "desc": "F-024 readiness synchronization fixes the normal missed-watch/current-state race, and the 10-iteration tight terminal row no longer assumes a PID, but the new descendant-handshake test has no failure-path process-group cleanup. If `await ready` rejects at its 15s deadline (or after a regression prevents the CLI capture from settling), control jumps directly to the outer finally, which only rmSyncs the fixture directory; it never SIGTERM/SIGKILLs `cli.pid` or awaits `closed`. Thus the stabilization test can leak the spawned CLI/capture group precisely on the failure path it is meant to diagnose. The product timeout normally ends it after 2s, but a cleanup regression or startup hang makes the test harness unsafe and can leave the suite hanging/orphaned. Add a catch/finally around readiness/close that terminates the CLI process group and awaits settlement before removing the fixture. Focused smoke passes on rerun; the first build+smoke attempt transiently hit a concurrent dist import mismatch, not this assertion.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-16T00:38:19.320Z",
+      "reviewRound": "2026-07-16T00:35:36.874Z",
+      "reviewRunId": "B-c163:RR-058",
+      "_hash": "25d8d797f86dc1b1748a1bcd7f511a691f3aed26c59f4c533cd3507bf79a5b56",
+      "files": [
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|readiness-synchronization-fixes",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Test-only commit d23d0afff4 adds detached process-group ownership and idempotent cleanup for readiness reject, post-ready assertion failure, PID read/parse failure, and never-closing waiter. Round 14 coverage run B-c163:RR-062 confirms TERM-to-KILL, bounded close, waitUntilGone enforcement, retained normal/tight terminal coverage, build and focused smoke PASS.",
+      "resolvedAt": "2026-07-16T00:48:58.671Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-027",
+      "desc": "F-025 normal/pre-close failure cleanup is substantially implemented, but the cleanup is still not bounded when PID disappearance itself fails. `waitUntilGone` creates a referenced 20ms `setInterval` and registers its disposer in the shared `disposers` set, then wraps the pending Promise in `bounded(..., 2000)`. Cleanup performs its only disposer sweep and clears the set before calling waitUntilGone. If the process remains visible past 2 seconds, bounded rejects and clears only its own timeout; waitUntilGone has no finally to clear the PID probe interval, the newly-added disposer remains in the set, and the memoized cleanupPromise prevents the concurrent/next cleanup call from performing another sweep. The referenced interval therefore keeps the smoke process alive indefinitely after the advertised bounded cleanup failure. The injected readiness/assert/read/close-never cases all reach a successfully killed PID, so none exercises this branch. Make waitUntilGone own its interval with try/finally (and remove any shared disposer entry), or perform a guaranteed final resource sweep inside cleanup; add an injected PID-disappearance timeout/classifier seam proving the cleanup rejects near 2s, both concurrent cleanup callers settle identically, no probe timer remains, the original failure is preserved, and temp removal occurs only after cleanup accounting. The detached group, watcher/readiness disposal, TERM-to-250ms-KILL, successful close/reap, double-cleanup memoization, and temp removal ordering otherwise inspect correctly; production code is unchanged.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-16T00:49:50.976Z",
+      "reviewRound": "2026-07-16T00:47:27.592Z",
+      "reviewRunId": "B-c163:RR-063",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "5ec90adff037398a7d41f0d0b29ff5549d2125e7caa538bdc20a97b7c6c59b39",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "cc7dd68da61d3c78da8dc35b920dc8ff4aa8f79a22df89051ee05c523d7f449d",
+      "files": [
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|normal-close-failure",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 5369b3e46e plus d0bc74739e locally owns disappearance probe interval/deadline and clears them in finally; synthetic liveness and signal seams are coherent. Round 16 quality confirms active probe counts return to zero across six consecutive passes.",
+      "resolvedAt": "2026-07-16T01:19:26.698Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-028",
+      "desc": "Round 15 smoke is not stable and the cleanup still real-signals unowned/stale positive PIDs. In the first independent full smoke run, the injected `read` case should reject with its JSON parse error but instead failed with `Error: kill EPERM` from signalHarnessProcess during cleanup, causing the assert.rejects regex to fail. Source cause: targets contains the owned detached group `-cli.pid` plus observed positive capture/descendant PIDs; cleanup sends TERM to every target. Once the owned group is signaled, a recorded positive PID may already have exited/reaped and may be stale or reused. The later `filter(isAlive)` before KILL only proves some process currently has that number, not that it is still owned by this harness, so it also cannot authorize a real signal. This directly violates the requested never-signal-foreign-PID boundary and lets cleanup mask the injected primary failure with a genuine EPERM. Signal only the owned detached process group (and direct child through its ChildProcess handle if needed); treat capture/descendant PIDs as observation-only for bounded disappearance checks, ideally bound to process identity/start metadata rather than raw PID reuse. A genuine EPERM from signaling the still-owned group may remain the primary cleanup error, but no real signal should be sent solely on a recorded positive PID. Add a deterministic race seam where observed PIDs become stale/reused after group TERM and assert the signal sender receives only the negative owned PGID, original read/assert failure remains primary, and no external PID is touched. The local waitUntilGone try/finally, synthetic signal+liveness seam, detached group, double cleanup memoization and normal no-signal branch otherwise inspect correctly; production is unchanged.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-16T01:06:58.168Z",
+      "reviewRound": "2026-07-16T01:04:55.795Z",
+      "reviewRunId": "B-c163:RR-067",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "93d3288763a94fa25fa6b47345a20af34d05895417a88d75a0dc11c042cf2ed0",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "fe9b85af352b507bb96fdf4390474cb8ce2c136d76cda8038822b2a4e8432e8c",
+      "files": [
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|round-smoke-stable",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 4903b28a34 signals exclusively the canonical negative owned PGID; observed positive PIDs are wait-only. Stale/reuse seam records only negative targets and preserves original injected errors, ESRCH is benign, and owned no-primary EPERM propagates. Round 16 quality build, six smokes, process-fact contract and orphan scan pass.",
+      "resolvedAt": "2026-07-16T01:19:27.398Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-029",
+      "desc": "Round 15 focused smoke is still nondeterministic in the real cleanup paths. After a successful build, the first live-smoke run failed in the injected readiness case because cleanup signalHarnessProcess received real `kill EPERM`; that cleanup error replaced the expected `injected readiness rejection`, so assert.rejects failed. An immediate rerun passed. The synthetic ESRCH/EPERM branch assertions are correct in isolation, and the disappearance-timeout seam cleans its interval/deadline without real signals, but runDescendantHarness still sends real TERM/KILL to a group plus observed capture/descendant PIDs during each injected failure. A natural EPERM race therefore makes the gate flaky and also means that run did not prove every process disappeared. Stabilize the real target selection/signalling so expected failure injections cannot intermittently be replaced by host-level EPERM while retaining the explicit synthetic EPERM fail-closed assertion. Repro: `npm --prefix packages/main run build && node packages/main/dist/tasks/live-smoke-transcript-smoke.js` failed once with actual `Error: kill EPERM` at signalHarnessProcess during readiness cleanup; immediate `node packages/main/dist/tasks/live-smoke-transcript-smoke.js` passed.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-16T01:07:09.845Z",
+      "reviewRound": "2026-07-16T01:04:55.795Z",
+      "reviewRunId": "B-c163:RR-066",
+      "_hash": "b8cf6e0e867d2cfdca80406f330785ed88e044a6e36e53d8360a53ab3a0298c0",
+      "files": [
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|round-focused-smoke",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Test-only commit 4903b28a34 makes positive capture/descendant PIDs observation-only and signals only the owned negative detached PGID after bounded natural-close wait. Round 16 coverage run B-c163:RR-070 verifies exact negative target seams, primary-error preservation, ESRCH handling, retained F-025-F-027 cases, build, and three focused smoke passes.",
+      "resolvedAt": "2026-07-16T01:16:41.478Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-030",
+      "desc": "Round 17 adds the correct fail-closed evaluator, but gate-consumer regression coverage is incomplete. live-smoke-transcript-smoke behaviorally covers a timeout/null exit, write-only actual=null, passing capture, and a DONE-oracle failure row. It never invokes delivery_check_set while failed/write-only evidence is present, and closeout-trust-smoke calls delivery_check_set before any live-smoke artifact exists; therefore deleting the new delivery-check.ts rejection leaves all focused tests green. Likewise no behavioral test drives canFinishGuard/getGuardFailureReason with a failed transcript: verify-process-fact-contract only checks that machine.ts contains the evaluator name and the helper contains two token predicates, so removing the canFinish guard while leaving the diagnostic import/use would still pass. The registered runtime fact also promises malformed, cross-story, and non-zero rejection, but those variants are not exercised. Add table-driven invalid artifacts and assert evaluator result, delivery_check_set rejection/no write, canFinishGuard=false with live_smoke_transcript_failed diagnostic, and DONE-oracle blocking. The async-await regression itself is covered: closeout-trust now awaits capture before its immediate writer-receipt assertion. Build, live-smoke, closeout-trust, and process-fact contract all pass, confirming a verified coverage gap rather than a current implementation failure.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-16T01:47:36.643Z",
+      "reviewRound": "2026-07-16T01:45:18.901Z",
+      "reviewRunId": "B-c163:RR-075",
+      "_hash": "a7e5858acd90a86dea90594acc29cf4fbcee0def87e28bfd422ddf32aa2ee1b3",
+      "files": [
+        "packages/main/src/core/live-smoke-transcript-evidence.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/src/handlers/delivery-check.ts",
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "missing|ts|round-adds-correct",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit cc816a212a adds behavioral mutation-resistant coverage across both consumers. Five invalid canonical artifacts (write-only, malformed JSON, cross-story, timeout/null, non-zero) are fed through delivery_check_set and each must reject; the same fixtures must make canFinishGuard false and getGuardFailureReason emit [live_smoke_transcript_failed]. The pre-existing green wrapper fixture proves missing-artifact legacy compatibility and a zero-exit passing artifact restores canFinishGuard=true with no guard reason. ReproTest: npm --prefix packages/main run build; npm --prefix packages/main run test:review-assurance-floor-smoke; node packages/main/dist/tasks/live-smoke-transcript-smoke.js; npm run test:closeout-trust; node scripts/verify-process-fact-contract.mjs. All PASS.",
+      "resolvedAt": "2026-07-16T01:52:53.206Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-031",
+      "desc": "Producer status does not implement the newly registered failed-evidence semantics for malformed or cross-story artifacts. classifyTranscript() returns present-stale on JSON parse failure (lines 331-336) and declares parsed.storyId but never compares it with the requested story before returning present-fresh (lines 323-349). Thus a well-formed successful transcript copied from another story can be rendered present(fresh), and malformed evidence is rendered stale, while PROCESS_FACT_LEVELS explicitly claims both are classified present-failed. The shared DONE evaluator still blocks these artifacts, so this is not a DONE bypass, but producer/operator status contradicts the L4 fact and the current smoke suite does not cover either branch. Reuse evaluateOptionalLiveSmokeTranscript (or identical storyId/malformed checks) before freshness classification and add async/status tests for malformed and cross-story artifacts.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-16T01:48:15.934Z",
+      "reviewRound": "2026-07-16T01:45:18.901Z",
+      "reviewRunId": "B-c163:RR-074",
+      "_hash": "48aeb1831d891b99b4502e305d6c3b2ba514fec524077598ffec20b2e6521545",
+      "files": [
+        "packages/main/src/handlers/live-smoke-transcript.ts",
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|producer-status-implement",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit cc816a212a extracts evaluateLiveSmokeTranscriptValue as the single content classifier shared by the producer and gate evaluator. Producer status now renders malformed, cross-story, write-only, timeout/null, and non-zero artifacts as present-failed; only a structurally valid zero-exit transcript whose hash binding drifted renders present-stale. ReproTest: build plus live-smoke-transcript-smoke PASS with an explicit six-case status matrix; review-assurance-floor-smoke and process-fact contract also PASS.",
+      "resolvedAt": "2026-07-16T01:52:59.555Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-032",
+      "desc": "Round 18 closes the original failure-side mutation gap: all five invalid variants hit delivery_check_set, canFinishGuard=false, and the tagged DONE diagnostic; producer status covers malformed/cross-story/write-only/timeout/non-zero plus successful-stale; missing and passing machine controls exist. One overblocking mutation remains uncovered: no test calls delivery_check_set with a valid passing transcript already present. closeout-trust covers delivery_check_set only while the transcript is absent, and review-assurance-floor overwrites the final artifact with exitCode=0 but then checks only canFinishGuard/getGuardFailureReason. A mutation in delivery-check.ts that rejects every present transcript (while still allowing missing and rejecting all five bad variants) would leave the entire focused suite green and make successful live-smoke stories unable to sign delivery. The bad-variant loop also does not assert delivery-check.json is unchanged after each rejection. Add a passing-present delivery_check_set control and snapshot/no-write assertions for rejection. Build, live-smoke, review-assurance-floor, closeout-trust, and process-fact contract all pass; this is a verified residual coverage gap, not a current behavior failure.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-16T01:55:40.222Z",
+      "reviewRound": "2026-07-16T01:52:42.626Z",
+      "reviewRunId": "B-c163:RR-078",
+      "_hash": "5086cdd1411fca93036dad5b588c03d1856f992135bc5447c2a577cef79ef858",
+      "files": [
+        "packages/main/src/handlers/delivery-check.ts",
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|round-closes-original",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit d939df2663 adds the missing positive and atomicity controls on the real delivery_check_set handler. With a present zero-exit transcript, signing returns Delivery check saved, writes delivery-check.json, and its _hash exactly recomputes across storyId/docsPromises/realMachineTests/closingSelfCheck/reviewRound/materialHash/storyFilesHash. The resulting bytes are snapshotted; each of the five rejected artifacts (write-only, malformed, cross-story, timeout/null, non-zero) must throw and leave delivery-check.json byte-identical, while existing machine guard/reason assertions remain. ReproTest: npm --prefix packages/main run build; npm --prefix packages/main run test:review-assurance-floor-smoke; node packages/main/dist/tasks/live-smoke-transcript-smoke.js; npm run test:closeout-trust. All PASS; no full suite run.",
+      "resolvedAt": "2026-07-16T02:00:24.188Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

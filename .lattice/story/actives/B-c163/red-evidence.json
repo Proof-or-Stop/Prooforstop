@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-c163",
+  "records": [
+    {
+      "id": "RED-WA-OBSERVED",
+      "trigger": "DONE-required convergence failed under legal configured budgets and exact-HEAD prose made reuse impossible after evidence commit.",
+      "acceptanceTargetRef": "ACC-DONE-CONVERGENCE",
+      "baselineHeadHash": "f7dadf17466ab93d93342a6df990021227c461cc",
+      "baselineMaterialHash": "fdc51916488d91d4fe67c7c066f102ca37d8d12a868b9034341ca34646c187d0",
+      "observedFailure": "Fixed 240000ms phase and 900000ms CLI max were shorter than 290000ms + 1200000ms; direct heartbeat did not reach ctx.log and was killed around 300.7s; exact current-HEAD reuse contradicts evidence auto-commit movement.",
+      "failingCommand": "lattice done_prepare --storyId=B-9f8a --mergeMain --refreshStale --validate",
+      "expectedGreenCommand": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js && node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+      "greenRelation": {
+        "targetRef": "ACC-DONE-CONVERGENCE",
+        "relation": "regression_to_green",
+        "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js && node packages/main/dist/tasks/done-required-validation-smoke.js && node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js"
+      },
+      "note": "Historical reproduction took 573773ms only after manual idle/max overrides.",
+      "createdAt": "2026-07-15T18:59:52.084Z"
+    }
+  ],
+  "createdAt": "2026-07-15T18:59:52.084Z",
+  "updatedAt": "2026-07-15T18:59:52.084Z"
+}

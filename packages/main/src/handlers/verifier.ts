@@ -615,6 +615,9 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       concept?: boolean;
       lint?: boolean;
       noSync?: boolean;
+      abortSignal?: AbortSignal;
+      deadlineAt?: number;
+      deadlineError?: () => Error;
     }) {
       // B-a30e: normalize storyId alias — must happen before any story usage
       if (args.storyId !== undefined) {
@@ -770,6 +773,9 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             ...(focus ? { focus } : {}),
           }, projectRoot, currentHead(handlerGitCwd), args.story, {
             progress: validationProgressReporter(ctx),
+            abortSignal: args.abortSignal,
+            deadlineAt: args.deadlineAt,
+            deadlineError: args.deadlineError,
           });
           await maybeHoldValidationLockSmokeHook(projectRoot, args.story);
           const summary = usingConfigured
