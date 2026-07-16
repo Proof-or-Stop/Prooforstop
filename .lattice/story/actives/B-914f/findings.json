@@ -132,6 +132,21 @@
       "resolvedAt": "2026-07-16T14:46:26.676Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-914f:F-008",
+      "desc": ".lattice/story/actives/B-914f/checklist.json: CHK-002:adversarial:0, CHK-003:happy:1, and CHK-003:adversarial:1 are verificationIntent type=cli but their fresh evidence is persisted as kind=logic_test. packages/main/src/handlers/checklist.ts:289-294 mechanically maps integration_test to cli and logic_test to logic, so the current evidence bindings misclassify real CLI integration coverage even though validation-evidence-reuse-smoke exercises the paths. Re-record these three refs as integration_test (or another canonical CLI-mapped kind) with the same truthful command/results. Severity medium because the executable coverage exists and independently passes, but the structured audit/evidence kind is wrong.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-16T14:50:07.511Z",
+      "reviewRound": "2026-07-16T14:46:04.746Z",
+      "reviewRunId": "B-914f:RR-007",
+      "_hash": "8ae4975ac19adeed49c4cfa3e4d1c1c020935e3de15b7688b8e1d98ae59e695b",
+      "signatureTag": "missing|unknown|lattice-story-actives",
+      "signatureTagSource": "auto"
     }
   ]
 }
