@@ -60,8 +60,24 @@
       "phase": "DEV",
       "headHash": "936fe637413f7fd9ad3f63b2ba2d10136488047a",
       "materialHash": "8f50db581019ab74578e018d89cffe7ac82ad06cc37445328a3af4d36ee8a64b"
+    },
+    {
+      "actor": "lattice-implementer",
+      "reason": "F-017 requires the existing validation-lock regression fixture to satisfy the mandatory signed reviewer readManifest contract; this is test-only compatibility coverage for B-914f lock semantics.",
+      "timestamp": "2026-07-16T20:05:09.160Z",
+      "paths": [
+        "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "6b1aa06cbdf21f2c0fca415cd3097bcc5c6270da",
+      "materialHash": "98aec514f8a7bf9ea2860209a52d9d673aed45a1f9863f50f28281ca70ca13fc"
     }
   ],
   "createdAt": "2026-07-16T14:07:21.711Z",
-  "updatedAt": "2026-07-16T17:09:38.152Z"
+  "updatedAt": "2026-07-16T20:05:09.160Z"
 }
