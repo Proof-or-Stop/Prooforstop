@@ -1130,7 +1130,7 @@
       "desc": "Round 18 closes the original failure-side mutation gap: all five invalid variants hit delivery_check_set, canFinishGuard=false, and the tagged DONE diagnostic; producer status covers malformed/cross-story/write-only/timeout/non-zero plus successful-stale; missing and passing machine controls exist. One overblocking mutation remains uncovered: no test calls delivery_check_set with a valid passing transcript already present. closeout-trust covers delivery_check_set only while the transcript is absent, and review-assurance-floor overwrites the final artifact with exitCode=0 but then checks only canFinishGuard/getGuardFailureReason. A mutation in delivery-check.ts that rejects every present transcript (while still allowing missing and rejecting all five bad variants) would leave the entire focused suite green and make successful live-smoke stories unable to sign delivery. The bad-variant loop also does not assert delivery-check.json is unchanged after each rejection. Add a passing-present delivery_check_set control and snapshot/no-write assertions for rejection. Build, live-smoke, review-assurance-floor, closeout-trust, and process-fact contract all pass; this is a verified residual coverage gap, not a current behavior failure.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-16T01:55:40.222Z",
@@ -1143,7 +1143,11 @@
         "packages/main/src/tasks/closeout-trust-smoke.ts"
       ],
       "signatureTag": "missing|ts|round-closes-original",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit d939df2663 adds the missing positive and atomicity controls on the real delivery_check_set handler. With a present zero-exit transcript, signing returns Delivery check saved, writes delivery-check.json, and its _hash exactly recomputes across storyId/docsPromises/realMachineTests/closingSelfCheck/reviewRound/materialHash/storyFilesHash. The resulting bytes are snapshotted; each of the five rejected artifacts (write-only, malformed, cross-story, timeout/null, non-zero) must throw and leave delivery-check.json byte-identical, while existing machine guard/reason assertions remain. ReproTest: npm --prefix packages/main run build; npm --prefix packages/main run test:review-assurance-floor-smoke; node packages/main/dist/tasks/live-smoke-transcript-smoke.js; npm run test:closeout-trust. All PASS; no full suite run.",
+      "resolvedAt": "2026-07-16T02:00:24.188Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
