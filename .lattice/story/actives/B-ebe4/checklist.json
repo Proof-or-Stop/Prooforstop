@@ -318,9 +318,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "AGENTS.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-16T21:08:34.528Z",
-      "endTime": "2026-07-16T21:29:20.152Z",
+      "endTime": "2026-07-16T21:48:11.150Z",
       "verificationIntent": {
         "happy": [
           {
@@ -386,11 +386,11 @@
           "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
           "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
-          "note": "Hermetic main-old/worktree-new runtime rejects stale main before lookup and executes emitted local recovery, including worktree-only aux_doc_list --format=json.",
-          "headHash": "2d40eef4cb7af058b10cef8093f177b9ed318eb4",
-          "materialHash": "a777dc7f2030d2ceae6bc4a6ed53ce1fa0ca005c6246e363ad7f5394c3448260",
-          "storyFilesHash": "7f252677a032853284f50bba2082791a5ad83e9b61582e56dcff1d585795c091",
-          "timestamp": "2026-07-16T21:29:20.531Z"
+          "note": "Hermetic main-old/worktree-new runtime rejects stale main and executes emitted worktree-local recovery.",
+          "headHash": "637fcb5fc6cbd6e1d1e681904a5175ea61d7c259",
+          "materialHash": "c2051d838269429aa2207ec1fc4934453d7292914cbb2db9d7508dfc581cc1dc",
+          "storyFilesHash": "98e92e1998c75d9ee294b862d5d5c57152647fb38c361188d5999abf78a4f688",
+          "timestamp": "2026-07-16T21:48:11.613Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -398,11 +398,11 @@
           "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
           "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
-          "note": "E2E asserts reason, canonical recovery, recovered output, and zero hook/validation/init/dashboard/evidence effects.",
-          "headHash": "2d40eef4cb7af058b10cef8093f177b9ed318eb4",
-          "materialHash": "a777dc7f2030d2ceae6bc4a6ed53ce1fa0ca005c6246e363ad7f5394c3448260",
-          "storyFilesHash": "7f252677a032853284f50bba2082791a5ad83e9b61582e56dcff1d585795c091",
-          "timestamp": "2026-07-16T21:29:20.713Z"
+          "note": "E2E retains stable reason, canonical recovery, recovered output, and zero side effects.",
+          "headHash": "637fcb5fc6cbd6e1d1e681904a5175ea61d7c259",
+          "materialHash": "c2051d838269429aa2207ec1fc4934453d7292914cbb2db9d7508dfc581cc1dc",
+          "storyFilesHash": "98e92e1998c75d9ee294b862d5d5c57152647fb38c361188d5999abf78a4f688",
+          "timestamp": "2026-07-16T21:48:11.798Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -410,11 +410,11 @@
           "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
           "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
-          "note": "Direct/symlink launchers, linked common-dir, nested cwd, PATH spoof, local runtime, explicit session fallback, and external consumer all covered.",
-          "headHash": "2d40eef4cb7af058b10cef8093f177b9ed318eb4",
-          "materialHash": "a777dc7f2030d2ceae6bc4a6ed53ce1fa0ca005c6246e363ad7f5394c3448260",
-          "storyFilesHash": "7f252677a032853284f50bba2082791a5ad83e9b61582e56dcff1d585795c091",
-          "timestamp": "2026-07-16T21:29:20.910Z"
+          "note": "Direct/symlink launchers, linked common-dir, nested cwd, PATH spoof, local runtime, explicit fallback, and external consumer pass.",
+          "headHash": "637fcb5fc6cbd6e1d1e681904a5175ea61d7c259",
+          "materialHash": "c2051d838269429aa2207ec1fc4934453d7292914cbb2db9d7508dfc581cc1dc",
+          "storyFilesHash": "98e92e1998c75d9ee294b862d5d5c57152647fb38c361188d5999abf78a4f688",
+          "timestamp": "2026-07-16T21:48:11.984Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -422,11 +422,11 @@
           "file": "scripts/verify-runtime-fact-contract.mjs",
           "command": "node scripts/verify-runtime-fact-contract.mjs",
           "result": "pass",
-          "note": "Runtime fact verifier mechanically enforces authority preflight ordering before strict args, init, dashboard, tool lookup, and schema lookup without process-fact leakage.",
-          "headHash": "2d40eef4cb7af058b10cef8093f177b9ed318eb4",
-          "materialHash": "a777dc7f2030d2ceae6bc4a6ed53ce1fa0ca005c6246e363ad7f5394c3448260",
-          "storyFilesHash": "7f252677a032853284f50bba2082791a5ad83e9b61582e56dcff1d585795c091",
-          "timestamp": "2026-07-16T21:29:21.310Z"
+          "note": "Runtime fact contract confirms authority preflight ordering and eight runtime facts.",
+          "headHash": "637fcb5fc6cbd6e1d1e681904a5175ea61d7c259",
+          "materialHash": "c2051d838269429aa2207ec1fc4934453d7292914cbb2db9d7508dfc581cc1dc",
+          "storyFilesHash": "98e92e1998c75d9ee294b862d5d5c57152647fb38c361188d5999abf78a4f688",
+          "timestamp": "2026-07-16T21:48:12.166Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -434,11 +434,11 @@
           "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
           "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
-          "note": "Instrumented stale validate plus git/serve snapshots prove zero handlers, hooks, validation subprocesses, story/evidence writes, init writes, and dashboard startup.",
-          "headHash": "2d40eef4cb7af058b10cef8093f177b9ed318eb4",
-          "materialHash": "a777dc7f2030d2ceae6bc4a6ed53ce1fa0ca005c6246e363ad7f5394c3448260",
-          "storyFilesHash": "7f252677a032853284f50bba2082791a5ad83e9b61582e56dcff1d585795c091",
-          "timestamp": "2026-07-16T21:29:21.573Z"
+          "note": "Instrumented stale validate/init/dashboard retain zero handlers, hooks, subprocesses, story/evidence writes, and serve startup.",
+          "headHash": "637fcb5fc6cbd6e1d1e681904a5175ea61d7c259",
+          "materialHash": "c2051d838269429aa2207ec1fc4934453d7292914cbb2db9d7508dfc581cc1dc",
+          "storyFilesHash": "98e92e1998c75d9ee294b862d5d5c57152647fb38c361188d5999abf78a4f688",
+          "timestamp": "2026-07-16T21:48:12.340Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -446,23 +446,23 @@
           "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
           "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
-          "note": "Loaded-module canonical identity defeats argv[0], PATH, cwd, basename, symlink, and dot-segment spoofing before stale lookup.",
-          "headHash": "2d40eef4cb7af058b10cef8093f177b9ed318eb4",
-          "materialHash": "a777dc7f2030d2ceae6bc4a6ed53ce1fa0ca005c6246e363ad7f5394c3448260",
-          "storyFilesHash": "7f252677a032853284f50bba2082791a5ad83e9b61582e56dcff1d585795c091",
-          "timestamp": "2026-07-16T21:29:21.774Z"
+          "note": "Canonical loaded-module identity defeats argv, PATH, cwd, basename, symlink, and dot-segment spoofing.",
+          "headHash": "637fcb5fc6cbd6e1d1e681904a5175ea61d7c259",
+          "materialHash": "c2051d838269429aa2207ec1fc4934453d7292914cbb2db9d7508dfc581cc1dc",
+          "storyFilesHash": "98e92e1998c75d9ee294b862d5d5c57152647fb38c361188d5999abf78a4f688",
+          "timestamp": "2026-07-16T21:48:12.512Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
           "kind": "integration_test",
-          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
-          "command": "node packages/main/dist/tasks/cli-surface-smoke.js && node packages/main/dist/tasks/command-catalog-smoke.js && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "file": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/validation-protocol-smoke.js",
           "result": "pass",
-          "note": "Correct local runtime and external consumer remain executable; CLI surface, 326-command catalog, and validation protocol regressions pass.",
-          "headHash": "2d40eef4cb7af058b10cef8093f177b9ed318eb4",
-          "materialHash": "a777dc7f2030d2ceae6bc4a6ed53ce1fa0ca005c6246e363ad7f5394c3448260",
-          "storyFilesHash": "7f252677a032853284f50bba2082791a5ad83e9b61582e56dcff1d585795c091",
-          "timestamp": "2026-07-16T21:29:22.127Z"
+          "note": "Canonical AST fingerprint matches f3cbdee8 while the known-benign runCli/initPath dynamic import call shape is unchanged; guard and all focused regressions pass.",
+          "headHash": "637fcb5fc6cbd6e1d1e681904a5175ea61d7c259",
+          "materialHash": "c2051d838269429aa2207ec1fc4934453d7292914cbb2db9d7508dfc581cc1dc",
+          "storyFilesHash": "98e92e1998c75d9ee294b862d5d5c57152647fb38c361188d5999abf78a4f688",
+          "timestamp": "2026-07-16T21:48:12.808Z"
         }
       ]
     }
@@ -514,6 +514,16 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Refresh validation evidence after canonical cli-engine AST fingerprint repin."
+    },
+    {
+      "timestamp": "2026-07-16T21:48:11.150Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Canonical AST fingerprint refreshed without changing benign loader call shape.",
+      "agent": "lattice-implementer"
     }
   ]
 }
