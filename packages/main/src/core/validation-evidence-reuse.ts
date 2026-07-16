@@ -254,6 +254,13 @@ export function evaluateRoutineValidationReuse(args: {
   const reasons: string[] = [];
   const evidence = args.evidence;
   if (!isReusableCommandPass(evidence.commandExecution, args.currentIdentity.commands.length)) reasons.push('prior-command-execution-not-pass');
+  const priorCoverageOnlyFailure = evidence.result === 'FAIL'
+    && evidence.verificationCoverage !== undefined
+    && Number.isInteger(evidence.verificationCoverage.missingRequired)
+    && evidence.verificationCoverage.missingRequired > 0;
+  if (evidence.result !== 'PASS' && !priorCoverageOnlyFailure) {
+    reasons.push('prior-overall-result-not-reusable');
+  }
   if (!isCompleteRoutineValidationIdentity(evidence.routineValidationIdentity)) reasons.push('identity-missing-malformed-or-legacy');
   else if (evidence.routineValidationIdentity.digest !== args.currentIdentity.digest) reasons.push('validation-identity-changed');
   if (args.currentCoverage.missingRequired !== 0) reasons.push('current-verification-coverage-incomplete');

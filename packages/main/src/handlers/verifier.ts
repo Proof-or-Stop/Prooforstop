@@ -49,7 +49,7 @@ import { runChannelGateCli } from './validate-channel.js';
 import { runConceptGateCli } from './validate-concept.js';
 import { runLintGateCli, resolveChangedFiles } from './validate-lint.js';
 import { buildVerificationCoverage, renderVerificationCoverage, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
-import { captureEvidenceHashSnapshot, checkEvidenceFreshnessForGit, checkEvidenceHashSnapshotReuse, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { captureEvidenceHashSnapshot, checkEvidenceFreshnessForGit, checkEvidenceHashSnapshotReuse, currentMaterialHash, currentStoryFilesHash, isMaterialExcludedPath } from '../core/evidence-freshness.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
 import { resolveGitCwd, resolveProjectGitCwd, evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
 import { resolveVerificationIntentPolicy, resolveWorkflowPolicy } from '../core/workflow-policy.js';
@@ -1108,10 +1108,13 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             stdio: ['pipe', 'pipe', 'pipe'],
           }).trim();
           if (diff) {
-            const changedFiles = diff.split('\n').filter(Boolean);
-            // 传全部改动文件给 validate.ts，不假设项目遵循 D/M/F 范式
-            tsArgs.push(`--changed-files=${changedFiles.join(',')}`);
-            ctx.log?.(`story ${args.story}: git diff 发现 ${changedFiles.length} 个改动文件`);
+            const changedFiles = diff.split('\n')
+              .filter(Boolean)
+              .filter((path) => !isMaterialExcludedPath(path, projectRoot));
+            // validate.ts only consumes material changes. Story metadata and
+            // registered runtime artifacts must not perturb command identity.
+            if (changedFiles.length > 0) tsArgs.push(`--changed-files=${changedFiles.join(',')}`);
+            ctx.log?.(`story ${args.story}: git diff 发现 ${changedFiles.length} 个 material 改动文件`);
           }
         } catch { /* git diff 失败不阻塞 */ }
       }

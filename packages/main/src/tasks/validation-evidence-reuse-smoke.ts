@@ -82,6 +82,7 @@ function assertHandlerExecutedThenReused(
     git(root, ['checkout', '-b', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
     const store = new StoryStore(root);
     const now = '2026-07-16T00:00:00.000Z';
     const story: StoryInfo = {
@@ -322,6 +323,10 @@ function main(): void {
       ['prior-command-execution-not-pass', { evidence: { ...evidence, commandExecution: { ...commandExecution, optionalFailureCount: -1 } } }],
       ['prior-command-execution-not-pass', { evidence: { ...evidence, commandExecution: { ...commandExecution, optionalFailureCount: 2 } } }],
       ['prior-command-execution-not-pass', { evidence: { ...evidence, commandExecution: { ...commandExecution, failureKind: 'validation_failure' } } }],
+      ['prior-overall-result-not-reusable', { evidence: { ...evidence, result: 'FAIL', verificationCoverage: undefined } }],
+      ['prior-overall-result-not-reusable', { evidence: { ...evidence, result: 'FAIL', verificationCoverage: { ...coverage, missingRequired: 0 } } }],
+      ['prior-overall-result-not-reusable', { evidence: { ...evidence, result: undefined as unknown as 'PASS' } }],
+      ['prior-overall-result-not-reusable', { evidence: { ...evidence, result: 'UNKNOWN' as 'PASS' } }],
       ['identity-missing-malformed-or-legacy', { evidence: { ...evidence, routineValidationIdentity: undefined } }],
     ];
     for (const [reason, override] of refusalRows) {
