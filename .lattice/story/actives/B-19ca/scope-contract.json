@@ -19,6 +19,7 @@
     "packages/main/src/core/process-fact-registry.ts",
     "packages/main/src/core/process-fact-levels.ts",
     "scripts/verify-process-fact-contract.mjs",
+    "scripts/verify-nested-worktree-bootstrap.mjs",
     "packages/main/src/tasks/command-catalog-smoke.ts",
     "packages/main/src/tasks/review-pass-discard-smoke.ts",
     "packages/main/src/tasks/flow-stability-smoke.ts",
@@ -35,7 +36,8 @@
     "packages/main/src/tasks/review-pass-discard-smoke.ts",
     "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
     "packages/main/src/tasks/flow-stability-smoke.ts",
-    "scripts/verify-process-fact-contract.mjs"
+    "scripts/verify-process-fact-contract.mjs",
+    "scripts/verify-nested-worktree-bootstrap.mjs"
   ],
   "protectedFiles": [
     "packages/main/package.json",
@@ -47,8 +49,8 @@
     "packages/main/src/core/owner-session.ts",
     "packages/main/src/core/scope-diff-pack.ts"
   ],
-  "scopeChangeReason": "First REVIEW found six verified authority/help/completeness gaps. Extend only to the load-bearing mutation handlers and prefix-inference consumers needed to make the typed registry the single mechanical authority, plus their existing regression smoke.",
+  "scopeChangeReason": "DONE-required full-suite exposed a direct regression: the nested-worktree bootstrap smoke globally supplied an unregistered LATTICE_AGENT, which the new fail-closed authority contract correctly rejects before its explicit registered reviewer payload can be evaluated. Extend scope only to update this existing regression smoke to the supported host/registered-reviewer identity contract.",
   "acknowledgements": [],
   "createdAt": "2026-07-16T10:24:09.629Z",
-  "updatedAt": "2026-07-16T11:28:20.877Z"
+  "updatedAt": "2026-07-16T13:15:35.017Z"
 }
