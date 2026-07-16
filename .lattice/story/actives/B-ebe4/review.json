@@ -108,6 +108,30 @@
         }
       ],
       "_hash": "03a1dec34fba3e698238219d09334513dbaacf8ae53048ab56009b49c900b0ce"
+    },
+    {
+      "timestamp": "2026-07-16T23:03:52.819Z",
+      "issueCount": 3,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Detect self-host worktree and runtime realpath mismatch + Fail fast with one canonical local-entrypoint recovery command are performed simultaneously?)"
+        },
+        {
+          "type": "scope_check_stale",
+          "severity": "blocker",
+          "message": "scope-check.json reviewRound (none) does not match the current review round (2026-07-16T22:24:16.250Z); please rerun the scope agent"
+        }
+      ],
+      "_hash": "5b6feb218431d9900f54266e96db44bdd74b6117eb2c1e81b9e9ce8699d36466"
     }
   ]
 }
