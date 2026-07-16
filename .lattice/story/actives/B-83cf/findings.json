@@ -29,6 +29,21 @@
       "_hash": "3f65d5459cefa686d839f448adda9fae62ab90cd8c85312f078f97d73fe6975c",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-83cf:F-003",
+      "desc": "packages/main/src/handlers/verdict.ts:115-182 — HIGH TOCTOU: --deriveBindings snapshots material/storyFiles/current PASS test evidence and checks all five envelope fields in withDerivedBindings(), then returns before submitLocalVerdict writes the verdict and appends the gate-consumed host_verdict event. There is no shared lock or pre-persistence revalidation. A concurrent test-evidence replacement (PASS→FAIL/new receipt) with unchanged material/storyFiles can occur after line 121 but before line 182; the stored validationDigest still reflects the old PASS. packages/main/src/core/host-independence.ts:151-179 only requires validationDigest/promptDigest to be non-empty and does not recompute them, so that stale event can count toward degraded assurance. Keep the pure helper pure (no callback/write seam); make snapshot validation and persistence one fail-closed transaction or add a safe structured revalidation immediately at the persistence boundary, with a deterministic race regression proving no verdict file/process event remains or counts.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-16T18:44:09.209Z",
+      "reviewRound": "2026-07-16T18:40:03.885Z",
+      "reviewRunId": "B-83cf:RR-002",
+      "_hash": "2a9d4a03dc8fb9fef4bb55dd3b9c7124a45345373913cd51760ae7947156c643",
+      "signatureTag": "adversarial|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
