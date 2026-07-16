@@ -2,7 +2,7 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
@@ -866,6 +866,41 @@ try {
         root: wrapper.metadataRoot,
         scanRoot: wrapper.gitRoot,
       } as HandlerContext);
+      mkdirSync(dirname(transcriptPath), { recursive: true });
+      writeFileSync(transcriptPath, JSON.stringify({
+        storyId: STORY_ID,
+        mode: { runCommands: true },
+        actual: { exitCode: 0 },
+      }), 'utf8');
+      const positiveOutput = deliveryHandlers.delivery_check_set({
+        storyId: STORY_ID,
+        docsPromises: [],
+        realMachineTests: ['passing live-smoke transcript'],
+        closingSelfCheck: {
+          hasRealMachineTest: true,
+          hasEdgeCaseCoverage: true,
+          hasUnresolvedTodos: false,
+          summary: 'Valid live-smoke transcript signs delivery evidence.',
+        },
+      });
+      assert.match(positiveOutput, /Delivery check saved/, 'valid present passing transcript allows delivery signing');
+      const positiveDeliveryCheck = store.readDeliveryCheck(STORY_ID);
+      assert.ok(positiveDeliveryCheck, 'positive control writes delivery-check.json');
+      assert.equal(
+        positiveDeliveryCheck._hash,
+        signDeliveryCheck(
+          positiveDeliveryCheck.storyId,
+          positiveDeliveryCheck.docsPromises,
+          positiveDeliveryCheck.realMachineTests,
+          positiveDeliveryCheck.closingSelfCheck,
+          positiveDeliveryCheck.reviewRound,
+          positiveDeliveryCheck.materialHash,
+          positiveDeliveryCheck.storyFilesHash,
+        ),
+        'positive delivery-check has a valid signature',
+      );
+      const deliveryCheckPath = store.storyFilePath(STORY_ID, 'delivery-check.json');
+      const positiveDeliveryBytes = readFileSync(deliveryCheckPath, 'utf8');
       const invalidArtifacts: Array<[string, string]> = [
         ['write-only', JSON.stringify({ storyId: STORY_ID, mode: { runCommands: false }, actual: null })],
         ['malformed', '{'],
@@ -888,6 +923,11 @@ try {
           },
         }), /delivery_check_set: live-smoke transcript/,
         `${label} transcript must be rejected by delivery_check_set`);
+        assert.equal(
+          readFileSync(deliveryCheckPath, 'utf8'),
+          positiveDeliveryBytes,
+          `${label} rejection must not partially overwrite delivery-check.json`,
+        );
         assert.equal(canFinishGuard(context), false, `${label} transcript must block canFinishGuard`);
         assert.match(
           getGuardFailureReason(STORY_ID, store, 'DONE', wrapper.metadataRoot, wrapper.gitRoot) ?? '',
