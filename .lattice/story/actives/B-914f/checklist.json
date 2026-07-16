@@ -177,7 +177,51 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A table-driven suite proves first execution then zero-command reuse for configured commands, fallback discovery, and validate-file branches at exact HEAD and trusted metadata-descendant HEAD, asserting complete coverage and identical validation identity. WHY: every production source and both accepted lineage modes need the same safety guarantee.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "must"
+          },
+          {
+            "desc": "A B-19ca regression fixture executes a 45-command PASS once, changes only checklist verificationEvidence through trusted metadata, then validates again with zero command-runner invocations and disposition reused. WHY: this reproduces the measured 32-minute waste mechanism and proves the user-visible optimization.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Table rows independently mutate command spec/order/digest, config source, executable entrypoint, full/focus/profile, policy/coverage inputs, materialHash, storyFilesHash, prior result, and coverage completeness; every row executes and refreshes evidence rather than reusing. WHY: one-at-a-time mutation tests reveal identity omissions hidden by broad integration scenarios.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "desc": "Rows for clean exact HEAD, clean trusted metadata descendant, dirty tracked/untracked state, legacy evidence, malformed evidence, and untrusted descendant assert the expected lineage/refusal reason and command invocation count. WHY: filesystem and compatibility boundaries are common places for unsafe cache hits.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A controllable git/HEAD seam changes HEAD between the two reads inside the locked decision and proves no reuse, at least one real plan execution, and no stale PASS return; an unchanged control row proves reuse. WHY: deterministic TOCTOU coverage is required instead of relying on a flaky concurrent timing test.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "desc": "Injected failures from evidence parsing, hashing, status/lineage inspection, identity resolution, and the second HEAD read each fall back to execution; if that execution fails, final result is FAIL with disposition executed. WHY: internal classifier errors must never be transformed into cached success.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
