@@ -9,7 +9,10 @@ export type {
   DoneRequiredCommandReceipt,
   DoneRequiredEvidenceData,
   DoneRequiredEvidenceStatus,
+  RoutineValidationIdentity,
+  RoutineValidationCommandExecution,
 } from './validation-types.js';
+import type { RoutineValidationIdentity, RoutineValidationCommandExecution } from './validation-types.js';
 import type { SignatureTagSource } from './experience-layer-types.js';
 
 export type StoryPhase = 'IDEA' | 'INIT' | 'INIT_CHECK' | 'PLAN' | 'DEV' | 'REVIEW' | 'TEST' | 'DONE' | 'DISCARDED'
@@ -888,6 +891,12 @@ export interface TestEvidenceData {
   };
   /** Story-level verification intent coverage captured during validate/story_advance. */
   verificationCoverage?: VerificationCoverageReport;
+  /** Versioned identity of the commands and policy inputs used by routine validate. */
+  routineValidationIdentity?: RoutineValidationIdentity;
+  /** Project command truth, intentionally independent from overall verification coverage. */
+  commandExecution?: RoutineValidationCommandExecution;
+  /** The evidence-writing call always executes commands; reuse never rewrites this artifact. */
+  disposition?: 'executed';
 }
 
 export interface VerificationCoverageEntry {

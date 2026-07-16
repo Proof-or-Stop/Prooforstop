@@ -3158,8 +3158,12 @@ function assertDoneClosureCommandContract(cliToolNameSet, registry, levelRegistr
 function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, levelRegistry, policyByName) {
   const commandName = 'done_required_validate';
   const reuseText = read('packages/main/src/core/done-prepare-validation-reuse.ts');
-  for (const token of ['evaluateDoneRequiredEvidence', 'merge-base', '--is-ancestor', 'rev-list', 'diff-tree', 'isStoryMetadataPath', 'untrusted-lineage-path', 'head-changed-during-reuse-evaluation', 'evidence-malformed-or-unreadable']) {
-    assert(reuseText.includes(token), `DONE-required pre-run reuse must preserve canonical/lineage check: ${token}`);
+  for (const token of ['evaluateDoneRequiredEvidence', 'classifyTrustedValidationLineage', 'head-changed-during-reuse-evaluation', 'evidence-malformed-or-unreadable']) {
+    assert(reuseText.includes(token), `DONE-required pre-run reuse must preserve canonical/shared-lineage check: ${token}`);
+  }
+  const routineReuseText = read('packages/main/src/core/validation-evidence-reuse.ts');
+  for (const token of ['merge-base', '--is-ancestor', 'rev-list', 'diff-tree', 'isStoryMetadataPath', 'untrusted-lineage-path', 'effectiveEnvironmentDigest', 'identity-missing-malformed-or-legacy', 'current-verification-coverage-incomplete', 'head-changed-during-reuse-evaluation']) {
+    assert(routineReuseText.includes(token), `shared routine validation reuse contract missing ${token}`);
   }
   const budgetText = read('packages/main/src/core/done-required-timeout-budget.ts');
   for (const token of ['NODE_TIMER_MAX_MS', 'resolveCommandTimeoutMs', 'derived-command-budget', 'LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS']) {

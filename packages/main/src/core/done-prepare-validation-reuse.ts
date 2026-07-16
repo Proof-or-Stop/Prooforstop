@@ -1,15 +1,15 @@
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { execFileSync } from 'node:child_process';
 import { loadConfig, type LatticeConfig } from './config.js';
-import { currentGitHead, currentMaterialHash, currentStoryFilesHash, isStoryMetadataPath } from './evidence-freshness.js';
+import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import { evaluateDoneRequiredEvidence, resolveDoneRequiredPolicy } from './done-required-validation.js';
 import { digestScopeContract } from './guard-session.js';
 import { LIFECYCLE_TRANSITIONS } from './lifecycle-registry.js';
 import type { StoryStore } from './store.js';
 import type { DoneRequiredEvidenceData, TestEvidenceData } from './types.js';
 import { computeCompositeScopeDigest } from './closeout-trust.js';
+import { classifyTrustedValidationLineage } from './validation-evidence-reuse.js';
 
 export const DONE_PREPARE_VALIDATION_REUSE_SCHEMA = 'lattice.done-prepare-validation-reuse.v1' as const;
 export const DONE_PREPARE_VALIDATION_REUSE_CLASSIFIER_VERSION = 'done-prepare-generated-metadata-safe-set.v1' as const;
@@ -120,34 +120,14 @@ export function evaluateDoneRequiredPreRunReuse(args: {
   const reasons = [...canonical.reasons];
   const currentHead = headBefore;
   let lineage: DoneRequiredPreRunReuseEvaluation['lineage'] = 'rejected';
-  if (!evidence.headHash || !currentHead) {
-    reasons.push('missing-head-lineage');
-  } else if (evidence.headHash === currentHead) {
-    lineage = 'exact-head';
-  } else {
-    try {
-      execFileSync('git', ['merge-base', '--is-ancestor', evidence.headHash, currentHead], {
-        cwd: args.gitCwd,
-        stdio: ['ignore', 'ignore', 'pipe'],
-      });
-      const commits = execFileSync('git', ['rev-list', '--reverse', `${evidence.headHash}..${currentHead}`], {
-        cwd: args.gitCwd,
-        encoding: 'utf8',
-        stdio: ['ignore', 'pipe', 'pipe'],
-      }).split('\n').map((commit) => commit.trim()).filter(Boolean);
-      const changed = [...new Set(commits.flatMap((commit) => execFileSync(
-        'git',
-        ['diff-tree', '--root', '--no-commit-id', '--name-only', '--no-renames', '-r', '-m', commit],
-        { cwd: args.gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },
-      ).split('\n').map((path) => path.trim()).filter(Boolean)))];
-      const untrusted = changed.filter((path) => !isStoryMetadataPath(path, args.root));
-      if (changed.length === 0) reasons.push('empty-descendant-lineage');
-      else if (untrusted.length > 0) reasons.push(...untrusted.map((path) => `untrusted-lineage-path:${path}`));
-      else lineage = 'trusted-story-metadata-descendant';
-    } catch {
-      reasons.push('evidence-head-is-not-current-ancestor');
-    }
-  }
+  const lineageResult = classifyTrustedValidationLineage({
+    root: args.root,
+    gitCwd: args.gitCwd,
+    evidenceHead: evidence.headHash,
+    currentHead,
+  });
+  lineage = lineageResult.lineage;
+  reasons.push(...lineageResult.reasons);
   args.beforeFinalHeadCheck?.();
   const headAfter = currentGitHead(args.gitCwd);
   if (!headBefore || headAfter !== headBefore) {

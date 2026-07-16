@@ -89,6 +89,67 @@ export interface ValidationResult {
     finalFullValidation: false;
     doneRequiredProof: false;
   };
+  /** Whether project commands ran or a fresh command PASS was reused. */
+  disposition?: 'executed' | 'reused';
+  /** Number of project validation commands invoked by this call. */
+  commandExecutions?: number;
+  /** Stable reasons explaining why reuse was accepted or refused. */
+  reuse?: {
+    lineage: 'exact-head' | 'trusted-story-metadata-descendant' | 'rejected';
+    existingEvidenceBasis: 'fresh' | 'stale' | 'missing';
+    refusalReasons: string[];
+    identityDigest?: string;
+  };
+}
+
+export type RoutineValidationSourceKind = 'configured' | 'fallback' | 'validate-file' | 'no-validator';
+
+export interface RoutineValidationIdentityCommand {
+  label: string;
+  command: string;
+  args: string[];
+  cwd: string;
+  shell: boolean;
+  timeoutMs: number;
+  optional: boolean;
+  focus: string[];
+  /** Digest of process.env plus the command overlay; raw environment values are never stored. */
+  effectiveEnvironmentDigest: string;
+  executableDigest: string | null;
+}
+
+export interface RoutineValidationIdentity {
+  schema: 'lattice.routine-validation-identity';
+  version: 1;
+  digest: string;
+  source: {
+    kind: RoutineValidationSourceKind;
+    inputDigest: string;
+    entrypointDigest: string | null;
+  };
+  commands: RoutineValidationIdentityCommand[];
+  invocation: {
+    full: boolean | string | null;
+    focus: string | null;
+    profile: string;
+  };
+  verificationPolicyDigest: string;
+  runtime: {
+    platform: string;
+    arch: string;
+    node: string;
+  };
+}
+
+export interface RoutineValidationCommandExecution {
+  schema: 'lattice.routine-validation-command-execution';
+  version: 1;
+  status: 'PASS' | 'FAIL';
+  complete: boolean;
+  commandCount: number;
+  requiredFailureCount: number;
+  optionalFailureCount: number;
+  failureKind?: ValidationFailureKind;
 }
 
 export type DoneRequiredEvidenceStatus = 'PASS' | 'FAIL';

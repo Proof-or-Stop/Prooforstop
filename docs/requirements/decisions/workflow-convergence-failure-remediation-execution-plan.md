@@ -111,6 +111,9 @@ All five workstreams must preserve these invariants:
 
 ## 6. Workstream A — DONE-Required Validation Convergence
 
+Routine TEST validation fresh-PASS reuse is specified separately in
+[Routine Validation Fresh-PASS Reuse](routine-validation-fresh-pass-reuse.md).
+
 ### 6.1 Scope
 
 Own C1 only: `done_prepare` phase timing, DONE-required receipt reuse, progress
