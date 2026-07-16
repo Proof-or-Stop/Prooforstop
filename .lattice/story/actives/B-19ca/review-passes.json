@@ -224,6 +224,42 @@
       },
       "readDiagnostics": [],
       "_hash": "302de740f1d3467357d4ed964ae792d0e15aae586db8a84582519ee2f53e6ecf"
+    },
+    {
+      "id": "B-19ca:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round 6 targeted concept PASS for c32f3b054c / F-013: unknown nonblank env identities fail before payload selection; registered, exact trusted-host, and canonical-alias same-row boundaries remain consistent. Built candidate smoke and direct authority matrix passed; no blocker.",
+      "createdAt": "2026-07-16T12:39:42.882Z",
+      "reviewRound": "2026-07-16T12:36:17.693Z",
+      "reviewRunId": "B-19ca:RR-027",
+      "writerSessionId": "sess-3326c5f31baabfd8",
+      "sessionSource": "derived-ppid",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "863fac4ba26193c5d6d55a1fcf78730fef2653e45138e18f042ae4df001afd5f",
+        "corpusDigest": "fab7461b8085dde0edf5b3e6e93634e3382fd96e190816832e09d598eccb36de"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "6188b0a7ad938c118a10a1ec38d414fede72303a20bd82b13320a39461a84a5a"
+      },
+      "readDiagnostics": [],
+      "_hash": "391dce71c160041e6208feb17d556a2295a33ce44db88dc1f3aaed4cb68df3ab"
     }
   ]
 }
