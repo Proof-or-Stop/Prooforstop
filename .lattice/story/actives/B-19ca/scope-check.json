@@ -1,0 +1,163 @@
+{
+  "storyId": "B-19ca",
+  "checkedAt": "2026-07-16T10:30:08.552Z",
+  "features": [
+    {
+      "feature": "Create one explicit typed agent registry shared by dispatch consumers",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#8-workstream-c--typed-agent-dispatch-contract"
+    },
+    {
+      "feature": "Declare canonical name, aliases, role class, allowed phases, target cardinality and identifier kinds, prompt builder, mutation authority, commit guidance, reviewer lane, and evidence ownership for every type",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#82-required-design"
+    },
+    {
+      "feature": "Model implementer, verification-intent, INIT/product/scope/story/item/coverage/delivery reviewers, finding repair, cluster repair, and repository prompt assets without prefix-derived privilege",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-19ca/understanding.json"
+    },
+    {
+      "feature": "Preserve test-intent and test-case-reviewer only as deliberate compatibility aliases",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#82-required-design"
+    },
+    {
+      "feature": "Fail closed on unknown, blank-explicit, case-mutated, and prefix-lookalike agent types before prompt generation",
+      "covered_by": "CHK-001, CHK-002, CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-19ca/checklist.json"
+    },
+    {
+      "feature": "Validate lifecycle phase and story/item/finding/cluster identifier kind and cardinality from the same registry contract",
+      "covered_by": "CHK-002, CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#83-acceptance"
+    },
+    {
+      "feature": "Ensure verification-intent and reviewer prompts never contain implementer commit-author, implementation, or checklist status:done guidance",
+      "covered_by": "CHK-002, CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#83-acceptance"
+    },
+    {
+      "feature": "Make every user-visible dispatch hint/example schema-valid and executable with the identifiers it displays",
+      "covered_by": "CHK-002, CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#83-acceptance"
+    },
+    {
+      "feature": "Mechanically prevent reviewers from writing implementer status and implementers from minting reviewer pass/finding evidence",
+      "covered_by": "CHK-002, CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "AGENTS.md#流程事实双层契约"
+    },
+    {
+      "feature": "Provide exhaustive table-driven positive and negative coverage for every type, alias, phase, cardinality, prompt class, and allowed or denied mutation class",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#83-acceptance"
+    },
+    {
+      "feature": "Synchronize gate-consumed reviewer and evidence semantics with process-fact registry and contract verification",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "AGENTS.md#流程事实双层契约"
+    },
+    {
+      "feature": "Reproduce RED-B19CA-DISPATCH and prove it green before completion",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-19ca/plan.md"
+    },
+    {
+      "feature": "Rollback retains deliberate aliases and must not restore prefix-based privilege inference",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#84-rollback"
+    },
+    {
+      "feature": "Update the canonical role-separation subsystem owner document, or record a new canonical typed-dispatch decision, so shipped C4 semantics are not governed only by the umbrella plan",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#4-source-of-truth-boundaries"
+    },
+    {
+      "feature": "Do not absorb unattended host liveness or candidate-ranking specificity into B-19ca",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly assigned to Workstream B / C2+C3 and excluded by understanding constraints",
+      "source": ".lattice/story/actives/B-19ca/understanding.json"
+    },
+    {
+      "feature": "Do not absorb stable owner identity or scope-path/AST-anchor workstreams into B-19ca",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly assigned to Workstreams D/E and excluded by understanding constraints",
+      "source": ".lattice/story/actives/B-19ca/understanding.json"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-19ca/background.md",
+      ".lattice/story/actives/B-19ca/checklist.json",
+      ".lattice/story/actives/B-19ca/decision.json",
+      ".lattice/story/actives/B-19ca/plan.md",
+      ".lattice/story/actives/B-19ca/understanding.json",
+      "AGENTS.md",
+      "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+      "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+      "docs/requirements/decisions/cc-learnings.md",
+      "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+      "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+      "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md",
+      "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+      "docs/requirements/decisions/role-separation.md",
+      "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null,
+    "candidateSpecSetDigest": "936a33f8c0a1963d04a23599284c62f594085bf308ea9c24500b159bbbc0a1dd",
+    "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+  },
+  "summary": {
+    "total": 16,
+    "covered": 13,
+    "excluded": 2,
+    "gaps": 1,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "b3ef444ec6e802ade57193d34d8b4941fa814a183f97b011a45ca6610d2305f0",
+  "openQuestions": [
+    {
+      "id": "OQ-B19CA-001",
+      "q": "Should B-19ca amend role-separation.md directly, or create a new canonical typed-agent-dispatch decision and make role-separation.md supersede or link to it?",
+      "evidence": "The umbrella plan names role-separation.md as the canonical C4 subsystem contract and requires an implementation story to update that owner document or record a new decision when semantics change, but no checklist item or touchpoint currently does either.",
+      "sourcePointers": [
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#4-source-of-truth-boundaries",
+        "docs/requirements/decisions/role-separation.md",
+        ".lattice/story/actives/B-19ca/checklist.json"
+      ]
+    }
+  ]
+}
