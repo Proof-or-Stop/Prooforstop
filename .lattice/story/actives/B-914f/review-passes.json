@@ -1182,6 +1182,62 @@
       },
       "readDiagnostics": [],
       "_hash": "3f44c20abbec0c2cca00b5e0d3e2990bda535fc9761c9d475c01c78e8427db24"
+    },
+    {
+      "id": "B-914f:RP-027",
+      "agent": "lattice-review-docs",
+      "note": "Round-12 receipt-only incremental docs review reuses the round-11 docs conclusion. review_incremental_context reports scopeChanged=false and changedFiles=[], so the canonical routine-validation decision remains aligned with the implementation and no documentation synchronization or new blocker is required.",
+      "createdAt": "2026-07-16T18:09:26.816Z",
+      "reviewRound": "2026-07-16T18:05:44.263Z",
+      "reviewRunId": "B-914f:RR-044",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-914f/background.md",
+          ".lattice/story/actives/B-914f/checklist.json",
+          ".lattice/story/actives/B-914f/plan.md",
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "1744dd0047f1a999bfc23c530fa4acb9f920516c7744d24c316286cab7f44167",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "c84271120ca6fdda34f7175d267cc73af60f853be4cda0d78f91287c75f0435d"
     }
   ]
 }
