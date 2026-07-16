@@ -1,8 +1,8 @@
 {
   "schemaVersion": "proofbound.candidate-spec-set.v1",
   "storyId": "B-914f",
-  "corpusDigest": "fab7461b8085dde0edf5b3e6e93634e3382fd96e190816832e09d598eccb36de",
-  "seedDigest": "91a35f1c12df5e8326f32c748dc79fc001a811304fed66b3eb15d5c6710d851d",
+  "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784",
+  "seedDigest": "0ab26e6add34b5dc8e34469a518c1678a6e7c9a9702d32ca4b2a9033cf021b1d",
   "promptDigests": [],
   "candidates": [
     {
@@ -26,7 +26,7 @@
     },
     {
       "path": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
-      "contentHash": "133161a3749ab5b770adcdea7ecdb7ca3f0a4e696d40fcea24cf2e2b756e1b42",
+      "contentHash": "f68d1fc7addd70b9e8881cbfdbd0dc183f184161359621896bb953dacba2acaf",
       "score": 108,
       "reasons": [
         {
@@ -40,6 +40,19 @@
           "term": "handlers",
           "source": "handlers",
           "points": 8
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+      "contentHash": "96c0f4baa974e93176f65eba9e3a9e1d2a7f75e9e5d7a289634d6718dd699cc6",
+      "score": 100,
+      "reasons": [
+        {
+          "kind": "related-doc",
+          "term": "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "source": "relatedDoc",
+          "points": 100
         }
       ]
     },
@@ -107,30 +120,17 @@
           "points": 8
         }
       ]
-    },
-    {
-      "path": "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
-      "contentHash": "016e7f06fab17b32dceddb6133bc4bcc4ad133fc412aaf8553bfece4462b35b6",
-      "score": 8,
-      "reasons": [
-        {
-          "kind": "body",
-          "term": "handlers",
-          "source": "handlers",
-          "points": 8
-        }
-      ]
     }
   ],
   "candidateSpecSet": [
     "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
     "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+    "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
     "docs/requirements/decisions/story-files-hash-material-drift.md",
     "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
     "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
     "docs/requirements/decisions/cc-learnings.md",
-    "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
-    "docs/requirements/decisions/cli-engine-modularization-execution-plan.md"
+    "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
   ],
   "candidateBasis": {
     "docs/requirements/decisions/done-prepare-automation-execution-plan.md": [
@@ -159,6 +159,14 @@
         "term": "handlers",
         "source": "handlers",
         "points": 8
+      }
+    ],
+    "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md": [
+      {
+        "kind": "related-doc",
+        "term": "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+        "source": "relatedDoc",
+        "points": 100
       }
     ],
     "docs/requirements/decisions/story-files-hash-material-drift.md": [
@@ -200,14 +208,6 @@
         "source": "handlers",
         "points": 8
       }
-    ],
-    "docs/requirements/decisions/cli-engine-modularization-execution-plan.md": [
-      {
-        "kind": "body",
-        "term": "handlers",
-        "source": "handlers",
-        "points": 8
-      }
     ]
   },
   "queryGroups": [
@@ -233,27 +233,27 @@
       {
         "term": "core",
         "documentCount": 82,
-        "documentFrequencyRatio": 0.6949152542372882
+        "documentFrequencyRatio": 0.6890756302521008
       },
       {
         "term": "main",
-        "documentCount": 113,
-        "documentFrequencyRatio": 0.9576271186440678
+        "documentCount": 114,
+        "documentFrequencyRatio": 0.957983193277311
       },
       {
         "term": "packages",
         "documentCount": 68,
-        "documentFrequencyRatio": 0.576271186440678
+        "documentFrequencyRatio": 0.5714285714285714
       },
       {
         "term": "scripts",
         "documentCount": 48,
-        "documentFrequencyRatio": 0.4067796610169492
+        "documentFrequencyRatio": 0.40336134453781514
       },
       {
         "term": "src",
         "documentCount": 61,
-        "documentFrequencyRatio": 0.5169491525423728
+        "documentFrequencyRatio": 0.5126050420168067
       }
     ]
   },
@@ -270,9 +270,9 @@
   "escalationReasons": [],
   "fullScan": false,
   "scanEscalationReason": null,
-  "storyInputDigest": "4ffbc03fa3e59684ea469f4de840ad138914293ff0f2f35ceef46fc8590d8a0c",
-  "headHash": "03c036bd0b72e7a56b18df80f228243db6a31671",
-  "materialHash": "bc56cb1d24054836b0cb5c862fecd813e2626cecc13ce5313aa2573f2df0b8da",
-  "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-  "artifactDigest": "bb1ee323368033d8d993c9d4b5dcfb5b95ae03d0923675b7c14c5a4fc5678e96"
+  "storyInputDigest": "1f5f84bc537e12c5671f680ba64be052ef1ee8c0e16945d99cb895ed38607974",
+  "headHash": "d19b3f0c9eca3a9703a6b989103f2be04c8797f7",
+  "materialHash": "f3a93a01eee4adde362916823bab7f6edda4d038c1000c00cdd669f68ca23d8c",
+  "storyFilesHash": "c538295b6edfadff26b7ce6988e9087740a483386073684b44dac1a91ea11b71",
+  "artifactDigest": "387330fa078861b67c1ade3fe817a8b838725c8ec7592c3c815b1990dcae762f"
 }
