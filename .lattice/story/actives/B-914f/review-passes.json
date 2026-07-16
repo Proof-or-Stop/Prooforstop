@@ -151,6 +151,54 @@
       },
       "readDiagnostics": [],
       "_hash": "4ba8b8eb35ce266ac7452ef34d43b8f0c762603aae0d41b7e26e80aba75666be"
+    },
+    {
+      "id": "B-914f:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-4 test-coverage PASS after e9b305f771. Independent build, validation-evidence-reuse smoke, and process-fact contract passed. Seven real validate-file handler semantic non-PASS cases (fail, warn, error, unknown, missing status, allPass=false, allPassed=false) each persist commandExecution FAIL and execute again; optionalFailureCount=1 is rejected; the production-only race env seam is removed and shared freshness helper deterministically rejects post-snapshot source dirt; configured/fallback/validate-file, 45-command, zero-command reuse, no-write/no-HEAD E2E remain green.",
+      "createdAt": "2026-07-16T15:19:42.105Z",
+      "reviewRound": "2026-07-16T15:16:04.095Z",
+      "reviewRunId": "B-914f:RR-015",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "36fd0b6b673f00f718edc630e1956af07c9b48ea43b997ac7f95fd8ef57c392b",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "a48f575289d8361b31f154b762a70282a0cf25baff36c03293defaac880b80ec"
     }
   ]
 }
