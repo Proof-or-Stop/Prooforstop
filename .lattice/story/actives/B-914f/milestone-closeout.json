@@ -1,0 +1,110 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-914f",
+  "phase": "TEST",
+  "generatedAt": "2026-07-16T20:41:22.087Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "190ea2bd67e1b740521a034c7f93e52f571f4df55219d9e6b9f62d5b7b626816",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:72560a88287627b4f10198ed20128fd50d20c729f218d4f35dc05ba7ccbcfb00"
+    },
+    "groups": {
+      "completed": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5",
+        "M6"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "dfa8490b9eb9f9bd68f91f3f4fadb9d8f09ce29c",
+    "materialHash": "98aec514f8a7bf9ea2860209a52d9d673aed45a1f9863f50f28281ca70ca13fc",
+    "storyFilesHash": "277dbaf0469f64684ed1ad12610443eec162633906dce9304bb1032ea0c2ea16"
+  },
+  "rows": [
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Complete versioned validation identity and shared lineage contract",
+      "acceptance": "Identity drift matrix and shared lineage tests pass",
+      "evidence": [
+        "CHK-001:happy:0 [pass/logic_test] node packages/main/dist/tasks/validation-evidence-reuse-smoke.js file=packages/main/src/tasks/validation-evidence-reuse-smoke.ts note=Updated dedicated smoke passed identity, malformed commandExecution matrix, coverage-only PASS separation, semantic JSON FAIL, source E2E, double-snapshot race, and no-write reuse.",
+        "CHK-001:happy:1 [pass/logic_test] node packages/main/dist/tasks/validation-evidence-reuse-smoke.js file=packages/main/src/tasks/validation-evidence-reuse-smoke.ts note=Updated dedicated smoke passed identity, malformed commandExecution matrix, coverage-only PASS separation, semantic JSON FAIL, source E2E, double-snapshot race, and no-write reuse."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Locked zero-command reuse with fail-closed fallback",
+      "acceptance": "Exact and metadata-descendant reuse run zero commands; mismatch and TOCTOU execute",
+      "evidence": [
+        "CHK-002:happy:0 [pass/logic_test] node packages/main/dist/tasks/validation-evidence-reuse-smoke.js file=packages/main/src/tasks/validation-evidence-reuse-smoke.ts note=Post-main-merge logic regression proves exact-head reuse is decided under the validation lock and returns commandExecutions=0.",
+        "CHK-002:adversarial:0 [pass/integration_test] node packages/main/dist/tasks/validation-evidence-reuse-smoke.js file=packages/main/src/tasks/validation-evidence-reuse-smoke.ts note=Post-main-merge locked TOCTOU regression detects material drift before reuse return and executes instead."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M3",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Auditable disposition without metadata churn",
+      "acceptance": "Reused result reports basis while evidence bytes and HEAD remain unchanged",
+      "evidence": [
+        "CHK-003:happy:1 [pass/logic_test] node packages/main/dist/tasks/validation-evidence-reuse-smoke.js file=packages/main/src/tasks/validation-evidence-reuse-smoke.ts note=Post-main-merge logic regression proves reused disposition is auditable and does not rewrite evidence or churn HEAD.",
+        "CHK-003:adversarial:1 [pass/integration_test] node packages/main/dist/tasks/validation-evidence-reuse-smoke.js file=packages/main/src/tasks/validation-evidence-reuse-smoke.ts note=Real CLI integration smoke: Updated dedicated smoke passed identity, malformed commandExecution matrix, coverage-only PASS separation, semantic JSON FAIL, source E2E, double-snapshot race, and no-write reuse."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M4",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "All validation sources and B-19ca regression covered",
+      "acceptance": "Configured, fallback and validate-file rows plus 45-command coverage-refresh regression pass",
+      "evidence": [
+        "CHK-004:happy:0 [pass/integration_test] node packages/main/dist/tasks/validation-evidence-reuse-smoke.js file=packages/main/src/tasks/validation-evidence-reuse-smoke.ts note=Real source matrix and 45-command handler integration passed: first execution runs all commands and unchanged second validation runs zero.",
+        "CHK-004:happy:1 [pass/integration_test] node packages/main/dist/tasks/validation-evidence-reuse-smoke.js file=packages/main/src/tasks/validation-evidence-reuse-smoke.ts note=Real source matrix and 45-command handler integration passed: first execution runs all commands and unchanged second validation runs zero."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M5",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Command execution truth separated from coverage verdict",
+      "acceptance": "Coverage-only overall FAIL can reuse command PASS after current coverage repair; command failures cannot",
+      "evidence": [
+        "CHK-005:happy:0 [pass/logic_test] node packages/main/dist/tasks/validation-evidence-reuse-smoke.js file=packages/main/src/tasks/validation-evidence-reuse-smoke.ts note=Updated dedicated smoke passed identity, malformed commandExecution matrix, coverage-only PASS separation, semantic JSON FAIL, source E2E, double-snapshot race, and no-write reuse.",
+        "CHK-005:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/validation-evidence-reuse-smoke.js file=packages/main/src/tasks/validation-evidence-reuse-smoke.ts note=Updated dedicated smoke passed identity, malformed commandExecution matrix, coverage-only PASS separation, semantic JSON FAIL, source E2E, double-snapshot race, and no-write reuse."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M6",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Canonical subsystem contract matches implementation",
+      "acceptance": "Decision doc, types, process registry and verifier behavior agree under contract checks",
+      "evidence": [
+        "CHK-006:happy:0 [pass/docs_check] node scripts/verify-process-fact-contract.mjs file=docs/requirements/decisions/routine-validation-fresh-pass-reuse.md note=Canonical contract now specifies trusted metadata/runtime dirt, material-clean double snapshots, and exit-zero semantic JSON FAIL; process-fact verification passed.",
+        "CHK-006:edge:0 [pass/integration_test] node scripts/verify-process-fact-contract.mjs file=scripts/verify-process-fact-contract.mjs note=Process-fact registry verification binds runtime gate semantics and the canonical decision contract."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}
