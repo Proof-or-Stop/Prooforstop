@@ -11,6 +11,7 @@ import {
   entryAcceptsIdentifier,
   entryPermitsMutation,
   isTrustedHostActor,
+  resolveAgentMutationAuthority,
   resolveAgentDispatchType,
   resolveAgentDispatchPromptBuilder,
   TRUSTED_HOST_ACTOR_IDENTITIES,
@@ -285,6 +286,24 @@ for (const actor of TRUSTED_HOST_ACTOR_IDENTITIES) {
   assert.equal(isTrustedHostActor(actor), true, `${actor} is an explicit trusted host identity`);
   assert.equal(assertRegisteredAgentMutationAllowed(actor, 'finding_add'), null, `${actor} retains host mutation compatibility`);
 }
+assert.equal(
+  resolveAgentMutationAuthority({
+    command: 'checklist_update',
+    envActor: 'test-intent',
+    payloadActors: ['verification-intent'],
+  }).entry?.canonicalName,
+  'verification-intent',
+  'canonical and alias spellings of the same dispatched role are authority-equivalent',
+);
+assert.throws(
+  () => resolveAgentMutationAuthority({
+    command: 'checklist_update',
+    envActor: 'verification-intent',
+    payloadActors: ['human'],
+  }),
+  /agent_dispatch_identity_conflict/,
+  'trusted-host payload attribution cannot override a registered dispatched env role',
+);
 assert.throws(
   () => assertRegisteredAgentMutationAllowed('lattice-review-lookalike', 'finding_add'),
   /agent_dispatch_actor_unknown/,
@@ -388,6 +407,38 @@ try {
     if (previousHostAgent === undefined) delete process.env.LATTICE_AGENT;
     else process.env.LATTICE_AGENT = previousHostAgent;
   }
+  const assertSpoofRejectedWithoutMutation = (command: string, envAgent: string, invoke: () => unknown) => {
+    const before = mutationState();
+    const savedAgent = process.env.LATTICE_AGENT;
+    process.env.LATTICE_AGENT = envAgent;
+    try {
+      assert.throws(invoke, /agent_dispatch_identity_conflict/, `${command} must reject env-vs-payload identity spoofing`);
+      assert.equal(mutationState(), before, `${command} identity-spoof rejection must leave story state byte-equivalent`);
+    } finally {
+      if (savedAgent === undefined) delete process.env.LATTICE_AGENT;
+      else process.env.LATTICE_AGENT = savedAgent;
+    }
+  };
+  assertSpoofRejectedWithoutMutation('checklist_update', 'verification-intent', () => checklistHandlers.checklist_update({
+    storyId, itemId: 'CHK-001', status: 'done', actor: 'human', agent: 'human',
+  }));
+  assertSpoofRejectedWithoutMutation('finding_add', 'lattice-review-quality', () => findingHandlers.finding_add({
+    storyId, desc: 'spoofed host finding must not persist', severity: 'high', category: 'missing', agent: 'human',
+  }));
+  assertSpoofRejectedWithoutMutation('review_pass_set', 'lattice-implementer', () => findingHandlers.review_pass_set({
+    storyId, agent: 'lattice-review-quality', note: 'spoofed reviewer pass must not persist', reviewRunId: 'RR-spoof',
+    readManifest: { routedCandidates: [], fullyRead: [], triaged: [] },
+  }));
+  assertSpoofRejectedWithoutMutation('review_run_start', 'lattice-implementer', () => reviewRunHandlers.review_run_start({
+    storyId, agent: 'lattice-review-quality',
+  }));
+  assertSpoofRejectedWithoutMutation('init_check_set', 'lattice-implementer', () => initCheckHandlers.init_check_set({
+    storyId, issues: [], agent: 'lattice-review-story-init', agentId: 'lattice-review-story-init',
+  }));
+  assertSpoofRejectedWithoutMutation('delivery_check_set', 'lattice-implementer', () => deliveryCheckHandlers.delivery_check_set({
+    storyId, agentId: 'lattice-review-delivery', docsPromises: [], realMachineTests: [],
+    closingSelfCheck: { summary: 'spoofed delivery evidence must not persist' },
+  }));
   for (const agentType of ['verification-intent', 'test-intent', 'test-case-reviewer']) {
     const prompt = handlers.dispatch({ storyId, itemId: 'CHK-001', agentType }).prompt;
     assert.match(prompt, /define verification intent/);

@@ -546,6 +546,7 @@ function assertDispatchPromptsPinImplementerCommitAuthor(): void {
       root,
       scanRoot: join(root, 'packages/main'),
     });
+    store.writeStory(storyId, { ...store.readStory(storyId), phase: 'DEV' });
     const expectedAuthor = /git commit --author="lattice-implementer <lattice-implementer@noreply\.local>"/;
 
     const itemPrompt = dispatch.dispatch({ storyId, itemId: 'CHK-001' }).prompt;

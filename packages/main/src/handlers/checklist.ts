@@ -12,7 +12,7 @@ import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
 import { effectiveExcludedKeywords, normalizeBoundaryArray, scanExcludedKeywordHits } from '../core/scope-anti-expansion.js';
 import type { ScopeFreezeTextSource } from '../core/types.js';
-import { assertRegisteredAgentMutationAllowed } from '../core/agent-dispatch-registry.js';
+import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
 
 const INIT_REVIEWER_CHECKLIST_MUTATION_BLOCKED_AGENTS = new Set([
   'lattice-review-story-init',
@@ -556,12 +556,15 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         throw new Error('At least one of status/title/context/relatedDocs/userSees/excludes/files/verificationIntent/verificationEvidence must be provided');
       }
 
-      const checklistActor = checklistActorFrom(args);
       // USER is retained below for human audit attribution, but it is not a
       // dispatched-agent identity. Only an explicit actor/agent or
       // LATTICE_AGENT participates in registry authorization.
-      const dispatchActor = args.agent?.trim() || args.actor?.trim() || process.env.LATTICE_AGENT?.trim();
-      const dispatchedRole = assertRegisteredAgentMutationAllowed(dispatchActor, 'checklist_update');
+      const authority = resolveAgentMutationAuthority({
+        command: 'checklist_update',
+        payloadActors: [args.agent, args.actor],
+      });
+      const checklistActor = authority.actor || process.env.USER?.trim() || 'main-agent';
+      const dispatchedRole = authority.entry;
       if (dispatchedRole?.roleClass === 'verification-intent') {
         const disallowed = [
           args.status !== undefined && 'status',

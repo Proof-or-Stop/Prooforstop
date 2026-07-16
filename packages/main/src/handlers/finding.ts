@@ -40,8 +40,8 @@ import { deriveSignatureCandidate } from '../core/signature-candidate.js';
 import type { SignatureTagSource } from '../core/experience-layer-types.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
 import {
-  assertRegisteredAgentMutationAllowed,
   isRegisteredReviewAgent,
+  resolveAgentMutationAuthority,
 } from '../core/agent-dispatch-registry.js';
 import {
   captureReviewerReadEvent,
@@ -487,9 +487,9 @@ export function createFindingHandlers(ctx: HandlerContext) {
       assertCwdInWorktree(store, args.storyId);
 
       // Record caller identity (env var LATTICE_AGENT is set by subagent)
-      const dispatchedActor = args.agent?.trim() || process.env.LATTICE_AGENT?.trim();
+      const authority = resolveAgentMutationAuthority({ command: 'finding_add', payloadActors: [args.agent] });
+      const dispatchedActor = authority.actor;
       const missingAttribution = !dispatchedActor;
-      assertRegisteredAgentMutationAllowed(dispatchedActor, 'finding_add');
       const agent = dispatchedActor || 'main';
       const category = normalizeFindingCategory(args.category);
       // B-3fad CHK-001: evidenceState defaults to verified; explicit suspected/disproven requires the accompanying fields.
@@ -663,8 +663,8 @@ export function createFindingHandlers(ctx: HandlerContext) {
       readEvents?: unknown;
       readLog?: unknown;
     }): string {
-      const actor = args.agent?.trim() || process.env.LATTICE_AGENT?.trim() || 'main';
-      assertRegisteredAgentMutationAllowed(actor, 'review_pass_set');
+      const authority = resolveAgentMutationAuthority({ command: 'review_pass_set', payloadActors: [args.agent] });
+      const actor = authority.actor || 'main';
       if (!args.note || args.note.trim().length < 10) {
         throw new Error('review_pass_set: note must be ≥ 10 characters, explaining what the reviewer checked and why there is no blocker');
       }
@@ -752,7 +752,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
 
     finding_resolve(args: { storyId: string; findingId: string; resolution?: string; resolutionType?: string; resolveEvidenceStrength?: string }): string {
       assertCwdInWorktree(store, args.storyId);
-      assertRegisteredAgentMutationAllowed(process.env.LATTICE_AGENT, 'finding_resolve');
+      resolveAgentMutationAuthority({ command: 'finding_resolve' });
       // B-4f46 CHK-002: validate the optional audit-only enums up front (omitted => unchanged legacy behavior).
       const resolutionType: ResolutionType | undefined = validateOptionalEnum('finding_resolve', 'resolutionType', args.resolutionType, RESOLUTION_TYPES);
       const resolveEvidenceStrength: EvidenceStrength | undefined = validateOptionalEnum('finding_resolve', 'resolveEvidenceStrength', args.resolveEvidenceStrength, EVIDENCE_STRENGTHS);

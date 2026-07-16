@@ -21,7 +21,7 @@ import {
   classifyGitStatusRows,
   isBlockingDirty,
 } from '../core/dirty-worktree-gate.js';
-import { assertRegisteredAgentMutationAllowed } from '../core/agent-dispatch-registry.js';
+import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
 
 function withReviewRunLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
   const lockDir = ctx.store.storyFilePath(storyId, 'review-runs.lock');
@@ -64,7 +64,10 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
   const { store } = ctx;
   return {
     review_run_start(args: { storyId: string; agent?: string; lane?: string; prompt?: string; promptHash?: string; reviewedIntentRefs?: string[] }): string {
-      assertRegisteredAgentMutationAllowed(args.agent || process.env.LATTICE_AGENT || args.lane, 'review_run_start');
+      const authority = resolveAgentMutationAuthority({
+        command: 'review_run_start',
+        payloadActors: [args.agent, args.lane],
+      });
       const workspace = resolveStoryCommandWorkspace(store, args.storyId, ctx.root);
       const signedWorkspaceRoot = resolveSignedWorkspaceRoot(workspace, args.storyId);
       const preflightStory = store.readStory(args.storyId);
@@ -99,7 +102,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
       }
       // status.ok === false → fail-open: after this preflight declines to block, proceed to the snapshot.
 
-      const lane = resolveReviewRunLane(args.agent || process.env.LATTICE_AGENT, args.lane);
+      const lane = resolveReviewRunLane(authority.actor, args.lane);
       const promptHash = resolveReviewPromptHash(args.prompt, args.promptHash);
       const startedAt = new Date().toISOString();
       // B-9dcb CHK-002: thread the resolved metadataRoot into the snapshot so the

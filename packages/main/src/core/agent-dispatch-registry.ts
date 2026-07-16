@@ -459,3 +459,65 @@ export function assertRegisteredAgentMutationAllowed(
   }
   return entry;
 }
+
+export interface ResolvedAgentMutationAuthority {
+  actor: string | undefined;
+  entry: AgentDispatchRegistryEntry | null;
+  source: 'dispatched-env' | 'payload' | 'env' | 'omitted';
+}
+
+function sameAgentAuthority(left: string, right: string): boolean {
+  if (left === right) return true;
+  const leftEntry = resolveRegisteredAgentActor(left);
+  const rightEntry = resolveRegisteredAgentActor(right);
+  return !!leftEntry && leftEntry === rightEntry;
+}
+
+/**
+ * Resolve mutation authority without allowing audit payload fields to override
+ * the identity assigned to a dispatched process.
+ *
+ * A registered LATTICE_AGENT is authoritative. Payload identities may only be
+ * omitted or name the same registry row (including one of its aliases); a
+ * conflicting role, trusted-host identity, or unknown lookalike fails before
+ * the handler mutates state. When there is no registered dispatched env role,
+ * the legacy host/payload compatibility path remains available.
+ */
+export function resolveAgentMutationAuthority(args: {
+  command: AgentDispatchMutationCommand;
+  payloadActors?: readonly (string | undefined | null)[];
+  envActor?: string | undefined | null;
+}): ResolvedAgentMutationAuthority {
+  const envActor = (args.envActor === undefined ? process.env.LATTICE_AGENT : args.envActor)?.trim() || undefined;
+  const payloadActors = (args.payloadActors || [])
+    .map((actor) => actor?.trim())
+    .filter((actor): actor is string => !!actor);
+  const payloadActor = payloadActors[0];
+
+  for (const candidate of payloadActors.slice(1)) {
+    if (!sameAgentAuthority(payloadActor, candidate)) {
+      throw new Error(
+        `${args.command} refused: conflicting payload identities "${payloadActor}" and "${candidate}". [agent_dispatch_identity_conflict]`,
+      );
+    }
+  }
+
+  const envEntry = resolveRegisteredAgentActor(envActor);
+  if (envEntry) {
+    if (payloadActor && !sameAgentAuthority(envActor!, payloadActor)) {
+      throw new Error(
+        `${args.command} refused: payload identity "${payloadActor}" cannot override dispatched LATTICE_AGENT "${envActor}". [agent_dispatch_identity_conflict]`,
+      );
+    }
+    const entry = assertRegisteredAgentMutationAllowed(envActor, args.command);
+    return { actor: envActor, entry, source: 'dispatched-env' };
+  }
+
+  const actor = payloadActor || envActor;
+  const entry = assertRegisteredAgentMutationAllowed(actor, args.command);
+  return {
+    actor,
+    entry,
+    source: payloadActor ? 'payload' : envActor ? 'env' : 'omitted',
+  };
+}
