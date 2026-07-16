@@ -267,8 +267,12 @@ prompt builder, hints, and tests. Each registered type declares:
 - reviewer lane and evidence ownership, if any.
 
 At minimum the registry must model implementer, verification-intent, INIT
-reviewers, story reviewers, item reviewers, coverage reviewer, finding repair,
-and delivery reviewer. `verification-intent` is the current name; legacy
+reviewers, story reviewers, coverage reviewer, finding repair,
+and delivery reviewer. A separate item-reviewer family is intentionally retired:
+its implementation-risk responsibility is folded into the quality and behavior
+story-review lanes, while item-scoped verification remains owned by
+`verification-intent`. This avoids a third overlapping code-review authority and
+matches the accepted prompt-consolidation decision. `verification-intent` is the current name; legacy
 `test-intent` and `test-case-reviewer` behavior must be deliberate compatibility,
 not accidental fallback.
 

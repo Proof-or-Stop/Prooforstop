@@ -8,7 +8,11 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MAIN_TOOLS } from '../cli-engine.js';
 import { buildQuantumClaimCheckCase } from '../core/claim-admissibility/quantum.js';
-import { AGENT_DISPATCH_ACCEPTED_TYPES, AGENT_DISPATCH_REGISTRY } from '../core/agent-dispatch-registry.js';
+import {
+  AGENT_DISPATCH_ACCEPTED_TYPES,
+  AGENT_DISPATCH_REGISTRY,
+  validateAgentDispatchRequest,
+} from '../core/agent-dispatch-registry.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const pkgRoot = join(here, '..', '..');
@@ -125,7 +129,7 @@ for (const command of [
 }
 
 const dispatchTool = findTool('dispatch');
-assert.match(dispatchTool.description, /item, finding, or cluster/, 'dispatch catalog description must name its supported target kinds');
+assert.match(dispatchTool.description, /story-only or exactly-one/, 'dispatch catalog description must explain registry-defined cardinality');
 for (const agentType of AGENT_DISPATCH_ACCEPTED_TYPES) {
   assert.equal(schemaAccepts('dispatch', 'agentType', agentType), true, `dispatch schema must accept registered type/alias ${agentType}`);
 }
@@ -136,7 +140,7 @@ assert.equal(schemaAccepts('dispatch', 'agentType', undefined), true, 'dispatch 
 for (const identifier of ['itemId', 'findingId', 'clusterId'] as const) {
   assert.equal(schemaAccepts('dispatch', identifier, undefined), true, `dispatch.${identifier} is optional`);
   assert.equal(schemaAccepts('dispatch', identifier, null), false, `dispatch.${identifier} must omit absent values instead of accepting null`);
-  assert.match(schemaDescription('dispatch', identifier), /mutually exclusive|Checklist item ID/, `dispatch.${identifier} must explain cardinality`);
+  assert.match(schemaDescription('dispatch', identifier), /story-only|mutually exclusive|registered/, `dispatch.${identifier} must explain conditional cardinality`);
 }
 for (const entry of AGENT_DISPATCH_REGISTRY) {
   const example = {
@@ -147,6 +151,11 @@ for (const entry of AGENT_DISPATCH_REGISTRY) {
   for (const [key, value] of Object.entries(example)) {
     assert.equal(schemaAccepts('dispatch', key, value), true, `registered ${entry.canonicalName} example field ${key} must be schema-valid`);
   }
+  assert.equal(
+    validateAgentDispatchRequest({ ...example, phase: entry.allowedPhases[0] }).entry,
+    entry,
+    `public ${entry.canonicalName} example must also satisfy the shared runtime contract`,
+  );
 }
 
 for (const retiredCommand of [

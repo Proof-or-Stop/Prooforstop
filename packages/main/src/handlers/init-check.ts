@@ -22,6 +22,7 @@ import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { currentMaterialHash } from '../core/evidence-freshness.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { getSessionId } from '../core/story-owner-lease.js';
+import { assertRegisteredAgentMutationAllowed } from '../core/agent-dispatch-registry.js';
 import {
   INIT_CHECK_SALT,
   REQUIRED_INIT_CHECK_AGENTS,
@@ -87,6 +88,7 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       agent?: string;
       agentId?: string;
     }): string {
+      assertRegisteredAgentMutationAllowed(args.agent || process.env.LATTICE_AGENT || args.agentId, 'init_check_set');
       return withInitCheckLock(store, args.storyId, () => {
       // 1) story existence check (same approach as scope_check_save)
       let title = '';

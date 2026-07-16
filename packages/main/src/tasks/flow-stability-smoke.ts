@@ -733,6 +733,15 @@ function assertFlowFactPolicyRegistry(): void {
     false,
     'non-reviewer pass-like finding must not normalize to review pass',
   );
+  assert.equal(
+    isPassOnlyReviewFindingRecord({
+      desc: 'PASS: no blocking issues.',
+      severity: 'low',
+      agent: 'lattice-review-lookalike',
+    }),
+    false,
+    'an unregistered prefix lookalike must not normalize into reviewer evidence',
+  );
 }
 
 function createActiveStoryRoot(phase: StoryInfo['phase'], configPatch: Record<string, unknown> = {}): { root: string; storyId: string } {

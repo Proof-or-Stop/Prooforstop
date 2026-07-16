@@ -1,3 +1,5 @@
+import { isRegisteredReviewAgent } from './agent-dispatch-registry.js';
+
 export type FlowFactPolicyId =
   | 'review-run-boundary'
   | 'review-pass'
@@ -105,7 +107,6 @@ export const FLOW_FACT_POLICIES = [
 ] as const satisfies readonly FlowFactPolicyDefinition[];
 
 export const PASS_ONLY_REVIEW_FINDING_POLICY = {
-  reviewerAgentPrefix: 'lattice-review-',
   severity: 'low',
   passPatterns: [
     /\b(no blocking issues?|no blocking issue found|no blockers?|0 blocking)\b/i,
@@ -139,7 +140,7 @@ export const PASS_ONLY_REVIEW_FINDING_POLICY = {
 
 export function isPassOnlyReviewFindingRecord(finding: { desc: string; severity: string; agent?: string }): boolean {
   if (finding.severity !== PASS_ONLY_REVIEW_FINDING_POLICY.severity) return false;
-  if (!finding.agent?.startsWith(PASS_ONLY_REVIEW_FINDING_POLICY.reviewerAgentPrefix)) return false;
+  if (!isRegisteredReviewAgent(finding.agent)) return false;
   const desc = finding.desc.trim();
   const neutralizedDesc = PASS_ONLY_REVIEW_FINDING_POLICY.neutralizePatterns.reduce(
     (current, pattern) => current.replace(pattern, ''),

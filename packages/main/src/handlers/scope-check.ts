@@ -17,6 +17,7 @@ import { assertCandidateReadBinding, digestCandidateRoutingValue } from '../core
 import { currentStoryRoutingInput } from './candidate-spec-routing.js';
 import { captureReviewRunSnapshot } from '../core/review-run.js';
 import { loadConfig } from '../core/config.js';
+import { assertRegisteredAgentMutationAllowed } from '../core/agent-dispatch-registry.js';
 
 export const SCOPE_CHECK_SALT = 'lattice-scope-check-integrity-v1';
 
@@ -191,6 +192,7 @@ export function createScopeCheckHandlers(ctx: HandlerContext): Record<string, (.
       // business integrity (only type check); main agent later resolves via scope_question_resolve.
       openQuestions?: OpenQuestion[];
     }): string {
+      assertRegisteredAgentMutationAllowed(process.env.LATTICE_AGENT, 'scope_check_save');
       // Verify story exists and read currentReviewRound
       let reviewRound = '';
       try {

@@ -18,6 +18,12 @@ import {
 import { StoryStore } from '../core/store.js';
 import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
 import { createChecklistHandlers } from '../handlers/checklist.js';
+import { createFindingHandlers } from '../handlers/finding.js';
+import { createReviewRunHandlers } from '../handlers/review-run.js';
+import { createInitCheckHandlers } from '../handlers/init-check.js';
+import { createScopeCheckHandlers } from '../handlers/scope-check.js';
+import { createDeliveryCheckHandlers } from '../handlers/delivery-check.js';
+import { captureReviewerReadEvent } from '../core/reviewer-read-evidence.js';
 import { resolveReviewRunLane } from '../core/review-run.js';
 import type {
   AgentDispatchMutationCommand,
@@ -56,6 +62,11 @@ assert.equal(new Set(canonicalNames).size, canonicalNames.length, 'canonical age
 const allNames = AGENT_DISPATCH_REGISTRY.flatMap((entry) => [entry.canonicalName, ...entry.aliases]);
 assert.equal(new Set(allNames).size, allNames.length, 'canonical names and aliases must not collide');
 assert.deepEqual(AGENT_DISPATCH_ACCEPTED_TYPES, [...allNames].sort(), 'accepted type list must enumerate the full table');
+assert.equal(
+  AGENT_DISPATCH_REGISTRY.some((entry) => String(entry.roleClass) === 'item-reviewer'),
+  false,
+  'legacy implementation-reviewer stays deliberately folded into quality/behavior instead of acquiring a third REVIEW authority',
+);
 
 for (const entry of AGENT_DISPATCH_REGISTRY) {
   assert.ok(entry.allowedPhases.length > 0, `${entry.canonicalName} must declare an allowed phase`);
@@ -283,6 +294,12 @@ try {
   }] });
   const handlers = createStoryDispatchHandlers({ store, root, scanRoot: join(root, 'packages/main') });
   const checklistHandlers = createChecklistHandlers({ store, root, scanRoot: join(root, 'packages/main') });
+  const handlerContext = { store, root, scanRoot: join(root, 'packages/main') };
+  const findingHandlers = createFindingHandlers(handlerContext);
+  const reviewRunHandlers = createReviewRunHandlers(handlerContext);
+  const initCheckHandlers = createInitCheckHandlers(handlerContext);
+  const scopeCheckHandlers = createScopeCheckHandlers(handlerContext);
+  const deliveryCheckHandlers = createDeliveryCheckHandlers(handlerContext);
   for (const agentType of ['verification-intent', 'test-intent', 'test-case-reviewer']) {
     const prompt = handlers.dispatch({ storyId, itemId: 'CHK-001', agentType }).prompt;
     assert.match(prompt, /define verification intent/);
@@ -308,6 +325,68 @@ try {
     () => resolveReviewRunLane('lattice-implementer'),
     /not a registered REVIEW reviewer/,
     'implementer must not mint reviewer-run/pass authority through the real review-run consumer',
+  );
+  const findingsBeforeDenied = JSON.stringify(store.readFindings(storyId));
+  assert.throws(
+    () => findingHandlers.finding_add({
+      storyId, desc: 'must not persist', severity: 'high', category: 'missing', agent: 'test-intent',
+    }),
+    /agent_dispatch_mutation_denied/,
+  );
+  assert.equal(JSON.stringify(store.readFindings(storyId)), findingsBeforeDenied, 'denied finding_add must have no side effect');
+  assert.throws(
+    () => findingHandlers.review_pass_set({
+      storyId, agent: 'lattice-implementer', note: 'must not persist a review pass',
+      reviewRunId: 'RR-denied', readManifest: { routedCandidates: [], fullyRead: [], triaged: [] },
+    }),
+    /agent_dispatch_mutation_denied/,
+  );
+  assert.equal(store.readReviewPasses(storyId).passes.length, 0, 'denied review_pass_set must have no side effect');
+  assert.throws(
+    () => reviewRunHandlers.review_run_start({ storyId, agent: 'lattice-implementer' }),
+    /agent_dispatch_mutation_denied/,
+  );
+  assert.equal(store.readReviewRuns(storyId).runs.length, 0, 'denied review_run_start must have no side effect');
+  assert.throws(
+    () => initCheckHandlers.init_check_set({ storyId, issues: [], agent: 'lattice-implementer' }),
+    /agent_dispatch_mutation_denied/,
+  );
+  assert.equal(store.readInitCheck(storyId), null, 'denied init_check_set must have no side effect');
+  const previousAgent = process.env.LATTICE_AGENT;
+  process.env.LATTICE_AGENT = 'test-intent';
+  try {
+    assert.throws(
+      () => scopeCheckHandlers.scope_check_save({
+        storyId, features: [], summary: { total: 0, covered: 0, excluded: 0, gaps: 0 },
+        readManifest: { routedCandidates: [], fullyRead: [], triaged: [] },
+      }),
+      /agent_dispatch_mutation_denied/,
+    );
+    assert.equal(store.readScopeCheck(storyId), null, 'denied scope_check_save must have no side effect');
+    assert.throws(
+      () => deliveryCheckHandlers.delivery_check_set({
+        storyId, docsPromises: [], realMachineTests: [], closingSelfCheck: { summary: 'must not persist delivery evidence' },
+      }),
+      /agent_dispatch_mutation_denied/,
+    );
+    assert.equal(store.readDeliveryCheck(storyId), null, 'denied delivery_check_set must have no side effect');
+    assert.throws(
+      () => findingHandlers.finding_resolve({ storyId, findingId: `${storyId}:F-001` }),
+      /agent_dispatch_mutation_denied/,
+    );
+    assert.equal(JSON.stringify(store.readFindings(storyId)), findingsBeforeDenied, 'denied finding_resolve must have no side effect');
+  } finally {
+    if (previousAgent === undefined) delete process.env.LATTICE_AGENT;
+    else process.env.LATTICE_AGENT = previousAgent;
+  }
+  assert.equal(
+    captureReviewerReadEvent({ path: 'docs/requirements/decisions/example.md', mode: 'full' }, { agent: 'lattice-review-lookalike' }),
+    null,
+    'prefix lookalikes must not produce reviewer read evidence',
+  );
+  assert.ok(
+    captureReviewerReadEvent({ path: 'docs/requirements/decisions/example.md', mode: 'full' }, { agent: 'lattice-review-quality' }),
+    'registered REVIEW lanes must retain reviewer read evidence authority',
   );
   store.writeStory(storyId, { ...store.readStory(storyId), phase: 'REVIEW' });
   const reviewPrompt = handlers.dispatch({ storyId, agentType: 'lattice-review-quality' }).prompt;

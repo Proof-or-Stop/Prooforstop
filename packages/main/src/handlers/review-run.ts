@@ -21,6 +21,7 @@ import {
   classifyGitStatusRows,
   isBlockingDirty,
 } from '../core/dirty-worktree-gate.js';
+import { assertRegisteredAgentMutationAllowed } from '../core/agent-dispatch-registry.js';
 
 function withReviewRunLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
   const lockDir = ctx.store.storyFilePath(storyId, 'review-runs.lock');
@@ -63,6 +64,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
   const { store } = ctx;
   return {
     review_run_start(args: { storyId: string; agent?: string; lane?: string; prompt?: string; promptHash?: string; reviewedIntentRefs?: string[] }): string {
+      assertRegisteredAgentMutationAllowed(args.agent || process.env.LATTICE_AGENT || args.lane, 'review_run_start');
       const workspace = resolveStoryCommandWorkspace(store, args.storyId, ctx.root);
       const signedWorkspaceRoot = resolveSignedWorkspaceRoot(workspace, args.storyId);
       const preflightStory = store.readStory(args.storyId);

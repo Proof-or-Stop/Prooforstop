@@ -408,6 +408,12 @@ export function resolveRegisteredAgentActor(actor: string | undefined | null): A
   return byName.get(value) ?? null;
 }
 
+/** True only for registered REVIEW lanes; prefix lookalikes never acquire reviewer authority. */
+export function isRegisteredReviewAgent(actor: string | undefined | null): boolean {
+  const entry = resolveRegisteredAgentActor(actor);
+  return !!entry?.reviewerLane && entry.allowedPhases.includes('REVIEW');
+}
+
 export function entryPermitsMutation(
   entry: AgentDispatchRegistryEntry,
   command: AgentDispatchMutationCommand,

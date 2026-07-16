@@ -19,6 +19,11 @@ authority and never receive implementation/commit/status-done instructions.
 Unknown types, wrong phases, and wrong story/item/finding/cluster cardinalities
 fail before prompt generation and before dispatch event writes.
 
+There is deliberately no active `item-reviewer` row. The legacy
+`implementation-reviewer` role is folded into the quality/behavior story lanes;
+item-scoped acceptance work belongs to `verification-intent`. Keeping the role
+class vocabulary reserved does not grant a dispatch or evidence authority.
+
 Role separation is enforced twice: prompts state the role boundary, while the
 registry and mutation consumers mechanically deny privilege crossover. In
 particular, implementers/repairers cannot mint reviewer evidence, reviewers
