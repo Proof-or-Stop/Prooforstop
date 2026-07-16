@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
-import { delimiter, extname, isAbsolute, join, resolve } from 'node:path';
+import { delimiter, isAbsolute, join, posix, resolve, win32 } from 'node:path';
 import { isStoryMetadataPath } from './evidence-freshness.js';
 import type { TestEvidenceData, VerificationCoverageReport } from './types.js';
 import type {
@@ -45,8 +45,12 @@ function fileDigest(path: string): string | null {
 }
 
 function resolveExecutable(command: string, cwd: string, env: NodeJS.ProcessEnv, platform: NodeJS.Platform): string | null {
+  const platformPath = platform === 'win32' ? win32 : posix;
+  const explicitPath = platform === 'win32'
+    ? command.includes('/') || command.includes('\\')
+    : command.includes('/');
   const executableCandidates = (base: string): string[] => {
-    if (platform !== 'win32' || extname(base)) return [base];
+    if (platform !== 'win32' || platformPath.extname(base)) return [base];
     const extensions = String(env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD')
       .split(';')
       .map((extension) => extension.trim())
@@ -54,8 +58,15 @@ function resolveExecutable(command: string, cwd: string, env: NodeJS.ProcessEnv,
       .map((extension) => extension.startsWith('.') ? extension : `.${extension}`);
     return [base, ...extensions.map((extension) => `${base}${extension}`)];
   };
-  if (isAbsolute(command) || command.includes('/')) {
-    const candidate = isAbsolute(command) ? command : resolve(cwd, command);
+  if (platformPath.isAbsolute(command) || explicitPath) {
+    const candidate = platformPath.isAbsolute(command)
+      ? platformPath.normalize(command)
+      : platform === 'win32'
+        // On a real Windows host native resolve is win32. Splitting platform
+        // separators also makes platform-injected tests address the host temp
+        // tree without weakening the Windows relative-path semantics.
+        ? resolve(cwd, ...win32.normalize(command).split(/[\\/]+/))
+        : resolve(cwd, command);
     return executableCandidates(candidate).find((path) => existsSync(path)) ?? null;
   }
   const pathDelimiter = platform === 'win32' ? ';' : delimiter;

@@ -411,6 +411,67 @@ function main(): void {
       winAmbientCollisionB.digest,
       'win32 duplicate ambient keys are deterministically deduplicated independent of insertion order',
     );
+    const winCommandCwd = join(root, 'win-command-cwd');
+    const winCommandTools = join(winCommandCwd, 'tools');
+    const winPathOnly = join(root, 'win-path-only');
+    mkdirSync(winCommandTools, { recursive: true });
+    mkdirSync(winPathOnly, { recursive: true });
+    const explicitValidator = join(winCommandTools, 'validator.CMD');
+    writeFileSync(explicitValidator, 'cwd-explicit-v1\n', 'utf8');
+    writeFileSync(join(winPathOnly, 'validator.CMD'), 'path-bare-binary\n', 'utf8');
+    const winExplicitRelative = identity(root, 'configured', [{
+      ...baseCommand,
+      command: '.\\tools\\validator',
+      args: [],
+      cwd: 'win-command-cwd',
+      env: { PATH: winPathOnly, PATHEXT: '.CMD' },
+    }], { platform: 'win32', env: { PATH: winPathOnly, PATHEXT: '.CMD', CI: 'true' } });
+    const winExplicitWithExtension = identity(root, 'configured', [{
+      ...baseCommand,
+      command: 'tools\\validator.CMD',
+      args: [],
+      cwd: 'win-command-cwd',
+      env: { PATH: winPathOnly, PATHEXT: '.EXE' },
+    }], { platform: 'win32', env: { PATH: winPathOnly, PATHEXT: '.EXE', CI: 'true' } });
+    const winExplicitSlash = identity(root, 'configured', [{
+      ...baseCommand,
+      command: './tools/validator',
+      args: [],
+      cwd: 'win-command-cwd',
+      env: { PATH: winPathOnly, PATHEXT: '.CMD' },
+    }], { platform: 'win32', env: { PATH: winPathOnly, PATHEXT: '.CMD', CI: 'true' } });
+    const winBarePathBinary = identity(root, 'configured', [{
+      ...baseCommand,
+      command: 'validator',
+      args: [],
+      cwd: 'win-command-cwd',
+      env: { PATH: winPathOnly, PATHEXT: '.CMD' },
+    }], { platform: 'win32', env: { PATH: winPathOnly, PATHEXT: '.CMD', CI: 'true' } });
+    assert.equal(
+      winExplicitRelative.commands[0]?.executableDigest,
+      winExplicitWithExtension.commands[0]?.executableDigest,
+      'win32 cwd-relative backslash paths bind the explicit file with and without PATHEXT',
+    );
+    assert.equal(
+      winExplicitRelative.commands[0]?.executableDigest,
+      winExplicitSlash.commands[0]?.executableDigest,
+      'win32 cwd-relative slash paths retain the explicit-path envelope',
+    );
+    assert.notEqual(
+      winExplicitRelative.commands[0]?.executableDigest,
+      winBarePathBinary.commands[0]?.executableDigest,
+      'an explicit win32 path must not bind a same-name binary found through PATH',
+    );
+    writeFileSync(explicitValidator, 'cwd-explicit-v2\n', 'utf8');
+    const winExplicitChanged = identity(root, 'configured', [{
+      ...baseCommand,
+      command: '.\\tools\\validator',
+      args: [],
+      cwd: 'win-command-cwd',
+      env: { PATH: winPathOnly, PATHEXT: '.CMD' },
+    }], { platform: 'win32', env: { PATH: winPathOnly, PATHEXT: '.CMD', CI: 'true' } });
+    assert.notEqual(winExplicitRelative.commands[0]?.executableDigest, winExplicitChanged.commands[0]?.executableDigest);
+    assert.notEqual(winExplicitRelative.digest, winExplicitChanged.digest, 'explicit win32 path content changes invalidate identity');
     const variations = [
       identity(root, 'configured', [{ ...baseCommand, args: ['--test', 'changed'] }]),
       identity(root, 'configured', [{ ...baseCommand, cwd: 'nested' }]),
