@@ -729,6 +729,40 @@
       },
       "readDiagnostics": [],
       "_hash": "0f76b9f05468b06518160ac5e1089d68ff6af7a791151ea16815ff1750800c47"
+    },
+    {
+      "id": "B-914f:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "Round 8 incremental concept review found no blocker. The six-file delta fixes the observed launcher identity drift without weakening environment soundness: one shared helper constructs the exact environment consumed by both identity hashing and child spawn; only narrow launcher bookkeeping keys _, OLDPWD, and SHLVL are removed, PWD is canonicalized to the effective command cwd, and explicit command.env overlays apply last. PATH, NODE_OPTIONS, CI, locale, secrets, and every other ambient value remain semantic and still invalidate reuse when changed. Tests bind direct-versus-wrapper equivalence, semantic CI drift, explicit transport-named overlays, and real executed-to-reused behavior. Process-fact text and contract accurately encode the same invariant.",
+      "createdAt": "2026-07-16T17:12:44.506Z",
+      "reviewRound": "2026-07-16T17:09:53.264Z",
+      "reviewRunId": "B-914f:RR-028",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f4062e6bdcf275041cf8fee7f195fd7bbeeef0936b843e521083c6569563a7fd",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "_hash": "f2e3704d5d4cce211993a82bde58e1000ec8a1ffad4fa6185550e46ec6889ca4"
     }
   ]
 }
