@@ -69,6 +69,21 @@
       "_hash": "da5d140640e019a299d87a8df505cdbb7785e364ff1c832813cad9726ea8000a",
       "signatureTag": "missing|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-19ca:F-005",
+      "desc": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md:269-271 versus packages/main/src/core/agent-dispatch-registry.ts:19-164 and docs/requirements/decisions/role-separation.md:14-16 — HIGH: the umbrella required design says the registry must model an item-reviewer role family, but the implemented registry has no item-reviewer entry (the valid role-class set merely permits the string), and the new canonical role-separation summary silently omits item reviewers while claiming the current contract is complete. This leaves the implemented-contract prose inconsistent with its own normative requirement and makes the exhaustive-coverage claim unable to cover that required family. Either add the intended typed item-reviewer row with phase/cardinality/prompt/evidence authority and coverage, or explicitly amend the approved requirement with rationale that item review is retired/merged into story review; keep the umbrella plan, canonical role doc, help/hints, registry, and smoke ledger aligned.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-16T11:23:39.275Z",
+      "reviewRound": "2026-07-16T11:17:22.582Z",
+      "reviewRunId": "B-19ca:RR-007",
+      "_hash": "41c603799b89c8cebd4795b6013978ce56756546960fb0f2abc06f5cb01eb1cb",
+      "signatureTag": "missing|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
