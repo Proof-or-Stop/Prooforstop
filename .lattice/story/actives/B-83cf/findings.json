@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-83cf:F-001",
+      "desc": "packages/main/src/core/review-assurance-floor.ts:229-231 + packages/main/src/tasks/review-assurance-floor-smoke.ts:578-589 — HIGH: the story promises that the exact printed degraded command is executed through the worktree-local node bin/lattice.js entrypoint, but production guidance still prints global `lattice autopilot_review_submit` and the smoke only runs `zsh -n` syntax validation. In the self-host scenario that motivated this story, global lattice can resolve main old runtime without --deriveBindings, so all three printed commands are not proven executable and can deterministically fail while the test passes. Render the authoritative local entrypoint (or otherwise mechanically guarantee current runtime authority) and execute the exact three rendered commands in an isolated fixture, asserting three persisted complete-envelope verdicts and degraded-only 3x1 outcome.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-16T18:42:28.911Z",
+      "reviewRound": "2026-07-16T18:40:03.885Z",
+      "reviewRunId": "B-83cf:RR-003",
+      "_hash": "4d63349d6b1c3df689d32929f81ab0e680db887cbcc98fad0634e608614778d0",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
