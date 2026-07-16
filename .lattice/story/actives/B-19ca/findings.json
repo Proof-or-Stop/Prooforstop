@@ -282,7 +282,7 @@
       "desc": "resolveAgentMutationAuthority does not fail closed when LATTICE_AGENT is present but unknown. Because only registered env actors enter the authoritative branch, an unknown/lookalike env actor is silently discarded whenever payloadActors supplies human/main or any registered reviewer. Repro against the built candidate: envActor=lattice-review-lookalike + payloadActors=[human] returns trusted host authority, and the same env + payloadActors=[lattice-review-quality] returns reviewer authority instead of agent_dispatch_actor_unknown. This lets an unknown dispatched identity cross the trusted-host/reviewer boundary through payload attribution, contradicting the shared invariant that unknown identities inherit no privileged default. Treat only omitted or explicitly trusted env identities as legacy compatibility; any nonblank unknown env identity must reject before payload selection, with real-handler byte-equivalence regression coverage.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-16T12:29:52.223Z",
@@ -325,7 +325,11 @@
         "packages/main/src/tasks/agent-dispatch-registry-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|resolveagentmutationauthority-fail-closed",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit c32f3b054c classifies every nonblank LATTICE_AGENT before payload authority: registered rows and exact trusted hosts retain their defined paths, while any other env identity immediately raises agent_dispatch_actor_unknown. Payload cannot launder unknown env into human/main/reviewer; helper and real finding handler spoof tests prove byte-equivalent no-write behavior.",
+      "resolvedAt": "2026-07-16T12:36:29.216Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
