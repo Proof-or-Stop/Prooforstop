@@ -80,8 +80,32 @@
       "phase": "DEV",
       "headHash": "2098b0ec91818d72400a1405e6051c6e5e28a9cc",
       "materialHash": "6cbf8fd142bda72ccd43502f3b43f26eaf1e1afc000b4533271cd66416083932"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required fail-closed consumers and regression coverage discovered by the real candidate live-smoke timeout: failed or unexecuted transcripts must not satisfy delivery or DONE while canonical writer receipts remain auditable.",
+      "timestamp": "2026-07-16T01:45:18.135Z",
+      "paths": [
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/src/core/live-smoke-transcript-evidence.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/handlers/delivery-check.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/src/core/live-smoke-transcript-evidence.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/handlers/delivery-check.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "e47c73f26be6d0aa9d068349efeea755bb532ec7",
+      "materialHash": "5306243ecb710a6e0346a2a848b14a100f40b8f1e456871c79af3f24011711cf"
     }
   ],
   "createdAt": "2026-07-15T19:01:11.957Z",
-  "updatedAt": "2026-07-15T23:28:17.795Z"
+  "updatedAt": "2026-07-16T01:45:18.135Z"
 }
