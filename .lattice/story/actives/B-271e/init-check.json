@@ -1,0 +1,43 @@
+{
+  "storyId": "B-271e",
+  "checkedAt": "2026-07-16T23:15:05.019Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [
+    {
+      "severity": "medium",
+      "desc": "CHK-001 lacks an explicit user-observable completion outcome and negative control. PLAN acceptance should state that a contradictory PASS envelope (for example unverified plus verifiedBy, nonzero missing/failed counts, or conflicting semantic fields) is rejected with a stable actionable reason before evidence persistence, while a complete internally consistent PASS and legitimate non-PASS envelope still follow their existing paths without false rejection."
+    },
+    {
+      "severity": "medium",
+      "desc": "CHK-002 describes the AST/taint mechanism but not the product-level proof of noninterference and boundedness. PLAN acceptance should require that a production invocation cannot turn SMOKE/TEST control data into write/rm/rename/exec/spawn side effects, and that ordinary production environment reads plus explicitly capability-limited temp-repository test helpers remain accepted, so completion is recognizable without widening the guard into a general env/sink ban."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-16T23:15:03.982Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "PLAN must enumerate the exact PASS-envelope consumers/fields and the bounded production directories, sink set, and permitted capability-limited exemptions. As written, “gate-relevant envelopes” plus all core/handlers write/rm/rename/exec/spawn flows could expand this compact regression story into a framework-wide refactor, even though the two checklist items themselves are distinct and no duplicate active story was found."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-16T23:15:05.019Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-001 lacks an explicit user-observable completion outcome and negative control. PLAN acceptance should state that a contradictory PASS envelope (for example unverified plus verifiedBy, nonzero missing/failed counts, or conflicting semantic fields) is rejected with a stable actionable reason before evidence persistence, while a complete internally consistent PASS and legitimate non-PASS envelope still follow their existing paths without false rejection."
+        },
+        {
+          "severity": "medium",
+          "desc": "CHK-002 describes the AST/taint mechanism but not the product-level proof of noninterference and boundedness. PLAN acceptance should require that a production invocation cannot turn SMOKE/TEST control data into write/rm/rename/exec/spawn side effects, and that ordinary production environment reads plus explicitly capability-limited temp-repository test helpers remain accepted, so completion is recognizable without widening the guard into a general env/sink ban."
+        }
+      ]
+    }
+  ],
+  "_hash": "2de481e09e1a16b9ecd7b2d14b9e2e22d957d447182158415c8ba94ed3758de4"
+}

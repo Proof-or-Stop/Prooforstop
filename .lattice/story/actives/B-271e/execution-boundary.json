@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-271e",
+  "allowedCommands": [
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*smoke.js",
+    "node scripts/verify-*.mjs",
+    "npm --prefix packages/main run build",
+    "npm test"
+  ],
+  "allowedTools": [
+    "apply_patch by lattice-implementer",
+    "git read-only/status/diff plus normal story commits",
+    "Lattice CLI via worktree-local node bin/lattice.js"
+  ],
+  "allowedPaths": [
+    "AGENTS.md",
+    "docs/requirements/decisions",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/tasks",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git clean -fd*",
+    "git push *",
+    "git reset --hard*",
+    "omx*",
+    "test_auto*"
+  ],
+  "excludedTools": [
+    "external host CLI execution",
+    "network publishing",
+    "OMX"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "PLAN must narrow concrete consumers, fields, production directories, sinks, and permitted exemptions before DEV; main agent does not edit business code.",
+  "createdAt": "2026-07-16T23:15:59.924Z",
+  "updatedAt": "2026-07-16T23:15:59.924Z",
+  "_hash": "0d281c4fa88f6c4222462cbe849879db44e83d37202a4aeff86cb289e540051d"
+}

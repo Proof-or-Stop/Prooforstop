@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-271e",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Detect and reject production SMOKE/TEST control seams or environment-derived values that reach filesystem or process side-effect sinks, while preserving legitimate environment reads and capability-limited temp helpers",
+    "Reject internally contradictory PASS/delivery evidence before persistence or gate consumption using normalized total predicates and generated mutation/contradiction tests"
+  ],
+  "excluded": [
+    "Broad evidence framework rewrite or migration of unrelated artifact schemas",
+    "Changes to runtime authority routing, review quorum policy, lifecycle phase semantics, or unrelated active stories",
+    "External host execution or network-dependent assurance",
+    "Universal ban on process.env or test helpers"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User explicitly asked to open a small follow-up after B-ebe4 for the verified F-010/F-011 costs; during B-ebe4 the contradictory delivery envelope reproduced the same class, and the user directed continued unattended execution.",
+  "createdAt": "2026-07-16T23:15:51.862Z",
+  "updatedAt": "2026-07-16T23:15:51.862Z",
+  "_hash": "f6d13af653090e28b86c9d2e44aa8c7821df8dabcecbc65bb87be73934b34bf9"
+}

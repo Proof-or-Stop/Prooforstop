@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-271e",
+  "checkedAt": "2026-07-16T23:16:05.958Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "f6d13af653090e28b86c9d2e44aa8c7821df8dabcecbc65bb87be73934b34bf9",
+  "executionBoundaryHash": "0d281c4fa88f6c4222462cbe849879db44e83d37202a4aeff86cb289e540051d",
+  "freshnessHash": "12d64d71fed181c036e08a037f269c09fc958224cb820cab125ddee2ff0698ef",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "Broad evidence framework rewrite or migration of unrelated artifact schemas",
+    "Changes to runtime authority routing, review quorum policy, lifecycle phase semantics, or unrelated active stories",
+    "customerKeyRef",
+    "External host execution or network-dependent assurance",
+    "Layer4",
+    "repair UX",
+    "Universal ban on process.env or test helpers"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Authority",
+      "source": "scopeBoundary.excluded",
+      "text": "Changes to runtime authority routing, review quorum policy, lifecycle phase semantics, or unrelated active stories",
+      "excluded": true
+    },
+    {
+      "keyword": "Broad evidence framework rewrite or migration of unrelated artifact schemas",
+      "source": "scopeBoundary.excluded",
+      "text": "Broad evidence framework rewrite or migration of unrelated artifact schemas",
+      "excluded": true
+    },
+    {
+      "keyword": "Changes to runtime authority routing, review quorum policy, lifecycle phase semantics, or unrelated active stories",
+      "source": "scopeBoundary.excluded",
+      "text": "Changes to runtime authority routing, review quorum policy, lifecycle phase semantics, or unrelated active stories",
+      "excluded": true
+    },
+    {
+      "keyword": "External host execution or network-dependent assurance",
+      "source": "scopeBoundary.excluded",
+      "text": "External host execution or network-dependent assurance",
+      "excluded": true
+    },
+    {
+      "keyword": "Universal ban on process.env or test helpers",
+      "source": "scopeBoundary.excluded",
+      "text": "Universal ban on process.env or test helpers",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "048c87e253a0a0645f826c6f8ea01a2173b691bf7195a5d957aefa10ff7bdeb8"
+}
