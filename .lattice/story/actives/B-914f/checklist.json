@@ -233,14 +233,16 @@
         },
         {
           "intentRef": "CHK-002:edge:0",
-          "kind": "logic_test",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
           "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
           "result": "pass",
-          "note": "Dedicated smoke passed real executed-to-reused handler flow, identity mutations, fail-closed refusals, B-19ca coverage-only reuse, lineage, TOCTOU, and no-write assertions.",
-          "headHash": "1a40ea9c586cb866e22636c16a43944496a3aab7",
-          "materialHash": "2c34a5dee73bc4863912aa7be0dbad685624dc1ba2a5f0edf793932d8c34d97d",
-          "storyFilesHash": "117a8d4c12760110cf7556ddf36c2dde023b56ebf03ce6de550a5daa6b325675",
-          "timestamp": "2026-07-16T14:27:32.626Z"
+          "note": "Real handler integration matrix passed configured, fallback, validate-file, locked material TOCTOU refusal, and zero-command reuse.",
+          "headHash": "198355ff02269d22d4ec7506a8b43b8f3ba0dbe7",
+          "materialHash": "442de55b397b6704df008ba8605ea9c22b74553aeeb505f2367aadd0e5f3b73b",
+          "storyFilesHash": "5d54f5520e1d60279203f64de703c1f6ebc59b2bc28748d40f64343046f83dda",
+          "timestamp": "2026-07-16T14:43:42.796Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
