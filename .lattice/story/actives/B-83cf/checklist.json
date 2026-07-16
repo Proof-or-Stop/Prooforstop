@@ -20,7 +20,45 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "With the explicit single-host binding-derivation mode enabled and a current story/evidence snapshot plus one real host identity supplied, autopilot_review_submit derives keyId, validationDigest, and promptDigest through the canonical shared derivation, accepts the submission, and persists exactly one verdict whose bindings equal the canonical values for the same inputs.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Without the explicit derivation flag, autopilot_review_submit preserves the legacy contract: it does not synthesize missing bindings, retains the existing warning or acceptance behavior for legacy callers, and does not silently opt the caller into derived bindings.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "desc": "A valid explicit-derivation submission records only the single supplied host identity and one verdict; it creates no second host, independence claim, quorum verdict, Authority receipt, or assurance stronger than degraded-single-host.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "When explicit derivation is requested but any caller-supplied keyId, validationDigest, or promptDigest conflicts with the current canonical derived value, the command fails closed before persistence; a before-and-after verdict-state comparison proves no verdict or partial artifact was written.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "desc": "When story material, story-files binding, validation evidence, or required host identity is stale, missing, or inconsistent at submission time, explicit derivation fails before write rather than deriving from stale evidence or accepting caller assertions; existing verdict state remains logically unchanged.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
