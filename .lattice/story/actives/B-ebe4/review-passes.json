@@ -339,6 +339,53 @@
       },
       "readDiagnostics": [],
       "_hash": "1754358f7fdde6ef936759c09595bf9cd7bf1e12621e217e7b04e01a7f51c902"
+    },
+    {
+      "id": "B-ebe4:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: final HEAD has 21/21 must intents with PASS evidence uniformly bound to current materialHash d25767544d78 and storyFilesHash 3e33192ae01c. F-001 through F-005 are strong-fixed. Retired-authority guard, runtime-entrypoint authority smoke, and runtime-fact contract exit 0 on the current exact cli-engine/bootstrap fingerprint pins; no full suite was run.",
+      "createdAt": "2026-07-16T22:09:24.010Z",
+      "reviewRound": "2026-07-16T21:56:53.499Z",
+      "reviewRunId": "B-ebe4:RR-021",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "bin/bootstrap-runner.js",
+          "docs/CLI.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/runtime-fact-registry.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f21983f7cc56fd663a0f9021c9f1321ece25ebb77fc79bba2f9c2efa42f2cbea",
+        "corpusDigest": "c32857bb0dce01204444115f085cb28f4df249ebca7e92092085ebdf61db9d44"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "09499903b7d206680c55c466eb55a970a12b22561bec73f4f8b0c9066a4c757c"
+      },
+      "readDiagnostics": [],
+      "_hash": "1213ba9c27fe69cdb3da86f978dad155e4d9e996f0285ec64b586d341c1f09d3"
     }
   ]
 }
