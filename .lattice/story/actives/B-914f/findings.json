@@ -274,7 +274,7 @@
       "desc": "Windows environment keys are case-insensitive, but effectiveValidationCommandEnvironment and resolveExecutable treat them case-sensitively. A normal Windows process commonly exposes Path rather than PATH, so resolveExecutable reads env.PATH as empty and records executableDigest:null even though spawn resolves and executes the binary through Path. That makes fresh-PASS identity fail to bind the actual executable and can reuse evidence after the executable behind Path changes. Case-variant overlays are also not reliably last-wins at the OS boundary: an explicit command.env Path/PATH can coexist with the ambient variant and Node passes only the first case-insensitive key, so the configured overlay may be silently ignored although both variants are hashed. Canonicalize/deduplicate environment keys case-insensitively on win32 (with explicit overlay winning), and resolve PATH through that canonical environment; add a platform-independent helper test for Path/PATH collisions and executable resolution.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-16T17:13:14.799Z",
@@ -287,7 +287,11 @@
         "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
       ],
       "signatureTag": "windows-env-case-collision",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 19a58c4551 and 4b5d5982d7: win32 environment keys are canonicalized case-insensitively before both identity construction and spawn, explicit command.env overlays overwrite canonical ambient keys, PWD is canonicalized before overlay, Windows PATH uses semicolon splitting, and PATHEXT default/order/explicit-extension resolution now binds executableDigest. Existing build, validation-evidence-reuse-smoke, and process-fact contract are PASS; incremental source review confirmed POSIX retains case-sensitive keys and platform delimiter behavior.",
+      "resolvedAt": "2026-07-16T17:28:01.918Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-914f:F-014",
