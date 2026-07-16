@@ -115,6 +115,49 @@
           "packages/main/src/tasks/validate-execution-lock-smoke.ts",
           "scripts/verify-process-fact-contract.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The bounded production scan of packages/main/src/core and packages/main/src/handlers reports PASS after removing the arbitrary validate-lock SMOKE/TEST environment path seam, while task-only test code remains outside the production scan.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "The validate lock race is still proven with a temp-repository pure helper or capability-limited injected callback whose targets are fixed by test construction; no CLI argument or environment value can select a filesystem path, executable, or process argument for that capability.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Positive fixtures allow ordinary PATH/runtime environment reads, an envPositiveInt-style bounded numeric sanitizer, and an enum sanitizer that selects only fixed filesystem/process constants; malformed, out-of-range, or unknown values fail or fall back without reaching a dynamic sink.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The AST/data-flow guard follows SMOKE/TEST-named environment values through direct use and one or more simple local assignments, aliases, destructuring, and argument forwarding, and reports a stable source location plus the reached sink.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Negative fixtures reject direct and simple-local flows from SMOKE/TEST environment values into filesystem path sinks mkdir/mkdirSync, write/writeFile/writeFileSync, rm/rmSync, and rename/renameSync, including the B-914f readyFile-to-writeFileSync regression.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Negative fixtures reject direct and simple-local environment flows into process executable or argument sinks exec/execSync, execFile/execFileSync, spawn/spawnSync, including separate taint of command, argv, cwd, and shell-enabled inputs.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Attempts to reach the test-only race capability through the public CLI, unknown flags, inherited environment variables, or direct production handler input are rejected before filesystem/process effects; the real lock-order assertion still passes through the capability-limited test harness, proving the capability is test-useful but production-unreachable.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
       }
     }
   ]
