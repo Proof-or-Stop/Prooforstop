@@ -819,7 +819,7 @@
       "desc": "The new actual-CLI structured-terminal regression is nondeterministic because it arms `LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS=100` before the captured Node script has necessarily started and written `actual-cli-descendant-<n>.pid`, then unconditionally reads that file. Independent RR-055 build+smoke failed once with `ENOENT ... actual-cli-descendant-0.pid` at compiled live-smoke-transcript-smoke.js:105; an immediate rerun and three subsequent consecutive runs passed. This does not reopen F-015/F-017/F-020/F-022—the product budget matrices, effective child env, referenced cleanup timer, structured terminal and reaping paths are correct—but the required actual CLI regression can fail solely from host startup scheduling and therefore is not stable gate evidence. Split the proof: keep a tight terminal-emission test that does not require the child to have reached PID creation, and use a separate deterministic descendant-reap row with sufficient startup/ready synchronization before the tested timeout, or otherwise wait for a mechanically guaranteed ready signal. Do not suppress ENOENT in the descendant proof, because that would stop proving a descendant existed.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-16T00:26:55.090Z",
@@ -861,7 +861,11 @@
         "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
       ],
       "signatureTag": "edge|ts|actual-structured-terminal",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit dcff390222 separates the race-prone proof into two deterministic contracts. The tight actual-CLI terminal loop runs `sleep 5` ten times at a 100ms capture timeout and asserts only parseable terminal JSON, null/non-pass exit, and process-group termination text—no PID-file assumption. A separate descendant-reap row starts the CLI asynchronously with a 2000ms capture window, waits for a PID-written readiness handshake using fs.watch plus a 25ms existence probe, uses an idempotent settled guard, closes watcher/probe/deadline on every readiness settlement, then verifies the CLI was active at readiness, emitted a structured terminal, and the confirmed descendant is ESRCH. The capture's own bounded process-group cleanup remains the failure-path process backstop. Independent RR-060 verification: build PASS; four consecutive complete live-smoke runs PASS, with the first three covering 30 tight terminal iterations and the fourth an additional main run; process-fact contract PASS. Production files are unchanged.",
+      "resolvedAt": "2026-07-16T00:39:10.690Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c163:F-025",
