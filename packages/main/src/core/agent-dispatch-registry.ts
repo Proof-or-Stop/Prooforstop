@@ -1,7 +1,9 @@
 import type {
   AgentDispatchCanonicalType,
   AgentDispatchIdentifierKind,
+  AgentDispatchMutationCommand,
   AgentDispatchRegistryEntry,
+  StoryPhase,
 } from './types.js';
 
 const ITEM_REVIEW_MUTATIONS = ['review_run_start', 'finding_add', 'review_pass_set'] as const;
@@ -89,11 +91,11 @@ export const AGENT_DISPATCH_REGISTRY = [
   ] as const).map((canonicalName) => ({
     canonicalName,
     aliases: [],
-    roleClass: 'item-reviewer' as const,
+    roleClass: 'story-reviewer' as const,
     allowedPhases: ['REVIEW'] as const,
-    targetCardinality: 'exactly-one' as const,
-    identifierKinds: ['itemId'] as const,
-    promptBuilder: 'item-review' as const,
+    targetCardinality: 'story-only' as const,
+    identifierKinds: [] as const,
+    promptBuilder: 'story-review' as const,
     permittedMutations: ITEM_REVIEW_MUTATIONS,
     commitAllowed: false,
     reviewerLane: canonicalName,
@@ -104,8 +106,8 @@ export const AGENT_DISPATCH_REGISTRY = [
     aliases: [],
     roleClass: 'coverage-reviewer',
     allowedPhases: ['REVIEW'],
-    targetCardinality: 'exactly-one',
-    identifierKinds: ['itemId'],
+    targetCardinality: 'story-only',
+    identifierKinds: [],
     promptBuilder: 'coverage-review',
     permittedMutations: ITEM_REVIEW_MUTATIONS,
     commitAllowed: false,
@@ -160,11 +162,11 @@ export class AgentDispatchRegistryDefinitionError extends Error {
   }
 }
 
-const VALID_ROLE_CLASSES = new Set(['implementer', 'verification-intent', 'init-reviewer', 'scope-reviewer', 'item-reviewer', 'coverage-reviewer', 'delivery-reviewer', 'repairer']);
+const VALID_ROLE_CLASSES = new Set(['implementer', 'verification-intent', 'init-reviewer', 'scope-reviewer', 'story-reviewer', 'item-reviewer', 'coverage-reviewer', 'delivery-reviewer', 'repairer']);
 const VALID_PHASES = new Set(['IDEA', 'INIT', 'INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE', 'DISCARDED', 'TEST_CASE', 'TEST_CASE_REVIEW', 'META']);
 const VALID_CARDINALITIES = new Set(['story-only', 'exactly-one']);
 const VALID_IDENTIFIERS = new Set(['itemId', 'findingId', 'clusterId']);
-const VALID_PROMPT_BUILDERS = new Set(['implementer-dispatch', 'verification-intent-item', 'init-review', 'product-init-review', 'scope-plan-review', 'item-review', 'coverage-review', 'delivery-review', 'finding-repair', 'cluster-repair']);
+const VALID_PROMPT_BUILDERS = new Set(['implementer-dispatch', 'verification-intent-item', 'init-review', 'product-init-review', 'scope-plan-review', 'story-review', 'item-review', 'coverage-review', 'delivery-review', 'finding-repair', 'cluster-repair']);
 const VALID_MUTATIONS = new Set(['checklist_update', 'init_check_set', 'scope_check_save', 'review_run_start', 'finding_add', 'review_pass_set', 'delivery_check_set', 'finding_resolve']);
 const VALID_EVIDENCE_OWNERSHIP = new Set(['checklist-status', 'verification-intent', 'init-check', 'scope-check', 'review-run', 'finding', 'review-pass', 'delivery-check', 'finding-resolution', 'cluster-resolution']);
 
@@ -233,7 +235,11 @@ export function validateAgentDispatchRegistry(entries: readonly unknown[]): void
 
 validateAgentDispatchRegistry(AGENT_DISPATCH_REGISTRY);
 
-export type AgentDispatchRegistryErrorCode = 'blank_agent_type' | 'unknown_agent_type';
+export type AgentDispatchRegistryErrorCode =
+  | 'blank_agent_type'
+  | 'unknown_agent_type'
+  | 'invalid_dispatch_phase'
+  | 'invalid_dispatch_cardinality';
 
 export class AgentDispatchRegistryError extends Error {
   readonly code: AgentDispatchRegistryErrorCode;
@@ -304,4 +310,80 @@ export function entryAcceptsIdentifier(
   identifierKind: AgentDispatchIdentifierKind,
 ): boolean {
   return entry.identifierKinds.includes(identifierKind);
+}
+
+export interface AgentDispatchTargetInput {
+  itemId?: string;
+  findingId?: string;
+  clusterId?: string;
+}
+
+function providedIdentifiers(target: AgentDispatchTargetInput): AgentDispatchIdentifierKind[] {
+  return (['itemId', 'findingId', 'clusterId'] as const).filter((kind) => {
+    const value = target[kind];
+    return typeof value === 'string' && value.trim().length > 0;
+  });
+}
+
+function cardinalityGuidance(entry: AgentDispatchRegistryEntry): string {
+  if (entry.targetCardinality === 'story-only') {
+    return `${entry.canonicalName} is story-only; omit itemId, findingId, and clusterId`;
+  }
+  return `${entry.canonicalName} requires exactly one of: ${entry.identifierKinds.join(', ')}`;
+}
+
+/** Resolve and validate the complete dispatch contract before any prompt is built. */
+export function validateAgentDispatchRequest(args: AgentDispatchTargetInput & {
+  agentType?: string;
+  phase: StoryPhase;
+}): ResolvedAgentDispatchType {
+  const resolved = resolveAgentDispatchType(args.agentType);
+  const { entry } = resolved;
+  if (!entry.allowedPhases.includes(args.phase)) {
+    throw new AgentDispatchRegistryError(
+      'invalid_dispatch_phase',
+      `${entry.canonicalName} cannot be dispatched during ${args.phase}; allowed phases: ${entry.allowedPhases.join(', ')}`,
+      AGENT_DISPATCH_ACCEPTED_TYPES,
+    );
+  }
+  const provided = providedIdentifiers(args);
+  const valid = entry.targetCardinality === 'story-only'
+    ? provided.length === 0
+    : provided.length === 1 && entryAcceptsIdentifier(entry, provided[0]);
+  if (!valid) {
+    throw new AgentDispatchRegistryError(
+      'invalid_dispatch_cardinality',
+      `invalid dispatch target for ${entry.canonicalName}: ${cardinalityGuidance(entry)}; received ${provided.join(', ') || 'story-only'}`,
+      AGENT_DISPATCH_ACCEPTED_TYPES,
+    );
+  }
+  return resolved;
+}
+
+/** Return a registry row for a known actor; non-dispatch host identities remain unclassified. */
+export function resolveRegisteredAgentActor(actor: string | undefined | null): AgentDispatchRegistryEntry | null {
+  const value = actor?.trim();
+  if (!value) return null;
+  return byName.get(value) ?? null;
+}
+
+export function entryPermitsMutation(
+  entry: AgentDispatchRegistryEntry,
+  command: AgentDispatchMutationCommand,
+): boolean {
+  return entry.permittedMutations.includes(command);
+}
+
+export function assertRegisteredAgentMutationAllowed(
+  actor: string | undefined | null,
+  command: AgentDispatchMutationCommand,
+): AgentDispatchRegistryEntry | null {
+  const entry = resolveRegisteredAgentActor(actor);
+  if (!entry) return null;
+  if (!entryPermitsMutation(entry, command)) {
+    throw new Error(
+      `${command} refused: dispatched role "${actor!.trim()}" has no ${command} authority in the agent dispatch registry. [agent_dispatch_mutation_denied]`,
+    );
+  }
+  return entry;
 }

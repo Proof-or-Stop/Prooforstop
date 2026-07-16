@@ -123,11 +123,11 @@ function writeChecklistConcurrencyStory(root: string, storyId: string, phase: St
   });
 }
 
-async function runLattice(root: string, command: string, args: Record<string, unknown>): Promise<string> {
+async function runLattice(root: string, command: string, args: Record<string, unknown>, envOverrides: Record<string, string> = {}): Promise<string> {
   return new Promise<string>((resolvePromise, reject) => {
     const child = spawn(process.execPath, [cliPath, command, JSON.stringify(args)], {
       cwd: root,
-      env: { ...process.env, LATTICE_PROJECT_ROOT: root },
+      env: { ...process.env, LATTICE_PROJECT_ROOT: root, ...envOverrides },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     let stdout = '';
@@ -697,32 +697,61 @@ async function assertItemDispatchWritesChannelEvidence(): Promise<void> {
   }
 }
 
-async function assertReviewerItemDispatchUsesReviewerPrompt(): Promise<void> {
+async function assertTypedDispatchUsesRoleSafePromptsAndBoundaries(): Promise<void> {
   const root = initRepo('lattice-reviewer-item-dispatch-');
   try {
     const storyId = 'B-review-dispatch';
     writeChecklistConcurrencyStory(root, storyId, 'REVIEW');
 
-    const output = await runLattice(root, 'dispatch', {
-      storyId,
-      itemId: 'CHK-001',
-      agentType: 'lattice-review-quality',
-    });
-    assert.match(output, /As lattice-review-quality reviewing/, 'reviewer item dispatch should identify reviewer role');
+    const output = await runLattice(root, 'dispatch', { storyId, agentType: 'lattice-review-quality' });
+    assert.match(output, /As lattice-review-quality, review story/, 'story reviewer dispatch should identify reviewer role');
     assert.match(output, /Review only; do not change code/, 'reviewer item dispatch should constrain the role to review only');
     assert.match(output, /review_run_start/, 'reviewer item dispatch should require review_run_start before REVIEW evidence');
     assert.match(output, /finding_add/, 'reviewer item dispatch should tell reviewers how to record findings');
     assert.match(output, /review_pass_set/, 'reviewer item dispatch should tell reviewers how to record pass evidence');
-    assert.match(output, /<reviewRunId from review_run_start>/, 'reviewer item dispatch should use the fresh returned reviewRunId placeholder');
-    assert.doesNotMatch(output, /:RR-001/, 'reviewer item dispatch must not hard-code a synthetic reviewRunId');
+    assert.match(output, /<reviewRunId>/, 'reviewer dispatch should use a fresh returned reviewRunId placeholder');
+    assert.doesNotMatch(output, /:RR-001/, 'reviewer dispatch must not hard-code a synthetic reviewRunId');
     assert.doesNotMatch(output, /as lattice-implementer/, 'reviewer item dispatch must not generate implementer prompt');
     assert.doesNotMatch(output, /git commit/, 'reviewer item dispatch must not ask reviewer to commit');
     assert.doesNotMatch(output, /checklist_update/, 'reviewer item dispatch must not ask reviewer to mark checklist done');
 
     const events = new StoryStore(root).readProcessEvents(storyId);
-    const dispatchEvent = events.find(ev => ev.type === 'dispatch' && ev.itemId === 'CHK-001');
-    assert.equal(dispatchEvent?.targetKind, 'checklist', 'reviewer item dispatch should still write checklist targetKind');
+    const dispatchEvent = events.find(ev => ev.type === 'dispatch' && ev.agentType === 'lattice-review-quality');
+    assert.equal(dispatchEvent?.targetKind, 'story-review', 'reviewer dispatch should write story-review targetKind');
     assert.equal(dispatchEvent?.agentType, 'lattice-review-quality', 'reviewer item dispatch should preserve reviewer agentType');
+
+    await assert.rejects(
+      runLattice(root, 'dispatch', { storyId, itemId: 'CHK-001', agentType: 'lattice-review-quality' }),
+      /story-only.*omit itemId/i,
+      'story reviewer with itemId must fail closed with cardinality guidance',
+    );
+    await assert.rejects(
+      runLattice(root, 'dispatch', { storyId, agentType: 'unknown-reviewer' }),
+      /Invalid parameters|accepted/i,
+      'unknown explicit agent type must fail before prompt generation',
+    );
+    await assert.rejects(
+      runLattice(root, 'checklist_update', { storyId, itemId: 'CHK-001', status: 'done' }, { LATTICE_AGENT: 'lattice-review-quality' }),
+      /agent_dispatch_mutation_denied/,
+      'reviewer role must not complete checklist status',
+    );
+
+    const planStoryId = 'B-verification-dispatch';
+    writeChecklistConcurrencyStory(root, planStoryId, 'PLAN');
+    for (const agentType of ['verification-intent', 'test-intent', 'test-case-reviewer']) {
+      const verificationPrompt = await runLattice(root, 'dispatch', {
+        storyId: planStoryId,
+        itemId: 'CHK-001',
+        agentType,
+      });
+      assert.match(verificationPrompt, /define verification intent/, `${agentType} must route to verification-intent prompt`);
+      assert.doesNotMatch(verificationPrompt, /git commit|status["': ]+done/i, `${agentType} must not receive implementer completion guidance`);
+    }
+    await assert.rejects(
+      runLattice(root, 'checklist_update', { storyId: planStoryId, itemId: 'CHK-001', status: 'done' }, { LATTICE_AGENT: 'test-intent' }),
+      /agent_dispatch_mutation_scope_denied/,
+      'verification-intent alias must not mark checklist done',
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -830,6 +859,8 @@ function assertStrayCleanupAllowsGeneratedReviewMetadata(): void {
 await assertReviewPassConcurrentWrites();
 await assertChecklistConcurrentUpdates();
 await assertChecklistConcurrentVerificationIntentUpdates();
+await assertTypedDispatchUsesRoleSafePromptsAndBoundaries();
+console.log('typed dispatch role/cardinality/mutation smoke PASS');
 await assertDiscardRemovesUntrackedWorktreeAndBranch();
 await assertDiscardCanCleanAlreadyDiscardedResidue();
 await assertDiscardPrunesMissingWorktreeRegistry();
@@ -841,7 +872,6 @@ await assertPurgeTombstonesBuriedSafeInitCommit();
 await assertDoctorRepairCleansTerminalWorktrees();
 await assertInitDispatchPromptHasTimeoutGuidance();
 await assertItemDispatchWritesChannelEvidence();
-await assertReviewerItemDispatchUsesReviewerPrompt();
 assertStrayCleanupAllowsGeneratedReviewMetadata();
 assertDocsDriftAllowsBootstrapAndLegacyCommands();
 assertChannelAllowsExplicitMainAgentPlanOwnership();

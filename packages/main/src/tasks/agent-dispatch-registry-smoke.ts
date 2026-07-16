@@ -1,13 +1,23 @@
 import assert from 'node:assert/strict';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import {
   AGENT_DISPATCH_ACCEPTED_TYPES,
   AGENT_DISPATCH_REGISTRY,
   AgentDispatchRegistryDefinitionError,
   AgentDispatchRegistryError,
+  assertRegisteredAgentMutationAllowed,
   entryAcceptsIdentifier,
+  entryPermitsMutation,
   resolveAgentDispatchType,
+  validateAgentDispatchRequest,
   validateAgentDispatchRegistry,
 } from '../core/agent-dispatch-registry.js';
+import { StoryStore } from '../core/store.js';
+import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
+import { createChecklistHandlers } from '../handlers/checklist.js';
+import { resolveReviewRunLane } from '../core/review-run.js';
 
 const canonicalNames = AGENT_DISPATCH_REGISTRY.map((entry) => entry.canonicalName);
 assert.equal(new Set(canonicalNames).size, canonicalNames.length, 'canonical agent types must be unique');
@@ -58,6 +68,9 @@ for (const entry of AGENT_DISPATCH_REGISTRY) {
   const declaredIdentifiers: readonly string[] = entry.identifierKinds;
   for (const kind of ['itemId', 'findingId', 'clusterId'] as const) {
     assert.equal(entryAcceptsIdentifier(entry, kind), declaredIdentifiers.includes(kind));
+  }
+  for (const mutation of entry.permittedMutations) {
+    assert.equal(entryPermitsMutation(entry, mutation), true, `${entry.canonicalName} must permit declared ${mutation}`);
   }
 }
 
@@ -114,5 +127,98 @@ assert.equal(verification.roleClass, 'verification-intent');
 assert.equal(verification.commitAllowed, false);
 assert.deepEqual(verification.permittedMutations, ['checklist_update']);
 assert.equal(verification.promptBuilder, 'verification-intent-item');
+
+for (const entry of AGENT_DISPATCH_REGISTRY) {
+  const phase = entry.allowedPhases[0];
+  const target = entry.targetCardinality === 'story-only'
+    ? {}
+    : { [entry.identifierKinds[0]]: `${entry.identifierKinds[0]}-value` };
+  assert.equal(
+    validateAgentDispatchRequest({ agentType: entry.canonicalName, phase, ...target }).entry,
+    entry,
+    `${entry.canonicalName} valid phase/cardinality must resolve`,
+  );
+  assert.throws(
+    () => validateAgentDispatchRequest({ agentType: entry.canonicalName, phase, ...(entry.targetCardinality === 'story-only' ? { itemId: 'CHK-001' } : {}) }),
+    (error: unknown) => error instanceof AgentDispatchRegistryError && error.code === 'invalid_dispatch_cardinality',
+    `${entry.canonicalName} invalid cardinality must fail closed`,
+  );
+}
+
+for (const lane of ['lattice-review-concept', 'lattice-review-quality', 'lattice-review-test-coverage'] as const) {
+  const entry = resolveAgentDispatchType(lane).entry;
+  assert.equal(entry.targetCardinality, 'story-only', `${lane} lifecycle story hint must be accepted story-only`);
+  assert.equal(validateAgentDispatchRequest({ agentType: lane, phase: 'REVIEW' }).entry, entry);
+}
+assert.throws(
+  () => validateAgentDispatchRequest({ agentType: 'verification-intent', phase: 'DEV', itemId: 'CHK-001' }),
+  (error: unknown) => error instanceof AgentDispatchRegistryError && error.code === 'invalid_dispatch_phase',
+  'verification-intent must fail before prompt generation outside PLAN',
+);
+assert.throws(
+  () => assertRegisteredAgentMutationAllowed('lattice-review-quality', 'checklist_update'),
+  /agent_dispatch_mutation_denied/,
+  'reviewers must not receive checklist mutation authority',
+);
+assert.throws(
+  () => assertRegisteredAgentMutationAllowed('lattice-implementer', 'review_pass_set'),
+  /agent_dispatch_mutation_denied/,
+  'implementers must not receive review-pass authority',
+);
+
+const root = mkdtempSync(join(tmpdir(), 'agent-dispatch-consumer-smoke-'));
+try {
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+    scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements',
+  }));
+  const store = new StoryStore(root);
+  const storyId = 'B-dispatch-consumer';
+  const now = '2026-07-16T00:00:00.000Z';
+  store.writeStory(storyId, {
+    storyId, name: 'dispatch-consumer-smoke', title: 'Dispatch consumer smoke', description: 'Synthetic dispatch contract.',
+    type: 'chore', phase: 'PLAN', priority: 'medium', createdAt: now, startedAt: now, endedAt: null, events: [],
+  });
+  store.writeChecklist(storyId, { items: [{
+    id: 'CHK-001', title: 'Define verification', context: 'Synthetic context', status: 'pending', startTime: null, endTime: null,
+  }] });
+  const handlers = createStoryDispatchHandlers({ store, root, scanRoot: join(root, 'packages/main') });
+  const checklistHandlers = createChecklistHandlers({ store, root, scanRoot: join(root, 'packages/main') });
+  for (const agentType of ['verification-intent', 'test-intent', 'test-case-reviewer']) {
+    const prompt = handlers.dispatch({ storyId, itemId: 'CHK-001', agentType }).prompt;
+    assert.match(prompt, /define verification intent/);
+    assert.doesNotMatch(prompt, /git commit|status["': ]+done/i);
+  }
+  const beforeUnknown = store.readProcessEvents(storyId).length;
+  assert.throws(
+    () => handlers.dispatch({ storyId, itemId: 'CHK-001', agentType: 'lattice-review-lookalike' }),
+    /unknown agentType/,
+  );
+  assert.equal(store.readProcessEvents(storyId).length, beforeUnknown, 'unknown type must fail before dispatch side effects');
+  assert.throws(
+    () => checklistHandlers.checklist_update({ storyId, itemId: 'CHK-001', status: 'done', actor: 'lattice-review-quality' }),
+    /agent_dispatch_mutation_denied/,
+    'reviewer checklist completion must be rejected by the real handler consumer',
+  );
+  assert.throws(
+    () => checklistHandlers.checklist_update({ storyId, itemId: 'CHK-001', status: 'done', actor: 'test-intent' }),
+    /agent_dispatch_mutation_scope_denied/,
+    'verification-intent alias checklist completion must be rejected by the real handler consumer',
+  );
+  assert.throws(
+    () => resolveReviewRunLane('lattice-implementer'),
+    /not a registered REVIEW reviewer/,
+    'implementer must not mint reviewer-run/pass authority through the real review-run consumer',
+  );
+  store.writeStory(storyId, { ...store.readStory(storyId), phase: 'REVIEW' });
+  const reviewPrompt = handlers.dispatch({ storyId, agentType: 'lattice-review-quality' }).prompt;
+  assert.match(reviewPrompt, /review story .* in full/);
+  assert.doesNotMatch(reviewPrompt, /git commit|checklist_update/);
+  assert.throws(
+    () => handlers.dispatch({ storyId, itemId: 'CHK-001', agentType: 'lattice-review-quality' }),
+    /story-only; omit itemId/,
+  );
+} finally {
+  rmSync(root, { recursive: true, force: true });
+}
 
 console.log(`agent-dispatch-registry-smoke PASS (${AGENT_DISPATCH_REGISTRY.length} canonical roles, ${allNames.length - canonicalNames.length} aliases)`);

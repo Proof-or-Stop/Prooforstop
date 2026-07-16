@@ -263,11 +263,11 @@ export function buildNextSteps(
         );
         activeLine = renderActiveReviewersText(active);
         agentLines = active.map(r =>
-          `  Agent({ subagent_type: "lattice-review-${r.name}", prompt: "Review story ${storyId} (${r.reason})" })`,
+          `  Agent({ subagent_type: "lattice-review-${r.name}", prompt: "Run lattice dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"lattice-review-${r.name}\\"}' to get the standard story-level prompt, then follow it (${r.reason})" })`,
         ).join('\n');
       } catch {
-        agentLines = `  Agent({ subagent_type: "lattice-review-concept", prompt: "Review story ${storyId}" })
-  Agent({ subagent_type: "lattice-review-quality", prompt: "Review story ${storyId}" })`;
+        agentLines = `  Agent({ subagent_type: "lattice-review-concept", prompt: "Run lattice dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"lattice-review-concept\\"}' to get the standard story-level prompt, then follow it" })
+  Agent({ subagent_type: "lattice-review-quality", prompt: "Run lattice dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"lattice-review-quality\\"}' to get the standard story-level prompt, then follow it" })`;
       }
       let base = `→ ${activeLine}
 → launch the above reviewers in parallel to review code (issue all Agent calls in a single message):

@@ -47,6 +47,7 @@ import {
   verificationIntentSchema,
   verificationIntentTypeSchema,
 } from './command-schemas.js';
+import { AGENT_DISPATCH_ACCEPTED_TYPES } from '../core/agent-dispatch-registry.js';
 
 const HIDDEN_LOCAL_ASSURANCE_REFUSAL = '@help-hidden local-assurance refusal sentinel';
 
@@ -2392,7 +2393,7 @@ Behavior:
     itemId: z.string().optional().describe('Checklist item ID (CHK-xxx); mutually exclusive with findingId/clusterId, provide exactly one.'),
     findingId: z.string().optional().describe('Finding ID (F-xxx or B-xxx:F-xxx); mutually exclusive with itemId/clusterId.'),
     clusterId: z.string().optional().describe('Cluster ID (CL-xxx); mutually exclusive with itemId/findingId.'),
-    agentType: z.string().optional().describe('subagent type; INIT reviewer may pass only lattice-review-story-init, other cases pair it with itemId/findingId/clusterId.'),
+    agentType: z.enum(AGENT_DISPATCH_ACCEPTED_TYPES as [string, ...string[]]).optional().describe('Registered subagent type or compatibility alias. Omit only for the deliberate lattice-implementer default; runtime enforces phase and target cardinality from the same registry.'),
   }},
 
   // Background CLI trio (B-45ed CHK-007: background.md set/append/get).
