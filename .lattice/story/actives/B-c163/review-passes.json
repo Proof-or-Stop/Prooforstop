@@ -950,6 +950,53 @@
       },
       "readDiagnostics": [],
       "_hash": "daad816922beaef5438b6b1ee83cf79f7768d7a376553283e3a88546098109a2"
+    },
+    {
+      "id": "B-c163:RP-030",
+      "agent": "lattice-review-concept",
+      "note": "Round 21 focused concept review passed: c857063af9 changes only one mirror hash in scripts/verify-process-fact-contract.mjs. The new value exactly equals the canonical PINNED_EXECUTABLE_SOURCE_FINGERPRINTS entry for packages/main/src/tasks/closeout-trust-smoke.ts; runtime guard code and semantics are unchanged. All routed decision contracts remain consistent with this mirror-only closeout correction. node scripts/verify-process-fact-contract.mjs, packages/main build, and test:retired-root-guard all pass.",
+      "createdAt": "2026-07-16T09:03:43.852Z",
+      "reviewRound": "2026-07-16T09:00:10.819Z",
+      "reviewRunId": "B-c163:RR-087",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "7e1c00fab0dbebf0dcc104d32f42b1b9cfde7ee5aa8dbdf2cf89312259732cab",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "8e0580d8abeebaf40726c453ef88d1e23ca1804c9e6eef45867e400126924bc3"
     }
   ]
 }
