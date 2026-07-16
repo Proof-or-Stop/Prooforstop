@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-ebe4",
+  "allowedCommands": [
+    "git diff *",
+    "git log *",
+    "git status --short",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*",
+    "node scripts/verify-runtime-fact-contract.mjs",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "git read-only",
+    "lattice CLI",
+    "lattice reviewers",
+    "lattice-implementer",
+    "rg"
+  ],
+  "allowedPaths": [
+    "AGENTS.md",
+    "docs/CLI.md",
+    "docs/requirements/decisions",
+    "lattice.config.json",
+    "package.json",
+    "packages/main/src",
+    "packages/main/tests",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git clean -fd*",
+    "git push *",
+    "git reset --hard*",
+    "omx *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "codex-wa-final",
+  "confirmationNote": "Keep the patch limited to runtime authority detection, diagnostic recovery, and hermetic verification. Story metadata is written only through Lattice commands.",
+  "createdAt": "2026-07-16T20:44:42.803Z",
+  "updatedAt": "2026-07-16T20:44:42.803Z",
+  "_hash": "3983478e03acf98778e9ed7284097b22d312b9c18e5cb59172f7832e9227c38f"
+}
