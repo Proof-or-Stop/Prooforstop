@@ -1112,6 +1112,23 @@
       },
       "readDiagnostics": [],
       "_hash": "31c1506e961b8675d1553cab84697e2a8f55cc76c254d7cfb6f016df786101f2"
+    },
+    {
+      "id": "B-914f:RP-025",
+      "agent": "lattice-review-quality",
+      "note": "Round 12 receipt-only quality pass reuses round 11 evidence. Incremental context reports scopeChanged=false and changedFiles=[], so the pure executable lookup extraction and seam-safety verdict remain valid with no new blocker.",
+      "createdAt": "2026-07-16T18:08:05.981Z",
+      "reviewRound": "2026-07-16T18:05:44.263Z",
+      "reviewRunId": "B-914f:RR-042",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "248f00bf4cadd022dc62a4cc810e22143634a8ae6d0a3177121f8ad574bd92b9"
     }
   ]
 }
