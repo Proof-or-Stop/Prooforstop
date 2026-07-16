@@ -259,9 +259,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-16T18:33:50.128Z",
-      "endTime": null,
+      "endTime": "2026-07-16T18:37:54.219Z",
       "verificationIntent": {
         "happy": [
           {
@@ -340,7 +340,97 @@
           "packages/main/src/tasks/review-assurance-floor-smoke.ts",
           "packages/main/src/tasks/command-catalog-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:executable-guidance",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "Guidance emits shell-valid deriveBindings commands with current hashes; handler smoke executes the equivalent explicit command and persists canonical bindings.",
+          "headHash": "7fd5d1000256d0cb0996b136aa21fea53457549e",
+          "materialHash": "e590e0689fa408bd7d3ddec4c176eae102f2bc2a4de2bc2b6fe6fd27bc919f5b",
+          "storyFilesHash": "06127b568a48569e571732d8c4253e6b3794841d2612da4ea45a8f3bb61ecd5a",
+          "timestamp": "2026-07-16T18:37:54.948Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:three-round-degraded",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "Three distinct guided runIds are emitted and existing 3x1 evaluator proves degraded-single-host without Authority/3x2 claims.",
+          "headHash": "7fd5d1000256d0cb0996b136aa21fea53457549e",
+          "materialHash": "e590e0689fa408bd7d3ddec4c176eae102f2bc2a4de2bc2b6fe6fd27bc919f5b",
+          "storyFilesHash": "06127b568a48569e571732d8c4253e6b3794841d2612da4ea45a8f3bb61ecd5a",
+          "timestamp": "2026-07-16T18:37:55.130Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:process-fact-contract",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process fact contract pins explicit complete-envelope freshness and schema semantics.",
+          "headHash": "7fd5d1000256d0cb0996b136aa21fea53457549e",
+          "materialHash": "e590e0689fa408bd7d3ddec4c176eae102f2bc2a4de2bc2b6fe6fd27bc919f5b",
+          "storyFilesHash": "06127b568a48569e571732d8c4253e6b3794841d2612da4ea45a8f3bb61ecd5a",
+          "timestamp": "2026-07-16T18:37:55.323Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:legacy-warning",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "No-flag legacy call remains accepted with warning and no synthesized key/validation/prompt bindings.",
+          "headHash": "7fd5d1000256d0cb0996b136aa21fea53457549e",
+          "materialHash": "e590e0689fa408bd7d3ddec4c176eae102f2bc2a4de2bc2b6fe6fd27bc919f5b",
+          "storyFilesHash": "06127b568a48569e571732d8c4253e6b3794841d2612da4ea45a8f3bb61ecd5a",
+          "timestamp": "2026-07-16T18:37:55.489Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:quorum-regression",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Canonical parity and existing two-host independence/quorum behavior remain green.",
+          "headHash": "7fd5d1000256d0cb0996b136aa21fea53457549e",
+          "materialHash": "e590e0689fa408bd7d3ddec4c176eae102f2bc2a4de2bc2b6fe6fd27bc919f5b",
+          "storyFilesHash": "06127b568a48569e571732d8c4253e6b3794841d2612da4ea45a8f3bb61ecd5a",
+          "timestamp": "2026-07-16T18:37:55.754Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:stale-rejection",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "All five supplied envelope fields are tampered one-at-a-time and each fails before persistence.",
+          "headHash": "7fd5d1000256d0cb0996b136aa21fea53457549e",
+          "materialHash": "e590e0689fa408bd7d3ddec4c176eae102f2bc2a4de2bc2b6fe6fd27bc919f5b",
+          "storyFilesHash": "06127b568a48569e571732d8c4253e6b3794841d2612da4ea45a8f3bb61ecd5a",
+          "timestamp": "2026-07-16T18:37:55.972Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:no-fabricated-host",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "Explicit path adds exactly one verdict; three same-host rounds remain degraded and never satisfy 3x2.",
+          "headHash": "7fd5d1000256d0cb0996b136aa21fea53457549e",
+          "materialHash": "e590e0689fa408bd7d3ddec4c176eae102f2bc2a4de2bc2b6fe6fd27bc919f5b",
+          "storyFilesHash": "06127b568a48569e571732d8c4253e6b3794841d2612da4ea45a8f3bb61ecd5a",
+          "timestamp": "2026-07-16T18:37:56.244Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:command-tamper",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "Execution re-resolves current evidence/material/story-files identity; stale printed bindings are rejected before write.",
+          "headHash": "7fd5d1000256d0cb0996b136aa21fea53457549e",
+          "materialHash": "e590e0689fa408bd7d3ddec4c176eae102f2bc2a4de2bc2b6fe6fd27bc919f5b",
+          "storyFilesHash": "06127b568a48569e571732d8c4253e6b3794841d2612da4ea45a8f3bb61ecd5a",
+          "timestamp": "2026-07-16T18:37:56.447Z"
+        }
+      ]
     }
   ]
 }
