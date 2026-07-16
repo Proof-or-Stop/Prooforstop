@@ -228,7 +228,7 @@
           "headHash": "e05e14fec3c8b43d5365aafe5ca3c67f78563b4e",
           "materialHash": "442de55b397b6704df008ba8605ea9c22b74553aeeb505f2367aadd0e5f3b73b",
           "storyFilesHash": "5d54f5520e1d60279203f64de703c1f6ebc59b2bc28748d40f64343046f83dda",
-          "timestamp": "2026-07-16T14:43:40.250Z"
+          "timestamp": "2026-07-16T14:58:58.490Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -241,7 +241,7 @@
           "headHash": "a800b0d93ee83208e80d18b2518f7e9c5d8cb0ae",
           "materialHash": "442de55b397b6704df008ba8605ea9c22b74553aeeb505f2367aadd0e5f3b73b",
           "storyFilesHash": "5d54f5520e1d60279203f64de703c1f6ebc59b2bc28748d40f64343046f83dda",
-          "timestamp": "2026-07-16T14:43:41.473Z"
+          "timestamp": "2026-07-16T14:58:59.943Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -254,7 +254,7 @@
           "headHash": "198355ff02269d22d4ec7506a8b43b8f3ba0dbe7",
           "materialHash": "442de55b397b6704df008ba8605ea9c22b74553aeeb505f2367aadd0e5f3b73b",
           "storyFilesHash": "5d54f5520e1d60279203f64de703c1f6ebc59b2bc28748d40f64343046f83dda",
-          "timestamp": "2026-07-16T14:43:42.796Z"
+          "timestamp": "2026-07-16T14:59:00.538Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -267,20 +267,20 @@
           "headHash": "bc61af0aca9e3f993b1eb117538f77c5cf0373d2",
           "materialHash": "442de55b397b6704df008ba8605ea9c22b74553aeeb505f2367aadd0e5f3b73b",
           "storyFilesHash": "5d54f5520e1d60279203f64de703c1f6ebc59b2bc28748d40f64343046f83dda",
-          "timestamp": "2026-07-16T14:45:17.908Z"
+          "timestamp": "2026-07-16T14:59:00.807Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
-          "kind": "logic_test",
+          "kind": "integration_test",
           "verdict": "success",
           "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
           "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
           "result": "pass",
-          "note": "Second material snapshot deterministically rejects a source write inserted between capture and reuse return.",
+          "note": "Real CLI integration smoke: Second material snapshot deterministically rejects a source write inserted between capture and reuse return.",
           "headHash": "e6e1a956162f1101466919a2673e51844cf53f86",
           "materialHash": "442de55b397b6704df008ba8605ea9c22b74553aeeb505f2367aadd0e5f3b73b",
           "storyFilesHash": "5d54f5520e1d60279203f64de703c1f6ebc59b2bc28748d40f64343046f83dda",
-          "timestamp": "2026-07-16T14:45:28.000Z"
+          "timestamp": "2026-07-16T14:59:01.015Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -293,7 +293,7 @@
           "headHash": "f679ffaef55fafba75789b73dea59d3b4af00905",
           "materialHash": "442de55b397b6704df008ba8605ea9c22b74553aeeb505f2367aadd0e5f3b73b",
           "storyFilesHash": "5d54f5520e1d60279203f64de703c1f6ebc59b2bc28748d40f64343046f83dda",
-          "timestamp": "2026-07-16T14:43:47.795Z"
+          "timestamp": "2026-07-16T14:59:01.212Z"
         }
       ]
     },
