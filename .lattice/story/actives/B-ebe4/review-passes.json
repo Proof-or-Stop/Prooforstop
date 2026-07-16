@@ -430,6 +430,43 @@
       },
       "readDiagnostics": [],
       "_hash": "b3ac727f2bac71320f633b7c05ab293fa1c23779b61a6e8e4383fa624e4232b2"
+    },
+    {
+      "id": "B-ebe4:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Round 6 final targeted concept review PASS. Only two exact process-fact fingerprint literals changed, matching the already-reviewed cli-engine/bootstrap executable structures; the focused process-fact contract passes. Runtime product semantics are unchanged: linked self-host worktree authority, external consumer advisory behavior, explicit session_brief-only global fallback, and raw-argv fail-fast before standalone/tool/schema/handler paths. Scope acknowledgement is visible and no blocker remains.",
+      "createdAt": "2026-07-16T22:29:58.225Z",
+      "reviewRound": "2026-07-16T22:24:16.250Z",
+      "reviewRunId": "B-ebe4:RR-029",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "38bb6a893bc86bce8662c0fe4a4763251f9f744b5f155d71e68340a70a310a1b",
+        "corpusDigest": "c32857bb0dce01204444115f085cb28f4df249ebca7e92092085ebdf61db9d44"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "09499903b7d206680c55c466eb55a970a12b22561bec73f4f8b0c9066a4c757c"
+      },
+      "readDiagnostics": [],
+      "_hash": "d4789ba7beccb4df7ae16784d7f06d25618638460a950fee66175b712e15779c"
     }
   ]
 }
