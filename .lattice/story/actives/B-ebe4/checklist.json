@@ -318,7 +318,7 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "AGENTS.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-16T21:08:34.528Z",
       "endTime": "2026-07-16T21:29:20.152Z",
       "verificationIntent": {
@@ -505,6 +505,15 @@
       "to": "done",
       "reason": "Expanded hermetic E2E covers all verified REVIEW findings.",
       "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-16T21:47:58.360Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Refresh validation evidence after canonical cli-engine AST fingerprint repin."
     }
   ]
 }
