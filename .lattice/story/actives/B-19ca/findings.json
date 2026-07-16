@@ -84,6 +84,26 @@
       "_hash": "41c603799b89c8cebd4795b6013978ce56756546960fb0f2abc06f5cb01eb1cb",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-19ca:F-006",
+      "desc": "concept-cleanup: typed-registry replacement is incomplete: load-bearing reviewer/evidence consumers still infer authority from the lattice-review- prefix instead of AGENT_DISPATCH_REGISTRY. packages/main/src/handlers/finding.ts:503 and :611 classify finding producers/process events with startsWith; packages/main/src/core/reviewer-read-evidence.ts:33/:194 gates read evidence with the same prefix; packages/main/src/core/flow-fact-policy.ts:108/:142 retains a prefix policy for pass-only conversion. This contradicts the approved single mechanical authority and can let registered-lane semantics diverge from evidence producers. Replace these authority predicates with the registry/review-lane resolver and add prefix-lookalike plus registered-lane regression cases.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-16T11:25:30.999Z",
+      "reviewRound": "2026-07-16T11:17:22.582Z",
+      "reviewRunId": "B-19ca:RR-008",
+      "_hash": "da2bf606142244af145698641ecb03b66cad547dd585ea2478a917a109de4d12",
+      "files": [
+        "packages/main/src/handlers/finding.ts",
+        "packages/main/src/core/reviewer-read-evidence.ts",
+        "packages/main/src/core/flow-fact-policy.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-typed",
+      "signatureTagSource": "auto"
     }
   ]
 }
