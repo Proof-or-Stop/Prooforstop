@@ -62,7 +62,7 @@
       "desc": "CHK-001 verificationEvidence — MEDIUM: all 7 CHK-001 intents remain bound to pre-fix materialHash 34050b691a60 / storyFilesHash d4f8c5d6a5b4, while commit 2401277417 changed the shared cli-engine/runtime-authority behavior and the current CHK-002/003 evidence is bound to materialHash a777dc7f2030 / storyFilesHash 7f252677a032. The focused authority smoke and runtime-fact contract pass now, but the seven CHK-001 evidence records must be refreshed to the current material before test-coverage can truthfully PASS.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-16T21:32:26.705Z",
@@ -70,7 +70,11 @@
       "reviewRunId": "B-ebe4:RR-009",
       "_hash": "c38da49ccd038900e5337246117054c133315ab395323465f56eb5ede5343940",
       "signatureTag": "missing|unknown|verificationevidence-medium-intents",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Focused runtime authority smoke and runtime-fact contract passed on 2401277417; verification_evidence_refresh_stale then rebound all seven CHK-001 rows to the current unchanged story material. No command suite rerun was needed beyond the reviewer-observed focused PASS.",
+      "resolvedAt": "2026-07-16T21:36:19.412Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
