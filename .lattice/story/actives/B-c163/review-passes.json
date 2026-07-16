@@ -472,6 +472,32 @@
       },
       "readDiagnostics": [],
       "_hash": "1adf147b634f2e81ceca93973550fb8f21b6daa276dc7e851f2d98894a3c8f58"
+    },
+    {
+      "id": "B-c163:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 14 targeted coverage passes after owner resolved F-026 strong. Failure injection traverses readiness rejection, assertion failure, PID-file read/parse failure, and never-closing waiter; every path executes idempotent detached-group plus observed-process TERM/KILL cleanup, bounded close waits, and waitUntilGone enforcement. Normal readiness/descendant reap and the 10-iteration real-CLI tight terminal row remain. Build and focused live-smoke pass.",
+      "createdAt": "2026-07-16T00:49:10.828Z",
+      "reviewRound": "2026-07-16T00:47:27.592Z",
+      "reviewRunId": "B-c163:RR-062",
+      "writerSessionId": "review-bc163-coverage-r14",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "5ec90adff037398a7d41f0d0b29ff5549d2125e7caa538bdc20a97b7c6c59b39",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "_hash": "c40e548b8626b76a041fcd5918da68cfb86605cca26a7aeebafe4ce0b3fa9827"
     }
   ]
 }
