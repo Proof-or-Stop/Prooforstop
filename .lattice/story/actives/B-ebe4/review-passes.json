@@ -555,6 +555,51 @@
       },
       "readDiagnostics": [],
       "_hash": "e8e8a1eedda684b3f3415859cba65ae85b383cbf34661a1c028440fb865557ad"
+    },
+    {
+      "id": "B-ebe4:RP-014",
+      "agent": "lattice-review-docs",
+      "note": "Round 6 incremental docs review passed. All product/runtime/docs blobs are unchanged from the prior fully read pass. The sole non-story diff updates two exact process-fact verifier fingerprints, and scope-ack:2 explicitly binds that bounded expansion; no user-facing promise, guard behavior, exemption, or recovery guidance changed.",
+      "createdAt": "2026-07-16T22:31:43.668Z",
+      "reviewRound": "2026-07-16T22:24:16.250Z",
+      "reviewRunId": "B-ebe4:RR-031",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "bin/bootstrap-runner.js",
+          "docs/CLI.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "38bb6a893bc86bce8662c0fe4a4763251f9f744b5f155d71e68340a70a310a1b",
+        "corpusDigest": "c32857bb0dce01204444115f085cb28f4df249ebca7e92092085ebdf61db9d44"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "09499903b7d206680c55c466eb55a970a12b22561bec73f4f8b0c9066a4c757c"
+      },
+      "readDiagnostics": [],
+      "_hash": "7cf18f049ab819eefe24c02bef1eac4a96572dea5ee90464b52a73e632422cf4"
     }
   ]
 }
