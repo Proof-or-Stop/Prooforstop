@@ -104,8 +104,24 @@
       "phase": "DEV",
       "headHash": "e47c73f26be6d0aa9d068349efeea755bb532ec7",
       "materialHash": "5306243ecb710a6e0346a2a848b14a100f40b8f1e456871c79af3f24011711cf"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Round 17 F-030 requires a behavioral canFinishGuard/getGuardFailureReason regression on an existing fully-green DONE fixture; this test file is the minimal mutation-resistant location.",
+      "timestamp": "2026-07-16T01:52:38.266Z",
+      "paths": [
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "7cc26ccb9d7d73d7be6371e02d9b2de9a988664a",
+      "materialHash": "76a595f1b796a7222ada92da7ba6644151837aebec2c39e68b098218b3c50cba"
     }
   ],
   "createdAt": "2026-07-15T19:01:11.957Z",
-  "updatedAt": "2026-07-16T01:45:18.135Z"
+  "updatedAt": "2026-07-16T01:52:38.266Z"
 }
