@@ -1238,6 +1238,59 @@
       },
       "readDiagnostics": [],
       "_hash": "c84271120ca6fdda34f7175d267cc73af60f853be4cda0d78f91287c75f0435d"
+    },
+    {
+      "id": "B-914f:RP-028",
+      "agent": "lattice-review-concept",
+      "note": "Round 13 targeted concept review after merge f0cf3eaba0: canonical TEST PASS admissibility remains fail-closed on command/output/coverage/dirty/hash/lineage/HEAD; deriveBindings consumes it and persists one host under the shared validation lock. Routine reuse remains exact-head or trusted-story-metadata-descendant only. Dedicated reuse, escalation, quorum, build, and process-fact checks passed; live stale merged evidence correctly refused reuse and began execution (manually aborted as redundant to this targeted lane). No fake PASS, Authority claim, or quorum semantics regression found.",
+      "createdAt": "2026-07-16T20:00:06.084Z",
+      "reviewRound": "2026-07-16T19:51:46.376Z",
+      "reviewRunId": "B-914f:RR-050",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/host-verdict-bindings.ts",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/handlers/verdict.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "3b588d5bdd77e9f16f7f7a345c2ea9bec0610b116326df632a0b23e879833986",
+        "corpusDigest": "94fde77facef77a622c96c68cd95ab5998cc0d400a27a24a411b9f47f2bbcfe0"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "6b2ad527a7247fe44f4d9dfe663f48e2caf5e3f71a1359eb9f5195fe4cbd14ab"
     }
   ]
 }
