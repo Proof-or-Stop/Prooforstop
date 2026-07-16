@@ -216,6 +216,52 @@
       },
       "readDiagnostics": [],
       "_hash": "a8414931dc5583c36b3a273dafd2acf9cd5487f1bb830c6b340caee31793b5f1"
+    },
+    {
+      "id": "B-ebe4:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: Round4 changes only the exact cli-engine canonical AST fingerprint pin in the CHK-003 security smoke. Retired-authority guard, runtime-entrypoint authority smoke, and runtime-fact contract all exit 0; CHK-003 has 7/7 PASS evidence bound to current materialHash c2051d838269 and storyFilesHash 98e92e1998c7. No implementation behavior or scope changed.",
+      "createdAt": "2026-07-16T21:51:33.937Z",
+      "reviewRound": "2026-07-16T21:49:02.275Z",
+      "reviewRunId": "B-ebe4:RR-018",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/runtime-fact-registry.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2923332486d6212ac478cc538a9e93a20be66f19c4ce14e9947217f3c8334ff4",
+        "corpusDigest": "c32857bb0dce01204444115f085cb28f4df249ebca7e92092085ebdf61db9d44"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "09499903b7d206680c55c466eb55a970a12b22561bec73f4f8b0c9066a4c757c"
+      },
+      "readDiagnostics": [],
+      "_hash": "442cb378b28fc990a32604c892e6d71d30cb46484e119d7d60253910aa46da51"
     }
   ]
 }
