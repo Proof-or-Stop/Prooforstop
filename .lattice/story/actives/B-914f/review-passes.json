@@ -763,6 +763,61 @@
         "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
       },
       "_hash": "f2e3704d5d4cce211993a82bde58e1000ec8a1ffad4fa6185550e46ec6889ca4"
+    },
+    {
+      "id": "B-914f:RP-017",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-9 incremental test-coverage review found no blocker. Existing PASS evidence covers Win32 case-insensitive Path/PATH canonicalization and insertion-order-independent ambient deduplication, explicit overlay precedence, PATHEXT order/content selecting and binding distinct executables, explicit-extension resolution without substitution, and identity invalidation whenever the selected executable changes. The tests isolate Win32 semantics through the platform injection while production uses process.platform.",
+      "createdAt": "2026-07-16T17:27:47.896Z",
+      "reviewRound": "2026-07-16T17:25:51.351Z",
+      "reviewRunId": "B-914f:RR-033",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-914f/background.md",
+          ".lattice/story/actives/B-914f/checklist.json",
+          ".lattice/story/actives/B-914f/plan.md",
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "24e9a2b8263d8f50ddd7bfa70ae8fdab89d43e3537230377db95059a33c29dcc",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "c8363a2bae85df0714a3d9f579ed24e7f3df3fc613c0bbda8b43d862c90d5fb0"
     }
   ]
 }

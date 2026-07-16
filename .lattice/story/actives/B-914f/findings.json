@@ -288,6 +288,21 @@
       ],
       "signatureTag": "windows-env-case-collision",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-914f:F-014",
+      "desc": "packages/main/src/core/validation-evidence-reuse.ts:57 — Win32 relative executable paths containing backslashes are still classified as bare PATH lookups because the cwd-relative branch only recognizes command.includes(\"/\"). A configured command such as .\\tools\\validator (or tools\\validator) is executed relative to command.cwd by the Windows shell, but identity resolution searches each PATH directory and may bind null or a different executableDigest. The actually executed file can then change without invalidating validation identity, allowing stale PASS reuse. Extend the explicit-path predicate to recognize Win32 separators (or use the selected platform path implementation) and add tests for backslash-relative commands with/without extensions plus PATHEXT.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-16T17:27:48.608Z",
+      "reviewRound": "2026-07-16T17:25:51.351Z",
+      "reviewRunId": "B-914f:RR-031",
+      "_hash": "cc80d784aa567c58107664c46613fa5ff4d1f58806101f1eef3b89314960fec8",
+      "signatureTag": "edge|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
