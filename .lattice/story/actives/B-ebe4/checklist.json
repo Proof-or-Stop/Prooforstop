@@ -55,7 +55,7 @@
           }
         ]
       },
-      "userSees": "Runtime authority check: PASS — active CLI resolves inside the current story worktree; self-host runtime and worktree are aligned.",
+      "userSees": "User sees \"Runtime authority check: PASS — active CLI resolves inside the current story worktree.\" before any handler executes.",
       "files": {
         "modify": [
           "packages/main/src/core/runtime-environment-checks.ts",
