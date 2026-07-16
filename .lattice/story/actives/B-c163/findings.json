@@ -654,7 +654,7 @@
       "desc": "Round 11 still lacks a mechanical regression proving the handler passes the saturation-adjusted nested max into the spawned child. The new assertions at live-smoke-transcript-smoke.ts:471-489 call liveSmokeCaptureBudget/effectiveCommandCliMaxBudget directly and validate requestedNestedMaxTimeoutMs, nestedMaxTimeoutMs, capture, and outer values, but no handler invocation runs a recognized trusted lattice command under MAX_SAFE and observes the child environment. The handler wiring at live-smoke-transcript.ts:519-522 could be removed, use requestedNestedMaxTimeoutMs instead of nestedMaxTimeoutMs, or omit the env override entirely while every added smoke assertion remains green. Existing handler timeout/write/retry tests use an arbitrary Node command and only LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS, so they do not cover this path. Build, compiled live-smoke smoke, and process-fact contract all pass, confirming this is a verified coverage gap rather than a current runtime failure.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-16T00:10:27.329Z",
@@ -667,7 +667,11 @@
         "packages/main/src/core/done-required-timeout-budget.ts"
       ],
       "signatureTag": "missing|ts|round-still-lacks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 2134c9e7a1 adds handler-level child-environment observers for default-derived and MAX_SAFE saturation-adjusted effective nested max. Round 12 coverage run B-c163:RR-054 independently confirms missing or requested-instead-of-effective wiring would fail; build, compiled live-smoke, and process-fact contract pass.",
+      "resolvedAt": "2026-07-16T00:25:19.785Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c163:F-022",
