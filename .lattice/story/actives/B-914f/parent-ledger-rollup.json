@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "proofstory.parent_ledger_rollup.v1",
+  "storyId": "B-914f",
+  "ledgerHash": "sha256:72560a88287627b4f10198ed20128fd50d20c729f218d4f35dc05ba7ccbcfb00",
+  "slicePlanHash": "sha256:851e2eb762ca884c8110f0b81233f695284e3ee837e9ad2fa92e1c1c5ad7609c",
+  "children": [
+    {
+      "storyId": "B-914f",
+      "milestoneIds": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5",
+        "M6"
+      ],
+      "status": "done",
+      "evidenceRefs": [
+        "test-evidence.json:PASS",
+        "done-required-evidence.json:PASS",
+        "evidence/live-smoke-transcript.json:commandExecutions=0",
+        "delivery-check.json:PASS",
+        "summary.json:accepted"
+      ]
+    }
+  ],
+  "rollupHash": "sha256:098cf63e7dffccd321355acfb806812e518bcb52eda12c42a626bf2ac3b33f80",
+  "createdAt": "2026-07-16T20:38:25.898Z",
+  "updatedAt": "2026-07-16T20:38:25.898Z"
+}
