@@ -741,7 +741,7 @@
       "desc": "Distinct from F-021/F-022: the async live-smoke capture can let the CLI terminate successfully before its timeout Promise settles. runCapture unrefs timeoutTimer, heartbeatTimer, and the 250ms forceKill timer. When the 100ms timeout sends SIGTERM and the direct child closes promptly, child close records closed=true but intentionally does not call finish because timedOut=true; the only remaining path to finish is the unref force-kill timer. The local CLI entry calls runCli().catch(...) without top-level await, so no referenced handle keeps the process alive. Deterministic real CLI repro after build, three consecutive runs: `LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS=100 node packages/main/dist/cli.js live_smoke_transcript {\"storyId\":\"B-c163\",\"capture\":\"sleep 5\",\"json\":true}` prints only `[0.1s] running live_smoke_transcript...`, exits 0, emits zero stdout bytes, never prints done, and records no structured timeout JSON. The compiled focused smoke also failed once in this review with Node `Warning: Detected unsettled top-level await` at its separate-live-lock handler await, then passed on retries, confirming the same load-sensitive liveness race. Keep a referenced cleanup deadline until finish, or settle directly on close after timedOut while ensuring the process group has been terminated/reaped and all timers/listeners are cleared; add an actual CLI regression asserting non-silent structured timeout completion and non-success exit semantics. F-016/F-018/F-019 trust conditions themselves now pass: exact global realpath widens, chmod fake and PATH symlink-to-Node remain 60s, the active-entrypoint function parameter seam is removed, and all inline env/composition negatives remain 60s. Build, command-catalog, process-fact/fingerprint contract pass; live-smoke smoke is flaky as described.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-16T00:14:23.820Z",
@@ -792,7 +792,11 @@
         "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
       ],
       "signatureTag": "edge|ts|distinct-async-live",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 2134c9e7a1 keeps TERM-to-KILL escalation referenced through reap. Round 12 quality ran the actual dist CLI twice; each produced exactly one nonempty parseable JSON timeout terminal with null child exit, termination diagnostic, one done log, and no sleep orphan.",
+      "resolvedAt": "2026-07-16T00:26:11.786Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
