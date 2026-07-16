@@ -49,7 +49,7 @@ import { runChannelGateCli } from './validate-channel.js';
 import { runConceptGateCli } from './validate-concept.js';
 import { runLintGateCli, resolveChangedFiles } from './validate-lint.js';
 import { buildVerificationCoverage, renderVerificationCoverage, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
-import { captureEvidenceHashSnapshot, checkEvidenceFreshnessForGit, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { captureEvidenceHashSnapshot, checkEvidenceFreshnessForGit, checkEvidenceHashSnapshotReuse, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
 import { resolveGitCwd, resolveProjectGitCwd, evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
 import { resolveVerificationIntentPolicy, resolveWorkflowPolicy } from '../core/workflow-policy.js';
@@ -575,20 +575,31 @@ function evaluateStoryRoutineReuse(args: {
 }): RoutineValidationReuseEvaluation {
   let evidence = null;
   try { evidence = args.ctx.store.readTestEvidence(args.storyId); } catch { /* refusal below */ }
-  const headBefore = currentHead(args.gitCwd);
+  let headBefore: string | undefined;
+  let headAfter: string | undefined;
   let materialHash: string | undefined;
   let storyFilesHash: string | undefined;
   let clean = false;
-  let snapshotHeadMismatch = false;
   try {
     const snapshot = captureEvidenceHashSnapshot({ gitCwd: args.gitCwd, metadataRoot: args.ctx.root });
+    headBefore = snapshot.headHash;
     materialHash = snapshot.materialHash;
     storyFilesHash = snapshot.storyFilesHash;
-    clean = snapshot.materialDirtyFiles.length === 0;
-    if (!clean) args.ctx.log?.(`routine validation reuse refused by dirty worktree: ${snapshot.materialDirtyFiles.join(' | ')}`);
-    snapshotHeadMismatch = snapshot.headHash !== headBefore;
+    // Internal deterministic race seam. It is inert unless explicitly enabled
+    // by the validation reuse smoke process.
+    const racePath = process.env.LATTICE_VALIDATE_REUSE_SMOKE_DIRTY_FILE_BEFORE_FINAL_SNAPSHOT;
+    if (racePath) writeFileSync(racePath, `${Date.now()}\n`, 'utf8');
+    const reuseCheck = checkEvidenceHashSnapshotReuse(snapshot, {
+      gitCwd: args.gitCwd,
+      metadataRoot: args.ctx.root,
+      ref: 'HEAD',
+    });
+    headAfter = reuseCheck.currentHead;
+    clean = reuseCheck.reusable;
+    if (reuseCheck.materialDirty) {
+      args.ctx.log?.(`routine validation reuse refused by dirty worktree: ${reuseCheck.materialDirtyFiles.join(' | ')}`);
+    }
   } catch { /* refusal below */ }
-  const finalHead = currentHead(args.gitCwd);
   return evaluateRoutineValidationReuse({
     root: args.ctx.root,
     gitCwd: args.gitCwd,
@@ -599,7 +610,7 @@ function evaluateStoryRoutineReuse(args: {
     currentStoryFilesHash: storyFilesHash,
     clean,
     headBefore,
-    headAfter: snapshotHeadMismatch ? undefined : finalHead,
+    headAfter,
   });
 }
 
@@ -668,6 +679,7 @@ function persistStoryValidationEvidence(
   identity: RoutineValidationIdentity | undefined,
   commandResults: ValidationCommandResult[],
   expectedCommandCount: number,
+  semanticCommandPass?: boolean,
 ): void {
   const statusPass = result.status === 'pass';
   const allPass = Boolean(result.allPass ?? result.allPassed ?? statusPass);
@@ -686,7 +698,9 @@ function persistStoryValidationEvidence(
     ...(materialHash ? { materialHash } : {}),
     ...(storyFilesHash ? { storyFilesHash } : {}),
     ...(result.verificationCoverage ? { verificationCoverage: result.verificationCoverage } : {}),
-    commandExecution: summarizeRoutineCommandExecution(commandResults, expectedCommandCount),
+    commandExecution: summarizeRoutineCommandExecution(commandResults, expectedCommandCount, {
+      ...(semanticCommandPass !== undefined ? { semanticPass: semanticCommandPass } : {}),
+    }),
     disposition: 'executed',
     ...(identity ? { routineValidationIdentity: identity } : {}),
   });
@@ -776,6 +790,7 @@ function decorateAndMaybePersistStoryValidation(
   identity?: RoutineValidationIdentity,
   commandResults?: ValidationCommandResult[],
   expectedCommandCount?: number,
+  semanticCommandPass?: boolean,
 ): any {
   if (!storyId) return result;
   const decorated = decorateStoryVerification(ctx, storyId, result);
@@ -788,7 +803,16 @@ function decorateAndMaybePersistStoryValidation(
     if (!commandResults || expectedCommandCount === undefined) {
       throw new Error('routine validation command execution is required before evidence persistence');
     }
-    persistStoryValidationEvidence(ctx, storyId, executed, `lattice validate --story=${storyId} --json`, identity, commandResults, expectedCommandCount);
+    persistStoryValidationEvidence(
+      ctx,
+      storyId,
+      executed,
+      `lattice validate --story=${storyId} --json`,
+      identity,
+      commandResults,
+      expectedCommandCount,
+      semanticCommandPass,
+    );
   }
   return executed;
 }
@@ -1167,8 +1191,20 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           const jsonMatch = stripped.match(/\{[\s\S]*"provider"\s*:\s*"[^"]+"[\s\S]*\}/);
           if (jsonMatch) {
             const parsed = JSON.parse(jsonMatch[0]);
+            const semanticCommandPass = String(parsed?.status ?? '').toLowerCase() !== 'fail'
+              && parsed?.allPass !== false
+              && parsed?.allPassed !== false;
             const focusedParsed = focus ? markFocusedResult(parsed, focus) : parsed;
-            const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, focusedParsed, built?.identity, [commandResult], 1);
+            const decorated = decorateAndMaybePersistStoryValidation(
+              ctx,
+              args.story,
+              focus,
+              focusedParsed,
+              built?.identity,
+              [commandResult],
+              1,
+              semanticCommandPass,
+            );
             return JSON.stringify(reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated);
           }
           // If validate.ts doesn't support --json yet, wrap the output

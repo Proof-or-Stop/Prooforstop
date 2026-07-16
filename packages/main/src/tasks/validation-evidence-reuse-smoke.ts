@@ -37,22 +37,47 @@ function cliPath(): string {
   return join(resolve(dirname(fileURLToPath(import.meta.url)), '..'), 'cli.js');
 }
 
-function assertHandlerExecutedThenReused(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-validation-reuse-handler-'));
+function assertHandlerExecutedThenReused(
+  sourceKind: 'configured' | 'fallback' | 'validate-file',
+  commandCount = 1,
+  semanticFail = false,
+): void {
+  const root = mkdtempSync(join(tmpdir(), `lattice-validation-reuse-${sourceKind}-`));
   const counterPath = join(tmpdir(), `lattice-validation-reuse-counter-${process.pid}-${Date.now()}.log`);
   const storyId = 'B-reuse-handler';
   try {
     writeFileSync(join(root, '.gitignore'), '.lattice/activity.jsonl\n.lattice/locks/\n', 'utf8');
     writeFileSync(join(root, 'probe.mjs'), `import { appendFileSync } from 'node:fs'; appendFileSync(process.env.VALIDATION_REUSE_SMOKE_COUNTER, 'run\\n'); console.log('handler probe PASS');\n`, 'utf8');
     writeFileSync(join(root, 'source.ts'), 'export const handlerReuse = true;\n', 'utf8');
+    const configuredCommands = Array.from({ length: commandCount }, (_, index) => ({
+      label: `handler probe ${index + 1}`,
+      command: process.execPath,
+      args: ['probe.mjs'],
+      timeoutMs: 10_000,
+    }));
     writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
       scanRoot: '.',
       rootDir: '.',
       storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'light' },
-      validate: { commands: [{ label: 'handler probe', command: process.execPath, args: ['probe.mjs'], timeoutMs: 10_000 }] },
+      ...(sourceKind === 'configured' ? { validate: { commands: configuredCommands } } : {}),
     }, null, 2), 'utf8');
+    if (sourceKind === 'fallback') {
+      writeFileSync(join(root, 'package.json'), JSON.stringify({
+        name: 'validation-reuse-fallback-smoke',
+        private: true,
+        scripts: { test: 'node probe.mjs' },
+      }, null, 2), 'utf8');
+    }
+    if (sourceKind === 'validate-file') {
+      writeFileSync(join(root, 'validate.ts'), [
+        "import { appendFileSync } from 'node:fs';",
+        "appendFileSync(process.env.VALIDATION_REUSE_SMOKE_COUNTER!, 'run\\n');",
+        `console.log(JSON.stringify({ provider: 'validate-file-smoke', status: '${semanticFail ? 'fail' : 'pass'}', allPass: ${semanticFail ? 'false' : 'true'}, summary: 'semantic ${semanticFail ? 'FAIL' : 'PASS'}', details: [], warnings: [] }));`,
+        '',
+      ].join('\n'), 'utf8');
+    }
     git(root, ['init']);
     git(root, ['checkout', '-b', 'main']);
     git(root, ['add', '.']);
@@ -63,7 +88,7 @@ function assertHandlerExecutedThenReused(): void {
       storyId,
       name: 'reuse-handler',
       title: 'reuse handler smoke',
-      description: 'Proves executed then metadata-descendant reuse through the real validate handler.',
+      description: `Proves ${sourceKind} executed then metadata-descendant reuse through the real validate handler.`,
       type: 'bug',
       phase: 'TEST',
       priority: 'medium',
@@ -86,15 +111,16 @@ function assertHandlerExecutedThenReused(): void {
     git(root, ['add', '.lattice']);
     git(root, ['commit', '-m', 'seed story metadata']);
 
-    const run = () => spawnSync(process.execPath, [cliPath(), 'validate', `--story=${storyId}`, '--json'], {
+    const runWith = (extraEnv: Record<string, string> = {}) => spawnSync(process.execPath, [cliPath(), 'validate', `--story=${storyId}`, '--json'], {
       cwd: root,
       encoding: 'utf8',
-      env: { ...process.env, LATTICE_PROJECT_ROOT: root, LATTICE_SESSION_ID: 'validation-reuse-smoke', VALIDATION_REUSE_SMOKE_COUNTER: counterPath },
+      env: { ...process.env, LATTICE_PROJECT_ROOT: root, LATTICE_SESSION_ID: 'validation-reuse-smoke', VALIDATION_REUSE_SMOKE_COUNTER: counterPath, ...extraEnv },
     });
+    const run = () => runWith();
     const first = run();
     assert.equal(first.status, 0, `${first.stdout}\n${first.stderr}`);
     assert.match(`${first.stdout}\n${first.stderr}`, /"disposition":"executed"/);
-    assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, 1);
+    assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, commandCount);
     // Simulate the trusted checklist verificationEvidence refresh that followed
     // B-19ca's command PASS. Some runtime audit rows intentionally remain after
     // the evidence auto-commit; committing those metadata-only rows establishes
@@ -105,6 +131,15 @@ function assertHandlerExecutedThenReused(): void {
     }
     const evidencePath = join(root, '.lattice/story/actives', storyId, 'test-evidence.json');
     const evidenceBefore = readFileSync(evidencePath, 'utf8');
+    const parsedEvidence = JSON.parse(evidenceBefore) as TestEvidenceData;
+    if (semanticFail) {
+      assert.equal(parsedEvidence.commandExecution?.status, 'FAIL', 'exit-zero semantic JSON FAIL must record commandExecution FAIL');
+      const secondFailure = run();
+      assert.equal(secondFailure.status, 0, `${secondFailure.stdout}\n${secondFailure.stderr}`);
+      assert.match(`${secondFailure.stdout}\n${secondFailure.stderr}`, /"disposition":"executed"/);
+      assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, commandCount * 2, 'semantic validator FAIL must never reuse');
+      return;
+    }
     const headBefore = git(root, ['rev-parse', 'HEAD']);
     const statusBefore = git(root, ['status', '--porcelain=v1', '--untracked-files=all']);
 
@@ -113,7 +148,7 @@ function assertHandlerExecutedThenReused(): void {
     assert.match(`${second.stdout}\n${second.stderr}`, /"disposition":"reused"/);
     assert.match(`${second.stdout}\n${second.stderr}`, /"commandExecutions":0/);
     assert.match(`${second.stdout}\n${second.stderr}`, /trusted-story-metadata-descendant/);
-    assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, 1, 'reuse must invoke zero project commands');
+    assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, commandCount, 'reuse must invoke zero project commands');
     assert.equal(readFileSync(evidencePath, 'utf8'), evidenceBefore, 'real reused handler path must not rewrite evidence');
     assert.equal(git(root, ['rev-parse', 'HEAD']), headBefore, 'real reused handler path must not auto-commit or move HEAD');
     const statusAfter = git(root, ['status', '--porcelain=v1', '--untracked-files=all']);
@@ -123,12 +158,13 @@ function assertHandlerExecutedThenReused(): void {
       'real reused handler path must not create any dirty path beyond the CLI owner heartbeat',
     );
 
-    writeFileSync(join(root, 'source.ts'), 'export const handlerReuse = false;\n', 'utf8');
-    const dirty = run();
-    assert.equal(dirty.status, 0, `${dirty.stdout}\n${dirty.stderr}`);
-    assert.match(`${dirty.stdout}\n${dirty.stderr}`, /"disposition":"executed"/);
-    assert.match(`${dirty.stdout}\n${dirty.stderr}`, /worktree-dirty/);
-    assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, 2, 'untrusted tracked dirty source must execute rather than reuse');
+    if (sourceKind === 'configured' && commandCount === 1) {
+      const raced = runWith({ LATTICE_VALIDATE_REUSE_SMOKE_DIRTY_FILE_BEFORE_FINAL_SNAPSHOT: join(root, 'source.ts') });
+      assert.equal(raced.status, 0, `${raced.stdout}\n${raced.stderr}`);
+      assert.match(`${raced.stdout}\n${raced.stderr}`, /"disposition":"executed"/);
+      assert.match(`${raced.stdout}\n${raced.stderr}`, /worktree-dirty/);
+      assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, 2, 'material dirt introduced after the first snapshot must execute');
+    }
   } finally {
     rmSync(root, { recursive: true, force: true });
     rmSync(counterPath, { force: true });
@@ -281,6 +317,11 @@ function main(): void {
       ['validation-identity-changed', { currentIdentity: variations[0] }],
       ['head-changed-during-reuse-evaluation', { headAfter: 'changed-head' }],
       ['prior-command-execution-not-pass', { evidence: { ...evidence, commandExecution: { ...commandExecution, status: 'FAIL', requiredFailureCount: 1 } } }],
+      ['prior-command-execution-not-pass', { evidence: { ...evidence, commandExecution: { ...commandExecution, commandCount: 0 } } }],
+      ['prior-command-execution-not-pass', { evidence: { ...evidence, commandExecution: { ...commandExecution, commandCount: 2 } } }],
+      ['prior-command-execution-not-pass', { evidence: { ...evidence, commandExecution: { ...commandExecution, optionalFailureCount: -1 } } }],
+      ['prior-command-execution-not-pass', { evidence: { ...evidence, commandExecution: { ...commandExecution, optionalFailureCount: 2 } } }],
+      ['prior-command-execution-not-pass', { evidence: { ...evidence, commandExecution: { ...commandExecution, failureKind: 'validation_failure' } } }],
       ['identity-missing-malformed-or-legacy', { evidence: { ...evidence, routineValidationIdentity: undefined } }],
     ];
     for (const [reason, override] of refusalRows) {
@@ -341,7 +382,24 @@ function main(): void {
     });
     assert.equal(b19.reusable, true, 'B-19ca 45-command PASS plus coverage refresh must reuse with zero command runner invocations');
 
-    assertHandlerExecutedThenReused();
+    assert.equal(
+      summarizeRoutineCommandExecution([{
+        label: baseCommand.label,
+        command: baseCommand.command,
+        args: baseCommand.args,
+        code: 0,
+        output: '',
+        durationMs: 1,
+      }], 1, { semanticPass: false }).status,
+      'FAIL',
+      'exit-zero command with semantic validator FAIL must not be reusable command truth',
+    );
+
+    assertHandlerExecutedThenReused('configured');
+    assertHandlerExecutedThenReused('fallback');
+    assertHandlerExecutedThenReused('validate-file');
+    assertHandlerExecutedThenReused('validate-file', 1, true);
+    assertHandlerExecutedThenReused('configured', 45);
 
     console.log('validation-evidence-reuse-smoke PASS (real executed→metadata reuse, 3 sources, B-19ca 45-command reuse, fail-closed matrix, lineage, no-write, secret absence)');
   } finally {

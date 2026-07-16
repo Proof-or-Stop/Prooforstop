@@ -149,6 +149,7 @@ export function isCompleteRoutineValidationIdentity(value: unknown): value is Ro
 export function summarizeRoutineCommandExecution(
   results: ValidationCommandResult[],
   expectedCommandCount: number,
+  options: { semanticPass?: boolean } = {},
 ): RoutineValidationCommandExecution {
   const requiredFailures = results.filter((result) => (
     result.worktreePollution?.blocking === true
@@ -159,22 +160,26 @@ export function summarizeRoutineCommandExecution(
     && result.optional
     && (result.code !== 0 || result.timedOut)
   ));
+  const semanticFailure = options.semanticPass === false;
   const failureKind = requiredFailures.some((result) => result.failureKind === 'infra_failure' || result.timedOut)
     ? 'infra_failure'
-    : requiredFailures.length > 0 ? 'validation_failure' : undefined;
+    : requiredFailures.length > 0 || semanticFailure ? 'validation_failure' : undefined;
   return {
     schema: 'lattice.routine-validation-command-execution',
     version: 1,
-    status: requiredFailures.length === 0 ? 'PASS' : 'FAIL',
+    status: requiredFailures.length === 0 && !semanticFailure ? 'PASS' : 'FAIL',
     complete: results.length === expectedCommandCount,
     commandCount: results.length,
-    requiredFailureCount: requiredFailures.length,
+    requiredFailureCount: requiredFailures.length + (semanticFailure && requiredFailures.length === 0 ? 1 : 0),
     optionalFailureCount: optionalFailures.length,
     ...(failureKind ? { failureKind } : {}),
   };
 }
 
-export function isReusableCommandPass(value: unknown): value is RoutineValidationCommandExecution {
+export function isReusableCommandPass(
+  value: unknown,
+  expectedCommandCount: number,
+): value is RoutineValidationCommandExecution {
   if (!value || typeof value !== 'object') return false;
   const execution = value as RoutineValidationCommandExecution;
   return execution.schema === 'lattice.routine-validation-command-execution'
@@ -182,8 +187,13 @@ export function isReusableCommandPass(value: unknown): value is RoutineValidatio
     && execution.status === 'PASS'
     && execution.complete === true
     && Number.isInteger(execution.commandCount)
-    && execution.commandCount >= 0
-    && execution.requiredFailureCount === 0;
+    && execution.commandCount === expectedCommandCount
+    && Number.isInteger(execution.requiredFailureCount)
+    && execution.requiredFailureCount === 0
+    && Number.isInteger(execution.optionalFailureCount)
+    && execution.optionalFailureCount >= 0
+    && execution.optionalFailureCount <= execution.commandCount
+    && execution.failureKind === undefined;
 }
 
 export function classifyTrustedValidationLineage(args: {
@@ -243,7 +253,7 @@ export function evaluateRoutineValidationReuse(args: {
   if (!args.evidence) return { reusable: false, lineage: 'rejected', existingEvidenceBasis: 'missing', refusalReasons: ['evidence-missing'] };
   const reasons: string[] = [];
   const evidence = args.evidence;
-  if (!isReusableCommandPass(evidence.commandExecution)) reasons.push('prior-command-execution-not-pass');
+  if (!isReusableCommandPass(evidence.commandExecution, args.currentIdentity.commands.length)) reasons.push('prior-command-execution-not-pass');
   if (!isCompleteRoutineValidationIdentity(evidence.routineValidationIdentity)) reasons.push('identity-missing-malformed-or-legacy');
   else if (evidence.routineValidationIdentity.digest !== args.currentIdentity.digest) reasons.push('validation-identity-changed');
   if (args.currentCoverage.missingRequired !== 0) reasons.push('current-verification-coverage-incomplete');

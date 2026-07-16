@@ -13,7 +13,10 @@ coverage. Therefore an old overall `FAIL` caused only by missing or stale
 `verificationEvidence` remains eligible after current coverage is recomputed
 complete, provided its structured command execution is complete PASS and every
 other predicate matches. A command failure, timeout, infrastructure failure,
-cancel, skip, or partial execution is never reusable.
+cancel, skip, or partial execution is never reusable. For validate-file
+sources, command truth includes the parsed validator verdict: process exit 0
+with JSON `status: fail` or `allPass: false` records
+`commandExecution: FAIL` and is never reusable.
 
 ## Complete identity
 
@@ -45,11 +48,14 @@ The decision occurs inside `withValidationExecutionLock`. It requires all of:
 1. structured, complete `commandExecution: PASS`;
 2. complete identity digest equality;
 3. current required verification coverage with `missingRequired === 0`;
-4. clean tracked and untracked worktree;
+4. material-clean tracked and untracked worktree: canonical Lattice story
+   metadata and registered runtime paths (including the owner-lease heartbeat)
+   may be dirty, while any source, config, command entrypoint, other material,
+   or unknown/unclassifiable dirty path rejects reuse;
 5. matching material and story-files hashes;
 6. exact HEAD or a descendant whose intervening commits touch only canonical
    story-metadata paths; and
-7. identical HEAD values before and after classification.
+7. identical HEAD and material-clean snapshots before and after classification.
 
 Routine validate and DONE pre-run reuse share the same lineage classifier. A
 non-ancestor, empty descendant, rename/path ambiguity, non-metadata path, git
