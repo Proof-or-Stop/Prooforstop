@@ -477,11 +477,11 @@ function sameAgentAuthority(left: string, right: string): boolean {
  * Resolve mutation authority without allowing audit payload fields to override
  * the identity assigned to a dispatched process.
  *
- * A registered LATTICE_AGENT is authoritative. Payload identities may only be
- * omitted or name the same registry row (including one of its aliases); a
- * conflicting role, trusted-host identity, or unknown lookalike fails before
- * the handler mutates state. When there is no registered dispatched env role,
- * the legacy host/payload compatibility path remains available.
+ * A nonblank LATTICE_AGENT is authoritative for actor classification. A
+ * registered role follows registry authority, an explicit trusted-host actor
+ * retains host compatibility, and every other env actor fails closed before a
+ * payload identity can replace it. When LATTICE_AGENT is blank or omitted, the
+ * legacy host/payload compatibility path remains available.
  */
 export function resolveAgentMutationAuthority(args: {
   command: AgentDispatchMutationCommand;
@@ -511,6 +511,14 @@ export function resolveAgentMutationAuthority(args: {
     }
     const entry = assertRegisteredAgentMutationAllowed(envActor, args.command);
     return { actor: envActor, entry, source: 'dispatched-env' };
+  }
+
+  // A supplied environment identity is provenance, not an optional audit
+  // label. Only exact trusted-host identities reach the compatibility path;
+  // an unknown/misspelled/lookalike actor must not be laundered by a payload
+  // that names human/main or a registered role.
+  if (envActor && !isTrustedHostActor(envActor)) {
+    assertRegisteredAgentMutationAllowed(envActor, args.command);
   }
 
   const actor = payloadActor || envActor;

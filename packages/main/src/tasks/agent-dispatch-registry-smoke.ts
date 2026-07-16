@@ -309,6 +309,17 @@ assert.throws(
   /agent_dispatch_actor_unknown/,
   'every nonblank unknown actor must fail closed',
 );
+for (const payloadActor of ['human', 'lattice-review-quality', 'test-intent']) {
+  assert.throws(
+    () => resolveAgentMutationAuthority({
+      command: 'finding_add',
+      envActor: 'lattice-review-lookalike',
+      payloadActors: [payloadActor],
+    }),
+    /agent_dispatch_actor_unknown/,
+    `unknown env actor must not be laundered through payload identity ${payloadActor}`,
+  );
+}
 
 const root = mkdtempSync(join(tmpdir(), 'agent-dispatch-consumer-smoke-'));
 try {
@@ -419,6 +430,30 @@ try {
       else process.env.LATTICE_AGENT = savedAgent;
     }
   };
+  const assertUnknownEnvSpoofRejectedWithoutMutation = (command: string, payloadAgent: string) => {
+    const before = mutationState();
+    const savedAgent = process.env.LATTICE_AGENT;
+    process.env.LATTICE_AGENT = 'lattice-review-lookalike';
+    try {
+      assert.throws(
+        () => findingHandlers.finding_add({
+          storyId,
+          desc: `unknown env actor must not persist via ${payloadAgent}`,
+          severity: 'high',
+          category: 'missing',
+          agent: payloadAgent,
+        }),
+        /agent_dispatch_actor_unknown/,
+        `${command} must reject unknown env identity before payload authority`,
+      );
+      assert.equal(mutationState(), before, `${command} rejection must leave story state byte-equivalent`);
+    } finally {
+      if (savedAgent === undefined) delete process.env.LATTICE_AGENT;
+      else process.env.LATTICE_AGENT = savedAgent;
+    }
+  };
+  assertUnknownEnvSpoofRejectedWithoutMutation('finding_add unknown-env + trusted-host payload', 'human');
+  assertUnknownEnvSpoofRejectedWithoutMutation('finding_add unknown-env + registered-role payload', 'lattice-review-quality');
   assertSpoofRejectedWithoutMutation('checklist_update', 'verification-intent', () => checklistHandlers.checklist_update({
     storyId, itemId: 'CHK-001', status: 'done', actor: 'human', agent: 'human',
   }));
