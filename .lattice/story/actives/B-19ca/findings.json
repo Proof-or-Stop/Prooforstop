@@ -199,7 +199,7 @@
       "desc": "packages/main/src/core/agent-dispatch-registry.ts:428-436 and packages/main/src/handlers/finding.ts:487-493 — HIGH: commit 65f50d2676 closes nonblank lookalike bypasses but regresses the existing trusted main-host path. assertRegisteredAgentMutationAllowed now treats explicit agent=\"main\" as an unknown dispatched actor, although existing real handlers and regression suites use that attribution. Repro after npm --prefix packages/main run build: node packages/main/dist/tasks/experience-layer-finding-enums-smoke.js => TOTAL 21 | PASS 13 | FAIL 8; all eight failures are finding_add refused: actor \"main\" is not registered [agent_dispatch_actor_unknown]. F-009 explicitly required preserving an allowlist of trusted host identities (main/main-agent/human or absent actor), but the new coverage asserts only omitted/blank helper calls and therefore misses real-handler positive compatibility. Add an explicit trusted-host classification distinct from registered dispatch roles, cover main/main-agent/human plus omitted/blank positive real-handler paths, retain all eight lookalike no-side-effect negatives, and rerun the failing smoke.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-16T12:09:54.304Z",
@@ -213,7 +213,11 @@
         "packages/main/src/tasks/experience-layer-finding-enums-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit a5302c1a53 adds an exact trusted-host identity set (main, main-agent, human), preserves omitted/null/blank host compatibility, keeps every other unknown nonblank actor fail-closed, and restores experience-layer-finding-enums-smoke to 21/21 while retaining eight real-handler lookalike no-side-effect negatives.",
+      "resolvedAt": "2026-07-16T12:15:47.907Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
