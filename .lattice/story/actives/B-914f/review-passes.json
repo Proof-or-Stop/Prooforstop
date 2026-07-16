@@ -1563,6 +1563,41 @@
       },
       "readDiagnostics": [],
       "_hash": "4ae561d60281527718a1d3b13d7a4d85b53a82fb0b5f94556803eca5e7ff83ae"
+    },
+    {
+      "id": "B-914f:RP-035",
+      "agent": "lattice-review-docs",
+      "note": "Current HEAD changes since the prior docs PASS are review/candidate metadata only. The bounded documentation diff remains accurate: the canonical decision states complete identity, fail-closed reuse, trusted metadata lineage, zero-command disposition, and rollback; the convergence plan links to that decision without redefining it. No blocking documentation gap found.",
+      "createdAt": "2026-07-16T20:17:35.676Z",
+      "reviewRound": "2026-07-16T20:05:26.354Z",
+      "reviewRunId": "B-914f:RR-063",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "585f04e2d85567a25c9355e986bc487bc5833eac3772ec1618e44b7aa3afc522"
+      },
+      "readDiagnostics": [],
+      "_hash": "2a7f6a15d87c516f79bbf82e8a76e9e3de47e271a9d5bf2612bd93477abab6a5"
     }
   ]
 }
