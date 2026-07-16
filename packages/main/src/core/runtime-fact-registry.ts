@@ -1,4 +1,5 @@
 export const REQUIRED_RUNTIME_FACT_IDS = [
+  'entrypoint-authority',
   'cli-entrypoint',
   'global-core-realpath',
   'project-local-bin',
@@ -14,6 +15,7 @@ export type RuntimeFactScope = 'all' | 'self' | 'external';
 export type RuntimeFactSeverity = 'hard' | 'warn' | 'advisory';
 
 export type RuntimeFactChecker =
+  | 'resolveEntrypointAuthority'
   | 'resolveCliEntrypoint'
   | 'resolveGlobalCoreRealpath'
   | 'resolveProjectLocalBin'
@@ -23,6 +25,7 @@ export type RuntimeFactChecker =
   | 'scanExternalReferencePolicy';
 
 export const RUNTIME_FACT_OUTPUT_KEYS = {
+  'entrypoint-authority': 'runtimeEntrypointAuthority',
   'cli-entrypoint': 'cliEntrypoint',
   'global-core-realpath': 'globalCoreRealpath',
   'project-local-bin': 'projectLocalBin',
@@ -47,6 +50,17 @@ export interface RuntimeFactRegistryEntry {
 }
 
 export const RUNTIME_FACT_REGISTRY = [
+  {
+    id: 'entrypoint-authority',
+    scope: 'all',
+    selfSeverity: 'hard',
+    externalSeverity: 'advisory',
+    checker: 'resolveEntrypointAuthority',
+    outputKey: 'runtimeEntrypointAuthority',
+    rationale: 'A self-host story worktree must execute the runtime that belongs to that worktree, not a stale global launcher linked to the main checkout.',
+    driftMessage: 'The active CLI runtime is not authoritative for the current self-host worktree.',
+    repairHint: 'From the story worktree, retry the same command with `node bin/lattice.js`.',
+  },
   {
     id: 'cli-entrypoint',
     scope: 'all',
