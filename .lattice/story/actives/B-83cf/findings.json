@@ -44,6 +44,21 @@
       "_hash": "2a9d4a03dc8fb9fef4bb55dd3b9c7124a45345373913cd51760ae7947156c643",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-83cf:F-004",
+      "desc": "docs/requirements/decisions/review-assurance-floor-execution-plan.md:92-99 — HIGH: the decision/runbook truth source promises one executable degraded command per round and says --deriveBindings re-resolves current PASS validation evidence before writing, but the rendered production command uses global `lattice` (packages/main/src/core/review-assurance-floor.ts:229-231), which can select the main/old runtime instead of this self-host worktree, and the handler PASS check (packages/main/src/handlers/verdict.ts:121-130) does not enforce the canonical routine-validation admissibility contract. Therefore the document overstates both command executability and evidence freshness: an operator can follow it exactly yet invoke a runtime without --deriveBindings, or bind evidence TEST would reject. Make the rendered entrypoint runtime-authoritative, share/enforce the canonical PASS-admissibility predicate, execute the literal rendered commands in regression coverage, and keep this document wording aligned with those mechanically enforced guarantees.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-16T18:45:16.624Z",
+      "reviewRound": "2026-07-16T18:40:03.885Z",
+      "reviewRunId": "B-83cf:RR-004",
+      "_hash": "035c54fae907d93eeb13070525384b9ebb0c5ccb60a5dfc31bf72d3136c7a257",
+      "signatureTag": "missing|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
