@@ -4,11 +4,11 @@
   "title": "Derive canonical bindings for degraded single-host review verdicts",
   "description": "Make the documented explicit-human-approval plus three-round single-host assurance fallback mechanically executable without fabricating a second host. Share canonical verdict binding derivation with quorum submission, expose an explicit fail-closed single-host derivation mode, and align guidance and regression coverage.",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-07-16T18:17:57.228Z",
   "startedAt": "2026-07-16T18:17:57.228Z",
-  "endedAt": null,
+  "endedAt": "2026-07-16T19:44:34.308Z",
   "events": [
     {
       "phase": "INIT",
@@ -99,12 +99,16 @@
       "user": "Harmonygo",
       "sessionId": "codex-wa-final",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-16T19:44:34.308Z",
+      "branch": "story/B-83cf",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-83cf",
-    "branch": "story/B-83cf",
-    "createdAt": "2026-07-16T18:19:01.928Z"
-  },
   "currentReviewRound": "2026-07-16T19:15:22.799Z"
 }
