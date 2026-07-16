@@ -1124,6 +1124,26 @@
       "resolvedAt": "2026-07-16T01:52:59.555Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-032",
+      "desc": "Round 18 closes the original failure-side mutation gap: all five invalid variants hit delivery_check_set, canFinishGuard=false, and the tagged DONE diagnostic; producer status covers malformed/cross-story/write-only/timeout/non-zero plus successful-stale; missing and passing machine controls exist. One overblocking mutation remains uncovered: no test calls delivery_check_set with a valid passing transcript already present. closeout-trust covers delivery_check_set only while the transcript is absent, and review-assurance-floor overwrites the final artifact with exitCode=0 but then checks only canFinishGuard/getGuardFailureReason. A mutation in delivery-check.ts that rejects every present transcript (while still allowing missing and rejecting all five bad variants) would leave the entire focused suite green and make successful live-smoke stories unable to sign delivery. The bad-variant loop also does not assert delivery-check.json is unchanged after each rejection. Add a passing-present delivery_check_set control and snapshot/no-write assertions for rejection. Build, live-smoke, review-assurance-floor, closeout-trust, and process-fact contract all pass; this is a verified residual coverage gap, not a current behavior failure.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-16T01:55:40.222Z",
+      "reviewRound": "2026-07-16T01:52:42.626Z",
+      "reviewRunId": "B-c163:RR-078",
+      "_hash": "5086cdd1411fca93036dad5b588c03d1856f992135bc5447c2a577cef79ef858",
+      "files": [
+        "packages/main/src/handlers/delivery-check.ts",
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|round-closes-original",
+      "signatureTagSource": "auto"
     }
   ]
 }
