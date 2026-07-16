@@ -318,9 +318,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "AGENTS.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-16T21:08:34.528Z",
-      "endTime": null,
+      "endTime": "2026-07-16T21:16:30.151Z",
       "verificationIntent": {
         "happy": [
           {
@@ -378,7 +378,93 @@
           "packages/main/src/tasks/validation-protocol-smoke.ts",
           "scripts/verify-runtime-fact-contract.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
+          "result": "pass",
+          "note": "Hermetic copied runtime records main-old and worktree-new builds, rejects the main CLI, then executes the emitted worktree-local recovery command successfully.",
+          "headHash": "8ce4fa29285ee83fbc9d20b91b3330ffbec90920",
+          "materialHash": "34050b691a60a66a880c8fbaee7ee3d4cd3dbc9f6e9030a77865b89408bc2e05",
+          "storyFilesHash": "d4f8c5d6a5b437760a305e2e14f505f3333e03f4554334d5c05d2401ec0cdbb0",
+          "timestamp": "2026-07-16T21:16:30.380Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
+          "result": "pass",
+          "note": "E2E asserts stable reason, canonical Retry command, recovered JSON result, hook absent, validation marker absent, and no .lattice state on rejection.",
+          "headHash": "8ce4fa29285ee83fbc9d20b91b3330ffbec90920",
+          "materialHash": "34050b691a60a66a880c8fbaee7ee3d4cd3dbc9f6e9030a77865b89408bc2e05",
+          "storyFilesHash": "d4f8c5d6a5b437760a305e2e14f505f3333e03f4554334d5c05d2401ec0cdbb0",
+          "timestamp": "2026-07-16T21:16:30.570Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
+          "result": "pass",
+          "note": "Harness covers direct and symlink launchers, linked .git/common-dir, nested cwd, local runtime, explicit session_brief fallback, and external consumer CLI.",
+          "headHash": "8ce4fa29285ee83fbc9d20b91b3330ffbec90920",
+          "materialHash": "34050b691a60a66a880c8fbaee7ee3d4cd3dbc9f6e9030a77865b89408bc2e05",
+          "storyFilesHash": "d4f8c5d6a5b437760a305e2e14f505f3333e03f4554334d5c05d2401ec0cdbb0",
+          "timestamp": "2026-07-16T21:16:30.764Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "integration_test",
+          "file": "scripts/verify-runtime-fact-contract.mjs",
+          "command": "node scripts/verify-runtime-fact-contract.mjs",
+          "result": "pass",
+          "note": "Doctor/runtime registry contract verifies entrypoint-authority as runtime-only alongside canonical entrypoint, global realpath, and local-bin facts.",
+          "headHash": "8ce4fa29285ee83fbc9d20b91b3330ffbec90920",
+          "materialHash": "34050b691a60a66a880c8fbaee7ee3d4cd3dbc9f6e9030a77865b89408bc2e05",
+          "storyFilesHash": "d4f8c5d6a5b437760a305e2e14f505f3333e03f4554334d5c05d2401ec0cdbb0",
+          "timestamp": "2026-07-16T21:16:30.943Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
+          "result": "pass",
+          "note": "A stale validate request proves zero preCommand hook, zero validation subprocess, and zero evidence/runtime state before rejection.",
+          "headHash": "8ce4fa29285ee83fbc9d20b91b3330ffbec90920",
+          "materialHash": "34050b691a60a66a880c8fbaee7ee3d4cd3dbc9f6e9030a77865b89408bc2e05",
+          "storyFilesHash": "d4f8c5d6a5b437760a305e2e14f505f3333e03f4554334d5c05d2401ec0cdbb0",
+          "timestamp": "2026-07-16T21:16:31.155Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
+          "result": "pass",
+          "note": "Canonical loaded-module git root defeats symlink launcher, PATH preference, nested cwd, argv worktree spoof, dot segments, and aliases.",
+          "headHash": "8ce4fa29285ee83fbc9d20b91b3330ffbec90920",
+          "materialHash": "34050b691a60a66a880c8fbaee7ee3d4cd3dbc9f6e9030a77865b89408bc2e05",
+          "storyFilesHash": "d4f8c5d6a5b437760a305e2e14f505f3333e03f4554334d5c05d2401ec0cdbb0",
+          "timestamp": "2026-07-16T21:16:31.422Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Correct local runtime and external consumer controls execute under the same harness; validation protocol retains external advisory behavior and runtime fact shape.",
+          "headHash": "8ce4fa29285ee83fbc9d20b91b3330ffbec90920",
+          "materialHash": "34050b691a60a66a880c8fbaee7ee3d4cd3dbc9f6e9030a77865b89408bc2e05",
+          "storyFilesHash": "d4f8c5d6a5b437760a305e2e14f505f3333e03f4554334d5c05d2401ec0cdbb0",
+          "timestamp": "2026-07-16T21:16:31.595Z"
+        }
+      ]
     }
   ]
 }
