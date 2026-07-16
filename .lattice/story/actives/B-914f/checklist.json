@@ -597,8 +597,8 @@
       "title": "Preserve command-execution PASS separately from the current coverage verdict",
       "context": "B-19ca proved all 45 commands can PASS while overall validation is FAIL solely because verificationEvidence is stale. Persist a structured commandExecution verdict and identity independently of the recomputed coverage gate. Reuse eligibility may consume a prior commandExecution PASS even when the old overall result was FAIL, but only after current coverage is recomputed complete and every other identity/lineage/cleanliness/TOCTOU predicate passes.",
       "relatedDocs": [
-        "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
-        "AGENTS.md#TEST阶段详细流程"
+        "AGENTS.md",
+        "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
       ],
       "userSees": "After verificationEvidence refresh, validation reuses the already-PASS command execution and recomputes coverage to PASS without running commands again.",
       "files": {
