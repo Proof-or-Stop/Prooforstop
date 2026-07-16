@@ -627,6 +627,32 @@
       },
       "readDiagnostics": [],
       "_hash": "010c6c26af3fb5fe422a27ac4ee8e43c32a418a009b6eb762a2ed9a27e819f6f"
+    },
+    {
+      "id": "B-c163:RP-020",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 16 coverage passes after owner resolved F-029 strong. Cleanup waits a bounded natural-close grace then signals only the owned negative process-group id; observed positive capture/descendant PIDs remain disappearance probes only. Deterministic stale/reuse seams assert exact negative targets and preserve readiness, assertion, and read primary errors across injected EPERM. ESRCH, disappearance timeout, close-never, idempotent cleanup, readiness races, and 10 real CLI terminal runs remain covered. Build and three focused smoke executions pass.",
+      "createdAt": "2026-07-16T01:16:54.577Z",
+      "reviewRound": "2026-07-16T01:13:53.484Z",
+      "reviewRunId": "B-c163:RR-070",
+      "writerSessionId": "review-bc163-coverage-r16",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "bee82b69b686adc190cfd3661cea648653e23a4070ffca9385ac4200215d1ba1",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "_hash": "4f1e46417136e1597baaf86ba81023ca9b9cf5ed0caa8af45509f83c4fc98d50"
     }
   ]
 }
