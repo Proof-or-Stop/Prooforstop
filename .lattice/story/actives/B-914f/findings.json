@@ -334,6 +334,21 @@
       "resolvedAt": "2026-07-16T17:39:14.186Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-914f:F-016",
+      "desc": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts:422-474 exercises only cwd-relative slash/backslash paths and bare PATH lookup, so it never enters packages/main/src/core/validation-evidence-reuse.ts:61-63 via platformPath.isAbsolute(command). A regression back to host-native isAbsolute would leave these tests green while breaking Win32 drive-absolute and UNC command identity. Add platform-injected assertions that cover the absolute-path branch (including PATHEXT/no-PATH-search and content-digest invalidation), using a testable resolver seam or platform-path adapter if host filesystem constraints prevent direct fixtures.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-16T17:41:38.342Z",
+      "reviewRound": "2026-07-16T17:36:52.743Z",
+      "reviewRunId": "B-914f:RR-036",
+      "_hash": "5ca58f9cd72151ce11cab958f7c2271c90d4e51d358e2b5081662f4d8c191cc7",
+      "signatureTag": "edge|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
