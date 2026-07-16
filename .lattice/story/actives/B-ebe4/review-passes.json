@@ -302,6 +302,43 @@
       },
       "readDiagnostics": [],
       "_hash": "5624047fde2588bb78885ef4d5757dd806bf1c4a43358b994330886992becd94"
+    },
+    {
+      "id": "B-ebe4:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Final targeted concept review PASS on HEAD 51d8608. The stale-global guard remains raw-argv-safe and pre-dispatch before strict args, active-story reads, init/dashboard, stale tool/schema, Store/hooks/handlers. Canonical git/worktree/common-dir identity scopes enforcement to a linked self-host worktree; external consumers remain advisory; the only exemption is explicit LATTICE_CODEX_ENTRYPOINT=global-fallback session_brief heartbeat. Changes since the focused fix only repin smoke fingerprints and do not alter product semantics. Previously passed focused runtime authority and runtime-fact evidence was reused; no full suite rerun.",
+      "createdAt": "2026-07-16T22:08:42.378Z",
+      "reviewRound": "2026-07-16T21:56:53.499Z",
+      "reviewRunId": "B-ebe4:RR-022",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f21983f7cc56fd663a0f9021c9f1321ece25ebb77fc79bba2f9c2efa42f2cbea",
+        "corpusDigest": "c32857bb0dce01204444115f085cb28f4df249ebca7e92092085ebdf61db9d44"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "09499903b7d206680c55c466eb55a970a12b22561bec73f4f8b0c9066a4c757c"
+      },
+      "readDiagnostics": [],
+      "_hash": "1754358f7fdde6ef936759c09595bf9cd7bf1e12621e217e7b04e01a7f51c902"
     }
   ]
 }
