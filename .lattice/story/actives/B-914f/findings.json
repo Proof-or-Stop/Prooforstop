@@ -317,7 +317,7 @@
       "desc": "The Windows executable resolver still recognizes only `/` as an explicit relative-path separator (`isAbsolute(command) || command.includes(`/`)`). A normal Windows validation command such as `.\\scripts\\validate.cmd` or `tools\\validate` contains only backslashes, so identity searches each PATH directory instead of resolving it from the configured cwd. Spawn/cmd.exe executes that command relative to cwd, while identity can record executableDigest:null or digest a different PATH-relative file; fresh PASS can therefore survive a change to the executable actually run. Treat `\\` as a path separator on win32 and bind relative explicit paths against cwd before PATHEXT expansion. Add a test that is independent of the host OS path implementation (or factor the explicit-path predicate) for a backslash-only relative command whose cwd is absent from PATH.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-16T17:28:18.241Z",
@@ -329,7 +329,11 @@
         "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
       ],
       "signatureTag": "windows-relative-executable-path",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Duplicate reviewer report of the Windows relative-backslash executable binding gap fixed by 57e2a7c12f. The platform resolver now treats backslash/slash commands as explicit, binds relative commands against cwd with PATHEXT, keeps bare commands on PATH search, and supports win32 drive/UNC absolutes. Existing targeted build/smoke/contract evidence is PASS and source review found no POSIX regression.",
+      "resolvedAt": "2026-07-16T17:39:14.186Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
