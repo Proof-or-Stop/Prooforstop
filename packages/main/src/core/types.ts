@@ -18,6 +18,96 @@ export type StoryPhase = 'IDEA' | 'INIT' | 'INIT_CHECK' | 'PLAN' | 'DEV' | 'REVI
   // B-9bd9 CHK-002: meta-story dedicated phase, never enters DONE (cross-story container, only attaches findings)
   | 'META';
 
+/** Canonical role names accepted by the typed dispatch contract. */
+export type AgentDispatchCanonicalType =
+  | 'lattice-implementer'
+  | 'verification-intent'
+  | 'lattice-review-story-init'
+  | 'product-reviewer'
+  | 'lattice-review-scope-plan'
+  | 'lattice-review-concept'
+  | 'lattice-review-quality'
+  | 'lattice-review-test-coverage'
+  | 'lattice-review-behavior'
+  | 'lattice-review-docs'
+  | 'lattice-review-channel'
+  | 'lattice-review-delivery'
+  | 'lattice-finding-repair'
+  | 'lattice-cluster-repair';
+
+export type AgentDispatchRoleClass =
+  | 'implementer'
+  | 'verification-intent'
+  | 'init-reviewer'
+  | 'scope-reviewer'
+  | 'item-reviewer'
+  | 'coverage-reviewer'
+  | 'delivery-reviewer'
+  | 'repairer';
+
+export type AgentDispatchTargetCardinality = 'story-only' | 'exactly-one';
+export type AgentDispatchIdentifierKind = 'itemId' | 'findingId' | 'clusterId';
+export type AgentDispatchPromptBuilderKey =
+  | 'implementer-dispatch'
+  | 'verification-intent-item'
+  | 'init-review'
+  | 'product-init-review'
+  | 'scope-plan-review'
+  | 'item-review'
+  | 'coverage-review'
+  | 'delivery-review'
+  | 'finding-repair'
+  | 'cluster-repair';
+
+export type AgentDispatchMutationCommand =
+  | 'checklist_update'
+  | 'init_check_set'
+  | 'scope_check_save'
+  | 'review_run_start'
+  | 'finding_add'
+  | 'review_pass_set'
+  | 'delivery_check_set'
+  | 'finding_resolve';
+
+export type AgentDispatchReviewerLane =
+  | 'lattice-review-story-init'
+  | 'product-reviewer'
+  | 'lattice-review-scope-plan'
+  | 'lattice-review-concept'
+  | 'lattice-review-quality'
+  | 'lattice-review-test-coverage'
+  | 'lattice-review-behavior'
+  | 'lattice-review-docs'
+  | 'lattice-review-channel'
+  | 'lattice-review-delivery';
+
+export type AgentDispatchEvidenceOwnership =
+  | 'checklist-status'
+  | 'verification-intent'
+  | 'init-check'
+  | 'scope-check'
+  | 'review-run'
+  | 'finding'
+  | 'review-pass'
+  | 'delivery-check'
+  | 'finding-resolution'
+  | 'cluster-resolution';
+
+/** One mechanically consumable row in the agent dispatch authority table. */
+export interface AgentDispatchRegistryEntry {
+  canonicalName: AgentDispatchCanonicalType;
+  aliases: readonly string[];
+  roleClass: AgentDispatchRoleClass;
+  allowedPhases: readonly StoryPhase[];
+  targetCardinality: AgentDispatchTargetCardinality;
+  identifierKinds: readonly AgentDispatchIdentifierKind[];
+  promptBuilder: AgentDispatchPromptBuilderKey;
+  permittedMutations: readonly AgentDispatchMutationCommand[];
+  commitAllowed: boolean;
+  reviewerLane: AgentDispatchReviewerLane | null;
+  evidenceOwnership: readonly AgentDispatchEvidenceOwnership[];
+}
+
 export type StoryType = 'feature' | 'bug' | 'refactor' | 'chore' | 'meta';
 
 export interface StoryEvent {
