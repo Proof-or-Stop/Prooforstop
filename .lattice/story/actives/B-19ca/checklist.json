@@ -8,9 +8,9 @@
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#8-workstream-c--typed-agent-dispatch-contract",
         "AGENTS.md#流程事实双层契约"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-16T10:35:14.802Z",
-      "endTime": null,
+      "endTime": "2026-07-16T10:44:02.549Z",
       "verificationIntent": {
         "happy": [
           {
@@ -60,7 +60,75 @@
         "test": [
           "packages/main/src/tasks/agent-dispatch-registry-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+          "result": "pass",
+          "note": "TypeScript build passed; the table-driven smoke enumerated all 14 canonical registry rows and asserted required role, phase, cardinality, identifier, prompt, mutation, commit, reviewer-lane, and evidence fields.",
+          "headHash": "48d55c02208b3423503a4f2abba26d4dd6baabbe",
+          "materialHash": "bff41a132726144681833f966935a275ad749c95575cd526ca4ec2157ba7fb9e",
+          "storyFilesHash": "7430b1b02007b54886c14fc98f86c6cb8de72b7a884e0cb8a13f5937d59b3b72",
+          "timestamp": "2026-07-16T10:44:02.938Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+          "result": "pass",
+          "note": "Smoke resolved test-intent and test-case-reviewer only through the deliberate verification-intent alias list and confirmed they inherit its non-commit authority.",
+          "headHash": "48d55c02208b3423503a4f2abba26d4dd6baabbe",
+          "materialHash": "bff41a132726144681833f966935a275ad749c95575cd526ca4ec2157ba7fb9e",
+          "storyFilesHash": "7430b1b02007b54886c14fc98f86c6cb8de72b7a884e0cb8a13f5937d59b3b72",
+          "timestamp": "2026-07-16T10:44:03.334Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+          "result": "pass",
+          "note": "Smoke checked canonical and alias namespace uniqueness, deterministic resolution, and duplicate canonical/alias rejection.",
+          "headHash": "48d55c02208b3423503a4f2abba26d4dd6baabbe",
+          "materialHash": "bff41a132726144681833f966935a275ad749c95575cd526ca4ec2157ba7fb9e",
+          "storyFilesHash": "7430b1b02007b54886c14fc98f86c6cb8de72b7a884e0cb8a13f5937d59b3b72",
+          "timestamp": "2026-07-16T10:44:03.677Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserted story-only entries accept no identifiers and exactly-one entries declare one or more accepted identifier kinds.",
+          "headHash": "48d55c02208b3423503a4f2abba26d4dd6baabbe",
+          "materialHash": "bff41a132726144681833f966935a275ad749c95575cd526ca4ec2157ba7fb9e",
+          "storyFilesHash": "7430b1b02007b54886c14fc98f86c6cb8de72b7a884e0cb8a13f5937d59b3b72",
+          "timestamp": "2026-07-16T10:44:04.061Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+          "result": "pass",
+          "note": "Smoke proved blank, whitespace, unknown, case-mutated, and prefix-only explicit types throw typed fail-closed errors; only omitted agentType defaults to lattice-implementer.",
+          "headHash": "48d55c02208b3423503a4f2abba26d4dd6baabbe",
+          "materialHash": "bff41a132726144681833f966935a275ad749c95575cd526ca4ec2157ba7fb9e",
+          "storyFilesHash": "7430b1b02007b54886c14fc98f86c6cb8de72b7a884e0cb8a13f5937d59b3b72",
+          "timestamp": "2026-07-16T10:44:04.385Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+          "result": "pass",
+          "note": "Runtime registry validation rejected a missing promptBuilder, undeclared story_advance mutation authority, and alias collision; TypeScript build also enforces the declared policy types.",
+          "headHash": "48d55c02208b3423503a4f2abba26d4dd6baabbe",
+          "materialHash": "bff41a132726144681833f966935a275ad749c95575cd526ca4ec2157ba7fb9e",
+          "storyFilesHash": "7430b1b02007b54886c14fc98f86c6cb8de72b7a884e0cb8a13f5937d59b3b72",
+          "timestamp": "2026-07-16T10:44:04.736Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
