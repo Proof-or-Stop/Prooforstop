@@ -1,0 +1,33 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Write the bounded document-context scaling execution plan",
+      "context": "Specify authority layers, retrieval pipeline, context budgets, escalation rules, provenance/read-manifest evidence, stale/conflict behavior, rollout milestones, threat model, verification matrix, migration strategy, observability, rollback, and measurable success criteria for repositories with 1000+ documents.",
+      "relatedDocs": [
+        "docs/requirements/decisions/dev-memory.md",
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+        "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+        "docs/requirements/decisions/truth-source.md",
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "userSees": "A reviewable Markdown execution plan with explicit architecture, controls, milestones, and acceptance criteria.",
+      "excludes": [
+        "Implementing the retrieval runtime",
+        "Changing lifecycle gates",
+        "Deleting or bulk-rewriting existing decision documents"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/bounded-document-context-scaling-execution-plan.md"
+        ],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
