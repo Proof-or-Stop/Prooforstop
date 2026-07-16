@@ -507,6 +507,54 @@
       },
       "readDiagnostics": [],
       "_hash": "7fab7240a8881124c415263458d82a2ee5e924ed04e6d4f75500f0262d4fd68e"
+    },
+    {
+      "id": "B-ebe4:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: Round6 has 21/21 PASS evidence bound to current materialHash ff419037cdd5 and storyFilesHash cad3784b60cc; stale dry-run reports zero. The only material diff synchronizes two exact fingerprint literals in verify-process-fact-contract, while the fingerprint-drift and fail-closed regression assertions remain present. The focused process-fact/retired-guard/authority/runtime/validation chain is current PASS; no 45-command suite or npm test was run.",
+      "createdAt": "2026-07-16T22:30:07.672Z",
+      "reviewRound": "2026-07-16T22:24:16.250Z",
+      "reviewRunId": "B-ebe4:RR-028",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "bin/bootstrap-runner.js",
+          "docs/CLI.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/runtime-fact-registry.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "38bb6a893bc86bce8662c0fe4a4763251f9f744b5f155d71e68340a70a310a1b",
+        "corpusDigest": "c32857bb0dce01204444115f085cb28f4df249ebca7e92092085ebdf61db9d44"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "09499903b7d206680c55c466eb55a970a12b22561bec73f4f8b0c9066a4c757c"
+      },
+      "readDiagnostics": [],
+      "_hash": "e8e8a1eedda684b3f3415859cba65ae85b383cbf34661a1c028440fb865557ad"
     }
   ]
 }
