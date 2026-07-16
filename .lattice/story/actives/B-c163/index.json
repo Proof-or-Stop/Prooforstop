@@ -4,11 +4,11 @@
   "title": "Make DONE-required validation converge with bounded proof reuse",
   "description": "Implement Workstream A on current main with a shared derived DONE-required budget, command-specific CLI absolute-max coordination, strict fresh-receipt reuse including trusted metadata-only HEAD lineage, direct heartbeat liveness, structured human/JSON outcomes, focused regressions, and reconciliation of all six canonical Workstream A documents.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-07-15T18:57:06.537Z",
   "startedAt": "2026-07-15T18:57:06.537Z",
-  "endedAt": null,
+  "endedAt": "2026-07-16T10:12:26.917Z",
   "events": [
     {
       "phase": "INIT",
@@ -446,6 +446,15 @@
       "phase": "TEST",
       "action": "advance",
       "timestamp": "2026-07-16T09:11:17.157Z",
+      "branch": "story/B-c163",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-16T10:12:26.917Z",
       "branch": "story/B-c163",
       "user": "Harmonygo",
       "sessionId": "codex-wa-final",
