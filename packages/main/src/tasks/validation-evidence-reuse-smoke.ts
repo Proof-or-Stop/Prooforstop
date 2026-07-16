@@ -344,24 +344,25 @@ function main(): void {
     const winPathB = join(root, 'win-path-b');
     mkdirSync(winPathA, { recursive: true });
     mkdirSync(winPathB, { recursive: true });
-    writeFileSync(join(winPathA, 'validation-tool'), 'tool-a\n', 'utf8');
-    writeFileSync(join(winPathB, 'validation-tool'), 'tool-b\n', 'utf8');
+    writeFileSync(join(winPathA, 'validation-tool.CMD'), 'tool-a-cmd\n', 'utf8');
+    writeFileSync(join(winPathB, 'validation-tool.CMD'), 'tool-b-cmd\n', 'utf8');
+    writeFileSync(join(winPathB, 'validation-tool.EXE'), 'tool-b-exe\n', 'utf8');
     const winCommand: ValidationCommand = {
       ...baseCommand,
       command: 'validation-tool',
       args: [],
-      env: { Path: winPathB },
+      env: { Path: winPathB, Pathext: '.EXE;.CMD' },
     };
     const winOverlayWins = identity(root, 'configured', [winCommand], {
       platform: 'win32',
-      env: { Path: winPathA, PATH: winPathA, CI: 'true' },
+      env: { Path: winPathA, PATH: winPathA, PATHEXT: '.CMD;.EXE', CI: 'true' },
     });
     const winOverlayDifferentExecutable = identity(root, 'configured', [{
       ...winCommand,
-      env: { PATH: winPathA },
+      env: { PATH: winPathA, PATHEXT: '.CMD;.EXE' },
     }], {
       platform: 'win32',
-      env: { Path: winPathB, PATH: winPathB, CI: 'true' },
+      env: { Path: winPathB, PATH: winPathB, PATHEXT: '.EXE;.CMD', CI: 'true' },
     });
     assert.notEqual(
       winOverlayWins.commands[0]?.executableDigest,
@@ -372,6 +373,30 @@ function main(): void {
       winOverlayWins.digest,
       winOverlayDifferentExecutable.digest,
       'a win32 explicit PATH overlay selecting a different executable must invalidate identity',
+    );
+    const winPathextCmd = identity(root, 'configured', [{
+      ...winCommand,
+      env: { PATH: winPathB, PATHEXT: '.CMD' },
+    }], { platform: 'win32', env: { PATH: winPathB, PATHEXT: '.EXE', CI: 'true' } });
+    assert.notEqual(
+      winOverlayWins.commands[0]?.executableDigest,
+      winPathextCmd.commands[0]?.executableDigest,
+      'win32 PATHEXT overlay order/content must select and bind the executable actually resolved',
+    );
+    assert.notEqual(
+      winOverlayWins.digest,
+      winPathextCmd.digest,
+      'win32 PATHEXT changes must invalidate identity',
+    );
+    const winExplicitExtension = identity(root, 'configured', [{
+      ...winCommand,
+      command: 'validation-tool.CMD',
+      env: { PATH: winPathB, PATHEXT: '.EXE' },
+    }], { platform: 'win32', env: { PATH: winPathB, PATHEXT: '.EXE', CI: 'true' } });
+    assert.equal(
+      winExplicitExtension.commands[0]?.executableDigest,
+      winPathextCmd.commands[0]?.executableDigest,
+      'a win32 command with an explicit extension must resolve directly without PATHEXT substitution',
     );
     const winAmbientCollisionA = identity(root, 'configured', [baseCommand], {
       platform: 'win32',

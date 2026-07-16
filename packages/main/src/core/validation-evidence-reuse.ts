@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
-import { delimiter, isAbsolute, join, resolve } from 'node:path';
+import { delimiter, extname, isAbsolute, join, resolve } from 'node:path';
 import { isStoryMetadataPath } from './evidence-freshness.js';
 import type { TestEvidenceData, VerificationCoverageReport } from './types.js';
 import type {
@@ -45,14 +45,23 @@ function fileDigest(path: string): string | null {
 }
 
 function resolveExecutable(command: string, cwd: string, env: NodeJS.ProcessEnv, platform: NodeJS.Platform): string | null {
+  const executableCandidates = (base: string): string[] => {
+    if (platform !== 'win32' || extname(base)) return [base];
+    const extensions = String(env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD')
+      .split(';')
+      .map((extension) => extension.trim())
+      .filter(Boolean)
+      .map((extension) => extension.startsWith('.') ? extension : `.${extension}`);
+    return [base, ...extensions.map((extension) => `${base}${extension}`)];
+  };
   if (isAbsolute(command) || command.includes('/')) {
     const candidate = isAbsolute(command) ? command : resolve(cwd, command);
-    return existsSync(candidate) ? candidate : null;
+    return executableCandidates(candidate).find((path) => existsSync(path)) ?? null;
   }
   const pathDelimiter = platform === 'win32' ? ';' : delimiter;
   for (const dir of String(env.PATH ?? '').split(pathDelimiter).filter(Boolean)) {
-    const candidate = join(dir, command);
-    if (existsSync(candidate)) return candidate;
+    const candidate = executableCandidates(join(dir, command)).find((path) => existsSync(path));
+    if (candidate) return candidate;
   }
   return null;
 }
