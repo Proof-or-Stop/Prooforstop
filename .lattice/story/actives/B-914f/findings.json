@@ -298,7 +298,7 @@
       "desc": "packages/main/src/core/validation-evidence-reuse.ts:57 — Win32 relative executable paths containing backslashes are still classified as bare PATH lookups because the cwd-relative branch only recognizes command.includes(\"/\"). A configured command such as .\\tools\\validator (or tools\\validator) is executed relative to command.cwd by the Windows shell, but identity resolution searches each PATH directory and may bind null or a different executableDigest. The actually executed file can then change without invalidating validation identity, allowing stale PASS reuse. Extend the explicit-path predicate to recognize Win32 separators (or use the selected platform path implementation) and add tests for backslash-relative commands with/without extensions plus PATHEXT.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-16T17:27:48.608Z",
@@ -306,7 +306,11 @@
       "reviewRunId": "B-914f:RR-031",
       "_hash": "cc80d784aa567c58107664c46613fa5ff4d1f58806101f1eef3b89314960fec8",
       "signatureTag": "edge|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 57e2a7c12f. The resolver now selects node:path.win32 for win32 semantics, recognizes both slash forms, resolves explicit relative commands from cwd before PATHEXT expansion, handles drive/UNC absolute paths via win32.isAbsolute/normalize, preserves semicolon PATH search only for bare commands, and leaves POSIX slash/path-delimiter behavior unchanged. Existing targeted build/smoke/contract evidence is PASS; incremental review confirmed the explicit cwd binary is distinguished from a same-name PATH binary and content changes alter executableDigest/identity.",
+      "resolvedAt": "2026-07-16T17:39:11.776Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-914f:F-015",
