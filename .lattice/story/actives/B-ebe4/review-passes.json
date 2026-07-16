@@ -46,6 +46,49 @@
       },
       "readDiagnostics": [],
       "_hash": "0b4c2cfcf0563eceb329da190eb689bdc30f8c852f51650f007e8ff9ca2c16a2"
+    },
+    {
+      "id": "B-ebe4:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 targeted quality re-review passed: raw-argv authority preflight now precedes strict checks, active-story reads, init/dashboard, stale lookup and dispatch; stale help/version are blocked, only explicit global-fallback session_brief is exempt; recovery quoting preserves inert arguments; focused smoke proves zero rejected-path mutations.",
+      "createdAt": "2026-07-16T21:33:17.474Z",
+      "reviewRound": "2026-07-16T21:30:13.170Z",
+      "reviewRunId": "B-ebe4:RR-011",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "9fa230d14be8e88d3faf00e848769ead947fb977de8e6bad35a4f49ff97cb090",
+        "corpusDigest": "c32857bb0dce01204444115f085cb28f4df249ebca7e92092085ebdf61db9d44"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "09499903b7d206680c55c466eb55a970a12b22561bec73f4f8b0c9066a4c757c"
+      },
+      "readDiagnostics": [],
+      "_hash": "b2cebde815feec7452bc3908fbe2b46ee1823d953e5a8059a10d86ec1595295a"
     }
   ]
 }
