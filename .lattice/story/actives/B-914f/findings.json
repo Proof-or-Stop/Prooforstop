@@ -59,6 +59,21 @@
       "_hash": "10044a2c30b05b7cc3aa44e1db55b7625b07e20205626eee33357aa8c77b4da6",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-914f:F-005",
+      "desc": "packages/main/src/core/validation-evidence-reuse.ts:184-195,246 — HIGH: isReusableCommandPass accepts complete=true/status=PASS with any nonnegative commandCount but never binds commandCount to currentIdentity.commands.length. A crafted or corrupted receipt can claim commandCount=0 for an identity containing a real failing command and evaluateRoutineValidationReuse returns reusable=true, bypassing execution. Repro: the reviewer built a one-command identity, supplied structured PASS/complete with commandCount=0, and observed {reusable:true}. WHY: CHK-005 adversarial requires forged/contradictory commandExecution to fail closed; require commandCount === current identity command count (and validate count fields) before reuse, with a regression that proves the real command executes.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-16T14:32:08.158Z",
+      "reviewRound": "2026-07-16T14:28:44.516Z",
+      "reviewRunId": "B-914f:RR-003",
+      "_hash": "4f17e7ad5e8966e32c4d77e5aafca2d37c2ae4cded4efe0a6cd3856da4e48134",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
