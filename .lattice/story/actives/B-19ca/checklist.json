@@ -133,6 +133,7 @@
       "context": "Add table-driven positive and negative coverage, validate schema-valid example payloads, and update process-fact registry/contract verification whenever gate-consumed reviewer semantics change.",
       "relatedDocs": [
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#83-acceptance",
+        "docs/requirements/decisions/role-separation.md",
         "AGENTS.md#流程事实双层契约"
       ],
       "status": "pending",
@@ -183,7 +184,8 @@
           "packages/main/src/core/process-fact-levels.ts",
           "scripts/verify-process-fact-contract.mjs",
           "packages/main/src/tasks/command-catalog-smoke.ts",
-          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md"
         ],
         "create": [
           "packages/main/src/tasks/agent-dispatch-registry-smoke.ts"
