@@ -46,6 +46,7 @@ import {
   withValidationExecutionLock,
 } from '../core/validation-execution-lock.js';
 import { MKDIR_LOCK_HOLDER_FILE } from '../core/mkdir-lock.js';
+import { MAIN_TOOLS } from '../cli-engine.js';
 
 const DEFAULT_STORY_ID = 'B-validate-lock';
 const NOW = '2026-06-24T00:00:00.000Z';
@@ -154,15 +155,6 @@ async function waitForEntered(root: string, count: number, timeoutMs: number): P
     await sleep(25);
   }
   return enteredCount(root) >= count;
-}
-
-async function waitForFile(path: string, timeoutMs: number): Promise<boolean> {
-  const deadline = Date.now() + timeoutMs;
-  while (Date.now() < deadline) {
-    if (existsSync(path)) return true;
-    await sleep(25);
-  }
-  return existsSync(path);
 }
 
 function spawnCommand(root: string, args: string[], label: string, extraEnv: Record<string, string> = {}): SpawnedChild {
@@ -318,33 +310,30 @@ async function assertSameStoryMutualExclusion(): Promise<void> {
 
 async function assertPostCommandPersistenceHoldsLock(): Promise<void> {
   const { root, storyId } = setupFixture({ storyId: 'B-validate-evidence-race' });
-  const holdFile = join(root, 'post-command.hold');
-  const readyFile = join(root, 'post-command.ready');
   try {
-    writeFileSync(holdFile, 'hold older validate after its command exits\n', 'utf8');
-    const older = spawnValidate(root, storyId, 'older-post-command', {
-      LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_HOLD_FILE: holdFile,
-      LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_READY_FILE: readyFile,
-      LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_TIMEOUT_MS: '12000',
+    // Capability-limited test harness: the closure and its fixed StoryStore
+    // target exist only in this task process. No CLI flag, handler argument, or
+    // environment value can select a path, command, argv, cwd, or shell option.
+    let signalPostCommand!: () => void;
+    const postCommandReached = new Promise<void>((resolveReached) => { signalPostCommand = resolveReached; });
+    let allowPersistence!: () => void;
+    const persistenceRelease = new Promise<void>((resolveRelease) => { allowPersistence = resolveRelease; });
+    const older = withValidationExecutionLock({
+      root,
+      storyId,
+      workspaceRoot: root,
+      command: 'validate-lock-capability-test',
+    }, async () => {
+      signalPostCommand();
+      await persistenceRelease;
+      new StoryStore(root).writeTestEvidence(storyId, {
+        command: 'validate-lock-capability-test',
+        output: 'capability-limited post-command evidence persistence passed',
+        result: 'PASS',
+        timestamp: NOW,
+      });
     });
-    const olderEntered = await waitForEntered(root, 1, 4000);
-    if (!olderEntered) {
-      rmSync(holdFile, { force: true });
-      release(root);
-      const olderResult = await waitChild(older, 4000);
-      assert.fail([
-        'precondition: older validate command entered before post-command hold',
-        `olderExit=${olderResult.code}`,
-        `olderOutput=${olderResult.output.slice(0, 2000)}`,
-      ].join('\n'));
-    }
-
-    release(root);
-    assert.equal(
-      await waitForFile(readyFile, 4000),
-      true,
-      'older validate must reach the post-command pre-persistence hold',
-    );
+    await postCommandReached;
 
     const newer = spawnValidate(root, storyId, 'newer-post-command');
     const newerResult = await waitChild(newer, 5000);
@@ -353,20 +342,61 @@ async function assertPostCommandPersistenceHoldsLock(): Promise<void> {
     assert.match(newerResult.output, /validation execution|already running|is blocked/);
     assert.equal(
       enteredCount(root),
-      1,
+      0,
       'newer validate must not enter the validation command while older validate is between command exit and evidence persistence',
     );
 
-    rmSync(holdFile, { force: true });
-    const olderResult = await waitChild(older, 12000);
-    assert.equal(olderResult.code, 0, olderResult.output);
+    allowPersistence();
+    await older;
 
     const evidence = new StoryStore(root).readTestEvidence(storyId);
     assert.ok(evidence, 'older validate must persist test evidence after the post-command hold releases');
-    assert.match(evidence.output, /probe older-post-command passed/);
+    assert.match(evidence.output, /capability-limited post-command evidence persistence passed/);
     assert.doesNotMatch(evidence.output, /probe newer-post-command passed/);
   } finally {
-    rmSync(holdFile, { force: true });
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertRetiredRaceSeamIsProductionUnreachable(): Promise<void> {
+  const verifierSource = readFileSync(join(repoRoot(), 'packages/main/src/handlers/verifier.ts'), 'utf8');
+  for (const retired of [
+    'LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_HOLD_FILE',
+    'LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_READY_FILE',
+    'LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_TIMEOUT_MS',
+  ]) {
+    assert.doesNotMatch(verifierSource, new RegExp(retired), `${retired} must be absent from production verifier`);
+  }
+  const validateSchema = MAIN_TOOLS.find(tool => tool.name === 'validate')?.schema;
+  assert.ok(validateSchema, 'validate public schema exists');
+  assert.equal(Object.keys(validateSchema).some(key => /SMOKE|TEST.*(?:FILE|COMMAND|HOLD|READY)/i.test(key)), false,
+    'public validate schema exposes no race capability');
+
+  const { root, storyId } = setupFixture({ storyId: 'B-retired-seam-unreachable' });
+  const trapReady = join(root, 'caller-selected.ready');
+  const trapHold = join(root, 'caller-selected.hold');
+  try {
+    const unknownFlag = spawnCommand(root, [
+      'validate',
+      `--story=${storyId}`,
+      '--json',
+      `--LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_READY_FILE=${trapReady}`,
+    ], 'unknown-race-flag');
+    const rejected = await waitChild(unknownFlag, 5000);
+    assert.notEqual(rejected.code, 0, 'unknown caller-selected race capability flag must be rejected');
+    assert.equal(existsSync(trapReady), false, 'unknown flag must not create caller-selected ready path');
+
+    release(root);
+    const inherited = spawnValidate(root, storyId, 'retired-env-control', {
+      LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_HOLD_FILE: trapHold,
+      LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_READY_FILE: trapReady,
+      LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_TIMEOUT_MS: '1',
+    });
+    const result = await waitChild(inherited, 12000);
+    assert.equal(result.code, 0, result.output);
+    assert.equal(existsSync(trapReady), false, 'inherited environment cannot create caller-selected ready path');
+    assert.equal(existsSync(trapHold), false, 'inherited environment cannot create caller-selected hold path');
+  } finally {
     rmSync(root, { recursive: true, force: true });
   }
 }
@@ -669,6 +699,7 @@ void (async () => {
   try {
     await assertSameStoryMutualExclusion();
     await assertPostCommandPersistenceHoldsLock();
+    await assertRetiredRaceSeamIsProductionUnreachable();
     await assertDifferentWorktreesCanValidateConcurrently();
     await assertReviewerWritesAreNotBlocked();
     await assertDeliveryCheckSetIsNotBlocked();
@@ -678,7 +709,7 @@ void (async () => {
     await assertVanishedOwnerReclaimed();
     await assertMismatchedOwnerReclaimed();
     await assertReentrantButNotSiblingBypass();
-    console.log('validate-execution-lock smoke passed: 11 assertions');
+    console.log('validate-execution-lock smoke passed: 12 assertions');
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
     process.exit(1);
