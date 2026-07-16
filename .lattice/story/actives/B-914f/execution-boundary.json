@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-914f",
+  "allowedCommands": [],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/requirements/decisions",
+    "packages/main/src/core/done-prepare-validation-reuse.ts",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/core/validation-types.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/tasks",
+    "scripts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Limit implementation to ordinary validate reuse, shared lineage extraction, evidence identity/schema, observability, and direct tests/docs. No other roadmap workstreams.",
+  "createdAt": "2026-07-16T13:48:26.535Z",
+  "updatedAt": "2026-07-16T13:48:26.535Z",
+  "_hash": "e48be032197b245e04072e99e450f4b39ab5a04f256ad02547913711df4cc3eb"
+}
