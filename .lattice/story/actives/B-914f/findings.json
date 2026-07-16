@@ -189,6 +189,57 @@
       "resolvedAt": "2026-07-16T15:02:38.167Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-914f:F-011",
+      "desc": "packages/main/src/handlers/verifier.ts:588-591 — HIGH: the deterministic TOCTOU smoke seam is compiled into the production validate handler and trusts LATTICE_VALIDATE_REUSE_SMOKE_DIRTY_FILE_BEFORE_FINAL_SNAPSHOT as an arbitrary write target. Any inherited/mistyped environment value makes every story validation overwrite that path with writeFileSync before executing; the path is not restricted to a temp fixture or even the project root, so a test hook can corrupt source, config, credentials, or another writable file. Move the race injection behind an injected test dependency/callback used only by the smoke (or otherwise make production builds incapable of this write), while retaining the two-snapshot integration proof.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-16T15:07:45.292Z",
+      "reviewRound": "2026-07-16T15:02:21.339Z",
+      "reviewRunId": "B-914f:RR-009",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/done-prepare-validation-reuse.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "585f04e2d85567a25c9355e986bc487bc5833eac3772ec1618e44b7aa3afc522"
+      },
+      "readDiagnostics": [],
+      "_hash": "bf59996c3ef1361230c973ef3eb333112405cdada0c861faac334cb0d65a1254",
+      "files": [
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
