@@ -280,9 +280,9 @@
       "relatedDocs": [
         "AGENTS.md#流程事实双层契约"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-16T14:27:11.054Z",
-      "endTime": null,
+      "endTime": "2026-07-16T14:27:36.615Z",
       "verificationIntent": {
         "happy": [
           {
@@ -339,7 +339,75 @@
         "test": [
           "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "Dedicated smoke passed real executed-to-reused handler flow, identity mutations, fail-closed refusals, B-19ca coverage-only reuse, lineage, TOCTOU, and no-write assertions.",
+          "headHash": "9720904b415219bcd6851968fbf71e7d2cac8f0a",
+          "materialHash": "2c34a5dee73bc4863912aa7be0dbad685624dc1ba2a5f0edf793932d8c34d97d",
+          "storyFilesHash": "117a8d4c12760110cf7556ddf36c2dde023b56ebf03ce6de550a5daa6b325675",
+          "timestamp": "2026-07-16T14:27:36.988Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "Dedicated smoke passed real executed-to-reused handler flow, identity mutations, fail-closed refusals, B-19ca coverage-only reuse, lineage, TOCTOU, and no-write assertions.",
+          "headHash": "9720904b415219bcd6851968fbf71e7d2cac8f0a",
+          "materialHash": "2c34a5dee73bc4863912aa7be0dbad685624dc1ba2a5f0edf793932d8c34d97d",
+          "storyFilesHash": "117a8d4c12760110cf7556ddf36c2dde023b56ebf03ce6de550a5daa6b325675",
+          "timestamp": "2026-07-16T14:27:37.399Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "Dedicated smoke passed real executed-to-reused handler flow, identity mutations, fail-closed refusals, B-19ca coverage-only reuse, lineage, TOCTOU, and no-write assertions.",
+          "headHash": "9720904b415219bcd6851968fbf71e7d2cac8f0a",
+          "materialHash": "2c34a5dee73bc4863912aa7be0dbad685624dc1ba2a5f0edf793932d8c34d97d",
+          "storyFilesHash": "117a8d4c12760110cf7556ddf36c2dde023b56ebf03ce6de550a5daa6b325675",
+          "timestamp": "2026-07-16T14:27:37.782Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "Dedicated smoke passed real executed-to-reused handler flow, identity mutations, fail-closed refusals, B-19ca coverage-only reuse, lineage, TOCTOU, and no-write assertions.",
+          "headHash": "9720904b415219bcd6851968fbf71e7d2cac8f0a",
+          "materialHash": "2c34a5dee73bc4863912aa7be0dbad685624dc1ba2a5f0edf793932d8c34d97d",
+          "storyFilesHash": "117a8d4c12760110cf7556ddf36c2dde023b56ebf03ce6de550a5daa6b325675",
+          "timestamp": "2026-07-16T14:27:38.177Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "Dedicated smoke passed real executed-to-reused handler flow, identity mutations, fail-closed refusals, B-19ca coverage-only reuse, lineage, TOCTOU, and no-write assertions.",
+          "headHash": "9720904b415219bcd6851968fbf71e7d2cac8f0a",
+          "materialHash": "2c34a5dee73bc4863912aa7be0dbad685624dc1ba2a5f0edf793932d8c34d97d",
+          "storyFilesHash": "117a8d4c12760110cf7556ddf36c2dde023b56ebf03ce6de550a5daa6b325675",
+          "timestamp": "2026-07-16T14:27:38.556Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "Dedicated smoke passed real executed-to-reused handler flow, identity mutations, fail-closed refusals, B-19ca coverage-only reuse, lineage, TOCTOU, and no-write assertions.",
+          "headHash": "9720904b415219bcd6851968fbf71e7d2cac8f0a",
+          "materialHash": "2c34a5dee73bc4863912aa7be0dbad685624dc1ba2a5f0edf793932d8c34d97d",
+          "storyFilesHash": "117a8d4c12760110cf7556ddf36c2dde023b56ebf03ce6de550a5daa6b325675",
+          "timestamp": "2026-07-16T14:27:38.966Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
