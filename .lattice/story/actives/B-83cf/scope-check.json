@@ -1,0 +1,143 @@
+{
+  "storyId": "B-83cf",
+  "checkedAt": "2026-07-16T18:26:16.918Z",
+  "features": [
+    {
+      "feature": "Canonical keyId, validationDigest, and promptDigest derivation is shared rather than duplicated",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "background.md; understanding.json; plan.md"
+    },
+    {
+      "feature": "Shared derivation preserves existing quorum schema versions, purpose, envelopes, and byte-for-byte outputs",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decision.json; plan.md; review-assurance-floor-execution-plan.md"
+    },
+    {
+      "feature": "Shared helper fails closed on incomplete canonical story/material/story-files/host identity inputs",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json; checklist CHK-001 verificationIntent"
+    },
+    {
+      "feature": "Existing two-independent-host quorum semantics and duplicate identity rejection remain unchanged",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md; checklist CHK-001 verificationIntent"
+    },
+    {
+      "feature": "Single-host binding derivation is enabled only through an explicit deriveBindings opt-in",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decision.json; plan.md"
+    },
+    {
+      "feature": "Explicit mode resolves current authoritative story/evidence bindings and rejects stale or conflicting supplied values before persistence",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json; plan.md; checklist CHK-002 verificationIntent"
+    },
+    {
+      "feature": "Flag-absent autopilot_review_submit retains legacy warning-and-record behavior",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decision.json; plan.md; checklist CHK-002 verificationIntent"
+    },
+    {
+      "feature": "A single-host submission writes exactly one real-host verdict and never invents a second host, quorum, Authority receipt, or release claim",
+      "covered_by": "CHK-002,CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json; plan.md; review-assurance-floor-execution-plan.md"
+    },
+    {
+      "feature": "Fallback guidance prints a directly executable command without private-digest placeholders",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "background.md; plan.md; checklist CHK-003 verificationIntent"
+    },
+    {
+      "feature": "Three current-material rounds from one host count only under an explicit eligible degraded fallback and report degraded-single-host",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json; review-assurance-floor-execution-plan.md; checklist CHK-003 verificationIntent"
+    },
+    {
+      "feature": "Gate-consumed binding semantics and fallback guidance are registered in process-fact contract and covered by focused regression tests",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json; plan.md; checklist CHK-003 verificationIntent"
+    },
+    {
+      "feature": "B-914f routine validation reuse implementation",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly excluded; B-83cf only removes the assurance-submission blocker and does not modify validation reuse.",
+      "source": "plan.md Exclusions"
+    },
+    {
+      "feature": "Self-host/global runtime entrypoint routing",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly excluded for a later runtime-authority story.",
+      "source": "plan.md Exclusions"
+    },
+    {
+      "feature": "Weakening quorum host-count or independent-host requirements",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicit non-goal; existing 3x2 semantics must remain unchanged and have regression coverage.",
+      "source": "plan.md Exclusions; review-assurance-floor-execution-plan.md Non-Goals"
+    },
+    {
+      "feature": "Remote release, Authority completion, fullAuthorityDone, or productionDone behavior",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Local degraded verdicts remain non-authority evidence; remote release behavior is outside this story.",
+      "source": "plan.md Exclusions; review-assurance-floor-execution-plan.md"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-83cf/background.md",
+      ".lattice/story/actives/B-83cf/checklist.json",
+      ".lattice/story/actives/B-83cf/decision.json",
+      ".lattice/story/actives/B-83cf/plan.md",
+      ".lattice/story/actives/B-83cf/understanding.json",
+      "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+      "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+      "docs/requirements/decisions/cc-learnings.md",
+      "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+      "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+      "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md",
+      "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+      "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null,
+    "candidateSpecSetDigest": "1427b346a824cddb2c734870beda97a9691d852061a63ed93b7d36b0693c0ef2",
+    "corpusDigest": "fab7461b8085dde0edf5b3e6e93634e3382fd96e190816832e09d598eccb36de"
+  },
+  "summary": {
+    "total": 15,
+    "covered": 11,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "5ba3edba8a1219d8075be7bca653a551de6717e676cb049f0522c2dae1bc062c",
+  "openQuestions": []
+}
