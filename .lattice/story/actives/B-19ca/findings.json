@@ -259,7 +259,7 @@
       "desc": "packages/main/src/tasks/flow-stability-smoke.ts:540-560 — full regression smoke is incompatible with the new fail-closed dispatch phase contract. assertDispatchPromptsPinImplementerCommitAuthor creates a REVIEW-phase fixture, then dispatches the default item/finding implementer paths; lattice-implementer is registry-authorized only in DEV/TEST_CASE, so node packages/main/dist/tasks/flow-stability-smoke.js deterministically exits 1 with invalid_dispatch_phase before the suite can complete. F-010 targeted coverage itself passes (experience-layer-finding-enums 21/21, trusted host positives, eight exact lookalike no-write negatives), but the story cannot claim regression completeness until this fixture enters DEV or explicitly exercises the proper role/phase pair while retaining its commit-author assertions.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-16T12:19:19.142Z",
@@ -271,7 +271,11 @@
         "packages/main/src/core/agent-dispatch-registry.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit cc77ca20b2 corrects the flow-stability implementer commit-author fixture to the legal DEV phase, preserving the assertion while keeping production registry phase enforcement strict; flow-stability-smoke now passes.",
+      "resolvedAt": "2026-07-16T12:25:42.316Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
