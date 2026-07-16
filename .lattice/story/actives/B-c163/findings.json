@@ -1096,6 +1096,26 @@
       ],
       "signatureTag": "missing|ts|round-adds-correct",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c163:F-031",
+      "desc": "Producer status does not implement the newly registered failed-evidence semantics for malformed or cross-story artifacts. classifyTranscript() returns present-stale on JSON parse failure (lines 331-336) and declares parsed.storyId but never compares it with the requested story before returning present-fresh (lines 323-349). Thus a well-formed successful transcript copied from another story can be rendered present(fresh), and malformed evidence is rendered stale, while PROCESS_FACT_LEVELS explicitly claims both are classified present-failed. The shared DONE evaluator still blocks these artifacts, so this is not a DONE bypass, but producer/operator status contradicts the L4 fact and the current smoke suite does not cover either branch. Reuse evaluateOptionalLiveSmokeTranscript (or identical storyId/malformed checks) before freshness classification and add async/status tests for malformed and cross-story artifacts.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-16T01:48:15.934Z",
+      "reviewRound": "2026-07-16T01:45:18.901Z",
+      "reviewRunId": "B-c163:RR-074",
+      "_hash": "48aeb1831d891b99b4502e305d6c3b2ba514fec524077598ffec20b2e6521545",
+      "files": [
+        "packages/main/src/handlers/live-smoke-transcript.ts",
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|producer-status-implement",
+      "signatureTagSource": "auto"
     }
   ]
 }
