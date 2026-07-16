@@ -178,10 +178,13 @@
       "q": "Does validation identity hash only stable required-intent/policy inputs, or also mutable verificationEvidence rows and freshness bindings?",
       "evidence": "Hashing verificationEvidence defeats the metadata-refresh reuse case; omitting required-intent/policy projection could reuse a narrower claim.",
       "sourcePointers": [
-        ".lattice/story/actives/B-914f/understanding.json",
-        ".lattice/story/actives/B-914f/checklist.json#CHK-001",
-        ".lattice/story/actives/B-914f/checklist.json#CHK-004"
-      ]
+        "CHK-001",
+        "CHK-002",
+        "CHK-005",
+        "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+      ],
+      "resolution": "The validation identity binds stable required-intent definitions and workflow verification policy, but excludes mutable verificationEvidence records and their timestamps/hashes. Current evidence coverage is recomputed at each reuse decision, so repairing evidence can enable reuse without changing command identity while requirement or policy changes force execution.",
+      "resolvedAt": "2026-07-16T14:01:01.033Z"
     },
     {
       "id": "OQ-003",
