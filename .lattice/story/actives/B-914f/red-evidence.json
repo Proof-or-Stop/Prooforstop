@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-914f",
+  "records": [
+    {
+      "id": "RED-VALIDATE-REUSE",
+      "trigger": "B-19ca pre-fix validation executed all 45 commands successfully, persisted overall FAIL solely for stale coverage, then after verificationEvidence refresh executed the identical 45-command plan again for 370 seconds.",
+      "acceptanceTargetRef": "ACCEPT-REUSE",
+      "baselineHeadHash": "b2b72d26ba896420c4a58012e042424c5546202d",
+      "baselineMaterialHash": "bc56cb1d24054836b0cb5c862fecd813e2626cecc13ce5313aa2573f2df0b8da",
+      "observedFailure": "On unchanged materialHash, storyFilesHash, command plan and environment, the second routine validation invoked 45 commands instead of reusing the prior successful command execution; command execution and coverage were collapsed into one FAIL result.",
+      "failingCommand": "lattice validate --story=B-19ca --json",
+      "expectedGreenCommand": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+      "greenRelation": {
+        "targetRef": "ACCEPT-REUSE",
+        "relation": "regression_to_green",
+        "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js"
+      },
+      "note": "Historical red is mechanically grounded by B-19ca TEST evidence: first run 45/45 command PASS plus missing 18 coverage, refresh, then second identical run 370s. The green smoke will recreate this locally with command invocation counters.",
+      "createdAt": "2026-07-16T14:07:05.871Z"
+    }
+  ],
+  "createdAt": "2026-07-16T14:07:05.871Z",
+  "updatedAt": "2026-07-16T14:07:05.871Z"
+}

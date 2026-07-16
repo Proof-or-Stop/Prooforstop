@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "proofstory.slice_plan.v1",
+  "storyId": "B-914f",
+  "ledgerHash": "sha256:72560a88287627b4f10198ed20128fd50d20c729f218d4f35dc05ba7ccbcfb00",
+  "slices": [
+    {
+      "id": "slice-runtime-reuse",
+      "milestoneIds": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5"
+      ],
+      "reason": "The identity, commandExecution model, locked decision, observability and multi-source regression are one atomic runtime contract; splitting them would leave an unsafe or untestable partial cache.",
+      "assignedStory": "B-914f"
+    },
+    {
+      "id": "slice-canonical-contract",
+      "milestoneIds": [
+        "M6"
+      ],
+      "reason": "The canonical subsystem document is a separately reviewable delivery slice but must land in the same story so code, evidence schema and process-fact semantics cannot diverge.",
+      "assignedStory": "B-914f"
+    }
+  ],
+  "planHash": "sha256:851e2eb762ca884c8110f0b81233f695284e3ee837e9ad2fa92e1c1c5ad7609c",
+  "createdAt": "2026-07-16T14:07:06.403Z",
+  "updatedAt": "2026-07-16T14:07:06.403Z"
+}

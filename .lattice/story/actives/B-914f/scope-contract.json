@@ -1,0 +1,30 @@
+{
+  "storyId": "B-914f",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/validation-types.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/done-prepare-validation-reuse.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/validation-evidence-reuse.ts",
+    "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-16T14:07:21.711Z",
+  "updatedAt": "2026-07-16T14:07:21.711Z"
+}
