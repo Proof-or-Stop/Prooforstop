@@ -1,6 +1,6 @@
 {
   "storyId": "B-914f",
-  "checkedAt": "2026-07-16T13:58:10.715Z",
+  "checkedAt": "2026-07-16T14:03:03.525Z",
   "features": [
     {
       "feature": "Unchanged clean material plus identical validation identity returns a fast auditable PASS with zero command executions.",
@@ -10,25 +10,25 @@
       "source": ".lattice/story/actives/B-914f/understanding.json"
     },
     {
-      "feature": "Versioned identity binds source kind, ordered normalized command specs/digests, entrypoint/config, full/focus/profile, and effective verification policy/coverage inputs.",
-      "covered_by": "CHK-001",
+      "feature": "Versioned identity binds source kind, ordered normalized command specs/digests, entrypoint/config, full/focus/profile, stable required-intent policy, effective child environment, platform/arch/Node.",
+      "covered_by": "CHK-001, CHK-005",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-914f/checklist.json"
+      "source": ".lattice/story/actives/B-914f/plan.md"
     },
     {
-      "feature": "Routine and DONE reuse share one exact-head/trusted-story-metadata-descendant lineage primitive without copying DONE-only proof semantics.",
+      "feature": "Routine and DONE reuse share exact-head/trusted-story-metadata-descendant lineage without copying DONE-only proof semantics.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-914f/decision.json"
     },
     {
-      "feature": "Reuse requires a clean tree, prior eligible evidence, complete current coverage, matching material/story/identity, accepted lineage, and stable second HEAD.",
-      "covered_by": "CHK-002",
+      "feature": "Reuse requires clean tree, eligible structured commandExecution PASS, complete recomputed current coverage, matching bindings/identity, accepted lineage and stable second HEAD.",
+      "covered_by": "CHK-002, CHK-005",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-914f/checklist.json"
+      "source": ".lattice/story/actives/B-914f/plan.md"
     },
     {
       "feature": "Read/check/double-HEAD/execute-or-reuse decision occurs inside withValidationExecutionLock.",
@@ -38,95 +38,102 @@
       "source": ".lattice/story/actives/B-914f/plan.md"
     },
     {
-      "feature": "Legacy, malformed, forged, unreadable, dirty, mismatched, untrusted, or TOCTOU-unstable cases fail closed to real execution.",
-      "covered_by": "CHK-001, CHK-002, CHK-004",
+      "feature": "Legacy, malformed, forged, unreadable, dirty, mismatched, untrusted, command-failed, infra-failed, partial, or TOCTOU-unstable cases fail closed.",
+      "covered_by": "CHK-001, CHK-002, CHK-004, CHK-005",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-914f/checklist.json"
     },
     {
-      "feature": "Configured-command, fallback-discovery, and validate-file sources share the safety contract while retaining source identity.",
+      "feature": "Configured-command, fallback-discovery, validate-file and no-validator branches remain safe under the reuse contract.",
       "covered_by": "CHK-001, CHK-002, CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-914f/background.md"
+      "source": ".lattice/story/actives/B-914f/plan.md"
     },
     {
-      "feature": "Executed/reused disposition, lineage and identity basis, and precise stable refusal reasons are operator-visible.",
+      "feature": "Executed/reused disposition, lineage/identity basis and precise refusal reasons are operator-visible.",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-914f/understanding.json"
     },
     {
-      "feature": "Reuse does not rewrite test evidence, auto-commit metadata, move HEAD, or recreate a self-invalidating loop.",
-      "covered_by": "CHK-003, CHK-004",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-914f/checklist.json"
-    },
-    {
-      "feature": "Real execution persists the complete identity for later reuse evaluation.",
-      "covered_by": "CHK-003",
+      "feature": "Reuse composes stored command PASS with freshly recomputed coverage without rewriting evidence, auto-committing, or moving HEAD.",
+      "covered_by": "CHK-003, CHK-005",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-914f/plan.md"
     },
     {
-      "feature": "Table-driven tests cover each identity/freshness mutation, exact/trusted lineage, dirt, malformed/error paths, and deterministic TOCTOU.",
-      "covered_by": "CHK-004",
+      "feature": "Real execution persists structured commandExecution completeness/verdict and identity independently from overall coverage verdict.",
+      "covered_by": "CHK-003, CHK-005",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-914f/checklist.json"
     },
     {
-      "feature": "Verification includes focused smoke, build, process-fact contract, routine validation, DONE-required suite, and real-machine reuse transcript.",
-      "covered_by": "CHK-004",
+      "feature": "Table-driven tests cover each identity/freshness mutation, lineage, dirt, malformed/error, forged contradiction and deterministic TOCTOU.",
+      "covered_by": "CHK-004, CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-914f/checklist.json"
+    },
+    {
+      "feature": "Verification includes focused smoke, build, process-fact contract, routine validation, DONE-required suite and real-machine reuse transcript.",
+      "covered_by": "CHK-004, CHK-006",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-914f/plan.md"
     },
     {
-      "feature": "Gate-consumed identity/reuse semantics update the process-fact registry and contract verifier.",
-      "covered_by": "CHK-003",
+      "feature": "Gate-consumed identity, commandExecution composition and reuse semantics update the process-fact registry and verifier.",
+      "covered_by": "CHK-003, CHK-006",
       "status": "covered",
       "excluded_by": null,
       "source": "AGENTS.md#流程事实双层契约"
     },
     {
       "feature": "Reuse can roll back independently to existing always-execute behavior without destructive evidence migration.",
-      "covered_by": "CHK-001, CHK-002, CHK-003, CHK-004",
+      "covered_by": "CHK-001, CHK-002, CHK-003, CHK-005, CHK-006",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-914f/plan.md"
     },
     {
+      "feature": "B-19ca command PASS survives an overall coverage-only FAIL; after trusted verificationEvidence repair and complete current coverage, the next validation reuses with zero commands.",
+      "covered_by": "CHK-004, CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-914f/checklist.json"
+    },
+    {
+      "feature": "A dedicated routine-validation-fresh-pass-reuse subsystem decision is canonical and the umbrella plan only links/summarizes it.",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-914f/checklist.json"
+    },
+    {
       "feature": "Adopt DONE-specific build-proof and command-spec proof semantics into routine validate.",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Explicit boundary keeps DONE-only proof under the canonical DONE evaluator and shares lineage only.",
+      "excluded_by": "The shared lineage core is reused; DONE-only proof remains under the canonical DONE evaluator.",
       "source": ".lattice/story/actives/B-914f/background.md"
     },
     {
       "feature": "Change timeout sizing or infra_failure phase-backstep semantics.",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Trigger analysis scopes this story to redundant routine execution; those hardening items remain separate.",
+      "excluded_by": "This story targets redundant routine execution; timeout and phase-backstep hardening remain separate.",
       "source": ".lattice/story/actives/B-914f/background.md"
     },
     {
-      "feature": "B-19ca regression reuses command execution after 45/45 commands PASS but overall validation is persisted FAIL solely for stale coverage.",
-      "covered_by": null,
-      "status": "gap",
+      "feature": "All prior overall FAIL evidence must execute, and changing the prior overall result alone must always force execution.",
+      "covered_by": "CHK-002, CHK-004",
+      "status": "drift",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-914f/checklist.json"
-    },
-    {
-      "feature": "Shipped routine-validation identity/reuse semantics have a canonical subsystem source of truth rather than only the non-authoritative umbrella plan.",
-      "covered_by": null,
-      "status": "gap",
-      "excluded_by": null,
-      "source": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
     }
   ],
   "readManifest": {
@@ -148,54 +155,18 @@
     ],
     "filesTriagedByName": [],
     "scanEscalationReason": null,
-    "candidateSpecSetDigest": "6ab5a1dfe0a3e9650db068d8bc0bf4711af3c58b257019ed4a6d6852d54cab94",
+    "candidateSpecSetDigest": "42ce1e9cfb8e520d9ee1095afee5ad66d55cdcfc69b5d4e70a60d38f2aa4b79d",
     "corpusDigest": "fab7461b8085dde0edf5b3e6e93634e3382fd96e190816832e09d598eccb36de"
   },
   "summary": {
-    "total": 18,
-    "covered": 14,
+    "total": 19,
+    "covered": 16,
     "excluded": 2,
-    "gaps": 2,
+    "gaps": 0,
     "orphanSuspect": 0,
-    "drift": 0
+    "drift": 1
   },
   "reviewRound": "",
-  "_hash": "c50daf0f9646416dc9b3627f95fa0bbff859bbb0bbc11781809aa336ef29ac0b",
-  "openQuestions": [
-    {
-      "id": "OQ-001",
-      "q": "Must previous overall TestEvidenceData.result be PASS, or can a separately persisted command-execution PASS be reused when overall FAIL was caused only by stale verification coverage?",
-      "evidence": "verifier folds coverage into allPass and persists FAIL; CHK-002 requires prior PASS, while CHK-004 requires B-19ca zero-command reuse after coverage refresh.",
-      "sourcePointers": [
-        "CHK-005",
-        "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
-      ],
-      "resolution": "Previous overall TestEvidenceData.result need not be PASS. Reuse requires a separately persisted commandExecution.status=PASS with complete receipts and identity; the old overall FAIL must be coverage-only, and current verification coverage is recomputed and must have missingRequired=0 before returning reused PASS.",
-      "resolvedAt": "2026-07-16T14:01:00.402Z"
-    },
-    {
-      "id": "OQ-002",
-      "q": "Does validation identity hash only stable required-intent/policy inputs, or also mutable verificationEvidence rows and freshness bindings?",
-      "evidence": "Hashing verificationEvidence defeats the metadata-refresh reuse case; omitting required-intent/policy projection could reuse a narrower claim.",
-      "sourcePointers": [
-        "CHK-001",
-        "CHK-002",
-        "CHK-005",
-        "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
-      ],
-      "resolution": "The validation identity binds stable required-intent definitions and workflow verification policy, but excludes mutable verificationEvidence records and their timestamps/hashes. Current evidence coverage is recomputed at each reuse decision, so repairing evidence can enable reuse without changing command identity while requirement or policy changes force execution.",
-      "resolvedAt": "2026-07-16T14:01:01.033Z"
-    },
-    {
-      "id": "OQ-003",
-      "q": "What exact environment identity is promised: command env/cwd and executable/config digests only, or Node/package-manager/toolchain/OS; and is config hashing limited to effective validation/policy fields?",
-      "evidence": "The outcome promises execution on environment identity change, while CHK-001 does not define runtime/toolchain scope or unrelated config-key behavior.",
-      "sourcePointers": [
-        "CHK-001",
-        "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
-      ],
-      "resolution": "Environment identity is a digest of the exact effective child environment after explicit command env overlays, plus platform, architecture, Node version, resolved executable path and executable or validate-entrypoint content digest. Only the digest is persisted; raw environment names or secret-bearing values are never written. Any digest change forces real execution.",
-      "resolvedAt": "2026-07-16T14:01:02.148Z"
-    }
-  ]
+  "_hash": "76d5f24f770367f74553c535d29421823bdc378fa994614e224a675350befe8a",
+  "openQuestions": []
 }
