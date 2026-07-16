@@ -862,6 +862,56 @@
       ],
       "signatureTag": "edge|ts|actual-structured-terminal",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c163:F-025",
+      "desc": "The new PID-readiness harness cleans fs.watch, its probe, and its 15s readiness deadline idempotently on ready success/timeout, but it is not resource-safe after spawning the CLI. The spawned `cli` is not detached into its own process group and there is no outer try/finally that terminates it and awaits close. If `await ready` rejects, the readiness assertion/readFile throws, or another pre-close assertion fails, control reaches the block finally which only rmSyncs the fixture root; the CLI and descendants can remain alive. After readiness succeeds, `await closed` has no deadline, so the harness can hang forever precisely when a cleanup regression prevents CLI settlement. This means the test can leak the process tree or run unbounded on its failure paths even though its normal path passes. Spawn the CLI in an isolated group, add a single idempotent harness settle/cleanup routine that closes watcher/probe/deadlines, TERM->bounded KILLs the CLI group on every failure, awaits direct-child close/reap, and add a bounded post-readiness close deadline; ensure cleanup errors do not mask the original assertion. Add an injected handshake/close failure regression proving no surviving CLI/descendant and bounded completion. Production code is unchanged. Static audit: live-smoke-transcript-smoke.ts descendant block creates `cli` after the readiness Promise, then awaits ready/closed inside the outer try, while its finally only removes root. Normal smoke runs under review continue to execute, but their success cannot exercise this failure cleanup.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-16T00:38:04.706Z",
+      "reviewRound": "2026-07-16T00:35:36.874Z",
+      "reviewRunId": "B-c163:RR-059",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "ee43d3e2b5469d538009a5b942ce6b763cfbfb3744b1dd186c99d8e6637afd05",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "0a82fae49a41cf7fab4b7a52fff05801fee4ce9189e43827b1403c9c7951dfa9",
+      "files": [
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|readiness-harness-cleans",
+      "signatureTagSource": "auto"
     }
   ]
 }
