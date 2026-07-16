@@ -11,7 +11,50 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "In a self-host story worktree, canonicalize the invoked CLI runtime realpath, repository root, git worktree root, and git common-dir; classify a runtime resolving into the main checkout as a mismatch before any story-scoped mutation.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A worktree-local node bin/lattice.js runtime whose canonical realpath belongs to the active worktree is accepted and reaches normal command dispatch.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Classification is identical when the executable, repository path, or worktree path is reached through symlinks, and when .git is a worktree file pointing at a shared common-dir.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "An ordinary external consumer repository using a global Lattice installation is not rejected as a self-host mismatch; its existing advisory behavior remains intact.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Within a self-host worktree, the narrowly documented global-fallback exception permits read-only session_brief only; other commands remain subject to runtime authority classification.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Nested cwd, path aliases, dot-segments, and symlinked global launchers cannot make a main-checkout runtime appear worktree-local or bypass the mismatch decision.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Missing or malformed git worktree/common-dir metadata fails closed for story-scoped mutation without misclassifying a normal external repository as Proofbound self-hosting.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

@@ -1,0 +1,29 @@
+{
+  "task": "Prevent self-host story worktrees from silently executing a stale global Lattice runtime.",
+  "outcome": "A bare global lattice command launched inside a Proofbound story worktree exits before handler dispatch with reasonCode=stale_global_runtime_in_worktree and prints exactly one recovery command: node bin/lattice.js <same command>; the local entrypoint then succeeds.",
+  "facts": [
+    "B-914f spent 7 minutes 28 seconds under the main-workspace global runtime instead of the worktree build.",
+    "bin/bootstrap-runner.js already fails clearly when local dist artifacts are missing and marks global fallback heartbeat-only.",
+    "runtime-fact-registry.ts and runtime-environment-checks.ts already model cli entrypoint, global core realpath, self versus external scope, and doctor output.",
+    "runCli resolves normalized command, root and active story before handler registry dispatch, providing a pre-mutation enforcement seam.",
+    "resolveActiveCliEntrypoint already canonicalizes process.argv[1] through safeRealpath-aware classification, so a separate bootstrap marker is not required for symlinked launchers.",
+    "The only worktree exemption needed is an explicitly marked LATTICE_CODEX_ENTRYPOINT=global-fallback session_brief heartbeat; help/version return before dispatch, and post-merge main checks are not worktree mismatches."
+  ],
+  "constraints": [
+    "External consumer repositories must continue to use a global installation without a hard self-host mismatch gate.",
+    "Read-only global fallback may remain usable only for explicitly marked session_brief heartbeat in a self-host story worktree.",
+    "Detection must occur before expensive validation or story-scoped mutation and expose a stable reason code.",
+    "Runtime facts stay in runtime-fact-registry and its contract verifier; process facts are not expanded."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/runtime-environment-checks.ts",
+    "packages/main/src/core/runtime-fact-registry.ts",
+    "packages/main/src/tasks/validation-protocol-smoke.ts",
+    "scripts/verify-runtime-fact-contract.mjs",
+    "bin/bootstrap-runner.js",
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+  ],
+  "timestamp": "2026-07-16T20:47:19.831Z"
+}

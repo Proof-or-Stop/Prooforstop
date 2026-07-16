@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Reject wrong self-host runtime before handler dispatch",
+    "Keep external-project global usage compatible",
+    "Make authority mechanically observable and testable"
+  ],
+  "drivers": [
+    "Prevent minutes of invalid validation work",
+    "Avoid evidence produced by code other than the story worktree code",
+    "Reuse existing runtime-fact classification and doctor contract"
+  ],
+  "options": [
+    {
+      "name": "A: pre-dispatch self-host runtime authority guard",
+      "pros": [
+        "Stops expensive and mutating work before dispatch",
+        "Can reuse root, entrypoint and runtime realpath facts",
+        "Produces one stable recovery command"
+      ],
+      "cons": [
+        "Needs narrowly defined heartbeat exemptions",
+        "Must handle symlink and worktree paths carefully"
+      ]
+    },
+    {
+      "name": "B: doctor warning only",
+      "pros": [
+        "Small change",
+        "No compatibility risk for commands"
+      ],
+      "cons": [
+        "Does not stop stale mutation or validation",
+        "Operators can miss the warning until after wasted work"
+      ]
+    },
+    {
+      "name": "C: ban global lattice everywhere in worktrees",
+      "pros": [
+        "Simple invariant",
+        "Always favors local code"
+      ],
+      "cons": [
+        "Breaks explicit heartbeat fallback and some external-development launchers",
+        "Conflates missing local build with wrong runtime"
+      ]
+    }
+  ],
+  "chosen": "A: pre-dispatch self-host runtime authority guard",
+  "rationale": "Only option A prevents the observed B-914f waste before handler execution while preserving external consumers and using the runtime facts already maintained by doctor.",
+  "preMortem": [
+    {
+      "scenario": "A symlinked worktree-local launcher is mistaken for the main global runtime",
+      "trigger": "Comparison uses lexical paths instead of canonical realpaths and worktree/common-dir identity",
+      "consequence": "Valid local commands are blocked",
+      "mitigation": "Canonicalize entrypoint/core roots and test symlinked local launchers in hermetic main-plus-worktree fixtures."
+    },
+    {
+      "scenario": "The guard blocks external projects that correctly consume global Lattice",
+      "trigger": "Self-project detection treats any repository with lattice.config.json as Proofbound source",
+      "consequence": "Normal consumers cannot run commands",
+      "mitigation": "Require canonical self-source markers plus git worktree/common-dir relationship; external scope remains warn/advisory."
+    },
+    {
+      "scenario": "A stale runtime reaches mutation through an exempt command alias",
+      "trigger": "Exemption is name-based and nested aliases bypass normalization",
+      "consequence": "Wrong handlers still write evidence",
+      "mitigation": "Normalize aliases first and permit only explicit heartbeat marker plus read-only command policy; assert handler invocation count stays zero for all mutating aliases."
+    },
+    {
+      "scenario": "The diagnostic points to a local entrypoint whose dist is missing",
+      "trigger": "Recovery always prints node bin/lattice.js without bootstrap readiness context",
+      "consequence": "User hits a second opaque failure",
+      "mitigation": "Preserve bootstrap-runner missing-artifact diagnosis; authority guard recovery names local entrypoint and bootstrap supplies build steps when needed."
+    }
+  ],
+  "timestamp": "2026-07-16T20:46:49.139Z"
+}

@@ -4,7 +4,7 @@
   "title": "Fail fast when a worktree invokes a stale global Lattice runtime",
   "description": "Prevent self-host development commands in a story worktree from silently executing the main-workspace global lattice build. Detect runtime/root mismatch before mutating work, fail with a stable diagnostic, and direct operators to the current worktree-local node bin/lattice.js entrypoint.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "createdAt": "2026-07-16T20:42:50.683Z",
   "startedAt": "2026-07-16T20:42:50.683Z",
@@ -24,6 +24,15 @@
       "action": "advance",
       "timestamp": "2026-07-16T20:45:17.198Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-16T20:45:58.225Z",
+      "branch": "story/B-ebe4",
       "user": "Harmonygo",
       "sessionId": "codex-wa-final",
       "agent": "main"
