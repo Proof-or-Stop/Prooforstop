@@ -44,8 +44,24 @@
       "phase": "DEV",
       "headHash": "fd0622f5778b9461af4e4302e6be355b65b3546a",
       "materialHash": "a777dc7f2030d2ceae6bc4a6ed53ce1fa0ca005c6246e363ad7f5394c3448260"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Necessary double-contract fingerprint synchronization discovered by the blocking DONE-required npm test; only two exact expected literals changed, with no runtime or exemption expansion.",
+      "timestamp": "2026-07-16T22:24:03.247Z",
+      "paths": [
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "d178bdf13f3e960f9fd8edf9925413a4dceb9976",
+      "materialHash": "ff419037cdd5f65b32fa760512937c8632117800fa34852b8fe5df79678b98bf"
     }
   ],
   "createdAt": "2026-07-16T21:00:06.525Z",
-  "updatedAt": "2026-07-16T21:45:02.323Z"
+  "updatedAt": "2026-07-16T22:24:03.247Z"
 }
