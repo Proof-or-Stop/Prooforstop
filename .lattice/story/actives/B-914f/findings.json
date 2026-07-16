@@ -62,7 +62,7 @@
       "desc": "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md:43-52 — canonical contract says reuse requires an absolutely clean tracked/untracked worktree, while runtime intentionally permits canonical story-metadata/runtime dirty paths such as owner-lease heartbeat and rejects only material dirty paths. This mismatch obscures the real trust boundary and contradicts the live integration behavior. State the material-clean rule and explicit metadata/runtime allowance; severity medium.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-16T14:31:58.668Z",
@@ -70,7 +70,11 @@
       "reviewRunId": "B-914f:RR-002",
       "_hash": "10044a2c30b05b7cc3aa44e1db55b7625b07e20205626eee33357aa8c77b4da6",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit e05e14fec3 updates canonical contract to material-clean semantics with only registered metadata/runtime dirty exclusions and unknown dirt fail-closed. Process-fact contract PASS.",
+      "resolvedAt": "2026-07-16T14:46:24.153Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-914f:F-005",
