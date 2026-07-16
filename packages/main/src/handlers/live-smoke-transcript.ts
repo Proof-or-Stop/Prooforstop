@@ -14,6 +14,7 @@ import type { ChecklistData } from '../core/types.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { liveSmokeCaptureBudget } from '../core/done-required-timeout-budget.js';
 import { reclaimStaleValidationExecutionLock } from '../core/validation-execution-lock.js';
+import { evaluateLiveSmokeTranscriptValue } from '../core/live-smoke-transcript-evidence.js';
 
 /**
  * P5 (B-9b5e) — `live_smoke_transcript`: the explicit live-smoke transcript
@@ -316,6 +317,7 @@ async function runCapture(
  */
 function classifyTranscript(
   artifactPath: string,
+  storyId: string,
   gitCwd: string,
   metadataRoot: string,
 ): TranscriptStatus {
@@ -331,11 +333,9 @@ function classifyTranscript(
   try {
     parsed = JSON.parse(readFileSync(artifactPath, 'utf8'));
   } catch {
-    // A present-but-unreadable artifact is treated as stale: it cannot prove a
-    // fresh live-smoke run.
-    return 'present-stale';
+    return 'present-failed';
   }
-  if (parsed.mode?.runCommands !== true || !parsed.actual || parsed.actual.exitCode !== 0) {
+  if (!evaluateLiveSmokeTranscriptValue(parsed, storyId).ok) {
     return 'present-failed';
   }
   const headHash = typeof parsed.headHash === 'string' ? parsed.headHash : undefined;
@@ -559,7 +559,7 @@ export function createLiveSmokeTranscriptHandlers(ctx: HandlerContext): Record<s
     // Classify the CURRENT durable artifact AFTER any write so a fresh --write run
     // reports present-fresh; a read-only/capture-only run reports the pre-existing
     // artifact's status.
-    const transcriptStatus = classifyTranscript(artifactPath, gitCwd, ctx.root);
+    const transcriptStatus = classifyTranscript(artifactPath, args.storyId, gitCwd, ctx.root);
 
     const report: LiveSmokeTranscriptReport = {
       storyId: args.storyId,

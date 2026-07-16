@@ -1108,6 +1108,37 @@ assert.equal(
   }
 }
 
+// Producer status consumes the same failed-evidence evaluator as delivery/DONE:
+// invalid content is failed, while a valid successful transcript with only hash
+// drift remains stale.
+{
+  const { root, store, ctx } = createFixture(checklistWithUserSees);
+  try {
+    const handler = createMainRegistry(ctx).get('live_smoke_transcript');
+    assert.ok(handler);
+    const path = artifactPath(store);
+    mkdirSync(join(store.storyDirPath(STORY_ID), 'evidence'), { recursive: true });
+    const status = (raw: string): string => {
+      writeFileSync(path, raw, 'utf8');
+      const report = handler!({ storyId: STORY_ID, json: true }) as LiveSmokeTranscriptReport;
+      return report.transcript.status;
+    };
+    assert.equal(status('{'), 'present-failed', 'malformed JSON is failed, not stale');
+    assert.equal(status(JSON.stringify({ storyId: 'B-other', mode: { runCommands: true }, actual: { exitCode: 0 } })), 'present-failed', 'cross-story transcript is failed');
+    assert.equal(status(JSON.stringify({ storyId: STORY_ID, mode: { runCommands: false }, actual: null })), 'present-failed', 'write-only transcript is failed evidence');
+    assert.equal(status(JSON.stringify({ storyId: STORY_ID, mode: { runCommands: true }, actual: { exitCode: null } })), 'present-failed', 'timeout transcript is failed');
+    assert.equal(status(JSON.stringify({ storyId: STORY_ID, mode: { runCommands: true }, actual: { exitCode: 7 } })), 'present-failed', 'non-zero transcript is failed');
+    assert.equal(status(JSON.stringify({
+      storyId: STORY_ID,
+      mode: { runCommands: true },
+      actual: { exitCode: 0 },
+      headHash: '0000000000000000000000000000000000000000',
+    })), 'present-stale', 'a structurally valid successful transcript with hash drift remains stale');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 // ---- (e) --write through a FAILING owner/scope gate leaves state unchanged --
 
 {
