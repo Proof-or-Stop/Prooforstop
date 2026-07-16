@@ -89,6 +89,43 @@
       },
       "readDiagnostics": [],
       "_hash": "b2cebde815feec7452bc3908fbe2b46ee1823d953e5a8059a10d86ec1595295a"
+    },
+    {
+      "id": "B-ebe4:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept re-review PASS after F-001/F-002/F-003 fix 2401277417. Raw-argv authority preflight is now at cli-engine.ts:740-762, before strict args, active-story reads, init/dashboard, tool/phase/schema, Store/hooks/handlers. Focused E2E passed: stale init has zero writes, stale dashboard is rejected before startup, a worktree-only command receives canonical local recovery before stale lookup, global-fallback remains session_brief-only, and local/external controls remain valid.",
+      "createdAt": "2026-07-16T21:33:45.114Z",
+      "reviewRound": "2026-07-16T21:30:13.170Z",
+      "reviewRunId": "B-ebe4:RR-013",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "9fa230d14be8e88d3faf00e848769ead947fb977de8e6bad35a4f49ff97cb090",
+        "corpusDigest": "c32857bb0dce01204444115f085cb28f4df249ebca7e92092085ebdf61db9d44"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "09499903b7d206680c55c466eb55a970a12b22561bec73f4f8b0c9066a4c757c"
+      },
+      "readDiagnostics": [],
+      "_hash": "9ebb189ecee189fce32f340a0c1a63768f8da6bbacfc055ce6b699a07fb26936"
     }
   ]
 }

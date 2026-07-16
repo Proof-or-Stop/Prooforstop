@@ -677,6 +677,63 @@
         "bindingHash": "69dd305f90a088b977fc397604cc2e9a93b5c086e493b1aabfd74a83343a56a3"
       },
       "_hash": "16a59102b91320934d4480a488a597d2e3c4ac81b30b53d120bf510823b7f55d"
+    },
+    {
+      "reviewRunId": "B-ebe4:RR-013",
+      "storyId": "B-ebe4",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-07-16T21:30:13.170Z",
+      "startedAt": "2026-07-16T21:33:31.947Z",
+      "headHash": "5918cbf0be078eee2c8f76e745a5da205f6ca27a",
+      "materialHash": "a777dc7f2030d2ceae6bc4a6ed53ce1fa0ca005c6246e363ad7f5394c3448260",
+      "storyFilesHash": "7f252677a032853284f50bba2082791a5ad83e9b61582e56dcff1d585795c091",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "74ca2275e94e32040ba3b24d34276ee29bfebd7b32d8479a40ed2c3bbc973bcc",
+        "diffPackHash": "6635b9f0df3d0654f600aab8d149b5b6127faae0237731a2b36464472da39a25",
+        "reviewedChangedFiles": [
+          "bin/bootstrap-runner.js",
+          "docs/CLI.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/runtime-fact-registry.ts",
+          "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1f99da6803474f46e1ea0a5bce769d555c67fc3efaccd671cfe5acaa438f8d35",
+          "30b881b3e7cf15baa42504a0dd05592ead2f33fb60ece03ab8668a840921fa67",
+          "3e86d59dc42d6e3e2ecb63c49d4010cf1e552790a7efcebb5cae42f7be7fed9a",
+          "41ba128ab0874fcbeb240aa5a6e62d430fc4eed8940b51200c9ddf713d284ddd",
+          "4c066578305b246d0c2c7be4e4b84a06ccedf533599eb89a8d3d62919ae0958d",
+          "77ab9be887c9e0fb0ceabae51cc7daa2425ffaa9add79959937bdb9bcffe348a",
+          "a66a0b3991802dfc9a6affe50ab564fabb125f71f4d473153e029adf88f3af93",
+          "abfa576da8df37fb2f0a5f549239698d680320c92ac39e491fe60a4206732a02",
+          "b50583af46d4a87c041a21f053cbfc45a484ce63d31c6b427a913fc1c05359b8",
+          "be6c61c601c471c69146e4c01ab9d6ef6a90ac62af8c1b24735f96144cc481f4",
+          "cb31cbc526c17149977484d6926d0607cf37c2dd5d7f418e26b534d7c629f100",
+          "cc000415f436bc5b6db088946fb610671d8ebec2243029643c3f1f189dec9ff4",
+          "dda2bc6893a12524d3d35e48dbf8fd6e5921dc3e9539048f448c924dbbe668a9"
+        ],
+        "bindingHash": "31b08474c5580227a317df096d604e4c88f1130c99fb6ca868ec04b970fae5e2"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-ebe4",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-ebe4",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-ebe4",
+        "workspaceMode": "story-worktree",
+        "headHash": "5918cbf0be078eee2c8f76e745a5da205f6ca27a",
+        "materialHash": "a777dc7f2030d2ceae6bc4a6ed53ce1fa0ca005c6246e363ad7f5394c3448260",
+        "storyFilesHash": "7f252677a032853284f50bba2082791a5ad83e9b61582e56dcff1d585795c091",
+        "bindingHash": "4e7bf9112eb42e9ad6b4953794f8e5b9f18def3e27abdb49bcc1087d2bc0a9cc"
+      },
+      "_hash": "a1a7cebd2819893b92c6357044d24aee7189f3a6c361e78ec93a786130341c55"
     }
   ]
 }
