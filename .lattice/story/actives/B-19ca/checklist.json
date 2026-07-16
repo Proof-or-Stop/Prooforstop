@@ -10,7 +10,45 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Enumerate every canonical agent type in the typed registry and assert each entry declares role class, allowed phases, identifier cardinality/kinds, prompt class/builder, permitted mutation classes, commit guidance, reviewer lane, and evidence ownership with no missing required field -> the registry validates and yields one complete policy per type; WHY: establishes one mechanically inspectable dispatch truth source.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Resolve every supported legacy verification/test alias through the registry -> each alias maps to exactly one canonical type and inherits the canonical policy without prefix inference; WHY: preserves deliberate compatibility while preventing divergent alias behavior.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Enumerate canonical names and aliases together, including aliases that resemble reviewer or implementer prefixes -> names are unique, aliases do not collide with canonical entries or each other, and resolution is deterministic; WHY: catches ambiguous compatibility mappings at the registry boundary.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Inspect phase and identifier constraints for story-level and item-level roles -> empty/one/multiple identifier cases are represented explicitly by cardinality and allowed identifier kinds rather than implicit defaults; WHY: makes later schema and hint generation share exact boundary semantics.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Resolve an unknown, empty, case-mutated, or prefix-only agent type -> resolution fails closed before returning any role, prompt, mutation permission, commit guidance, or evidence policy; WHY: proves removed prefix fallback cannot silently classify unknown agents.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Attempt to construct a registry entry that omits a required policy field or grants an undeclared mutation class -> registry validation rejects it; WHY: prevents partial entries from recreating scattered defaults.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

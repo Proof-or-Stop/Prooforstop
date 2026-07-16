@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "One source of truth for dispatch identity and authority",
+    "Fail closed before generating any prompt",
+    "Compatibility must be explicit and testable",
+    "User-visible hints must be executable under the same schema"
+  ],
+  "drivers": [
+    "Prevent role-polluting implementer instructions",
+    "Eliminate story/item cardinality contradictions",
+    "Keep reviewer evidence authority mechanical",
+    "Cover every type and alias with table-driven tests"
+  ],
+  "options": [
+    {
+      "name": "A: Add targeted conditionals and corrected hint text",
+      "pros": [
+        "Small diff",
+        "Fast local repair"
+      ],
+      "cons": [
+        "Keeps duplicated authority",
+        "New aliases can silently regress",
+        "Does not satisfy the approved registry contract"
+      ]
+    },
+    {
+      "name": "B: Introduce a typed registry shared by all dispatch consumers",
+      "pros": [
+        "Single mechanical contract",
+        "Unknown roles fail closed",
+        "Aliases and cardinality become enumerable and testable",
+        "Supports future roles without privilege inference"
+      ],
+      "cons": [
+        "Touches several consumers",
+        "Requires migration and compatibility coverage"
+      ]
+    }
+  ],
+  "chosen": "B: Introduce a typed registry shared by all dispatch consumers",
+  "rationale": "The observed failures come from duplicated and implicit authority, so localized conditionals would only mask two instances. A shared typed registry directly enforces the approved Workstream C invariants and makes every compatibility path auditable.",
+  "preMortem": [
+    {
+      "scenario": "A valid legacy alias stops dispatching",
+      "trigger": "Registry omits test-intent or test-case-reviewer compatibility entry",
+      "consequence": "Existing workflows fail despite safer routing",
+      "mitigation": "Enumerate aliases explicitly and add table-driven compatibility cases for canonical and legacy names"
+    },
+    {
+      "scenario": "Unknown role still receives implementer prompt",
+      "trigger": "A consumer defaults before registry resolution",
+      "consequence": "Role can receive mutation and commit guidance",
+      "mitigation": "Resolve and validate the type at the dispatch entry before selecting cardinality, policy, or prompt builder; add negative prompt-content assertions"
+    },
+    {
+      "scenario": "Hints remain schema-invalid",
+      "trigger": "Transition text constructs calls independently of registry cardinality",
+      "consequence": "Operators follow a suggested command that the handler rejects",
+      "mitigation": "Generate hint invocation shape from registry metadata and execute every emitted example in smoke tests"
+    },
+    {
+      "scenario": "Reviewer authority broadens accidentally",
+      "trigger": "Role-class migration changes finding or pass classification semantics",
+      "consequence": "Implementer evidence may count as independent reviewer proof",
+      "mitigation": "Keep permission metadata explicit, update process-fact contract, and test denied command classes for both reviewer and implementer roles"
+    }
+  ],
+  "timestamp": "2026-07-16T10:19:29.752Z"
+}
