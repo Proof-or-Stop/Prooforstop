@@ -14,6 +14,21 @@
       "_hash": "30b9e498514492b45441fbe19ed1edccb8a148a78a9d3cd0f2688a5453cfc22f",
       "signatureTag": "adversarial|unknown|packages-main-engine",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-ebe4:F-002",
+      "desc": "packages/main/src/cli-engine.ts:767-785,795-847 — HIGH: runtime authority is enforced only at line 868, after standalone init/dashboard execution and after tool/phase/schema exits. Therefore a self-host worktree invoked through the stale main runtime can run init (and start the long-lived dashboard) without any authority classification, while a worktree-only command or newer argument is rejected by the stale registry/schema before the canonical local-entrypoint recovery can be emitted. This contradicts CHK-001 edge:2 (all commands except explicit fallback session_brief remain subject to classification) and CHK-002/adversarial:0 (reject before mutating/expensive work). Move a raw-argv-safe authority preflight immediately after root/alias normalization and before standalone commands/tool lookup; retain only help/version as an explicitly reasoned exemption, then add E2E assertions for stale init/dashboard and a command unknown to main but valid locally.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-16T21:21:19.682Z",
+      "reviewRound": "2026-07-16T21:18:30.240Z",
+      "reviewRunId": "B-ebe4:RR-002",
+      "_hash": "1262c3cd31a998275737bf51bb0652b251bbd4ef34a433f395adbc326d127627",
+      "signatureTag": "edge|unknown|packages-main-engine",
+      "signatureTagSource": "auto"
     }
   ]
 }
