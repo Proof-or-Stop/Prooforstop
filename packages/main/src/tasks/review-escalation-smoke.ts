@@ -18,6 +18,7 @@ import { StoryStore } from '../core/store.js';
 import { createVerdictHandlers } from '../handlers/verdict.js';
 import { createReviewEscalationHandlers } from '../handlers/review-escalation.js';
 import { canonicalReviewHostLauncherSpec, type CanonicalReviewHost } from '../core/host-execution-readiness.js';
+import { listVerdicts } from '../core/verdicts.js';
 
 const STORY_ID = 'B-review-escalation';
 const ROUND_1 = '2026-06-13T10:00:00.000Z';
@@ -313,6 +314,64 @@ try {
         json: true,
       }) as any;
       assert.equal(verdict.storyFilesHash, storyFilesHash);
+
+      const commandPreviousCwd = process.cwd();
+      process.chdir(commandRoot);
+      store.writeTestEvidence(STORY_ID, {
+        result: 'PASS',
+        command: 'review-escalation-smoke',
+        output: 'pass',
+        timestamp: '2026-06-13T11:30:00.000Z',
+        headHash: git(commandRoot, ['rev-parse', 'HEAD']),
+        materialHash: material,
+        storyFilesHash,
+        verificationCoverage: { total: 1, required: 1, covered: 1, missingRequired: 0, entries: [] },
+      });
+      const beforeDerived = listVerdicts(commandRoot, 'local', STORY_ID).length;
+      const derived = createVerdictHandlers(ctx).autopilot_review_submit({
+        storyId: STORY_ID,
+        runId: 'round-derived-command',
+        hostId: 'codex-derived',
+        provider: 'codex',
+        sessionId: 'codex-derived-session',
+        decision: 'pass',
+        deriveBindings: true,
+        json: true,
+      }) as any;
+      assert.match(derived.keyId, /^quorum:B-review-escalation:codex-derived:key$/);
+      assert.match(derived.validationDigest, /^[0-9a-f]{64}$/);
+      assert.match(derived.promptDigest, /^[0-9a-f]{64}$/);
+      assert.equal(derived.materialDigest, material);
+      assert.equal(derived.storyFilesHash, storyFilesHash);
+      assert.equal(listVerdicts(commandRoot, 'local', STORY_ID).length, beforeDerived + 1, 'explicit derivation writes exactly one host verdict');
+
+      const beforeRefusal = listVerdicts(commandRoot, 'local', STORY_ID).length;
+      assert.throws(() => createVerdictHandlers(ctx).autopilot_review_submit({
+        storyId: STORY_ID,
+        runId: 'round-derived-stale',
+        hostId: 'codex-derived',
+        provider: 'codex',
+        sessionId: 'codex-derived-session',
+        decision: 'pass',
+        deriveBindings: true,
+        materialDigest: 'stale-material',
+        json: true,
+      }), /supplied materialDigest does not match/);
+      assert.equal(listVerdicts(commandRoot, 'local', STORY_ID).length, beforeRefusal, 'binding mismatch fails before verdict persistence');
+
+      const legacy = createVerdictHandlers(ctx).autopilot_review_submit({
+        storyId: STORY_ID,
+        runId: 'round-legacy-unbound',
+        hostId: 'legacy-host',
+        provider: 'legacy-provider',
+        sessionId: 'legacy-session',
+        decision: 'pass',
+        json: true,
+      }) as any;
+      assert.equal(legacy.keyId, undefined, 'legacy no-flag path does not synthesize keyId');
+      assert.equal(legacy.validationDigest, undefined, 'legacy no-flag path does not synthesize validationDigest');
+      assert.equal(legacy.promptDigest, undefined, 'legacy no-flag path does not synthesize promptDigest');
+      process.chdir(commandPreviousCwd);
 
       withFakeCanonicalHostPath(commandRoot, ['codex'], () => {
         const probeResult = createReviewEscalationHandlers(ctx).review_host_availability_probe({
