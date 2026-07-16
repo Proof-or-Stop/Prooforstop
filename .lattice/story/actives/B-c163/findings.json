@@ -948,7 +948,7 @@
       "desc": "F-025 normal/pre-close failure cleanup is substantially implemented, but the cleanup is still not bounded when PID disappearance itself fails. `waitUntilGone` creates a referenced 20ms `setInterval` and registers its disposer in the shared `disposers` set, then wraps the pending Promise in `bounded(..., 2000)`. Cleanup performs its only disposer sweep and clears the set before calling waitUntilGone. If the process remains visible past 2 seconds, bounded rejects and clears only its own timeout; waitUntilGone has no finally to clear the PID probe interval, the newly-added disposer remains in the set, and the memoized cleanupPromise prevents the concurrent/next cleanup call from performing another sweep. The referenced interval therefore keeps the smoke process alive indefinitely after the advertised bounded cleanup failure. The injected readiness/assert/read/close-never cases all reach a successfully killed PID, so none exercises this branch. Make waitUntilGone own its interval with try/finally (and remove any shared disposer entry), or perform a guaranteed final resource sweep inside cleanup; add an injected PID-disappearance timeout/classifier seam proving the cleanup rejects near 2s, both concurrent cleanup callers settle identically, no probe timer remains, the original failure is preserved, and temp removal occurs only after cleanup accounting. The detached group, watcher/readiness disposal, TERM-to-250ms-KILL, successful close/reap, double-cleanup memoization, and temp removal ordering otherwise inspect correctly; production code is unchanged.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-16T00:49:50.976Z",
@@ -991,7 +991,11 @@
         "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
       ],
       "signatureTag": "edge|ts|normal-close-failure",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 5369b3e46e plus d0bc74739e locally owns disappearance probe interval/deadline and clears them in finally; synthetic liveness and signal seams are coherent. Round 16 quality confirms active probe counts return to zero across six consecutive passes.",
+      "resolvedAt": "2026-07-16T01:19:26.698Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c163:F-028",
