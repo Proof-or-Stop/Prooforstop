@@ -5,6 +5,7 @@ import { execFileSync } from 'node:child_process';
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { hostname, tmpdir } from 'node:os';
 import { delimiter, join, relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   enforceStoryOwnerLeaseGate,
   MAIN_TOOLS,
@@ -26,6 +27,7 @@ const NOW = '2026-06-20T00:00:00.000Z';
 const MARKER = 'P5-MARKER-7f3a';
 const USER_SEES = 'lattice live_smoke_transcript --storyId=<story> prints the expected output and transcript status.';
 const ARTIFACT_REL = 'evidence/live-smoke-transcript.json';
+const CLI_ENTRYPOINT = fileURLToPath(new URL('../cli.js', import.meta.url));
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -40,6 +42,90 @@ function git(cwd: string, args: string[]): string {
       GIT_COMMITTER_EMAIL: 'live-smoke-transcript-smoke@example.com',
     },
   }).trim();
+}
+
+// ---- handler forwards the mechanically selected nested max to the child ----
+
+{
+  const { root, ctx } = createFixture(checklistWithUserSees);
+  const savedArgv1 = process.argv[1];
+  const savedMax = process.env.LATTICE_MAX_TIMEOUT_MS;
+  try {
+    const observer = join(root, 'active-lattice-observer');
+    writeFileSync(observer, [
+      '#!/usr/bin/env node',
+      "process.stdout.write(JSON.stringify({ max: process.env.LATTICE_MAX_TIMEOUT_MS ?? null }));",
+    ].join('\n') + '\n', 'utf8');
+    chmodSync(observer, 0o755);
+    process.argv[1] = observer;
+    const handler = createMainRegistry(ctx).get('live_smoke_transcript');
+
+    delete process.env.LATTICE_MAX_TIMEOUT_MS;
+    const derived = await handler!({
+      storyId: STORY_ID,
+      capture: `${observer} done_required_validate --storyId=${STORY_ID}`,
+      json: true,
+    }) as LiveSmokeTranscriptReport;
+    assert.equal(JSON.parse(derived.actual?.stdout ?? '{}').max, '30000', 'default-derived nested max is forwarded to the trusted child');
+
+    process.env.LATTICE_MAX_TIMEOUT_MS = String(Number.MAX_SAFE_INTEGER);
+    const saturated = await handler!({
+      storyId: STORY_ID,
+      capture: `${observer} done_required_validate --storyId=${STORY_ID}`,
+      json: true,
+    }) as LiveSmokeTranscriptReport;
+    assert.equal(
+      JSON.parse(saturated.actual?.stdout ?? '{}').max,
+      String(NODE_TIMER_MAX_MS - LIVE_SMOKE_CAPTURE_CLEANUP_GRACE_MS - 30_000),
+      'saturation-adjusted effective nested max is forwarded to the trusted child',
+    );
+  } finally {
+    process.argv[1] = savedArgv1;
+    if (savedMax === undefined) delete process.env.LATTICE_MAX_TIMEOUT_MS;
+    else process.env.LATTICE_MAX_TIMEOUT_MS = savedMax;
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// ---- actual CLI always prints one structured timeout terminal and reaps ----
+
+{
+  const { root } = createFixture(checklistWithUserSees);
+  try {
+    const hangingScript = join(root, 'actual-cli-hang.cjs');
+    writeFileSync(hangingScript, [
+      "const { spawn } = require('node:child_process');",
+      "const { writeFileSync } = require('node:fs');",
+      "const child = spawn(process.execPath, ['-e', 'process.on(\\\"SIGTERM\\\",()=>{});setInterval(()=>{},1000)'], { stdio: 'ignore' });",
+      "writeFileSync(process.argv[2], String(child.pid));",
+      "process.on('SIGTERM', () => {});",
+      "setInterval(() => {}, 1000);",
+    ].join('\n') + '\n', 'utf8');
+
+    for (let index = 0; index < 2; index += 1) {
+      const pidPath = join(root, `actual-cli-descendant-${index}.pid`);
+      const capture = `${JSON.stringify(process.execPath)} ${JSON.stringify(hangingScript)} ${JSON.stringify(pidPath)}`;
+      const stdout = execFileSync(process.execPath, [
+        CLI_ENTRYPOINT,
+        'live_smoke_transcript',
+        JSON.stringify({ storyId: STORY_ID, capture, json: true }),
+      ], {
+        cwd: root,
+        env: { ...process.env, LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS: '100' },
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+        timeout: 5_000,
+      });
+      assert.ok(stdout.trim().length > 0, `actual CLI timeout run ${index + 1} emits a terminal payload`);
+      const report = JSON.parse(stdout) as LiveSmokeTranscriptReport;
+      assert.equal(report.actual?.exitCode, null, `actual CLI timeout run ${index + 1} remains non-pass`);
+      assert.match(report.actual?.stderr ?? '', /process group terminated/);
+      const descendantPid = Number(readFileSync(pidPath, 'utf8'));
+      assert.throws(() => process.kill(descendantPid, 0), /ESRCH/, `actual CLI timeout run ${index + 1} leaves no orphan`);
+    }
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 }
 
 function gitStatus(root: string): string {
@@ -369,6 +455,8 @@ assert.equal(
   const { root } = createFixture(checklistWithUserSees);
   const savedOverride = process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
   const savedArgv1 = process.argv[1];
+  const phaseEnvName = 'LATTICE_DONE_PREPARE_DONE_CLOSURE_TIMEOUT_MS';
+  const savedPhaseTimeout = process.env[phaseEnvName];
   try {
     writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
       scanRoot: 'packages/main',
@@ -392,7 +480,8 @@ assert.equal(
     const donePrepareCommand = 'lattice done_prepare --storyId=B-livesmoke --json';
 
     const direct = liveSmokeCaptureBudget(root, `LATTICE_SESSION_ID=stable ${doneRequiredCommand}`, budgetEnv);
-    assert.equal(direct.timeoutMs, 150_000, 'direct DONE-required capture derives command timeout plus grace');
+    assert.equal(direct.nestedMaxTimeoutMs, 150_000, 'direct DONE-required nested max derives command timeout plus validation grace');
+    assert.equal(direct.timeoutMs, 153_000, 'direct DONE-required capture adds cleanup grace above the nested max');
     assert.equal(direct.recognizedCommand, 'done_required_validate');
 
     const fakeProjectCli = join(root, 'bin', 'lattice.js');
@@ -421,15 +510,15 @@ assert.equal(
       commandCliMaxBudget(root, 'live_smoke_transcript', {
         capture: doneRequiredCommand,
       }, budgetEnv).timeoutMs,
-      180_000,
+      183_000,
       'outer CLI max watchdog allows the derived capture budget plus handler grace',
     );
     const directDonePrepare = liveSmokeCaptureBudget(root, donePrepareCommand, budgetEnv);
     assert.equal(directDonePrepare.recognizedCommand, 'done_prepare');
     assert.equal(
       directDonePrepare.timeoutMs,
-      commandCliMaxBudget(root, 'done_prepare', { validate: true }, budgetEnv).timeoutMs,
-      'direct done_prepare capture derives the complete configured closeout budget',
+      commandCliMaxBudget(root, 'done_prepare', { validate: true }, budgetEnv).timeoutMs + LIVE_SMOKE_CAPTURE_CLEANUP_GRACE_MS,
+      'direct done_prepare capture adds cleanup grace above the complete configured nested closeout budget',
     );
 
     const arbitrary = liveSmokeCaptureBudget(root, 'node long-arbitrary-script.js', budgetEnv);
@@ -489,6 +578,28 @@ assert.equal(
       'recognized saturated budgets preserve strict nested < capture < outer ordering',
     );
 
+    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      workflow: { profile: 'balanced' },
+      doneRequiredCommands: [{ label: 'saturated configured suite', command: 'npm', args: ['test'], timeoutMs: Number.MAX_SAFE_INTEGER }],
+    }, null, 2) + '\n', 'utf8');
+    resetConfigCache();
+    const configSaturated = liveSmokeCaptureBudget(root, doneRequiredCommand, budgetEnv);
+    assert.equal(configSaturated.source, 'derived-closeout-saturation-adjusted');
+    assert.equal(configSaturated.nestedMaxTimeoutMs, expectedSaturatedNested, 'configured saturation reserves both wrapper grace layers');
+    const configOuter = effectiveCommandCliMaxBudget(root, 'live_smoke_transcript', { capture: doneRequiredCommand }, budgetEnv);
+    assert.ok(configSaturated.nestedMaxTimeoutMs! < configSaturated.timeoutMs && configSaturated.timeoutMs < configOuter.timeoutMs);
+
+    process.env[phaseEnvName] = String(Number.MAX_SAFE_INTEGER);
+    const phaseSaturated = liveSmokeCaptureBudget(root, donePrepareCommand, budgetEnv);
+    assert.equal(phaseSaturated.source, 'derived-closeout-saturation-adjusted');
+    assert.equal(phaseSaturated.nestedMaxTimeoutMs, expectedSaturatedNested, 'phase-derived saturation reserves both wrapper grace layers');
+    const phaseOuter = effectiveCommandCliMaxBudget(root, 'live_smoke_transcript', { capture: donePrepareCommand }, budgetEnv);
+    assert.ok(phaseSaturated.nestedMaxTimeoutMs! < phaseSaturated.timeoutMs && phaseSaturated.timeoutMs < phaseOuter.timeoutMs);
+
     const boundedHighOverride = liveSmokeCaptureBudget(root, 'node arbitrary.js', {
       ...budgetEnv,
       LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS: '999999999',
@@ -503,6 +614,8 @@ assert.equal(
     if (savedOverride === undefined) delete process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
     else process.env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS = savedOverride;
     process.argv[1] = savedArgv1;
+    if (savedPhaseTimeout === undefined) delete process.env[phaseEnvName];
+    else process.env[phaseEnvName] = savedPhaseTimeout;
     resetConfigCache();
     rmSync(root, { recursive: true, force: true });
   }

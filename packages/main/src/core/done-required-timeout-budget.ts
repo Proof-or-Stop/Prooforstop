@@ -46,6 +46,7 @@ export type LiveSmokeCaptureBudgetSource =
   | 'fixed-arbitrary-command'
   | 'derived-done-required-command'
   | 'derived-done-prepare-command'
+  | 'derived-closeout-saturation-adjusted'
   | 'inherited-cli-max'
   | 'inherited-cli-max-saturation-adjusted'
   | 'bounded-env-override';
@@ -188,39 +189,40 @@ export function liveSmokeCaptureBudget(
   const recognizedCommand = recognizedLiveSmokeCommand(root, command, env);
   let legalTimeoutMs = DEFAULT_LIVE_SMOKE_CAPTURE_TIMEOUT_MS;
   let source: LiveSmokeCaptureBudgetSource = 'fixed-arbitrary-command';
+  let requestedNestedMaxTimeoutMs: number | undefined;
   if (recognizedCommand === 'done_required_validate') {
-    legalTimeoutMs = commandCliMaxBudget(root, recognizedCommand, {}, env).timeoutMs;
+    requestedNestedMaxTimeoutMs = commandCliMaxBudget(root, recognizedCommand, {}, env).timeoutMs;
     source = 'derived-done-required-command';
   } else if (recognizedCommand === 'done_prepare') {
     const validate = !/(?:^|\s)--validate(?:=|\s+)false(?:\s|$)/.test(command);
-    legalTimeoutMs = commandCliMaxBudget(root, recognizedCommand, { validate }, env).timeoutMs;
+    requestedNestedMaxTimeoutMs = commandCliMaxBudget(root, recognizedCommand, { validate }, env).timeoutMs;
     source = 'derived-done-prepare-command';
   }
 
-  // A trusted nested closeout keeps the inherited positive max as its business
-  // deadline. The capture wrapper adds only enough grace to terminate/reap it;
-  // commandCliMaxBudget adds the separate outer-wrapper grace. For an
-  // arbitrary/untrusted command the inherited max may only LOWER the fixed
-  // capture safety ceiling.
+  // Every trusted nested closeout uses its inherited or derived CLI budget as
+  // the business deadline. The capture wrapper adds only enough grace to
+  // terminate/reap it; commandCliMaxBudget adds the separate outer-wrapper
+  // grace. For an arbitrary/untrusted command an inherited max may only LOWER
+  // the fixed capture safety ceiling.
   const inheritedMax = positiveInt(env.LATTICE_MAX_TIMEOUT_MS);
   let nestedMaxTimeoutMs: number | undefined;
-  let requestedNestedMaxTimeoutMs: number | undefined;
   let saturationAdjusted = false;
-  if (inheritedMax !== undefined) {
-    requestedNestedMaxTimeoutMs = recognizedCommand ? inheritedMax : undefined;
+  if (recognizedCommand) {
+    if (inheritedMax !== undefined) requestedNestedMaxTimeoutMs = inheritedMax;
     const maxNestedWithLayeredGrace = Math.max(
       1,
       NODE_TIMER_MAX_MS - LIVE_SMOKE_CAPTURE_CLEANUP_GRACE_MS - DEFAULT_TIMEOUT_BUDGET_GRACE_MS,
     );
-    nestedMaxTimeoutMs = recognizedCommand ? Math.min(inheritedMax, maxNestedWithLayeredGrace) : undefined;
-    saturationAdjusted = nestedMaxTimeoutMs !== undefined && nestedMaxTimeoutMs !== inheritedMax;
-    const inheritedLegalTimeoutMs = recognizedCommand
-      ? safeTimeoutSum([nestedMaxTimeoutMs!, LIVE_SMOKE_CAPTURE_CLEANUP_GRACE_MS])
-      : Math.min(legalTimeoutMs, inheritedMax);
-    if (inheritedLegalTimeoutMs !== legalTimeoutMs || recognizedCommand) {
+    nestedMaxTimeoutMs = Math.min(requestedNestedMaxTimeoutMs!, maxNestedWithLayeredGrace);
+    saturationAdjusted = nestedMaxTimeoutMs !== requestedNestedMaxTimeoutMs;
+    legalTimeoutMs = safeTimeoutSum([nestedMaxTimeoutMs, LIVE_SMOKE_CAPTURE_CLEANUP_GRACE_MS]);
+    if (inheritedMax !== undefined) {
       source = saturationAdjusted ? 'inherited-cli-max-saturation-adjusted' : 'inherited-cli-max';
+    } else if (saturationAdjusted) {
+      source = 'derived-closeout-saturation-adjusted';
     }
-    legalTimeoutMs = inheritedLegalTimeoutMs;
+  } else if (inheritedMax !== undefined) {
+    legalTimeoutMs = Math.min(legalTimeoutMs, inheritedMax);
   }
 
   const override = positiveInt(env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS);

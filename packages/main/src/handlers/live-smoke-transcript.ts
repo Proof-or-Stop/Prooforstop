@@ -281,7 +281,11 @@ async function runCapture(
       if (settled) return;
       timedOut = true;
       killTree('SIGTERM');
-      setTimeout(forceKillAndFinish, 250).unref?.();
+      // Keep this escalation timer referenced. The shell leader may exit on
+      // SIGTERM before descendants close inherited handles; if every cleanup
+      // handle is unref'd, Node can exit with the capture Promise unresolved
+      // and print no terminal report at all.
+      setTimeout(forceKillAndFinish, 250);
     }, timeoutMs);
     timeoutTimer.unref?.();
     const heartbeatTimer = setInterval(() => {
