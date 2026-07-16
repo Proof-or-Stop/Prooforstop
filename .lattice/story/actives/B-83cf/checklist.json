@@ -142,9 +142,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-16T18:31:09.676Z",
-      "endTime": "2026-07-16T19:01:11.978Z",
+      "endTime": "2026-07-16T19:14:52.610Z",
       "verificationIntent": {
         "happy": [
           {
@@ -200,55 +200,55 @@
           "kind": "integration_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
-          "note": "Explicit mode derives and persists one complete envelope only after shared canonical validation admissibility passes under the validation lock.",
-          "headHash": "061085c3c39474e88a4a7c5de7616b1534d42d27",
-          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
-          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
-          "timestamp": "2026-07-16T19:01:12.299Z"
+          "note": "Explicit derivation persists one canonical verdict; wrapper-root path shares the validation writer lock.",
+          "headHash": "d5b5af4178eaa419dd8d4326f442adc8c10f1069",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:14:52.894Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
-          "note": "No-flag legacy submission remains synchronous, warning-based, and does not synthesize bindings.",
-          "headHash": "061085c3c39474e88a4a7c5de7616b1534d42d27",
-          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
-          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
-          "timestamp": "2026-07-16T19:01:12.509Z"
+          "note": "Legacy no-flag behavior remains unchanged.",
+          "headHash": "d5b5af4178eaa419dd8d4326f442adc8c10f1069",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:14:53.076Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
-          "note": "Explicit mode persists exactly one supplied host and no Authority or second-host artifact.",
-          "headHash": "061085c3c39474e88a4a7c5de7616b1534d42d27",
-          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
-          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
-          "timestamp": "2026-07-16T19:01:12.712Z"
+          "note": "One supplied host only; no fabricated independence or Authority artifact.",
+          "headHash": "d5b5af4178eaa419dd8d4326f442adc8c10f1069",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:14:53.271Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
-          "note": "All five supplied envelope fields plus canonical validation invariants reject before verdict/event persistence.",
-          "headHash": "061085c3c39474e88a4a7c5de7616b1534d42d27",
-          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
-          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
-          "timestamp": "2026-07-16T19:01:12.934Z"
+          "note": "Canonical envelope mismatches and every PASS admissibility invariant reject before persistence.",
+          "headHash": "d5b5af4178eaa419dd8d4326f442adc8c10f1069",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:14:53.449Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/validation-protocol-smoke.js",
           "result": "pass",
-          "note": "Shared TEST predicate rejects wrong command/output/coverage/freshness/dirty/lineage, and lock-race regression leaves no verdict/event after failed revalidation.",
-          "headHash": "061085c3c39474e88a4a7c5de7616b1534d42d27",
-          "materialHash": "29c64b1cd64befa1df1f322995cd88c0ac53d1f52297a54f204d83f93fefd944",
-          "storyFilesHash": "06f2124dbdc34df2cc7192e37d35f272982a556ff2a538f28c85213c4af992a6",
-          "timestamp": "2026-07-16T19:01:13.104Z"
+          "note": "Plain and wrapper-root lock races leave zero verdict/events; phase-gate diagnostics retain exact legacy contracts.",
+          "headHash": "d5b5af4178eaa419dd8d4326f442adc8c10f1069",
+          "materialHash": "5bb83ae98947f7ff3ac50ae41aea5629cb0b58a28734175a0ad37350b58dcb9a",
+          "storyFilesHash": "716f6a485ebf8d661f72602d75caa84e3549c6f0076f7cc008707ba301564c35",
+          "timestamp": "2026-07-16T19:14:53.747Z"
         }
       ]
     },
@@ -497,6 +497,15 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Fix F-005/F-006/F-007 wrapper lock authority and stable diagnostics."
+    },
+    {
+      "timestamp": "2026-07-16T19:14:52.610Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Fix F-005/F-006/F-007/F-008 with canonical wrapper-root lock authority and stable structured diagnostics after commit d5b5af4178."
     }
   ]
 }
