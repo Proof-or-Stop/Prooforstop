@@ -24,7 +24,7 @@
       "desc": "packages/main/src/handlers/verdict.ts:121-130 — HIGH: --deriveBindings labels evidence current PASS and immediately turns it into gate-counting host-verdict bindings, but it only checks result/materialHash/storyFilesHash and optionally missingRequired. It does not enforce the existing routine-validation admissibility contract in phase-gates.ts:628-677: canonical lattice validate command, parseable allPass output, presence and current-input equality of verificationCoverage entries, blocking-dirty check, and head/material/storyFiles lineage freshness. The new smoke at review-escalation-smoke.ts:320-346 demonstrates the bypass by accepting synthetic evidence with command=review-escalation-smoke, output=pass (not JSON allPass), and total/required=1 with empty entries. Thus an evidence record TEST would rerun/reject can be promoted to complete canonical digests and counted by the review-assurance DONE gate. Extract/share a single validation-PASS admissibility helper with the TEST gate (or equivalently enforce every same invariant here), fail closed before persistence, and add adversarial tests for wrong command, non-allPass output, missing/stale coverage snapshot, missing freshness bindings, dirty worktree, and invalid head lineage.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-16T18:42:36.570Z",
@@ -32,7 +32,11 @@
       "reviewRunId": "B-83cf:RR-001",
       "_hash": "3f65d5459cefa686d839f448adda9fae62ab90cd8c85312f078f97d73fe6975c",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: non-canonical synthetic PASS evidence was accepted. Root cause: partial result/hash check diverged from TEST. Fix: phase-gates and verdict share full canonical PASS admissibility for command, allPass, current coverage, dirty state, exact hashes and exact/trusted-metadata lineage. ReproTest: wrong command/output, missing/stale coverage, missing freshness, dirty source and invalid lineage all reject before verdict/event; validation-protocol-smoke passes.",
+      "resolvedAt": "2026-07-16T19:01:53.274Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-83cf:F-003",
