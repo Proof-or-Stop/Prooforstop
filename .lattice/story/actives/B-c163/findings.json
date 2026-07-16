@@ -813,6 +813,55 @@
       "resolvedAt": "2026-07-16T00:26:11.786Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c163:F-024",
+      "desc": "The new actual-CLI structured-terminal regression is nondeterministic because it arms `LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS=100` before the captured Node script has necessarily started and written `actual-cli-descendant-<n>.pid`, then unconditionally reads that file. Independent RR-055 build+smoke failed once with `ENOENT ... actual-cli-descendant-0.pid` at compiled live-smoke-transcript-smoke.js:105; an immediate rerun and three subsequent consecutive runs passed. This does not reopen F-015/F-017/F-020/F-022—the product budget matrices, effective child env, referenced cleanup timer, structured terminal and reaping paths are correct—but the required actual CLI regression can fail solely from host startup scheduling and therefore is not stable gate evidence. Split the proof: keep a tight terminal-emission test that does not require the child to have reached PID creation, and use a separate deterministic descendant-reap row with sufficient startup/ready synchronization before the tested timeout, or otherwise wait for a mechanically guaranteed ready signal. Do not suppress ENOENT in the descendant proof, because that would stop proving a descendant existed.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-16T00:26:55.090Z",
+      "reviewRound": "2026-07-16T00:23:12.416Z",
+      "reviewRunId": "B-c163:RR-055",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2b923db20867089826017b71f66713290b4f711fcce50c880d4cdf100c655c46",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "0acd7b49cf72f95e0cd4d1b2923a000c52709d073d874e5826e66e060d49f5d9"
+      },
+      "readDiagnostics": [],
+      "_hash": "db5c48e7f8462186a9d527f7705576495af888939ba51fbc25b8aa7e684ee0f5",
+      "files": [
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|actual-structured-terminal",
+      "signatureTagSource": "auto"
     }
   ]
 }
