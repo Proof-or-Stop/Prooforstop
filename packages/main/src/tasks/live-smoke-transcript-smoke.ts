@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { execFileSync, spawn } from 'node:child_process';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, symlinkSync, watch, writeFileSync } from 'node:fs';
 import { hostname, tmpdir } from 'node:os';
 import { delimiter, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -87,28 +87,16 @@ function git(cwd: string, args: string[]): string {
   }
 }
 
-// ---- actual CLI always prints one structured timeout terminal and reaps ----
+// ---- actual CLI always prints one structured timeout terminal --------------
 
 {
   const { root } = createFixture(checklistWithUserSees);
   try {
-    const hangingScript = join(root, 'actual-cli-hang.cjs');
-    writeFileSync(hangingScript, [
-      "const { spawn } = require('node:child_process');",
-      "const { writeFileSync } = require('node:fs');",
-      "const child = spawn(process.execPath, ['-e', 'process.on(\\\"SIGTERM\\\",()=>{});setInterval(()=>{},1000)'], { stdio: 'ignore' });",
-      "writeFileSync(process.argv[2], String(child.pid));",
-      "process.on('SIGTERM', () => {});",
-      "setInterval(() => {}, 1000);",
-    ].join('\n') + '\n', 'utf8');
-
-    for (let index = 0; index < 2; index += 1) {
-      const pidPath = join(root, `actual-cli-descendant-${index}.pid`);
-      const capture = `${JSON.stringify(process.execPath)} ${JSON.stringify(hangingScript)} ${JSON.stringify(pidPath)}`;
+    for (let index = 0; index < 10; index += 1) {
       const stdout = execFileSync(process.execPath, [
         CLI_ENTRYPOINT,
         'live_smoke_transcript',
-        JSON.stringify({ storyId: STORY_ID, capture, json: true }),
+        JSON.stringify({ storyId: STORY_ID, capture: 'sleep 5', json: true }),
       ], {
         cwd: root,
         env: { ...process.env, LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS: '100' },
@@ -120,9 +108,86 @@ function git(cwd: string, args: string[]): string {
       const report = JSON.parse(stdout) as LiveSmokeTranscriptReport;
       assert.equal(report.actual?.exitCode, null, `actual CLI timeout run ${index + 1} remains non-pass`);
       assert.match(report.actual?.stderr ?? '', /process group terminated/);
-      const descendantPid = Number(readFileSync(pidPath, 'utf8'));
-      assert.throws(() => process.kill(descendantPid, 0), /ESRCH/, `actual CLI timeout run ${index + 1} leaves no orphan`);
     }
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// ---- descendant reap uses a PID-written readiness handshake ----------------
+
+{
+  const { root } = createFixture(checklistWithUserSees);
+  try {
+    const pidPath = join(root, 'actual-cli-descendant.pid');
+    const hangingScript = join(root, 'actual-cli-descendant-hang.cjs');
+    writeFileSync(hangingScript, [
+      "const { spawn } = require('node:child_process');",
+      "const { writeFileSync } = require('node:fs');",
+      "const child = spawn(process.execPath, ['-e', 'process.on(\\\"SIGTERM\\\",()=>{});setInterval(()=>{},1000)'], { stdio: 'ignore' });",
+      "writeFileSync(process.argv[2], String(child.pid));",
+      "process.on('SIGTERM', () => {});",
+      "setInterval(() => {}, 1000);",
+    ].join('\n') + '\n', 'utf8');
+
+    let closeWatcher: (() => void) | undefined;
+    const ready = new Promise<void>((resolveReady, rejectReady) => {
+      let settled = false;
+      const finishReady = () => {
+        if (settled) return;
+        settled = true;
+        closeWatcher?.();
+        clearInterval(probe);
+        clearTimeout(deadline);
+        resolveReady();
+      };
+      const watcher = watch(root, (_event, filename) => {
+        if (filename === 'actual-cli-descendant.pid' && existsSync(pidPath)) finishReady();
+      });
+      closeWatcher = () => watcher.close();
+      // fs.watch is the primary handshake; the state probe closes the narrow
+      // create-before-watch-delivery race without relying on a fixed sleep.
+      const probe = setInterval(() => {
+        if (existsSync(pidPath)) finishReady();
+      }, 25);
+      const deadline = setTimeout(() => {
+        if (settled) return;
+        settled = true;
+        watcher.close();
+        clearInterval(probe);
+        rejectReady(new Error('descendant PID readiness handshake timed out'));
+      }, 15_000);
+      if (existsSync(pidPath)) finishReady();
+    });
+
+    const capture = `${JSON.stringify(process.execPath)} ${JSON.stringify(hangingScript)} ${JSON.stringify(pidPath)}`;
+    const cli = spawn(process.execPath, [
+      CLI_ENTRYPOINT,
+      'live_smoke_transcript',
+      JSON.stringify({ storyId: STORY_ID, capture, json: true }),
+    ], {
+      cwd: root,
+      env: { ...process.env, LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS: '2000' },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    let stdout = '';
+    let stderr = '';
+    cli.stdout.on('data', (chunk: Buffer) => { stdout += chunk.toString(); });
+    cli.stderr.on('data', (chunk: Buffer) => { stderr += chunk.toString(); });
+    const closed = new Promise<number | null>((resolveClose, rejectClose) => {
+      cli.once('error', rejectClose);
+      cli.once('close', resolveClose);
+    });
+
+    await ready;
+    assert.equal(cli.exitCode, null, 'PID readiness is observed while the CLI capture is still active');
+    const descendantPid = Number(readFileSync(pidPath, 'utf8'));
+    const exitCode = await closed;
+    assert.equal(exitCode, 0, `actual CLI transcript producer exits successfully: ${stderr}`);
+    assert.ok(stdout.trim().length > 0, 'descendant-reap run emits a terminal payload');
+    const report = JSON.parse(stdout) as LiveSmokeTranscriptReport;
+    assert.equal(report.actual?.exitCode, null);
+    assert.throws(() => process.kill(descendantPid, 0), /ESRCH/, 'handshake-confirmed descendant is reaped after timeout');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
