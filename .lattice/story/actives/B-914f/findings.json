@@ -268,6 +268,26 @@
       "resolvedAt": "2026-07-16T15:16:20.094Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-914f:F-013",
+      "desc": "Windows environment keys are case-insensitive, but effectiveValidationCommandEnvironment and resolveExecutable treat them case-sensitively. A normal Windows process commonly exposes Path rather than PATH, so resolveExecutable reads env.PATH as empty and records executableDigest:null even though spawn resolves and executes the binary through Path. That makes fresh-PASS identity fail to bind the actual executable and can reuse evidence after the executable behind Path changes. Case-variant overlays are also not reliably last-wins at the OS boundary: an explicit command.env Path/PATH can coexist with the ambient variant and Node passes only the first case-insensitive key, so the configured overlay may be silently ignored although both variants are hashed. Canonicalize/deduplicate environment keys case-insensitively on win32 (with explicit overlay winning), and resolve PATH through that canonical environment; add a platform-independent helper test for Path/PATH collisions and executable resolution.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-16T17:13:14.799Z",
+      "reviewRound": "2026-07-16T17:09:53.264Z",
+      "reviewRunId": "B-914f:RR-029",
+      "_hash": "1924d563ac855a61a3ec3834dbb343ffa0205ce589337dba7dd5eda439cccd88",
+      "files": [
+        "packages/main/src/core/validation-command-environment.ts",
+        "packages/main/src/core/validation-evidence-reuse.ts",
+        "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+      ],
+      "signatureTag": "windows-env-case-collision",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
