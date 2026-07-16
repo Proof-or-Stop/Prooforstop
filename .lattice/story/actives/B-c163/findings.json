@@ -337,7 +337,7 @@
       "desc": "BUG-015 remains reproducible for a supported explicit max override: liveSmokeCaptureBudget recognizes a direct `lattice done_required_validate`/`done_prepare` command but derives only the default/config phase budget and ignores the command's authoritative inherited `LATTICE_MAX_TIMEOUT_MS`. The nested CLI honors that env at cli-engine.ts:1005-1014, while the capture timer arms the shorter value at done-required-timeout-budget.ts:127-144 and live-smoke-transcript.ts:516-518, so capture can SIGTERM/SIGKILL a still-legally-running closeout. Repro after build: `LATTICE_MAX_TIMEOUT_MS=2147483647 node --input-type=module -e \"import { liveSmokeCaptureBudget } from './packages/main/dist/core/done-required-timeout-budget.js'; const b=liveSmokeCaptureBudget(process.cwd(),'lattice done_required_validate --storyId=B-c163',process.env); console.log(JSON.stringify({explicitMax:Number(process.env.LATTICE_MAX_TIMEOUT_MS),capture:b})); if (!(b.timeoutMs < Number(process.env.LATTICE_MAX_TIMEOUT_MS))) process.exit(2);\"` prints explicitMax=2147483647 versus capture.timeoutMs=1520000. This contradicts the decisions contract that explicit LATTICE_MAX_TIMEOUT_MS remains authoritative and the Round-8 requirement that capture never impose a shorter ceiling on a recognized closeout command. Include the clamped explicit max in the recognized-command legal ceiling (and account deliberately for allowed inline env assignments), while preserving the 60s arbitrary-command ceiling and lower-only LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS override. The persisted candidate digest 79fc8a964ff94df0740750b1b0a967b329c8274d211a1909c76141ebd26e13ea is stale; exact current local recomputation after review_run_start is 286e849c16a844a368a84188612e86ae40e370453b60d8f00f1a3109c7fff402; corpus digest is unchanged.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-15T23:33:39.829Z",
@@ -382,7 +382,11 @@
         "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md"
       ],
       "signatureTag": "edge|ts|remains-reproducible-supported",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 2134c9e7a1 generalizes trusted closeout capture budgeting. Independent RR-055 numeric verification shows inherited max 1000 produces requested/effective nested=1000, capture=4000, outer=34000; MAX_SAFE is clamped and saturation-adjusted to nested=2147450647, capture=2147453647, outer=2147483647. The handler forwards effective nested LATTICE_MAX_TIMEOUT_MS to the child. Build and live-smoke regression verify active-CLI trust, lower-only capture override, structured timeout terminal and process-group reap.",
+      "resolvedAt": "2026-07-16T00:26:27.268Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c163:F-016",
