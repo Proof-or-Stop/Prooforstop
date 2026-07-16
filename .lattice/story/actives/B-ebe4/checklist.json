@@ -122,6 +122,19 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "Blocked [stale_global_runtime_in_worktree] before dispatch. Loaded runtime belongs to the main checkout. Retry: node bin/lattice.js <same command and arguments>",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "bin/bootstrap-runner.js",
+          "docs/CLI.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts"
+        ]
       }
     },
     {
