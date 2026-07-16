@@ -75,6 +75,10 @@ import {
   runStoryCreateLifecycleDispatch,
 } from './cli/lifecycle-dispatch.js';
 import { CliWatchdogTimeoutError, effectiveCommandCliMaxBudget, NODE_TIMER_MAX_MS } from './core/done-required-timeout-budget.js';
+import {
+  classifyRuntimeEntrypointAuthority,
+  renderRuntimeEntrypointAuthorityFailure,
+} from './core/runtime-environment-checks.js';
 
 export {
   READ_ONLY_COMMANDS,
@@ -855,6 +859,28 @@ export async function runCli(opts?: {
 
   // Execute
   const root = resolveRootForCommand(cmd, rootOverride);
+  // B-ebe4: authoritative runtime pre-dispatch gate. This runs after argument
+  // validation but before Store/registry construction, hooks, ownership writes,
+  // handlers, validation subprocesses, or evidence persistence. A self-host
+  // linked worktree must not silently execute the global runtime linked to the
+  // main checkout. Only the explicitly labelled global-fallback session_brief
+  // heartbeat is exempt.
+  const runtimeAuthority = classifyRuntimeEntrypointAuthority({
+    command: cmd,
+    // argv has already had --root removed and aliases canonicalized, so this
+    // reproduces the same semantic command from the worktree root even when
+    // the original invocation placed --root before the command.
+    commandArgs: argv.slice(1),
+    projectRoot: root,
+    invokedEntrypoint: process.argv[1] ?? null,
+    env: process.env,
+    requiresAuthoritativeRuntime: !isReadOnlyCommand(cmd, parsed),
+  });
+  if (runtimeAuthority.status === 'blocked') {
+    process.stderr.write(`${renderRuntimeEntrypointAuthorityFailure(runtimeAuthority)}\n`);
+    process.exitCode = 1;
+    return;
+  }
   // Durable main-root fallback for post-command activity logging.
   // story_advance --phase=DONE removes the current story worktree mid-command.
   // Once removed, root/.git is gone, so resolveMainRootFromWorktreeRoot() can no
