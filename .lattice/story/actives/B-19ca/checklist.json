@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define the canonical typed agent registry and compatibility aliases",
+      "context": "Model role class, allowed phases, identifier cardinality/kinds, prompt builder, permitted mutations, commit guidance, reviewer lane, and evidence ownership. Legacy verification/test aliases must be deliberate entries, never prefix fallbacks.",
+      "relatedDocs": [
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#8-workstream-c--typed-agent-dispatch-contract",
+        "AGENTS.md#流程事实双层契约"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Route dispatch schemas, handlers, prompts, and hints through the registry",
+      "context": "Unknown agent types must fail before prompt generation; story-level hints must be accepted by the same cardinality contract; reviewer and verification-intent roles must never receive implementer commit/status guidance.",
+      "relatedDocs": [
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#82-required-design",
+        "AGENTS.md#三方制衡"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Prove every type, alias, phase, cardinality, prompt class, and denied command class",
+      "context": "Add table-driven positive and negative coverage, validate schema-valid example payloads, and update process-fact registry/contract verification whenever gate-consumed reviewer semantics change.",
+      "relatedDocs": [
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#83-acceptance",
+        "AGENTS.md#流程事实双层契约"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
