@@ -105,6 +105,21 @@
       "_hash": "68fe80b48b74a2f49a5770bccf9c1055536aaf452f6cb6dcc07fa64068cf35b1",
       "signatureTag": "missing|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-83cf:F-007",
+      "desc": "packages/main/src/core/validation-evidence-admissibility.ts:91-103 / packages/main/src/handlers/phase-gates.ts:620-632 — HIGH regression: extracting the shared admissibility evaluator changed the established DEV→TEST rejection diagnostics, but validation-protocol-smoke.ts:1611-1653 still pins the prior contract. A clean build followed by node packages/main/dist/tasks/validation-protocol-smoke.js fails deterministically at wrong-command because the log now says validation evidence command is not ..., not existing validation PASS command is not ...; later cases also distinguish invalid JSON from allPass=false and expect the prior coverage/hash wording, while the new helper collapses/renames those reasons. This blocks the configured validation suite and removes diagnostic specificity during a gate failure. Preserve shared boolean semantics while returning stable typed reason codes rendered by the phase gate to its existing messages (and a suitable deriveBindings prefix), or deliberately migrate every pinned consumer/test in the same change; rerun validation-protocol-smoke plus the focused review/quorum smokes before re-review.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-16T19:05:40.988Z",
+      "reviewRound": "2026-07-16T19:01:39.041Z",
+      "reviewRunId": "B-83cf:RR-005",
+      "_hash": "400e725b037e5775bd3f8cb2705f341623a44c5b52d88368c4b72163d7f9163f",
+      "signatureTag": "edge|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
