@@ -53,6 +53,18 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "The focused parity test reports that single-host and quorum derivation produce identical canonical keyId, validationDigest, and promptDigest, and quorum 3x2 behavior still passes.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/quorum-submit.ts"
+        ],
+        "create": [
+          "packages/main/src/core/host-verdict-bindings.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ]
       }
     },
     {
