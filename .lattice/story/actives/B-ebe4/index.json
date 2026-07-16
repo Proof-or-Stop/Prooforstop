@@ -1,0 +1,23 @@
+{
+  "storyId": "B-ebe4",
+  "name": "worktree-runtime-entrypoint-authority",
+  "title": "Fail fast when a worktree invokes a stale global Lattice runtime",
+  "description": "Prevent self-host development commands in a story worktree from silently executing the main-workspace global lattice build. Detect runtime/root mismatch before mutating work, fail with a stable diagnostic, and direct operators to the current worktree-local node bin/lattice.js entrypoint.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "createdAt": "2026-07-16T20:42:50.683Z",
+  "startedAt": "2026-07-16T20:42:50.683Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-16T20:42:51.289Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
+    }
+  ]
+}
