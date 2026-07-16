@@ -340,7 +340,7 @@
       "desc": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts:422-474 exercises only cwd-relative slash/backslash paths and bare PATH lookup, so it never enters packages/main/src/core/validation-evidence-reuse.ts:61-63 via platformPath.isAbsolute(command). A regression back to host-native isAbsolute would leave these tests green while breaking Win32 drive-absolute and UNC command identity. Add platform-injected assertions that cover the absolute-path branch (including PATHEXT/no-PATH-search and content-digest invalidation), using a testable resolver seam or platform-path adapter if host filesystem constraints prevent direct fixtures.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-16T17:41:38.342Z",
@@ -348,7 +348,11 @@
       "reviewRunId": "B-914f:RR-036",
       "_hash": "5ca58f9cd72151ce11cab958f7c2271c90d4e51d358e2b5081662f4d8c191cc7",
       "signatureTag": "edge|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 2c1a3cd extracts the filesystem-free buildValidationExecutableLookup envelope and adds platform-injected assertions for Win32 drive-absolute and UNC commands. Both assert absolute:true, explicit classification, PATHEXT candidate construction, and no PATH-search classification; replacing platformPath.isAbsolute with the host-native predicate makes these assertions fail on the non-Windows smoke host. Existing relative explicit-path content-digest assertions continue to cover file mutation invalidation, and the seam performs no writes or callback/global-env injection.",
+      "resolvedAt": "2026-07-16T17:51:51.730Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
