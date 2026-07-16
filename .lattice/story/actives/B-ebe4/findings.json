@@ -75,6 +75,21 @@
       "resolvedAt": "2026-07-16T21:36:19.412Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-ebe4:F-005",
+      "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:1418 — HIGH: Round 4 repinned only cli-engine, but B-ebe4 also changed bin/bootstrap-runner.js diagnostic strings, so its exact benign non-literal-loader fingerprint remains stale (`63b018...` expected vs `1ec6b25...` actual). The focused retired-authority guard exits 1 with four unapproved dynamic import violations at bootstrap-runner.js:62/63/69/72; therefore the claimed focused chain is not PASS and the story cannot rely on this guard evidence. Verify the bootstrap diff is diagnostic-only, repin only its exact BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS entry without changing call-shape/allowlists, then rerun the guard plus runtime-authority chain.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-16T21:52:01.812Z",
+      "reviewRound": "2026-07-16T21:49:02.275Z",
+      "reviewRunId": "B-ebe4:RR-016",
+      "_hash": "20ae294a21d2eaeb0fc52826e3bed26ebb555e7515e65d9e0b33f4ec6994f959",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
