@@ -3,15 +3,15 @@
  *
  * The transition gate logic was mechanically relocated here from
  * handlers/story-advance.ts with ZERO semantic change — gate decisions,
- * fail-closed semantics, error wording, and the lattice validate test-evidence
- * write timing are byte-identical before and after the move (preMortem #1).
+ * fail-closed semantics and error wording are preserved across the move
+ * (preMortem #1). The verifier owns canonical validation-evidence persistence.
  *
  * What lives here:
  *   - runReviewToTestPreflightGate  — REVIEW→TEST CLI preflight orchestration
  *                                     (logging / fail-closed catch / error
  *                                     shaping around handlers/review-preflight)
- *   - runValidateGate               — the lattice validate --json gate (writes
- *                                     test-evidence.json — see annotation below)
+ *   - runValidateGate               — the lattice validate --json gate
+ *                                     (consumes verifier-owned evidence)
  *   - runDoneOracleGate             — the TEST→DONE done-oracle gate adapter
  *                                     (consumes core/done-oracle.ts)
  *   - resolveGuardFailure           — the cwd/guard-failure adapter (gate hint
@@ -32,13 +32,11 @@ import type { ChecklistData, StoryPhase, ReviewLoopIteration, ScopeCheckResult, 
 import { listActiveLoops, deriveLatestLoopRecord } from '../core/review-loop.js';
 import { getStateName, getGuardFailureReason } from '../core/machine.js';
 import { resolveLocalCodexVerifyCommand } from '../core/codex-adapter-checks.js';
-import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash, tryCaptureEvidenceHashSnapshot } from '../core/evidence-freshness.js';
-import { reportHealthIssue } from '../core/health.js';
+import { checkEvidenceFreshnessForGit, currentGitHead, tryCaptureEvidenceHashSnapshot } from '../core/evidence-freshness.js';
 import { loadConfig } from '../core/config.js';
 import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { currentMilestoneStatusEvidenceBinding } from '../core/milestone-status.js';
-import { execSync } from 'child_process';
 import {
   classifyGitStatusRows,
   classifierOptionsForCheck,
@@ -570,19 +568,6 @@ function storedValidateOutputIsPassing(output: string): { ok: boolean; reason?: 
   }
 }
 
-type ValidateEvidenceFailureKind = 'validation_failure' | 'infra_failure';
-
-function validateFailureKindFromResult(result: any): ValidateEvidenceFailureKind | undefined {
-  if (result?.allPass === true || result?.allPassed === true) return undefined;
-  if (result?.failureKind === 'infra_failure') return 'infra_failure';
-  if (result?.failureKind === 'validation_failure') return 'validation_failure';
-  const commands = Array.isArray(result?.commands) ? result.commands : [];
-  if (commands.some((cmd: any) => cmd?.failureKind === 'infra_failure' || cmd?.timedOut === true)) {
-    return 'infra_failure';
-  }
-  return 'validation_failure';
-}
-
 function blockingDirtyWorktreeReason(ctx: HandlerContext, storyId: string, gitCwd: string): string {
   const status = readGitStatusLines(gitCwd);
   if (!status.ok) return `unable to read git status for validation evidence skip (${status.error})`;
@@ -598,15 +583,12 @@ function blockingDirtyWorktreeReason(ctx: HandlerContext, storyId: string, gitCw
 /**
  * DEV→TEST lattice validate gate.
  *
- * 自动调 lattice validate，写 test-evidence.json。
+ * 自动调 lattice validate，消费 verifier 返回的 JSON 结果。
  *
- * behavior-preserving side effect: this gate writes test-evidence.json via
- * store.writeTestEvidence — both on the PASS path (DONE gate consumes it) and
- * on the validate-execution-error path. The write is NOT pure; B-56d3 keeps
- * the side effect inline by design (the story explicitly does not force this
- * gate pure). The evidence-write timing is byte-identical to the inline
- * original — the PASS write happens before the allPass check, the FAIL write
- * happens in the catch before the rethrow.
+ * verifier owns test-evidence.json persistence and canonical metadata commit.
+ * This gate must not write the artifact again: a second write would discard
+ * commandExecution / routineValidationIdentity / disposition, leave metadata
+ * dirty after verifier's commit, and invalidate closeout writer provenance.
  *
  * Fail-closed (preMortem #1): validate throw / JSON-parse failure each still
  * block TEST — the catch rethrows "Cannot enter TEST" and never advances.
@@ -686,38 +668,6 @@ export async function runValidateGate(
     const jsonResult = await verifierHandlers.validate({ json: true, story: storyId });
     const parsed = JSON.parse(String(jsonResult));
 
-    // 写入 test-evidence.json（DONE gate 消费）
-    // B-c622 CHK-009: 记录 headHash 供 DONE gate evidence freshness 检查
-    // B-6666 CHK-002: resolve the git invocation cwd at this write boundary so
-    // the headHash/materialHash recorded here are computed from the SAME real
-    // gitRoot the DONE-path freshness check later recomputes against. On a
-    // wrapper-root layout, writing with a bare metadataRoot would record
-    // undefined hashes while the DONE read (resolved gitCwd) yields defined ones
-    // → false mismatch → false-block. resolveGitCwd falls back to ctx.root for
-    // plain repos (byte-identical) and never throws.
-    const evidenceGitCwd = resolveGitCwd({ store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
-    let evidenceHeadHash = '';
-    try {
-      evidenceHeadHash = execSync('git rev-parse HEAD', { cwd: evidenceGitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
-    } catch { /* 无法获取 HEAD，跳过 */ }
-    // B-6666 F-001 (REVIEW fix): pass ctx.root as metadataRoot so the recorded
-    // materialHash uses the metadataRoot's custom-storyDir exclusion — matching
-    // what the DONE-path freshness recompute does — instead of resolving config
-    // from the gitCwd. Plain repos pass root==gitCwd (byte-identical).
-    const evidenceMaterialHash = currentMaterialHash(evidenceGitCwd, 'HEAD', ctx.root);
-    const evidenceStoryFilesHash = currentStoryFilesHash(evidenceGitCwd, 'HEAD', ctx.root);
-    store.writeTestEvidence(storyId, {
-      command: validateCommand,
-      output: String(jsonResult),
-      result: parsed.allPass ? 'PASS' : 'FAIL',
-      ...(validateFailureKindFromResult(parsed) ? { failureKind: validateFailureKindFromResult(parsed) } : {}),
-      timestamp: new Date().toISOString(),
-      ...(evidenceHeadHash ? { headHash: evidenceHeadHash } : {}),
-      ...(evidenceMaterialHash ? { materialHash: evidenceMaterialHash } : {}),
-      ...(evidenceStoryFilesHash ? { storyFilesHash: evidenceStoryFilesHash } : {}),
-      ...(parsed.verificationCoverage ? { verificationCoverage: parsed.verificationCoverage } : {}),
-    });
-
     if (!parsed.allPass) {
       const failedDetails = (parsed.details || []).filter((d: string) => d.startsWith('✗'));
       const coverage = parsed.verificationCoverage;
@@ -743,25 +693,10 @@ export async function runValidateGate(
         '\n\n→ 修复后重跑 lattice validate，再 story_advance --phase=TEST'
       );
     }
-    ctx.log?.('validate PASS, writing test-evidence.json');
+    ctx.log?.('validate PASS; canonical test-evidence.json persisted by verifier');
   } catch (e: any) {
     if (e.message?.includes('Cannot enter TEST')) throw e;
     const message = e instanceof Error ? e.message : String(e);
-    try {
-      store.writeTestEvidence(storyId, {
-        command: validateCommand,
-        output: `validate execution error: ${message}`,
-        result: 'FAIL',
-        failureKind: 'infra_failure',
-        timestamp: new Date().toISOString(),
-      });
-    } catch (persistError) {
-      reportHealthIssue('persist:testEvidence', persistError as Error, {
-        storyId,
-        phase: 'TEST',
-        gate: 'validate-execution-error',
-      });
-    }
     throw new Error(
       `Cannot enter TEST: lattice validate execution error\n` +
       `${message}\n\n` +
