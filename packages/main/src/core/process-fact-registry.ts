@@ -125,7 +125,7 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   finding_add: ['finding-state', 'blocker-state', 'gate-evidence'],
   finding_resolve: ['finding-state', 'blocker-state', 'gate-evidence'],
   finding_dismiss: ['finding-state', 'blocker-state', 'gate-evidence'],
-  autopilot_review_submit: ['host-verdict', 'execution-evidence', 'gate-evidence'],
+  autopilot_review_submit: ['host-verdict', 'execution-evidence', 'freshness-policy', 'schema-contract', 'gate-evidence'],
   quorum_submit: ['host-verdict', 'execution-evidence', 'gate-evidence'],
   decision_doc_proposal: ['schema-contract', 'gate-evidence'],
   decision_doc_save: ['artifact', 'schema-contract', 'execution-evidence', 'gate-evidence'],

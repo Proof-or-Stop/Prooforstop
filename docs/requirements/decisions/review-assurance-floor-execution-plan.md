@@ -89,6 +89,14 @@ capability.
   followed by the same command without `--dryRun` after rerunning listed
   evidence commands, and `lattice autopilot_review_submit ... --materialDigest=<current-materialHash>`
   for fresh local host verdicts.
+- The degraded-single-host writer guidance emits one executable command per
+  required round. Each command uses explicit `--deriveBindings`, a real local
+  hostname/session identity, and the current material/story-files hashes. The
+  handler re-resolves current PASS validation evidence and derives the complete
+  canonical `keyId`/`validationDigest`/`promptDigest` envelope before writing.
+  Any supplied binding mismatch fails before persistence. Omitting
+  `--deriveBindings` retains the legacy warning/non-counting behavior and does
+  not silently synthesize bindings.
 - Stale verification evidence and stale or ignored host verdicts remain
   non-counting until refreshed or resubmitted over the current material hash.
   The runbook must not suggest bypassing stale-material checks.
@@ -104,6 +112,9 @@ capability.
   verdicts, truncates long ignored-verdict details, shows the validation,
   stale-evidence refresh, and local verdict resubmission commands, and preserves
   the local/non-authority boundary.
+- A smoke test proves the executable degraded guidance covers three distinct
+  one-host rounds, rejects stale/tampered bindings before write, and never
+  fabricates a second host or upgrades degraded assurance to 3x2.
 
 ## Risks
 

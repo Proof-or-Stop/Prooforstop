@@ -346,18 +346,20 @@ try {
       assert.equal(listVerdicts(commandRoot, 'local', STORY_ID).length, beforeDerived + 1, 'explicit derivation writes exactly one host verdict');
 
       const beforeRefusal = listVerdicts(commandRoot, 'local', STORY_ID).length;
-      assert.throws(() => createVerdictHandlers(ctx).autopilot_review_submit({
-        storyId: STORY_ID,
-        runId: 'round-derived-stale',
-        hostId: 'codex-derived',
-        provider: 'codex',
-        sessionId: 'codex-derived-session',
-        decision: 'pass',
-        deriveBindings: true,
-        materialDigest: 'stale-material',
-        json: true,
-      }), /supplied materialDigest does not match/);
-      assert.equal(listVerdicts(commandRoot, 'local', STORY_ID).length, beforeRefusal, 'binding mismatch fails before verdict persistence');
+      for (const field of ['materialDigest', 'storyFilesHash', 'keyId', 'validationDigest', 'promptDigest'] as const) {
+        assert.throws(() => createVerdictHandlers(ctx).autopilot_review_submit({
+          storyId: STORY_ID,
+          runId: `round-derived-stale-${field}`,
+          hostId: 'codex-derived',
+          provider: 'codex',
+          sessionId: 'codex-derived-session',
+          decision: 'pass',
+          deriveBindings: true,
+          [field]: `stale-${field}`,
+          json: true,
+        }), new RegExp(`supplied ${field} does not match`));
+        assert.equal(listVerdicts(commandRoot, 'local', STORY_ID).length, beforeRefusal, `${field} mismatch fails before verdict persistence`);
+      }
 
       const legacy = createVerdictHandlers(ctx).autopilot_review_submit({
         storyId: STORY_ID,

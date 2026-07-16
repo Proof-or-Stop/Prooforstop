@@ -118,6 +118,7 @@ for (const command of [
   'queue_governance_status',
   'queue_exception_set',
   'conduit_status',
+  'autopilot_review_submit',
   'quorum_submit',
   'host_runtime_list',
   'host_runtime_probe',
@@ -127,6 +128,10 @@ for (const command of [
 ]) {
   findTool(command);
 }
+
+assert.equal(schemaAccepts('autopilot_review_submit', 'deriveBindings', true), true, 'explicit deriveBindings flag accepts true');
+assert.equal(schemaAccepts('autopilot_review_submit', 'deriveBindings', 'true'), false, 'deriveBindings does not accept string coercion at schema level');
+assert.match(schemaDescription('autopilot_review_submit', 'deriveBindings'), /complete canonical binding envelope|current PASS evidence/i);
 
 const dispatchTool = findTool('dispatch');
 assert.match(dispatchTool.description, /story-only or exactly-one/, 'dispatch catalog description must explain registry-defined cardinality');

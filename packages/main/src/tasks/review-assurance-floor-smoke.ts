@@ -21,6 +21,7 @@ import {
   REVIEW_ASSURANCE_FLOOR_HIGH_RISK_HOSTS_PER_ROUND,
   REVIEW_ASSURANCE_FLOOR_HIGH_RISK_REQUIRED_ROUNDS,
   evaluateReviewAssuranceFloor,
+  buildReviewAssuranceFloorGuidance,
   formatReviewAssuranceFloorFailure,
   type ReviewAssuranceFloorReport,
 } from '../core/review-assurance-floor.js';
@@ -574,6 +575,19 @@ try {
     assert.match(oneRound.reasons.join('\n'), /3 rounds x 2 independent PASS hosts/);
     assert.match(oneRound.reasons.join('\n'), /no review_escalation_fallback record found/);
     assertProofAdmissibilityBlocked(oneRound);
+    const guidance = buildReviewAssuranceFloorGuidance(oneRound);
+    const singleHostCommands = guidance.legalWriterPaths.reviewerHost.filter(recipe => recipe.command.includes('autopilot_review_submit'));
+    assert.equal(singleHostCommands.length, 3, 'high-risk fallback guidance emits three distinct single-host rounds');
+    assert.equal(new Set(singleHostCommands.map(recipe => recipe.command.match(/--runId=([^ ]+)/)?.[1])).size, 3);
+    for (const recipe of singleHostCommands) {
+      assert.match(recipe.command, /--deriveBindings/);
+      assert.match(recipe.command, new RegExp(`--materialDigest=${materialHash}`));
+      assert.match(recipe.command, new RegExp(`--storyFilesHash=${storyFilesHash}`));
+      assert.match(recipe.command, /--hostId="\$\(hostname\)"/);
+      assert.match(recipe.command, /--provider=local/);
+      assert.doesNotMatch(recipe.command, /\{round-id\}|\{host\}|\{session\}|\{key\}|fresh-validation-digest|current-prompt-digest/);
+      execFileSync('zsh', ['-n', '-c', recipe.command], { stdio: ['ignore', 'pipe', 'pipe'] });
+    }
 
     const full = evaluateReviewAssuranceFloor({
       projectRoot: root,
