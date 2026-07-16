@@ -247,14 +247,14 @@
           "intentRef": "CHK-002:edge:0",
           "kind": "integration_test",
           "verdict": "success",
-          "file": "packages/main/src/tasks/review-escalation-smoke.ts",
-          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "file": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "Post-main-merge wrapper-root smoke proves validation and derived verdict paths share one lock authority.",
-          "headHash": "f0cf3eaba02f880bab56375f2317e64391373ea3",
-          "materialHash": "fb855b47f1f4e0d19688fbc9e464bb8767365b2ed4ddaf79de3ba036cef3ada4",
-          "storyFilesHash": "638b4b9467cc22a1a4653637312c3e04696ce35c334d6e385bada65dfc6d1107",
-          "timestamp": "2026-07-16T19:49:45.592Z"
+          "note": "Post-F-017 full smoke passed all 11 assertions, including reviewer metadata writes remaining unblocked while validate holds the wrapper-root-aware validation execution lock.",
+          "headHash": "1ad92bd62d7fe6fa45069026530fe0e52c1f2505",
+          "materialHash": "98aec514f8a7bf9ea2860209a52d9d673aed45a1f9863f50f28281ca70ca13fc",
+          "storyFilesHash": "277dbaf0469f64684ed1ad12610443eec162633906dce9304bb1032ea0c2ea16",
+          "timestamp": "2026-07-16T20:04:31.993Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
