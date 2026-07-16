@@ -228,7 +228,7 @@ function donePrepareCommand(storyId?: string): string {
 
 function autopilotReviewSubmitCommand(storyId: string | undefined, materialHash: string | null, storyFilesHash: string | null, round = 1): string {
   const id = storyRef(storyId);
-  return `lattice autopilot_review_submit --storyId=${id} --runId=${id}-degraded-r${round} --hostId="$(hostname)" --provider=local --sessionId="${'${LATTICE_SESSION_ID:-local-reviewer}'}" --decision=pass --deriveBindings --materialDigest=${materialRef(materialHash)} --storyFilesHash=${storyFilesRef(storyFilesHash)}`;
+  return `node bin/lattice.js autopilot_review_submit --storyId=${id} --runId=${id}-degraded-r${round} --hostId="$(hostname)" --provider=local --sessionId="${'${LATTICE_SESSION_ID:-local-reviewer}'}" --decision=pass --deriveBindings --materialDigest=${materialRef(materialHash)} --storyFilesHash=${storyFilesRef(storyFilesHash)}`;
 }
 
 function quorumSubmitCommand(storyId?: string): string {

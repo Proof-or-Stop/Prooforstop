@@ -61,6 +61,7 @@ import {
   type ProofStoryDiagnosticInput,
 } from '../core/proofstory.js';
 import { readTrustedProofStoryScopeArtifacts } from '../core/closeout-trust.js';
+import { evaluateValidationEvidenceAdmissibility, type ValidationEvidenceAdmissibility } from '../core/validation-evidence-admissibility.js';
 
 type ScopeLifecycleRow = {
   id?: string;
@@ -550,26 +551,6 @@ function currentChecklistCoverageSnapshot(ctx: HandlerContext, storyId: string):
   return canonicalCoverageSnapshotFromReport(coverage) ?? JSON.stringify({ entries: [] });
 }
 
-function coverageInputsMatchCurrentChecklist(ctx: HandlerContext, storyId: string, coverage: any): { ok: boolean; reason?: string } {
-  const recorded = canonicalCoverageSnapshotFromReport(coverage);
-  if (!recorded) return { ok: false, reason: 'existing validation PASS verificationCoverage has no entries snapshot' };
-  const current = currentChecklistCoverageSnapshot(ctx, storyId);
-  if (recorded !== current) {
-    return { ok: false, reason: 'existing validation PASS verificationCoverage does not match current checklist verificationIntent inputs or current verificationEvidence records' };
-  }
-  return { ok: true };
-}
-
-function storedValidateOutputIsPassing(output: string): { ok: boolean; reason?: string } {
-  try {
-    const parsed = JSON.parse(output);
-    if (parsed?.allPass === true || parsed?.allPassed === true) return { ok: true };
-    return { ok: false, reason: 'existing validation PASS output is not allPass/allPassed=true' };
-  } catch {
-    return { ok: false, reason: 'existing validation PASS output is not valid JSON' };
-  }
-}
-
 type ValidateEvidenceFailureKind = 'validation_failure' | 'infra_failure';
 
 function validateFailureKindFromResult(result: any): ValidateEvidenceFailureKind | undefined {
@@ -593,6 +574,20 @@ function blockingDirtyWorktreeReason(ctx: HandlerContext, storyId: string, gitCw
   const sample = blocked.blockingPaths.slice(0, 5).join(', ');
   const suffix = blocked.blockingPaths.length > 5 ? ', ...' : '';
   return `current worktree has blocking dirty path(s): ${sample}${suffix}`;
+}
+
+export function assessStoredValidationPassAdmissibility(ctx: HandlerContext, storyId: string): ValidationEvidenceAdmissibility {
+  const evidence = ctx.store.readTestEvidence(storyId);
+  const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+  return evaluateValidationEvidenceAdmissibility({
+    evidence,
+    expectedCommand: `lattice validate --story=${storyId} --json`,
+    currentCoverageSnapshot: currentChecklistCoverageSnapshot(ctx, storyId),
+    recordedCoverageSnapshot: canonicalCoverageSnapshotFromReport(evidence?.verificationCoverage),
+    blockingDirtyReason: blockingDirtyWorktreeReason(ctx, storyId, gitCwd),
+    gitCwd,
+    metadataRoot: ctx.root,
+  });
 }
 
 /**
@@ -625,57 +620,13 @@ export async function runValidateGate(
   _actor: { stop(): void },
 ): Promise<void> {
   const { store } = ctx;
-  const existingEvidence = store.readTestEvidence(storyId);
   const validateCommand = `lattice validate --story=${storyId} --json`;
-  let rerunReason = '';
-  if (existingEvidence?.result === 'PASS') {
-    const coverage = existingEvidence.verificationCoverage;
-    if (existingEvidence.command !== validateCommand) {
-      rerunReason = `existing validation PASS command is not ${validateCommand}`;
-    } else {
-      const outputPass = storedValidateOutputIsPassing(existingEvidence.output);
-      if (!outputPass.ok) {
-        rerunReason = outputPass.reason || 'existing validation PASS output is not passing';
-      }
-    }
-    if (!rerunReason) {
-      if (!coverage) {
-        rerunReason = 'existing validation PASS is missing verificationCoverage from lattice validate';
-      } else if (typeof coverage.missingRequired !== 'number') {
-        rerunReason = 'existing validation PASS verificationCoverage is missing missingRequired';
-      } else if (coverage.missingRequired !== 0) {
-        rerunReason = `existing validation PASS has ${coverage.missingRequired} required verification coverage gap(s)`;
-      } else {
-        const coverageInputMatch = coverageInputsMatchCurrentChecklist(ctx, storyId, coverage);
-        if (!coverageInputMatch.ok) {
-          rerunReason = coverageInputMatch.reason || 'existing validation PASS verificationCoverage is stale';
-        }
-      }
-    }
-    if (!rerunReason && existingEvidence.headHash && existingEvidence.materialHash) {
-      const evidenceGitCwd = resolveGitCwd({ store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
-      const dirtyReason = blockingDirtyWorktreeReason(ctx, storyId, evidenceGitCwd);
-      if (dirtyReason) {
-        rerunReason = dirtyReason;
-      } else {
-        const freshness = checkEvidenceFreshnessForGit(
-          evidenceGitCwd,
-          existingEvidence.headHash,
-          existingEvidence.materialHash,
-          ctx.root,
-          existingEvidence.storyFilesHash,
-        );
-        if (freshness.fresh) {
-          const warningSuffix = freshness.warnings?.length ? ` (${freshness.warnings.join('; ')})` : '';
-          ctx.log?.(`DEV→TEST gate: existing validation PASS is fresh${warningSuffix}; skipping lattice validate rerun.`);
-          return;
-        }
-        rerunReason = `existing validation PASS is stale (${freshness.reason})`;
-      }
-    } else if (!rerunReason) {
-      rerunReason = 'existing validation PASS is missing headHash/materialHash freshness bindings';
-    }
+  const admissibility = assessStoredValidationPassAdmissibility(ctx, storyId);
+  if (admissibility.ok) {
+    ctx.log?.(`DEV→TEST gate: existing validation PASS is fresh; skipping lattice validate rerun (admissible lineage=${admissibility.lineage}).`);
+    return;
   }
+  const rerunReason = admissibility.reasons.join('; ');
 
   ctx.log?.(rerunReason
     ? `DEV→TEST gate: ${rerunReason}; running lattice validate --json...`

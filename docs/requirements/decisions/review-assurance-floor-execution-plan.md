@@ -87,13 +87,20 @@ capability.
   `lattice validate --story=<storyId> --json`,
   `lattice verification_evidence_refresh_stale --storyId=<storyId> --dryRun`
   followed by the same command without `--dryRun` after rerunning listed
-  evidence commands, and `lattice autopilot_review_submit ... --materialDigest=<current-materialHash>`
+  evidence commands, and `node bin/lattice.js autopilot_review_submit ... --materialDigest=<current-materialHash>`
   for fresh local host verdicts.
-- The degraded-single-host writer guidance emits one executable command per
-  required round. Each command uses explicit `--deriveBindings`, a real local
+- The degraded-single-host writer guidance emits one executable worktree-local
+  `node bin/lattice.js autopilot_review_submit` command per required round; it
+  does not rely on a global `lattice` runtime that may resolve an older main
+  build. Each command uses explicit `--deriveBindings`, a real local
   hostname/session identity, and the current material/story-files hashes. The
-  handler re-resolves current PASS validation evidence and derives the complete
-  canonical `keyId`/`validationDigest`/`promptDigest` envelope before writing.
+  handler holds the story validation-execution lock while applying the same
+  canonical PASS-admissibility predicate as the TEST gate: canonical command,
+  parseable `allPass`, current complete verification-coverage snapshot, no
+  blocking dirty paths, exact material/story-files identity, and exact-head or
+  trusted story-metadata-descendant lineage. It then derives the complete
+  canonical `keyId`/`validationDigest`/`promptDigest` envelope and persists the
+  single verdict plus process event before releasing the lock.
   Any supplied binding mismatch fails before persistence. Omitting
   `--deriveBindings` retains the legacy warning/non-counting behavior and does
   not silently synthesize bindings.

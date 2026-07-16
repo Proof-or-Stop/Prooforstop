@@ -3444,7 +3444,7 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     assert(levelEntry.category === 'lattice-local-host-verdict', `${processFactLevelRegistryPath}: ${commandName} category must stay lattice-local-host-verdict`);
     assert(levelEntry.owner === 'handlers/verdict', `${processFactLevelRegistryPath}: ${commandName} owner drifted`);
     assert(/storyFilesHash/i.test(levelEntry.rationale), `${processFactLevelRegistryPath}: ${commandName} rationale must name storyFilesHash`);
-    for (const token of ['deriveBindings', 'keyId', 'validationDigest', 'promptDigest', 'fails closed', 'exactly one', 'legacy']) {
+    for (const token of ['deriveBindings', 'validation execution lock', 'canonical PASS-admissibility', 'trusted story-metadata-descendant', 'keyId', 'validationDigest', 'promptDigest', 'fails closed', 'exactly one', 'legacy']) {
       assert(new RegExp(token, 'i').test(levelEntry.rationale), `${processFactLevelRegistryPath}: ${commandName} rationale must name ${token}`);
     }
     assert(/review escalation/i.test(levelEntry.gateConsumer || ''), `${processFactLevelRegistryPath}: ${commandName} gateConsumer drifted`);
