@@ -163,9 +163,9 @@
         "docs/CLI.md",
         "AGENTS.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-16T21:05:48.920Z",
-      "endTime": null,
+      "endTime": "2026-07-16T21:08:28.323Z",
       "verificationIntent": {
         "happy": [
           {
@@ -221,7 +221,93 @@
         "test": [
           "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/cli-engine.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
+          "result": "pass",
+          "note": "CLI choke point rejects stale main runtime before Store, registry, hooks, handler dispatch, or validation and emits stable reasonCode plus one recovery command.",
+          "headHash": "a70c1bade862b3820964ce9efc07f24dfe5b0365",
+          "materialHash": "23fc80509bd38696fcf260bf03f1896b44e6a11988098aa1fef23b91d83b00b7",
+          "storyFilesHash": "054252377a39b58b09530086f1a6bd9affebcdb52531e3b23a40631aee1c1dfd",
+          "timestamp": "2026-07-16T21:08:28.615Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "node bin/lattice.js checklist_get {storyId:B-ebe4}",
+          "result": "pass",
+          "note": "The emitted worktree-local entrypoint form loads the current build and reaches normal command dispatch.",
+          "headHash": "a70c1bade862b3820964ce9efc07f24dfe5b0365",
+          "materialHash": "23fc80509bd38696fcf260bf03f1896b44e6a11988098aa1fef23b91d83b00b7",
+          "storyFilesHash": "054252377a39b58b09530086f1a6bd9affebcdb52531e3b23a40631aee1c1dfd",
+          "timestamp": "2026-07-16T21:08:28.800Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "bin/bootstrap-runner.js",
+          "command": "rg -n stale_global_runtime_in_worktree|local bootstrap docs/CLI.md bin/bootstrap-runner.js",
+          "result": "pass",
+          "note": "Stale mismatch has a stable code; bootstrap retains distinct missing-build recovery; ordinary cwd/lifecycle errors remain downstream diagnostics.",
+          "headHash": "a70c1bade862b3820964ce9efc07f24dfe5b0365",
+          "materialHash": "23fc80509bd38696fcf260bf03f1896b44e6a11988098aa1fef23b91d83b00b7",
+          "storyFilesHash": "054252377a39b58b09530086f1a6bd9affebcdb52531e3b23a40631aee1c1dfd",
+          "timestamp": "2026-07-16T21:08:28.980Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
+          "result": "pass",
+          "note": "Canonical identities produce the same reason and deterministic recovery command across symlink and path aliases.",
+          "headHash": "a70c1bade862b3820964ce9efc07f24dfe5b0365",
+          "materialHash": "23fc80509bd38696fcf260bf03f1896b44e6a11988098aa1fef23b91d83b00b7",
+          "storyFilesHash": "054252377a39b58b09530086f1a6bd9affebcdb52531e3b23a40631aee1c1dfd",
+          "timestamp": "2026-07-16T21:08:29.154Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "docs_check",
+          "file": "bin/bootstrap-runner.js",
+          "command": "rg -n global-fallback.lattice.session_brief bin/bootstrap-runner.js docs/CLI.md",
+          "result": "pass",
+          "note": "Global fallback is documented as one exact session_brief heartbeat command, never a generic command placeholder.",
+          "headHash": "a70c1bade862b3820964ce9efc07f24dfe5b0365",
+          "materialHash": "23fc80509bd38696fcf260bf03f1896b44e6a11988098aa1fef23b91d83b00b7",
+          "storyFilesHash": "054252377a39b58b09530086f1a6bd9affebcdb52531e3b23a40631aee1c1dfd",
+          "timestamp": "2026-07-16T21:08:29.322Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/cli-engine.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Authority gate is mechanically located before Store/registry creation and therefore before hooks, handlers, validation subprocesses, and persistence.",
+          "headHash": "a70c1bade862b3820964ce9efc07f24dfe5b0365",
+          "materialHash": "23fc80509bd38696fcf260bf03f1896b44e6a11988098aa1fef23b91d83b00b7",
+          "storyFilesHash": "054252377a39b58b09530086f1a6bd9affebcdb52531e3b23a40631aee1c1dfd",
+          "timestamp": "2026-07-16T21:08:29.501Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
+          "result": "pass",
+          "note": "Shell quoting preserves JSON, spaces, semicolons, and metacharacters as one inert argument in the recovery command.",
+          "headHash": "a70c1bade862b3820964ce9efc07f24dfe5b0365",
+          "materialHash": "23fc80509bd38696fcf260bf03f1896b44e6a11988098aa1fef23b91d83b00b7",
+          "storyFilesHash": "054252377a39b58b09530086f1a6bd9affebcdb52531e3b23a40631aee1c1dfd",
+          "timestamp": "2026-07-16T21:08:29.666Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
