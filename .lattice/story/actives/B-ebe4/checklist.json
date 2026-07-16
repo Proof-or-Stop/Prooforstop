@@ -318,9 +318,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "AGENTS.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-16T21:08:34.528Z",
-      "endTime": "2026-07-16T21:56:15.521Z",
+      "endTime": "2026-07-16T22:23:15.257Z",
       "verificationIntent": {
         "happy": [
           {
@@ -552,6 +552,16 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Refresh focused contract evidence after deterministic DONE-required process-fact fingerprint mismatch.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-16T22:23:15.257Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Deterministic DONE-required contract mismatch fixed and focused chain passed without rerunning full npm test.",
       "agent": "lattice-implementer"
     }
   ]
