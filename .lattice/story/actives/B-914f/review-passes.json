@@ -1395,6 +1395,41 @@
       },
       "readDiagnostics": [],
       "_hash": "b290d70daa68910c3ae927bd2795bde6344919490aa4fa6ea3aa890016acc3aa"
+    },
+    {
+      "id": "B-914f:RP-031",
+      "agent": "lattice-review-docs",
+      "note": "Round 14 targeted docs PASS. The merge-main refresh and fixture-manifest-only commit 1ad92bd62d do not change the documented product contract. routine-validation-fresh-pass-reuse.md remains aligned with the fail-closed implementation and observable commandExecutions=0 behavior. The umbrella workflow plan only links this separate routine-validate decision and remains accurate. Runtime entrypoint authority is outside B-914f. Minimal checks passed: npm run test:process-fact-contract; npm run test:docs-drift-smoke.",
+      "createdAt": "2026-07-16T20:12:03.674Z",
+      "reviewRound": "2026-07-16T20:05:26.354Z",
+      "reviewRunId": "B-914f:RR-056",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": 900
+        },
+        "digest": "89e1670dc4ed0ce790178caac08f7dd042978e4e789f55b616d576ec82b37986"
+      },
+      "readDiagnostics": [],
+      "_hash": "5aa3940c809abd40dd8ad52350c9d140b4cca26a9d4077a5fca9fdcf4767fef9"
     }
   ]
 }
