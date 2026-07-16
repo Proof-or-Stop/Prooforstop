@@ -250,7 +250,7 @@
       "desc": "packages/main/src/core/validation-evidence-reuse.ts:256-263 and packages/main/src/handlers/verifier.ts:1196-1199 — HIGH: F-010 is not fully sound. priorCoverageOnlyFailure proves only that coverage was missing, not that coverage was the sole reason for the stored FAIL. commandExecution deliberately treats optional-command failures as PASS, while persistence stores their status=warn result as overall FAIL; after coverage repair the classifier returns reusable=true and the configured path emits a clean reused PASS, erasing the optional failure/warning. The validate-file semantic predicate likewise accepts every status except literal fail, so status=warn/error/unknown plus missing coverage can be laundered the same way. Reviewer repro constructed exact-head evidence with result=FAIL, missingRequired=1 and optionalFailureCount=1 and observed {reusable:true}. Persist/validate an explicit overall-failure-cause (or reject any non-clean command status/optional failure), require validate-file semantic PASS positively, and add contradiction rows proving non-coverage contributors execute rather than reuse.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-16T15:08:21.999Z",
@@ -263,7 +263,11 @@
         "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in e9b305f771: removed production arbitrary-path smoke seam; race coverage now tests shared snapshot helper in a temp repo; reusable command PASS now requires zero optional failures; validate-file requires explicit normalized status=pass and rejects fail/warn/error/unknown/missing/false semantic flags. Build, dedicated handler smoke, protocol, DONE-required and process-fact checks pass.",
+      "resolvedAt": "2026-07-16T15:16:20.094Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
