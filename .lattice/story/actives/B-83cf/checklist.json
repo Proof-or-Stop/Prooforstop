@@ -114,6 +114,17 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "Running autopilot_review_submit with --deriveBindings reports one PASS verdict with canonical bindings; stale supplied bindings fail before any verdict is written.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-escalation-smoke.ts"
+        ]
       }
     },
     {
