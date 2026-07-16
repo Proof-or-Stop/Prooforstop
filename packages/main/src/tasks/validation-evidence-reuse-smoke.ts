@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
+  buildValidationExecutableLookup,
   buildRoutineValidationIdentity,
   classifyTrustedValidationLineage,
   evaluateRoutineValidationReuse,
@@ -410,6 +411,36 @@ function main(): void {
       winAmbientCollisionA.digest,
       winAmbientCollisionB.digest,
       'win32 duplicate ambient keys are deterministically deduplicated independent of insertion order',
+    );
+    const driveAbsoluteLookup = buildValidationExecutableLookup(
+      'C:\\tools\\validator',
+      { PATH: 'D:\\path-only', PATHEXT: '.EXE;.CMD' },
+      'win32',
+    );
+    assert.deepEqual(driveAbsoluteLookup, {
+      kind: 'explicit',
+      absolute: true,
+      commandCandidates: ['C:\\tools\\validator', 'C:\\tools\\validator.EXE', 'C:\\tools\\validator.CMD'],
+    }, 'win32 drive-absolute commands are explicit and never search PATH');
+    const uncLookup = buildValidationExecutableLookup(
+      '\\\\server\\share\\validator',
+      { PATH: 'D:\\path-only', PATHEXT: '.CMD' },
+      'win32',
+    );
+    assert.deepEqual(uncLookup, {
+      kind: 'explicit',
+      absolute: true,
+      commandCandidates: ['\\\\server\\share\\validator', '\\\\server\\share\\validator.CMD'],
+    }, 'win32 UNC commands are explicit absolute and retain PATHEXT candidates');
+    assert.deepEqual(
+      buildValidationExecutableLookup('validator', { PATH: 'D:\\bin', PATHEXT: '.CMD' }, 'win32'),
+      { kind: 'path-search', absolute: false, commandCandidates: ['validator', 'validator.CMD'] },
+      'a bare win32 command alone uses PATH search',
+    );
+    assert.deepEqual(
+      buildValidationExecutableLookup('tools\\validator', { PATH: 'D:\\bin', PATHEXT: '.CMD' }, 'win32'),
+      { kind: 'explicit', absolute: false, commandCandidates: ['tools\\validator', 'tools\\validator.CMD'] },
+      'a relative win32 command with separators is explicit, not PATH-searchable',
     );
     const winCommandCwd = join(root, 'win-command-cwd');
     const winCommandTools = join(winCommandCwd, 'tools');

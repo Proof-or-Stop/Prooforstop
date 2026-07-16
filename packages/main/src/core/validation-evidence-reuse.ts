@@ -44,12 +44,25 @@ function fileDigest(path: string): string | null {
   }
 }
 
-function resolveExecutable(command: string, cwd: string, env: NodeJS.ProcessEnv, platform: NodeJS.Platform): string | null {
+export interface ValidationExecutableLookup {
+  kind: 'explicit' | 'path-search';
+  absolute: boolean;
+  commandCandidates: string[];
+}
+
+/** Pure platform envelope: no filesystem reads, writes, callbacks, or env seams. */
+export function buildValidationExecutableLookup(
+  command: string,
+  env: NodeJS.ProcessEnv,
+  platform: NodeJS.Platform,
+): ValidationExecutableLookup {
   const platformPath = platform === 'win32' ? win32 : posix;
   const explicitPath = platform === 'win32'
     ? command.includes('/') || command.includes('\\')
     : command.includes('/');
-  const executableCandidates = (base: string): string[] => {
+  const absolute = platformPath.isAbsolute(command);
+  const base = explicitPath || absolute ? platformPath.normalize(command) : command;
+  const commandCandidates = (() => {
     if (platform !== 'win32' || platformPath.extname(base)) return [base];
     const extensions = String(env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD')
       .split(';')
@@ -57,21 +70,32 @@ function resolveExecutable(command: string, cwd: string, env: NodeJS.ProcessEnv,
       .filter(Boolean)
       .map((extension) => extension.startsWith('.') ? extension : `.${extension}`);
     return [base, ...extensions.map((extension) => `${base}${extension}`)];
+  })();
+  return {
+    kind: explicitPath || absolute ? 'explicit' : 'path-search',
+    absolute,
+    commandCandidates,
   };
-  if (platformPath.isAbsolute(command) || explicitPath) {
-    const candidate = platformPath.isAbsolute(command)
-      ? platformPath.normalize(command)
-      : platform === 'win32'
-        // On a real Windows host native resolve is win32. Splitting platform
-        // separators also makes platform-injected tests address the host temp
-        // tree without weakening the Windows relative-path semantics.
-        ? resolve(cwd, ...win32.normalize(command).split(/[\\/]+/))
-        : resolve(cwd, command);
-    return executableCandidates(candidate).find((path) => existsSync(path)) ?? null;
+}
+
+function resolveExecutable(command: string, cwd: string, env: NodeJS.ProcessEnv, platform: NodeJS.Platform): string | null {
+  const lookup = buildValidationExecutableLookup(command, env, platform);
+  if (lookup.kind === 'explicit') {
+    const candidates = lookup.commandCandidates.map((candidate) => {
+      if (lookup.absolute || platform === process.platform) {
+        return (platform === 'win32' ? win32 : posix).resolve(cwd, candidate);
+      }
+      // Platform-injected win32 tests map relative path segments into the host
+      // temp cwd. Production win32 takes the native branch above.
+      return resolve(cwd, ...win32.normalize(candidate).split(/[\\/]+/));
+    });
+    return candidates.find((path) => existsSync(path)) ?? null;
   }
   const pathDelimiter = platform === 'win32' ? ';' : delimiter;
   for (const dir of String(env.PATH ?? '').split(pathDelimiter).filter(Boolean)) {
-    const candidate = executableCandidates(join(dir, command)).find((path) => existsSync(path));
+    const candidate = lookup.commandCandidates
+      .map((name) => platform === process.platform ? (platform === 'win32' ? win32 : posix).join(dir, name) : join(dir, name))
+      .find((path) => existsSync(path));
     if (candidate) return candidate;
   }
   return null;

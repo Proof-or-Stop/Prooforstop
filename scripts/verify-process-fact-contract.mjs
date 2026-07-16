@@ -3162,7 +3162,7 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
     assert(reuseText.includes(token), `DONE-required pre-run reuse must preserve canonical/shared-lineage check: ${token}`);
   }
   const routineReuseText = read('packages/main/src/core/validation-evidence-reuse.ts');
-  for (const token of ['merge-base', '--is-ancestor', 'rev-list', 'diff-tree', 'isStoryMetadataPath', 'untrusted-lineage-path', 'effectiveEnvironmentDigest', "env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD'", "command.includes('\\\\')", 'platformPath.isAbsolute(command)', 'identity-missing-malformed-or-legacy', 'current-verification-coverage-incomplete', 'head-changed-during-reuse-evaluation']) {
+  for (const token of ['merge-base', '--is-ancestor', 'rev-list', 'diff-tree', 'isStoryMetadataPath', 'untrusted-lineage-path', 'effectiveEnvironmentDigest', 'buildValidationExecutableLookup', "env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD'", "command.includes('\\\\')", 'platformPath.isAbsolute(command)', 'identity-missing-malformed-or-legacy', 'current-verification-coverage-incomplete', 'head-changed-during-reuse-evaluation']) {
     assert(routineReuseText.includes(token), `shared routine validation reuse contract missing ${token}`);
   }
   const validationEnvironmentText = read('packages/main/src/core/validation-command-environment.ts');
