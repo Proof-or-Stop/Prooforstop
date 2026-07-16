@@ -1,6 +1,6 @@
 {
   "storyId": "B-19ca",
-  "checkedAt": "2026-07-16T10:30:08.552Z",
+  "checkedAt": "2026-07-16T10:32:57.359Z",
   "features": [
     {
       "feature": "Create one explicit typed agent registry shared by dispatch consumers",
@@ -94,9 +94,9 @@
       "source": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#84-rollback"
     },
     {
-      "feature": "Update the canonical role-separation subsystem owner document, or record a new canonical typed-dispatch decision, so shipped C4 semantics are not governed only by the umbrella plan",
-      "covered_by": null,
-      "status": "gap",
+      "feature": "Update the canonical role-separation subsystem owner document so shipped C4 semantics are synchronized with the owner contract rather than governed only by the umbrella plan",
+      "covered_by": "CHK-003",
+      "status": "covered",
       "excluded_by": null,
       "source": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#4-source-of-truth-boundaries"
     },
@@ -129,37 +129,23 @@
       "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
       "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
       "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md",
-      "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
       "docs/requirements/decisions/role-separation.md",
       "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
     ],
     "filesTriagedByName": [],
     "scanEscalationReason": null,
-    "candidateSpecSetDigest": "936a33f8c0a1963d04a23599284c62f594085bf308ea9c24500b159bbbc0a1dd",
+    "candidateSpecSetDigest": "ac01f291a52865e824c40a0396a1564a7d5f3b82f4686ba54cd42f6d3a01c6ca",
     "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
   },
   "summary": {
     "total": 16,
-    "covered": 13,
+    "covered": 14,
     "excluded": 2,
-    "gaps": 1,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "b3ef444ec6e802ade57193d34d8b4941fa814a183f97b011a45ca6610d2305f0",
-  "openQuestions": [
-    {
-      "id": "OQ-B19CA-001",
-      "q": "Should B-19ca amend role-separation.md directly, or create a new canonical typed-agent-dispatch decision and make role-separation.md supersede or link to it?",
-      "evidence": "The umbrella plan names role-separation.md as the canonical C4 subsystem contract and requires an implementation story to update that owner document or record a new decision when semantics change, but no checklist item or touchpoint currently does either.",
-      "sourcePointers": [
-        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#4-source-of-truth-boundaries",
-        "docs/requirements/decisions/role-separation.md",
-        "CHK-003"
-      ],
-      "resolution": "Update docs/requirements/decisions/role-separation.md directly as the canonical C4 subsystem owner, alongside the umbrella execution document; no new overlapping decision document is needed.",
-      "resolvedAt": "2026-07-16T10:31:40.593Z"
-    }
-  ]
+  "_hash": "fff01776cbfdf5ae875e695fe208ba00ddccc915ce0263f89478f02e7be8dbb1",
+  "openQuestions": []
 }
