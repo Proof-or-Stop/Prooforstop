@@ -872,7 +872,7 @@
       "desc": "The new PID-readiness harness cleans fs.watch, its probe, and its 15s readiness deadline idempotently on ready success/timeout, but it is not resource-safe after spawning the CLI. The spawned `cli` is not detached into its own process group and there is no outer try/finally that terminates it and awaits close. If `await ready` rejects, the readiness assertion/readFile throws, or another pre-close assertion fails, control reaches the block finally which only rmSyncs the fixture root; the CLI and descendants can remain alive. After readiness succeeds, `await closed` has no deadline, so the harness can hang forever precisely when a cleanup regression prevents CLI settlement. This means the test can leak the process tree or run unbounded on its failure paths even though its normal path passes. Spawn the CLI in an isolated group, add a single idempotent harness settle/cleanup routine that closes watcher/probe/deadlines, TERM->bounded KILLs the CLI group on every failure, awaits direct-child close/reap, and add a bounded post-readiness close deadline; ensure cleanup errors do not mask the original assertion. Add an injected handshake/close failure regression proving no surviving CLI/descendant and bounded completion. Production code is unchanged. Static audit: live-smoke-transcript-smoke.ts descendant block creates `cli` after the readiness Promise, then awaits ready/closed inside the outer try, while its finally only removes root. Normal smoke runs under review continue to execute, but their success cannot exercise this failure cleanup.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-16T00:38:04.706Z",
@@ -915,7 +915,11 @@
         "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
       ],
       "signatureTag": "missing|ts|readiness-harness-cleans",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Test-only commits d23d0afff4 through 4903b28a34 establish detached owned-group cleanup on every harness exit with bounded natural close, TERM-to-KILL fallback, close/reap waits, and injected readiness/assert/read/close-never coverage. Round 16 quality ran six consecutive focused smokes PASS and found no orphan.",
+      "resolvedAt": "2026-07-16T01:19:25.831Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c163:F-026",
