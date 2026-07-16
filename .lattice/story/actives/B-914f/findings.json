@@ -100,7 +100,7 @@
       "desc": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts:40-136,200-205,319-344 — MEDIUM: the claimed CHK-004 end-to-end matrix is not present. The only real CLI handler test is configured-command with one probe; fallback and validate-file are only passed through the pure identity builder, and the B-19ca 45-command case only calls evaluateRoutineValidationReuse with synthetic evidence instead of executing 45 commands once and then proving zero executions. Injected parse/hash/status/lineage/identity/second-HEAD failures and real locked TOCTOU execution are likewise not exercised. WHY: the evidence note overstates coverage and distinct handler branches can regress despite the helper smoke passing; add real handler executed→reused/fail-closed rows for configured, fallback, validate-file (and no-validator if retained), plus a real 45-command counter and failure seams required by CHK-004.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-16T14:32:15.907Z",
@@ -108,7 +108,11 @@
       "reviewRunId": "B-914f:RR-003",
       "_hash": "deb29952837c7866806a0857369b6404c4d5058cd0d05f7404029cdd5986dc8b",
       "signatureTag": "missing|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit e05e14fec3 runs real handler executed-then-reused matrices for configured, fallback, validate-file, semantic FAIL, and 45 configured commands with counter 45 then zero. Dedicated smoke PASS.",
+      "resolvedAt": "2026-07-16T14:46:25.887Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-914f:F-007",
