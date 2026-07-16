@@ -83,7 +83,93 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/delivery-check-freshness-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Targeted PASS chain covers the exact accepted outcome table, generated single/pairwise contradictions, CLI and direct-handler pre-write rejection, persisted-artifact machine/DONE agreement, L4 registry pins, and validation-reuse non-regression.",
+          "headHash": "69d0759fba12aef258b49590a10a3743aac0cf11",
+          "materialHash": "8b902ddbe240c3cb570c4aecb4cc455e65895759d4aa82a5c26567642c8fef9c",
+          "storyFilesHash": "f78ecec319945f23f2f659df4d8d6ae3c3918c7ea50c53d4d8e27157255c871a",
+          "timestamp": "2026-07-16T23:45:26.041Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/delivery-check-freshness-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Targeted PASS chain covers the exact accepted outcome table, generated single/pairwise contradictions, CLI and direct-handler pre-write rejection, persisted-artifact machine/DONE agreement, L4 registry pins, and validation-reuse non-regression.",
+          "headHash": "69d0759fba12aef258b49590a10a3743aac0cf11",
+          "materialHash": "8b902ddbe240c3cb570c4aecb4cc455e65895759d4aa82a5c26567642c8fef9c",
+          "storyFilesHash": "f78ecec319945f23f2f659df4d8d6ae3c3918c7ea50c53d4d8e27157255c871a",
+          "timestamp": "2026-07-16T23:45:26.041Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/delivery-check-freshness-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Targeted PASS chain covers the exact accepted outcome table, generated single/pairwise contradictions, CLI and direct-handler pre-write rejection, persisted-artifact machine/DONE agreement, L4 registry pins, and validation-reuse non-regression.",
+          "headHash": "69d0759fba12aef258b49590a10a3743aac0cf11",
+          "materialHash": "8b902ddbe240c3cb570c4aecb4cc455e65895759d4aa82a5c26567642c8fef9c",
+          "storyFilesHash": "f78ecec319945f23f2f659df4d8d6ae3c3918c7ea50c53d4d8e27157255c871a",
+          "timestamp": "2026-07-16T23:45:26.041Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/delivery-check-freshness-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Targeted PASS chain covers the exact accepted outcome table, generated single/pairwise contradictions, CLI and direct-handler pre-write rejection, persisted-artifact machine/DONE agreement, L4 registry pins, and validation-reuse non-regression.",
+          "headHash": "69d0759fba12aef258b49590a10a3743aac0cf11",
+          "materialHash": "8b902ddbe240c3cb570c4aecb4cc455e65895759d4aa82a5c26567642c8fef9c",
+          "storyFilesHash": "f78ecec319945f23f2f659df4d8d6ae3c3918c7ea50c53d4d8e27157255c871a",
+          "timestamp": "2026-07-16T23:45:26.041Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/delivery-check-freshness-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Targeted PASS chain covers the exact accepted outcome table, generated single/pairwise contradictions, CLI and direct-handler pre-write rejection, persisted-artifact machine/DONE agreement, L4 registry pins, and validation-reuse non-regression.",
+          "headHash": "69d0759fba12aef258b49590a10a3743aac0cf11",
+          "materialHash": "8b902ddbe240c3cb570c4aecb4cc455e65895759d4aa82a5c26567642c8fef9c",
+          "storyFilesHash": "f78ecec319945f23f2f659df4d8d6ae3c3918c7ea50c53d4d8e27157255c871a",
+          "timestamp": "2026-07-16T23:45:26.041Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/delivery-check-freshness-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Targeted PASS chain covers the exact accepted outcome table, generated single/pairwise contradictions, CLI and direct-handler pre-write rejection, persisted-artifact machine/DONE agreement, L4 registry pins, and validation-reuse non-regression.",
+          "headHash": "69d0759fba12aef258b49590a10a3743aac0cf11",
+          "materialHash": "8b902ddbe240c3cb570c4aecb4cc455e65895759d4aa82a5c26567642c8fef9c",
+          "storyFilesHash": "f78ecec319945f23f2f659df4d8d6ae3c3918c7ea50c53d4d8e27157255c871a",
+          "timestamp": "2026-07-16T23:45:26.041Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/delivery-check-freshness-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Targeted PASS chain covers the exact accepted outcome table, generated single/pairwise contradictions, CLI and direct-handler pre-write rejection, persisted-artifact machine/DONE agreement, L4 registry pins, and validation-reuse non-regression.",
+          "headHash": "69d0759fba12aef258b49590a10a3743aac0cf11",
+          "materialHash": "8b902ddbe240c3cb570c4aecb4cc455e65895759d4aa82a5c26567642c8fef9c",
+          "storyFilesHash": "f78ecec319945f23f2f659df4d8d6ae3c3918c7ea50c53d4d8e27157255c871a",
+          "timestamp": "2026-07-16T23:45:26.041Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
