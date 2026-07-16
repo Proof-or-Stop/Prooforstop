@@ -1415,7 +1415,7 @@ const knownBenignNonLiteralLoaderCalls = new Map<string, {
 ]);
 
 const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
-  ['bin/bootstrap-runner.js', '63b01812c1d328eac4a470c6c92f7b140fde24e19c225252cc33917eb0ae87ca'],
+  ['bin/bootstrap-runner.js', '1ec6b25bb116809b885adb83768d9fb96d24ad7549f31a144507dc4d84875765'],
   ['bin/lattice-codex.js', '9ad446b5d41be3ee62a7bde640289f55c4d1c5663a42b003f4abbd3a2ffaea57'],
 ]);
 
