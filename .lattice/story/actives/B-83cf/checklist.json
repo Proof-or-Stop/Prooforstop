@@ -142,7 +142,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-16T18:31:09.676Z",
       "endTime": "2026-07-16T18:33:35.671Z",
       "verificationIntent": {
@@ -452,6 +452,15 @@
       "to": "done",
       "reason": "Implementation commit 8c14dad32f exists and all 6/6 frozen verification intents have passing evidence; repair implementer metadata status that remained in_progress after later item updates.",
       "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-16T18:47:13.562Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Fix verified REVIEW findings F-002 and F-003 with canonical validation admissibility and atomic submission."
     }
   ]
 }
