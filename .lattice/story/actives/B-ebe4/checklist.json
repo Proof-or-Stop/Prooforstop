@@ -320,7 +320,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-16T21:08:34.528Z",
-      "endTime": "2026-07-16T21:55:59.636Z",
+      "endTime": "2026-07-16T21:56:15.521Z",
       "verificationIntent": {
         "happy": [
           {
@@ -387,10 +387,10 @@
           "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
           "note": "Hermetic main-old/worktree-new runtime rejects stale main and executes emitted worktree-local recovery.",
-          "headHash": "165739aeb4a244f94c06b2f7a2fa03a9bd94f99d",
+          "headHash": "5512808ff22786ed766be788f13dd8139ffa6e1b",
           "materialHash": "d25767544d78bb35da1351603fd2cfac490ecc26727194be309ccd03055f34f4",
           "storyFilesHash": "3e33192ae01cc3deb476966394c4b77445cc19fd6b2aea1904c8974ba9aee83e",
-          "timestamp": "2026-07-16T21:55:59.882Z"
+          "timestamp": "2026-07-16T21:56:16.023Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -399,10 +399,10 @@
           "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
           "note": "E2E retains stable reason, canonical recovery, recovered output, and zero side effects.",
-          "headHash": "165739aeb4a244f94c06b2f7a2fa03a9bd94f99d",
+          "headHash": "5512808ff22786ed766be788f13dd8139ffa6e1b",
           "materialHash": "d25767544d78bb35da1351603fd2cfac490ecc26727194be309ccd03055f34f4",
           "storyFilesHash": "3e33192ae01cc3deb476966394c4b77445cc19fd6b2aea1904c8974ba9aee83e",
-          "timestamp": "2026-07-16T21:56:00.095Z"
+          "timestamp": "2026-07-16T21:56:16.357Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -411,10 +411,10 @@
           "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
           "note": "Direct/symlink launchers, linked common-dir, nested cwd, PATH spoof, local runtime, explicit fallback, and external consumer pass.",
-          "headHash": "165739aeb4a244f94c06b2f7a2fa03a9bd94f99d",
+          "headHash": "5512808ff22786ed766be788f13dd8139ffa6e1b",
           "materialHash": "d25767544d78bb35da1351603fd2cfac490ecc26727194be309ccd03055f34f4",
           "storyFilesHash": "3e33192ae01cc3deb476966394c4b77445cc19fd6b2aea1904c8974ba9aee83e",
-          "timestamp": "2026-07-16T21:56:00.423Z"
+          "timestamp": "2026-07-16T21:56:16.586Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -423,10 +423,10 @@
           "command": "node scripts/verify-runtime-fact-contract.mjs",
           "result": "pass",
           "note": "Runtime fact contract confirms authority preflight ordering and eight runtime facts.",
-          "headHash": "165739aeb4a244f94c06b2f7a2fa03a9bd94f99d",
+          "headHash": "5512808ff22786ed766be788f13dd8139ffa6e1b",
           "materialHash": "d25767544d78bb35da1351603fd2cfac490ecc26727194be309ccd03055f34f4",
           "storyFilesHash": "3e33192ae01cc3deb476966394c4b77445cc19fd6b2aea1904c8974ba9aee83e",
-          "timestamp": "2026-07-16T21:56:00.612Z"
+          "timestamp": "2026-07-16T21:56:16.796Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -435,10 +435,10 @@
           "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
           "note": "Instrumented stale validate/init/dashboard retain zero handlers, hooks, subprocesses, story/evidence writes, and serve startup.",
-          "headHash": "165739aeb4a244f94c06b2f7a2fa03a9bd94f99d",
+          "headHash": "5512808ff22786ed766be788f13dd8139ffa6e1b",
           "materialHash": "d25767544d78bb35da1351603fd2cfac490ecc26727194be309ccd03055f34f4",
           "storyFilesHash": "3e33192ae01cc3deb476966394c4b77445cc19fd6b2aea1904c8974ba9aee83e",
-          "timestamp": "2026-07-16T21:56:00.793Z"
+          "timestamp": "2026-07-16T21:56:17.048Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -447,10 +447,10 @@
           "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
           "note": "Canonical loaded-module identity defeats argv, PATH, cwd, basename, symlink, and dot-segment spoofing.",
-          "headHash": "165739aeb4a244f94c06b2f7a2fa03a9bd94f99d",
+          "headHash": "5512808ff22786ed766be788f13dd8139ffa6e1b",
           "materialHash": "d25767544d78bb35da1351603fd2cfac490ecc26727194be309ccd03055f34f4",
           "storyFilesHash": "3e33192ae01cc3deb476966394c4b77445cc19fd6b2aea1904c8974ba9aee83e",
-          "timestamp": "2026-07-16T21:56:00.990Z"
+          "timestamp": "2026-07-16T21:56:17.271Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
@@ -458,11 +458,11 @@
           "file": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/validation-protocol-smoke.js",
           "result": "pass",
-          "note": "Exact cli-engine and bootstrap-runner fingerprints now match current sources; DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS and all five knownBenign bootstrap loader call shapes remain unchanged; full focused chain passes.",
-          "headHash": "165739aeb4a244f94c06b2f7a2fa03a9bd94f99d",
+          "note": "Exact cli-engine and bootstrap-runner fingerprints now match current sources; DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS and all four knownBenign bootstrap loader call shapes remain unchanged; full focused chain passes.",
+          "headHash": "5512808ff22786ed766be788f13dd8139ffa6e1b",
           "materialHash": "d25767544d78bb35da1351603fd2cfac490ecc26727194be309ccd03055f34f4",
           "storyFilesHash": "3e33192ae01cc3deb476966394c4b77445cc19fd6b2aea1904c8974ba9aee83e",
-          "timestamp": "2026-07-16T21:56:01.194Z"
+          "timestamp": "2026-07-16T21:56:17.558Z"
         }
       ]
     }
