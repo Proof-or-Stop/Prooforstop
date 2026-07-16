@@ -386,6 +386,50 @@
       },
       "readDiagnostics": [],
       "_hash": "1213ba9c27fe69cdb3da86f978dad155e4d9e996f0285ec64b586d341c1f09d3"
+    },
+    {
+      "id": "B-ebe4:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Final targeted docs review passed. Relevant source, docs, bootstrap, and focused-smoke blobs are unchanged from the prior fully read passing review. Current focused smoke confirms raw-argv rejection before handlers, session_brief as the sole explicit global-fallback exemption, shell-safe local recovery, and no false block for external consumers.",
+      "createdAt": "2026-07-16T22:10:09.006Z",
+      "reviewRound": "2026-07-16T21:56:53.499Z",
+      "reviewRunId": "B-ebe4:RR-024",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "bin/bootstrap-runner.js",
+          "docs/CLI.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f21983f7cc56fd663a0f9021c9f1321ece25ebb77fc79bba2f9c2efa42f2cbea",
+        "corpusDigest": "c32857bb0dce01204444115f085cb28f4df249ebca7e92092085ebdf61db9d44"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "09499903b7d206680c55c466eb55a970a12b22561bec73f4f8b0c9066a4c757c"
+      },
+      "readDiagnostics": [],
+      "_hash": "b3ac727f2bac71320f633b7c05ab293fa1c23779b61a6e8e4383fa624e4232b2"
     }
   ]
 }
