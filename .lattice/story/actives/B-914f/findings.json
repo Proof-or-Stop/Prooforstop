@@ -176,7 +176,7 @@
       "desc": "packages/main/src/core/validation-evidence-reuse.ts:252-274 and packages/main/src/tasks/validation-evidence-reuse-smoke.ts:280-307 — HIGH: the reuse classifier accepts any prior overall result=FAIL whenever structured commandExecution is PASS, but never proves that the FAIL was coverage-only. The smoke hard-codes result=FAIL with prior verificationCoverage.missingRequired=1, yet changing that prior report to missingRequired=0 (or omitting it) still returns reusable=true. This contradicts CHK-005 happy:0/canonical wording (old FAIL is eligible only when caused by stale/incomplete coverage) and the fail-closed rule for contradictory/forged metadata; a malformed FAIL receipt can therefore be laundered into a reused PASS. Require prior result PASS, or for prior result FAIL require a complete prior coverage report with missingRequired>0 together with commandExecution PASS; add missing/zero prior-coverage contradiction rows proving execution.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-16T14:51:14.208Z",
@@ -184,7 +184,11 @@
       "reviewRunId": "B-914f:RR-006",
       "_hash": "e0f24e7a6689fc50197a2bd7fa36722b3e9d0d723284161f070df31ffb8fdd9c",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in b87ee57fee: evidence kinds align with CLI intents; validate-file changed-files filters material-excluded metadata/runtime on a real story branch; prior overall FAIL requires stored coverage missingRequired>0. Dedicated handler smoke and protocol/DONE/process-fact regressions pass.",
+      "resolvedAt": "2026-07-16T15:02:38.167Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
