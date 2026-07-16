@@ -622,7 +622,7 @@
       "desc": "Layer ordering is correct for ordinary inherited maxima, but collapses at the supported Node timer clamp: `positiveInt` clamps the nested inherited max to NODE_TIMER_MAX_MS, then both `safeTimeoutSum([nested, cleanupGrace])` and the outer wrapper sum saturate to the same NODE_TIMER_MAX_MS. Repro after build: `ACTIVE=$(realpath \"$(command -v lattice)\") node --input-type=module -e \"import { liveSmokeCaptureBudget,effectiveCommandCliMaxBudget,NODE_TIMER_MAX_MS } from './packages/main/dist/core/done-required-timeout-budget.js'; const active=process.env.ACTIVE,cmd='lattice done_required_validate --storyId=B-c163 --json',env={...process.env,LATTICE_MAX_TIMEOUT_MS:String(Number.MAX_SAFE_INTEGER)}; const c=liveSmokeCaptureBudget(process.cwd(),cmd,env,active); const o=effectiveCommandCliMaxBudget(process.cwd(),'live_smoke_transcript',{capture:cmd},env,active); console.log(JSON.stringify({nested:c.nestedMaxTimeoutMs,capture:c.timeoutMs,outer:o.timeoutMs,nodeMax:NODE_TIMER_MAX_MS}));\"` prints nested=capture=outer=2147483647. Because the outer CLI watchdog starts before capture spawn and the capture timer starts before nested CLI initialization, equal numeric ceilings still allow the outer layer to fire first and preempt the intended nested structured timeout plus TERM/KILL/reap cleanup. This affects only the ~24.8-day saturation edge and remains fail-closed, so severity is medium, but it does not satisfy the requested ordered/fail-closed clamp boundary. Reserve wrapper grace below the clamp (including ensuring the nested child receives the reserved effective max), or implement an explicit saturated-edge policy/test that guarantees cleanup and structured outcome without relying on equal-start timers. Ordinary 1000ms evidence is correct: nested=1000, capture=4000, outer=34000, unrelated command=1000; focused live-smoke/process-fact/retired-vocabulary tests all pass.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-16T00:01:46.965Z",
@@ -667,7 +667,11 @@
         "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
       ],
       "signatureTag": "edge|ts|layer-ordering-correct",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 2134c9e7a1 reserves both wrapper grace layers below NODE_TIMER_MAX_MS and reports requestedNestedMaxTimeoutMs, nestedMaxTimeoutMs, saturationAdjusted, and saturation-adjusted source. RR-055 verifies MAX_SAFE => requested=2147483647, effective=2147450647, capture=2147453647, outer=2147483647 with strict ordering; handler child-env observer confirms the effective value is executed, not merely reported.",
+      "resolvedAt": "2026-07-16T00:26:31.028Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c163:F-021",
