@@ -425,11 +425,20 @@ export function assertRegisteredAgentMutationAllowed(
   actor: string | undefined | null,
   command: AgentDispatchMutationCommand,
 ): AgentDispatchRegistryEntry | null {
+  const actorName = actor?.trim();
+  // An omitted actor is the explicit main-host compatibility path. Once a
+  // caller supplies an identity, however, that identity must be registered:
+  // prefix lookalikes and misspellings must never inherit host authority.
+  if (!actorName) return null;
   const entry = resolveRegisteredAgentActor(actor);
-  if (!entry) return null;
+  if (!entry) {
+    throw new Error(
+      `${command} refused: actor "${actorName}" is not registered in the agent dispatch registry. [agent_dispatch_actor_unknown]`,
+    );
+  }
   if (!entryPermitsMutation(entry, command)) {
     throw new Error(
-      `${command} refused: dispatched role "${actor!.trim()}" has no ${command} authority in the agent dispatch registry. [agent_dispatch_mutation_denied]`,
+      `${command} refused: dispatched role "${actorName}" has no ${command} authority in the agent dispatch registry. [agent_dispatch_mutation_denied]`,
     );
   }
   return entry;

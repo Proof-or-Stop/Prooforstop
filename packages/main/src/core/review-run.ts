@@ -29,20 +29,26 @@ import {
   readTrustedProofStoryScopeArtifacts,
   validateCurrentCloseoutArtifact,
 } from './closeout-trust.js';
-import { resolveRegisteredAgentActor } from './agent-dispatch-registry.js';
+import { AGENT_DISPATCH_REGISTRY, resolveRegisteredAgentActor } from './agent-dispatch-registry.js';
 
 export const REVIEW_RUN_SALT = 'lattice-review-run-integrity-v1';
 
-export const REVIEW_RUN_LANES = [
-  'lattice-review-concept',
-  'lattice-review-quality',
-  'lattice-review-test-coverage',
-  'lattice-review-behavior',
-  'lattice-review-docs',
-  'lattice-review-channel',
-] as const;
+type ReviewLaneForEntry<Entry> = Entry extends {
+  readonly allowedPhases: infer Phases extends readonly string[];
+  readonly reviewerLane: infer Lane extends string;
+}
+  ? 'REVIEW' extends Phases[number] ? Lane : never
+  : never;
 
-export type ReviewRunLane = typeof REVIEW_RUN_LANES[number];
+export type ReviewRunLane = ReviewLaneForEntry<(typeof AGENT_DISPATCH_REGISTRY)[number]>;
+
+/** Stable registry-order projection; the dispatch registry is the sole lane authority. */
+export const REVIEW_RUN_LANES: readonly ReviewRunLane[] = Object.freeze(
+  AGENT_DISPATCH_REGISTRY.flatMap((entry) =>
+    entry.reviewerLane && (entry.allowedPhases as readonly string[]).includes('REVIEW')
+      ? [entry.reviewerLane as ReviewRunLane]
+      : []),
+);
 export type ReviewEvidenceKind = 'finding' | 'pass';
 export type ReviewRunIssueCode =
   | 'missing_review_run_id'

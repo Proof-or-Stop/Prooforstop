@@ -487,9 +487,10 @@ export function createFindingHandlers(ctx: HandlerContext) {
       assertCwdInWorktree(store, args.storyId);
 
       // Record caller identity (env var LATTICE_AGENT is set by subagent)
-      const missingAttribution = !args.agent && !process.env.LATTICE_AGENT;
-      const agent = args.agent || process.env.LATTICE_AGENT || 'main';
-      assertRegisteredAgentMutationAllowed(agent, 'finding_add');
+      const dispatchedActor = args.agent || process.env.LATTICE_AGENT;
+      const missingAttribution = !dispatchedActor;
+      assertRegisteredAgentMutationAllowed(dispatchedActor, 'finding_add');
+      const agent = dispatchedActor || 'main';
       const category = normalizeFindingCategory(args.category);
       // B-3fad CHK-001: evidenceState defaults to verified; explicit suspected/disproven requires the accompanying fields.
       const evidence = resolveEvidenceState(args);

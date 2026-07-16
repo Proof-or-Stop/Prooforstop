@@ -24,7 +24,7 @@ import { createInitCheckHandlers } from '../handlers/init-check.js';
 import { createScopeCheckHandlers } from '../handlers/scope-check.js';
 import { createDeliveryCheckHandlers } from '../handlers/delivery-check.js';
 import { captureReviewerReadEvent } from '../core/reviewer-read-evidence.js';
-import { resolveReviewRunLane } from '../core/review-run.js';
+import { REVIEW_RUN_LANES, resolveReviewRunLane } from '../core/review-run.js';
 import type {
   AgentDispatchMutationCommand,
   AgentDispatchRegistryEntry,
@@ -62,6 +62,13 @@ assert.equal(new Set(canonicalNames).size, canonicalNames.length, 'canonical age
 const allNames = AGENT_DISPATCH_REGISTRY.flatMap((entry) => [entry.canonicalName, ...entry.aliases]);
 assert.equal(new Set(allNames).size, allNames.length, 'canonical names and aliases must not collide');
 assert.deepEqual(AGENT_DISPATCH_ACCEPTED_TYPES, [...allNames].sort(), 'accepted type list must enumerate the full table');
+assert.deepEqual(
+  REVIEW_RUN_LANES,
+  AGENT_DISPATCH_REGISTRY
+    .filter((entry) => entry.reviewerLane && (entry.allowedPhases as readonly string[]).includes('REVIEW'))
+    .map((entry) => entry.reviewerLane),
+  'review-run lanes must be the stable registry-order projection, not a second authority list',
+);
 assert.equal(
   AGENT_DISPATCH_REGISTRY.some((entry) => String(entry.roleClass) === 'item-reviewer'),
   false,
@@ -268,6 +275,13 @@ assert.throws(
   /agent_dispatch_mutation_denied/,
   'implementers must not receive review-pass authority',
 );
+assert.equal(assertRegisteredAgentMutationAllowed(undefined, 'finding_add'), null, 'omitted actor retains explicit main-host compatibility');
+assert.equal(assertRegisteredAgentMutationAllowed('   ', 'finding_add'), null, 'blank actor retains explicit main-host compatibility');
+assert.throws(
+  () => assertRegisteredAgentMutationAllowed('lattice-review-lookalike', 'finding_add'),
+  /agent_dispatch_actor_unknown/,
+  'every nonblank unknown actor must fail closed',
+);
 
 const root = mkdtempSync(join(tmpdir(), 'agent-dispatch-consumer-smoke-'));
 try {
@@ -300,6 +314,21 @@ try {
   const initCheckHandlers = createInitCheckHandlers(handlerContext);
   const scopeCheckHandlers = createScopeCheckHandlers(handlerContext);
   const deliveryCheckHandlers = createDeliveryCheckHandlers(handlerContext);
+  const mutationState = () => JSON.stringify({
+    checklist: store.readChecklist(storyId),
+    findings: store.readFindings(storyId),
+    reviewPasses: store.readReviewPasses(storyId),
+    reviewRuns: store.readReviewRuns(storyId),
+    initCheck: store.readInitCheck(storyId),
+    scopeCheck: store.readScopeCheck(storyId),
+    deliveryCheck: store.readDeliveryCheck(storyId),
+    processEvents: store.readProcessEvents(storyId),
+  });
+  const assertUnknownActorRejectedWithoutMutation = (command: string, invoke: () => unknown) => {
+    const before = mutationState();
+    assert.throws(invoke, /agent_dispatch_actor_unknown/, `${command} must fail closed for a nonblank unknown actor`);
+    assert.equal(mutationState(), before, `${command} unknown-actor rejection must leave story state byte-equivalent`);
+  };
   for (const agentType of ['verification-intent', 'test-intent', 'test-case-reviewer']) {
     const prompt = handlers.dispatch({ storyId, itemId: 'CHK-001', agentType }).prompt;
     assert.match(prompt, /define verification intent/);
@@ -352,9 +381,36 @@ try {
     /agent_dispatch_mutation_denied/,
   );
   assert.equal(store.readInitCheck(storyId), null, 'denied init_check_set must have no side effect');
+  assertUnknownActorRejectedWithoutMutation('checklist_update', () => checklistHandlers.checklist_update({
+    storyId, itemId: 'CHK-001', status: 'done', actor: 'lattice-review-lookalike',
+  }));
+  assertUnknownActorRejectedWithoutMutation('finding_add', () => findingHandlers.finding_add({
+    storyId, desc: 'must not persist', severity: 'high', category: 'missing', agent: 'lattice-review-lookalike',
+  }));
+  assertUnknownActorRejectedWithoutMutation('review_pass_set', () => findingHandlers.review_pass_set({
+    storyId, agent: 'lattice-review-lookalike', note: 'must not persist an unknown actor review pass',
+    reviewRunId: 'RR-unknown', readManifest: { routedCandidates: [], fullyRead: [], triaged: [] },
+  }));
+  assertUnknownActorRejectedWithoutMutation('review_run_start', () => reviewRunHandlers.review_run_start({
+    storyId, agent: 'lattice-review-lookalike',
+  }));
+  assertUnknownActorRejectedWithoutMutation('init_check_set', () => initCheckHandlers.init_check_set({
+    storyId, issues: [], agent: 'lattice-review-lookalike',
+  }));
   const previousAgent = process.env.LATTICE_AGENT;
-  process.env.LATTICE_AGENT = 'test-intent';
+  process.env.LATTICE_AGENT = 'lattice-review-lookalike';
   try {
+    assertUnknownActorRejectedWithoutMutation('scope_check_save', () => scopeCheckHandlers.scope_check_save({
+      storyId, features: [], summary: { total: 0, covered: 0, excluded: 0, gaps: 0 },
+      readManifest: { routedCandidates: [], fullyRead: [], triaged: [] },
+    }));
+    assertUnknownActorRejectedWithoutMutation('delivery_check_set', () => deliveryCheckHandlers.delivery_check_set({
+      storyId, docsPromises: [], realMachineTests: [], closingSelfCheck: { summary: 'must not persist delivery evidence' },
+    }));
+    assertUnknownActorRejectedWithoutMutation('finding_resolve', () => findingHandlers.finding_resolve({
+      storyId, findingId: `${storyId}:F-001`,
+    }));
+    process.env.LATTICE_AGENT = 'test-intent';
     assert.throws(
       () => scopeCheckHandlers.scope_check_save({
         storyId, features: [], summary: { total: 0, covered: 0, excluded: 0, gaps: 0 },

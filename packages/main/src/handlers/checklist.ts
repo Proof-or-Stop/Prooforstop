@@ -557,7 +557,11 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       }
 
       const checklistActor = checklistActorFrom(args);
-      const dispatchedRole = assertRegisteredAgentMutationAllowed(checklistActor, 'checklist_update');
+      // USER is retained below for human audit attribution, but it is not a
+      // dispatched-agent identity. Only an explicit actor/agent or
+      // LATTICE_AGENT participates in registry authorization.
+      const dispatchActor = args.agent?.trim() || args.actor?.trim() || process.env.LATTICE_AGENT?.trim();
+      const dispatchedRole = assertRegisteredAgentMutationAllowed(dispatchActor, 'checklist_update');
       if (dispatchedRole?.roleClass === 'verification-intent') {
         const disallowed = [
           args.status !== undefined && 'status',
