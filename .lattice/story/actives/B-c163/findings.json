@@ -448,7 +448,7 @@
       "desc": "The inherited-max fix still lets the outer live-smoke wrapper terminate before the nested closeout reaches its authoritative deadline and cleanup. `liveSmokeCaptureBudget` sets the handler timer to exactly inherited `LATTICE_MAX_TIMEOUT_MS` (done-required-timeout-budget.ts:200-215), while the nested done_required_validate/done_prepare starts its own same-duration watchdog only after process spawn and CLI startup. More directly, cli-engine.ts:1005-1013 applies the same explicit max to the outer `live_smoke_transcript` invocation, overriding commandCliMaxBudget's intended capture+30s grace. Repro after build: `LATTICE_MAX_TIMEOUT_MS=1000 node --input-type=module -e \"import { resolve } from 'node:path'; import { liveSmokeCaptureBudget, commandCliMaxBudget, NODE_TIMER_MAX_MS } from './packages/main/dist/core/done-required-timeout-budget.js'; const cmd=resolve('bin/lattice.js')+' done_required_validate --storyId=B-c163 --json'; const capture=liveSmokeCaptureBudget(process.cwd(),cmd,process.env); const derivedOuter=commandCliMaxBudget(process.cwd(),'live_smoke_transcript',{capture:cmd}); const explicit=Math.min(NODE_TIMER_MAX_MS,Math.floor(Number(process.env.LATTICE_MAX_TIMEOUT_MS))); console.log(JSON.stringify({captureTimeoutMs:capture.timeoutMs,derivedOuterTimeoutMs:derivedOuter.timeoutMs,effectiveOuterCliTimeoutMs:explicit,effectiveNestedCliTimeoutMs:explicit})); if (!(capture.timeoutMs===explicit && explicit<derivedOuter.timeoutMs)) process.exit(2);\"` prints capture=1000, derivedOuter=31000, but effective outer CLI=1000 and effective nested CLI=1000. Since the outer watchdog starts before spawn and the handler timer starts before nested CLI initialization, equality is an effective shorter ceiling; structured nested timeout output/cleanup can be preempted. Preserve the nested inherited max as authoritative, but give the handler a bounded post-deadline cleanup/reap grace and make the outer live_smoke CLI use its derived wrapper budget (which already incorporates inherited max) rather than reapplying the raw explicit max. `LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS` may intentionally remain lower-only. Inline executable-affecting env assignments correctly remain unrecognized/60s and must stay so.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-15T23:47:21.998Z",
@@ -493,7 +493,11 @@
         "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
       ],
       "signatureTag": "edge|ts|inherited-still-lets",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 2134c9e7a1 gives every trusted nested closeout a business deadline, 3000ms capture termination/reap grace, and 30000ms outer wrapper grace; effectiveCommandCliMaxBudget preserves the derived outer wrapper instead of reapplying raw explicit max. RR-055 confirms strict ordering for inherited and default paths and actual CLI timeout emits one JSON terminal with exitCode null and no orphan. The force-kill escalation timer remains referenced until Promise settlement.",
+      "resolvedAt": "2026-07-16T00:26:29.198Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c163:F-018",
