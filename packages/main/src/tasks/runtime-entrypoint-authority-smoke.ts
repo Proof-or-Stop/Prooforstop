@@ -228,12 +228,60 @@ try {
   assert.notEqual(blockedFallbackCli.status, 0);
   assert.match(blockedFallbackCli.stderr, /stale_global_runtime_in_worktree/);
 
+  for (const informationalCommand of [['help'], ['version'], ['check', '--help']]) {
+    const staleInformational = spawnSync(process.execPath, [mainCli, '--root', worktreeRoot, ...informationalCommand], {
+      cwd: worktreeRoot,
+      encoding: 'utf8',
+      env: { ...process.env, LATTICE_CODEX_ENTRYPOINT: 'global-fallback' },
+    });
+    assert.notEqual(staleInformational.status, 0);
+    assert.match(staleInformational.stderr, /stale_global_runtime_in_worktree/, `${informationalCommand.join(' ')} must not become a fallback exemption`);
+  }
+
   const externalCli = spawnSync(process.execPath, [mainCli, '--root', externalRoot, 'check', '--json'], {
     cwd: externalRoot,
     encoding: 'utf8',
   });
   assert.equal(externalCli.status, 0, `external consumer must remain executable: ${externalCli.stderr}`);
   assert.match(externalCli.stdout, /"runtimeMode"/);
+
+  // Early-path regressions: authority must run before standalone executors and
+  // before stale tool/schema lookup. These requests would otherwise mutate via
+  // init, start the long-lived dashboard, or reject a worktree-valid utils
+  // command as unknown without ever printing the local recovery.
+  const beforeInitStatus = git(worktreeRoot, ['status', '--porcelain=v1', '--untracked-files=all']);
+  const staleInit = spawnSync(process.execPath, [mainCli, 'init'], {
+    cwd: worktreeRoot,
+    encoding: 'utf8',
+    timeout: 5_000,
+  });
+  assert.notEqual(staleInit.status, 0);
+  assert.match(staleInit.stderr, /Blocked \[stale_global_runtime_in_worktree\] before dispatch/);
+  assert.equal(git(worktreeRoot, ['status', '--porcelain=v1', '--untracked-files=all']), beforeInitStatus, 'stale init must write nothing');
+
+  const dashboardStarted = Date.now();
+  const staleDashboard = spawnSync(process.execPath, [mainCli, '--root', worktreeRoot, 'dashboard', '--interval=999999'], {
+    cwd: worktreeRoot,
+    encoding: 'utf8',
+    timeout: 5_000,
+  });
+  assert.notEqual(staleDashboard.status, 0);
+  assert.equal(staleDashboard.signal, null, 'dashboard must be rejected, not killed by the harness timeout');
+  assert.ok(Date.now() - dashboardStarted < 2_000, 'dashboard rejection must return before server startup');
+  assert.match(staleDashboard.stderr, /Blocked \[stale_global_runtime_in_worktree\] before dispatch/);
+  assert.equal(existsSync(join(worktreeRoot, '.lattice-serve.json')), false, 'dashboard must not create serve metadata');
+
+  const staleWorktreeOnlyCommand = spawnSync(process.execPath, [mainCli, '--root', worktreeRoot, 'aux_doc_list', '--format=json'], {
+    cwd: worktreeRoot,
+    encoding: 'utf8',
+  });
+  assert.notEqual(staleWorktreeOnlyCommand.status, 0);
+  assert.doesNotMatch(staleWorktreeOnlyCommand.stderr, /Unknown command/);
+  assert.match(staleWorktreeOnlyCommand.stderr, /Blocked \[stale_global_runtime_in_worktree\] before dispatch/);
+  const auxRecovery = staleWorktreeOnlyCommand.stderr.match(/^Retry: (.+)$/m)?.[1];
+  assert.ok(auxRecovery, 'worktree-only command must receive canonical local recovery before stale tool lookup');
+  const recoveredAux = spawnSync('/bin/sh', ['-c', auxRecovery], { cwd: tmp, encoding: 'utf8' });
+  assert.equal(recoveredAux.status, 0, `worktree-only recovered command should execute: ${recoveredAux.stderr}`);
 
   console.log('Runtime entrypoint authority smoke: PASS — stale global calls executed 0 handlers; local and external controls passed.');
 } finally {

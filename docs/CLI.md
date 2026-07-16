@@ -662,7 +662,7 @@ its last release. Future release hardening should revisit Node SEA or an
 actively maintained `pkg` fork before adding installer, signing, or auto-update
 workflows.
 
-In a self-host story worktree, a global `lattice` runtime that canonically resolves into the main checkout is rejected before handler dispatch with reason code `stale_global_runtime_in_worktree`. The diagnostic emits one shell-safe recovery command that changes to the canonical worktree root and retries the same arguments through `node bin/lattice.js`. This pre-dispatch rejection runs before hooks, owner/evidence writes, handlers, and validation subprocesses. A correctly worktree-local runtime proceeds normally, and ordinary external consumer repositories are not subject to Proofbound's self-host identity rule.
+In a self-host story worktree, a global `lattice` runtime that canonically resolves into the main checkout is rejected before handler dispatch with reason code `stale_global_runtime_in_worktree`. The diagnostic emits one shell-safe recovery command that changes to the canonical worktree root and retries the same arguments through `node bin/lattice.js`. This raw-argv-safe rejection runs before standalone `init` / `dashboard`, stale tool or argument-schema lookup, active-story reads, hooks, owner/evidence writes, handlers, and validation subprocesses. It therefore still emits the local recovery when the stale main registry does not know a worktree-new command or argument. A correctly worktree-local runtime proceeds normally, and ordinary external consumer repositories are not subject to Proofbound's self-host identity rule.
 
 The only global fallback inside a self-host worktree is an explicitly source-tagged `session_brief` heartbeat:
 
@@ -670,7 +670,7 @@ The only global fallback inside a self-host worktree is an explicitly source-tag
 LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback lattice session_brief
 ```
 
-That exemption does not apply to any other command and is **heartbeat-only, not current-worktree gate/status evidence**.
+That exemption does not apply to any other command—including help, version, init, dashboard, validation, lifecycle, or review—and is **heartbeat-only, not current-worktree gate/status evidence**.
 
 The `commands[]` in `validate --json` is a validation receipt: structured commands are recorded in argv form by default; string configurations that contain shell semantics such as `cd`, `&&`, pipes, or redirects are recorded with `shell=true`, indicating a deliberate shell receipt. A required command failing causes validate to fail; an `optional:true` failure only warns. `doctor`'s Validation scan is advisory only: it shows the validate file, configured commands, fallback discovery, and the no-validator warning, to help you decide whether to add an explicit `validate.command(s)`.
 
