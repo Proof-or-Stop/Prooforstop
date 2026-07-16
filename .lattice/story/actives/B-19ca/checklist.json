@@ -60,7 +60,45 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "For every canonical type and compatibility alias, exercise dispatch through schema validation and handler prompt construction in each allowed phase with valid story/item identifiers -> dispatch succeeds and the emitted prompt class, reviewer lane, evidence ownership, mutation permissions, and commit guidance equal the resolved registry policy; WHY: proves schema, handler, prompt, and permissions consume one registry decision.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Generate story-level and item-level dispatch hints for roles allowed at those cardinalities, then execute the exact example payloads through the CLI schema -> every displayed hint is schema-valid and accepted by the handler under the same cardinality contract; WHY: eliminates documentation/CLI disagreement.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Dispatch each role at every phase boundary and with zero, one, and extra identifiers -> only registry-declared phase/cardinality/kind combinations pass, and all rejected combinations return a specific contract error without prompt generation; WHY: verifies boundary parity among schema and handler.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Dispatch verification-intent, legacy test-intent/test-case-reviewer aliases, and all reviewer roles -> prompts contain their declared review/verification duties but contain no implementer commit author, implementation instruction, or checklist status=done guidance; WHY: prevents non-implementers receiving mutation-producing prompts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Submit unknown or prefix-lookalike agent types directly to both command schema and handler entry points -> both fail closed before prompt construction and produce no mutation/evidence side effect; WHY: prevents schema bypass from reviving permissive routing.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Ask a reviewer or verification-intent role to invoke an implementer-only mutation class, and ask an implementer to invoke reviewer-pass/finding ownership mutations -> authorization rejects every denied command class and leaves story/checklist state unchanged; WHY: proves registry permissions are enforced, not merely described in prompts.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
