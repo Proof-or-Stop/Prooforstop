@@ -4494,6 +4494,58 @@
         "bindingHash": "280cc38f84ac695735b144fada04bb8ff1ea03b0a41e1ffa131be5c35f841855"
       },
       "_hash": "b8a68e6c01bfd70cd71e8dc970cdc6bfe7a6c3f2cf2b12c3f4beebddb5ff5f36"
+    },
+    {
+      "reviewRunId": "B-914f:RR-064",
+      "storyId": "B-914f",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-07-16T20:25:04.730Z",
+      "startedAt": "2026-07-16T20:25:32.562Z",
+      "headHash": "0aaab4a8713f8c025837ac9fcc1bc2d904033417",
+      "materialHash": "98aec514f8a7bf9ea2860209a52d9d673aed45a1f9863f50f28281ca70ca13fc",
+      "storyFilesHash": "277dbaf0469f64684ed1ad12610443eec162633906dce9304bb1032ea0c2ea16",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "2eb30a2d8fdd314450ecf725e3b30216bef0089d134f53896e8fce3adb73c045",
+        "compositeScopeDigest": "b7fc257b87639bbd7d279448dfe4b89a45201dc34ee7d79c9273691343bf4dac",
+        "diffPackHash": "39365d0ef5045567a651c3e982cfcde2ec59152658a6048a86e23162c28d4c14",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/done-prepare-validation-reuse.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [],
+        "bindingHash": "e1d5fa45269444aece4afdb22c9119cce9ff22de98f198d74be1f0d4a4c15a63"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-914f",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-914f",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-914f",
+        "workspaceMode": "story-worktree",
+        "headHash": "0aaab4a8713f8c025837ac9fcc1bc2d904033417",
+        "materialHash": "98aec514f8a7bf9ea2860209a52d9d673aed45a1f9863f50f28281ca70ca13fc",
+        "storyFilesHash": "277dbaf0469f64684ed1ad12610443eec162633906dce9304bb1032ea0c2ea16",
+        "bindingHash": "66435dfd18a8421ef2d1e66b8f03189fb9435822437642b94ca01f56a35d0cc5"
+      },
+      "_hash": "d5e922c1f322b5020599fa65e50afc980b2e5765a7510613c17ea82119706024"
     }
   ]
 }
