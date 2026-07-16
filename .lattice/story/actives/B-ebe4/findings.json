@@ -29,6 +29,21 @@
       "_hash": "1262c3cd31a998275737bf51bb0652b251bbd4ef34a433f395adbc326d127627",
       "signatureTag": "edge|unknown|packages-main-engine",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-ebe4:F-003",
+      "desc": "docs/CLI.md:665 and docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md:597 — MEDIUM: both documents state as implemented that stale-main runtime rejection occurs before handlers/mutation/dispatch, but packages/main/src/cli-engine.ts:767-784 executes standalone init/dashboard before the authority gate at 860-882. This is the documentation consequence of verified F-001/F-002: the published contract currently overstates the safety boundary. Fix the gate before executable early returns (and preserve only explicitly documented narrow exemptions), then keep these claims; otherwise narrow the docs to the actual command set. Add/retain bounded negative controls so the documentation remains mechanically true.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-16T21:22:53.286Z",
+      "reviewRound": "2026-07-16T21:18:30.240Z",
+      "reviewRunId": "B-ebe4:RR-005",
+      "_hash": "5d38860ecbf2ccb122e967bb1b02e84cd433489ca63e882b3eeac1cf32cdf4d9",
+      "signatureTag": "edge|unknown|docs-docs-requirements",
+      "signatureTagSource": "auto"
     }
   ]
 }
