@@ -7,7 +7,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-16T18:29:00.278Z",
       "endTime": "2026-07-16T18:31:00.712Z",
       "verificationIntent": {
@@ -431,6 +431,17 @@
           "timestamp": "2026-07-16T18:37:56.447Z"
         }
       ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-16T18:38:25.044Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Harden the shared helper itself against non-canonical story ids before review."
     }
   ]
 }
