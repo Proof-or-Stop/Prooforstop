@@ -49,6 +49,36 @@
       },
       "readDiagnostics": [],
       "_hash": "1b3a07148198bc5ed15de16a14284a7f17444a09260fdad088ee0daccf94e0b7"
+    },
+    {
+      "id": "B-83cf:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "F-002 and F-007 are closed: shared validation admissibility retains the complete canonical envelope and lock boundary, stable reason-code rendering preserves DEV-to-TEST diagnostics, focused fresh-build tests pass, and degraded single-host evidence remains non-authority and distinct from 3x2 quorum.",
+      "createdAt": "2026-07-16T19:20:34.326Z",
+      "reviewRound": "2026-07-16T19:15:22.799Z",
+      "reviewRunId": "B-83cf:RR-010",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+          "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md",
+          "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "packages/main/src/core/host-verdict-bindings.ts",
+          "packages/main/src/core/validation-evidence-admissibility.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "bd67c72aa38fc6222fadd3759c2151a24dbffb71165e4a8e912716fc742c5422",
+        "corpusDigest": "f1124aa9a8d90aeb8ccf4eadae68f27adad5d60008193a43bfe78ab27ff7d1b7"
+      },
+      "_hash": "24bd3e032ee044461acf9f6ff2f648e321f3cee278796b08a3aa52fc4c0ab420"
     }
   ]
 }
