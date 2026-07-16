@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-ebe4:F-001",
+      "desc": "packages/main/src/cli-engine.ts:767-784 — HIGH: runtime-authority gate is installed only at lines 860-882, after early-return branches. A stale global runtime invoked from a linked self-host worktree can run `init` (which imports self-executing cli-init.js and writes project files) or start `dashboard` without ever calling classifyRuntimeEntrypointAuthority. This violates the claimed pre-dispatch zero-mutation boundary and the policy that only explicit global-fallback session_brief is exempt. Move/classify the authority boundary before all executable early returns (while preserving help/version as an explicit, mechanically narrow policy if desired) and add hermetic stale-global init/dashboard negative controls proving zero writes/process start.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-16T21:20:29.336Z",
+      "reviewRound": "2026-07-16T21:18:30.240Z",
+      "reviewRunId": "B-ebe4:RR-001",
+      "_hash": "30b9e498514492b45441fbe19ed1edccb8a148a78a9d3cd0f2688a5453cfc22f",
+      "signatureTag": "adversarial|unknown|packages-main-engine",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
