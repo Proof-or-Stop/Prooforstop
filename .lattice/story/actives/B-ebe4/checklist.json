@@ -70,87 +70,87 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-001:happy:0",
-          "kind": "logic_test",
+          "kind": "integration_test",
           "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
+          "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js && node scripts/verify-runtime-fact-contract.mjs",
           "result": "pass",
-          "note": "Hermetic linked-worktree fixture canonicalizes runtime, project, worktree, main, and common-dir identities and blocks the main-checkout runtime.",
-          "headHash": "6ec993281004da5303bc0a20c261bc5777cf6665",
-          "materialHash": "a777dc7f2030d2ceae6bc4a6ed53ce1fa0ca005c6246e363ad7f5394c3448260",
-          "storyFilesHash": "7f252677a032853284f50bba2082791a5ad83e9b61582e56dcff1d585795c091",
-          "timestamp": "2026-07-16T21:36:14.555Z"
+          "note": "Previously executed PASS: hermetic linked-worktree authority classification plus runtime-fact contract bind canonical runtime/project/worktree/common-dir identities before dispatch.",
+          "headHash": "ebe8d8b83566f856b15a424da56bd5113e1cfcd2",
+          "materialHash": "d25767544d78bb35da1351603fd2cfac490ecc26727194be309ccd03055f34f4",
+          "storyFilesHash": "3e33192ae01cc3deb476966394c4b77445cc19fd6b2aea1904c8974ba9aee83e",
+          "timestamp": "2026-07-16T22:07:13.576Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
-          "kind": "logic_test",
+          "kind": "integration_test",
           "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
           "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
-          "note": "Worktree-local bin/lattice.js identity is classified PASS.",
-          "headHash": "6ec993281004da5303bc0a20c261bc5777cf6665",
-          "materialHash": "a777dc7f2030d2ceae6bc4a6ed53ce1fa0ca005c6246e363ad7f5394c3448260",
-          "storyFilesHash": "7f252677a032853284f50bba2082791a5ad83e9b61582e56dcff1d585795c091",
-          "timestamp": "2026-07-16T21:36:14.555Z"
+          "note": "Previously executed PASS: worktree-local node bin/lattice.js reaches normal command dispatch and emitted recovery executes successfully.",
+          "headHash": "ebe8d8b83566f856b15a424da56bd5113e1cfcd2",
+          "materialHash": "d25767544d78bb35da1351603fd2cfac490ecc26727194be309ccd03055f34f4",
+          "storyFilesHash": "3e33192ae01cc3deb476966394c4b77445cc19fd6b2aea1904c8974ba9aee83e",
+          "timestamp": "2026-07-16T22:07:13.576Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
-          "kind": "logic_test",
+          "kind": "integration_test",
           "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
           "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
-          "note": "Symlink launcher, dot-segment project path, and linked-worktree git metadata resolve to the same canonical mismatch.",
-          "headHash": "6ec993281004da5303bc0a20c261bc5777cf6665",
-          "materialHash": "a777dc7f2030d2ceae6bc4a6ed53ce1fa0ca005c6246e363ad7f5394c3448260",
-          "storyFilesHash": "7f252677a032853284f50bba2082791a5ad83e9b61582e56dcff1d585795c091",
-          "timestamp": "2026-07-16T21:36:14.555Z"
+          "note": "Previously executed PASS: symlink launcher, dot segments, nested cwd, linked .git file and common-dir resolve to the same decision.",
+          "headHash": "ebe8d8b83566f856b15a424da56bd5113e1cfcd2",
+          "materialHash": "d25767544d78bb35da1351603fd2cfac490ecc26727194be309ccd03055f34f4",
+          "storyFilesHash": "3e33192ae01cc3deb476966394c4b77445cc19fd6b2aea1904c8974ba9aee83e",
+          "timestamp": "2026-07-16T22:07:13.576Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
-          "kind": "logic_test",
+          "kind": "integration_test",
           "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
           "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
-          "note": "Non-self external git consumer remains executable and advisory.",
-          "headHash": "6ec993281004da5303bc0a20c261bc5777cf6665",
-          "materialHash": "a777dc7f2030d2ceae6bc4a6ed53ce1fa0ca005c6246e363ad7f5394c3448260",
-          "storyFilesHash": "7f252677a032853284f50bba2082791a5ad83e9b61582e56dcff1d585795c091",
-          "timestamp": "2026-07-16T21:36:14.555Z"
+          "note": "Previously executed PASS: external consumer CLI remains executable and outside the self-host hard gate.",
+          "headHash": "ebe8d8b83566f856b15a424da56bd5113e1cfcd2",
+          "materialHash": "d25767544d78bb35da1351603fd2cfac490ecc26727194be309ccd03055f34f4",
+          "storyFilesHash": "3e33192ae01cc3deb476966394c4b77445cc19fd6b2aea1904c8974ba9aee83e",
+          "timestamp": "2026-07-16T22:07:13.576Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
-          "kind": "logic_test",
+          "kind": "integration_test",
           "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
           "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
-          "note": "Only session_brief with explicit LATTICE_CODEX_ENTRYPOINT=global-fallback is exempt; validate stays blocked.",
-          "headHash": "6ec993281004da5303bc0a20c261bc5777cf6665",
-          "materialHash": "a777dc7f2030d2ceae6bc4a6ed53ce1fa0ca005c6246e363ad7f5394c3448260",
-          "storyFilesHash": "7f252677a032853284f50bba2082791a5ad83e9b61582e56dcff1d585795c091",
-          "timestamp": "2026-07-16T21:36:14.555Z"
+          "note": "Previously executed PASS: only explicitly tagged global-fallback session_brief is exempt; check/help/version/init/dashboard/validate remain blocked.",
+          "headHash": "ebe8d8b83566f856b15a424da56bd5113e1cfcd2",
+          "materialHash": "d25767544d78bb35da1351603fd2cfac490ecc26727194be309ccd03055f34f4",
+          "storyFilesHash": "3e33192ae01cc3deb476966394c4b77445cc19fd6b2aea1904c8974ba9aee83e",
+          "timestamp": "2026-07-16T22:07:13.576Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
-          "kind": "logic_test",
+          "kind": "integration_test",
           "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
           "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
-          "note": "Canonical realpath and git identities defeat nested aliases, dot segments, and symlink spelling.",
-          "headHash": "6ec993281004da5303bc0a20c261bc5777cf6665",
-          "materialHash": "a777dc7f2030d2ceae6bc4a6ed53ce1fa0ca005c6246e363ad7f5394c3448260",
-          "storyFilesHash": "7f252677a032853284f50bba2082791a5ad83e9b61582e56dcff1d585795c091",
-          "timestamp": "2026-07-16T21:36:14.555Z"
+          "note": "Previously executed PASS: canonical loaded-module identity defeats PATH, argv, basename, cwd, dot-path and symlink spoofing.",
+          "headHash": "ebe8d8b83566f856b15a424da56bd5113e1cfcd2",
+          "materialHash": "d25767544d78bb35da1351603fd2cfac490ecc26727194be309ccd03055f34f4",
+          "storyFilesHash": "3e33192ae01cc3deb476966394c4b77445cc19fd6b2aea1904c8974ba9aee83e",
+          "timestamp": "2026-07-16T22:07:13.576Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
-          "kind": "logic_test",
-          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
-          "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
+          "kind": "integration_test",
+          "file": "scripts/verify-runtime-fact-contract.mjs",
+          "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js && node scripts/verify-runtime-fact-contract.mjs",
           "result": "pass",
-          "note": "Unresolved runtime identity is fail-closed when authoritative runtime is required, while external consumers bypass self-host classification.",
-          "headHash": "6ec993281004da5303bc0a20c261bc5777cf6665",
-          "materialHash": "a777dc7f2030d2ceae6bc4a6ed53ce1fa0ca005c6246e363ad7f5394c3448260",
-          "storyFilesHash": "7f252677a032853284f50bba2082791a5ad83e9b61582e56dcff1d585795c091",
-          "timestamp": "2026-07-16T21:36:14.555Z"
+          "note": "Previously executed PASS: malformed self-host git identity fails closed while external consumers pass; runtime fact stays outside process registry.",
+          "headHash": "ebe8d8b83566f856b15a424da56bd5113e1cfcd2",
+          "materialHash": "d25767544d78bb35da1351603fd2cfac490ecc26727194be309ccd03055f34f4",
+          "storyFilesHash": "3e33192ae01cc3deb476966394c4b77445cc19fd6b2aea1904c8974ba9aee83e",
+          "timestamp": "2026-07-16T22:07:13.576Z"
         }
       ]
     },
@@ -227,13 +227,13 @@
           "intentRef": "CHK-002:happy:0",
           "kind": "integration_test",
           "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
+          "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
-          "note": "Raw-argv preflight returns stable reasonCode and one canonical recovery before init, dashboard, tool lookup, schema lookup, hooks, handlers, validation, or writes.",
-          "headHash": "24012774176eb99bb7ea638780f3719af2a4a4f6",
-          "materialHash": "a777dc7f2030d2ceae6bc4a6ed53ce1fa0ca005c6246e363ad7f5394c3448260",
-          "storyFilesHash": "7f252677a032853284f50bba2082791a5ad83e9b61582e56dcff1d585795c091",
-          "timestamp": "2026-07-16T21:28:55.126Z"
+          "note": "Previously executed PASS: stale runtime fails raw-argv preflight with stable reason and one canonical node bin/lattice.js recovery before expensive or mutating paths.",
+          "headHash": "ebe8d8b83566f856b15a424da56bd5113e1cfcd2",
+          "materialHash": "d25767544d78bb35da1351603fd2cfac490ecc26727194be309ccd03055f34f4",
+          "storyFilesHash": "3e33192ae01cc3deb476966394c4b77445cc19fd6b2aea1904c8974ba9aee83e",
+          "timestamp": "2026-07-16T22:07:13.576Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -241,23 +241,23 @@
           "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
           "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
-          "note": "The exact emitted recovery executes check and worktree-only aux_doc_list through node bin/lattice.js successfully.",
-          "headHash": "24012774176eb99bb7ea638780f3719af2a4a4f6",
-          "materialHash": "a777dc7f2030d2ceae6bc4a6ed53ce1fa0ca005c6246e363ad7f5394c3448260",
-          "storyFilesHash": "7f252677a032853284f50bba2082791a5ad83e9b61582e56dcff1d585795c091",
-          "timestamp": "2026-07-16T21:28:55.367Z"
+          "note": "Previously executed PASS: shell executes the emitted same-command recovery successfully for check and worktree-only aux_doc_list.",
+          "headHash": "ebe8d8b83566f856b15a424da56bd5113e1cfcd2",
+          "materialHash": "d25767544d78bb35da1351603fd2cfac490ecc26727194be309ccd03055f34f4",
+          "storyFilesHash": "3e33192ae01cc3deb476966394c4b77445cc19fd6b2aea1904c8974ba9aee83e",
+          "timestamp": "2026-07-16T22:07:13.576Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "integration_test",
-          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
-          "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
+          "file": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
-          "note": "Stale mismatch is distinguished before stale schema lookup; bootstrap missing-build and normal downstream cwd diagnostics retain separate paths.",
-          "headHash": "24012774176eb99bb7ea638780f3719af2a4a4f6",
-          "materialHash": "a777dc7f2030d2ceae6bc4a6ed53ce1fa0ca005c6246e363ad7f5394c3448260",
-          "storyFilesHash": "7f252677a032853284f50bba2082791a5ad83e9b61582e56dcff1d585795c091",
-          "timestamp": "2026-07-16T21:28:55.532Z"
+          "note": "Previously executed PASS: stale mismatch precedes tool/schema errors; missing-build/bootstrap guidance remains a distinct bounded loader shape protected by the vocabulary guard.",
+          "headHash": "ebe8d8b83566f856b15a424da56bd5113e1cfcd2",
+          "materialHash": "d25767544d78bb35da1351603fd2cfac490ecc26727194be309ccd03055f34f4",
+          "storyFilesHash": "3e33192ae01cc3deb476966394c4b77445cc19fd6b2aea1904c8974ba9aee83e",
+          "timestamp": "2026-07-16T22:07:13.576Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -265,23 +265,23 @@
           "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
           "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
-          "note": "Canonical identities preserve deterministic reason and recovery across symlink, PATH, nested cwd, argv, and dot-path spelling.",
-          "headHash": "24012774176eb99bb7ea638780f3719af2a4a4f6",
-          "materialHash": "a777dc7f2030d2ceae6bc4a6ed53ce1fa0ca005c6246e363ad7f5394c3448260",
-          "storyFilesHash": "7f252677a032853284f50bba2082791a5ad83e9b61582e56dcff1d585795c091",
-          "timestamp": "2026-07-16T21:28:55.699Z"
+          "note": "Previously executed PASS: repeated aliases produce the same reason code and deterministic shell-safe recovery.",
+          "headHash": "ebe8d8b83566f856b15a424da56bd5113e1cfcd2",
+          "materialHash": "d25767544d78bb35da1351603fd2cfac490ecc26727194be309ccd03055f34f4",
+          "storyFilesHash": "3e33192ae01cc3deb476966394c4b77445cc19fd6b2aea1904c8974ba9aee83e",
+          "timestamp": "2026-07-16T22:07:13.576Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
           "kind": "integration_test",
-          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
-          "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
+          "file": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
-          "note": "Only explicitly tagged global-fallback session_brief executes; help, version, command help, check, init, dashboard, and validate remain blocked.",
-          "headHash": "24012774176eb99bb7ea638780f3719af2a4a4f6",
-          "materialHash": "a777dc7f2030d2ceae6bc4a6ed53ce1fa0ca005c6246e363ad7f5394c3448260",
-          "storyFilesHash": "7f252677a032853284f50bba2082791a5ad83e9b61582e56dcff1d585795c091",
-          "timestamp": "2026-07-16T21:28:56.146Z"
+          "note": "Previously executed PASS: exact global-fallback session_brief guidance is bounded; guard pins bootstrap loader source and known-benign call shapes without generic fallback expansion.",
+          "headHash": "ebe8d8b83566f856b15a424da56bd5113e1cfcd2",
+          "materialHash": "d25767544d78bb35da1351603fd2cfac490ecc26727194be309ccd03055f34f4",
+          "storyFilesHash": "3e33192ae01cc3deb476966394c4b77445cc19fd6b2aea1904c8974ba9aee83e",
+          "timestamp": "2026-07-16T22:07:13.576Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -289,11 +289,11 @@
           "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
           "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
-          "note": "Stale validate/init/dashboard prove zero hook, validation, serve startup, handler, evidence, and story mutation before returning.",
-          "headHash": "24012774176eb99bb7ea638780f3719af2a4a4f6",
-          "materialHash": "a777dc7f2030d2ceae6bc4a6ed53ce1fa0ca005c6246e363ad7f5394c3448260",
-          "storyFilesHash": "7f252677a032853284f50bba2082791a5ad83e9b61582e56dcff1d585795c091",
-          "timestamp": "2026-07-16T21:28:56.438Z"
+          "note": "Previously executed PASS: stale validate/init/dashboard produce zero hooks, handlers, validation subprocesses, evidence/story writes and serve startup.",
+          "headHash": "ebe8d8b83566f856b15a424da56bd5113e1cfcd2",
+          "materialHash": "d25767544d78bb35da1351603fd2cfac490ecc26727194be309ccd03055f34f4",
+          "storyFilesHash": "3e33192ae01cc3deb476966394c4b77445cc19fd6b2aea1904c8974ba9aee83e",
+          "timestamp": "2026-07-16T22:07:13.576Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -301,11 +301,11 @@
           "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
           "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
-          "note": "Shell quoting preserves JSON, spaces, quotes, and metacharacters; recovered commands execute as identical inert argv.",
-          "headHash": "24012774176eb99bb7ea638780f3719af2a4a4f6",
-          "materialHash": "a777dc7f2030d2ceae6bc4a6ed53ce1fa0ca005c6246e363ad7f5394c3448260",
-          "storyFilesHash": "7f252677a032853284f50bba2082791a5ad83e9b61582e56dcff1d585795c091",
-          "timestamp": "2026-07-16T21:28:56.735Z"
+          "note": "Previously executed PASS: JSON, spaces, quotes and shell metacharacters remain one inert argument and recovered semantics are identical.",
+          "headHash": "ebe8d8b83566f856b15a424da56bd5113e1cfcd2",
+          "materialHash": "d25767544d78bb35da1351603fd2cfac490ecc26727194be309ccd03055f34f4",
+          "storyFilesHash": "3e33192ae01cc3deb476966394c4b77445cc19fd6b2aea1904c8974ba9aee83e",
+          "timestamp": "2026-07-16T22:07:13.576Z"
         }
       ]
     },
