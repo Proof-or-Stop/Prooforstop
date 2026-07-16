@@ -318,7 +318,7 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "AGENTS.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-16T21:08:34.528Z",
       "endTime": "2026-07-16T21:16:30.151Z",
       "verificationIntent": {
@@ -486,6 +486,15 @@
       "to": "done",
       "reason": "F-001/F-002/F-003 fixed by raw-argv authority before executable/tool/schema paths.",
       "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-16T21:29:03.429Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Refresh E2E evidence after F-001/F-002 early-path fix."
     }
   ]
 }
