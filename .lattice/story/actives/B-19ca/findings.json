@@ -24,7 +24,7 @@
       "desc": "packages/main/src/core/agent-dispatch-registry.ts:418 and packages/main/src/handlers/finding.ts:472 / :745 — HIGH: the registry exposes a denied-command matrix, but real handler enforcement is wired only into checklist_update. finding_add never calls assertRegisteredAgentMutationAllowed (it uses a lattice-review-* prefix), and finding_resolve ignores actor/LATTICE_AGENT entirely. Thus LATTICE_AGENT=test-intent can write a finding and LATTICE_AGENT=lattice-review-quality can resolve one even though both commands are denied by their registry rows. The smoke exhaustively tests the pure helper but exercises only two selected real consumers, so it cannot prove the documented claim that permittedMutations is mechanically enforced. Wire the registry authorization into every declared mutation consumer (with deliberate main/unclassified-host compatibility) and add handler-level allow/deny coverage for every command class.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-16T11:21:22.661Z",
@@ -38,7 +38,11 @@
         "packages/main/src/tasks/agent-dispatch-registry-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Wired all declared mutation consumers through assertRegisteredAgentMutationAllowed while preserving unclassified main compatibility; real-handler denial tests verify no finding, pass, run, init, scope, delivery, or resolution state is written.",
+      "resolvedAt": "2026-07-16T11:50:40.941Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-19ca:F-003",
