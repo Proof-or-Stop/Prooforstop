@@ -365,6 +365,38 @@
         "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
       },
       "_hash": "1f49b4a13f55d2b702d74832104e7e67d1185c1e8355ecb88155b31231e6213b"
+    },
+    {
+      "id": "B-c163:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 12 coverage passes after owner resolved F-021 with strong evidence. Handler-level observers prove the default derived and MAX_SAFE saturation-adjusted nested max reaches the child, so removing or misrouting captureEnv fails. Budget assertions cover ordinary default layering plus config- and phase-derived saturation with strict nested < capture < outer. Two actual CLI timeout repetitions require a singular parseable non-pass terminal and descendant ESRCH, protecting the referenced force-kill cleanup. Build, compiled live-smoke smoke, and process-fact contract pass. F-022/F-023 remain for their originating reviewers to resolve.",
+      "createdAt": "2026-07-16T00:25:35.036Z",
+      "reviewRound": "2026-07-16T00:23:12.416Z",
+      "reviewRunId": "B-c163:RR-054",
+      "writerSessionId": "review-bc163-coverage-r12",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/done-required-timeout-budget.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2b923db20867089826017b71f66713290b4f711fcce50c880d4cdf100c655c46",
+        "corpusDigest": "3f94149c4bbc236579f5669ba6187ddf0c9d74dc27be4a146698e6bc6f7cface"
+      },
+      "_hash": "3977743fd877e18d6122767d828d8371f43bee8048af2b1666535b20a0ecb6f3"
     }
   ]
 }
