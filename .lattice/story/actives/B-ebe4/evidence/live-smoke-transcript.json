@@ -1,0 +1,20 @@
+{
+  "storyId": "B-ebe4",
+  "expected": "User sees \"Runtime authority check: PASS — active CLI resolves inside the current story worktree.\" before any handler executes.",
+  "actual": {
+    "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
+    "exitCode": 0,
+    "stdout": "Runtime entrypoint authority smoke: PASS — stale global calls executed 0 handlers; local and external controls passed.\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-16T22:11:14.766Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "1bcc1f110ec6435ea347b2feca053c264a7133bd",
+  "materialHash": "d25767544d78bb35da1351603fd2cfac490ecc26727194be309ccd03055f34f4"
+}
