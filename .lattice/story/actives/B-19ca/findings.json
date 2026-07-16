@@ -128,6 +128,25 @@
       "resolvedAt": "2026-07-16T11:50:45.549Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-19ca:F-007",
+      "desc": "packages/main/src/core/agent-dispatch-registry.ts:424 — HIGH: assertRegisteredAgentMutationAllowed returns null both when actor is omitted (the deliberate main-path compatibility case) and when a nonblank actor is unknown. Every real mutation consumer treats that null as permission to continue on the main path, so setting LATTICE_AGENT=lattice-review-lookalike or passing an unknown args.agent bypasses the registry deny matrix for finding_add/checklist_update/finding_resolve/init_check_set/scope_check_save/delivery_check_set. Repro: node --input-type=module -e importing the built helper and calling assertRegisteredAgentMutationAllowed(\"lattice-review-lookalike\",\"finding_add\") prints null. Preserve actor-omitted main compatibility, but reject any nonblank unregistered actor before handler mutation and add real-handler no-side-effect coverage.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-16T11:53:39.778Z",
+      "reviewRound": "2026-07-16T11:50:24.553Z",
+      "reviewRunId": "B-19ca:RR-011",
+      "_hash": "75f6cb43ddbedb90fd3a31b1d020d564f554d7aff0c75e89b852c892b59221e8",
+      "files": [
+        "packages/main/src/core/agent-dispatch-registry.ts",
+        "packages/main/src/tasks/agent-dispatch-registry-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
