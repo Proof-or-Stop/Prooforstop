@@ -199,6 +199,56 @@
       },
       "readDiagnostics": [],
       "_hash": "a48f575289d8361b31f154b762a70282a0cf25baff36c03293defaac880b80ec"
+    },
+    {
+      "id": "B-914f:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Round-4 docs review: canonical routine validation reuse contract remains consistent with e9b305f771; optional failures and every non-explicit validate-file PASS execute fail-closed, and the production arbitrary-write smoke seam is removed. No documentation blocker.",
+      "createdAt": "2026-07-16T15:20:29.952Z",
+      "reviewRound": "2026-07-16T15:16:04.095Z",
+      "reviewRunId": "B-914f:RR-016",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "36fd0b6b673f00f718edc630e1956af07c9b48ea43b997ac7f95fd8ef57c392b",
+        "corpusDigest": "91549b28635cacfe7e1e592a1ebee2539ac55ca58bd4d83f9b04c881d8320784"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "bc72d1bab47a8ec864ef8d4f287dc2b89b6d25e65c0e713d78a1827c75054b7d"
+      },
+      "readDiagnostics": [],
+      "_hash": "bdf869af687b101c2fcb2a2489af9aa8cc6f71e3469423d0b400ab3f20c4faab"
     }
   ]
 }
