@@ -75,6 +75,10 @@ import {
   runStoryCreateLifecycleDispatch,
 } from './cli/lifecycle-dispatch.js';
 import { CliWatchdogTimeoutError, effectiveCommandCliMaxBudget, NODE_TIMER_MAX_MS } from './core/done-required-timeout-budget.js';
+import {
+  classifyRuntimeEntrypointAuthority,
+  renderRuntimeEntrypointAuthorityFailure,
+} from './core/runtime-environment-checks.js';
 
 export {
   READ_ONLY_COMMANDS,
@@ -718,7 +722,7 @@ export async function runCli(opts?: {
   if (ri !== -1 && argv[ri + 1]) { rootOverride = argv[ri + 1]; argv.splice(ri, 2); }
 
   let cmd = argv[0];
-  let arg = argv[1];
+  let arg: string | undefined = argv[1];
 
   // Normalize nested space aliases into the flat underscore commands used by
   // the registry before command-specific preflight or active-story reads.
@@ -728,14 +732,38 @@ export async function runCli(opts?: {
     cmd = normalizedAlias.canonicalAlias!;
     arg = argv[1];
   } else if (cmd === 'lattice' && (argv[1] === 'version' || argv[1] === '--version' || argv[1] === '-v')) {
-    process.stdout.write(`${formatLatticeVersionLine()}\n`);
+    argv.splice(0, argv.length, 'version');
+    cmd = 'version';
+    arg = undefined;
+  }
+
+  // B-ebe4 F-001/F-002: raw-argv-safe runtime authority preflight. This is the
+  // earliest point at which root and canonical alias identity are available,
+  // and it deliberately runs before strict-arg preflight, active-story reads,
+  // standalone init/dashboard imports, tool lookup, phase/schema lookup, Store,
+  // hooks, handlers, validation subprocesses, or persistence. A stale registry
+  // therefore cannot reject a worktree-new command/argument before printing the
+  // canonical local recovery. The classifier consumes raw strings only; it does
+  // not trust the stale runtime's command catalog or schema. The sole exemption
+  // remains explicit global-fallback session_brief.
+  const root0 = resolveRootForCommand(cmd, rootOverride);
+  const runtimeAuthority = classifyRuntimeEntrypointAuthority({
+    command: cmd || 'help',
+    commandArgs: argv.slice(1),
+    projectRoot: root0,
+    invokedEntrypoint: process.argv[1] ?? null,
+    env: process.env,
+    requiresAuthoritativeRuntime: true,
+  });
+  if (runtimeAuthority.status === 'blocked') {
+    process.stderr.write(`${renderRuntimeEntrypointAuthorityFailure(runtimeAuthority)}\n`);
+    process.exitCode = 1;
     return;
   }
 
   preflightStrictCommandArgsBeforeStoryReads(cmd, argv);
 
-  // Detect active story from git branch
-  const root0 = resolveRootForCommand(cmd, rootOverride);
+  // Detect active story from git branch only after runtime authority passes.
   const activeStory = detectActiveStory(root0);
   const gitReady = isGitRepository(root0);
 
@@ -854,7 +882,7 @@ export async function runCli(opts?: {
   }
 
   // Execute
-  const root = resolveRootForCommand(cmd, rootOverride);
+  const root = root0;
   // Durable main-root fallback for post-command activity logging.
   // story_advance --phase=DONE removes the current story worktree mid-command.
   // Once removed, root/.git is gone, so resolveMainRootFromWorktreeRoot() can no

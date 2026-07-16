@@ -1,0 +1,67 @@
+{
+  "storyId": "B-ebe4",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/runtime-environment-checks.ts",
+    "packages/main/src/core/runtime-fact-registry.ts",
+    "packages/main/src/cli-engine.ts",
+    "bin/bootstrap-runner.js",
+    "docs/CLI.md",
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+    "packages/main/src/tasks/validation-protocol-smoke.ts",
+    "scripts/verify-runtime-fact-contract.mjs"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+    "scripts/verify-runtime-fact-contract.mjs",
+    "packages/main/src/tasks/validation-protocol-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/process-fact-registry.ts"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/core/candidate-spec-routing.ts",
+    "packages/main/src/core/story-owner-lease.ts",
+    "packages/main/src/core/scope-diff-pack.ts"
+  ],
+  "scopeChangeReason": "Initialize exact PLAN file contract for the user-approved runtime entrypoint authority story.",
+  "acknowledgements": [
+    {
+      "actor": "codex-wa-final",
+      "reason": "The authority guard was intentionally moved before init/dashboard, changing cli-engine structural fingerprint; the security smoke allowlist must bind the reviewed new AST hash without weakening its call-site checks.",
+      "timestamp": "2026-07-16T21:45:02.323Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "fd0622f5778b9461af4e4302e6be355b65b3546a",
+      "materialHash": "a777dc7f2030d2ceae6bc4a6ed53ce1fa0ca005c6246e363ad7f5394c3448260"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Necessary double-contract fingerprint synchronization discovered by the blocking DONE-required npm test; only two exact expected literals changed, with no runtime or exemption expansion.",
+      "timestamp": "2026-07-16T22:24:03.247Z",
+      "paths": [
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "d178bdf13f3e960f9fd8edf9925413a4dceb9976",
+      "materialHash": "ff419037cdd5f65b32fa760512937c8632117800fa34852b8fe5df79678b98bf"
+    }
+  ],
+  "createdAt": "2026-07-16T21:00:06.525Z",
+  "updatedAt": "2026-07-16T22:24:03.247Z"
+}

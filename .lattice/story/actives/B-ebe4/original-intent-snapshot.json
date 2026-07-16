@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-ebe4",
+  "sourceText": "After B-914f, fix the observed problem where invoking global lattice from a story worktree ran the main workspace old runtime for 7 minutes 28 seconds; handle it as the next independent story while continuing unattended.",
+  "normalizedOutcome": "A self-host story worktree cannot silently execute a global runtime from the main checkout: the command fails before handler dispatch with one stable reason code and a copyable worktree-local recovery command, while correct local and external-project global executions still work.",
+  "acceptanceClaim": "In a hermetic main-plus-linked-worktree reproduction, stale global validate exits before any handler or command execution and prints the exact local rerun command; the same command through node bin/lattice.js succeeds and external consumers are unaffected.",
+  "keyRequirementIds": [
+    "REQ-EXTERNAL-COMPAT",
+    "REQ-FAIL-FAST",
+    "REQ-RUNTIME-AUTHORITY"
+  ],
+  "requestHash": "sha256:4aa3db682da14dbadf9b2e78eb116f780fb12a0047fa1ba5054e857f2355eef4",
+  "createdAt": "2026-07-16T20:50:17.693Z",
+  "updatedAt": "2026-07-16T20:50:17.693Z"
+}

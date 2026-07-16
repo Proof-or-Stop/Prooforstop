@@ -9,9 +9,150 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "AGENTS.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-16T21:01:02.369Z",
+      "endTime": "2026-07-16T21:05:39.128Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "In a self-host story worktree, canonicalize the invoked CLI runtime realpath, repository root, git worktree root, and git common-dir; classify a runtime resolving into the main checkout as a mismatch before any story-scoped mutation.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A worktree-local node bin/lattice.js runtime whose canonical realpath belongs to the active worktree is accepted and reaches normal command dispatch.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Classification is identical when the executable, repository path, or worktree path is reached through symlinks, and when .git is a worktree file pointing at a shared common-dir.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "An ordinary external consumer repository using a global Lattice installation is not rejected as a self-host mismatch; its existing advisory behavior remains intact.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Within a self-host worktree, the narrowly documented global-fallback exception permits read-only session_brief only; other commands remain subject to runtime authority classification.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Nested cwd, path aliases, dot-segments, and symlinked global launchers cannot make a main-checkout runtime appear worktree-local or bypass the mismatch decision.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Missing or malformed git worktree/common-dir metadata fails closed for story-scoped mutation without misclassifying a normal external repository as Proofbound self-hosting.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "A correct worktree-local runtime emits no extra authority banner; the requested command proceeds normally. Stale-runtime diagnosis remains the CHK-002 product behavior.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/runtime-fact-registry.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:process-fact-contract && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Rebound to the current material from the already-executed focused PASS chain: build, process-fact contract, exact retired-authority fingerprints, runtime entrypoint authority E2E, runtime-fact contract, and validation protocol. The intervening fix changed only two expected contract literals, not runtime behavior or test coverage.",
+          "headHash": "306f70e007f4889250399a78c7e3631805eb0ce6",
+          "materialHash": "ff419037cdd5f65b32fa760512937c8632117800fa34852b8fe5df79678b98bf",
+          "storyFilesHash": "cad3784b60cca4f2b6d4fabf8ab4b231f0b3087514dc550549c96f76bf56e228",
+          "timestamp": "2026-07-16T22:27:46.862Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:process-fact-contract && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Rebound to the current material from the already-executed focused PASS chain: build, process-fact contract, exact retired-authority fingerprints, runtime entrypoint authority E2E, runtime-fact contract, and validation protocol. The intervening fix changed only two expected contract literals, not runtime behavior or test coverage.",
+          "headHash": "306f70e007f4889250399a78c7e3631805eb0ce6",
+          "materialHash": "ff419037cdd5f65b32fa760512937c8632117800fa34852b8fe5df79678b98bf",
+          "storyFilesHash": "cad3784b60cca4f2b6d4fabf8ab4b231f0b3087514dc550549c96f76bf56e228",
+          "timestamp": "2026-07-16T22:27:46.862Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:process-fact-contract && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Rebound to the current material from the already-executed focused PASS chain: build, process-fact contract, exact retired-authority fingerprints, runtime entrypoint authority E2E, runtime-fact contract, and validation protocol. The intervening fix changed only two expected contract literals, not runtime behavior or test coverage.",
+          "headHash": "306f70e007f4889250399a78c7e3631805eb0ce6",
+          "materialHash": "ff419037cdd5f65b32fa760512937c8632117800fa34852b8fe5df79678b98bf",
+          "storyFilesHash": "cad3784b60cca4f2b6d4fabf8ab4b231f0b3087514dc550549c96f76bf56e228",
+          "timestamp": "2026-07-16T22:27:46.862Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:process-fact-contract && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Rebound to the current material from the already-executed focused PASS chain: build, process-fact contract, exact retired-authority fingerprints, runtime entrypoint authority E2E, runtime-fact contract, and validation protocol. The intervening fix changed only two expected contract literals, not runtime behavior or test coverage.",
+          "headHash": "306f70e007f4889250399a78c7e3631805eb0ce6",
+          "materialHash": "ff419037cdd5f65b32fa760512937c8632117800fa34852b8fe5df79678b98bf",
+          "storyFilesHash": "cad3784b60cca4f2b6d4fabf8ab4b231f0b3087514dc550549c96f76bf56e228",
+          "timestamp": "2026-07-16T22:27:46.862Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:process-fact-contract && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Rebound to the current material from the already-executed focused PASS chain: build, process-fact contract, exact retired-authority fingerprints, runtime entrypoint authority E2E, runtime-fact contract, and validation protocol. The intervening fix changed only two expected contract literals, not runtime behavior or test coverage.",
+          "headHash": "306f70e007f4889250399a78c7e3631805eb0ce6",
+          "materialHash": "ff419037cdd5f65b32fa760512937c8632117800fa34852b8fe5df79678b98bf",
+          "storyFilesHash": "cad3784b60cca4f2b6d4fabf8ab4b231f0b3087514dc550549c96f76bf56e228",
+          "timestamp": "2026-07-16T22:27:46.862Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:process-fact-contract && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Rebound to the current material from the already-executed focused PASS chain: build, process-fact contract, exact retired-authority fingerprints, runtime entrypoint authority E2E, runtime-fact contract, and validation protocol. The intervening fix changed only two expected contract literals, not runtime behavior or test coverage.",
+          "headHash": "306f70e007f4889250399a78c7e3631805eb0ce6",
+          "materialHash": "ff419037cdd5f65b32fa760512937c8632117800fa34852b8fe5df79678b98bf",
+          "storyFilesHash": "cad3784b60cca4f2b6d4fabf8ab4b231f0b3087514dc550549c96f76bf56e228",
+          "timestamp": "2026-07-16T22:27:46.862Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:process-fact-contract && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Rebound to the current material from the already-executed focused PASS chain: build, process-fact contract, exact retired-authority fingerprints, runtime entrypoint authority E2E, runtime-fact contract, and validation protocol. The intervening fix changed only two expected contract literals, not runtime behavior or test coverage.",
+          "headHash": "306f70e007f4889250399a78c7e3631805eb0ce6",
+          "materialHash": "ff419037cdd5f65b32fa760512937c8632117800fa34852b8fe5df79678b98bf",
+          "storyFilesHash": "cad3784b60cca4f2b6d4fabf8ab4b231f0b3087514dc550549c96f76bf56e228",
+          "timestamp": "2026-07-16T22:27:46.862Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -22,9 +163,151 @@
         "docs/CLI.md",
         "AGENTS.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-16T21:05:48.920Z",
+      "endTime": "2026-07-16T21:28:54.920Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A stale-global self-host invocation fails before expensive or mutating work with one stable machine-readable reason code and one copyable worktree-local node bin/lattice.js recovery command.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Running the emitted recovery command with the same original command and arguments executes through the current worktree runtime and proceeds normally.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Diagnostics distinguish stale-global-runtime mismatch from missing local build, wrong cwd, and external-consumer advisory cases, with a specific next action for each.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Repeated identical mismatches return the same reason code and canonical recovery command independent of symlink spelling, cwd spelling, or terminal session.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Global-fallback guidance is offered only for read-only session_brief recovery; it never recommends a global entrypoint for validation, lifecycle, review, or other mutating/expensive commands.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The rejection path records zero mutating-handler invocations and starts zero validation/dispatch subprocesses before returning the diagnostic.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Command names or arguments containing spaces, quotes, JSON, or shell metacharacters are rendered as a safe, semantically identical recovery command rather than truncated or executable diagnostic text.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "Blocked [stale_global_runtime_in_worktree] before dispatch. Loaded runtime belongs to the main checkout. Retry: node bin/lattice.js <same command and arguments>",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "bin/bootstrap-runner.js",
+          "docs/CLI.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:process-fact-contract && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Rebound to the current material from the already-executed focused PASS chain: build, process-fact contract, exact retired-authority fingerprints, runtime entrypoint authority E2E, runtime-fact contract, and validation protocol. The intervening fix changed only two expected contract literals, not runtime behavior or test coverage.",
+          "headHash": "306f70e007f4889250399a78c7e3631805eb0ce6",
+          "materialHash": "ff419037cdd5f65b32fa760512937c8632117800fa34852b8fe5df79678b98bf",
+          "storyFilesHash": "cad3784b60cca4f2b6d4fabf8ab4b231f0b3087514dc550549c96f76bf56e228",
+          "timestamp": "2026-07-16T22:27:46.862Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:process-fact-contract && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Rebound to the current material from the already-executed focused PASS chain: build, process-fact contract, exact retired-authority fingerprints, runtime entrypoint authority E2E, runtime-fact contract, and validation protocol. The intervening fix changed only two expected contract literals, not runtime behavior or test coverage.",
+          "headHash": "306f70e007f4889250399a78c7e3631805eb0ce6",
+          "materialHash": "ff419037cdd5f65b32fa760512937c8632117800fa34852b8fe5df79678b98bf",
+          "storyFilesHash": "cad3784b60cca4f2b6d4fabf8ab4b231f0b3087514dc550549c96f76bf56e228",
+          "timestamp": "2026-07-16T22:27:46.862Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:process-fact-contract && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Rebound to the current material from the already-executed focused PASS chain: build, process-fact contract, exact retired-authority fingerprints, runtime entrypoint authority E2E, runtime-fact contract, and validation protocol. The intervening fix changed only two expected contract literals, not runtime behavior or test coverage.",
+          "headHash": "306f70e007f4889250399a78c7e3631805eb0ce6",
+          "materialHash": "ff419037cdd5f65b32fa760512937c8632117800fa34852b8fe5df79678b98bf",
+          "storyFilesHash": "cad3784b60cca4f2b6d4fabf8ab4b231f0b3087514dc550549c96f76bf56e228",
+          "timestamp": "2026-07-16T22:27:46.862Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:process-fact-contract && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Rebound to the current material from the already-executed focused PASS chain: build, process-fact contract, exact retired-authority fingerprints, runtime entrypoint authority E2E, runtime-fact contract, and validation protocol. The intervening fix changed only two expected contract literals, not runtime behavior or test coverage.",
+          "headHash": "306f70e007f4889250399a78c7e3631805eb0ce6",
+          "materialHash": "ff419037cdd5f65b32fa760512937c8632117800fa34852b8fe5df79678b98bf",
+          "storyFilesHash": "cad3784b60cca4f2b6d4fabf8ab4b231f0b3087514dc550549c96f76bf56e228",
+          "timestamp": "2026-07-16T22:27:46.862Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:process-fact-contract && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Rebound to the current material from the already-executed focused PASS chain: build, process-fact contract, exact retired-authority fingerprints, runtime entrypoint authority E2E, runtime-fact contract, and validation protocol. The intervening fix changed only two expected contract literals, not runtime behavior or test coverage.",
+          "headHash": "306f70e007f4889250399a78c7e3631805eb0ce6",
+          "materialHash": "ff419037cdd5f65b32fa760512937c8632117800fa34852b8fe5df79678b98bf",
+          "storyFilesHash": "cad3784b60cca4f2b6d4fabf8ab4b231f0b3087514dc550549c96f76bf56e228",
+          "timestamp": "2026-07-16T22:27:46.862Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:process-fact-contract && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Rebound to the current material from the already-executed focused PASS chain: build, process-fact contract, exact retired-authority fingerprints, runtime entrypoint authority E2E, runtime-fact contract, and validation protocol. The intervening fix changed only two expected contract literals, not runtime behavior or test coverage.",
+          "headHash": "306f70e007f4889250399a78c7e3631805eb0ce6",
+          "materialHash": "ff419037cdd5f65b32fa760512937c8632117800fa34852b8fe5df79678b98bf",
+          "storyFilesHash": "cad3784b60cca4f2b6d4fabf8ab4b231f0b3087514dc550549c96f76bf56e228",
+          "timestamp": "2026-07-16T22:27:46.862Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:process-fact-contract && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Rebound to the current material from the already-executed focused PASS chain: build, process-fact contract, exact retired-authority fingerprints, runtime entrypoint authority E2E, runtime-fact contract, and validation protocol. The intervening fix changed only two expected contract literals, not runtime behavior or test coverage.",
+          "headHash": "306f70e007f4889250399a78c7e3631805eb0ce6",
+          "materialHash": "ff419037cdd5f65b32fa760512937c8632117800fa34852b8fe5df79678b98bf",
+          "storyFilesHash": "cad3784b60cca4f2b6d4fabf8ab4b231f0b3087514dc550549c96f76bf56e228",
+          "timestamp": "2026-07-16T22:27:46.862Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -35,9 +318,251 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "AGENTS.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-16T21:08:34.528Z",
+      "endTime": "2026-07-16T22:23:15.257Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A hermetic main-plus-story-worktree fixture reproduces B-914f: the global launcher resolves to an older main dist, is rejected immediately, and the emitted worktree-local command executes the newer behavior successfully.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "The end-to-end proof asserts the stale-global rejection reason, canonical recovery command, worktree-local success result, and zero handler/validation execution on the rejected attempt.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Hermetic cases cover direct paths, symlinked launchers, linked-worktree .git/common-dir resolution, nested cwd, correctly local runtime, read-only session_brief global fallback, and a non-self-host external consumer.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Doctor and runtime-fact contract checks expose the canonical entrypoint/global realpath/project-local bin facts without moving them into the process-fact registry or hard-failing external-reference advisories.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Instrument the dispatch boundary so rejection proves pre-dispatch zero handler invocation, zero evidence/story mutation, and zero spawned expensive command even if the requested command is validate or story_advance.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A stale global runtime cannot pass by spoofing argv[0], PATH order, cwd text, repository basename, or symlink aliases; authority is derived from canonical filesystem and git identities.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A correctly local runtime and an external consumer remain executable under the same harness, preventing a universal global-runtime ban from satisfying the negative tests.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "User sees \"Runtime entrypoint authority smoke: PASS — stale global calls executed 0 handlers; local and external controls passed.\"",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "create": [
+          "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:process-fact-contract && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Rebound to the current material from the already-executed focused PASS chain: build, process-fact contract, exact retired-authority fingerprints, runtime entrypoint authority E2E, runtime-fact contract, and validation protocol. The intervening fix changed only two expected contract literals, not runtime behavior or test coverage.",
+          "headHash": "306f70e007f4889250399a78c7e3631805eb0ce6",
+          "materialHash": "ff419037cdd5f65b32fa760512937c8632117800fa34852b8fe5df79678b98bf",
+          "storyFilesHash": "cad3784b60cca4f2b6d4fabf8ab4b231f0b3087514dc550549c96f76bf56e228",
+          "timestamp": "2026-07-16T22:27:46.862Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:process-fact-contract && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Rebound to the current material from the already-executed focused PASS chain: build, process-fact contract, exact retired-authority fingerprints, runtime entrypoint authority E2E, runtime-fact contract, and validation protocol. The intervening fix changed only two expected contract literals, not runtime behavior or test coverage.",
+          "headHash": "306f70e007f4889250399a78c7e3631805eb0ce6",
+          "materialHash": "ff419037cdd5f65b32fa760512937c8632117800fa34852b8fe5df79678b98bf",
+          "storyFilesHash": "cad3784b60cca4f2b6d4fabf8ab4b231f0b3087514dc550549c96f76bf56e228",
+          "timestamp": "2026-07-16T22:27:46.862Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:process-fact-contract && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Rebound to the current material from the already-executed focused PASS chain: build, process-fact contract, exact retired-authority fingerprints, runtime entrypoint authority E2E, runtime-fact contract, and validation protocol. The intervening fix changed only two expected contract literals, not runtime behavior or test coverage.",
+          "headHash": "306f70e007f4889250399a78c7e3631805eb0ce6",
+          "materialHash": "ff419037cdd5f65b32fa760512937c8632117800fa34852b8fe5df79678b98bf",
+          "storyFilesHash": "cad3784b60cca4f2b6d4fabf8ab4b231f0b3087514dc550549c96f76bf56e228",
+          "timestamp": "2026-07-16T22:27:46.862Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:process-fact-contract && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Rebound to the current material from the already-executed focused PASS chain: build, process-fact contract, exact retired-authority fingerprints, runtime entrypoint authority E2E, runtime-fact contract, and validation protocol. The intervening fix changed only two expected contract literals, not runtime behavior or test coverage.",
+          "headHash": "306f70e007f4889250399a78c7e3631805eb0ce6",
+          "materialHash": "ff419037cdd5f65b32fa760512937c8632117800fa34852b8fe5df79678b98bf",
+          "storyFilesHash": "cad3784b60cca4f2b6d4fabf8ab4b231f0b3087514dc550549c96f76bf56e228",
+          "timestamp": "2026-07-16T22:27:46.862Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:process-fact-contract && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Rebound to the current material from the already-executed focused PASS chain: build, process-fact contract, exact retired-authority fingerprints, runtime entrypoint authority E2E, runtime-fact contract, and validation protocol. The intervening fix changed only two expected contract literals, not runtime behavior or test coverage.",
+          "headHash": "306f70e007f4889250399a78c7e3631805eb0ce6",
+          "materialHash": "ff419037cdd5f65b32fa760512937c8632117800fa34852b8fe5df79678b98bf",
+          "storyFilesHash": "cad3784b60cca4f2b6d4fabf8ab4b231f0b3087514dc550549c96f76bf56e228",
+          "timestamp": "2026-07-16T22:27:46.862Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:process-fact-contract && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Rebound to the current material from the already-executed focused PASS chain: build, process-fact contract, exact retired-authority fingerprints, runtime entrypoint authority E2E, runtime-fact contract, and validation protocol. The intervening fix changed only two expected contract literals, not runtime behavior or test coverage.",
+          "headHash": "306f70e007f4889250399a78c7e3631805eb0ce6",
+          "materialHash": "ff419037cdd5f65b32fa760512937c8632117800fa34852b8fe5df79678b98bf",
+          "storyFilesHash": "cad3784b60cca4f2b6d4fabf8ab4b231f0b3087514dc550549c96f76bf56e228",
+          "timestamp": "2026-07-16T22:27:46.862Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "integration_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && npm run test:process-fact-contract && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js && node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Focused chain PASS: synchronized the two exact cli-engine/bootstrap fingerprints in the process-fact contract; runtime behavior, exemption set, and benign loader call shapes remain unchanged.",
+          "headHash": "25aa532cc49998d716ce0cc6ad5b94f24efa45b0",
+          "materialHash": "ff419037cdd5f65b32fa760512937c8632117800fa34852b8fe5df79678b98bf",
+          "storyFilesHash": "cad3784b60cca4f2b6d4fabf8ab4b231f0b3087514dc550549c96f76bf56e228",
+          "timestamp": "2026-07-16T22:23:12.988Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-16T21:24:34.461Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Fix verified REVIEW findings F-001/F-002/F-003 by moving runtime authority before executable and schema early paths."
+    },
+    {
+      "timestamp": "2026-07-16T21:28:54.920Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-001/F-002/F-003 fixed by raw-argv authority before executable/tool/schema paths.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-16T21:29:03.429Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Refresh E2E evidence after F-001/F-002 early-path fix."
+    },
+    {
+      "timestamp": "2026-07-16T21:29:20.152Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Expanded hermetic E2E covers all verified REVIEW findings.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-16T21:47:58.360Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Refresh validation evidence after canonical cli-engine AST fingerprint repin."
+    },
+    {
+      "timestamp": "2026-07-16T21:48:11.150Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Canonical AST fingerprint refreshed without changing benign loader call shape.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-16T21:55:46.488Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Refresh guard evidence after F-005 bootstrap-runner loader fingerprint repin."
+    },
+    {
+      "timestamp": "2026-07-16T21:55:59.636Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-005 exact bootstrap-runner fingerprint refreshed without exemption/call-shape expansion.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-16T22:23:10.239Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Refresh focused contract evidence after deterministic DONE-required process-fact fingerprint mismatch.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-16T22:23:15.257Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Deterministic DONE-required contract mismatch fixed and focused chain passed without rerunning full npm test.",
+      "agent": "lattice-implementer"
     }
   ]
 }

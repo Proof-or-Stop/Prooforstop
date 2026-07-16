@@ -1031,6 +1031,9 @@ try {
       corePackageRoot: externalEngineRoot,
     });
     assertRuntimeModeShape(report.runtimeMode);
+    assert.equal(report.runtimeEntrypointAuthority.id, 'entrypoint-authority');
+    assert.equal(report.runtimeEntrypointAuthority.status, 'pass', 'external consumers keep advisory runtime authority');
+    assert.equal((report.runtimeEntrypointAuthority.actual as any).selfHostWorktree, false);
     assert.equal(report.runtimeMode.mode, 'compatibility-launcher');
     assert.equal(report.runtimeMode.source, 'external-development-engine');
     assert.equal(report.runtimeMode.requiresProjectJavaScriptRuntime, false);

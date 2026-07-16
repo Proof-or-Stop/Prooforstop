@@ -70,6 +70,36 @@ interface RuntimeCheckContext {
   globalNpmRoot: string | null;
 }
 
+export const STALE_GLOBAL_RUNTIME_REASON_CODE = 'stale_global_runtime_in_worktree' as const;
+
+export type RuntimeEntrypointAuthorityReasonCode =
+  | typeof STALE_GLOBAL_RUNTIME_REASON_CODE
+  | 'runtime_authority_unresolved_in_worktree';
+
+export interface RuntimeEntrypointAuthorityInput {
+  command: string;
+  commandArgs: string[];
+  projectRoot: string;
+  invokedEntrypoint?: string | null;
+  loadedCorePackageRoot?: string | null;
+  env?: Record<string, string | undefined>;
+  requiresAuthoritativeRuntime?: boolean;
+}
+
+export interface RuntimeEntrypointAuthorityDecision {
+  status: 'pass' | 'exempt' | 'blocked';
+  reasonCode?: RuntimeEntrypointAuthorityReasonCode;
+  selfHostWorktree: boolean;
+  projectRoot: string;
+  worktreeRoot: string | null;
+  mainRoot: string | null;
+  gitCommonDir: string | null;
+  invokedEntrypoint: string | null;
+  runtimeRoot: string | null;
+  recoveryCommand?: string;
+  detail: string;
+}
+
 interface ExternalReference {
   file: string;
   value: string;
@@ -178,6 +208,8 @@ function runRegistryCheck(entry: RuntimeFactRegistryEntry, context: RuntimeCheck
   };
 
   switch (entry.checker) {
+    case 'resolveEntrypointAuthority':
+      return { ...base, ...checkEntrypointAuthority(context, severity) };
     case 'resolveCliEntrypoint':
       return { ...base, ...checkCliEntrypoint(context, severity) };
     case 'resolveGlobalCoreRealpath':
@@ -193,6 +225,228 @@ function runRegistryCheck(entry: RuntimeFactRegistryEntry, context: RuntimeCheck
     case 'scanExternalReferencePolicy':
       return { ...base, ...checkExternalReferencePolicy(context, severity) };
   }
+}
+
+function checkEntrypointAuthority(
+  context: RuntimeCheckContext,
+  severity: RuntimeFactSeverity,
+): Pick<RuntimeFactCheckResult, 'status' | 'actual' | 'expected' | 'warnings'> {
+  const runtimeEntrypointAuthority = classifyRuntimeEntrypointAuthority({
+    command: process.argv[2] ?? 'doctor',
+    commandArgs: process.argv.slice(3),
+    projectRoot: context.projectRoot,
+    invokedEntrypoint: context.activeCliEntrypoint,
+    loadedCorePackageRoot: context.corePackageRoot,
+    env: process.env,
+  });
+  const status = runtimeEntrypointAuthority.status === 'blocked' ? statusForDrift(severity) : 'pass';
+  return {
+    status,
+    actual: runtimeEntrypointAuthority,
+    expected: context.isSelfProject
+      ? 'active CLI runtime belongs to the current worktree'
+      : 'external consumer runtime remains advisory',
+    ...(status === 'pass' ? {} : { warnings: [runtimeEntrypointAuthority.detail] }),
+  };
+}
+
+/**
+ * Classify the runtime before CLI dispatch. Identity comes from canonical
+ * filesystem paths and git metadata, never argv[0], PATH order, or repository
+ * basenames. External consumers are deliberately outside this self-host gate.
+ */
+export function classifyRuntimeEntrypointAuthority(
+  input: RuntimeEntrypointAuthorityInput,
+): RuntimeEntrypointAuthorityDecision {
+  const projectRoot = safeRealpath(resolve(input.projectRoot)) ?? resolve(input.projectRoot);
+  const invokedEntrypoint = input.invokedEntrypoint
+    ? safeRealpath(resolve(input.invokedEntrypoint)) ?? resolve(input.invokedEntrypoint)
+    : null;
+  const loadedCorePackageRoot = input.loadedCorePackageRoot
+    ? safeRealpath(resolve(input.loadedCorePackageRoot)) ?? resolve(input.loadedCorePackageRoot)
+    : currentCorePackageRoot();
+  const base = {
+    projectRoot,
+    invokedEntrypoint,
+  };
+
+  if (!detectSelfProject(projectRoot)) {
+    return {
+      status: 'pass',
+      selfHostWorktree: false,
+      ...base,
+      worktreeRoot: null,
+      mainRoot: null,
+      gitCommonDir: null,
+      runtimeRoot: gitTopLevel(loadedCorePackageRoot)
+        ?? (invokedEntrypoint ? gitTopLevel(dirname(invokedEntrypoint)) : null),
+      detail: 'External consumer repository: self-host runtime authority is advisory.',
+    };
+  }
+
+  const worktreeRoot = gitTopLevel(projectRoot);
+  const gitCommonDir = absoluteGitCommonDir(projectRoot);
+  const mainRoot = worktreeRoot ? findMainWorktreeRoot(worktreeRoot) : null;
+  const selfHostWorktree = !!worktreeRoot
+    && !!gitCommonDir
+    && !!mainRoot
+    && !samePath(worktreeRoot, mainRoot);
+  // The loaded module root is authoritative. A launcher can live outside git
+  // (or spoof argv/PATH) while importing main-checkout dist; process.argv[1]
+  // alone cannot identify that runtime. Entrypoint git identity is only the
+  // fallback for packaged/compatibility launchers without a package root.
+  const runtimeRoot = gitTopLevel(loadedCorePackageRoot)
+    ?? (invokedEntrypoint ? gitTopLevel(dirname(invokedEntrypoint)) : null);
+
+  if ((!worktreeRoot || !gitCommonDir || !mainRoot) && input.requiresAuthoritativeRuntime !== false) {
+    const recoveryRoot = worktreeRoot ?? projectRoot;
+    return {
+      status: 'blocked',
+      reasonCode: 'runtime_authority_unresolved_in_worktree',
+      selfHostWorktree: false,
+      ...base,
+      worktreeRoot,
+      mainRoot,
+      gitCommonDir,
+      runtimeRoot,
+      recoveryCommand: renderLocalEntrypointRecoveryCommand(recoveryRoot, input.command, input.commandArgs),
+      detail: 'Self-host runtime authority could not resolve a complete git worktree/common-dir/main-worktree identity.',
+    };
+  }
+
+  if (!selfHostWorktree) {
+    return {
+      status: 'pass',
+      selfHostWorktree: false,
+      ...base,
+      worktreeRoot,
+      mainRoot,
+      gitCommonDir,
+      runtimeRoot,
+      detail: 'Not a linked self-host story worktree; no worktree runtime mismatch applies.',
+    };
+  }
+
+  const recoveryCommand = renderLocalEntrypointRecoveryCommand(worktreeRoot!, input.command, input.commandArgs);
+  const isExplicitSessionBriefFallback = input.command === 'session_brief'
+    && input.env?.LATTICE_CODEX_ENTRYPOINT === 'global-fallback';
+  if (isExplicitSessionBriefFallback) {
+    return {
+      status: 'exempt',
+      selfHostWorktree: true,
+      ...base,
+      worktreeRoot,
+      mainRoot,
+      gitCommonDir,
+      runtimeRoot,
+      recoveryCommand,
+      detail: 'Explicit global-fallback session_brief heartbeat is exempt; it is not current-worktree gate evidence.',
+    };
+  }
+
+  const runtimeIsLocal = !!runtimeRoot && samePath(runtimeRoot, worktreeRoot!);
+  if (runtimeIsLocal) {
+    return {
+      status: 'pass',
+      selfHostWorktree: true,
+      ...base,
+      worktreeRoot,
+      mainRoot,
+      gitCommonDir,
+      runtimeRoot,
+      detail: 'Runtime authority check: PASS — active CLI resolves inside the current story worktree.',
+    };
+  }
+
+  const runtimeIsMain = !!runtimeRoot && !!mainRoot && samePath(runtimeRoot, mainRoot);
+  if (runtimeIsMain) {
+    return {
+      status: 'blocked',
+      reasonCode: STALE_GLOBAL_RUNTIME_REASON_CODE,
+      selfHostWorktree: true,
+      ...base,
+      worktreeRoot,
+      mainRoot,
+      gitCommonDir,
+      runtimeRoot,
+      recoveryCommand,
+      detail: `Loaded runtime belongs to the main checkout (${runtimeRoot}), not the active worktree (${worktreeRoot}).`,
+    };
+  }
+
+  if (input.requiresAuthoritativeRuntime !== false) {
+    return {
+      status: 'blocked',
+      reasonCode: 'runtime_authority_unresolved_in_worktree',
+      selfHostWorktree: true,
+      ...base,
+      worktreeRoot,
+      mainRoot,
+      gitCommonDir,
+      runtimeRoot,
+      recoveryCommand,
+      detail: invokedEntrypoint
+        ? `Could not bind the active runtime (${invokedEntrypoint}) to the current worktree git identity.`
+        : 'Could not resolve the active CLI entrypoint for this self-host worktree.',
+    };
+  }
+
+  return {
+    status: 'pass',
+    selfHostWorktree: true,
+    ...base,
+    worktreeRoot,
+    mainRoot,
+    gitCommonDir,
+    runtimeRoot,
+    recoveryCommand,
+    detail: 'Read-only command allowed with unresolved runtime identity; mutating commands remain fail-closed.',
+  };
+}
+
+export function renderRuntimeEntrypointAuthorityFailure(decision: RuntimeEntrypointAuthorityDecision): string {
+  if (decision.status !== 'blocked' || !decision.reasonCode) return decision.detail;
+  return [
+    `Blocked [${decision.reasonCode}] before dispatch.`,
+    decision.detail,
+    decision.recoveryCommand ? `Retry: ${decision.recoveryCommand}` : '',
+  ].filter(Boolean).join('\n');
+}
+
+export function renderLocalEntrypointRecoveryCommand(
+  worktreeRoot: string,
+  command: string,
+  args: readonly string[],
+): string {
+  const tokens = [command, ...args].map(shellQuote);
+  return `cd -- ${shellQuote(worktreeRoot)} && node bin/lattice.js ${tokens.join(' ')}`;
+}
+
+function shellQuote(value: string): string {
+  if (/^[A-Za-z0-9_@%+=:,./-]+$/.test(value)) return value;
+  return `'${value.replace(/'/g, `'"'"'`)}'`;
+}
+
+function gitTopLevel(cwd: string): string | null {
+  const top = runCommand('git', ['rev-parse', '--path-format=absolute', '--show-toplevel'], cwd);
+  return top ? safeRealpath(top) ?? resolve(top) : null;
+}
+
+function absoluteGitCommonDir(cwd: string): string | null {
+  const common = runCommand('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], cwd);
+  return common ? safeRealpath(common) ?? resolve(common) : null;
+}
+
+function findMainWorktreeRoot(cwd: string): string | null {
+  const raw = runCommand('git', ['worktree', 'list', '--porcelain'], cwd);
+  if (!raw) return null;
+  for (const record of raw.split(/\n\s*\n/)) {
+    const lines = record.split(/\r?\n/);
+    const path = lines.find((line) => line.startsWith('worktree '))?.slice('worktree '.length).trim();
+    const branch = lines.find((line) => line.startsWith('branch '))?.slice('branch '.length).trim();
+    if (path && branch === 'refs/heads/main') return safeRealpath(path) ?? resolve(path);
+  }
+  return null;
 }
 
 function checkCliEntrypoint(context: RuntimeCheckContext, severity: RuntimeFactSeverity): Pick<RuntimeFactCheckResult, 'status' | 'actual' | 'expected' | 'details' | 'warnings'> {

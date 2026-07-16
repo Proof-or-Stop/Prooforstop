@@ -1,0 +1,642 @@
+{
+  "passes": [
+    {
+      "id": "B-ebe4:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: all 21 must intents map to concrete focused assertions. Fresh rerun of the hermetic child-process smoke and runtime-fact contract passed; stale main validate/check exits before hooks, validation subprocesses, or .lattice writes, while emitted local recovery and local/external controls execute.",
+      "createdAt": "2026-07-16T21:23:03.241Z",
+      "reviewRound": "2026-07-16T21:18:30.240Z",
+      "reviewRunId": "B-ebe4:RR-006",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "bin/bootstrap-runner.js",
+          "docs/CLI.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/runtime-fact-registry.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "e53117b8080d843a0d9d1dbf2a3fffb634196cb7ae93ce2b3eacf7a695f991c3",
+        "corpusDigest": "4f1dffa9cebcc3c66c8808ed50c45d16d0c6f4d98bace2de65306436a16f0307"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "09499903b7d206680c55c466eb55a970a12b22561bec73f4f8b0c9066a4c757c"
+      },
+      "readDiagnostics": [],
+      "_hash": "0b4c2cfcf0563eceb329da190eb689bdc30f8c852f51650f007e8ff9ca2c16a2"
+    },
+    {
+      "id": "B-ebe4:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 targeted quality re-review passed: raw-argv authority preflight now precedes strict checks, active-story reads, init/dashboard, stale lookup and dispatch; stale help/version are blocked, only explicit global-fallback session_brief is exempt; recovery quoting preserves inert arguments; focused smoke proves zero rejected-path mutations.",
+      "createdAt": "2026-07-16T21:33:17.474Z",
+      "reviewRound": "2026-07-16T21:30:13.170Z",
+      "reviewRunId": "B-ebe4:RR-011",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "9fa230d14be8e88d3faf00e848769ead947fb977de8e6bad35a4f49ff97cb090",
+        "corpusDigest": "c32857bb0dce01204444115f085cb28f4df249ebca7e92092085ebdf61db9d44"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "09499903b7d206680c55c466eb55a970a12b22561bec73f4f8b0c9066a4c757c"
+      },
+      "readDiagnostics": [],
+      "_hash": "b2cebde815feec7452bc3908fbe2b46ee1823d953e5a8059a10d86ec1595295a"
+    },
+    {
+      "id": "B-ebe4:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept re-review PASS after F-001/F-002/F-003 fix 2401277417. Raw-argv authority preflight is now at cli-engine.ts:740-762, before strict args, active-story reads, init/dashboard, tool/phase/schema, Store/hooks/handlers. Focused E2E passed: stale init has zero writes, stale dashboard is rejected before startup, a worktree-only command receives canonical local recovery before stale lookup, global-fallback remains session_brief-only, and local/external controls remain valid.",
+      "createdAt": "2026-07-16T21:33:45.114Z",
+      "reviewRound": "2026-07-16T21:30:13.170Z",
+      "reviewRunId": "B-ebe4:RR-013",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "9fa230d14be8e88d3faf00e848769ead947fb977de8e6bad35a4f49ff97cb090",
+        "corpusDigest": "c32857bb0dce01204444115f085cb28f4df249ebca7e92092085ebdf61db9d44"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "09499903b7d206680c55c466eb55a970a12b22561bec73f4f8b0c9066a4c757c"
+      },
+      "readDiagnostics": [],
+      "_hash": "9ebb189ecee189fce32f340a0c1a63768f8da6bbacfc055ce6b699a07fb26936"
+    },
+    {
+      "id": "B-ebe4:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 targeted docs re-review passed: the raw-argv authority preflight now precedes init/dashboard/tool/schema/active-story paths; focused smoke confirms zero stale handler execution, shell-safe local recovery, external controls, and session_brief as the sole explicit global-fallback exemption. CLI, bootstrap, and workflow-contract wording match the fixed behavior.",
+      "createdAt": "2026-07-16T21:35:33.081Z",
+      "reviewRound": "2026-07-16T21:30:13.170Z",
+      "reviewRunId": "B-ebe4:RR-014",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "bin/bootstrap-runner.js",
+          "docs/CLI.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "9fa230d14be8e88d3faf00e848769ead947fb977de8e6bad35a4f49ff97cb090",
+        "corpusDigest": "c32857bb0dce01204444115f085cb28f4df249ebca7e92092085ebdf61db9d44"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "09499903b7d206680c55c466eb55a970a12b22561bec73f4f8b0c9066a4c757c"
+      },
+      "readDiagnostics": [],
+      "_hash": "e5abcd05bf6aca0bc821a04d77698897573c472b2b8f339d4827d12d9017c96d"
+    },
+    {
+      "id": "B-ebe4:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: 21/21 must intents have PASS evidence bound to current materialHash a777dc7f2030 and storyFilesHash 7f252677a032. F-004 is strong-fixed after CHK-001 7/7 refresh. The focused authority smoke and runtime-fact contract passed against fix 2401277417; no scope change or new coverage gap.",
+      "createdAt": "2026-07-16T21:37:37.219Z",
+      "reviewRound": "2026-07-16T21:36:16.325Z",
+      "reviewRunId": "B-ebe4:RR-015",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "bin/bootstrap-runner.js",
+          "docs/CLI.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/runtime-fact-registry.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "9fa230d14be8e88d3faf00e848769ead947fb977de8e6bad35a4f49ff97cb090",
+        "corpusDigest": "c32857bb0dce01204444115f085cb28f4df249ebca7e92092085ebdf61db9d44"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "09499903b7d206680c55c466eb55a970a12b22561bec73f4f8b0c9066a4c757c"
+      },
+      "readDiagnostics": [],
+      "_hash": "a8414931dc5583c36b3a273dafd2acf9cd5487f1bb830c6b340caee31793b5f1"
+    },
+    {
+      "id": "B-ebe4:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: Round4 changes only the exact cli-engine canonical AST fingerprint pin in the CHK-003 security smoke. Retired-authority guard, runtime-entrypoint authority smoke, and runtime-fact contract all exit 0; CHK-003 has 7/7 PASS evidence bound to current materialHash c2051d838269 and storyFilesHash 98e92e1998c7. No implementation behavior or scope changed.",
+      "createdAt": "2026-07-16T21:51:33.937Z",
+      "reviewRound": "2026-07-16T21:49:02.275Z",
+      "reviewRunId": "B-ebe4:RR-018",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/runtime-fact-registry.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2923332486d6212ac478cc538a9e93a20be66f19c4ce14e9947217f3c8334ff4",
+        "corpusDigest": "c32857bb0dce01204444115f085cb28f4df249ebca7e92092085ebdf61db9d44"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "09499903b7d206680c55c466eb55a970a12b22561bec73f4f8b0c9066a4c757c"
+      },
+      "readDiagnostics": [],
+      "_hash": "442cb378b28fc990a32604c892e6d71d30cb46484e119d7d60253910aa46da51"
+    },
+    {
+      "id": "B-ebe4:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Round 5 targeted quality re-review passed: commit 135075b09e changes only the exact bootstrap-runner AST fingerprint; all four runLocalBootstrap loader call shapes, known-benign file map, and dynamic-code exemption sets are unchanged; independent retired-authority guard exits 0.",
+      "createdAt": "2026-07-16T21:59:11.247Z",
+      "reviewRound": "2026-07-16T21:56:53.499Z",
+      "reviewRunId": "B-ebe4:RR-020",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "bin/bootstrap-runner.js",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f21983f7cc56fd663a0f9021c9f1321ece25ebb77fc79bba2f9c2efa42f2cbea",
+        "corpusDigest": "c32857bb0dce01204444115f085cb28f4df249ebca7e92092085ebdf61db9d44"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "09499903b7d206680c55c466eb55a970a12b22561bec73f4f8b0c9066a4c757c"
+      },
+      "readDiagnostics": [],
+      "_hash": "5624047fde2588bb78885ef4d5757dd806bf1c4a43358b994330886992becd94"
+    },
+    {
+      "id": "B-ebe4:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Final targeted concept review PASS on HEAD 51d8608. The stale-global guard remains raw-argv-safe and pre-dispatch before strict args, active-story reads, init/dashboard, stale tool/schema, Store/hooks/handlers. Canonical git/worktree/common-dir identity scopes enforcement to a linked self-host worktree; external consumers remain advisory; the only exemption is explicit LATTICE_CODEX_ENTRYPOINT=global-fallback session_brief heartbeat. Changes since the focused fix only repin smoke fingerprints and do not alter product semantics. Previously passed focused runtime authority and runtime-fact evidence was reused; no full suite rerun.",
+      "createdAt": "2026-07-16T22:08:42.378Z",
+      "reviewRound": "2026-07-16T21:56:53.499Z",
+      "reviewRunId": "B-ebe4:RR-022",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f21983f7cc56fd663a0f9021c9f1321ece25ebb77fc79bba2f9c2efa42f2cbea",
+        "corpusDigest": "c32857bb0dce01204444115f085cb28f4df249ebca7e92092085ebdf61db9d44"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "09499903b7d206680c55c466eb55a970a12b22561bec73f4f8b0c9066a4c757c"
+      },
+      "readDiagnostics": [],
+      "_hash": "1754358f7fdde6ef936759c09595bf9cd7bf1e12621e217e7b04e01a7f51c902"
+    },
+    {
+      "id": "B-ebe4:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: final HEAD has 21/21 must intents with PASS evidence uniformly bound to current materialHash d25767544d78 and storyFilesHash 3e33192ae01c. F-001 through F-005 are strong-fixed. Retired-authority guard, runtime-entrypoint authority smoke, and runtime-fact contract exit 0 on the current exact cli-engine/bootstrap fingerprint pins; no full suite was run.",
+      "createdAt": "2026-07-16T22:09:24.010Z",
+      "reviewRound": "2026-07-16T21:56:53.499Z",
+      "reviewRunId": "B-ebe4:RR-021",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "bin/bootstrap-runner.js",
+          "docs/CLI.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/runtime-fact-registry.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f21983f7cc56fd663a0f9021c9f1321ece25ebb77fc79bba2f9c2efa42f2cbea",
+        "corpusDigest": "c32857bb0dce01204444115f085cb28f4df249ebca7e92092085ebdf61db9d44"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "09499903b7d206680c55c466eb55a970a12b22561bec73f4f8b0c9066a4c757c"
+      },
+      "readDiagnostics": [],
+      "_hash": "1213ba9c27fe69cdb3da86f978dad155e4d9e996f0285ec64b586d341c1f09d3"
+    },
+    {
+      "id": "B-ebe4:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Final targeted docs review passed. Relevant source, docs, bootstrap, and focused-smoke blobs are unchanged from the prior fully read passing review. Current focused smoke confirms raw-argv rejection before handlers, session_brief as the sole explicit global-fallback exemption, shell-safe local recovery, and no false block for external consumers.",
+      "createdAt": "2026-07-16T22:10:09.006Z",
+      "reviewRound": "2026-07-16T21:56:53.499Z",
+      "reviewRunId": "B-ebe4:RR-024",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "bin/bootstrap-runner.js",
+          "docs/CLI.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f21983f7cc56fd663a0f9021c9f1321ece25ebb77fc79bba2f9c2efa42f2cbea",
+        "corpusDigest": "c32857bb0dce01204444115f085cb28f4df249ebca7e92092085ebdf61db9d44"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "09499903b7d206680c55c466eb55a970a12b22561bec73f4f8b0c9066a4c757c"
+      },
+      "readDiagnostics": [],
+      "_hash": "b3ac727f2bac71320f633b7c05ab293fa1c23779b61a6e8e4383fa624e4232b2"
+    },
+    {
+      "id": "B-ebe4:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Round 6 final targeted concept review PASS. Only two exact process-fact fingerprint literals changed, matching the already-reviewed cli-engine/bootstrap executable structures; the focused process-fact contract passes. Runtime product semantics are unchanged: linked self-host worktree authority, external consumer advisory behavior, explicit session_brief-only global fallback, and raw-argv fail-fast before standalone/tool/schema/handler paths. Scope acknowledgement is visible and no blocker remains.",
+      "createdAt": "2026-07-16T22:29:58.225Z",
+      "reviewRound": "2026-07-16T22:24:16.250Z",
+      "reviewRunId": "B-ebe4:RR-029",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "38bb6a893bc86bce8662c0fe4a4763251f9f744b5f155d71e68340a70a310a1b",
+        "corpusDigest": "c32857bb0dce01204444115f085cb28f4df249ebca7e92092085ebdf61db9d44"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "09499903b7d206680c55c466eb55a970a12b22561bec73f4f8b0c9066a4c757c"
+      },
+      "readDiagnostics": [],
+      "_hash": "d4789ba7beccb4df7ae16784d7f06d25618638460a950fee66175b712e15779c"
+    },
+    {
+      "id": "B-ebe4:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Round 6 targeted quality re-review passed: commit 787c35a changes only the two exact process-contract fingerprint literals, matching canonical cli-engine and bootstrap-runner pins; known-benign loader call shapes, dynamic exemption sets, process/runtime registry separation, and runtime behavior are unchanged; current focused-chain evidence is PASS.",
+      "createdAt": "2026-07-16T22:30:03.015Z",
+      "reviewRound": "2026-07-16T22:24:16.250Z",
+      "reviewRunId": "B-ebe4:RR-030",
+      "writerSessionId": "codex-wa-final-quality",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/runtime-fact-registry.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "38bb6a893bc86bce8662c0fe4a4763251f9f744b5f155d71e68340a70a310a1b",
+        "corpusDigest": "c32857bb0dce01204444115f085cb28f4df249ebca7e92092085ebdf61db9d44"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "09499903b7d206680c55c466eb55a970a12b22561bec73f4f8b0c9066a4c757c"
+      },
+      "readDiagnostics": [],
+      "_hash": "7fab7240a8881124c415263458d82a2ee5e924ed04e6d4f75500f0262d4fd68e"
+    },
+    {
+      "id": "B-ebe4:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: Round6 has 21/21 PASS evidence bound to current materialHash ff419037cdd5 and storyFilesHash cad3784b60cc; stale dry-run reports zero. The only material diff synchronizes two exact fingerprint literals in verify-process-fact-contract, while the fingerprint-drift and fail-closed regression assertions remain present. The focused process-fact/retired-guard/authority/runtime/validation chain is current PASS; no 45-command suite or npm test was run.",
+      "createdAt": "2026-07-16T22:30:07.672Z",
+      "reviewRound": "2026-07-16T22:24:16.250Z",
+      "reviewRunId": "B-ebe4:RR-028",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "bin/bootstrap-runner.js",
+          "docs/CLI.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/runtime-fact-registry.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "38bb6a893bc86bce8662c0fe4a4763251f9f744b5f155d71e68340a70a310a1b",
+        "corpusDigest": "c32857bb0dce01204444115f085cb28f4df249ebca7e92092085ebdf61db9d44"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "09499903b7d206680c55c466eb55a970a12b22561bec73f4f8b0c9066a4c757c"
+      },
+      "readDiagnostics": [],
+      "_hash": "e8e8a1eedda684b3f3415859cba65ae85b383cbf34661a1c028440fb865557ad"
+    },
+    {
+      "id": "B-ebe4:RP-014",
+      "agent": "lattice-review-docs",
+      "note": "Round 6 incremental docs review passed. All product/runtime/docs blobs are unchanged from the prior fully read pass. The sole non-story diff updates two exact process-fact verifier fingerprints, and scope-ack:2 explicitly binds that bounded expansion; no user-facing promise, guard behavior, exemption, or recovery guidance changed.",
+      "createdAt": "2026-07-16T22:31:43.668Z",
+      "reviewRound": "2026-07-16T22:24:16.250Z",
+      "reviewRunId": "B-ebe4:RR-031",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "bin/bootstrap-runner.js",
+          "docs/CLI.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "38bb6a893bc86bce8662c0fe4a4763251f9f744b5f155d71e68340a70a310a1b",
+        "corpusDigest": "c32857bb0dce01204444115f085cb28f4df249ebca7e92092085ebdf61db9d44"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "09499903b7d206680c55c466eb55a970a12b22561bec73f4f8b0c9066a4c757c"
+      },
+      "readDiagnostics": [],
+      "_hash": "7cf18f049ab819eefe24c02bef1eac4a96572dea5ee90464b52a73e632422cf4"
+    },
+    {
+      "id": "B-ebe4:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "Round 7 metadata-only concept review PASS. CHK-001 user-facing outcome now truthfully states successful local authority is silent and normal command output continues; summary expectedOutcome/actualTranscript/outcomeDiff matches that behavior. CHK-002 remains unchanged and still requires pre-dispatch stale_global_runtime_in_worktree rejection, zero handlers, one shell-safe local recovery command, and session_brief-only explicit fallback. Source/material behavior is unchanged; fresh scope check reports zero gaps and both bounded expansion acknowledgements remain visible.",
+      "createdAt": "2026-07-16T23:09:38.567Z",
+      "reviewRound": "2026-07-16T23:08:43.268Z",
+      "reviewRunId": "B-ebe4:RR-032",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "b3e5b6701ba2cb8adfce62327dd53f5d7966cd9854ca9a9181c3b60690de31c5",
+        "corpusDigest": "c32857bb0dce01204444115f085cb28f4df249ebca7e92092085ebdf61db9d44"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "09499903b7d206680c55c466eb55a970a12b22561bec73f4f8b0c9066a4c757c"
+      },
+      "readDiagnostics": [],
+      "_hash": "98b9e91fca9ccff2d7fed161fb8ed33c4d601b9f20b6bf72b3725df11602b4a9"
+    }
+  ]
+}
