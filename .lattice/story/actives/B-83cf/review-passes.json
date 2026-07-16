@@ -79,6 +79,54 @@
         "corpusDigest": "f1124aa9a8d90aeb8ccf4eadae68f27adad5d60008193a43bfe78ab27ff7d1b7"
       },
       "_hash": "24bd3e032ee044461acf9f6ff2f648e321f3cee278796b08a3aa52fc4c0ab420"
+    },
+    {
+      "id": "B-83cf:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 3: fresh build passed; F-006 validation protocol is green; wrapper-root validation and deriveBindings share one lock; literal three worktree-local commands persist three complete single-host bindings and remain degraded-only; all 19 intents, quorum parity, command catalog, and process-fact contract are green.",
+      "createdAt": "2026-07-16T19:21:56.579Z",
+      "reviewRound": "2026-07-16T19:15:22.799Z",
+      "reviewRunId": "B-83cf:RR-013",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+          "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md",
+          "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "packages/main/src/core/validation-evidence-admissibility.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "bd67c72aa38fc6222fadd3759c2151a24dbffb71165e4a8e912716fc742c5422",
+        "corpusDigest": "f1124aa9a8d90aeb8ccf4eadae68f27adad5d60008193a43bfe78ab27ff7d1b7"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+          "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md",
+          "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "af0478f5832c11adb82d5473e89aef24287488b609351a9d704501334f924f9b"
+      },
+      "readDiagnostics": [],
+      "_hash": "8d636c6eea63d0c824d97f9592d95b6b22a96b43c15d9d2bbebed4d1db6ef031"
     }
   ]
 }
