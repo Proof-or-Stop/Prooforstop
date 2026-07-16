@@ -1,0 +1,35 @@
+{
+  "task": "Prevent contradictory delivery PASS envelopes and production test-only control data from reaching unsafe side-effect sinks.",
+  "outcome": "User sees `Blocked [delivery_promise_outcome_contradiction]: status=unverified cannot include verifiedBy; delivery-check was not written.` for a contradictory delivery payload, while a valid verified or waived payload still saves normally. The production seam guard reports `PASS — no unsafe test seam reaches a filesystem or process sink`, and its negative fixture rejects env-derived arbitrary paths without flagging ordinary runtime env reads or bounded numeric/enum controls.",
+  "facts": [
+    "B-914f routine validation reuse is already fully fixed; validation-evidence-reuse.ts and its mutation matrix remain a regression reference, not a behavior-change target.",
+    "B-ebe4 reproduced a false delivery PASS when status=unverified was paired with verifiedBy; command schema, handler, machine, and done-oracle currently lack one total predicate.",
+    "B-914f F-011 removed an arbitrary write test seam, but verifier.ts still contains a separate lock-smoke seam whose env-provided readyFile reaches mkdirSync/writeFileSync.",
+    "done-prepare.ts contains bounded smoke controls; the guard must distinguish sanitized numeric/enum selection of fixed behavior from arbitrary env-derived filesystem path or executable/argument data.",
+    "No existing general production test-seam guard exists; existing AST guards provide reusable patterns only."
+  ],
+  "constraints": [
+    "Do not change routine validation reuse semantics or rebuild all evidence schemas.",
+    "Reject contradictions before delivery-check persistence and make CLI/handler/DONE consumers share equivalent semantics.",
+    "The static rule is bounded to packages/main/src/core and handlers, with tasks excluded; no unbounded repository taint engine.",
+    "Legitimate environment reads and explicitly sanitized bounded numeric/enum controls must remain accepted.",
+    "Replace the verifier arbitrary-path seam with a capability-limited test mechanism or fixed controlled runtime location; no arbitrary write path from env.",
+    "Update process-fact registry/contract because delivery outcome semantics are L4 gate-consumed facts."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/delivery-promise-outcome.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/delivery-check.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+    "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "timestamp": "2026-07-16T23:21:32.332Z"
+}
