@@ -40,6 +40,49 @@
           "scripts/verify-process-fact-contract.mjs",
           "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A product-reviewer delivery_check_set with canonical status=verified or status=met, non-empty verifiedBy, and required evidence normalizes to one PASS envelope, persists a signed delivery check, and is accepted by both lifecycle readiness and the DONE oracle.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A status=waived delivery promise with no verification claims and a waiverReason of at least 30 characters is accepted as the documented waived positive, while status=unverified remains persisted only as unresolved/blocking and never counts as PASS.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A documented legacy delivery row with missing status is accepted only by the explicit compatibility branch when its legacy fields form a valid positive; the same fields with explicit status=unverified remain blocking and cannot be upgraded by compatibility inference.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "A generated envelope matrix mutates every status, verifiedBy, evidence, and waiverReason field individually and pairwise, covering missing, empty, unknown, non-canonical/nonzero, mutually exclusive, and conflicting values with a stable classification for every combination.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Contradictions including unverified plus verifiedBy/evidence, waived plus verification claims, met/verified without required claims, unknown status, or waiverReason on a non-waived state fail with delivery_promise_outcome_contradiction before store.writeDeliveryCheck; the delivery artifact and process evidence remain byte-for-byte unwritten.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "The public CLI schema and a direct handler invocation independently enforce the same normalized predicate and stable reason code, so bypassing CLI validation cannot persist a contradictory PASS envelope and product-reviewer negative controls cannot self-certify unverified data.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Machine readiness and the DONE oracle consume the shared normalized outcome rather than duplicating field checks; injecting every rejected matrix row or an explicit-unverified legacy-shaped row into persisted input remains blocking in both consumers, while verified/met/waived positives agree.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
