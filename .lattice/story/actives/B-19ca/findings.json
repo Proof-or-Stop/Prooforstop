@@ -72,7 +72,7 @@
       "desc": "packages/main/src/core/agent-dispatch-registry.ts:418-431 and packages/main/src/handlers/checklist.ts:559-577 — HIGH: the registry mutation matrix is not wired into all declared command consumers. `assertRegisteredAgentMutationAllowed` is called only by checklist_update; review-run separately uses lane classification, while finding_add/review_pass_set/finding_resolve/init_check_set/scope_check_save/delivery_check_set do not consume the registry mutation authority (several do not even accept an actor). The exhaustive smoke at agent-dispatch-registry-smoke.ts:209-223 tests only the pure helper, so it can pass while real handlers permit registry-denied actors/commands. This contradicts CHK-002 adversarial:1 and the L4 process-fact claim that role-gated mutation consumers enforce the shared registry. Wire each gate-relevant mutation entry through a fail-closed registered actor check (preserving explicitly intended human/main paths), and add real-handler negative tests that compare story/checklist/evidence state before and after every denied class.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-16T11:21:55.849Z",
@@ -80,7 +80,11 @@
       "reviewRunId": "B-19ca:RR-003",
       "_hash": "da5d140640e019a299d87a8df505cdbb7785e364ff1c832813cad9726ea8000a",
       "signatureTag": "missing|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added registry authorization at review_run_start, finding_add, review_pass_set, finding_resolve, init_check_set, scope_check_save, and delivery_check_set; exhaustive real-handler negative coverage proves denied calls are side-effect free.",
+      "resolvedAt": "2026-07-16T11:50:42.748Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-19ca:F-005",
