@@ -4,11 +4,11 @@
   "title": "Introduce a typed agent dispatch registry and fail-closed prompt routing",
   "description": "Implement Workstream C / C4 from workflow-convergence-failure-remediation-execution-plan.md: replace prefix-based role inference and mismatched story/item hints with one explicit registry consumed by schema, handler, prompt construction, hints, permissions, and tests.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-07-16T10:15:31.924Z",
   "startedAt": "2026-07-16T10:15:31.924Z",
-  "endedAt": null,
+  "endedAt": "2026-07-16T13:45:23.817Z",
   "events": [
     {
       "phase": "INIT",
@@ -180,12 +180,16 @@
       "user": "Harmonygo",
       "sessionId": "codex-wa-final",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-16T13:45:23.817Z",
+      "branch": "story/B-19ca",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-19ca",
-    "branch": "story/B-19ca",
-    "createdAt": "2026-07-16T10:18:35.969Z"
-  },
   "currentReviewRound": "2026-07-16T13:17:00.741Z"
 }
