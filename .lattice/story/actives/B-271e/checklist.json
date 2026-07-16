@@ -247,7 +247,93 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/production-test-seam-guard.ts",
+          "command": "npm --prefix packages/main run build && npm run test:production-test-seam-guard && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Targeted PASS chain covers bounded core/handlers AST source-to-sink analysis, direct/alias/destructure/forwarding negatives, PATH/positive-int/finite-enum positives, routine/root wiring, capability-limited lock race proof, and CLI/env production-unreachability.",
+          "headHash": "8ad4d426106edfb795b3b5eecc75d6422ac6ec81",
+          "materialHash": "54b40110070bbabcd987358b99284a9d771ef87839339b29c01480edccd1cbf7",
+          "storyFilesHash": "9da4deb72b4d132a7ad94e9ed14486318fefaa53f55018fa76fe390de15ce0b7",
+          "timestamp": "2026-07-16T23:56:25.896Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:production-test-seam-guard && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Targeted PASS chain covers bounded core/handlers AST source-to-sink analysis, direct/alias/destructure/forwarding negatives, PATH/positive-int/finite-enum positives, routine/root wiring, capability-limited lock race proof, and CLI/env production-unreachability.",
+          "headHash": "8ad4d426106edfb795b3b5eecc75d6422ac6ec81",
+          "materialHash": "54b40110070bbabcd987358b99284a9d771ef87839339b29c01480edccd1cbf7",
+          "storyFilesHash": "9da4deb72b4d132a7ad94e9ed14486318fefaa53f55018fa76fe390de15ce0b7",
+          "timestamp": "2026-07-16T23:56:25.896Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/production-test-seam-guard.ts",
+          "command": "npm --prefix packages/main run build && npm run test:production-test-seam-guard && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Targeted PASS chain covers bounded core/handlers AST source-to-sink analysis, direct/alias/destructure/forwarding negatives, PATH/positive-int/finite-enum positives, routine/root wiring, capability-limited lock race proof, and CLI/env production-unreachability.",
+          "headHash": "8ad4d426106edfb795b3b5eecc75d6422ac6ec81",
+          "materialHash": "54b40110070bbabcd987358b99284a9d771ef87839339b29c01480edccd1cbf7",
+          "storyFilesHash": "9da4deb72b4d132a7ad94e9ed14486318fefaa53f55018fa76fe390de15ce0b7",
+          "timestamp": "2026-07-16T23:56:25.896Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/production-test-seam-guard.ts",
+          "command": "npm --prefix packages/main run build && npm run test:production-test-seam-guard && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Targeted PASS chain covers bounded core/handlers AST source-to-sink analysis, direct/alias/destructure/forwarding negatives, PATH/positive-int/finite-enum positives, routine/root wiring, capability-limited lock race proof, and CLI/env production-unreachability.",
+          "headHash": "8ad4d426106edfb795b3b5eecc75d6422ac6ec81",
+          "materialHash": "54b40110070bbabcd987358b99284a9d771ef87839339b29c01480edccd1cbf7",
+          "storyFilesHash": "9da4deb72b4d132a7ad94e9ed14486318fefaa53f55018fa76fe390de15ce0b7",
+          "timestamp": "2026-07-16T23:56:25.896Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/production-test-seam-guard.ts",
+          "command": "npm --prefix packages/main run build && npm run test:production-test-seam-guard && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Targeted PASS chain covers bounded core/handlers AST source-to-sink analysis, direct/alias/destructure/forwarding negatives, PATH/positive-int/finite-enum positives, routine/root wiring, capability-limited lock race proof, and CLI/env production-unreachability.",
+          "headHash": "8ad4d426106edfb795b3b5eecc75d6422ac6ec81",
+          "materialHash": "54b40110070bbabcd987358b99284a9d771ef87839339b29c01480edccd1cbf7",
+          "storyFilesHash": "9da4deb72b4d132a7ad94e9ed14486318fefaa53f55018fa76fe390de15ce0b7",
+          "timestamp": "2026-07-16T23:56:25.896Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/production-test-seam-guard.ts",
+          "command": "npm --prefix packages/main run build && npm run test:production-test-seam-guard && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Targeted PASS chain covers bounded core/handlers AST source-to-sink analysis, direct/alias/destructure/forwarding negatives, PATH/positive-int/finite-enum positives, routine/root wiring, capability-limited lock race proof, and CLI/env production-unreachability.",
+          "headHash": "8ad4d426106edfb795b3b5eecc75d6422ac6ec81",
+          "materialHash": "54b40110070bbabcd987358b99284a9d771ef87839339b29c01480edccd1cbf7",
+          "storyFilesHash": "9da4deb72b4d132a7ad94e9ed14486318fefaa53f55018fa76fe390de15ce0b7",
+          "timestamp": "2026-07-16T23:56:25.897Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:production-test-seam-guard && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Targeted PASS chain covers bounded core/handlers AST source-to-sink analysis, direct/alias/destructure/forwarding negatives, PATH/positive-int/finite-enum positives, routine/root wiring, capability-limited lock race proof, and CLI/env production-unreachability.",
+          "headHash": "8ad4d426106edfb795b3b5eecc75d6422ac6ec81",
+          "materialHash": "54b40110070bbabcd987358b99284a9d771ef87839339b29c01480edccd1cbf7",
+          "storyFilesHash": "9da4deb72b4d132a7ad94e9ed14486318fefaa53f55018fa76fe390de15ce0b7",
+          "timestamp": "2026-07-16T23:56:25.897Z"
+        }
+      ]
     }
   ],
   "auditLog": [
