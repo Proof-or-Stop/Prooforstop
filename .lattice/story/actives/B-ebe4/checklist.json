@@ -75,10 +75,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
           "note": "Hermetic linked-worktree fixture canonicalizes runtime, project, worktree, main, and common-dir identities and blocks the main-checkout runtime.",
-          "headHash": "c7896834e81b2f37c7cd5372802857b2795cb235",
-          "materialHash": "587e7e23636ec2bf7a3b3df5b1aff53b038fa91b5661d5114444d5b38afef098",
-          "storyFilesHash": "3749055bc4caaa9f677cc9462ef533249311444d45962fbc0a5d40fdc926d1e6",
-          "timestamp": "2026-07-16T21:05:39.342Z"
+          "headHash": "eb5d6b4b61de8a03d061aaf5a81adba4bfede70a",
+          "materialHash": "34050b691a60a66a880c8fbaee7ee3d4cd3dbc9f6e9030a77865b89408bc2e05",
+          "storyFilesHash": "d4f8c5d6a5b437760a305e2e14f505f3333e03f4554334d5c05d2401ec0cdbb0",
+          "timestamp": "2026-07-16T21:18:28.792Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -87,10 +87,10 @@
           "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
           "note": "Worktree-local bin/lattice.js identity is classified PASS.",
-          "headHash": "c7896834e81b2f37c7cd5372802857b2795cb235",
-          "materialHash": "587e7e23636ec2bf7a3b3df5b1aff53b038fa91b5661d5114444d5b38afef098",
-          "storyFilesHash": "3749055bc4caaa9f677cc9462ef533249311444d45962fbc0a5d40fdc926d1e6",
-          "timestamp": "2026-07-16T21:05:39.539Z"
+          "headHash": "eb5d6b4b61de8a03d061aaf5a81adba4bfede70a",
+          "materialHash": "34050b691a60a66a880c8fbaee7ee3d4cd3dbc9f6e9030a77865b89408bc2e05",
+          "storyFilesHash": "d4f8c5d6a5b437760a305e2e14f505f3333e03f4554334d5c05d2401ec0cdbb0",
+          "timestamp": "2026-07-16T21:18:28.792Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -99,10 +99,10 @@
           "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
           "note": "Symlink launcher, dot-segment project path, and linked-worktree git metadata resolve to the same canonical mismatch.",
-          "headHash": "c7896834e81b2f37c7cd5372802857b2795cb235",
-          "materialHash": "587e7e23636ec2bf7a3b3df5b1aff53b038fa91b5661d5114444d5b38afef098",
-          "storyFilesHash": "3749055bc4caaa9f677cc9462ef533249311444d45962fbc0a5d40fdc926d1e6",
-          "timestamp": "2026-07-16T21:05:39.738Z"
+          "headHash": "eb5d6b4b61de8a03d061aaf5a81adba4bfede70a",
+          "materialHash": "34050b691a60a66a880c8fbaee7ee3d4cd3dbc9f6e9030a77865b89408bc2e05",
+          "storyFilesHash": "d4f8c5d6a5b437760a305e2e14f505f3333e03f4554334d5c05d2401ec0cdbb0",
+          "timestamp": "2026-07-16T21:18:28.792Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -111,10 +111,10 @@
           "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
           "note": "Non-self external git consumer remains executable and advisory.",
-          "headHash": "c7896834e81b2f37c7cd5372802857b2795cb235",
-          "materialHash": "587e7e23636ec2bf7a3b3df5b1aff53b038fa91b5661d5114444d5b38afef098",
-          "storyFilesHash": "3749055bc4caaa9f677cc9462ef533249311444d45962fbc0a5d40fdc926d1e6",
-          "timestamp": "2026-07-16T21:05:39.961Z"
+          "headHash": "eb5d6b4b61de8a03d061aaf5a81adba4bfede70a",
+          "materialHash": "34050b691a60a66a880c8fbaee7ee3d4cd3dbc9f6e9030a77865b89408bc2e05",
+          "storyFilesHash": "d4f8c5d6a5b437760a305e2e14f505f3333e03f4554334d5c05d2401ec0cdbb0",
+          "timestamp": "2026-07-16T21:18:28.792Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
@@ -123,10 +123,10 @@
           "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
           "note": "Only session_brief with explicit LATTICE_CODEX_ENTRYPOINT=global-fallback is exempt; validate stays blocked.",
-          "headHash": "c7896834e81b2f37c7cd5372802857b2795cb235",
-          "materialHash": "587e7e23636ec2bf7a3b3df5b1aff53b038fa91b5661d5114444d5b38afef098",
-          "storyFilesHash": "3749055bc4caaa9f677cc9462ef533249311444d45962fbc0a5d40fdc926d1e6",
-          "timestamp": "2026-07-16T21:05:40.182Z"
+          "headHash": "eb5d6b4b61de8a03d061aaf5a81adba4bfede70a",
+          "materialHash": "34050b691a60a66a880c8fbaee7ee3d4cd3dbc9f6e9030a77865b89408bc2e05",
+          "storyFilesHash": "d4f8c5d6a5b437760a305e2e14f505f3333e03f4554334d5c05d2401ec0cdbb0",
+          "timestamp": "2026-07-16T21:18:28.792Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -135,10 +135,10 @@
           "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
           "note": "Canonical realpath and git identities defeat nested aliases, dot segments, and symlink spelling.",
-          "headHash": "c7896834e81b2f37c7cd5372802857b2795cb235",
-          "materialHash": "587e7e23636ec2bf7a3b3df5b1aff53b038fa91b5661d5114444d5b38afef098",
-          "storyFilesHash": "3749055bc4caaa9f677cc9462ef533249311444d45962fbc0a5d40fdc926d1e6",
-          "timestamp": "2026-07-16T21:05:40.416Z"
+          "headHash": "eb5d6b4b61de8a03d061aaf5a81adba4bfede70a",
+          "materialHash": "34050b691a60a66a880c8fbaee7ee3d4cd3dbc9f6e9030a77865b89408bc2e05",
+          "storyFilesHash": "d4f8c5d6a5b437760a305e2e14f505f3333e03f4554334d5c05d2401ec0cdbb0",
+          "timestamp": "2026-07-16T21:18:28.792Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -147,10 +147,10 @@
           "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
           "note": "Unresolved runtime identity is fail-closed when authoritative runtime is required, while external consumers bypass self-host classification.",
-          "headHash": "c7896834e81b2f37c7cd5372802857b2795cb235",
-          "materialHash": "587e7e23636ec2bf7a3b3df5b1aff53b038fa91b5661d5114444d5b38afef098",
-          "storyFilesHash": "3749055bc4caaa9f677cc9462ef533249311444d45962fbc0a5d40fdc926d1e6",
-          "timestamp": "2026-07-16T21:05:40.635Z"
+          "headHash": "eb5d6b4b61de8a03d061aaf5a81adba4bfede70a",
+          "materialHash": "34050b691a60a66a880c8fbaee7ee3d4cd3dbc9f6e9030a77865b89408bc2e05",
+          "storyFilesHash": "d4f8c5d6a5b437760a305e2e14f505f3333e03f4554334d5c05d2401ec0cdbb0",
+          "timestamp": "2026-07-16T21:18:28.792Z"
         }
       ]
     },
@@ -230,10 +230,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
           "note": "CLI choke point rejects stale main runtime before Store, registry, hooks, handler dispatch, or validation and emits stable reasonCode plus one recovery command.",
-          "headHash": "a70c1bade862b3820964ce9efc07f24dfe5b0365",
-          "materialHash": "23fc80509bd38696fcf260bf03f1896b44e6a11988098aa1fef23b91d83b00b7",
-          "storyFilesHash": "054252377a39b58b09530086f1a6bd9affebcdb52531e3b23a40631aee1c1dfd",
-          "timestamp": "2026-07-16T21:08:28.615Z"
+          "headHash": "eb5d6b4b61de8a03d061aaf5a81adba4bfede70a",
+          "materialHash": "34050b691a60a66a880c8fbaee7ee3d4cd3dbc9f6e9030a77865b89408bc2e05",
+          "storyFilesHash": "d4f8c5d6a5b437760a305e2e14f505f3333e03f4554334d5c05d2401ec0cdbb0",
+          "timestamp": "2026-07-16T21:18:28.792Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -242,10 +242,10 @@
           "command": "node bin/lattice.js checklist_get {storyId:B-ebe4}",
           "result": "pass",
           "note": "The emitted worktree-local entrypoint form loads the current build and reaches normal command dispatch.",
-          "headHash": "a70c1bade862b3820964ce9efc07f24dfe5b0365",
-          "materialHash": "23fc80509bd38696fcf260bf03f1896b44e6a11988098aa1fef23b91d83b00b7",
-          "storyFilesHash": "054252377a39b58b09530086f1a6bd9affebcdb52531e3b23a40631aee1c1dfd",
-          "timestamp": "2026-07-16T21:08:28.800Z"
+          "headHash": "eb5d6b4b61de8a03d061aaf5a81adba4bfede70a",
+          "materialHash": "34050b691a60a66a880c8fbaee7ee3d4cd3dbc9f6e9030a77865b89408bc2e05",
+          "storyFilesHash": "d4f8c5d6a5b437760a305e2e14f505f3333e03f4554334d5c05d2401ec0cdbb0",
+          "timestamp": "2026-07-16T21:18:28.792Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -254,10 +254,10 @@
           "command": "rg -n stale_global_runtime_in_worktree|local bootstrap docs/CLI.md bin/bootstrap-runner.js",
           "result": "pass",
           "note": "Stale mismatch has a stable code; bootstrap retains distinct missing-build recovery; ordinary cwd/lifecycle errors remain downstream diagnostics.",
-          "headHash": "a70c1bade862b3820964ce9efc07f24dfe5b0365",
-          "materialHash": "23fc80509bd38696fcf260bf03f1896b44e6a11988098aa1fef23b91d83b00b7",
-          "storyFilesHash": "054252377a39b58b09530086f1a6bd9affebcdb52531e3b23a40631aee1c1dfd",
-          "timestamp": "2026-07-16T21:08:28.980Z"
+          "headHash": "eb5d6b4b61de8a03d061aaf5a81adba4bfede70a",
+          "materialHash": "34050b691a60a66a880c8fbaee7ee3d4cd3dbc9f6e9030a77865b89408bc2e05",
+          "storyFilesHash": "d4f8c5d6a5b437760a305e2e14f505f3333e03f4554334d5c05d2401ec0cdbb0",
+          "timestamp": "2026-07-16T21:18:28.792Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -266,10 +266,10 @@
           "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
           "note": "Canonical identities produce the same reason and deterministic recovery command across symlink and path aliases.",
-          "headHash": "a70c1bade862b3820964ce9efc07f24dfe5b0365",
-          "materialHash": "23fc80509bd38696fcf260bf03f1896b44e6a11988098aa1fef23b91d83b00b7",
-          "storyFilesHash": "054252377a39b58b09530086f1a6bd9affebcdb52531e3b23a40631aee1c1dfd",
-          "timestamp": "2026-07-16T21:08:29.154Z"
+          "headHash": "eb5d6b4b61de8a03d061aaf5a81adba4bfede70a",
+          "materialHash": "34050b691a60a66a880c8fbaee7ee3d4cd3dbc9f6e9030a77865b89408bc2e05",
+          "storyFilesHash": "d4f8c5d6a5b437760a305e2e14f505f3333e03f4554334d5c05d2401ec0cdbb0",
+          "timestamp": "2026-07-16T21:18:28.792Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
@@ -278,10 +278,10 @@
           "command": "rg -n global-fallback.lattice.session_brief bin/bootstrap-runner.js docs/CLI.md",
           "result": "pass",
           "note": "Global fallback is documented as one exact session_brief heartbeat command, never a generic command placeholder.",
-          "headHash": "a70c1bade862b3820964ce9efc07f24dfe5b0365",
-          "materialHash": "23fc80509bd38696fcf260bf03f1896b44e6a11988098aa1fef23b91d83b00b7",
-          "storyFilesHash": "054252377a39b58b09530086f1a6bd9affebcdb52531e3b23a40631aee1c1dfd",
-          "timestamp": "2026-07-16T21:08:29.322Z"
+          "headHash": "eb5d6b4b61de8a03d061aaf5a81adba4bfede70a",
+          "materialHash": "34050b691a60a66a880c8fbaee7ee3d4cd3dbc9f6e9030a77865b89408bc2e05",
+          "storyFilesHash": "d4f8c5d6a5b437760a305e2e14f505f3333e03f4554334d5c05d2401ec0cdbb0",
+          "timestamp": "2026-07-16T21:18:28.792Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -290,10 +290,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "Authority gate is mechanically located before Store/registry creation and therefore before hooks, handlers, validation subprocesses, and persistence.",
-          "headHash": "a70c1bade862b3820964ce9efc07f24dfe5b0365",
-          "materialHash": "23fc80509bd38696fcf260bf03f1896b44e6a11988098aa1fef23b91d83b00b7",
-          "storyFilesHash": "054252377a39b58b09530086f1a6bd9affebcdb52531e3b23a40631aee1c1dfd",
-          "timestamp": "2026-07-16T21:08:29.501Z"
+          "headHash": "eb5d6b4b61de8a03d061aaf5a81adba4bfede70a",
+          "materialHash": "34050b691a60a66a880c8fbaee7ee3d4cd3dbc9f6e9030a77865b89408bc2e05",
+          "storyFilesHash": "d4f8c5d6a5b437760a305e2e14f505f3333e03f4554334d5c05d2401ec0cdbb0",
+          "timestamp": "2026-07-16T21:18:28.792Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -302,10 +302,10 @@
           "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
           "result": "pass",
           "note": "Shell quoting preserves JSON, spaces, semicolons, and metacharacters as one inert argument in the recovery command.",
-          "headHash": "a70c1bade862b3820964ce9efc07f24dfe5b0365",
-          "materialHash": "23fc80509bd38696fcf260bf03f1896b44e6a11988098aa1fef23b91d83b00b7",
-          "storyFilesHash": "054252377a39b58b09530086f1a6bd9affebcdb52531e3b23a40631aee1c1dfd",
-          "timestamp": "2026-07-16T21:08:29.666Z"
+          "headHash": "eb5d6b4b61de8a03d061aaf5a81adba4bfede70a",
+          "materialHash": "34050b691a60a66a880c8fbaee7ee3d4cd3dbc9f6e9030a77865b89408bc2e05",
+          "storyFilesHash": "d4f8c5d6a5b437760a305e2e14f505f3333e03f4554334d5c05d2401ec0cdbb0",
+          "timestamp": "2026-07-16T21:18:28.792Z"
         }
       ]
     },
