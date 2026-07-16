@@ -9,9 +9,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "AGENTS.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-16T21:01:02.369Z",
-      "endTime": null,
+      "endTime": "2026-07-16T21:05:39.128Z",
       "verificationIntent": {
         "happy": [
           {
@@ -66,7 +66,93 @@
           "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
           "scripts/verify-runtime-fact-contract.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
+          "result": "pass",
+          "note": "Hermetic linked-worktree fixture canonicalizes runtime, project, worktree, main, and common-dir identities and blocks the main-checkout runtime.",
+          "headHash": "c7896834e81b2f37c7cd5372802857b2795cb235",
+          "materialHash": "587e7e23636ec2bf7a3b3df5b1aff53b038fa91b5661d5114444d5b38afef098",
+          "storyFilesHash": "3749055bc4caaa9f677cc9462ef533249311444d45962fbc0a5d40fdc926d1e6",
+          "timestamp": "2026-07-16T21:05:39.342Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
+          "result": "pass",
+          "note": "Worktree-local bin/lattice.js identity is classified PASS.",
+          "headHash": "c7896834e81b2f37c7cd5372802857b2795cb235",
+          "materialHash": "587e7e23636ec2bf7a3b3df5b1aff53b038fa91b5661d5114444d5b38afef098",
+          "storyFilesHash": "3749055bc4caaa9f677cc9462ef533249311444d45962fbc0a5d40fdc926d1e6",
+          "timestamp": "2026-07-16T21:05:39.539Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
+          "result": "pass",
+          "note": "Symlink launcher, dot-segment project path, and linked-worktree git metadata resolve to the same canonical mismatch.",
+          "headHash": "c7896834e81b2f37c7cd5372802857b2795cb235",
+          "materialHash": "587e7e23636ec2bf7a3b3df5b1aff53b038fa91b5661d5114444d5b38afef098",
+          "storyFilesHash": "3749055bc4caaa9f677cc9462ef533249311444d45962fbc0a5d40fdc926d1e6",
+          "timestamp": "2026-07-16T21:05:39.738Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
+          "result": "pass",
+          "note": "Non-self external git consumer remains executable and advisory.",
+          "headHash": "c7896834e81b2f37c7cd5372802857b2795cb235",
+          "materialHash": "587e7e23636ec2bf7a3b3df5b1aff53b038fa91b5661d5114444d5b38afef098",
+          "storyFilesHash": "3749055bc4caaa9f677cc9462ef533249311444d45962fbc0a5d40fdc926d1e6",
+          "timestamp": "2026-07-16T21:05:39.961Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
+          "result": "pass",
+          "note": "Only session_brief with explicit LATTICE_CODEX_ENTRYPOINT=global-fallback is exempt; validate stays blocked.",
+          "headHash": "c7896834e81b2f37c7cd5372802857b2795cb235",
+          "materialHash": "587e7e23636ec2bf7a3b3df5b1aff53b038fa91b5661d5114444d5b38afef098",
+          "storyFilesHash": "3749055bc4caaa9f677cc9462ef533249311444d45962fbc0a5d40fdc926d1e6",
+          "timestamp": "2026-07-16T21:05:40.182Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
+          "result": "pass",
+          "note": "Canonical realpath and git identities defeat nested aliases, dot segments, and symlink spelling.",
+          "headHash": "c7896834e81b2f37c7cd5372802857b2795cb235",
+          "materialHash": "587e7e23636ec2bf7a3b3df5b1aff53b038fa91b5661d5114444d5b38afef098",
+          "storyFilesHash": "3749055bc4caaa9f677cc9462ef533249311444d45962fbc0a5d40fdc926d1e6",
+          "timestamp": "2026-07-16T21:05:40.416Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/runtime-entrypoint-authority-smoke.ts",
+          "command": "node packages/main/dist/tasks/runtime-entrypoint-authority-smoke.js",
+          "result": "pass",
+          "note": "Unresolved runtime identity is fail-closed when authoritative runtime is required, while external consumers bypass self-host classification.",
+          "headHash": "c7896834e81b2f37c7cd5372802857b2795cb235",
+          "materialHash": "587e7e23636ec2bf7a3b3df5b1aff53b038fa91b5661d5114444d5b38afef098",
+          "storyFilesHash": "3749055bc4caaa9f677cc9462ef533249311444d45962fbc0a5d40fdc926d1e6",
+          "timestamp": "2026-07-16T21:05:40.635Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
