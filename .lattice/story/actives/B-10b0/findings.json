@@ -217,7 +217,7 @@
       "desc": "Disproven audit for B-10b0:F-001: the prior finding conflated cooperative code-review freshness with artifact admissibility and imposed hostile same-UID canonical-writer authentication that the active local-assurance contract explicitly does not claim. 7050b07a24 removes the unused pseudo-authority helpers and keeps lineage consumption limited to review retention; production gates continue their specialized artifact schema/hash/freshness/reviewer validation and never consume the lineage receipt as artifact approval.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "disproven",
       "disprovenEvidence": {
         "summary": "Active truth sources retire server-backed Authority semantics and require local proof-admissibility vocabulary; local-key/cooperative receipts must not be promoted to Authority. F-001 incorrectly treated absence of canonical-writer authentication as absence of artifact validation. The current code explicitly labels receipt lineage non-authenticating, deletes the unused always-false authority helper, and contract-checks that TEST/DONE consumers retain their independent validators while not importing receipt lineage.",
@@ -245,14 +245,18 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "adversarial|ts|disproven-audit-10b0",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "dismissReason": "Disproven audit fulfilled its purpose as strong counter-evidence for dismissing F-001 and is now already covered by the corrected contract and tests.",
+      "dismissedAt": "2026-07-17T16:40:24.584Z",
+      "dismissReasonType": "already_covered",
+      "dismissEvidenceStrength": "strong"
     },
     {
       "id": "B-10b0:F-011",
       "desc": "packages/main/src/handlers/validate-concept.ts:231-260,410-432 — HIGH: the new Python declaration parser silently treats unsupported multi-line declarations as absent instead of emitting the fail-closed diagnostic required by CHK-003:adversarial:3. Verified against the current built runtime with a true deletion of `def removed(\n    value: str,\n) -> str:`: analyzeDeletedSymbols returned `{symbols:[],diagnostics:[]}` and checkConcept returned PASS/no deleted exports. This is a false negative that can skip lattice-review-concept despite a true declaration deletion. Either parse Python declarations with a syntax-aware parser/bounded multi-line state machine, or detect unconsumed `def`/`class` starts and return a typed ambiguity diagnostic; add a multi-line deletion regression. F-006 cross-file identity and F-007 durable convergence fixes otherwise passed focused review.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-17T16:14:12.017Z",
@@ -264,7 +268,11 @@
         "packages/main/src/tasks/concept-gate-scope-smoke.ts"
       ],
       "signatureTag": "concept-python-multiline-fail-open",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 1c694f1c8e bounded multiline Python header parsing; def/class deletion and body-only cases pass, malformed/unterminated headers emit typed fail-closed diagnostics.",
+      "resolvedAt": "2026-07-17T16:40:25.704Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
