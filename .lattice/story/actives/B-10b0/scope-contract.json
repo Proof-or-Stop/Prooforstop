@@ -68,8 +68,26 @@
       "phase": "DEV",
       "headHash": "9971708050826cbe3b314b2f35e9ee7952b21928",
       "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "DONE-required exposed a deterministic worktree-only harness failure: the baseline verifier bypasses the canonical bin/lattice.js bootstrap and invokes dist/cli.js directly, so its unknown-role probe is rejected by runtime authority before reaching the behavior under test. The paired baseline command snapshot must follow the canonical entrypoint.",
+      "timestamp": "2026-07-17T19:54:49.269Z",
+      "paths": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "7a4e11f5f966ca0eb3ee436cf1cb52dfd6b76e12",
+      "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a"
     }
   ],
   "createdAt": "2026-07-17T13:21:14.674Z",
-  "updatedAt": "2026-07-17T16:51:18.412Z"
+  "updatedAt": "2026-07-17T19:54:49.269Z"
 }
