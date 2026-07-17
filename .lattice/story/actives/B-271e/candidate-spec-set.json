@@ -2,7 +2,7 @@
   "schemaVersion": "proofbound.candidate-spec-set.v1",
   "storyId": "B-271e",
   "corpusDigest": "c32857bb0dce01204444115f085cb28f4df249ebca7e92092085ebdf61db9d44",
-  "seedDigest": "0e85216e6acc5020edf387b01af1db1189aba8883dbb9aae46f93710ae0b81ff",
+  "seedDigest": "2485a704f5a6f51e265ff385a73e97dbed8c661ae0b0427b668e80b42655f626",
   "promptDigests": [],
   "candidates": [
     {
@@ -1607,13 +1607,13 @@
       "done oracle ts"
     ],
     [
-      "flow stability smoke ts"
-    ],
-    [
       "handlers"
     ],
     [
       "lattice config json"
+    ],
+    [
+      "machine ts"
     ]
   ],
   "queryFiltering": {
@@ -1645,10 +1645,10 @@
     "high_risk_lifecycle_gate_process_fact_or_global_rename"
   ],
   "fullScan": true,
-  "scanEscalationReason": "High-risk L4 delivery-gate and production side-effect-guard change requires the policy-mandated one-time local requirements corpus scan after verificationIntent, ProofStory, understanding, decision, and execution plan stabilized.",
-  "storyInputDigest": "cd4c598dc4f28c547102b362cd884321a3b3895ee70d79b4e4167961239b978f",
-  "headHash": "e9f4343ab2ec1e048214b9fd3d3c8ecb26b8eac5",
-  "materialHash": "2f6f4031e8d5450664f763dda3dcf819b026908c17c1b40fa1c98e1e0960f8cf",
-  "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-  "artifactDigest": "bf42e3b97ef88d41e53c98b3f2b11fb003206b5cb98dd2db0136e0e303af6b89"
+  "scanEscalationReason": "High-risk L4 replan delta: CHK-001 happy:0 role corrected from impossible product-reviewer to authorized lattice-review-delivery; reuse prior 119-document hash audit and delta-check only the intent change.",
+  "storyInputDigest": "073706c1227bee600a33e23a4a101740c29f4f5f8aa9317b5e0dd71b292cd42e",
+  "headHash": "21f29b8b3b7ca23750d89f92918e37f346db3751",
+  "materialHash": "54b40110070bbabcd987358b99284a9d771ef87839339b29c01480edccd1cbf7",
+  "storyFilesHash": "9da4deb72b4d132a7ad94e9ed14486318fefaa53f55018fa76fe390de15ce0b7",
+  "artifactDigest": "cd3f4abf7d50412ed5a8c51f24e9789e7b0614f7e7a1e0508c3eb49850e5970e"
 }
