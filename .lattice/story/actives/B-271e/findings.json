@@ -47,6 +47,25 @@
       ],
       "signatureTag": "production-test-seam-taint-bypass",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-271e:F-004",
+      "desc": "The replacement post-command lock test no longer exercises the real verifier path it claims to protect. assertPostCommandPersistenceHoldsLock directly calls withValidationExecutionLock and directly writes StoryStore evidence inside that test-owned closure; it can still pass if verifier.ts later moves decorateAndMaybePersistStoryValidation outside its lock. The current production code does keep execution and persistence in the wrapper, but the regression test does not bind that ordering. Add a capability-limited handler seam or instrumentation that invokes the actual validate handler through command completion and evidence persistence without accepting caller-selected paths/commands; alternatively add a structural contract that mechanically proves the persistence calls remain inside the locked closure.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-17T00:03:52.712Z",
+      "reviewRound": "2026-07-17T00:01:11.144Z",
+      "reviewRunId": "B-271e:RR-002",
+      "_hash": "8e8cc14a21e211a177c2e69af046bd11462ec3756574fed3060fc0daa4abbd69",
+      "files": [
+        "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "validate-lock-test-does-not-cover-production-ordering",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
