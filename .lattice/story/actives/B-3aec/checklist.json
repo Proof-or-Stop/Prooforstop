@@ -1,0 +1,30 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Bound unattended host startup and execution",
+      "context": "Require positive unattended readiness before automatic spawn. Add configurable first-output watchdog plus total deadline, propagate abort/kill/reap/capacity release, and distinguish auth/interactive/no-output/startup timeout from total timeout. Use deterministic fake child processes only; host=fake is never production assurance.",
+      "relatedDocs": [
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+        "docs/requirements/decisions/host-overflow.md",
+        "AGENTS.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Complete and verify candidate routing specificity contracts",
+      "context": "Preserve the existing maxDocumentFrequencyRatio implementation while proving generic lattice/proofbound/core/handlers terms cannot force full corpus by themselves. Exact relatedDocs, exact paths, registry refs, typed risk signals and reviewer-bound evidence must remain candidates; truncation escalates only when relevance/ranking is affected; artifact explanations and shadow/warn/enforce behavior must agree.",
+      "relatedDocs": [
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+        "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+        "AGENTS.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

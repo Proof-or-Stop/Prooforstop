@@ -1,0 +1,33 @@
+{
+  "storyId": "B-3aec",
+  "name": "unattended-host-liveness-and-routing-specificity",
+  "title": "Bound unattended host execution and complete candidate routing specificity",
+  "description": "Complete workflow remediation Workstream B (C2+C3): reject unverified unattended launchers before spawn, add bounded first-output and total execution controls with cleanup diagnostics, and verify/complete the already-landed document-frequency candidate filtering, escalation explanation, and shadow/warn/enforce consistency without changing quorum policy.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "auth"
+    },
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-07-17T08:46:17.598Z",
+  "startedAt": "2026-07-17T08:46:17.598Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-17T08:46:18.022Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
+    }
+  ]
+}
