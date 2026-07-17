@@ -25,6 +25,7 @@ import type { HandlerContext } from './context.js';
 import { createClusterHandlers } from './cluster.js';
 import type { StoryStore } from '../core/store.js';
 import { reportHealthIssue } from '../core/health.js';
+import { loadConfig } from '../core/config.js';
 import {
   resolveAgentDispatchType,
   resolveAgentDispatchPromptBuilder,
@@ -67,6 +68,28 @@ function appendImplementerCommitSteps(lines: string[], message: string): void {
  */
 export function createStoryDispatchHandlers(ctx: HandlerContext) {
   const { store, root } = ctx;
+  const candidateRoutingMode = (): 'shadow' | 'warn' | 'enforce' => loadConfig(root).candidateSpecRouting?.mode ?? 'shadow';
+
+  function appendCandidateEscalationGuidance(lines: string[], storyId: string, routed: NonNullable<ReturnType<StoryStore['readCandidateSpecSet']>>, scopePlan: boolean): void {
+    if (!routed.requiresEscalation || routed.fullScan) return;
+    const reasons = routed.escalationReasons.join(', ') || 'unspecified';
+    const mode = candidateRoutingMode();
+    if (routed.mode !== mode) lines.push(`- MODE_MISMATCH — signed candidate artifact mode=${routed.mode}, configured mode=${mode}; rerun candidate_spec_route before relying on it.`);
+    if (mode === 'shadow') {
+      lines.push(`- SHADOW — candidate routing escalation recorded (${reasons}); continue review and do not treat it as gate evidence.`);
+      return;
+    }
+    if (mode === 'warn') {
+      lines.push(`- WARNING — candidate routing escalation is unresolved (${reasons}); continue review, record the advisory, and do not hard-block evidence.`);
+      lines.push(`- Advisory owner action: lattice candidate_spec_route '{"storyId":"${storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`);
+      return;
+    }
+    lines.push(scopePlan
+      ? '- STOP — candidate routing escalation is unresolved. Do not call scope_check_save with this artifact.'
+      : `STOP — candidate routing escalation is unresolved (${reasons}). Do not submit review_pass_set or finding evidence using this artifact.`);
+    lines.push(`- Exact owner resolution action: lattice candidate_spec_route '{"storyId":"${storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`);
+    if (scopePlan) lines.push('- Resume only after the newly signed candidate artifact reports fullScan=true and a nonblank scanEscalationReason.');
+  }
 
   function appendDispatchEvent(args: {
     storyId: string;
@@ -238,13 +261,11 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push(`- Fully inspect routed candidates as relevant: ${routed.candidateSpecSet.join(', ') || '(none)'}`);
       lines.push(`- Ambiguity signals: ${routed.ambiguitySignals.join(', ') || 'none'}; scanEscalationReason=${routed.scanEscalationReason ?? 'null'}`);
       lines.push(`- Routing escalation: requiresEscalation=${routed.requiresEscalation}; reasons=${routed.escalationReasons.join(', ') || 'none'}`);
-      if (routed.requiresEscalation && !routed.fullScan) {
-        lines.push('- STOP — candidate routing escalation is unresolved. Do not call scope_check_save with this artifact.');
-        lines.push(`- Exact owner resolution action: lattice candidate_spec_route '{"storyId":"${args.storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`);
-        lines.push('- Resume only after the newly signed candidate artifact reports fullScan=true and a nonblank scanEscalationReason.');
-      }
+      appendCandidateEscalationGuidance(lines, args.storyId, routed, true);
     } else {
-      lines.push('- No candidate-spec-set artifact is present. In enforce mode stop and ask the Story owner to run candidate_spec_route; reviewer lanes must not seize owner authority.');
+      lines.push(candidateRoutingMode() === 'enforce'
+        ? '- No candidate-spec-set artifact is present. STOP in enforce mode and ask the Story owner to run candidate_spec_route; reviewer lanes must not seize owner authority.'
+        : `- No candidate-spec-set artifact is present. ${candidateRoutingMode()} mode records this without hard-blocking review.`);
     }
     lines.push('');
     lines.push('Review focus:');
@@ -289,9 +310,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     if (routed) {
       lines.push(`- Candidate routing: digest=${routed.artifactDigest} corpusDigest=${routed.corpusDigest} candidates=${routed.candidateSpecSet.join(', ') || '(none)'}`);
       lines.push(`- Bind no-blocker readManifest to candidateSpecSetDigest=${routed.artifactDigest} and corpusDigest=${routed.corpusDigest}.`);
-      if (routed.requiresEscalation && !routed.fullScan) {
-        lines.push(`STOP — candidate routing escalation is unresolved (${routed.escalationReasons.join(', ') || 'unspecified'}). Do not submit review_pass_set or finding evidence using this artifact.`);
-      }
+      appendCandidateEscalationGuidance(lines, args.storyId, routed, false);
     }
     lines.push('');
     lines.push(`Current phase: ${story.phase}. Review lane: ${lane}.`);

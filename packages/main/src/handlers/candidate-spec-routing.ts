@@ -20,7 +20,7 @@ import {
   type StoryRoutingInput,
   type CandidateRoutingEvaluationWindow,
 } from '../core/candidate-spec-routing.js';
-import { runHostRun } from '../core/host-run.js';
+import { runHostRun, type HostRunResult } from '../core/host-run.js';
 import {
   probeReviewHostAvailability,
   type ReviewHostAvailabilityProbeHostRow,
@@ -28,6 +28,7 @@ import {
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { captureReviewRunSnapshot } from '../core/review-run.js';
 import { collectReviewerEvidenceState } from '../core/review-run.js';
+import type { ReviewerEvidenceState } from '../core/review-run.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { isStoryMetadataPath } from '../core/evidence-freshness.js';
 
@@ -75,12 +76,33 @@ export function withUnattendedReadiness(
   };
 }
 
+export function candidateHostFailureReason(result: Pick<HostRunResult,
+  'blocked' | 'refusalReason' | 'timedOut' | 'timeoutKind' | 'firstOutputMs' | 'durationMs' | 'exitCode' | 'terminalReason' | 'failureKind'>): string | null {
+  if (result.blocked) return result.refusalReason || 'host_unavailable';
+  if (result.timedOut) return `${result.timeoutKind ?? 'host_timeout'}; firstOutputMs=${result.firstOutputMs ?? 'none'} durationMs=${result.durationMs ?? 'unknown'}`;
+  if (result.terminalReason === 'spawn_error') return `post_readiness_spawn_error:${result.failureKind ?? 'unknown'}`;
+  if (result.failureKind === 'auth') return 'post_readiness_auth_required';
+  if (result.failureKind === 'interactive') return 'post_readiness_interactive_required';
+  if (result.exitCode !== 0 && result.firstOutputMs === null) return 'post_readiness_no_output';
+  if (result.exitCode !== 0) return `post_readiness_execution_failure:${result.failureKind ?? 'unknown'}:exit_${result.exitCode}`;
+  return null;
+}
+
+export function currentReviewerFullyReadPaths(evidence: ReviewerEvidenceState): string[] {
+  return [...new Set(evidence.valid.flatMap(record => {
+    const manifest = record.pass?.readManifest ?? record.finding?.readManifest;
+    return manifest?.filesReadFully ?? [];
+  }))].sort((a, b) => a.localeCompare(b, 'en'));
+}
+
 export function renderCandidateSpecRouteText(
   artifact: CandidateSpecSetArtifact,
   corpusCount: number,
   attempts: Array<{ host: string; status: string }>,
-  mode: 'shadow' | 'warn' | 'enforce' = 'enforce',
+  mode?: 'shadow' | 'warn' | 'enforce',
 ): string {
+  if (mode && mode !== artifact.mode) throw new Error(`candidate routing mode disagreement: artifact=${artifact.mode} configured=${mode}`);
+  const effectiveMode = artifact.mode;
   const lines = [
     `Candidate spec route: ${artifact.storyId}`,
     `corpus=${artifact.candidateSpecSet.length}/${corpusCount} candidates digest=${artifact.artifactDigest}`,
@@ -89,11 +111,11 @@ export function renderCandidateSpecRouteText(
     `escalationReasons=${artifact.escalationReasons.join(',') || 'none'}`,
     `queryFiltering=maxDocumentFrequencyRatio=${artifact.queryFiltering.maxDocumentFrequencyRatio} filtered=${artifact.queryFiltering.filteredTerms.map(term => `${term.term}:${term.documentCount}`).join(',') || 'none'}`,
   ];
-  if (artifact.requiresEscalation && !artifact.fullScan && mode === 'enforce') {
+  if (artifact.requiresEscalation && !artifact.fullScan && effectiveMode === 'enforce') {
     lines.push('status=BLOCKED_PENDING_ESCALATION');
     lines.push(`resolutionAction=lattice candidate_spec_route '{"storyId":"${artifact.storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`);
     lines.push('Do not submit scope_check_save, review_pass_set, or finding evidence with this unresolved candidate artifact.');
-  } else if (artifact.requiresEscalation && !artifact.fullScan && mode === 'warn') {
+  } else if (artifact.requiresEscalation && !artifact.fullScan && effectiveMode === 'warn') {
     lines.push('status=WARNING_PENDING_ESCALATION');
     lines.push(`nextAction=lattice candidate_spec_route '{"storyId":"${artifact.storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`);
   } else if (artifact.requiresEscalation && !artifact.fullScan) {
@@ -113,7 +135,7 @@ function changedPaths(ctx: HandlerContext, storyId: string): string[] {
       metadataRoot: ctx.root,
       projectRoot: ctx.root,
     });
-    return execFileSync('git', ['diff', '--name-only', 'main...HEAD'], { cwd: gitCwd, encoding: 'utf8' })
+    return execFileSync('git', ['diff', '--name-only', 'main...HEAD'], { cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
       .split(/\r?\n/)
       .map(value => value.trim())
       .filter(path => Boolean(path) && !isStoryMetadataPath(path, ctx.root))
@@ -190,10 +212,10 @@ function productionExecutor(
         output += chunk.text;
       },
     });
-    if (result.blocked) throw new Error(result.refusalReason || 'host unavailable');
-    if (result.timedOut) throw new Error(`${result.timeoutKind ?? 'host_timeout'}; firstOutputMs=${result.firstOutputMs ?? 'none'} durationMs=${result.durationMs ?? 'unknown'}`);
-    if (result.exitCode !== 0) throw new Error(result.stderr || `host unavailable exit ${result.exitCode}`);
+    const failureReason = candidateHostFailureReason(result);
+    if (failureReason) throw new Error(failureReason);
     if (overflow) throw new Error('host proposal output budget exceeded');
+    if (result.firstOutputMs === null) throw new Error('post_readiness_no_output');
     return parseProposalOutput(output);
   };
 }
@@ -211,10 +233,7 @@ export function currentStoryRoutingInput(ctx: HandlerContext, storyId: string): 
   let reviewerEvidencePaths: string[] = [];
   try {
     const evidence = collectReviewerEvidenceState(ctx.store, storyId, ctx.root);
-    reviewerEvidencePaths = evidence.valid.flatMap(record => {
-      const manifest = record.pass?.readManifest ?? record.finding?.readManifest;
-      return manifest ? [...manifest.filesReadFully, ...manifest.filesTriagedByName] : [];
-    });
+    reviewerEvidencePaths = currentReviewerFullyReadPaths(evidence);
   } catch {
     // Missing/stale/unbound evidence is intentionally not promoted.
   }
@@ -307,6 +326,7 @@ export function createCandidateSpecRoutingHandlers(
         // Narrative title/description/checklist prose remains seed material, not authority.
         riskSignals: input.riskSignals ?? [],
         protectedSources: input.protectedSources,
+        mode: config.candidateSpecRouting?.mode ?? 'shadow',
         candidateBudget: config.candidateSpecRouting?.candidateBudget,
         queryGroupBudget: config.candidateSpecRouting?.queryGroupBudget,
         rawHitsPerGroup: config.candidateSpecRouting?.rawHitsPerGroup,

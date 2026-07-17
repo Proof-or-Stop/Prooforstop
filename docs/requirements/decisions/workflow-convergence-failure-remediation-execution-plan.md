@@ -264,17 +264,30 @@ B-3aec implements this workstream at the existing shared boundaries:
   maximum score, and selected cutoff; raw overflow escalates only when an
   omitted candidate can enter or tie the bounded selection;
 - direct candidates use explicit typed sources (`related-doc`, exact path,
-  registry reference, structured risk, or current bound reviewer evidence).
-  Story title, description, and checklist prose remain ordinary search seeds
-  and cannot trigger typed-risk escalation;
-- the deterministic routing artifact is deliberately mode-neutral so shadow,
-  warn, and enforce compute the same candidate decision. The handler and
-  existing gate consumers apply the configured mode only to presentation and
-  blocking: shadow records, warn advises, and enforce may stop on the same typed
-  unresolved reason.
+  registry reference, path-bearing structured risk, or `filesReadFully` from
+  current signed reviewer evidence). Filename-only triage is never promoted.
+  Existing safe repo-relative files outside the requirements corpus receive a
+  content hash and remain mandatory; unsafe/missing/non-file paths produce a
+  typed diagnostic. Mandatory candidates are retained before the ordinary
+  candidate budget and may exceed it without silent loss. Generic structured
+  auth/production risks may escalate but do not fabricate a path. Story title,
+  description, and checklist prose remain ordinary search seeds and cannot
+  trigger typed-risk escalation;
+- the signed artifact carries `mode`, while the candidate/reason projection is
+  identical across shadow, warn, and enforce. Renderer, reviewer dispatch, and
+  read-binding consumers detect mode disagreement and apply hard rejection only
+  in enforce: shadow records and warn advises;
+- when every usable query term is filtered as generic, routing records a bounded
+  generic-only disposition rather than manufacturing `zero_candidates` or a
+  full-corpus escalation. Raw-hit truncation compares omitted relevance against
+  the ordinary (non-mandatory) selected cutoff.
 
 Deterministic smoke coverage uses injected readiness rows and local Node child
 processes only; it never launches Codex CLI, Claude Code CLI, or Antigravity CLI.
+The readiness probe remains the existing bounded synchronous classifier; this
+work does not redesign probe scheduling or change quorum/production authority.
+Startup/total watchdog defaults are enabled for automatic candidate proposals;
+other `host_run` callers remain backward-compatible opt-in consumers.
 
 ## 8. Workstream C — Typed Agent Dispatch Contract
 

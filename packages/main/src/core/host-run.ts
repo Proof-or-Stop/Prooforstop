@@ -60,8 +60,10 @@ import { join } from 'node:path';
 
 import {
   canonicalReviewHostLauncherSpec,
+  classifyHostExecutionFailure,
   materializeLauncherArgv,
   type CanonicalReviewHost,
+  type HostExecutionFailureKind,
 } from './host-execution-readiness.js';
 import {
   isUsageLedgerEnabled,
@@ -157,6 +159,7 @@ export interface HostRunSpawnResult {
   terminalReason?: 'completed' | 'exit_nonzero' | 'spawn_error' | 'child_error' | 'aborted' | 'startup_no_output_timeout' | 'total_timeout';
   firstOutputMs?: number | null;
   durationMs?: number;
+  failureKind?: HostExecutionFailureKind;
   /**
    * True when an over-cap line was dropped AFTER (or without) the last retained
    * usage-bearing line (F-013/F-026: truncation is tracked RELATIVE to the
@@ -291,6 +294,7 @@ export interface HostRunResult {
   terminalReason: HostRunSpawnResult['terminalReason'] | null;
   firstOutputMs: number | null;
   durationMs: number | null;
+  failureKind: HostExecutionFailureKind | null;
   stdout: string;
   stderr: string;
   usageSummary: HostRunUsageSummary;
@@ -881,6 +885,7 @@ function codexTurnFailedDigest(message: string | null): string {
 
 /** Per-retained-line cap. A single line over this is dropped (not retained). */
 export const HOST_RUN_RETAINED_LINE_CAP = 1024 * 1024; // 1 MiB
+export const HOST_RUN_FAILURE_TEXT_CAP = 64 * 1024;
 
 /**
  * F-013: the unavailable reason recorded when the scanner dropped an over-cap
@@ -1083,6 +1088,9 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan): Promise<HostRunSpa
     let startupTimer: NodeJS.Timeout | null = null;
     let totalTimer: NodeJS.Timeout | null = null;
     let abortListener: (() => void) | null = null;
+    let retainedStderr = '';
+    let failureKind: HostExecutionFailureKind = 'none';
+    let asyncSpawnError = false;
 
     // F-008: a throwing onChunk (e.g. EPIPE from a closed consumer pipe) must
     // never escape a 'data' listener as an uncaught EventEmitter exception —
@@ -1118,13 +1126,14 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan): Promise<HostRunSpa
       failureScanner.flush();
       resolve({
         stdout: scanner.retainedText(),
-        stderr: '',
+        stderr: retainedStderr,
         exitCode,
         timedOut,
         timeoutKind,
         terminalReason,
         firstOutputMs,
         durationMs: Math.max(0, Date.now() - startedAt),
+        failureKind,
         retentionTruncated: scanner.truncated,
         failureText: failureScanner.retainedText(),
         // B-3ddc (codex round-1 F1): honor the failure lane's own truncation.
@@ -1142,6 +1151,7 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan): Promise<HostRunSpa
       });
     } catch {
       terminalReason = 'spawn_error';
+      failureKind = 'unknown';
       finish(1);
       return;
     }
@@ -1154,6 +1164,7 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan): Promise<HostRunSpa
         timedOut = true;
         timeoutKind = reason;
         terminalReason = reason;
+        failureKind = 'timeout';
       }
       clearTimersAndListener();
       try {
@@ -1198,19 +1209,31 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan): Promise<HostRunSpa
     child.stderr?.setEncoding('utf8');
     child.stderr?.on('data', (text: string) => {
       if (text.length > 0) markFirstOutput();
+      retainedStderr = `${retainedStderr}${text}`.slice(-HOST_RUN_FAILURE_TEXT_CAP);
       deliver({ stream: 'stderr', text });
     });
 
-    child.on('error', () => {
-      if (!timedOut && terminalReason !== 'aborted') terminalReason = 'child_error';
+    child.on('error', (error: NodeJS.ErrnoException) => {
+      if (!timedOut && terminalReason !== 'aborted') {
+        asyncSpawnError = error.code === 'ENOENT' || error.code === 'EACCES';
+        terminalReason = asyncSpawnError ? 'spawn_error' : 'child_error';
+        failureKind = error.code === 'ENOENT' ? 'missing_executable' : 'unknown';
+      }
       // Node emits `close` after `error`; settle there so every spawned child
       // follows the same close/reap boundary before capacity can be released.
     });
     child.on('close', (code, signal) => {
-      if (!timedOut && terminalReason !== 'aborted' && terminalReason !== 'child_error') {
+      if (!timedOut && terminalReason !== 'aborted' && terminalReason !== 'child_error' && terminalReason !== 'spawn_error') {
+        failureKind = classifyHostExecutionFailure({
+          error: undefined,
+          signal,
+          stderr: retainedStderr,
+          stdout: scanner.retainedText(),
+          status: code,
+        });
         terminalReason = typeof code === 'number' && code === 0 ? 'completed' : 'exit_nonzero';
       }
-      const exitCode = timedOut ? 124 : terminalReason === 'aborted' ? 130 : typeof code === 'number' ? code : signal ? 1 : 1;
+      const exitCode = timedOut ? 124 : terminalReason === 'aborted' ? 130 : asyncSpawnError ? 1 : typeof code === 'number' && code >= 0 ? code : 1;
       finish(exitCode);
     });
   });
@@ -1396,6 +1419,7 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
       terminalReason: spawn.terminalReason ?? null,
       firstOutputMs: spawn.firstOutputMs ?? null,
       durationMs: spawn.durationMs ?? null,
+      failureKind: spawn.failureKind ?? null,
       stdout: spawn.stdout,
       stderr: spawn.stderr,
       usageSummary: disabledSummary(),
@@ -1441,6 +1465,7 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
       terminalReason: null,
       firstOutputMs: null,
       durationMs: null,
+      failureKind: null,
       stdout: '',
       stderr: '',
       usageSummary: {
@@ -1499,6 +1524,7 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
       terminalReason: null,
       firstOutputMs: null,
       durationMs: null,
+      failureKind: null,
       stdout: '',
       stderr: '',
       usageSummary: {
@@ -1552,6 +1578,7 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
     terminalReason: spawn.terminalReason ?? null,
     firstOutputMs: spawn.firstOutputMs ?? null,
     durationMs: spawn.durationMs ?? null,
+    failureKind: spawn.failureKind ?? null,
     stdout: spawn.stdout,
     stderr: spawn.stderr,
     usageSummary: summary,

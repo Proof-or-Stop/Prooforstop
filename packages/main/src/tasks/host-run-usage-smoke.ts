@@ -132,6 +132,7 @@ import {
   writeSlotFileExclusive,
   CODEX_TURN_FAILED_DIGEST_MAX_CHARS,
   HOST_RUN_REFUSAL_EXIT_CODE,
+  HOST_RUN_FAILURE_TEXT_CAP,
   HOST_RUN_RETAINED_LINE_CAP,
   HOST_RUN_RETENTION_TRUNCATED_REASON,
   UsageLineScanner,
@@ -2823,6 +2824,59 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     const reacquired = acquireHostRunSlot(dir, 1, 6 * 60 * 60 * 1000, Date.now(), slotMeta('after-abort'));
     assert.ok(reacquired, 'slot is released only after the aborted child closes');
     if (reacquired) releaseSlot(reacquired.file, reacquired.token);
+  });
+
+  await checkAsync('B-3aec async spawn error: ENOENT is stable spawn_error/missing_executable exit 1 and settles once on close', async () => {
+    const result = await defaultHostRunRunner({
+      command: '/definitely/missing/b3aec-host',
+      argv: [],
+      env: process.env,
+      cwd: process.cwd(),
+      startupTimeoutMs: 100,
+      timeoutMs: 500,
+    });
+    assert.equal(result.exitCode, 1);
+    assert.equal(result.terminalReason, 'spawn_error');
+    assert.equal(result.failureKind, 'missing_executable');
+    assert.equal(result.timedOut, false);
+  });
+
+  await checkAsync('B-3aec post-readiness diagnostics: bounded stderr classifies auth and interactive terminal failures', async () => {
+    for (const row of [
+      { text: 'authentication required: please login', failureKind: 'auth' },
+      { text: 'interactive terminal required; cannot prompt', failureKind: 'interactive' },
+    ] as const) {
+      const result = await defaultHostRunRunner({
+        command: process.execPath,
+        argv: ['-e', `process.stderr.write(${JSON.stringify(row.text)}); process.exit(1)`],
+        env: process.env,
+        cwd: process.cwd(),
+        startupTimeoutMs: 300,
+        timeoutMs: 1000,
+      });
+      assert.equal(result.exitCode, 1);
+      assert.equal(result.failureKind, row.failureKind);
+      assert.equal(result.terminalReason, 'exit_nonzero');
+      assert.ok(result.stderr.includes(row.text));
+      assert.ok(Buffer.byteLength(result.stderr) <= HOST_RUN_FAILURE_TEXT_CAP);
+    }
+  });
+
+  await checkAsync('B-3aec timeout cleanup through runHostRun: startup and total timeout both release cap=1 for the next run', async () => {
+    for (const scenario of [
+      { script: 'setInterval(() => {}, 1000)', startupTimeoutMs: 40, timeoutMs: 500, expected: 'startup_no_output_timeout' },
+      { script: 'process.stdout.write("ready\\n"); setInterval(() => {}, 1000)', startupTimeoutMs: 300, timeoutMs: 80, expected: 'total_timeout' },
+    ] as const) {
+      const sub = freshRoot();
+      const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
+      const runner: HostRunRunner = plan => defaultHostRunRunner({ ...plan, command: process.execPath, argv: ['-e', scenario.script] });
+      const result = await runHostRun({ ...baseArgs({ root: sub, host: 'codex', env }), startupTimeoutMs: scenario.startupTimeoutMs, timeoutMs: scenario.timeoutMs }, { runner });
+      assert.equal(result.timeoutKind, scenario.expected);
+      const dir = hostRunSlotsDir(sub);
+      const next = acquireHostRunSlot(dir, 1, 6 * 60 * 60 * 1000, Date.now(), slotMeta(`after-${scenario.expected}`));
+      assert.ok(next, `${scenario.expected} close/reap released the slot exactly once`);
+      if (next) releaseSlot(next.file, next.token);
+    }
   });
 
   // =========================================================================

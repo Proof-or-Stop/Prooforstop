@@ -144,6 +144,7 @@ export interface CandidateSpecSetArtifact {
   corpusDigest: string;
   seedDigest: string;
   promptDigests: string[];
+  mode: 'shadow' | 'warn' | 'enforce';
   candidates: CandidateSpec[];
   candidateSpecSet: string[];
   candidateBasis: Record<string, CandidateReason[]>;
@@ -161,6 +162,18 @@ export interface CandidateSpecSetArtifact {
     selectedCutoffScore: number | null;
     classification: 'safe_below_cutoff' | 'ranking_affecting';
   }>;
+  protectedRouting: {
+    selectedPaths: string[];
+    missing: Array<{
+      kind: NonNullable<StoryRoutingInput['protectedSources']>[number]['kind'];
+      path: string;
+      sourceRef: string;
+      reason: 'unsafe_path' | 'missing' | 'not_regular_file';
+    }>;
+    ordinaryBudget: number;
+    protectedCount: number;
+    exceedsOrdinaryBudget: boolean;
+  };
   rankingPolicy: { minRankingAffectingCutoffScore: number };
   budgets: { candidates: number; queryGroups: number; rawHitsPerGroup: number };
   ambiguitySignals: string[];
@@ -485,6 +498,7 @@ export function routeCandidateSpecs(args: {
   hostDisagreement?: boolean;
   riskSignals?: string[];
   protectedSources?: StoryRoutingInput['protectedSources'];
+  mode?: 'shadow' | 'warn' | 'enforce';
   storyInputDigest?: string;
   headHash?: string;
   materialHash?: string;
@@ -530,7 +544,9 @@ export function routeCandidateSpecs(args: {
   const queryGroups = unfilteredQueryGroups
     .map(group => group.filter(term => !isOverbroadTerm(term)))
     .filter(group => group.length > 0);
-  const related = new Set(args.seeds.seeds.filter(seed => seed.source === 'relatedDoc').map(seed => seed.term.split('#')[0]));
+  const relatedSources: NonNullable<StoryRoutingInput['protectedSources']> = args.seeds.seeds
+    .filter(seed => seed.source === 'relatedDoc')
+    .map(seed => ({ kind: 'related-doc', path: seed.term.split('#')[0], sourceRef: seed.sourceRef }));
   const completeReasonMap = new Map<string, CandidateReason[]>();
   const truncatedGroups: Array<{ queryGroup: string[]; totalHits: number; retainedHits: number; omittedPaths: string[] }> = [];
 
@@ -542,16 +558,38 @@ export function routeCandidateSpecs(args: {
     map.set(path, reasons);
   };
 
-  for (const entry of args.corpus.entries) {
-    if (related.has(entry.path)) {
-      const reason: CandidateReason = { kind: 'related-doc', term: entry.path, source: 'relatedDoc', points: 100 };
-      addReason(reasonMap, entry.path, reason);
-      addReason(completeReasonMap, entry.path, reason);
+  const protectedMissing: CandidateSpecSetArtifact['protectedRouting']['missing'] = [];
+  const rootReal = realpathSync(args.projectRoot);
+  const protectedInputs = [...relatedSources, ...(args.protectedSources ?? [])]
+    .sort((a, b) => a.path.localeCompare(b.path, 'en') || a.kind.localeCompare(b.kind, 'en') || a.sourceRef.localeCompare(b.sourceRef, 'en'));
+  for (const source of protectedInputs) {
+    const rawPath = source.path.split('#')[0].replace(/\\/g, '/');
+    const path = posix.normalize(rawPath).replace(/^\.\//, '');
+    if (!path || isAbsolute(rawPath) || path === '..' || path.startsWith('../')) {
+      protectedMissing.push({ ...source, path: rawPath, reason: 'unsafe_path' });
+      continue;
     }
-  }
-  for (const source of args.protectedSources ?? []) {
-    const path = source.path.split('#')[0];
-    if (!entryByPath.has(path)) continue;
+    let contentHash = entryByPath.get(path)?.contentHash;
+    if (!contentHash) {
+      const absolute = resolve(args.projectRoot, path);
+      let fileReal: string;
+      try {
+        fileReal = realpathSync(absolute);
+      } catch {
+        protectedMissing.push({ ...source, path, reason: 'missing' });
+        continue;
+      }
+      if (fileReal !== rootReal && !fileReal.startsWith(`${rootReal}/`)) {
+        protectedMissing.push({ ...source, path, reason: 'unsafe_path' });
+        continue;
+      }
+      if (!lstatSync(fileReal).isFile()) {
+        protectedMissing.push({ ...source, path, reason: 'not_regular_file' });
+        continue;
+      }
+      contentHash = SHA256(readFileSync(fileReal));
+      entryByPath.set(path, { path, headings: [], byteSize: statSync(fileReal).size, contentHash, title: null, statusHints: [] });
+    }
     const reason: CandidateReason = { kind: source.kind, term: path, source: source.sourceRef, points: 100 };
     addReason(reasonMap, path, reason);
     addReason(completeReasonMap, path, reason);
@@ -603,13 +641,16 @@ export function routeCandidateSpecs(args: {
     score: reasons.reduce((sum, reason) => sum + reason.points, 0),
     reasons: reasons.sort((a, b) => b.points - a.points || a.kind.localeCompare(b.kind, 'en') || a.term.localeCompare(b.term, 'en')),
   })).sort((a, b) => b.score - a.score || a.path.localeCompare(b.path, 'en'));
+  const protectedKinds = new Set<CandidateReason['kind']>(['related-doc', 'exact-path', 'registry-ref', 'typed-risk', 'reviewer-evidence']);
+  const protectedRanked = ranked.filter(candidate => candidate.reasons.some(reason => protectedKinds.has(reason.kind)));
+  const ordinaryRanked = ranked.filter(candidate => !candidate.reasons.some(reason => protectedKinds.has(reason.kind)));
   const completeScores = new Map([...completeReasonMap.entries()].map(([path, reasons]) => [
     path,
     reasons.reduce((sum, reason) => sum + reason.points, 0),
   ]));
-  const selectedCutoffScore = ranked.length === 0
+  const selectedCutoffScore = ordinaryRanked.length === 0
     ? null
-    : ranked[Math.min(candidateBudget, ranked.length) - 1]?.score ?? null;
+    : ordinaryRanked[Math.min(candidateBudget, ordinaryRanked.length) - 1]?.score ?? null;
   const queryTruncation = truncatedGroups.map(group => {
     // A path found through another retained group is not omitted from the final ranking.
     const omittedScores = group.omittedPaths
@@ -618,7 +659,7 @@ export function routeCandidateSpecs(args: {
       .filter((score): score is number => typeof score === 'number' && Number.isFinite(score));
     const omittedMaxScore = omittedScores.length > 0 ? Math.max(...omittedScores) : null;
     const affectsRanking = omittedMaxScore !== null
-      && (selectedCutoffScore === null || ranked.length < candidateBudget || omittedMaxScore >= selectedCutoffScore);
+      && (selectedCutoffScore === null || ordinaryRanked.length < candidateBudget || omittedMaxScore >= selectedCutoffScore);
     return {
       queryGroup: group.queryGroup,
       totalHits: group.totalHits,
@@ -632,7 +673,9 @@ export function routeCandidateSpecs(args: {
   const rankingAffectingTruncation = queryTruncation.some(row => row.classification === 'ranking_affecting');
 
   const ambiguitySignals: string[] = [];
-  if (ranked.length === 0) ambiguitySignals.push('zero_candidates');
+  const genericOnlyFiltered = ranked.length === 0 && filteredTerms.length > 0 && queryGroups.length === 0;
+  if (ranked.length === 0 && !genericOnlyFiltered) ambiguitySignals.push('zero_candidates');
+  if (genericOnlyFiltered) ambiguitySignals.push('generic_only_filtered_bounded');
   const rankedReasonKinds = new Set(ranked.flatMap(candidate => candidate.reasons.map(reason => reason.kind)));
   const hasExplicitRelatedDoc = ranked.some(candidate => candidate.reasons.some(reason => reason.kind === 'related-doc'));
   if (ranked.length > 0 && rankedReasonKinds.size < 2 && !hasExplicitRelatedDoc) ambiguitySignals.push('weak_source_class_coverage');
@@ -647,14 +690,15 @@ export function routeCandidateSpecs(args: {
     .filter(term => term.kind === 'legacy-term' && term.confidence === 'high')
     .map(term => normalizeKeyword(term.term))
     .filter(term => !args.corpus.entries.some(entry => searchable(entry, readFileSync(join(args.projectRoot, entry.path), 'utf8')).includes(term)));
-  const highRiskRouting = (args.riskSignals ?? []).some(signal => /lifecycle|state.?machine|guard|gate|process.?fact|global.?rename|breaking.?rename/i.test(signal));
+  const highRiskRouting = (args.riskSignals ?? []).some(signal => /lifecycle|state.?machine|guard|gate|process.?fact|global.?rename|breaking.?rename|security|credential|\bauth\b|production|emergency/i.test(signal));
   const escalationReasons = [
     ...(ambiguitySignals.includes('zero_candidates') ? ['zero_candidates'] : []),
     ...(rankingAffectingTruncation ? ['ranking_affecting_query_truncation'] : []),
     ...(cutoffTie ? ['candidate_cutoff_tie'] : []),
     ...(ambiguitySignals.includes('weak_source_class_coverage') ? ['weak_source_class_coverage'] : []),
     ...(args.hostDisagreement ? ['primary_host_disagreement'] : []),
-    ...(highRiskRouting ? ['high_risk_lifecycle_gate_process_fact_or_global_rename'] : []),
+    ...(highRiskRouting ? ['high_risk_structured_signal'] : []),
+    ...protectedMissing.map(source => `missing_protected_source:${source.reason}:${source.path}`),
     ...unmatchedHighConfidenceLegacyTerms.map(term => `unmatched_high_confidence_legacy_term:${term}`),
   ];
   const requiresEscalation = escalationReasons.length > 0;
@@ -663,23 +707,32 @@ export function routeCandidateSpecs(args: {
   // Full scan means every indexed document, including zero-score entries. It is
   // still path/hash metadata only; reviewers read bodies with tools.
   const candidates = fullScan
-    ? args.corpus.entries.map(entry => {
+    ? [...protectedRanked, ...args.corpus.entries.map(entry => {
         const rankedCandidate = ranked.find(candidate => candidate.path === entry.path);
         return rankedCandidate ?? { path: entry.path, contentHash: entry.contentHash, score: 0, reasons: [] };
-      }).sort((a, b) => b.score - a.score || a.path.localeCompare(b.path, 'en'))
-    : ranked.slice(0, candidateBudget);
+      }).filter((candidate, index, all) => all.findIndex(other => other.path === candidate.path) === index)]
+        .sort((a, b) => b.score - a.score || a.path.localeCompare(b.path, 'en'))
+    : [...protectedRanked, ...ordinaryRanked.slice(0, candidateBudget)];
   const base = {
     schemaVersion: CANDIDATE_SET_SCHEMA,
     storyId: args.storyId,
     corpusDigest: args.corpus.corpusDigest,
     seedDigest: args.seeds.seedDigest,
     promptDigests: proposals.map(proposal => proposal.promptDigest).sort(),
+    mode: args.mode ?? 'enforce',
     candidates,
     candidateSpecSet: candidates.map(candidate => candidate.path),
     candidateBasis: Object.fromEntries(candidates.map(candidate => [candidate.path, candidate.reasons])),
     queryGroups,
     queryFiltering: { maxDocumentFrequencyRatio, filteredTerms },
     queryTruncation,
+    protectedRouting: {
+      selectedPaths: protectedRanked.map(candidate => candidate.path),
+      missing: protectedMissing,
+      ordinaryBudget: candidateBudget,
+      protectedCount: protectedRanked.length,
+      exceedsOrdinaryBudget: protectedRanked.length > candidateBudget,
+    },
     rankingPolicy: { minRankingAffectingCutoffScore: MIN_RANKING_AFFECTING_CUTOFF_SCORE },
     budgets: { candidates: candidateBudget, queryGroups: queryGroupBudget, rawHitsPerGroup },
     ambiguitySignals,
@@ -698,6 +751,8 @@ export function routeCandidateSpecs(args: {
 export function verifyCandidateSpecSet(artifact: CandidateSpecSetArtifact): boolean {
   const { artifactDigest, ...base } = artifact;
   if (artifact.schemaVersion !== CANDIDATE_SET_SCHEMA) return false;
+  if (artifact.mode !== 'shadow' && artifact.mode !== 'warn' && artifact.mode !== 'enforce') return false;
+  if (!artifact.protectedRouting || !Array.isArray(artifact.protectedRouting.selectedPaths) || !Array.isArray(artifact.protectedRouting.missing)) return false;
   if (!Array.isArray(artifact.queryTruncation)) return false;
   for (const row of artifact.queryTruncation) {
     if (!row || !Array.isArray(row.queryGroup) || !row.queryGroup.every(term => typeof term === 'string')) return false;
@@ -708,14 +763,17 @@ export function verifyCandidateSpecSet(artifact: CandidateSpecSetArtifact): bool
     if (row.classification !== 'safe_below_cutoff' && row.classification !== 'ranking_affecting') return false;
     const mechanicallyAffects = row.omittedMaxScore !== null && (
       row.selectedCutoffScore === null
-      || artifact.candidateSpecSet.length < artifact.budgets.candidates
+      || artifact.candidateSpecSet.length - artifact.protectedRouting.protectedCount < artifact.budgets.candidates
       || row.omittedMaxScore >= row.selectedCutoffScore
     );
     if ((row.classification === 'ranking_affecting') !== mechanicallyAffects) return false;
   }
   const hasRankingTruncationReason = artifact.escalationReasons.includes('ranking_affecting_query_truncation');
   if (hasRankingTruncationReason !== artifact.queryTruncation.some(row => row.classification === 'ranking_affecting')) return false;
-  if (!artifact.fullScan && artifact.candidateSpecSet.length > artifact.budgets.candidates) return false;
+  if (!artifact.fullScan && artifact.candidateSpecSet.length > artifact.protectedRouting.protectedCount + artifact.budgets.candidates) return false;
+  if (artifact.protectedRouting.protectedCount !== artifact.protectedRouting.selectedPaths.length) return false;
+  if (artifact.protectedRouting.exceedsOrdinaryBudget !== (artifact.protectedRouting.protectedCount > artifact.budgets.candidates)) return false;
+  if (!artifact.protectedRouting.selectedPaths.every(path => artifact.candidateSpecSet.includes(path))) return false;
   if (artifact.queryGroups.length > artifact.budgets.queryGroups) return false;
   if (artifact.fullScan !== Boolean(artifact.scanEscalationReason)) return false;
   if (artifact.requiresEscalation !== (artifact.escalationReasons.length > 0)) return false;
@@ -731,12 +789,16 @@ export function candidateReadBindingErrors(args: {
   currentStoryInputDigest?: string;
 }): string[] {
   const errors: string[] = [];
+  // Shadow and warn are observational/advisory by contract. They never reject
+  // reviewer evidence; enforce alone consumes candidate routing as a hard gate.
+  if (args.mode !== 'enforce') return errors;
   const digest = args.manifest.candidateSpecSetDigest;
   if (!digest) {
     if (args.mode === 'enforce') errors.push('candidateSpecSetDigest is required in enforce mode');
     return errors;
   }
   if (!args.artifact) return ['candidate-spec-set.json is missing'];
+  if (args.artifact.mode !== 'enforce') errors.push(`candidate artifact mode=${args.artifact.mode} does not match enforce gate; rerun candidate_spec_route under enforce mode`);
   if (!verifyCandidateSpecSet(args.artifact)) errors.push('candidate artifact signature/digest is invalid');
   if (args.artifact.requiresEscalation && !args.artifact.fullScan) {
     errors.push(`candidate routing escalation is unresolved: ${args.artifact.escalationReasons.join(', ')}; Story owner must rerun candidate_spec_route with a nonblank forceFullScanReason before scope/review evidence can be accepted`);

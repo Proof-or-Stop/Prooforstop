@@ -23,6 +23,7 @@ export type HostExecutionFailureKind =
   | 'version_failed'
   | 'wrong_launcher'
   | 'auth'
+  | 'interactive'
   | 'timeout'
   | 'silent_final_output'
   | 'unsupported'
@@ -351,6 +352,9 @@ export function classifyHostExecutionFailure(
   if (/token_invalidated|refresh_token_invalidated|invalidated token|unauthori[sz]ed|authentication|auth required|not logged in|login required|please login|invalid api key|401/.test(text)) {
     return 'auth';
   }
+  if (/interactive|requires? (?:a )?tty|terminal required|cannot prompt|confirmation required|press enter|choose an option/.test(text)) {
+    return 'interactive';
+  }
   if (/flag provided but not defined|unknown flag|unknown option|unrecognized option|unexpected argument|invalid option|unknown command/.test(text)) {
     return 'wrong_launcher';
   }
@@ -362,7 +366,7 @@ export function classifyHostExecutionFailure(
 function supportForFailure(failureKind: HostExecutionFailureKind): HostLauncherSupport {
   if (failureKind === 'none') return 'supported';
   if (failureKind === 'wrong_launcher') return 'wrong_launcher';
-  if (failureKind === 'missing_executable' || failureKind === 'version_failed' || failureKind === 'auth' || failureKind === 'timeout') {
+  if (failureKind === 'missing_executable' || failureKind === 'version_failed' || failureKind === 'auth' || failureKind === 'interactive' || failureKind === 'timeout') {
     return 'unverified';
   }
   return 'unsupported';

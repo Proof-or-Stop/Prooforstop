@@ -204,7 +204,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'candidate-spec-set.json',
     path: 'candidate-spec-set.json',
     signed: true,
-    signature: 'artifactDigest over proofbound.candidate-spec-set.v1 canonical fields, document-frequency query filtering, typed protected direct sources, query-level omitted-score/cutoff truncation classification, non-story-metadata changed paths, and freshness bindings',
+    signature: 'artifactDigest over proofbound.candidate-spec-set.v1 canonical fields, signed rollout mode, document-frequency query filtering, typed protected direct sources and missing diagnostics, query-level omitted-score/cutoff truncation classification, non-story-metadata changed paths, and freshness bindings',
     producerCommand: 'candidate_spec_route',
     consumerGate: 'scope_check_save and reviewer read-evidence candidate routing gate',
   },
@@ -973,7 +973,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/candidate-spec-routing',
     consumerGate: 'scope_check_save and reviewer read-evidence candidate routing gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.candidate_spec_route,
-    rationale: 'Candidate routing artifact binds deterministic seeds, corpus digest, typed protected direct sources, bounded ranking, optional sanitized host proposals, query-level omitted-score/cutoff truncation evidence, current freshness, and a fail-closed requiresEscalation/fullScan resolution fact for PLAN and REVIEW consumers.',
+    rationale: 'Candidate routing artifact binds deterministic seeds, corpus digest, rollout mode, typed protected direct sources/missing diagnostics, bounded ordinary ranking, optional sanitized host proposals, query-level omitted-score/cutoff truncation evidence, current freshness, and a fail-closed enforce-mode requiresEscalation/fullScan resolution fact for PLAN and REVIEW consumers.',
   },
   {
     name: 'artifact:original-intent-snapshot.json',
