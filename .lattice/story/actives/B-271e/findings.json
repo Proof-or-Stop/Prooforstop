@@ -103,6 +103,25 @@
       ],
       "signatureTag": "adversarial|ts|contradiction-envelope-remains",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-271e:F-007",
+      "desc": "CHK-001 happy intent is not mapped to executable evidence as written. It requires a product-reviewer delivery_check_set path, but product-reviewer is an INIT-only role permitted only init_check_set in agent-dispatch-registry.ts:62-74. The delivery evidence exclusively invokes lattice-review-delivery at delivery-check-freshness-smoke.ts:238-365, which is the TEST delivery role permitted delivery_check_set. Therefore the evidence proves a different actor than the must intent and neither corrects the intent nor adds a negative product-reviewer authority control; one of the 14 must intents remains unmapped.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-17T00:05:14.049Z",
+      "reviewRound": "2026-07-17T00:01:11.144Z",
+      "reviewRunId": "B-271e:RR-005",
+      "_hash": "03f240b209ff867ab9868e84c7d35e8de04a70e6a8123a97a3219403bc5477e1",
+      "files": [
+        "packages/main/src/core/agent-dispatch-registry.ts",
+        "packages/main/src/tasks/delivery-check-freshness-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|happy-intent-mapped",
+      "signatureTagSource": "auto"
     }
   ]
 }
