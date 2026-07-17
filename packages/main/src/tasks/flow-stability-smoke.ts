@@ -86,7 +86,7 @@ import { createSessionHandlers } from '../handlers/session.js';
 import { buildDoneClosureRunbook } from '../handlers/done-closure.js';
 import { checkCommitAuthor } from '../handlers/validate-channel.js';
 import { repairGlobalLatticeLinkBeforeWorktreeDelete } from '../handlers/worktree.js';
-import { assertDonePreparePassConvergence, deriveDonePreparePassConvergence, donePrepareJsonResult, validationCloseoutAdvancePaths } from '../handlers/done-prepare.js';
+import { assertDonePreparePassConvergence, collectDonePrepareConvergenceFacts, deriveDonePreparePassConvergence, donePrepareJsonResult, validationCloseoutAdvancePaths } from '../handlers/done-prepare.js';
 import { buildPhaseTransitionProcessEvent } from '../handlers/transition-orchestrator.js';
 
 function write(root: string, path: string, content: string): void {
@@ -4373,6 +4373,76 @@ function assertDonePrepareOnePassConvergenceContract(): void {
     const drifted = validationCloseoutAdvancePaths(ctx, storyId, root, metadataHead, currentGitHead(root)!);
     assert.equal(drifted.eligible, false, 'real source drift must never be normalized as closeout metadata');
     assert(drifted.reasons.some((reason) => reason.includes('non-story path')));
+
+    const attemptMaterial = currentMaterialHash(root, 'HEAD', root)!;
+    const attemptStoryFiles = currentStoryFilesHash(root, 'HEAD', root)!;
+    const reviewRound = '2026-01-01T00:00:00.000Z';
+    const makeCompletedReview = (suffix: string, startedAt: string, completedAt: string, round = reviewRound) => {
+      const reviewRunId = `${storyId}:RR-${suffix}`;
+      const agent = 'lattice-review-quality';
+      const run: ReviewRun = {
+        reviewRunId,
+        storyId,
+        agent,
+        lane: agent,
+        reviewRound: round,
+        startedAt,
+        headHash: currentGitHead(root)!,
+        materialHash: attemptMaterial,
+        storyFilesHash: attemptStoryFiles,
+        promptHash: 'prompt',
+      };
+      run._hash = signReviewRun(
+        storyId, reviewRunId, agent, agent, round, startedAt, run.headHash, run.materialHash,
+        run.promptHash, undefined, undefined, run.storyFilesHash,
+      );
+      const pass = {
+        id: `RP-${suffix}`,
+        agent,
+        note: `review ${suffix}`,
+        createdAt: completedAt,
+        reviewRound: round,
+        reviewRunId,
+        _hash: signReviewPass(storyId, `RP-${suffix}`, agent, `review ${suffix}`, completedAt, round, reviewRunId),
+      };
+      return { run, pass };
+    };
+    const initialReview = makeCompletedReview('001', '2026-01-01T00:01:00.000Z', '2026-01-01T00:02:00.000Z');
+    const metadataReattestation = makeCompletedReview('002', '2026-01-01T00:03:00.000Z', '2026-01-01T00:04:00.000Z');
+    const historicalRound = makeCompletedReview('OLD', '2026-01-01T00:03:30.000Z', '2026-01-01T00:04:30.000Z', '2025-12-31T00:00:00.000Z');
+    assert.equal(verifyReviewRun(initialReview.run), true);
+    assert.equal(verifyReviewRun(metadataReattestation.run), true);
+    assert.equal(verifyReviewPass(storyId, initialReview.pass), true);
+    assert.equal(verifyReviewPass(storyId, metadataReattestation.pass), true);
+    store.writeReviewRuns(storyId, { runs: [historicalRound.run, initialReview.run, metadataReattestation.run] });
+    store.writeReviewPasses(storyId, { passes: [historicalRound.pass, initialReview.pass, metadataReattestation.pass] });
+    write(root, `.lattice/story/actives/${storyId}/process-events.jsonl`, [
+      JSON.stringify({
+        type: 'phase_transition', storyId, timestamp: reviewRound, attemptId: reviewRound,
+        fromPhase: 'DEV', toPhase: 'REVIEW', materialHash: attemptMaterial,
+        storyFilesHash: attemptStoryFiles, reviewRound,
+      }),
+      JSON.stringify({
+        type: 'phase_transition', storyId, timestamp: '2026-01-01T00:05:00.000Z', attemptId: reviewRound,
+        fromPhase: 'REVIEW', toPhase: 'TEST', materialHash: attemptMaterial,
+        storyFilesHash: attemptStoryFiles, reviewRound,
+      }),
+    ].join('\n'));
+    const collected = collectDonePrepareConvergenceFacts(ctx, storyId);
+    assert.deepEqual(
+      collected?.reviewerIdentityIds,
+      [metadataReattestation.run.reviewRunId],
+      'collector must count a same-binding REVIEW re-attestation completed before TEST and ignore an old round',
+    );
+    assert.equal(
+      deriveDonePreparePassConvergence([
+        { id: 'validate', status: 'pass', reason: 'Validation PASS reused; commandExecutions=0' },
+        { id: 'doneClosure', status: 'pass' },
+        { id: 'cleanTree', status: 'pass' },
+      ] as any, { blockers: [] } as any, collected)?.reviewerReattestations,
+      1,
+      'real collector history must make reviewerReattestations non-zero',
+    );
 
     const transcript = [
       'DONE prepare: PASS',

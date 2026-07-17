@@ -1502,13 +1502,33 @@ export function collectDonePrepareConvergenceFacts(
   ));
   if (!testEntry) return null;
   const runs = ctx.store.readReviewRuns(storyId).runs
-    .filter((run) => run.startedAt > testEntry.timestamp && verifyReviewRun(run));
-  const passes = ctx.store.readReviewPasses(storyId).passes
-    .filter((pass) => pass.createdAt > testEntry.timestamp && verifyReviewPass(storyId, pass));
-  const reviewerIdentityIds = [...new Set([
-    ...runs.map((run) => run.reviewRunId),
-    ...passes.map((pass) => pass.reviewRunId || pass.id),
-  ])];
+    .filter((run) => (
+      run.startedAt >= anchor.timestamp
+      && run.reviewRound === anchor.reviewRound
+      && run.materialHash === anchor.materialHash
+      && run.storyFilesHash === anchor.storyFilesHash
+      && verifyReviewRun(run)
+    ))
+    .sort((left, right) => left.startedAt.localeCompare(right.startedAt));
+  const runsById = new Map(runs.map((run) => [run.reviewRunId, run]));
+  const completedRunIds = new Set(ctx.store.readReviewPasses(storyId).passes
+    .filter((pass) => {
+      if (pass.createdAt < anchor.timestamp || pass.reviewRound !== anchor.reviewRound || !verifyReviewPass(storyId, pass)) {
+        return false;
+      }
+      const run = pass.reviewRunId ? runsById.get(pass.reviewRunId) : undefined;
+      return Boolean(run && pass.agent === run.agent);
+    })
+    .map((pass) => pass.reviewRunId!));
+  const completedRunsByLane = new Map<string, string[]>();
+  for (const run of runs) {
+    if (!completedRunIds.has(run.reviewRunId)) continue;
+    completedRunsByLane.set(run.lane, [...(completedRunsByLane.get(run.lane) ?? []), run.reviewRunId]);
+  }
+  // The first completed identity per lane is the attempt baseline. Any later
+  // identity on the same material/story/round is a real re-attestation,
+  // including one completed while still in REVIEW before the TEST entry.
+  const reviewerIdentityIds = [...completedRunsByLane.values()].flatMap((ids) => ids.slice(1));
   let receipts: ReturnType<typeof readCloseoutWriteReceipts> = [];
   try { receipts = readCloseoutWriteReceipts(ctx.store.storyDirPath(storyId)); } catch { return null; }
   return {

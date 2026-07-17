@@ -160,6 +160,62 @@ const pythonScope = fileDiff(
 );
 assert.deepEqual(scanDeletedSymbols(pythonScope), ['shared'], 'Python file/scope identity prevents same-name cancellation');
 
+const multilinePythonDeletion = fileDiff(
+  'src/multiline.py',
+  [
+    'def removed(',
+    '    value: str,',
+    ') -> str:',
+    '    return value',
+    'class RemovedClass(',
+    '    object,',
+    '):',
+    '    pass',
+  ].join('\n'),
+  '',
+);
+assert.deepEqual(
+  scanDeletedSymbols(multilinePythonDeletion),
+  ['RemovedClass', 'removed'],
+  'multiline Python function and class headers remain detectable deletions',
+);
+
+const multilinePythonBodyOnly = fileDiff(
+  'src/multiline-body.py',
+  [
+    'def retained(',
+    '    value: str,',
+    ') -> str:',
+    '    return value',
+    'class Retained(',
+    '    object,',
+    '):',
+    '    pass',
+  ].join('\n'),
+  [
+    'def retained(',
+    '    value: str,',
+    ') -> str:',
+    '    return value.strip()',
+    'class Retained(',
+    '    object,',
+    '):',
+    '    marker = True',
+  ].join('\n'),
+);
+assert.deepEqual(scanDeletedSymbols(multilinePythonBodyOnly), [], 'multiline Python body-only edits preserve declaration identity');
+
+for (const malformedPython of [
+  fileDiff('src/unterminated.py', ['def broken(', '    value: str,'].join('\n'), ''),
+  fileDiff('src/malformed-class.py', ['class (Base):', '    pass'].join('\n'), ''),
+]) {
+  const analysis = analyzeDeletedSymbols(malformedPython);
+  assert.ok(analysis.diagnostics.length > 0, 'malformed or unterminated Python declaration headers must fail closed');
+  const result = checkConcept({ projectRoot: '/tmp/unused', gitDiffReader: () => malformedPython });
+  assert.equal(result.status, 'fail');
+  assert.match(result.summary, /parse failed closed/);
+}
+
 const malformed = fileDiff('src/malformed.ts', 'export function broken( {', 'export function broken( {');
 const malformedAnalysis = analyzeDeletedSymbols(malformed);
 assert.ok(malformedAnalysis.diagnostics.length > 0);

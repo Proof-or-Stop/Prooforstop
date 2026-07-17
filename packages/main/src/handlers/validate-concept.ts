@@ -252,11 +252,53 @@ function collectTsDeclarations(file: string, sourceText: string): { declarations
   return { declarations, diagnostics };
 }
 
+function pythonHeaderComplete(header: string): { complete: boolean; malformed: boolean; end: number } {
+  const stack: string[] = [];
+  let quote = '';
+  let escaped = false;
+  let comment = false;
+  for (let offset = 0; offset < header.length; offset += 1) {
+    const character = header[offset]!;
+    if (character === '\n') {
+      comment = false;
+      continue;
+    }
+    if (comment) continue;
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (quote) {
+      if (character === '\\') escaped = true;
+      else if (character === quote) quote = '';
+      continue;
+    }
+    if (character === '"' || character === "'") {
+      quote = character;
+      continue;
+    }
+    if (character === '#') {
+      comment = true;
+      continue;
+    }
+    if (character === '(' || character === '[' || character === '{') stack.push(character);
+    else if (character === ')' || character === ']' || character === '}') {
+      const expected = character === ')' ? '(' : character === ']' ? '[' : '{';
+      if (stack.pop() !== expected) return { complete: false, malformed: true, end: -1 };
+    } else if (character === ':' && stack.length === 0) {
+      return { complete: true, malformed: false, end: offset };
+    }
+  }
+  return { complete: false, malformed: false, end: -1 };
+}
+
 function collectPythonDeclarations(file: string, sourceText: string): { declarations: DeclarationIdentity[]; diagnostics: string[] } {
   const declarations: DeclarationIdentity[] = [];
   const scopes: Array<{ indent: number; name: string }> = [];
   const diagnostics: string[] = [];
-  for (const [index, line] of sourceText.split('\n').entries()) {
+  const lines = sourceText.split('\n');
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index]!;
     if (!line.trim() || line.trimStart().startsWith('#')) continue;
     const indentText = line.match(/^[ \t]*/)?.[0] ?? '';
     if (indentText.includes('\t')) {
@@ -265,13 +307,39 @@ function collectPythonDeclarations(file: string, sourceText: string): { declarat
     }
     const indent = indentText.length;
     while (scopes.length && scopes.at(-1)!.indent >= indent) scopes.pop();
-    const match = /^\s*(?:(async)\s+)?(def|class)\s+([A-Za-z_]\w*)\s*(\([^:]*\))?\s*:/.exec(line);
-    if (!match) continue;
-    const [, asyncFlag, kind, name, signature = ''] = match;
+    const start = /^\s*(?:(async)\s+)?(def|class)\s+([A-Za-z_]\w*)\b(.*)$/.exec(line);
+    if (!start) {
+      if (/^\s*(?:async\s+)?(?:def|class)\b/.test(line)) {
+        diagnostics.push(`${file} at ${index + 1}: malformed Python declaration header`);
+      }
+      continue;
+    }
+    const [, asyncFlag, kind, name] = start;
+    const headerLines = [line.trim()];
+    let completion = pythonHeaderComplete(headerLines.join('\n'));
+    let endIndex = index;
+    while (!completion.complete && !completion.malformed && endIndex + 1 < lines.length) {
+      const next = lines[endIndex + 1]!;
+      if (/^\s*(?:async\s+)?(?:def|class)\b/.test(next) && (next.match(/^\s*/)?.[0].length ?? 0) <= indent) break;
+      endIndex += 1;
+      headerLines.push(next.trim());
+      completion = pythonHeaderComplete(headerLines.join('\n'));
+    }
+    if (!completion.complete || completion.malformed) {
+      diagnostics.push(`${file} at ${index + 1}: malformed or unterminated Python ${kind} header`);
+      index = endIndex;
+      continue;
+    }
+    index = endIndex;
+    const completeHeader = headerLines.join('\n');
+    const signature = completeHeader.slice(0, completion.end)
+      .replace(/^(?:async\s+)?(?:def|class)\s+[A-Za-z_]\w*/, '')
+      .replace(/\s+/g, ' ')
+      .trim();
     const scope = scopes.map((entry) => entry.name).join('.') || '<module>';
     declarations.push({
       name: name!,
-      key: `${file}|${scope}|py-${kind}|${name}|${asyncFlag ? 'async' : ''}|${signature.replace(/\s+/g, ' ')}`,
+      key: `${file}|${scope}|py-${kind}|${name}|${asyncFlag ? 'async' : ''}|${signature}`,
     });
     scopes.push({ indent, name: name! });
   }
