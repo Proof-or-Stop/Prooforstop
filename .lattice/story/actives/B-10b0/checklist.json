@@ -255,9 +255,9 @@
         "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
         "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-17T14:01:49.434Z",
-      "endTime": null,
+      "endTime": "2026-07-17T14:33:51.633Z",
       "verificationIntent": {
         "happy": [
           {
@@ -357,7 +357,163 @@
           "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
           "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:done-prepare-auto-closeout-smoke",
+          "result": "pass",
+          "note": "One-pass real CLI closeout reaches PASS and clean tree without a metadata-only rerun.",
+          "headHash": "c3ae2f26134b9e345ba2ead6ee9794cebfef01d7",
+          "materialHash": "b90a8852a2294f7583ad876694947e43eeedcf4cfe3619a918f2272c99f5e572",
+          "storyFilesHash": "b06102fde9894ba7717ceecccc963f1188babf111c6624e0170a21db435d8805",
+          "timestamp": "2026-07-17T14:33:51.991Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke",
+          "result": "pass",
+          "note": "JSON telemetry reports metadataRollbacks=0, reviewerReattestations=0, humanConfirmations=0, unchangedSuiteExecutions=0, successfulCloseout=1.",
+          "headHash": "c3ae2f26134b9e345ba2ead6ee9794cebfef01d7",
+          "materialHash": "b90a8852a2294f7583ad876694947e43eeedcf4cfe3619a918f2272c99f5e572",
+          "storyFilesHash": "b06102fde9894ba7717ceecccc963f1188babf111c6624e0170a21db435d8805",
+          "timestamp": "2026-07-17T14:33:52.287Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+          "result": "pass",
+          "note": "Delivery dispatch and mutation policy are both TEST-only and reject mismatched phases before mutation.",
+          "headHash": "c3ae2f26134b9e345ba2ead6ee9794cebfef01d7",
+          "materialHash": "b90a8852a2294f7583ad876694947e43eeedcf4cfe3619a918f2272c99f5e572",
+          "storyFilesHash": "b06102fde9894ba7717ceecccc963f1188babf111c6624e0170a21db435d8805",
+          "timestamp": "2026-07-17T14:33:52.593Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke",
+          "result": "pass",
+          "note": "Fresh receipt reuse and explicit skipped validation remain distinct dispositions with zero unchanged command execution.",
+          "headHash": "c3ae2f26134b9e345ba2ead6ee9794cebfef01d7",
+          "materialHash": "b90a8852a2294f7583ad876694947e43eeedcf4cfe3619a918f2272c99f5e572",
+          "storyFilesHash": "b06102fde9894ba7717ceecccc963f1188babf111c6624e0170a21db435d8805",
+          "timestamp": "2026-07-17T14:33:52.890Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:done-prepare-auto-closeout-smoke",
+          "result": "pass",
+          "note": "Canonical validation, DONE-required, owner lease, and closeout receipt writes retain the closeout path through multiple metadata commits.",
+          "headHash": "c3ae2f26134b9e345ba2ead6ee9794cebfef01d7",
+          "materialHash": "b90a8852a2294f7583ad876694947e43eeedcf4cfe3619a918f2272c99f5e572",
+          "storyFilesHash": "b06102fde9894ba7717ceecccc963f1188babf111c6624e0170a21db435d8805",
+          "timestamp": "2026-07-17T14:33:53.209Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
+          "result": "pass",
+          "note": "Retry uses durable fresh artifacts and reaches direct PASS without a second reviewer or validation run.",
+          "headHash": "c3ae2f26134b9e345ba2ead6ee9794cebfef01d7",
+          "materialHash": "b90a8852a2294f7583ad876694947e43eeedcf4cfe3619a918f2272c99f5e572",
+          "storyFilesHash": "b06102fde9894ba7717ceecccc963f1188babf111c6624e0170a21db435d8805",
+          "timestamp": "2026-07-17T14:33:53.532Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:4",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Optional phase ordering and convergence counters are deterministic for enabled and omitted closeout phases.",
+          "headHash": "c3ae2f26134b9e345ba2ead6ee9794cebfef01d7",
+          "materialHash": "b90a8852a2294f7583ad876694947e43eeedcf4cfe3619a918f2272c99f5e572",
+          "storyFilesHash": "b06102fde9894ba7717ceecccc963f1188babf111c6624e0170a21db435d8805",
+          "timestamp": "2026-07-17T14:33:53.831Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+          "result": "pass",
+          "note": "Delivery commands outside TEST are rejected consistently by dispatch, phase tools, and command policy.",
+          "headHash": "c3ae2f26134b9e345ba2ead6ee9794cebfef01d7",
+          "materialHash": "b90a8852a2294f7583ad876694947e43eeedcf4cfe3619a918f2272c99f5e572",
+          "storyFilesHash": "b06102fde9894ba7717ceecccc963f1188babf111c6624e0170a21db435d8805",
+          "timestamp": "2026-07-17T14:33:54.115Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
+          "result": "pass",
+          "note": "Non-closeout paths and material or story-files drift remain blocked and require rerun/review.",
+          "headHash": "c3ae2f26134b9e345ba2ead6ee9794cebfef01d7",
+          "materialHash": "b90a8852a2294f7583ad876694947e43eeedcf4cfe3619a918f2272c99f5e572",
+          "storyFilesHash": "b06102fde9894ba7717ceecccc963f1188babf111c6624e0170a21db435d8805",
+          "timestamp": "2026-07-17T14:33:54.393Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke",
+          "result": "pass",
+          "note": "Genuine validation failure and DONE-required timeout remain executed failures and never become reused PASS.",
+          "headHash": "c3ae2f26134b9e345ba2ead6ee9794cebfef01d7",
+          "materialHash": "b90a8852a2294f7583ad876694947e43eeedcf4cfe3619a918f2272c99f5e572",
+          "storyFilesHash": "b06102fde9894ba7717ceecccc963f1188babf111c6624e0170a21db435d8805",
+          "timestamp": "2026-07-17T14:33:54.666Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:done-prepare-auto-closeout-smoke",
+          "result": "pass",
+          "note": "Commit-hook failure, unknown paths, malformed closeout state, and concurrent movement fail closed.",
+          "headHash": "c3ae2f26134b9e345ba2ead6ee9794cebfef01d7",
+          "materialHash": "b90a8852a2294f7583ad876694947e43eeedcf4cfe3619a918f2272c99f5e572",
+          "storyFilesHash": "b06102fde9894ba7717ceecccc963f1188babf111c6624e0170a21db435d8805",
+          "timestamp": "2026-07-17T14:33:54.948Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:4",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Nested orchestration cannot execute a reused validation command set; nonzero reused commandExecutions violates the PASS invariant.",
+          "headHash": "c3ae2f26134b9e345ba2ead6ee9794cebfef01d7",
+          "materialHash": "b90a8852a2294f7583ad876694947e43eeedcf4cfe3619a918f2272c99f5e572",
+          "storyFilesHash": "b06102fde9894ba7717ceecccc963f1188babf111c6624e0170a21db435d8805",
+          "timestamp": "2026-07-17T14:33:55.256Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:5",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:done-prepare-auto-closeout-smoke",
+          "result": "pass",
+          "note": "Closeout artifact permutations normalize through registered writers or block with a bounded next action instead of phase rollback.",
+          "headHash": "c3ae2f26134b9e345ba2ead6ee9794cebfef01d7",
+          "materialHash": "b90a8852a2294f7583ad876694947e43eeedcf4cfe3619a918f2272c99f5e572",
+          "storyFilesHash": "b06102fde9894ba7717ceecccc963f1188babf111c6624e0170a21db435d8805",
+          "timestamp": "2026-07-17T14:33:55.561Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:6",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:lifecycle-check-smoke",
+          "result": "pass",
+          "note": "Positive closeout produces no story_resume, human:true acknowledgement, convergence freeze, or metadata-only phase backstep.",
+          "headHash": "c3ae2f26134b9e345ba2ead6ee9794cebfef01d7",
+          "materialHash": "b90a8852a2294f7583ad876694947e43eeedcf4cfe3619a918f2272c99f5e572",
+          "storyFilesHash": "b06102fde9894ba7717ceecccc963f1188babf111c6624e0170a21db435d8805",
+          "timestamp": "2026-07-17T14:33:55.890Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -442,6 +598,18 @@
           "packages/main/src/tasks/concept-gate-scope-smoke.ts"
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-17T14:33:51.633Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation commit c3ae2f2613; all 14 must intents covered by final bounded focused checks. Subagent API 401 recovery only changed the obsolete closure smoke expectation, not production logic.",
+      "agent": "lattice-implementer"
     }
   ]
 }
