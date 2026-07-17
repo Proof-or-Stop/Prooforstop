@@ -56,6 +56,12 @@ function propertyName(expression: ts.Expression): string | undefined {
   return undefined;
 }
 
+function staticPropertyName(name: ts.PropertyName): string | undefined {
+  if (ts.isIdentifier(name) || ts.isStringLiteralLike(name) || ts.isNumericLiteral(name)) return name.text;
+  if (ts.isComputedPropertyName(name) && ts.isStringLiteralLike(name.expression)) return name.expression.text;
+  return undefined;
+}
+
 function isProcessEnv(expression: ts.Expression, processObjects: ReadonlySet<string>): boolean {
   if (!ts.isPropertyAccessExpression(expression) && !ts.isElementAccessExpression(expression)) return false;
   const base = expression.expression;
@@ -155,11 +161,11 @@ function collectSanitizerFunctions(sourceFile: ts.SourceFile): Map<string, reado
   return sanitizers;
 }
 
-function functionParameters(sourceFile: ts.SourceFile): Map<string, string[]> {
-  const functions = new Map<string, string[]>();
+function functionParameters(sourceFile: ts.SourceFile): Map<string, readonly ts.ParameterDeclaration[]> {
+  const functions = new Map<string, readonly ts.ParameterDeclaration[]>();
   const record = (name: string | undefined, parameters: ts.NodeArray<ts.ParameterDeclaration>): void => {
     if (!name) return;
-    functions.set(name, parameters.map(parameter => ts.isIdentifier(parameter.name) ? parameter.name.text : '').filter(Boolean));
+    functions.set(name, [...parameters]);
   };
   const visit = (node: ts.Node): void => {
     if (ts.isFunctionDeclaration(node)) record(node.name?.text, node.parameters);
@@ -167,6 +173,7 @@ function functionParameters(sourceFile: ts.SourceFile): Map<string, string[]> {
       && node.initializer && (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer))) {
       record(node.name.text, node.initializer.parameters);
     }
+    if (ts.isMethodDeclaration(node)) record(staticPropertyName(node.name), node.parameters);
     ts.forEachChild(node, visit);
   };
   visit(sourceFile);
@@ -312,69 +319,110 @@ export function analyzeProductionTestSeams(sourceText: string, file = 'inline.ts
     return new Set();
   };
 
+  type BindingSource = { kind: 'process' | 'env' | 'value'; sources: Sources };
+  const valueSource = (sources: Sources = new Set()): BindingSource => ({ kind: 'value', sources });
+  const classifyBindingSource = (expression: ts.Expression | undefined): BindingSource => {
+    if (!expression) return valueSource();
+    let value = expression;
+    while (ts.isParenthesizedExpression(value) || ts.isAsExpression(value)
+      || ts.isTypeAssertionExpression(value) || ts.isNonNullExpression(value)) value = value.expression;
+    if (ts.isIdentifier(value) && processObjects.has(value.text)) return { kind: 'process', sources: new Set() };
+    if (isProcessEnv(value, processObjects) || (ts.isIdentifier(value) && envObjects.has(value.text))) {
+      return { kind: 'env', sources: new Set() };
+    }
+    return valueSource(expressionSources(value));
+  };
+  const mergeBindingSources = (left: BindingSource, right: BindingSource): BindingSource => {
+    if (left.kind === 'process' || right.kind === 'process') return { kind: 'process', sources: union(left.sources, right.sources) };
+    if (left.kind === 'env' || right.kind === 'env') return { kind: 'env', sources: union(left.sources, right.sources) };
+    return valueSource(union(left.sources, right.sources));
+  };
+  const propertyBindingSource = (source: BindingSource, key: string | undefined): BindingSource => {
+    if (!key) return source; // Dynamic/rest patterns conservatively retain the whole source.
+    if (source.kind === 'process') return key === 'env' ? { kind: 'env', sources: new Set() } : valueSource();
+    if (source.kind === 'env') return isTestControlKey(key) ? valueSource(new Set([key])) : valueSource();
+    return source;
+  };
+
+  const bindTarget = (target: ts.BindingName | ts.Expression, source: BindingSource): boolean => {
+    if (ts.isIdentifier(target)) {
+      let changed = false;
+      if (source.kind === 'process') {
+        const before = processObjects.size;
+        processObjects.add(target.text);
+        changed ||= processObjects.size !== before;
+      } else if (source.kind === 'env') {
+        const before = envObjects.size;
+        envObjects.add(target.text);
+        changed ||= envObjects.size !== before;
+      }
+      changed ||= add(target.text, source.sources);
+      return changed;
+    }
+    if (ts.isObjectBindingPattern(target)) {
+      let changed = false;
+      for (const element of target.elements) {
+        const key = element.dotDotDotToken ? undefined : element.propertyName ? staticPropertyName(element.propertyName) : ts.isIdentifier(element.name) ? element.name.text : undefined;
+        let child = propertyBindingSource(source, key);
+        if (element.initializer) child = mergeBindingSources(child, classifyBindingSource(element.initializer));
+        changed ||= bindTarget(element.name, child);
+      }
+      return changed;
+    }
+    if (ts.isArrayBindingPattern(target)) {
+      let changed = false;
+      for (const element of target.elements) {
+        if (ts.isOmittedExpression(element)) continue;
+        let child = source;
+        if (element.initializer) child = mergeBindingSources(child, classifyBindingSource(element.initializer));
+        changed ||= bindTarget(element.name, child);
+      }
+      return changed;
+    }
+    if (ts.isParenthesizedExpression(target)) return bindTarget(target.expression, source);
+    if (ts.isObjectLiteralExpression(target)) {
+      let changed = false;
+      for (const property of target.properties) {
+        if (ts.isShorthandPropertyAssignment(property)) {
+          let child = propertyBindingSource(source, staticPropertyName(property.name));
+          if (property.objectAssignmentInitializer) child = mergeBindingSources(child, classifyBindingSource(property.objectAssignmentInitializer));
+          changed ||= bindTarget(property.name, child);
+        } else if (ts.isPropertyAssignment(property)) {
+          changed ||= bindTarget(property.initializer, propertyBindingSource(source, staticPropertyName(property.name)));
+        } else if (ts.isSpreadAssignment(property)) {
+          changed ||= bindTarget(property.expression, source);
+        }
+      }
+      return changed;
+    }
+    if (ts.isBinaryExpression(target) && target.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
+      return bindTarget(target.left, mergeBindingSources(source, classifyBindingSource(target.right)));
+    }
+    if (ts.isPropertyAccessExpression(target) || ts.isElementAccessExpression(target)) {
+      const key = expressionKey(target);
+      return key ? add(key, source.sources) : false;
+    }
+    return false;
+  };
+
   // Bounded fixed point: simple aliases plus local argument forwarding.
   for (let pass = 0; pass < 8; pass += 1) {
     let changed = false;
     const visit = (node: ts.Node): void => {
       if (ts.isVariableDeclaration(node) && node.initializer) {
-        if (ts.isIdentifier(node.name)) {
-          if (isProcessEnv(node.initializer, processObjects)) {
-            const before = envObjects.size;
-            envObjects.add(node.name.text);
-            changed ||= envObjects.size !== before;
-          } else if (ts.isIdentifier(node.initializer) && envObjects.has(node.initializer.text)) {
-            const before = envObjects.size;
-            envObjects.add(node.name.text);
-            changed ||= envObjects.size !== before;
-          }
-          if (ts.isIdentifier(node.initializer) && processObjects.has(node.initializer.text)) {
-            const before = processObjects.size;
-            processObjects.add(node.name.text);
-            changed ||= processObjects.size !== before;
-          }
-          changed ||= add(node.name.text, expressionSources(node.initializer));
-        } else if (ts.isObjectBindingPattern(node.name)) {
-          const fromProcess = ts.isIdentifier(node.initializer) && processObjects.has(node.initializer.text);
-          const fromEnv = isProcessEnv(node.initializer, processObjects)
-            || (ts.isIdentifier(node.initializer) && envObjects.has(node.initializer.text));
-          for (const element of node.name.elements) {
-            const key = element.propertyName && (ts.isIdentifier(element.propertyName) || ts.isStringLiteralLike(element.propertyName))
-              ? element.propertyName.text
-              : ts.isIdentifier(element.name) ? element.name.text : undefined;
-            if (!key) continue;
-            if (fromProcess && key === 'env') {
-              if (ts.isIdentifier(element.name)) {
-                const before = envObjects.size;
-                envObjects.add(element.name.text);
-                changed ||= envObjects.size !== before;
-              } else if (ts.isObjectBindingPattern(element.name)) {
-                for (const nested of element.name.elements) {
-                  if (!ts.isIdentifier(nested.name)) continue;
-                  const nestedKey = nested.propertyName && (ts.isIdentifier(nested.propertyName) || ts.isStringLiteralLike(nested.propertyName))
-                    ? nested.propertyName.text
-                    : nested.name.text;
-                  if (isTestControlKey(nestedKey)) changed ||= add(nested.name.text, new Set([nestedKey]));
-                }
-              }
-            } else if (fromEnv && ts.isIdentifier(element.name) && isTestControlKey(key)) {
-              changed ||= add(element.name.text, new Set([key]));
-            }
-          }
-        }
+        changed ||= bindTarget(node.name, classifyBindingSource(node.initializer));
       }
-      if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken && ts.isIdentifier(node.left)) {
-        changed ||= add(node.left.text, expressionSources(node.right));
+      if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
+        changed ||= bindTarget(node.left, classifyBindingSource(node.right));
       }
-      if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken
-        && (ts.isPropertyAccessExpression(node.left) || ts.isElementAccessExpression(node.left))) {
-        const key = expressionKey(node.left);
-        if (key) changed ||= add(key, expressionSources(node.right));
-      }
-      if (ts.isCallExpression(node) && ts.isIdentifier(node.expression)) {
-        const params = functions.get(node.expression.text);
+      if (ts.isCallExpression(node)) {
+        const callee = ts.isIdentifier(node.expression) ? node.expression.text : propertyName(node.expression);
+        const params = callee ? functions.get(callee) : undefined;
         if (params) {
           params.forEach((parameter, index) => {
-            if (node.arguments[index]) changed ||= add(parameter, expressionSources(node.arguments[index]));
+            let source = classifyBindingSource(node.arguments[index]);
+            if (parameter.initializer) source = mergeBindingSources(source, classifyBindingSource(parameter.initializer));
+            changed ||= bindTarget(parameter.name, source);
           });
         }
       }
@@ -462,6 +510,33 @@ function selfTest(): void {
     const issues = analyzeProductionTestSeams(source, `${name}.ts`);
     assert.ok(issues.length > 0, `${name} must reach a modeled sink`);
     assert.equal(issues[0]?.reason, PRODUCTION_TEST_SEAM_REASON);
+  }
+
+  const bindingContextCases: Array<[string, string]> = [
+    ['declaration computed alias to filesystem', `const proc = process; const { ['env']: runtimeEnv } = proc; writeFileSync(runtimeEnv.TEST_FILE, 'x')`],
+    ['assignment destructure to filesystem', `let env; ({ env } = process); writeFileSync(env.TEST_FILE, 'x')`],
+    ['assignment computed default to process', `let runtimeEnv; ({ ['env']: runtimeEnv = process.env } = process); exec(runtimeEnv.TEST_COMMAND)`],
+    ['function parameter to process', `function run({ env }: typeof process) { exec(env.TEST_COMMAND) } run(process)`],
+    ['process alias through forwarding helper', `function run({ env }: typeof process) { exec(env.TEST_COMMAND) } function forward(input: typeof process) { run(input) } const proc = process; forward(proc)`],
+    ['arrow nested parameter to filesystem', `const run = ({ env: { TEST_FILE: target } }: typeof process) => writeFileSync(target, 'x'); run(process)`],
+    ['method computed parameter to process', `const runner = { run({ ['env']: runtimeEnv }: typeof process) { spawn(runtimeEnv.SMOKE_EXECUTABLE, []) } }; runner.run(process)`],
+    ['parameter and binding defaults to filesystem', `function run({ env = process.env } = process) { writeFileSync(env.TEST_FILE, 'x') } run()`],
+    ['process rest retains env for process sink', `function run({ ...copy }: typeof process) { exec(copy.env.TEST_COMMAND) } run(process)`],
+    ['env rest retains TEST keys for filesystem sink', `const { env } = process; const { ...copy } = env; writeFileSync(copy.TEST_FILE, 'x')`],
+  ];
+  for (const [name, source] of bindingContextCases) {
+    const issues = analyzeProductionTestSeams(source, `${name}.ts`);
+    assert.ok(issues.length > 0, `${name} must preserve TEST/SMOKE source through its binding context`);
+    assert.equal(issues[0]?.reason, PRODUCTION_TEST_SEAM_REASON);
+  }
+
+  const safeBindingControls: Array<[string, string]> = [
+    ['non-process declaration source', `const input = { env: { TEST_FILE: '/fixed' } }; const { env } = input; writeFileSync(env.TEST_FILE, 'x')`],
+    ['non-process function argument', `function run({ env }: { env: { TEST_COMMAND: string } }) { exec(env.TEST_COMMAND) } run({ env: { TEST_COMMAND: '/fixed' } })`],
+    ['non-test process property', `const { argv: values } = process; writeFileSync('/fixed', String(values.length))`],
+  ];
+  for (const [name, source] of safeBindingControls) {
+    assert.deepEqual(analyzeProductionTestSeams(source, `${name}.ts`), [], `${name} must remain outside TEST/SMOKE taint`);
   }
 
   const positive = `
