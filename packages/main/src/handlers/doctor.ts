@@ -56,6 +56,7 @@ import {
 } from '../core/usage-burn-alert.js';
 import { sweepClaudeProjects, sweepCodexSessions } from '../core/usage-sweep.js';
 import { truncateOneLine } from '../cli/output-verbosity.js';
+import { getSessionIdentity, renderSessionIdentityDiagnostic } from '../core/owner-session.js';
 
 export function createDoctorHandlers(ctx: HandlerContext) {
   const { root, store } = ctx;
@@ -108,6 +109,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       const auxiliaryRepaired: AuxiliaryCleanupResult[] = [];
       const auxiliaryRepairFailed: Array<{ path: string; error: string }> = [];
       const partialDone = detectPartialDoneStories(root, store);
+      const sessionIdentity = getSessionIdentity();
       // B-f60c CHK-004: scan the unified main write lock for a stuck/stale
       // leftover (a crashed holder's lock). An active in-flight lock (within
       // the stale window) is reported as healthy, never misflagged as stuck.
@@ -276,6 +278,12 @@ export function createDoctorHandlers(ctx: HandlerContext) {
             terminalStale: storyOwnerLeases.terminalStale,
             hasStale: storyOwnerLeases.stale.length > 0,
             hasTerminalStale: storyOwnerLeases.terminalStale.length > 0,
+          },
+          ownerSessionIdentity: {
+            sessionId: sessionIdentity.sessionId,
+            sessionSource: sessionIdentity.sessionSource,
+            hostProvider: sessionIdentity.hostProvider ?? null,
+            degraded: sessionIdentity.sessionSource === 'derived-ppid',
           },
           guardSessions: {
             preToolUseHook: guardSessionScan.preToolUseHook,
@@ -481,6 +489,10 @@ export function createDoctorHandlers(ctx: HandlerContext) {
 
       lines.push('');
       for (const line of renderStoryOwnerLeaseScan(storyOwnerLeases)) lines.push(line);
+
+      lines.push('');
+      lines.push('Owner session identity:');
+      for (const line of renderSessionIdentityDiagnostic(sessionIdentity)) lines.push(`  ${line}`);
 
       lines.push('');
       for (const line of renderGuardSessionDoctorSection(guardSessionScan)) lines.push(line);

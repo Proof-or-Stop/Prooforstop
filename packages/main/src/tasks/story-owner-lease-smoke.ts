@@ -62,6 +62,7 @@ import {
   ownerLeasePath,
   readOwnerLease,
   refreshOwnerLease,
+  renderSessionIdentityDiagnostic,
   releaseOwnerLease,
   resetSessionIdForTest,
   resolveSessionIdentity,
@@ -87,6 +88,7 @@ import {
   resolveEffectiveOwnershipClass,
 } from '../cli-engine.js';
 import { execFileSync } from 'node:child_process';
+import { buildCanonicalHostRuntimeEnv } from '../core/lattice-dispatch.js';
 
 const root = join(tmpdir(), `lattice-story-owner-lease-smoke-${process.pid}-${Date.now()}`);
 mkdirSync(root, { recursive: true });
@@ -97,89 +99,170 @@ try {
     // Synthetic derivation inputs reused across the sub-tests.
     const inA = { hostname: 'host-1', root: '/repo/.worktrees/B-c55d', ppid: 4242 };
 
-    // 1a. REGRESSION GUARD for the ppid-bricking bug — with CLAUDE_CODE_SESSION_ID
-    // set, varying ppid (simulating multiple fresh Claude Code shells / Node
-    // procs) MUST yield an IDENTICAL sessionId. ppid no longer anchors the id
-    // when the Claude Code env var is present, so a 2nd mutating command can
-    // recognise its own lease instead of self-rejecting as "foreign".
-    const claudeEnv = { CLAUDE_CODE_SESSION_ID: 'claude-sess-AAA' };
+    // B-62b8 RED: a validated task + agent/role adapter identity is stable
+    // across fresh parent processes. Neither dimension is sufficient alone.
+    const codexCompositeEnv = {
+      LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'codex',
+      LATTICE_OWNER_SESSION_ADAPTER_TASK: 'task-red',
+      LATTICE_OWNER_SESSION_ADAPTER_AGENT: 'implementer',
+    };
+    const codexCompositeA = resolveSessionIdentity(codexCompositeEnv, { ...inA, ppid: 111 });
+    const codexCompositeB = resolveSessionIdentity(codexCompositeEnv, { ...inA, ppid: 222 });
+    assert.equal(codexCompositeA.sessionSource, 'host-adapter', 'validated task + agent identity uses the host-adapter path');
+    assert.equal(codexCompositeA.sessionId, codexCompositeB.sessionId, 'validated task + agent identity is stable across ppid changes');
+
+    // 1a. REGRESSION GUARD for the ppid-bricking bug — a validated independent
+    // task + role composite remains stable across fresh shells / Node parents.
+    const claudeEnv = {
+      LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'claude-code',
+      LATTICE_OWNER_SESSION_ADAPTER_TASK: 'claude-task-AAA',
+      LATTICE_OWNER_SESSION_ADAPTER_ROLE: 'implementer',
+    };
     const r1 = resolveSessionIdentity(claudeEnv, { ...inA, ppid: 89439 });
     const r2 = resolveSessionIdentity(claudeEnv, { ...inA, ppid: 89466 });
     const r3 = resolveSessionIdentity(claudeEnv, { ...inA, ppid: 89529 });
-    assert.equal(r1.sessionId, 'claude-sess-AAA', 'CLAUDE_CODE_SESSION_ID is used verbatim');
-    assert.equal(r1.sessionId, r2.sessionId, 'ppid variation does NOT change sessionId when CLAUDE_CODE_SESSION_ID is set (ppid-bricking regression guard)');
+    assert.match(r1.sessionId, /^sess-[a-f0-9]{32}$/, 'validated composites produce opaque canonical ids');
+    assert.equal(r1.sessionId, r2.sessionId, 'ppid variation does NOT change a validated task + role id');
     assert.equal(r1.sessionId, r3.sessionId, 'ppid variation does NOT change sessionId across a 3rd fresh shell either');
     assert.equal(r1.sessionSource, 'host-adapter', 'sessionSource is host-adapter when the Claude Code adapter drives the id');
     assert.equal(r1.hostProvider, 'claude-code', 'Claude Code bridge records provider diagnostics');
     assert.equal(r2.sessionSource, 'host-adapter', 'sessionSource stays host-adapter across ppid changes');
 
-    // 1b. Two DIFFERENT CLAUDE_CODE_SESSION_ID values → two DIFFERENT sessionIds,
-    // so two genuinely different Claude Code sessions never collide.
-    const rClaudeA = resolveSessionIdentity({ CLAUDE_CODE_SESSION_ID: 'claude-sess-AAA' }, inA);
-    const rClaudeB = resolveSessionIdentity({ CLAUDE_CODE_SESSION_ID: 'claude-sess-BBB' }, inA);
-    assert.notEqual(rClaudeA.sessionId, rClaudeB.sessionId, 'different CLAUDE_CODE_SESSION_ID values → different sessionIds');
+    // 1b. Task and role are independent isolation dimensions.
+    const rClaudeTaskB = resolveSessionIdentity({ ...claudeEnv, LATTICE_OWNER_SESSION_ADAPTER_TASK: 'claude-task-BBB' }, inA);
+    const rClaudeRoleB = resolveSessionIdentity({ ...claudeEnv, LATTICE_OWNER_SESSION_ADAPTER_ROLE: 'reviewer' }, inA);
+    assert.notEqual(r1.sessionId, rClaudeTaskB.sessionId, 'different task identities produce different session ids');
+    assert.notEqual(r1.sessionId, rClaudeRoleB.sessionId, 'different role identities produce different session ids');
 
-    // 1c. LATTICE_SESSION_ID WINS over CLAUDE_CODE_SESSION_ID — it is the
+    // 1c. LATTICE_SESSION_ID WINS over adapter inputs — it is the
     // highest-priority canonical override; sessionSource = explicit-env.
     const rBoth = resolveSessionIdentity(
-      { LATTICE_SESSION_ID: 'lattice-override-1', CLAUDE_CODE_SESSION_ID: 'claude-sess-AAA' },
+      { LATTICE_SESSION_ID: '  lattice-override-1  ', ...claudeEnv },
       inA,
     );
     assert.equal(rBoth.sessionId, 'lattice-override-1', 'LATTICE_SESSION_ID wins over CLAUDE_CODE_SESSION_ID');
     assert.equal(rBoth.sessionSource, 'explicit-env', 'sessionSource is explicit-env when LATTICE_SESSION_ID drives the id');
     // Empty / whitespace-only env values are treated as absent (fall through).
     const rEmptyOverride = resolveSessionIdentity(
-      { LATTICE_SESSION_ID: '   ', CLAUDE_CODE_SESSION_ID: 'claude-sess-AAA' },
+      { LATTICE_SESSION_ID: '   ', ...claudeEnv },
       inA,
     );
     assert.equal(rEmptyOverride.sessionSource, 'host-adapter', 'a whitespace-only LATTICE_SESSION_ID is treated as absent');
 
-    // 1d. Codex, Antigravity/agy, and a fake future host reach the same
-    // canonical contract through adapters. Provider labels are diagnostics;
-    // ownership keys on the returned sessionId.
-    const rCodex = resolveSessionIdentity(
-      { LATTICE_ACTIVITY_SOURCE: 'codex', CODEX_SESSION_ID: 'codex-sess-1' },
+    // One-dimensional or native-only inputs do not become owner identities.
+    const rOneDimensional = resolveSessionIdentity(
+      { LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'codex', LATTICE_OWNER_SESSION_ADAPTER_TASK: 'task-only' },
       inA,
     );
-    assert.equal(rCodex.sessionId, 'codex-sess-1', 'Codex native session is bridged through the adapter');
+    assert.equal(rOneDimensional.sessionSource, 'derived-ppid', 'task-only adapter input falls through safely');
+    const rNativeOnly = resolveSessionIdentity({ CODEX_SESSION_ID: 'raw-native-session' }, inA);
+    assert.equal(rNativeOnly.sessionSource, 'derived-ppid', 'a raw provider-native session is not promoted alone');
+    const rCodexWrapperComposite = resolveSessionIdentity(
+      {
+        LATTICE_ACTIVITY_SOURCE: 'codex',
+        LATTICE_ACTIVITY_SESSION: 'raw-codex-task-session',
+        LATTICE_AGENT: 'implementer',
+      },
+      inA,
+    );
+    assert.equal(rCodexWrapperComposite.sessionSource, 'host-adapter', 'Codex wrapper native task plus independent role is accepted at the adapter boundary');
+    assert.equal(JSON.stringify(rCodexWrapperComposite).includes('raw-codex-task-session'), false, 'Codex wrapper raw task token never crosses the adapter boundary');
+    const rUnknownProvider = resolveSessionIdentity(
+      {
+        LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'unvalidated-future-host',
+        LATTICE_OWNER_SESSION_ADAPTER_TASK: 'task',
+        LATTICE_OWNER_SESSION_ADAPTER_AGENT: 'agent',
+      },
+      inA,
+    );
+    assert.equal(rUnknownProvider.sessionSource, 'derived-ppid', 'an unvalidated provider label falls through safely');
+    const rConflictingAliases = resolveSessionIdentity(
+      {
+        LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'codex',
+        LATTICE_OWNER_SESSION_ADAPTER_TASK: 'task',
+        LATTICE_OWNER_SESSION_ADAPTER_AGENT: 'implementer',
+        LATTICE_OWNER_SESSION_ADAPTER_ROLE: 'reviewer',
+      },
+      inA,
+    );
+    assert.equal(rConflictingAliases.sessionSource, 'derived-ppid', 'conflicting agent/role aliases are rejected instead of silently choosing one');
+
+    // 1d. Codex, Antigravity/agy, and a fake future host reach the same
+    // composite adapter contract without a generic-core provider exception.
+    const rCodex = resolveSessionIdentity(
+      {
+        LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'codex',
+        LATTICE_OWNER_SESSION_ADAPTER_TASK: 'codex-task-1',
+        LATTICE_OWNER_SESSION_ADAPTER_AGENT: 'implementer',
+      },
+      inA,
+    );
+    assert.match(rCodex.sessionId, /^sess-[a-f0-9]{32}$/, 'Codex composite is opaque');
     assert.equal(rCodex.sessionSource, 'host-adapter', 'Codex bridge is reported as host-adapter');
     assert.equal(rCodex.hostProvider, 'codex', 'Codex bridge reports provider diagnostics');
 
     const rAntigravity = resolveSessionIdentity(
-      { LATTICE_ACTIVITY_SOURCE: 'antigravity', ANTIGRAVITY_SESSION_ID: 'ag-sess-1' },
+      {
+        LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'antigravity',
+        LATTICE_OWNER_SESSION_ADAPTER_TASK: 'ag-task-1',
+        LATTICE_OWNER_SESSION_ADAPTER_AGENT: 'implementer',
+      },
       inA,
     );
-    assert.equal(rAntigravity.sessionId, 'ag-sess-1', 'Antigravity native session is bridged through the adapter');
     assert.equal(rAntigravity.hostProvider, 'antigravity', 'Antigravity is the canonical third-host provider label');
 
     const rAgy = resolveSessionIdentity(
-      { LATTICE_ACTIVITY_SOURCE: 'agy', AGY_SESSION_ID: 'agy-sess-1' },
+      {
+        LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'agy',
+        LATTICE_OWNER_SESSION_ADAPTER_TASK: 'ag-task-1',
+        LATTICE_OWNER_SESSION_ADAPTER_AGENT: 'implementer',
+      },
       inA,
     );
-    assert.equal(rAgy.sessionId, 'agy-sess-1', 'agy alias still bridges as adapter input');
+    assert.equal(rAgy.sessionId, rAntigravity.sessionId, 'agy alias normalizes to the same provider domain');
     assert.equal(rAgy.hostProvider, 'antigravity', 'agy alias normalizes to canonical Antigravity provider diagnostics');
 
     const rFuture = resolveSessionIdentity(
-      { LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'fake', LATTICE_OWNER_SESSION_ADAPTER_SESSION: 'future-sess-1' },
+      {
+        LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'fake',
+        LATTICE_OWNER_SESSION_ADAPTER_TASK: 'future-task-1',
+        LATTICE_OWNER_SESSION_ADAPTER_AGENT: 'future-agent-1',
+      },
       inA,
     );
-    assert.equal(rFuture.sessionId, 'future-sess-1', 'future host adapter can onboard without core resolver changes');
+    assert.match(rFuture.sessionId, /^sess-[a-f0-9]{32}$/, 'future host adapter can onboard without core resolver changes');
     assert.equal(rFuture.hostProvider, 'fake', 'future fake host reports provider diagnostics');
 
     const generatedInputs = { ...inA, root };
     const generatedEnv = {
       LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'antigravity',
+      LATTICE_OWNER_SESSION_ADAPTER_TASK: 'ag-task-1',
+      LATTICE_OWNER_SESSION_ADAPTER_ROLE: 'implementer',
       LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY: 'ag-local-window-1',
+      LATTICE_OWNER_SESSION_ADAPTER_GENERATED: 'true',
     };
     const generatedA = resolveSessionIdentity(generatedEnv, generatedInputs, { now: () => '2026-06-20T12:00:00.000Z' });
     const generatedB = resolveSessionIdentity(generatedEnv, { ...generatedInputs, ppid: 99999 }, { now: () => '2026-06-20T12:05:00.000Z' });
     assert.equal(generatedA.sessionSource, 'generated-token', 'host session boundary without native stable id uses generated-token');
     assert.equal(generatedA.sessionId, generatedB.sessionId, 'generated token is reused across ppid-changing invocations for the same adapter boundary');
     assert.match(generatedA.sessionId, /^sess-[a-f0-9]{32}$/, 'generated token is opaque local runtime material');
+    const generatedWithoutBoundary = resolveSessionIdentity(
+      {
+        LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'antigravity',
+        LATTICE_OWNER_SESSION_ADAPTER_TASK: 'ag-task-1',
+        LATTICE_OWNER_SESSION_ADAPTER_ROLE: 'implementer',
+        LATTICE_OWNER_SESSION_ADAPTER_GENERATED: 'true',
+      },
+      generatedInputs,
+    );
+    assert.equal(generatedWithoutBoundary.sessionSource, 'derived-ppid', 'generated fallback without a durable adapter boundary is rejected');
     const generatedDifferentBoundary = resolveSessionIdentity(
       {
         LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'antigravity',
+        LATTICE_OWNER_SESSION_ADAPTER_TASK: 'ag-task-1',
+        LATTICE_OWNER_SESSION_ADAPTER_ROLE: 'implementer',
         LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY: 'ag-local-window-2',
+        LATTICE_OWNER_SESSION_ADAPTER_GENERATED: 'true',
       },
       generatedInputs,
       { now: () => '2026-06-20T12:10:00.000Z' },
@@ -192,7 +275,10 @@ try {
     const generatedDifferentProvider = resolveSessionIdentity(
       {
         LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'codex',
+        LATTICE_OWNER_SESSION_ADAPTER_TASK: 'ag-task-1',
+        LATTICE_OWNER_SESSION_ADAPTER_ROLE: 'implementer',
         LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY: 'ag-local-window-1',
+        LATTICE_OWNER_SESSION_ADAPTER_GENERATED: 'true',
       },
       generatedInputs,
       { now: () => '2026-06-20T12:15:00.000Z' },
@@ -212,6 +298,81 @@ try {
       generatedDifferentRoot.sessionId,
       'generated token is scoped by project root: same provider/boundary in different roots must not collide',
     );
+    const generatedDifferentTask = resolveSessionIdentity(
+      { ...generatedEnv, LATTICE_OWNER_SESSION_ADAPTER_TASK: 'ag-task-2' },
+      generatedInputs,
+    );
+    const generatedDifferentRole = resolveSessionIdentity(
+      { ...generatedEnv, LATTICE_OWNER_SESSION_ADAPTER_ROLE: 'reviewer' },
+      generatedInputs,
+    );
+    assert.notEqual(generatedA.sessionId, generatedDifferentTask.sessionId, 'generated token lookup is task-scoped');
+    assert.notEqual(generatedA.sessionId, generatedDifferentRole.sessionId, 'generated token lookup is role-scoped');
+
+    const rawSentinel = 'RAW-NATIVE-TOKEN-MUST-NOT-LEAK';
+    const rawSafe = resolveSessionIdentity(
+      {
+        LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'codex',
+        LATTICE_OWNER_SESSION_ADAPTER_TASK: `${rawSentinel}-task`,
+        LATTICE_OWNER_SESSION_ADAPTER_AGENT: `${rawSentinel}-agent`,
+        CODEX_SESSION_ID: `${rawSentinel}-session`,
+      },
+      generatedInputs,
+    );
+    assert.equal(JSON.stringify(rawSafe).includes(rawSentinel), false, 'raw native task/session/agent material is absent from adapter output');
+    const generatedRawSafe = resolveSessionIdentity(
+      {
+        LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'fake',
+        LATTICE_OWNER_SESSION_ADAPTER_TASK: `${rawSentinel}-generated-task`,
+        LATTICE_OWNER_SESSION_ADAPTER_AGENT: `${rawSentinel}-generated-agent`,
+        LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY: `${rawSentinel}-generated-boundary`,
+        LATTICE_OWNER_SESSION_ADAPTER_GENERATED: 'true',
+      },
+      generatedInputs,
+    );
+    assert.equal(generatedRawSafe.sessionSource, 'generated-token', 'sentinel generated case reaches the token store');
+    const tokenStoreRoot = join(root, OWNER_SESSION_TOKEN_DIR);
+    const persistedTokenStore = readdirSync(tokenStoreRoot, { withFileTypes: true })
+      .filter(entry => entry.isDirectory())
+      .flatMap(entry => readdirSync(join(tokenStoreRoot, entry.name))
+        .map(file => readFileSync(join(tokenStoreRoot, entry.name, file), 'utf8')))
+      .join('\n');
+    assert.equal(persistedTokenStore.includes(rawSentinel), false, 'persisted token store hashes every raw task/role/boundary lookup dimension');
+
+    // Spawned provider children receive truthful task + role dimensions rather
+    // than the parent owner's canonical id. Only an explicitly allowlisted
+    // external LATTICE_SESSION_ID is preserved.
+    const savedExplicit = process.env.LATTICE_SESSION_ID;
+    process.env.LATTICE_SESSION_ID = 'parent-owner-must-not-collapse-reviewer';
+    const dispatchPolicy = {
+      envAllowlist: [],
+      envDenylist: [],
+      commandAllowlist: [],
+      maxRuntimeMs: 1_000,
+    };
+    const childEnv = buildCanonicalHostRuntimeEnv(dispatchPolicy, 'codex', {
+      taskIdentity: 'dispatch:task-red',
+      agentOrRoleIdentity: 'reviewer',
+      adapterBoundary: 'dispatch-boundary-red',
+    });
+    assert.equal(childEnv.LATTICE_SESSION_ID, undefined, 'spawned reviewer does not inherit the parent owner id accidentally');
+    assert.equal(childEnv.LATTICE_OWNER_SESSION_ADAPTER_TASK, 'dispatch:task-red', 'dispatch propagates its task identity');
+    assert.equal(childEnv.LATTICE_OWNER_SESSION_ADAPTER_AGENT, 'reviewer', 'dispatch propagates its role identity');
+    const childIdentity = resolveSessionIdentity(childEnv, { ...generatedInputs, ppid: 333 });
+    assert.equal(childIdentity.sessionSource, 'host-adapter', 'bounded child dispatch resolves from its validated task + role composite');
+    assert.notEqual(childIdentity.sessionId, 'parent-owner-must-not-collapse-reviewer', 'child role does not collapse to parent ownership');
+    const explicitChildEnv = buildCanonicalHostRuntimeEnv(
+      { ...dispatchPolicy, envAllowlist: ['LATTICE_SESSION_ID'] },
+      'claude-code',
+      {
+        taskIdentity: 'dispatch:task-red',
+        agentOrRoleIdentity: 'reviewer',
+        adapterBoundary: 'dispatch-boundary-red',
+      },
+    );
+    assert.equal(explicitChildEnv.LATTICE_SESSION_ID, 'parent-owner-must-not-collapse-reviewer', 'deliberately allowlisted external override is preserved');
+    if (savedExplicit === undefined) delete process.env.LATTICE_SESSION_ID;
+    else process.env.LATTICE_SESSION_ID = savedExplicit;
 
     // 1e. BOTH env vars absent → deriveLocalSessionId(hostname, root, ppid) is
     // the fallback; sessionSource = derived-ppid. Keep the derive stability /
@@ -230,6 +391,9 @@ try {
     assert.notEqual(idBase, deriveLocalSessionId('host-1', '/repo/.worktrees/B-c55d', 9999), 'a different ppid → a different derived id');
     assert.notEqual(idBase, deriveLocalSessionId('host-1', '/repo/.worktrees/B-other', 4242), 'a different worktree root → a different derived id');
     assert.notEqual(idBase, deriveLocalSessionId('host-2', '/repo/.worktrees/B-c55d', 4242), 'a different hostname → a different derived id');
+    const degradedLines = renderSessionIdentityDiagnostic(rDerived);
+    assert.ok(degradedLines.some(line => line.includes('session identity degraded: derived-ppid')), 'derived-ppid diagnostics label the degradation');
+    assert.ok(degradedLines.some(line => line.includes('LATTICE_SESSION_ID') && line.includes('supported host adapter')), 'degraded diagnostics give actionable override/adapter guidance');
 
     // 1f. The memoized public getter wraps the resolver and stays stable for the
     // process. Set LATTICE_SESSION_ID so sections 2+ have a deterministic owner.
@@ -242,6 +406,40 @@ try {
     assert.equal(getSessionId(), 'sess-alpha', 'getSessionId() stays memoized for the process lifetime');
     process.env.LATTICE_SESSION_ID = 'sess-alpha';
     resetSessionIdForTest();
+  }
+
+  // B-62b8: the first story-scoped mutation on degraded identity warns before
+  // the lease write, then remains quiet for later mutations in this process.
+  {
+    const saved = {
+      LATTICE_SESSION_ID: process.env.LATTICE_SESSION_ID,
+      LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: process.env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER,
+      LATTICE_OWNER_SESSION_ADAPTER_TASK: process.env.LATTICE_OWNER_SESSION_ADAPTER_TASK,
+      LATTICE_OWNER_SESSION_ADAPTER_AGENT: process.env.LATTICE_OWNER_SESSION_ADAPTER_AGENT,
+      LATTICE_OWNER_SESSION_ADAPTER_ROLE: process.env.LATTICE_OWNER_SESSION_ADAPTER_ROLE,
+      LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY: process.env.LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY,
+      LATTICE_OWNER_SESSION_ADAPTER_GENERATED: process.env.LATTICE_OWNER_SESSION_ADAPTER_GENERATED,
+    };
+    for (const name of Object.keys(saved)) delete process.env[name];
+    resetSessionIdForTest();
+    const warnings: string[] = [];
+    const originalWarn = console.warn;
+    console.warn = (...args: unknown[]) => warnings.push(args.map(String).join(' '));
+    try {
+      const degradedStoryDir = join(root, 'degraded-warning-story');
+      acquireOrRefreshOwnerLease(degradedStoryDir, { command: 'checklist_update' });
+      acquireOrRefreshOwnerLease(degradedStoryDir, { command: 'checklist_update' });
+    } finally {
+      console.warn = originalWarn;
+      for (const [name, value] of Object.entries(saved)) {
+        if (value === undefined) delete process.env[name];
+        else process.env[name] = value;
+      }
+      resetSessionIdForTest();
+    }
+    assert.equal(warnings.length, 1, 'derived-ppid warning is emitted only for the first story mutation');
+    assert.ok(warnings[0].includes('session identity degraded: derived-ppid'), 'pre-mutation warning names the degraded source');
+    assert.ok(warnings[0].includes('LATTICE_SESSION_ID') && warnings[0].includes('supported host adapter'), 'pre-mutation warning is actionable');
   }
 
   // ── 2. acquire — schema-complete lease at the canonical path ─────────────

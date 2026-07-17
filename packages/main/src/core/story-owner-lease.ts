@@ -50,6 +50,8 @@ import {
   deriveLocalSessionId,
   getSessionId,
   getSessionIdentity,
+  renderSessionIdentityDiagnostic,
+  warnIfDerivedPpidSessionIdentity,
   normalizeSessionSource,
   resetSessionIdForTest,
   resolveSessionIdentity,
@@ -63,6 +65,7 @@ export {
   deriveLocalSessionId,
   getSessionId,
   getSessionIdentity,
+  renderSessionIdentityDiagnostic,
   resetSessionIdForTest,
   resolveSessionIdentity,
 };
@@ -361,6 +364,7 @@ export function acquireOrRefreshOwnerLease(
   storyDir: string,
   options: OwnerLeaseWriteOptions,
 ): { lease: StoryOwnerLease; action: 'acquired' | 'refreshed' | 'foreign' } {
+  warnIfDerivedPpidSessionIdentity();
   const existing = readOwnerLease(storyDir);
   if (existing === null) {
     return { lease: acquireOwnerLease(storyDir, options), action: 'acquired' };

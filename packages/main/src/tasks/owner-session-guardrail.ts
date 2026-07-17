@@ -55,8 +55,30 @@ assert.deepEqual(
 const adapterPath = join(projectRoot, 'packages/main/src/core/owner-session-adapters.ts');
 assert.equal(existsSync(adapterPath), true, 'owner-session adapter boundary exists');
 
+for (const relPath of [
+  'packages/main/src/handlers/context.ts',
+  'packages/main/src/handlers/transition-orchestrator.ts',
+]) {
+  const content = readFileSync(join(projectRoot, relPath), 'utf8');
+  assert.match(content, /from ['"]\.\.\/core\/owner-session\.js['"]/, `${relPath} imports the shared owner-session resolver`);
+  assert.match(content, /getSessionId\(\)/, `${relPath} consumes the shared canonical owner id`);
+}
+
 const dispatchPath = join(projectRoot, 'packages/main/src/core/lattice-dispatch.ts');
 const dispatch = readFileSync(dispatchPath, 'utf8');
+const envBuilderStart = dispatch.indexOf('export function buildCanonicalHostRuntimeEnv');
+const envBuilderEnd = dispatch.indexOf('function commandTimedOut', envBuilderStart);
+assert.notEqual(envBuilderStart, -1, 'canonical host runtime env builder is exported for deterministic regression coverage');
+assert.notEqual(envBuilderEnd, -1, 'canonical host runtime env builder has a bounded source section');
+const envBuilder = dispatch.slice(envBuilderStart, envBuilderEnd);
+assert.match(envBuilder, /LATTICE_OWNER_SESSION_ADAPTER_TASK\s*=\s*identity\.taskIdentity/, 'child dispatch propagates task identity');
+assert.match(envBuilder, /LATTICE_OWNER_SESSION_ADAPTER_AGENT\s*=\s*identity\.agentOrRoleIdentity/, 'child dispatch propagates agent/role identity');
+assert.match(envBuilder, /delete env\.LATTICE_SESSION_ID/, 'child dispatch removes accidental inherited owner identity');
+assert.doesNotMatch(
+  envBuilder,
+  /LATTICE_OWNER_SESSION_ADAPTER_SESSION\s*=\s*sessionId/,
+  'child dispatch must not collapse every role onto the parent owner session',
+);
 const boundedStart = dispatch.indexOf('function runBoundedRealLeafDispatch');
 const boundedEnd = dispatch.indexOf('function runCodexRealLeafDispatch', boundedStart);
 assert.notEqual(boundedStart, -1, 'runBoundedRealLeafDispatch exists');
@@ -72,5 +94,14 @@ assert.match(
   /runner\(\{[\s\S]*?env: providerEnv,[\s\S]*?\}\)/,
   'bounded codex/gemini provider subprocess must receive providerEnv, not process.env',
 );
+const claudeStart = dispatch.indexOf('function runClaudeCodeRealLeafDispatch');
+const claudeEnd = dispatch.indexOf('function removeScaffoldedOnlyWarnings', claudeStart);
+assert.notEqual(claudeStart, -1, 'runClaudeCodeRealLeafDispatch exists');
+const claudeBody = dispatch.slice(claudeStart, claudeEnd === -1 ? undefined : claudeEnd);
+assert.match(
+  claudeBody,
+  /const commandEnv = buildCanonicalHostRuntimeEnv\(/,
+  'Claude child dispatch uses the same canonical task + role adapter env builder',
+);
 
-console.log('✓ owner-session guardrail passed (raw host session envs confined to adapter/dispatch/test allowlist; bounded providers use canonical env)');
+console.log('✓ owner-session guardrail passed (raw host session envs confined to adapter/dispatch/test allowlist; provider children receive isolated task + role identity)');
