@@ -1,0 +1,163 @@
+{
+  "storyId": "B-10b0",
+  "checkedAt": "2026-07-17T13:19:01.388Z",
+  "features": [
+    {
+      "feature": "Preserve a current code-review receipt across registered nonmaterial closeout metadata writes when materialHash, storyFilesHash, scope, policy, command set, and review round are unchanged.",
+      "covered_by": "CHK-001; plan CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist/plan"
+    },
+    {
+      "feature": "Keep review-retention classification separate from closeout-artifact admissibility; retention never authorizes an artifact.",
+      "covered_by": "CHK-001; plan Outcome/CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan"
+    },
+    {
+      "feature": "Independently validate each closeout artifact's structure, signature, writer provenance, and freshness at its consuming gate.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan CHK-001"
+    },
+    {
+      "feature": "Fail closed for source/story-owned/config/policy/command-set/scope/round drift, unknown writer/path, manual tamper, malformed or unsigned lineage, and HEAD races.",
+      "covered_by": "CHK-001; CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "verificationIntent and plan"
+    },
+    {
+      "feature": "Register any new gate-consumed closeout/review semantic in the process-fact registry and contract verifier.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan CHK-001"
+    },
+    {
+      "feature": "Align delivery reviewer dispatch phase with delivery_check_set mutation phase and enforce one legal cardinality/order.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist/plan"
+    },
+    {
+      "feature": "Converge REVIEW→TEST→DONE with zero metadata-only rollback, extra review re-attestation, human acknowledgement, or unchanged-suite execution.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan Outcome/CHK-002"
+    },
+    {
+      "feature": "Reuse only a fully identity-matched fresh routine/DONE-required PASS; validate:false remains distinct and true failures remain failures.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-002 verificationIntent; routine-validation-fresh-pass-reuse.md"
+    },
+    {
+      "feature": "Use deterministic closeout telemetry/counters to prove one successful closeout and no nested duplicate validation.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-002 verificationIntent"
+    },
+    {
+      "feature": "Classify declaration-preserving function/method body edits as modification rather than deleted symbol.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist/plan"
+    },
+    {
+      "feature": "Preserve true declaration deletion, rename/signature/export drift, overload/scope identity, parser-failure, and residual-reference blockers.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-003 verificationIntent/plan"
+    },
+    {
+      "feature": "Restrict DEV verification to focused lifecycle, closeout-trust, review-run, delivery-dispatch, concept-gate, and process-fact contract checks.",
+      "covered_by": "plan Verification and scope",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan"
+    },
+    {
+      "feature": "Treat the full configured validation suite as TEST/DONE-only and reuse a fresh identity-matched PASS.",
+      "covered_by": "plan Verification and scope; CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan"
+    },
+    {
+      "feature": "No real hosts, network, global lattice, root full suite during DEV, destructive git, remote publish, or user-owned main artifacts.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan Verification and scope; AGENTS.md",
+      "source": "plan exclusion"
+    },
+    {
+      "feature": "No weakening of review quorum/assurance, no automatic reviewer/host/delivery/Authority signatures, and no production-DONE claim.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "CHK-001 separation boundary; generated-metadata auto-closeout non-goals",
+      "source": "bounded related spec"
+    },
+    {
+      "feature": "No Authority Server receipt implementation; lifecycle receipt doc supplies only the independent gate-consumption principle.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "lifecycle-gate-receipt-consumption.md retired legacy note",
+      "source": "bounded related spec"
+    },
+    {
+      "feature": "No full requirements-corpus scan; deterministic candidates and explicit related docs are sufficient for this narrow remediation.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "bounded scope review contract",
+      "source": "candidate routing/read manifest"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+      "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+      "docs/requirements/decisions/review-run-binding-race.md",
+      "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+    ],
+    "filesTriagedByName": [
+      "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+      "packages/main/src/core/agent-dispatch-registry.ts",
+      "packages/main/src/core/closeout-trust.ts",
+      "packages/main/src/core/config.ts",
+      "packages/main/src/core/lifecycle-readiness.ts",
+      "packages/main/src/core/review-run.ts",
+      "packages/main/src/handlers/story-advance.ts",
+      "packages/main/src/handlers/validate-concept.ts",
+      "packages/main/src/handlers/verifier.ts",
+      "packages/main/src/tasks/closeout-trust-smoke.ts",
+      "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+      "packages/main/src/tasks/lifecycle-check-smoke.ts"
+    ],
+    "scanEscalationReason": null,
+    "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+    "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+  },
+  "summary": {
+    "total": 17,
+    "covered": 13,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "d35ca9f74677029dbf3de9e8feacd61d30ecb89e3d068ca9a146d522a09df3f8",
+  "openQuestions": []
+}
