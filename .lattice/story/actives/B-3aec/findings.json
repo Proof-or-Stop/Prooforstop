@@ -5,7 +5,7 @@
       "desc": "packages/main/src/core/candidate-spec-routing.ts:665-670 [HIGH] Protected direct candidates are still sliced by candidateBudget. routeCandidateSpecs assigns related-doc/exact-path/registry-ref/typed-risk/reviewer-evidence score 100, then ranked.slice(0, candidateBudget) drops every protected source beyond the first N. CHK-002 promises that each protected source remains selected even above the frequency threshold; a story with more than eight explicit sources can silently omit required documents. Preserve all protected candidates (or fail/escalate when they exceed the budget) and add an over-budget protected-source test.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-17T09:19:59.442Z",
@@ -13,7 +13,11 @@
       "reviewRunId": "B-3aec:RR-001",
       "_hash": "9d7988b1d224fca5a534ad6ae233d8256b931a76197170a3bd683d79241e086e",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Mandatory protected candidates are selected ahead of the ordinary budget; focused routing smoke proves they survive candidateBudget truncation.",
+      "resolvedAt": "2026-07-17T09:39:26.502Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3aec:F-002",
