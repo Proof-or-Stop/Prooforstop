@@ -99,6 +99,28 @@
         "scanEscalationReason": null
       },
       "_hash": "4bc481c1c8ca4b67e40b1ddc26bfca47dd8c1fe8b295dd39b710e9f057207f2c"
+    },
+    {
+      "id": "B-3aec:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Final narrow quality re-review of commit 62abc146dc found no additional blocker: exact F-019 zero-hit starvation now preserves the later matching candidate, the remaining weak-source escalation is identical without zero-hit terms, and F-020 cross-stream fragments no longer stitch while same-stream split diagnostics still classify.",
+      "createdAt": "2026-07-17T10:15:40.080Z",
+      "reviewRound": "2026-07-17T10:14:00.168Z",
+      "reviewRunId": "B-3aec:RR-014",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ec4d1e81177a23dee38b7c65154d0bc54102ba7bb11bd9d78647359485a71e58"
     }
   ]
 }
