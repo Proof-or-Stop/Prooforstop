@@ -204,7 +204,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'candidate-spec-set.json',
     path: 'candidate-spec-set.json',
     signed: true,
-    signature: 'artifactDigest over proofbound.candidate-spec-set.v1 canonical fields, signed rollout mode, pre-budget document-frequency query filtering, typed protected direct sources and missing diagnostics, ordinary-only cutoff/truncation classification, non-story-metadata changed paths, and freshness bindings',
+    signature: 'artifactDigest over proofbound.candidate-spec-set.v1 canonical fields, signed rollout mode, pre-budget document-frequency and zero-hit query filtering, typed protected direct sources and missing diagnostics, ordinary-only cutoff/truncation classification, non-story-metadata changed paths, and freshness bindings',
     producerCommand: 'candidate_spec_route',
     consumerGate: 'scope_check_save and reviewer read-evidence candidate routing gate',
   },

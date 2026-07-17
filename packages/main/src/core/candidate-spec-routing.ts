@@ -151,7 +151,7 @@ export interface CandidateSpecSetArtifact {
   queryGroups: string[][];
   queryFiltering: {
     maxDocumentFrequencyRatio: number;
-    filteredTerms: Array<{ term: string; documentCount: number; documentFrequencyRatio: number }>;
+    filteredTerms: Array<{ term: string; documentCount: number; documentFrequencyRatio: number; reason: 'overbroad' | 'zero_hits' }>;
   };
   queryTruncation: Array<{
     queryGroup: string[];
@@ -544,16 +544,20 @@ export function routeCandidateSpecs(args: {
     return (documentCounts.get(term) ?? 0) / args.corpus.entries.length > maxDocumentFrequencyRatio;
   };
   const filteredTerms = queryTerms
-    .filter(isOverbroadTerm)
+    .filter(term => isOverbroadTerm(term) || (documentCounts.get(term) ?? 0) === 0)
     .map(term => ({
       term,
       documentCount: documentCounts.get(term) ?? 0,
       documentFrequencyRatio: (documentCounts.get(term) ?? 0) / Math.max(args.corpus.entries.length, 1),
+      reason: isOverbroadTerm(term) ? 'overbroad' as const : 'zero_hits' as const,
     }));
   const queryGroups = queryGroupsFromTerms(
-    unfilteredQueryTerms.filter(term => !isOverbroadTerm(term)),
+    unfilteredQueryTerms.filter(term => !isOverbroadTerm(term) && (documentCounts.get(term) ?? 0) > 0),
     queryGroupBudget,
-  );
+  ).filter(group => args.corpus.entries.some(entry => {
+    const haystack = searchableByPath.get(entry.path) ?? '';
+    return group.every(term => haystack.includes(term));
+  }));
   const relatedSources: NonNullable<StoryRoutingInput['protectedSources']> = args.seeds.seeds
     .filter(seed => seed.source === 'relatedDoc')
     .map(seed => ({ kind: 'related-doc', path: seed.term.split('#')[0], sourceRef: seed.sourceRef }));
@@ -683,7 +687,7 @@ export function routeCandidateSpecs(args: {
   const rankingAffectingTruncation = queryTruncation.some(row => row.classification === 'ranking_affecting');
 
   const ambiguitySignals: string[] = [];
-  const genericOnlyFiltered = ranked.length === 0 && filteredTerms.length > 0 && queryGroups.length === 0;
+  const genericOnlyFiltered = ranked.length === 0 && filteredTerms.some(term => term.reason === 'overbroad') && queryGroups.length === 0;
   if (ranked.length === 0 && !genericOnlyFiltered) ambiguitySignals.push('zero_candidates');
   if (genericOnlyFiltered) ambiguitySignals.push('generic_only_filtered_bounded');
   const ordinaryReasonKinds = new Set(ordinaryRanked.flatMap(candidate => candidate.reasons.map(reason => reason.kind)));
@@ -761,6 +765,13 @@ export function verifyCandidateSpecSet(artifact: CandidateSpecSetArtifact): bool
   const { artifactDigest, ...base } = artifact;
   if (artifact.schemaVersion !== CANDIDATE_SET_SCHEMA) return false;
   if (artifact.mode !== 'shadow' && artifact.mode !== 'warn' && artifact.mode !== 'enforce') return false;
+  if (!artifact.queryFiltering || !Array.isArray(artifact.queryFiltering.filteredTerms)) return false;
+  for (const term of artifact.queryFiltering.filteredTerms) {
+    if (!term || typeof term.term !== 'string' || !Number.isInteger(term.documentCount) || term.documentCount < 0) return false;
+    if (!Number.isFinite(term.documentFrequencyRatio) || term.documentFrequencyRatio < 0 || term.documentFrequencyRatio > 1) return false;
+    if (term.reason !== 'overbroad' && term.reason !== 'zero_hits') return false;
+    if ((term.reason === 'zero_hits') !== (term.documentCount === 0)) return false;
+  }
   if (!artifact.protectedRouting || !Array.isArray(artifact.protectedRouting.selectedPaths) || !Array.isArray(artifact.protectedRouting.missing)) return false;
   if (!Array.isArray(artifact.queryTruncation)) return false;
   for (const row of artifact.queryTruncation) {

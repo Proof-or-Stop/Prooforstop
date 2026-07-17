@@ -2957,6 +2957,20 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     singleChunk.child.stdout.emit('data', `authentication required: please login\n${'x'.repeat(70 * 1024)}`);
     singleChunk.child.emit('close', 1, null);
     assert.equal((await singleChunkPromise).failureKind, 'auth', 'a diagnostic at the start of one oversized delivered chunk is classified before only the bounded boundary tail is retained');
+
+    const crossStream = deterministicHostRuntime();
+    const crossStreamPromise = defaultHostRunRunner({ command: 'fake-host', argv: [], env: process.env, cwd: process.cwd() }, crossStream.runtime);
+    crossStream.child.stdout.emit('data', 'auth');
+    crossStream.child.stderr.emit('data', 'entication required');
+    crossStream.child.emit('close', 1, null);
+    assert.notEqual((await crossStreamPromise).failureKind, 'auth', 'stdout and stderr fragments are never concatenated into a fabricated authentication diagnostic');
+
+    const sameStream = deterministicHostRuntime();
+    const sameStreamPromise = defaultHostRunRunner({ command: 'fake-host', argv: [], env: process.env, cwd: process.cwd() }, sameStream.runtime);
+    sameStream.child.stdout.emit('data', 'auth');
+    sameStream.child.stdout.emit('data', 'entication required');
+    sameStream.child.emit('close', 1, null);
+    assert.equal((await sameStreamPromise).failureKind, 'auth', 'split diagnostic chunks remain recognizable within one stream');
   });
 
   await checkAsync('B-3aec deterministic race schedules settle once, kill at most once, and clean timers/listeners', async () => {

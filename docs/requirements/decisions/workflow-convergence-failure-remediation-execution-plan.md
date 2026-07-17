@@ -260,13 +260,14 @@ B-3aec implements this workstream at the existing shared boundaries:
   first-output and total-duration diagnostics; timeout/abort settlement waits
   for child close before the existing `finally` releases capacity. Auth and
   interactive diagnostics are classified incrementally from both stdout and
-  stderr into bounded sticky state (`missing executable > auth > interactive >
+  stderr into independent per-stream bounded sticky state (`missing executable > auth > interactive >
   wrong launcher > timeout > generic`), so a later output tail cannot erase an
-  earlier actionable diagnosis;
+  earlier actionable diagnosis and fragments from different streams can never
+  combine into a false diagnosis;
 - the existing `maxDocumentFrequencyRatio` filter remains authoritative.
   Document-frequency filtering occurs before the query-group budget is spent,
-  so generic groups cannot starve a later specific term; filtered terms remain
-  in signed audit metrics.
+  so generic or zero-hit groups cannot starve a later matching specific term;
+  overbroad and zero-hit terms remain typed in signed audit metrics.
   Truncation artifacts now record query group, retained/omitted counts, omitted
   maximum score, and selected cutoff; raw overflow escalates only when an
   omitted candidate can enter or tie the bounded selection;

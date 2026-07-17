@@ -389,7 +389,7 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     assert.equal(boundaryRow, undefined, 'exactly 2/5 stays eligible at the 0.4 boundary despite duplicate occurrences');
     assert.deepEqual(aboveRow && { count: aboveRow.documentCount, ratio: aboveRow.documentFrequencyRatio }, { count: 3, ratio: 0.6 });
     for (let index = 0; index < 5; index += 1) {
-      writeFileSync(join(dfRoot, `docs/requirements/decisions/df-${index}.md`), `# DF ${index}\n${Array.from({ length: 12 }, (_, term) => `generic${String(term).padStart(2, '0')}`).join(' ')}${index === 4 ? ' zzspecificsurvivor' : ''}\n`);
+      writeFileSync(join(dfRoot, `docs/requirements/decisions/df-${index}.md`), `# DF ${index}\n${Array.from({ length: 12 }, (_, term) => `generic${String(term).padStart(2, '0')}`).join(' ')}${index === 0 ? ' firstonlyterm' : ''}${index === 4 ? ' zzspecificsurvivor' : ''}\n`);
     }
     const starvationCorpus = buildCorpusIndex(dfRoot);
     const starvationRoute = routeCandidateSpecs({
@@ -406,6 +406,26 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     assert.ok(starvationRoute.queryFiltering.filteredTerms.length >= 12, 'generic terms are audited even though they do not spend query budget');
     assert.deepEqual(starvationRoute.queryGroups, [['zzspecificsurvivor']], 'specific term receives budget after generic DF filtering');
     assert.ok(starvationRoute.candidateSpecSet.includes('docs/requirements/decisions/df-4.md'), 'specific candidate survives >budget generic seeds');
+    const zeroHitStarvation = routeCandidateSpecs({
+      projectRoot: dfRoot,
+      storyId: story.storyId,
+      corpus: starvationCorpus,
+      seeds: buildKeywordSeeds({
+        storyId: story.storyId,
+        keywords: [...Array.from({ length: 12 }, (_, index) => `aaazerohit${String(index).padStart(2, '0')}`), 'zzspecificsurvivor'],
+      }),
+      queryGroupBudget: 2,
+      maxDocumentFrequencyRatio: 1,
+    });
+    assert.deepEqual(zeroHitStarvation.queryGroups, [['zzspecificsurvivor']], 'many ordered zero-hit groups do not spend budget before a later rare matching term');
+    assert.equal(zeroHitStarvation.queryFiltering.filteredTerms.filter(term => term.reason === 'zero_hits').length, 12, 'every skipped zero-hit term remains in deterministic signed audit metrics');
+    assert.ok(zeroHitStarvation.candidateSpecSet.includes('docs/requirements/decisions/df-4.md'));
+    const emptyIntersection = routeCandidateSpecs({
+      projectRoot: dfRoot, storyId: story.storyId, corpus: starvationCorpus,
+      seeds: buildKeywordSeeds({ storyId: story.storyId, keywords: ['firstonlyterm', 'zzspecificsurvivor'] }),
+      queryGroupBudget: 3, maxDocumentFrequencyRatio: 1,
+    });
+    assert.deepEqual(emptyIntersection.queryGroups, [['firstonlyterm'], ['zzspecificsurvivor']], 'a generated multi-term group with no intersection does not consume spare budget');
     rmSync(dfRoot, { recursive: true, force: true });
 
     const protectedKinds = ['related-doc', 'exact-path', 'registry-ref', 'typed-risk', 'reviewer-evidence'] as const;

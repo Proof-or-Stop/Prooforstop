@@ -1126,7 +1126,7 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
     let totalTimer: NodeJS.Timeout | null = null;
     let abortListener: (() => void) | null = null;
     let retainedStderr = '';
-    let classificationTail = '';
+    const classificationTail: Record<HostRunChunk['stream'], string> = { stdout: '', stderr: '' };
     let failureKind: HostExecutionFailureKind = 'none';
     let asyncSpawnError = false;
     let child: ReturnType<typeof spawn> | null = null;
@@ -1233,11 +1233,11 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
       if (startupTimer) cancel(startupTimer);
       startupTimer = null;
     };
-    const observeFailureText = (text: string): void => {
+    const observeFailureText = (stream: HostRunChunk['stream'], text: string): void => {
       if (!text) return;
-      const combined = `${classificationTail}${text}`;
+      const combined = `${classificationTail[stream]}${text}`;
       const observed = classifyHostExecutionDiagnosticText(combined);
-      classificationTail = combined.slice(-HOST_RUN_FAILURE_CLASSIFICATION_WINDOW);
+      classificationTail[stream] = combined.slice(-HOST_RUN_FAILURE_CLASSIFICATION_WINDOW);
       if (observed) {
         failureKind = preferredHostFailure(failureKind, observed);
       }
@@ -1264,7 +1264,7 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
     stdoutHandler = (text: string) => {
       if (text.length > 0) markFirstOutput();
       deliver({ stream: 'stdout', text });
-      observeFailureText(text);
+      observeFailureText('stdout', text);
       scanner.push(text);
       // B-3ddc: the failure lane sees the same live text; delivery above is
       // untouched (the lane only keeps a bounded copy, never suppresses).
@@ -1276,7 +1276,7 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
       if (text.length > 0) markFirstOutput();
       retainedStderr = `${retainedStderr}${text}`.slice(-HOST_RUN_FAILURE_TEXT_CAP);
       deliver({ stream: 'stderr', text });
-      observeFailureText(text);
+      observeFailureText('stderr', text);
     };
     child.stderr?.on('data', stderrHandler);
 
