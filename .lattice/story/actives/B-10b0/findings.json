@@ -485,6 +485,25 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-10b0:F-022",
+      "desc": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts:199-286 [MEDIUM] The consolidated transaction matrix now fully covers successful three-file commit, hook/receipt failure rollback, and unrelated staged preservation, but it has no deterministic concurrent-HEAD case for the new commitValidationReuseMetadataTransaction. This leaves the open F-021 regression unguarded: ordinary git commit can install on a newer parent after oldHead capture, and the subsequent rollback can rewind the concurrent advancement. Add a before-CAS/HEAD-advance seam that proves the concurrent commit remains HEAD, no canonical PASS is visible to StoryStore/HEAD, all three managed worktree/index states restore exactly, unrelated staged blob remains byte-identical, and no post-commit success signal is emitted.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-17T21:52:16.224Z",
+      "reviewRound": "2026-07-17T21:48:57.432Z",
+      "reviewRunId": "B-10b0:RR-041",
+      "_hash": "801740ef6e5fec1d78d2f0815318fcd237c4fa871fd41053db727ffc21099f93",
+      "files": [
+        "packages/main/src/core/auto-commit-metadata.ts",
+        "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+      ],
+      "signatureTag": "validation-reuse|cas|coverage",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
