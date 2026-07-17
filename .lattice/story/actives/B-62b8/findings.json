@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-62b8:F-001",
+      "desc": "packages/main/src/core/owner-session-token-store.ts:41-65,119-132 and packages/main/src/handlers/doctor.ts:279-286,490-494 — HIGH: generated-token storage has no lifecycle cleanup or doctor inspection/repair, despite the ratified contract R3 requiring storage ownership, cleanup, and doctor visibility. The writer publishes directly to the final path with flag wx; a partial/corrupt final file is treated as unreadable, then every retry gets EEXIST and rethrows forever. Repro on current dist: create one token, replace its JSON with {partial, then call readOrCreateOwnerSessionToken for the same dimensions => ERROR_CODE=EEXIST. This can permanently brick a supported generated-token boundary until an undocumented manual deletion, and tokens otherwise accumulate without expiry/owner-scoped cleanup.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-17T23:30:33.453Z",
+      "reviewRound": "2026-07-17T23:28:37.387Z",
+      "reviewRunId": "B-62b8:RR-002",
+      "_hash": "6e952d96f17f41d433252af322ed6f3b3123f1615afadad9efc16c23609b495a",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
