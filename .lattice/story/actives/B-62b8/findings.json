@@ -44,6 +44,21 @@
       "_hash": "c2e469810830cb398a196cded8c2ede05006912976be2df0ff51c47d21effd3c",
       "signatureTag": "missing|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-62b8:F-004",
+      "desc": "docs/requirements/decisions/owner-session-contract-execution-plan.md:397-404 and 445-461 require a post-implementation R5 run on at least two real hosts and explicitly state that pre-implementation document reviews do not satisfy it. CHK-002 currently binds every supported-host intent only to deterministic logic/smoke tests on a175883c, while the two real-host records in CHK-004 are pre-runtime document reviews. WHY: the story cannot yet claim that the implemented Codex/Claude/agy bridges work in their real launch environments, and the missing real-host run is exactly where the live Codex-variable mismatch escaped. Run the final implementation on two independent real providers (including the actual direct owner-task path), bind exact post-implementation HEAD/material/storyFiles hashes, and keep degraded ppid as the required negative control.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-17T23:31:01.205Z",
+      "reviewRound": "2026-07-17T23:28:37.387Z",
+      "reviewRunId": "B-62b8:RR-001",
+      "_hash": "55811d1d43549f1d17008a929f69f42dc801e7f29a05c392f45c4c3b1f76ef82",
+      "signatureTag": "missing|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
