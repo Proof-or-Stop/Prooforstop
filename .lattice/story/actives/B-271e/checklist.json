@@ -9,7 +9,7 @@
         "docs/requirements/decisions/testing-completeness.md",
         "AGENTS.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-16T23:35:51.690Z",
       "endTime": "2026-07-16T23:45:28.552Z",
       "userSees": "Contradictory input prints `Blocked [delivery_promise_outcome_contradiction]: status=unverified cannot include verifiedBy; delivery-check was not written.` Valid verified/met/waived and documented legacy inputs still save and DONE readiness consumes the same normalized outcome.",
@@ -375,6 +375,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Environment-selected verifier seams removed; bounded AST guard and capability-limited lock proof committed and targeted verification passed.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-17T00:06:52.495Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Fix REVIEW findings F-001/F-006: exact authority table, generated matrix, and no-write contradictions.",
       "agent": "lattice-implementer"
     }
   ]
