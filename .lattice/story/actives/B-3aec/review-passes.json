@@ -257,6 +257,29 @@
         "scanEscalationReason": null
       },
       "_hash": "7beeb3b21b063a644ddccabd25983b3550cf4fcf33b18427b276ff4015fc08c3"
+    },
+    {
+      "id": "B-3aec:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final closeout-aware test re-attestation. Canonical routine validation remains PASS/executed with 46 commands, identity digest f7ba5d719b47a5da16804ca1b84632485a42ad200b0eea2bc601393ac3d84ec7, policy digest fac09eadf4547ec947e00d9ba3df2c24972f3529a77881eea583995f7d1731b3. DONE-required validation is PASS for 2 required commands at 2026-07-17T10:33:53.690Z. Read-only lifecycle projection also reports PASS for the live-smoke transcript, story summary, and degraded fallback/review-assurance floor. Current materialHash 8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4 and storyFilesHash 12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8 match the reviewed 62abc146dc implementation despite closeout metadata HEAD movement. Checklist and canonical validation report 22 required, 22 covered/passing, 0 missing/failing. No suite rerun, broad scan, real host, network, lifecycle mutation, or OMX action was used.",
+      "createdAt": "2026-07-17T10:41:02.239Z",
+      "reviewRound": "2026-07-17T10:39:37.375Z",
+      "reviewRunId": "B-3aec:RR-021",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5bfca5b5dd654175ee1be562d7a898e285cdad19bbbec6b9b747cd862dedb295"
     }
   ]
 }
