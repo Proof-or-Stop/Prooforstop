@@ -237,9 +237,11 @@
       "q": "Will the required three parent-PID manual transcripts be completed before runtime implementation, or will the canonical contract be amended?",
       "evidence": "The canonical document requires two continuity transcripts plus one degraded comparison before runtime implementation; checklist and plan do not schedule them before code.",
       "sourcePointers": [
-        "owner-session-contract-execution-plan.md#manual-transcript-evidence",
-        "plan.md CHK-003"
-      ]
+        "CHK-004",
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md#Manual-Transcript-Evidence"
+      ],
+      "resolution": "Yes. CHK-004 must record both different parent-PID-changing continuity shapes with one preserved canonical owner id and the no-env/no-adapter/no-generated-token degraded comparison after the final document commit and before CHK-001 through CHK-003 runtime work.",
+      "resolvedAt": "2026-07-17T23:04:06.274Z"
     },
     {
       "id": "OQ-B62B8-003",
