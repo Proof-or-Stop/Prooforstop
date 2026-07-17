@@ -255,9 +255,9 @@
         "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
         "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-17T14:01:49.434Z",
-      "endTime": "2026-07-17T16:34:53.532Z",
+      "endTime": "2026-07-17T19:56:54.812Z",
       "verificationIntent": {
         "happy": [
           {
@@ -855,6 +855,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Formal TEST guard failure fixed by reviewed structural fingerprint refresh; guard and closeout integration smoke pass on current material.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-17T19:56:54.812Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "DONE-required worktree harness now uses canonical bin/lattice.js; the prompt baseline and unknown-role probe pass on current material.",
       "agent": "lattice-implementer"
     }
   ]
