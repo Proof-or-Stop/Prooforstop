@@ -9,9 +9,9 @@
         "docs/requirements/decisions/host-overflow.md",
         "AGENTS.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-17T09:16:25.331Z",
       "verificationIntent": {
         "happy": [
           {
@@ -93,7 +93,119 @@
           "packages/main/src/tasks/host-run-usage-smoke.ts",
           "packages/main/src/tasks/review-host-execution-readiness-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Current implementation commit e74d3d39ed: readiness zero-spawn matrix, stderr-first productive child, silent startup timeout, early-output total timeout, abort/close settlement, cap=1 immediate reacquisition, timeoutKind/terminalReason/firstOutputMs/durationMs, and existing host-run race/slot checks all passed without real external hosts.",
+          "headHash": "e74d3d39ed4b471c1a953db1b3cbbfadf5c3162e",
+          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
+          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
+          "timestamp": "2026-07-17T09:16:25.544Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Current implementation commit e74d3d39ed: readiness zero-spawn matrix, stderr-first productive child, silent startup timeout, early-output total timeout, abort/close settlement, cap=1 immediate reacquisition, timeoutKind/terminalReason/firstOutputMs/durationMs, and existing host-run race/slot checks all passed without real external hosts.",
+          "headHash": "e74d3d39ed4b471c1a953db1b3cbbfadf5c3162e",
+          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
+          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
+          "timestamp": "2026-07-17T09:16:25.700Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Current implementation commit e74d3d39ed: readiness zero-spawn matrix, stderr-first productive child, silent startup timeout, early-output total timeout, abort/close settlement, cap=1 immediate reacquisition, timeoutKind/terminalReason/firstOutputMs/durationMs, and existing host-run race/slot checks all passed without real external hosts.",
+          "headHash": "e74d3d39ed4b471c1a953db1b3cbbfadf5c3162e",
+          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
+          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
+          "timestamp": "2026-07-17T09:16:25.862Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Current implementation commit e74d3d39ed: readiness zero-spawn matrix, stderr-first productive child, silent startup timeout, early-output total timeout, abort/close settlement, cap=1 immediate reacquisition, timeoutKind/terminalReason/firstOutputMs/durationMs, and existing host-run race/slot checks all passed without real external hosts.",
+          "headHash": "e74d3d39ed4b471c1a953db1b3cbbfadf5c3162e",
+          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
+          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
+          "timestamp": "2026-07-17T09:16:26.061Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Current implementation commit e74d3d39ed: readiness zero-spawn matrix, stderr-first productive child, silent startup timeout, early-output total timeout, abort/close settlement, cap=1 immediate reacquisition, timeoutKind/terminalReason/firstOutputMs/durationMs, and existing host-run race/slot checks all passed without real external hosts.",
+          "headHash": "e74d3d39ed4b471c1a953db1b3cbbfadf5c3162e",
+          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
+          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
+          "timestamp": "2026-07-17T09:16:26.262Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Current implementation commit e74d3d39ed: readiness zero-spawn matrix, stderr-first productive child, silent startup timeout, early-output total timeout, abort/close settlement, cap=1 immediate reacquisition, timeoutKind/terminalReason/firstOutputMs/durationMs, and existing host-run race/slot checks all passed without real external hosts.",
+          "headHash": "e74d3d39ed4b471c1a953db1b3cbbfadf5c3162e",
+          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
+          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
+          "timestamp": "2026-07-17T09:16:26.453Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Current implementation commit e74d3d39ed: readiness zero-spawn matrix, stderr-first productive child, silent startup timeout, early-output total timeout, abort/close settlement, cap=1 immediate reacquisition, timeoutKind/terminalReason/firstOutputMs/durationMs, and existing host-run race/slot checks all passed without real external hosts.",
+          "headHash": "e74d3d39ed4b471c1a953db1b3cbbfadf5c3162e",
+          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
+          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
+          "timestamp": "2026-07-17T09:16:26.649Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Current implementation commit e74d3d39ed: readiness zero-spawn matrix, stderr-first productive child, silent startup timeout, early-output total timeout, abort/close settlement, cap=1 immediate reacquisition, timeoutKind/terminalReason/firstOutputMs/durationMs, and existing host-run race/slot checks all passed without real external hosts.",
+          "headHash": "e74d3d39ed4b471c1a953db1b3cbbfadf5c3162e",
+          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
+          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
+          "timestamp": "2026-07-17T09:16:26.834Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Current implementation commit e74d3d39ed: readiness zero-spawn matrix, stderr-first productive child, silent startup timeout, early-output total timeout, abort/close settlement, cap=1 immediate reacquisition, timeoutKind/terminalReason/firstOutputMs/durationMs, and existing host-run race/slot checks all passed without real external hosts.",
+          "headHash": "e74d3d39ed4b471c1a953db1b3cbbfadf5c3162e",
+          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
+          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
+          "timestamp": "2026-07-17T09:16:27.006Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:4",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Current implementation commit e74d3d39ed: readiness zero-spawn matrix, stderr-first productive child, silent startup timeout, early-output total timeout, abort/close settlement, cap=1 immediate reacquisition, timeoutKind/terminalReason/firstOutputMs/durationMs, and existing host-run race/slot checks all passed without real external hosts.",
+          "headHash": "e74d3d39ed4b471c1a953db1b3cbbfadf5c3162e",
+          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
+          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
+          "timestamp": "2026-07-17T09:16:27.205Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
