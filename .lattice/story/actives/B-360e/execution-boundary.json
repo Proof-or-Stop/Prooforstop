@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-360e",
+  "allowedCommands": [
+    "find *",
+    "git add",
+    "git commit",
+    "git diff",
+    "git status",
+    "lattice *",
+    "node *",
+    "npm --prefix packages/main *",
+    "npm test",
+    "rg *",
+    "shasum *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Lattice CLI",
+    "shell"
+  ],
+  "allowedPaths": [
+    "docs/requirements/baselines",
+    "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+    "packages/main/src/cli",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git clean -fd",
+    "git push",
+    "git reset --hard",
+    "omx"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".claude/agents",
+    ".lattice-codex/agents",
+    "packages/main/templates/agents"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "Story 1 may add baseline machinery and tests but must not rewrite any role Prompt body.",
+  "createdAt": "2026-07-17T23:42:14.413Z",
+  "updatedAt": "2026-07-17T23:42:14.413Z",
+  "_hash": "45059ab101bcf74772f826f5d1d1732a7ab8096c19ff95df4c9fa8f59cfa64e5"
+}

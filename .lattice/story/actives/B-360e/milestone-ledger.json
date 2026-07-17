@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-360e",
+  "state": "candidate",
+  "ledgerHash": "sha256:2946e4d7be4e974e3d4c1ac5d14ce6c2fe08f51edde4a6809d802614575d687f",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "PLAN-S1-CONTRACTS",
+      "claim": "Versioned prompt contracts and pinned deterministic algorithms exist.",
+      "doneMeans": "Focused tests validate all four structures, canonical digests, line/byte/token and repetition versions, with no Story-bound envelope emitted.",
+      "requiredEvidence": [
+        "logic-test"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "PLAN-S1-ROLE-REGISTRY",
+      "claim": "The canonical 16-role lifecycle matrix is explicit without behavior drift.",
+      "doneMeans": "Exactly 16 roles are classified active/compatibility/retired with required replacements/defaultDispatch and no dispatch behavior change.",
+      "requiredEvidence": [
+        "logic-test",
+        "baseline-check"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "PLAN-S1-MEASUREMENT",
+      "claim": "A reproducible, honest three-layer prompt measurement report is available.",
+      "doneMeans": "The read-only command and sidecar report per-role/aggregate metrics and mark unobserved known/provider inputs unavailable rather than zero.",
+      "requiredEvidence": [
+        "cli",
+        "artifact"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "PLAN-S1-NO-DRIFT",
+      "claim": "All 16 existing prompt outputs remain byte-identical and new facts fail closed.",
+      "doneMeans": "The existing baseline and new mutation probes pass without changing approved output hashes.",
+      "requiredEvidence": [
+        "baseline-check",
+        "mutation-test"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-17T23:42:14.413Z",
+  "updatedAt": "2026-07-17T23:42:14.413Z"
+}
