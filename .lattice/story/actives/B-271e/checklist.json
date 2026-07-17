@@ -44,7 +44,7 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "A product-reviewer delivery_check_set with canonical status=verified or status=met, non-empty verifiedBy, and required evidence normalizes to one PASS envelope, persists a signed delivery check, and is accepted by both lifecycle readiness and the DONE oracle.",
+            "desc": "A lattice-review-delivery reviewer delivery_check_set with canonical status=verified or status=met, non-empty verifiedBy, and required evidence normalizes to one PASS envelope, persists a signed delivery check, and is accepted by both lifecycle readiness and the DONE oracle.",
             "type": "cli",
             "priority": "must"
           },
