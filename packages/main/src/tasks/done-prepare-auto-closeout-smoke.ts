@@ -296,6 +296,22 @@ async function withEnv<T>(patch: Record<string, string>, fn: () => Promise<T>): 
   }
 }
 
+function withEnvSync<T>(patch: Record<string, string>, fn: () => T): T {
+  const previous = new Map<string, string | undefined>();
+  for (const [key, value] of Object.entries(patch)) {
+    previous.set(key, process.env[key]);
+    process.env[key] = value;
+  }
+  try {
+    return fn();
+  } finally {
+    for (const [key, value] of previous) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  }
+}
+
 function installCommandSpy(observed: string[]): () => void {
   const originalExecFileSync = childProcess.execFileSync;
   const originalExecSync = childProcess.execSync;
@@ -797,6 +813,12 @@ function temporaryIndexGit(root: string, indexFile: string, args: string[]): str
   }).trim();
 }
 
+function installHook(root: string, name: string, body: string): void {
+  const path = join(root, '.git', 'hooks', name);
+  writeFileSync(path, `#!/bin/sh\nset -eu\n${body}\n`, 'utf8');
+  chmodSync(path, 0o755);
+}
+
 function assertIsolatedTreeExcludesSharedIndexRaces(): void {
   const candidate = isolatedCommitCandidate();
   const { root, storyId, processEventsPath, baseline, expected } = candidate;
@@ -806,7 +828,7 @@ function assertIsolatedTreeExcludesSharedIndexRaces(): void {
     const readmeBlob = git(root, ['rev-parse', ':README.md']);
     const parent = git(root, ['rev-parse', 'HEAD']);
     let temporaryIndexFile = '';
-    const result = commitDonePrepareGeneratedMetadata({
+    const result = withEnvSync(gitIdentityEnv(), () => commitDonePrepareGeneratedMetadata({
       root,
       gitCwd: root,
       storyId,
@@ -820,9 +842,14 @@ function assertIsolatedTreeExcludesSharedIndexRaces(): void {
           git(root, ['add', 'late-unrelated.txt']);
         },
       },
-    });
+    }));
     assert.equal(result.ok, true, result.reason);
     assert.equal(existsSync(temporaryIndexFile), false, 'successful isolated commit removes its temporary index');
+    assert.equal(git(root, ['rev-parse', 'HEAD^']), parent, 'isolated commit retains the captured parent');
+    assert.equal(git(root, ['log', '-1', '--pretty=%s']), AUTO_CLOSE_MESSAGE, 'default commit message is unchanged');
+    assert.equal(git(root, ['log', '-1', '--pretty=%an <%ae>|%cn <%ce>']),
+      'done-prepare-auto-closeout-smoke <done-prepare-auto-closeout-smoke@example.test>|done-prepare-auto-closeout-smoke <done-prepare-auto-closeout-smoke@example.test>',
+      'commit-tree retains configured author and committer identities');
     assert.deepEqual(
       git(root, ['diff', '--name-only', `${parent}..HEAD`]).split('\n').filter(Boolean),
       [processEventsPath],
@@ -841,6 +868,8 @@ function assertConcurrentHeadCasRefusesAndPreservesIndex(): void {
   const candidate = isolatedCommitCandidate();
   const { root, storyId, baseline, expected, validContent, processEventsPath } = candidate;
   try {
+    const postCommitMarker = join(root, 'post-commit-ran');
+    installHook(root, 'post-commit', `printf 'ran\\n' > '${postCommitMarker}'`);
     write(root, 'README.md', '# unrelated staged before CAS failure\n');
     git(root, ['add', 'README.md']);
     const readmeBlob = git(root, ['rev-parse', ':README.md']);
@@ -870,6 +899,7 @@ function assertConcurrentHeadCasRefusesAndPreservesIndex(): void {
       },
     });
     assert.equal(result.ok, false);
+    assert.equal(existsSync(postCommitMarker), false, 'post-commit does not run when CAS fails');
     assert.equal(existsSync(temporaryIndexFile), false, 'CAS refusal removes its temporary index');
     assert.match(result.reason ?? '', /HEAD changed.*CAS/);
     assert.equal(git(root, ['log', '-1', '--pretty=%s']), 'concurrent head advance');
@@ -914,6 +944,110 @@ function assertIsolatedIndexPathSetIsExact(): void {
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
+  }
+}
+
+function assertCommitMessageHooksAndPostCommitSemantics(): void {
+  const candidate = isolatedCommitCandidate();
+  const { root, storyId, baseline, expected } = candidate;
+  try {
+    const marker = join(root, 'post-commit-ran');
+    installHook(root, 'prepare-commit-msg', [
+      'test "$2" = "message"',
+      'test -f "$GIT_INDEX_FILE"',
+      'printf "hook-edited closeout message\\n" > "$1"',
+    ].join('\n'));
+    installHook(root, 'commit-msg', 'grep -q "^hook-edited closeout message$" "$1"');
+    installHook(root, 'post-commit', [
+      'test -f "$GIT_INDEX_FILE"',
+      `printf 'ran\\n' > '${marker}'`,
+    ].join('\n'));
+    const parent = git(root, ['rev-parse', 'HEAD']);
+    const result = commitDonePrepareGeneratedMetadata({
+      root,
+      gitCwd: root,
+      storyId,
+      storyDirRel: '.lattice/story/actives',
+      baseline,
+      expectedProcessEventBinding: expected,
+    });
+    assert.equal(result.ok, true, result.reason);
+    assert.equal(git(root, ['rev-parse', 'HEAD^']), parent);
+    assert.equal(git(root, ['log', '-1', '--pretty=%s']), 'hook-edited closeout message');
+    assert.equal(readFileSync(marker, 'utf8'), 'ran\n', 'post-commit runs only after successful CAS');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertCommitMsgRejectionIsFailClosed(): void {
+  const candidate = isolatedCommitCandidate();
+  const { root, storyId, baseline, expected, validContent, processEventsPath } = candidate;
+  try {
+    installHook(root, 'commit-msg', 'echo rejected commit message >&2\nexit 1');
+    const parent = git(root, ['rev-parse', 'HEAD']);
+    let temporaryIndexFile = '';
+    const result = commitDonePrepareGeneratedMetadata({
+      root,
+      gitCwd: root,
+      storyId,
+      storyDirRel: '.lattice/story/actives',
+      baseline,
+      expectedProcessEventBinding: expected,
+      testHooks: {
+        afterAddBeforeCommit: (indexFile) => {
+          temporaryIndexFile = indexFile;
+        },
+      },
+    });
+    assert.equal(result.ok, false);
+    assert.match(result.reason ?? '', /commit-msg hook failed.*rejected commit message/);
+    assert.equal(git(root, ['rev-parse', 'HEAD']), parent);
+    assert.equal(readFileSync(join(root, processEventsPath), 'utf8'), validContent);
+    assert.equal(git(root, ['diff', '--cached', '--name-only']), '', 'commit-msg rejection leaves real index unchanged');
+    assert.equal(existsSync(temporaryIndexFile), false, 'commit-msg rejection cleans temporary assets');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertSigningConfigPropagatesAndFailsClosed(): void {
+  const candidate = isolatedCommitCandidate();
+  const { root, storyId, baseline, expected, validContent, processEventsPath } = candidate;
+  try {
+    git(root, ['config', 'commit.gpgSign', 'true']);
+    git(root, ['config', 'gpg.format', 'ssh']);
+    git(root, ['config', 'user.signingKey', join(root, 'missing-signing-key')]);
+    const parent = git(root, ['rev-parse', 'HEAD']);
+    let observedArgs: string[] = [];
+    let observedSigning: { enabled: boolean; key?: string; format?: string } | undefined;
+    const result = commitDonePrepareGeneratedMetadata({
+      root,
+      gitCwd: root,
+      storyId,
+      storyDirRel: '.lattice/story/actives',
+      baseline,
+      expectedProcessEventBinding: expected,
+      testHooks: {
+        beforeCommitTree: (args, signing) => {
+          observedArgs = [...args];
+          observedSigning = signing;
+        },
+      },
+    });
+    assert.equal(result.ok, false, 'required signing with a missing key must fail closed');
+    assert.match(result.reason ?? '', /isolated generated metadata commit failed/);
+    assert.deepEqual(observedSigning, {
+      enabled: true,
+      key: join(root, 'missing-signing-key'),
+      format: 'ssh',
+    });
+    assert.ok(observedArgs.includes(`-S${join(root, 'missing-signing-key')}`), 'commit-tree receives configured signing key');
+    assert.equal(git(root, ['rev-parse', 'HEAD']), parent);
+    assert.equal(readFileSync(join(root, processEventsPath), 'utf8'), validContent);
+    assert.equal(git(root, ['diff', '--cached', '--name-only']), '', 'signing failure leaves real index unchanged');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
   }
 }
 
@@ -1088,6 +1222,9 @@ void (async () => {
     assertIsolatedTreeExcludesSharedIndexRaces();
     assertConcurrentHeadCasRefusesAndPreservesIndex();
     assertIsolatedIndexPathSetIsExact();
+    assertCommitMessageHooksAndPostCommitSemantics();
+    assertCommitMsgRejectionIsFailClosed();
+    assertSigningConfigPropagatesAndFailsClosed();
     assertDeletesAndRenamesAreUnsafe();
     assertMissingHashesRefuseReuse();
     await assertReuseRefusesConfigAndMaterialDrift();

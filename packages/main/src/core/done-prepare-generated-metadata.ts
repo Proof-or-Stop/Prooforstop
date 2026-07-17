@@ -582,15 +582,20 @@ function treeBlobHash(gitCwd: string, tree: string, path: string): string | null
   }
 }
 
-function runPreCommitHook(gitCwd: string, indexFile: string): { ok: true } | { ok: false; error: string } {
-  const hookPathResult = gitMaybe(gitCwd, ['rev-parse', '--git-path', 'hooks/pre-commit']);
+function runCommitHook(
+  gitCwd: string,
+  indexFile: string,
+  name: 'pre-commit' | 'prepare-commit-msg' | 'commit-msg' | 'post-commit',
+  hookArgs: string[] = [],
+): { ok: true } | { ok: false; error: string } {
+  const hookPathResult = gitMaybe(gitCwd, ['rev-parse', '--git-path', `hooks/${name}`]);
   if (!hookPathResult.ok) return { ok: false, error: hookPathResult.error };
   const hookPath = isAbsolute(hookPathResult.output)
     ? hookPathResult.output
     : join(gitCwd, hookPathResult.output);
   if (!existsSync(hookPath) || (statSync(hookPath).mode & 0o111) === 0) return { ok: true };
   try {
-    childProcess.execFileSync(hookPath, [], {
+    childProcess.execFileSync(hookPath, hookArgs, {
       cwd: gitCwd,
       env: { ...process.env, GIT_INDEX_FILE: indexFile },
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -598,6 +603,19 @@ function runPreCommitHook(gitCwd: string, indexFile: string): { ok: true } | { o
     return { ok: true };
   } catch (err: any) {
     return { ok: false, error: String(err?.stderr || err?.stdout || err?.message || err).trim() };
+  }
+}
+
+function optionalGitConfig(gitCwd: string, args: string[]): string | undefined {
+  try {
+    return childProcess.execFileSync('git', ['config', '--get', ...args], {
+      cwd: gitCwd,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim() || undefined;
+  } catch (err: any) {
+    if (err?.status === 1) return undefined;
+    throw err;
   }
 }
 
@@ -630,6 +648,11 @@ export function commitDonePrepareGeneratedMetadata(args: {
     beforeAdd?: (temporaryIndexFile: string) => void;
     afterAddBeforeCommit?: (temporaryIndexFile: string) => void;
     afterTreeVerificationBeforeCommit?: (temporaryIndexFile: string) => void;
+    beforeCommitTree?: (commitTreeArgs: string[], signing: {
+      enabled: boolean;
+      key?: string;
+      format?: string;
+    }) => void;
     beforeCasUpdate?: (oldHead: string, targetRef: string) => void;
   };
 }): DonePrepareGeneratedMetadataCommitResult {
@@ -694,11 +717,30 @@ export function commitDonePrepareGeneratedMetadata(args: {
   const targetRef = targetRefResult.output;
   const tempDir = mkdtempSync(join(tmpdir(), 'lattice-done-prepare-index-'));
   const temporaryIndexFile = join(tempDir, 'index');
+  const messageFile = join(tempDir, 'COMMIT_EDITMSG');
   try {
+    writeFileSync(messageFile, `${message}\n`, 'utf8');
     isolatedGit(args.gitCwd, temporaryIndexFile, ['read-tree', oldHead]);
     args.testHooks?.beforeAdd?.(temporaryIndexFile);
     isolatedGit(args.gitCwd, temporaryIndexFile, ['add', '--', ...manifest.safePaths]);
     args.testHooks?.afterAddBeforeCommit?.(temporaryIndexFile);
+
+    for (const [name, hookArgs] of [
+      ['pre-commit', []],
+      ['prepare-commit-msg', [messageFile, 'message']],
+      ['commit-msg', [messageFile]],
+    ] as const) {
+      const hook = runCommitHook(args.gitCwd, temporaryIndexFile, name, [...hookArgs]);
+      if (!hook.ok) {
+        return {
+          ok: false,
+          files: manifest.safePaths,
+          message,
+          reason: `git ${name} hook failed: ${hook.error}`,
+          manifest,
+        };
+      }
+    }
 
     const isolatedPaths = isolatedChangedPaths(args.gitCwd, temporaryIndexFile, oldHead);
     const isolatedUnexpected = isolatedPaths.filter((path) => !manifest.safePaths.includes(path));
@@ -746,21 +788,24 @@ export function commitDonePrepareGeneratedMetadata(args: {
     }
     args.testHooks?.afterTreeVerificationBeforeCommit?.(temporaryIndexFile);
 
-    const hook = runPreCommitHook(args.gitCwd, temporaryIndexFile);
-    if (!hook.ok) {
-      return {
-        ok: false,
-        files: manifest.safePaths,
-        message,
-        reason: `git commit failed: ${hook.error}`,
-        manifest,
-      };
-    }
-    const commitSha = isolatedGit(
-      args.gitCwd,
-      temporaryIndexFile,
-      ['commit-tree', tree, '-p', oldHead, '-m', message],
-    ).trim();
+    const signingEnabled = optionalGitConfig(args.gitCwd, ['--bool', 'commit.gpgSign']) === 'true';
+    const signingKey = optionalGitConfig(args.gitCwd, ['user.signingKey']);
+    const signingFormat = optionalGitConfig(args.gitCwd, ['gpg.format']);
+    const commitTreeArgs = [
+      'commit-tree',
+      tree,
+      '-p',
+      oldHead,
+      '-F',
+      messageFile,
+      ...(signingEnabled ? [signingKey ? `-S${signingKey}` : '-S'] : []),
+    ];
+    args.testHooks?.beforeCommitTree?.(commitTreeArgs, {
+      enabled: signingEnabled,
+      ...(signingKey ? { key: signingKey } : {}),
+      ...(signingFormat ? { format: signingFormat } : {}),
+    });
+    const commitSha = isolatedGit(args.gitCwd, temporaryIndexFile, commitTreeArgs).trim();
     args.testHooks?.beforeCasUpdate?.(oldHead, targetRef);
     const cas = gitMaybe(args.gitCwd, ['update-ref', targetRef, commitSha, oldHead]);
     if (!cas.ok) {
@@ -793,6 +838,9 @@ export function commitDonePrepareGeneratedMetadata(args: {
         manifest,
       };
     }
+    // Like git commit, post-commit is notification-only: it runs after the
+    // successful ref update and cannot roll the commit back.
+    runCommitHook(args.gitCwd, temporaryIndexFile, 'post-commit');
     return {
       ok: true,
       commitSha,
