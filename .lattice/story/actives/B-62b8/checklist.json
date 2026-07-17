@@ -9,8 +9,8 @@
         "docs/requirements/decisions/owner-session-contract-execution-plan.md",
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-17T23:11:49.266Z",
       "endTime": null,
       "userSees": "User sees \"owner session: <stable-id> [host-adapter]\" remain unchanged across same-task shell boundaries; a different task or role sees the existing foreign-owner rejection.",
       "files": {
@@ -530,6 +530,15 @@
       "to": "done",
       "reason": "Canonical contract committed first; final exact-hash Codex and Antigravity reviews PASS; two continuity invocation shapes and one degraded comparison are bound; runtime implementation may now begin.",
       "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-17T23:11:49.266Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Pre-runtime ratification is complete; begin the bounded red-to-green stable task-plus-agent resolver implementation."
     }
   ]
 }

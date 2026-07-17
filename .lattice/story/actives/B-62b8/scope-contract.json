@@ -1,0 +1,29 @@
+{
+  "storyId": "B-62b8",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/owner-session.ts",
+    "packages/main/src/core/owner-session-adapters.ts",
+    "packages/main/src/core/owner-session-token-store.ts",
+    "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/src/handlers/context.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/core/story-owner-lease.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/owner-session-guardrail.ts",
+    "packages/main/src/tasks/story-owner-lease-smoke.ts",
+    "packages/main/src/tasks/cli-surface-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-17T23:11:48.723Z",
+  "updatedAt": "2026-07-17T23:11:48.723Z"
+}
