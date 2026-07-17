@@ -73,6 +73,32 @@
         "scanEscalationReason": null
       },
       "_hash": "11665e03f58bb84ae5235058f0b0934c34c5c8883a5ee80368dd829b5a850bda"
+    },
+    {
+      "id": "B-3aec:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final narrow F-019/F-020 re-review at commit 62abc146dc: exactly 12 ordered zero-hit terms no longer consume query budget before the later rare match, with deterministic zero_hits audit rows; stdout/stderr diagnostic tails are isolated so cross-stream fragments cannot fabricate auth, while same-stream split, stdout-only, and early diagnostic plus >64KiB tail behavior remain covered. Focused candidate routing smoke PASS and host-run usage smoke PASS (83 checks). Checklist reports all 22 verification intents covered and passing. No root suite, real host, network, lifecycle advance, or OMX actions were used.",
+      "createdAt": "2026-07-17T10:15:34.963Z",
+      "reviewRound": "2026-07-17T10:14:00.168Z",
+      "reviewRunId": "B-3aec:RR-013",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4bc481c1c8ca4b67e40b1ddc26bfca47dd8c1fe8b295dd39b710e9f057207f2c"
     }
   ]
 }
