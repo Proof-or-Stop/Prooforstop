@@ -86,6 +86,98 @@
         "test": [
           "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:happy:text-report",
+            "desc": "Run prompt_measurement_report in text mode without a Story: output lists exactly the canonical 16 roles plus an aggregate summary, and every role and aggregate exposes bytes, lines, estimatedTokens, and the versioned repetition metric together with the assembled, known-dispatch, and provider-processed input-layer availability boundaries.",
+            "type": "cli",
+            "requiredIn": "light",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:happy:json-parity",
+            "desc": "Run prompt_measurement_report in JSON mode: it is machine-parseable and contains the same canonical role set, per-role metrics, aggregate metrics, algorithm/schema versions, layer meanings, and availability states as text mode; recomputing from current agent_prompt outputs reproduces all assembled bytes, lines, estimated-token, digest, and repetition values.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:happy:sidecar-determinism",
+            "desc": "The checked-in role-prompt measurement sidecar uses proofbound.prompt-measurement.v1 PromptMeasurementRecord entries for all 16 roles, records the pinned contract/digest/estimator metadata and aggregate report data without creating PromptEnvelope authority, and two runs from identical inputs produce byte-identical canonical JSON and the same digest.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:edge:metric-boundaries",
+            "desc": "Metric boundary probes cover UTF-8 multibyte content, trailing versus non-trailing newline line counts, deterministic token-estimator rounding, and repeated versus unique normalized content; per-role values and aggregate totals/repetition follow the pinned algorithms with no host-locale or clock-dependent drift.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:edge:independent-availability",
+            "desc": "assembledPromptTokens is always reported as the locally reproducible layer, while knownDispatchInputTokens and providerProcessedInputTokens each carry an independent availability result: observing one layer must not make the other appear observed, and unavailable optional token/cache components are not included in totals.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:edge:all-phases",
+            "desc": "The report is usable without storyId in INIT, INIT_CHECK, PLAN, DEV, REVIEW, TEST, and DONE contexts and returns the same measurement for the same registry inputs; phase, owner, review-run, HEAD, or Story metadata is neither required nor used to mint a Story-bound PromptEnvelope or lifecycle evidence.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:edge:read-only-policy",
+            "desc": "Command catalog, registry, command policy, config, and activity policy classify prompt_measurement_report as a read-only, all-phase command; process-fact registration is exactly L0 observational and cannot be consumed as review, validation, budget-waiver, or lifecycle gate evidence.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:adversarial:unavailable-not-zero",
+            "desc": "With no observable launcher/provider usage, both text and JSON explicitly report known-dispatch and provider-processed layers as unavailable; they never emit numeric 0, silently omit the availability state, copy assembled estimates into those fields, or imply hidden system-wrapper/cache coverage.",
+            "type": "cli",
+            "requiredIn": "light",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:adversarial:no-provider-call",
+            "desc": "Instrument provider and host-launcher call seams to fail if invoked: prompt_measurement_report still succeeds using only local registry/prompt data and makes zero provider, model, network, or dispatch calls.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:adversarial:no-writes",
+            "desc": "Compare repository material, Story/checklist/review facts, process evidence, runtime artifacts, baseline file, and activity state before and after both output modes: the report performs no writes and does not refresh, accept, or mutate the sidecar baseline.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:adversarial:role-set-fail-closed",
+            "desc": "Remove, duplicate, rename, or add a registry role and corrupt a measurement or PromptMeasurementRecord field: generation/verification fails closed instead of silently producing fewer or more than 16 rows, stale aggregate values, a partial sidecar, or a fresh-looking deterministic digest.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:adversarial:l0-non-authority",
+            "desc": "Attempt to use the L0 prompt measurement process fact as a reviewer receipt, review pass, validation result, budget approval/waiver, or phase-transition artifact: every gate rejects it while the observational report remains available.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
