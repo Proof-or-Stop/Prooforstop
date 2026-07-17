@@ -263,11 +263,11 @@
           "file": "packages/main/src/tasks/production-test-seam-guard.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "F-016/F-017 final material passed: declaration and simple/chained/parenthesized assignment aliases share one mutation graph; unknown RHS stays ambiguous; centralized wrapper normalization recursively preserves SpreadElement and literal/container taint through mutators and call/apply/New expansion; fs/process negatives and safe controls pass.",
-          "headHash": "04663304a7ed3dff2f1a4fae78c88bb6febe0e2b",
-          "materialHash": "d8e503a6b2a12cef539977584dd8c598f3e2da1cc74f74becc5cd15a5accbcce",
-          "storyFilesHash": "8128b64dae6972267d6283b33a7a05a1d5829ba75db3ad73028f407c8c066799",
-          "timestamp": "2026-07-17T01:03:16.237Z"
+          "note": "F-018 final material passed: static method-name mutations through nested/deep/computed receivers and Object mutation APIs globally disable exact resolution for that name; dynamic keys disable all exact method resolution; append-only candidate union catches fs/process sinks while immutable/unrelated/array-mutation controls stay green.",
+          "headHash": "b902aadc7be93f0d2f8ee13587077d430b92b359",
+          "materialHash": "fb4dfa643c293ed65a49e1e85699a265d7b963791aa81e9185827c3fe8a4dfe2",
+          "storyFilesHash": "315bc29e9da0bd7b400e4ea1b5bdbe0f870234198aac38fb8f1ea8f550fec288",
+          "timestamp": "2026-07-17T01:09:43.784Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -276,11 +276,11 @@
           "file": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "F-016/F-017 final material passed: declaration and simple/chained/parenthesized assignment aliases share one mutation graph; unknown RHS stays ambiguous; centralized wrapper normalization recursively preserves SpreadElement and literal/container taint through mutators and call/apply/New expansion; fs/process negatives and safe controls pass.",
-          "headHash": "04663304a7ed3dff2f1a4fae78c88bb6febe0e2b",
-          "materialHash": "d8e503a6b2a12cef539977584dd8c598f3e2da1cc74f74becc5cd15a5accbcce",
-          "storyFilesHash": "8128b64dae6972267d6283b33a7a05a1d5829ba75db3ad73028f407c8c066799",
-          "timestamp": "2026-07-17T01:03:16.237Z"
+          "note": "F-018 final material passed: static method-name mutations through nested/deep/computed receivers and Object mutation APIs globally disable exact resolution for that name; dynamic keys disable all exact method resolution; append-only candidate union catches fs/process sinks while immutable/unrelated/array-mutation controls stay green.",
+          "headHash": "b902aadc7be93f0d2f8ee13587077d430b92b359",
+          "materialHash": "fb4dfa643c293ed65a49e1e85699a265d7b963791aa81e9185827c3fe8a4dfe2",
+          "storyFilesHash": "315bc29e9da0bd7b400e4ea1b5bdbe0f870234198aac38fb8f1ea8f550fec288",
+          "timestamp": "2026-07-17T01:09:43.784Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -289,11 +289,11 @@
           "file": "packages/main/src/tasks/production-test-seam-guard.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "F-016/F-017 final material passed: declaration and simple/chained/parenthesized assignment aliases share one mutation graph; unknown RHS stays ambiguous; centralized wrapper normalization recursively preserves SpreadElement and literal/container taint through mutators and call/apply/New expansion; fs/process negatives and safe controls pass.",
-          "headHash": "04663304a7ed3dff2f1a4fae78c88bb6febe0e2b",
-          "materialHash": "d8e503a6b2a12cef539977584dd8c598f3e2da1cc74f74becc5cd15a5accbcce",
-          "storyFilesHash": "8128b64dae6972267d6283b33a7a05a1d5829ba75db3ad73028f407c8c066799",
-          "timestamp": "2026-07-17T01:03:16.237Z"
+          "note": "F-018 final material passed: static method-name mutations through nested/deep/computed receivers and Object mutation APIs globally disable exact resolution for that name; dynamic keys disable all exact method resolution; append-only candidate union catches fs/process sinks while immutable/unrelated/array-mutation controls stay green.",
+          "headHash": "b902aadc7be93f0d2f8ee13587077d430b92b359",
+          "materialHash": "fb4dfa643c293ed65a49e1e85699a265d7b963791aa81e9185827c3fe8a4dfe2",
+          "storyFilesHash": "315bc29e9da0bd7b400e4ea1b5bdbe0f870234198aac38fb8f1ea8f550fec288",
+          "timestamp": "2026-07-17T01:09:43.784Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -302,11 +302,11 @@
           "file": "packages/main/src/tasks/production-test-seam-guard.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "F-016/F-017 final material passed: declaration and simple/chained/parenthesized assignment aliases share one mutation graph; unknown RHS stays ambiguous; centralized wrapper normalization recursively preserves SpreadElement and literal/container taint through mutators and call/apply/New expansion; fs/process negatives and safe controls pass.",
-          "headHash": "04663304a7ed3dff2f1a4fae78c88bb6febe0e2b",
-          "materialHash": "d8e503a6b2a12cef539977584dd8c598f3e2da1cc74f74becc5cd15a5accbcce",
-          "storyFilesHash": "8128b64dae6972267d6283b33a7a05a1d5829ba75db3ad73028f407c8c066799",
-          "timestamp": "2026-07-17T01:03:16.237Z"
+          "note": "F-018 final material passed: static method-name mutations through nested/deep/computed receivers and Object mutation APIs globally disable exact resolution for that name; dynamic keys disable all exact method resolution; append-only candidate union catches fs/process sinks while immutable/unrelated/array-mutation controls stay green.",
+          "headHash": "b902aadc7be93f0d2f8ee13587077d430b92b359",
+          "materialHash": "fb4dfa643c293ed65a49e1e85699a265d7b963791aa81e9185827c3fe8a4dfe2",
+          "storyFilesHash": "315bc29e9da0bd7b400e4ea1b5bdbe0f870234198aac38fb8f1ea8f550fec288",
+          "timestamp": "2026-07-17T01:09:43.784Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -315,11 +315,11 @@
           "file": "packages/main/src/tasks/production-test-seam-guard.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "F-016/F-017 final material passed: declaration and simple/chained/parenthesized assignment aliases share one mutation graph; unknown RHS stays ambiguous; centralized wrapper normalization recursively preserves SpreadElement and literal/container taint through mutators and call/apply/New expansion; fs/process negatives and safe controls pass.",
-          "headHash": "04663304a7ed3dff2f1a4fae78c88bb6febe0e2b",
-          "materialHash": "d8e503a6b2a12cef539977584dd8c598f3e2da1cc74f74becc5cd15a5accbcce",
-          "storyFilesHash": "8128b64dae6972267d6283b33a7a05a1d5829ba75db3ad73028f407c8c066799",
-          "timestamp": "2026-07-17T01:03:16.237Z"
+          "note": "F-018 final material passed: static method-name mutations through nested/deep/computed receivers and Object mutation APIs globally disable exact resolution for that name; dynamic keys disable all exact method resolution; append-only candidate union catches fs/process sinks while immutable/unrelated/array-mutation controls stay green.",
+          "headHash": "b902aadc7be93f0d2f8ee13587077d430b92b359",
+          "materialHash": "fb4dfa643c293ed65a49e1e85699a265d7b963791aa81e9185827c3fe8a4dfe2",
+          "storyFilesHash": "315bc29e9da0bd7b400e4ea1b5bdbe0f870234198aac38fb8f1ea8f550fec288",
+          "timestamp": "2026-07-17T01:09:43.784Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -328,11 +328,11 @@
           "file": "packages/main/src/tasks/production-test-seam-guard.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "F-016/F-017 final material passed: declaration and simple/chained/parenthesized assignment aliases share one mutation graph; unknown RHS stays ambiguous; centralized wrapper normalization recursively preserves SpreadElement and literal/container taint through mutators and call/apply/New expansion; fs/process negatives and safe controls pass.",
-          "headHash": "04663304a7ed3dff2f1a4fae78c88bb6febe0e2b",
-          "materialHash": "d8e503a6b2a12cef539977584dd8c598f3e2da1cc74f74becc5cd15a5accbcce",
-          "storyFilesHash": "8128b64dae6972267d6283b33a7a05a1d5829ba75db3ad73028f407c8c066799",
-          "timestamp": "2026-07-17T01:03:16.237Z"
+          "note": "F-018 final material passed: static method-name mutations through nested/deep/computed receivers and Object mutation APIs globally disable exact resolution for that name; dynamic keys disable all exact method resolution; append-only candidate union catches fs/process sinks while immutable/unrelated/array-mutation controls stay green.",
+          "headHash": "b902aadc7be93f0d2f8ee13587077d430b92b359",
+          "materialHash": "fb4dfa643c293ed65a49e1e85699a265d7b963791aa81e9185827c3fe8a4dfe2",
+          "storyFilesHash": "315bc29e9da0bd7b400e4ea1b5bdbe0f870234198aac38fb8f1ea8f550fec288",
+          "timestamp": "2026-07-17T01:09:43.784Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
@@ -341,11 +341,11 @@
           "file": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "F-016/F-017 final material passed: declaration and simple/chained/parenthesized assignment aliases share one mutation graph; unknown RHS stays ambiguous; centralized wrapper normalization recursively preserves SpreadElement and literal/container taint through mutators and call/apply/New expansion; fs/process negatives and safe controls pass.",
-          "headHash": "04663304a7ed3dff2f1a4fae78c88bb6febe0e2b",
-          "materialHash": "d8e503a6b2a12cef539977584dd8c598f3e2da1cc74f74becc5cd15a5accbcce",
-          "storyFilesHash": "8128b64dae6972267d6283b33a7a05a1d5829ba75db3ad73028f407c8c066799",
-          "timestamp": "2026-07-17T01:03:16.237Z"
+          "note": "F-018 final material passed: static method-name mutations through nested/deep/computed receivers and Object mutation APIs globally disable exact resolution for that name; dynamic keys disable all exact method resolution; append-only candidate union catches fs/process sinks while immutable/unrelated/array-mutation controls stay green.",
+          "headHash": "b902aadc7be93f0d2f8ee13587077d430b92b359",
+          "materialHash": "fb4dfa643c293ed65a49e1e85699a265d7b963791aa81e9185827c3fe8a4dfe2",
+          "storyFilesHash": "315bc29e9da0bd7b400e4ea1b5bdbe0f870234198aac38fb8f1ea8f550fec288",
+          "timestamp": "2026-07-17T01:09:43.784Z"
         }
       ]
     }
