@@ -185,7 +185,7 @@
       "desc": "packages/main/src/core/host-run.ts:1204-1215 — MEDIUM: normal Node spawn failures are mislabeled child_error, because spawn(2) failures such as ENOENT are delivered through ChildProcess error rather than the synchronous catch. Deterministic repro against /definitely/missing/b3aec-host returned terminalReason=child_error and exitCode=-2, while the new result contract exposes spawn_error and production diagnostics therefore degrade to generic host unavailable exit -2. Preserve the error object and classify pre-spawn/ENOENT failures as spawn_error (with a stable diagnostic), while still settling on close for reap discipline.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-17T09:20:41.325Z",
@@ -197,7 +197,11 @@
         "packages/main/src/tasks/host-run-usage-smoke.ts"
       ],
       "signatureTag": "async-spawn-error-misclassification",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Async ENOENT and EACCES spawn errors normalize to terminalReason spawn_error, exit 1, stable missing_executable classification, exactly-once settlement and cleanup.",
+      "resolvedAt": "2026-07-17T09:39:38.854Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3aec:F-011",
