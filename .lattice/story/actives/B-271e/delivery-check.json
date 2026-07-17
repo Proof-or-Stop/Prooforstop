@@ -1,0 +1,27 @@
+{
+  "storyId": "B-271e",
+  "checkedAt": "2026-07-17T01:39:26.025Z",
+  "headHash": "9bac6e5e06f3f99fb08731730307029641bd437d",
+  "materialHash": "d4bd8d4e90f60f299903c1bd216d1bf31e90b529ce76f288044f6510856196aa",
+  "storyFilesHash": "ef95f281e5d0608b499724d4174e5cda25a2d1b0bf67a0c4eabc4d14469bfdab",
+  "reviewRound": "2026-07-17T01:18:15.388Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Current-material routine validation and root npm test passed; the generated 640-case delivery outcome matrix verified accepted legacy/met/verified/waived/unverified envelopes and rejection of contradictory claims before persistence."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Current-material production-test-seam-guard passed inside the 46-command routine validation; the real verifier lock smoke observed writeTestEvidence only while the execution lock existed, and adversarial sanitizer/callable/alias/mutation/spread/constructor/Object.assign cases passed."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Current material passed routine and DONE-required suites with adversarial envelope and production seam coverage; no unresolved delivery TODO remains."
+  },
+  "_hash": "616adecebabe5dbbd70c610f362a57329f4617989412d4a9b5e2feb03b760db0"
+}
