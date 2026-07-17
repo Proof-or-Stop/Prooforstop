@@ -1,0 +1,29 @@
+{
+  "storyId": "B-62b8",
+  "name": "stable-task-agent-owner-identity",
+  "title": "Stabilize task-and-agent owner identity across shell boundaries",
+  "description": "Repair derived-ppid owner-session instability by deriving one observable identity from validated task and agent/role dimensions across shell parent changes, while preserving foreign-session isolation, explicit LATTICE_SESSION_ID priority, takeover semantics, and fail-closed mutation gates.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    }
+  ],
+  "createdAt": "2026-07-17T22:39:06.554Z",
+  "startedAt": "2026-07-17T22:39:06.554Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-17T22:39:06.930Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
+    }
+  ]
+}
