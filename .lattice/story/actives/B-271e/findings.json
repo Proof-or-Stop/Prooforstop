@@ -282,6 +282,24 @@
       "resolvedAt": "2026-07-17T00:50:37.051Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-271e:F-014",
+      "desc": "packages/main/src/tasks/production-test-seam-guard.ts:199-211 only marks direct identifier assignments as mutations, while receiver-qualified resolution at lines 333-361 continues to trust an exact object method declaration even when that method property is reassigned. Confirmed repro: const unsafe={run(path){writeFileSync(path,0)}}; const safe={run(payload){return payload}}; safe.run=unsafe.run; safe.run(process.env.TEST_FILE). analyzeProductionTestSeams returns [] because safe.run resolves exactly to its original payload-only candidate, so TEST_FILE never reaches the replacement unsafe path parameter used by writeFileSync. This is an unsafe exact-resolution case despite the receiver being const. Track writes to qualified callable properties and invalidate that exact key, falling back to the append-only same-name candidate union; alternatively only use exact resolution for callable properties proven unmodified. Add a same-object method replacement regression with distinct parameter names.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-17T00:51:38.880Z",
+      "reviewRound": "2026-07-17T00:50:33.918Z",
+      "reviewRunId": "B-271e:RR-018",
+      "_hash": "3ef362cc46c62de0150108059d3e585ee6ca517891d4043e818ace9437267feb",
+      "files": [
+        "packages/main/src/tasks/production-test-seam-guard.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
