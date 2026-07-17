@@ -216,9 +216,9 @@
         "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
         "AGENTS.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-17T09:16:28.729Z",
       "verificationIntent": {
         "happy": [
           {
@@ -311,7 +311,141 @@
           "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
           "scripts/verify-process-fact-contract.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Current implementation commit e74d3d39ed: generic DF filtering, five protected typed exact-source classes, safe-below-cutoff versus ranking-affecting evidence, malformed relevance fail-closed, structured-risk-only handling, proposal permutation, and shadow/warn/enforce renderer separation all passed.",
+          "headHash": "6cbe6ec2f57a6fe59cf38d5089987aa01e67359a",
+          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
+          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
+          "timestamp": "2026-07-17T09:16:28.941Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Current implementation commit e74d3d39ed: generic DF filtering, five protected typed exact-source classes, safe-below-cutoff versus ranking-affecting evidence, malformed relevance fail-closed, structured-risk-only handling, proposal permutation, and shadow/warn/enforce renderer separation all passed.",
+          "headHash": "6cbe6ec2f57a6fe59cf38d5089987aa01e67359a",
+          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
+          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
+          "timestamp": "2026-07-17T09:16:29.110Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Current implementation commit e74d3d39ed: generic DF filtering, five protected typed exact-source classes, safe-below-cutoff versus ranking-affecting evidence, malformed relevance fail-closed, structured-risk-only handling, proposal permutation, and shadow/warn/enforce renderer separation all passed.",
+          "headHash": "6cbe6ec2f57a6fe59cf38d5089987aa01e67359a",
+          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
+          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
+          "timestamp": "2026-07-17T09:16:29.282Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Current implementation commit e74d3d39ed: generic DF filtering, five protected typed exact-source classes, safe-below-cutoff versus ranking-affecting evidence, malformed relevance fail-closed, structured-risk-only handling, proposal permutation, and shadow/warn/enforce renderer separation all passed.",
+          "headHash": "6cbe6ec2f57a6fe59cf38d5089987aa01e67359a",
+          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
+          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
+          "timestamp": "2026-07-17T09:16:29.443Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Current implementation commit e74d3d39ed: generic DF filtering, five protected typed exact-source classes, safe-below-cutoff versus ranking-affecting evidence, malformed relevance fail-closed, structured-risk-only handling, proposal permutation, and shadow/warn/enforce renderer separation all passed.",
+          "headHash": "6cbe6ec2f57a6fe59cf38d5089987aa01e67359a",
+          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
+          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
+          "timestamp": "2026-07-17T09:16:29.613Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Current implementation commit e74d3d39ed: generic DF filtering, five protected typed exact-source classes, safe-below-cutoff versus ranking-affecting evidence, malformed relevance fail-closed, structured-risk-only handling, proposal permutation, and shadow/warn/enforce renderer separation all passed.",
+          "headHash": "6cbe6ec2f57a6fe59cf38d5089987aa01e67359a",
+          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
+          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
+          "timestamp": "2026-07-17T09:16:29.831Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:4",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Current implementation commit e74d3d39ed: generic DF filtering, five protected typed exact-source classes, safe-below-cutoff versus ranking-affecting evidence, malformed relevance fail-closed, structured-risk-only handling, proposal permutation, and shadow/warn/enforce renderer separation all passed.",
+          "headHash": "6cbe6ec2f57a6fe59cf38d5089987aa01e67359a",
+          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
+          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
+          "timestamp": "2026-07-17T09:16:30.046Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Current implementation commit e74d3d39ed: generic DF filtering, five protected typed exact-source classes, safe-below-cutoff versus ranking-affecting evidence, malformed relevance fail-closed, structured-risk-only handling, proposal permutation, and shadow/warn/enforce renderer separation all passed.",
+          "headHash": "6cbe6ec2f57a6fe59cf38d5089987aa01e67359a",
+          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
+          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
+          "timestamp": "2026-07-17T09:16:30.254Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Current implementation commit e74d3d39ed: generic DF filtering, five protected typed exact-source classes, safe-below-cutoff versus ranking-affecting evidence, malformed relevance fail-closed, structured-risk-only handling, proposal permutation, and shadow/warn/enforce renderer separation all passed.",
+          "headHash": "6cbe6ec2f57a6fe59cf38d5089987aa01e67359a",
+          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
+          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
+          "timestamp": "2026-07-17T09:16:30.433Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Current implementation commit e74d3d39ed: generic DF filtering, five protected typed exact-source classes, safe-below-cutoff versus ranking-affecting evidence, malformed relevance fail-closed, structured-risk-only handling, proposal permutation, and shadow/warn/enforce renderer separation all passed.",
+          "headHash": "6cbe6ec2f57a6fe59cf38d5089987aa01e67359a",
+          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
+          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
+          "timestamp": "2026-07-17T09:16:30.618Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Current implementation commit e74d3d39ed: generic DF filtering, five protected typed exact-source classes, safe-below-cutoff versus ranking-affecting evidence, malformed relevance fail-closed, structured-risk-only handling, proposal permutation, and shadow/warn/enforce renderer separation all passed.",
+          "headHash": "6cbe6ec2f57a6fe59cf38d5089987aa01e67359a",
+          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
+          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
+          "timestamp": "2026-07-17T09:16:30.776Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:4",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Current implementation commit e74d3d39ed: generic DF filtering, five protected typed exact-source classes, safe-below-cutoff versus ranking-affecting evidence, malformed relevance fail-closed, structured-risk-only handling, proposal permutation, and shadow/warn/enforce renderer separation all passed.",
+          "headHash": "6cbe6ec2f57a6fe59cf38d5089987aa01e67359a",
+          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
+          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
+          "timestamp": "2026-07-17T09:16:30.936Z"
+        }
+      ]
     }
   ]
 }
