@@ -476,8 +476,8 @@
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#93-acceptance",
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-17T23:28:04.502Z",
       "endTime": null,
       "userSees": "User sees the same established stale/active takeover guidance for a genuine foreign lease, while same-task shell changes proceed without \"foreign owner\".",
       "files": {
@@ -1004,6 +1004,15 @@
       "to": "done",
       "reason": "Codex/Claude/agy/fake child identity propagation, redaction, session_brief/doctor and degraded mutation guidance committed in a175883c; focused tests PASS.",
       "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-17T23:28:04.502Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Accept committed isolation, compatibility and takeover regression slice from lattice-implementer for evidence binding."
     }
   ]
 }
