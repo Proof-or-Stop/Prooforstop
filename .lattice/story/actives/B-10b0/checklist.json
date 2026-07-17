@@ -522,9 +522,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-17T14:34:08.777Z",
-      "endTime": null,
+      "endTime": "2026-07-17T14:39:19.193Z",
       "verificationIntent": {
         "happy": [
           {
@@ -597,7 +597,130 @@
         "test": [
           "packages/main/src/tasks/concept-gate-scope-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/concept-gate-scope-smoke.js",
+          "result": "pass",
+          "note": "Paired buildQueryGroups, candidateReadBindingErrors, and defaultHostRunRunner declaration edits produce no deleted symbols.",
+          "headHash": "04a2373ac5db9ec1fa484ae6a09f6a740303e47c",
+          "materialHash": "6ff47ac47b23d62e7796ba63d9d1d4e02b835abbc2b6a5a311eefaac93e9b5df",
+          "storyFilesHash": "f1bea7fb6c84a36f595cf1a5da19f07ef126b14f169fb9ad36e21d1605ab2e78",
+          "timestamp": "2026-07-17T14:39:19.573Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/concept-gate-scope-smoke.js",
+          "result": "pass",
+          "note": "True audit_resources deletion remains detected and its live source reference remains a residual blocker.",
+          "headHash": "04a2373ac5db9ec1fa484ae6a09f6a740303e47c",
+          "materialHash": "6ff47ac47b23d62e7796ba63d9d1d4e02b835abbc2b6a5a311eefaac93e9b5df",
+          "storyFilesHash": "f1bea7fb6c84a36f595cf1a5da19f07ef126b14f169fb9ad36e21d1605ab2e78",
+          "timestamp": "2026-07-17T14:39:19.908Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/concept-gate-scope-smoke.js",
+          "result": "pass",
+          "note": "Changed function, const-arrow, class, Python, async, and generator declarations retain identity despite body/signature edits.",
+          "headHash": "04a2373ac5db9ec1fa484ae6a09f6a740303e47c",
+          "materialHash": "6ff47ac47b23d62e7796ba63d9d1d4e02b835abbc2b6a5a311eefaac93e9b5df",
+          "storyFilesHash": "f1bea7fb6c84a36f595cf1a5da19f07ef126b14f169fb9ad36e21d1605ab2e78",
+          "timestamp": "2026-07-17T14:39:20.264Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/concept-gate-scope-smoke.js",
+          "result": "pass",
+          "note": "Declaration-line formatting and signature changes with a matching added identity classify as modification.",
+          "headHash": "04a2373ac5db9ec1fa484ae6a09f6a740303e47c",
+          "materialHash": "6ff47ac47b23d62e7796ba63d9d1d4e02b835abbc2b6a5a311eefaac93e9b5df",
+          "storyFilesHash": "f1bea7fb6c84a36f595cf1a5da19f07ef126b14f169fb9ad36e21d1605ab2e78",
+          "timestamp": "2026-07-17T14:39:20.585Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/concept-gate-scope-smoke.js",
+          "result": "pass",
+          "note": "Existing exported function/class/const, async/generator, and Python forms are identity-matched; non-exported methods and constructors remain explicitly outside the exported deletion surface.",
+          "headHash": "04a2373ac5db9ec1fa484ae6a09f6a740303e47c",
+          "materialHash": "6ff47ac47b23d62e7796ba63d9d1d4e02b835abbc2b6a5a311eefaac93e9b5df",
+          "storyFilesHash": "f1bea7fb6c84a36f595cf1a5da19f07ef126b14f169fb9ad36e21d1605ab2e78",
+          "timestamp": "2026-07-17T14:39:20.902Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:3",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/concept-gate-scope-smoke.js",
+          "result": "pass",
+          "note": "A rename leaves the removed declaration identity unmatched and reports the old symbol as deleted.",
+          "headHash": "04a2373ac5db9ec1fa484ae6a09f6a740303e47c",
+          "materialHash": "6ff47ac47b23d62e7796ba63d9d1d4e02b835abbc2b6a5a311eefaac93e9b5df",
+          "storyFilesHash": "f1bea7fb6c84a36f595cf1a5da19f07ef126b14f169fb9ad36e21d1605ab2e78",
+          "timestamp": "2026-07-17T14:39:21.222Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/concept-gate-scope-smoke.js",
+          "result": "pass",
+          "note": "Comments, strings, internal helpers, methods, and constructors cannot suppress a true exported-symbol deletion.",
+          "headHash": "04a2373ac5db9ec1fa484ae6a09f6a740303e47c",
+          "materialHash": "6ff47ac47b23d62e7796ba63d9d1d4e02b835abbc2b6a5a311eefaac93e9b5df",
+          "storyFilesHash": "f1bea7fb6c84a36f595cf1a5da19f07ef126b14f169fb9ad36e21d1605ab2e78",
+          "timestamp": "2026-07-17T14:39:21.524Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/concept-gate-scope-smoke.js",
+          "result": "pass",
+          "note": "Removing export while retaining a same-name local declaration remains a deletion.",
+          "headHash": "04a2373ac5db9ec1fa484ae6a09f6a740303e47c",
+          "materialHash": "6ff47ac47b23d62e7796ba63d9d1d4e02b835abbc2b6a5a311eefaac93e9b5df",
+          "storyFilesHash": "f1bea7fb6c84a36f595cf1a5da19f07ef126b14f169fb9ad36e21d1605ab2e78",
+          "timestamp": "2026-07-17T14:39:21.849Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/concept-gate-scope-smoke.js",
+          "result": "pass",
+          "note": "Removing an overload without a matching added declaration remains detected.",
+          "headHash": "04a2373ac5db9ec1fa484ae6a09f6a740303e47c",
+          "materialHash": "6ff47ac47b23d62e7796ba63d9d1d4e02b835abbc2b6a5a311eefaac93e9b5df",
+          "storyFilesHash": "f1bea7fb6c84a36f595cf1a5da19f07ef126b14f169fb9ad36e21d1605ab2e78",
+          "timestamp": "2026-07-17T14:39:22.174Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:3",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/concept-gate-scope-smoke.js",
+          "result": "pass",
+          "note": "Diff-reader or malformed-diff failure returns a typed WARN diagnostic instead of silently reporting no deletion.",
+          "headHash": "04a2373ac5db9ec1fa484ae6a09f6a740303e47c",
+          "materialHash": "6ff47ac47b23d62e7796ba63d9d1d4e02b835abbc2b6a5a311eefaac93e9b5df",
+          "storyFilesHash": "f1bea7fb6c84a36f595cf1a5da19f07ef126b14f169fb9ad36e21d1605ab2e78",
+          "timestamp": "2026-07-17T14:39:22.502Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:4",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/concept-gate-scope-smoke.js",
+          "result": "pass",
+          "note": "Regression corpus pairs all three B-3aec false-positive symbols with true deletion, rename, export-removal, overload, residual, and parser-failure cases.",
+          "headHash": "04a2373ac5db9ec1fa484ae6a09f6a740303e47c",
+          "materialHash": "6ff47ac47b23d62e7796ba63d9d1d4e02b835abbc2b6a5a311eefaac93e9b5df",
+          "storyFilesHash": "f1bea7fb6c84a36f595cf1a5da19f07ef126b14f169fb9ad36e21d1605ab2e78",
+          "timestamp": "2026-07-17T14:39:22.833Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -610,6 +733,16 @@
       "to": "done",
       "reason": "Implementation commit c3ae2f2613; all 14 must intents covered by final bounded focused checks. Subagent API 401 recovery only changed the obsolete closure smoke expectation, not production logic.",
       "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-17T14:39:19.193Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Subagent API returned persistent 401; main performed a bounded two-file recovery commit 04a2373ac5 and recorded the role fallback transparently for REVIEW.",
+      "agent": "main"
     }
   ]
 }
