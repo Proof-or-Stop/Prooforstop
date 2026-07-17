@@ -424,7 +424,7 @@
       "desc": "packages/main/src/handlers/verifier.ts:679-721 and packages/main/src/tasks/validation-evidence-reuse-smoke.ts:200-219 [HIGH] The new persistence-failure test proves HEAD and test-evidence working-tree bytes are restored, but it does not prove the promised canonical-writer transaction rollback. autoCommitStoryMetadata stages the entire story directory before git commit; when the injected pre-commit hook rejects, verifier restores only three worktree files and never restores the git index, leaving the attempted PASS/validation_terminal/receipt staged. The test also never snapshots/asserts process-events.jsonl or closeout-write-receipts.jsonl bytes/index state. Separately, autoCommitStoryMetadata catches closeout-receipt issuance failures and can still return the success prefix plus a warning, while verifier treats any result containing that prefix as success; no writer/receipt rejection case covers this. Make reuse persistence transactional across worktree and index for test-evidence, terminal, and receipt, treat receipt issuance failure as infra_failure, and assert exact pre/post bytes plus cached status for all three artifacts.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-17T21:39:32.664Z",
@@ -438,7 +438,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "validation-reuse|writer-rollback|index-state",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Same root cause fixed by a74f57732a: canonical reuse snapshots exact worktree bytes/existence and managed real-index entries, issues the receipt strictly, commits exactly test-evidence/process-events/closeout-receipts through an isolated GIT_INDEX_FILE, and rolls back managed worktree+index on hook/commit/receipt failure while preserving unrelated staged blobs. Build, validation-evidence-reuse-smoke, and process-fact contract PASS.",
+      "resolvedAt": "2026-07-17T21:49:14.286Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-10b0:F-020",
