@@ -60,6 +60,7 @@ import { join } from 'node:path';
 
 import {
   canonicalReviewHostLauncherSpec,
+  classifyHostExecutionDiagnosticText,
   classifyHostExecutionFailure,
   materializeLauncherArgv,
   type CanonicalReviewHost,
@@ -886,6 +887,30 @@ function codexTurnFailedDigest(message: string | null): string {
 /** Per-retained-line cap. A single line over this is dropped (not retained). */
 export const HOST_RUN_RETAINED_LINE_CAP = 1024 * 1024; // 1 MiB
 export const HOST_RUN_FAILURE_TEXT_CAP = 64 * 1024;
+const HOST_RUN_FAILURE_CLASSIFICATION_WINDOW = 2 * 1024;
+
+// Stable precedence for concurrently observable terminal facts. More specific
+// launch/authentication diagnoses win over generic timeout/unknown outcomes and
+// are sticky once observed from either output stream.
+const HOST_FAILURE_PRECEDENCE: Readonly<Record<HostExecutionFailureKind, number>> = {
+  none: 0,
+  unknown: 1,
+  unsupported: 2,
+  silent_final_output: 2,
+  version_failed: 3,
+  timeout: 4,
+  wrong_launcher: 5,
+  interactive: 6,
+  auth: 7,
+  missing_executable: 8,
+};
+
+function preferredHostFailure(
+  current: HostExecutionFailureKind,
+  observed: HostExecutionFailureKind,
+): HostExecutionFailureKind {
+  return HOST_FAILURE_PRECEDENCE[observed] > HOST_FAILURE_PRECEDENCE[current] ? observed : current;
+}
 
 /**
  * F-013: the unavailable reason recorded when the scanner dropped an over-cap
@@ -1067,8 +1092,20 @@ function parseJsonObjectLine(line: string): Record<string, unknown> | null {
  * match the previous piped implementation (SIGKILL on timeoutMs -> timedOut=true,
  * exit 124; a spawn error -> exit 1).
  */
-export function defaultHostRunRunner(plan: HostRunSpawnPlan): Promise<HostRunSpawnResult> {
+export interface HostRunRunnerRuntime {
+  spawnChild?: (command: string, argv: string[], options: {
+    cwd: string;
+    env: NodeJS.ProcessEnv;
+    stdio: ['pipe', 'pipe', 'pipe'];
+  }) => ReturnType<typeof spawn>;
+  schedule?: (callback: () => void, delayMs: number) => NodeJS.Timeout;
+  cancel?: (timer: NodeJS.Timeout) => void;
+}
+
+export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRunnerRuntime = {}): Promise<HostRunSpawnResult> {
   return new Promise<HostRunSpawnResult>((resolve) => {
+    const schedule = runtime.schedule ?? ((callback: () => void, delayMs: number) => setTimeout(callback, delayMs));
+    const cancel = runtime.cancel ?? ((timer: NodeJS.Timeout) => clearTimeout(timer));
     const scanner = new UsageLineScanner(plan.retainUsageLine);
     // B-3ddc: the SECOND bounded lane — same scanner class, same cap, same
     // last-wins discipline — retains the last failure event line. Its truncated
@@ -1089,8 +1126,14 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan): Promise<HostRunSpa
     let totalTimer: NodeJS.Timeout | null = null;
     let abortListener: (() => void) | null = null;
     let retainedStderr = '';
+    let classificationTail = '';
     let failureKind: HostExecutionFailureKind = 'none';
     let asyncSpawnError = false;
+    let child: ReturnType<typeof spawn> | null = null;
+    let stdoutHandler: ((text: string) => void) | null = null;
+    let stderrHandler: ((text: string) => void) | null = null;
+    let errorHandler: ((error: NodeJS.ErrnoException) => void) | null = null;
+    let closeHandler: ((code: number | null, signal: NodeJS.Signals | null) => void) | null = null;
 
     // F-008: a throwing onChunk (e.g. EPIPE from a closed consumer pipe) must
     // never escape a 'data' listener as an uncaught EventEmitter exception —
@@ -1111,12 +1154,23 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan): Promise<HostRunSpa
     };
 
     const clearTimersAndListener = (): void => {
-      if (startupTimer) clearTimeout(startupTimer);
-      if (totalTimer) clearTimeout(totalTimer);
+      if (startupTimer) cancel(startupTimer);
+      if (totalTimer) cancel(totalTimer);
       startupTimer = null;
       totalTimer = null;
       if (abortListener && plan.signal) plan.signal.removeEventListener('abort', abortListener);
       abortListener = null;
+    };
+    const detachChildListeners = (): void => {
+      if (!child) return;
+      if (stdoutHandler) child.stdout?.removeListener('data', stdoutHandler);
+      if (stderrHandler) child.stderr?.removeListener('data', stderrHandler);
+      if (errorHandler) child.removeListener('error', errorHandler);
+      if (closeHandler) child.removeListener('close', closeHandler);
+      stdoutHandler = null;
+      stderrHandler = null;
+      errorHandler = null;
+      closeHandler = null;
     };
     const finish = (exitCode: number): void => {
       if (settled) return;
@@ -1124,6 +1178,7 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan): Promise<HostRunSpa
       clearTimersAndListener();
       scanner.flush();
       failureScanner.flush();
+      detachChildListeners();
       resolve({
         stdout: scanner.retainedText(),
         stderr: retainedStderr,
@@ -1142,9 +1197,8 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan): Promise<HostRunSpa
       });
     };
 
-    let child;
     try {
-      child = spawn(plan.command, plan.argv, {
+      child = (runtime.spawnChild ?? spawn)(plan.command, plan.argv, {
         cwd: plan.cwd,
         env: plan.env,
         stdio: ['pipe', 'pipe', 'pipe'],
@@ -1164,11 +1218,11 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan): Promise<HostRunSpa
         timedOut = true;
         timeoutKind = reason;
         terminalReason = reason;
-        failureKind = 'timeout';
+        failureKind = preferredHostFailure(failureKind, 'timeout');
       }
       clearTimersAndListener();
       try {
-        child.kill('SIGKILL');
+        child?.kill('SIGKILL');
       } catch {
         // best-effort; settlement still waits for error/close
       }
@@ -1176,8 +1230,17 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan): Promise<HostRunSpa
     const markFirstOutput = (): void => {
       if (firstOutputMs !== null) return;
       firstOutputMs = Math.max(0, Date.now() - startedAt);
-      if (startupTimer) clearTimeout(startupTimer);
+      if (startupTimer) cancel(startupTimer);
       startupTimer = null;
+    };
+    const observeFailureText = (text: string): void => {
+      if (!text) return;
+      const combined = `${classificationTail}${text}`;
+      const observed = classifyHostExecutionDiagnosticText(combined);
+      classificationTail = combined.slice(-HOST_RUN_FAILURE_CLASSIFICATION_WINDOW);
+      if (observed) {
+        failureKind = preferredHostFailure(failureKind, observed);
+      }
     };
 
     // No stdin payload — mirror the previous `input: ''`.
@@ -1188,54 +1251,60 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan): Promise<HostRunSpa
     }
 
     if (plan.startupTimeoutMs && plan.startupTimeoutMs > 0) {
-      startupTimer = setTimeout(() => terminate('startup_no_output_timeout'), plan.startupTimeoutMs);
+      startupTimer = schedule(() => terminate('startup_no_output_timeout'), plan.startupTimeoutMs);
     }
     if (plan.timeoutMs && plan.timeoutMs > 0) {
-      totalTimer = setTimeout(() => terminate('total_timeout'), plan.timeoutMs);
+      totalTimer = schedule(() => terminate('total_timeout'), plan.timeoutMs);
     }
     abortListener = () => terminate('aborted');
     if (plan.signal?.aborted) abortListener();
     else plan.signal?.addEventListener('abort', abortListener, { once: true });
 
     child.stdout?.setEncoding('utf8');
-    child.stdout?.on('data', (text: string) => {
+    stdoutHandler = (text: string) => {
       if (text.length > 0) markFirstOutput();
       deliver({ stream: 'stdout', text });
+      observeFailureText(text);
       scanner.push(text);
       // B-3ddc: the failure lane sees the same live text; delivery above is
       // untouched (the lane only keeps a bounded copy, never suppresses).
       failureScanner.push(text);
-    });
+    };
+    child.stdout?.on('data', stdoutHandler);
     child.stderr?.setEncoding('utf8');
-    child.stderr?.on('data', (text: string) => {
+    stderrHandler = (text: string) => {
       if (text.length > 0) markFirstOutput();
       retainedStderr = `${retainedStderr}${text}`.slice(-HOST_RUN_FAILURE_TEXT_CAP);
       deliver({ stream: 'stderr', text });
-    });
+      observeFailureText(text);
+    };
+    child.stderr?.on('data', stderrHandler);
 
-    child.on('error', (error: NodeJS.ErrnoException) => {
+    errorHandler = (error: NodeJS.ErrnoException) => {
       if (!timedOut && terminalReason !== 'aborted') {
         asyncSpawnError = error.code === 'ENOENT' || error.code === 'EACCES';
         terminalReason = asyncSpawnError ? 'spawn_error' : 'child_error';
-        failureKind = error.code === 'ENOENT' ? 'missing_executable' : 'unknown';
+        failureKind = preferredHostFailure(failureKind, error.code === 'ENOENT' ? 'missing_executable' : 'unknown');
       }
       // Node emits `close` after `error`; settle there so every spawned child
       // follows the same close/reap boundary before capacity can be released.
-    });
-    child.on('close', (code, signal) => {
+    };
+    child.on('error', errorHandler);
+    closeHandler = (code, signal) => {
       if (!timedOut && terminalReason !== 'aborted' && terminalReason !== 'child_error' && terminalReason !== 'spawn_error') {
-        failureKind = classifyHostExecutionFailure({
+        failureKind = preferredHostFailure(failureKind, classifyHostExecutionFailure({
           error: undefined,
           signal,
           stderr: retainedStderr,
           stdout: scanner.retainedText(),
           status: code,
-        });
+        }));
         terminalReason = typeof code === 'number' && code === 0 ? 'completed' : 'exit_nonzero';
       }
       const exitCode = timedOut ? 124 : terminalReason === 'aborted' ? 130 : asyncSpawnError ? 1 : typeof code === 'number' && code >= 0 ? code : 1;
       finish(exitCode);
-    });
+    };
+    child.on('close', closeHandler);
   });
 }
 

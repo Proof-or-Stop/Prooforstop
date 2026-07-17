@@ -71,10 +71,20 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
   const candidateRoutingMode = (): 'shadow' | 'warn' | 'enforce' => loadConfig(root).candidateSpecRouting?.mode ?? 'shadow';
 
   function appendCandidateEscalationGuidance(lines: string[], storyId: string, routed: NonNullable<ReturnType<StoryStore['readCandidateSpecSet']>>, scopePlan: boolean): void {
+    const mode = candidateRoutingMode();
+    if (routed.mode !== mode) {
+      if (mode === 'shadow') {
+        lines.push(`- SHADOW MODE_MISMATCH — signed candidate artifact mode=${routed.mode}, configured mode=${mode}; diagnostic recorded without blocking review.`);
+      } else if (mode === 'warn') {
+        lines.push(`- WARNING MODE_MISMATCH — signed candidate artifact mode=${routed.mode}, configured mode=${mode}; continue review and ask the Story owner to rerun candidate_spec_route.`);
+      } else {
+        lines.push(`- STOP — MODE_MISMATCH: signed candidate artifact mode=${routed.mode}, configured mode=${mode}. Do not submit scope/review evidence until the Story owner reruns candidate_spec_route.`);
+        lines.push(`- Exact owner resolution action: lattice candidate_spec_route '{"storyId":"${storyId}"}'`);
+        return;
+      }
+    }
     if (!routed.requiresEscalation || routed.fullScan) return;
     const reasons = routed.escalationReasons.join(', ') || 'unspecified';
-    const mode = candidateRoutingMode();
-    if (routed.mode !== mode) lines.push(`- MODE_MISMATCH — signed candidate artifact mode=${routed.mode}, configured mode=${mode}; rerun candidate_spec_route before relying on it.`);
     if (mode === 'shadow') {
       lines.push(`- SHADOW — candidate routing escalation recorded (${reasons}); continue review and do not treat it as gate evidence.`);
       return;
@@ -550,10 +560,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         if (routed) {
           lines.push(`Candidate routing: digest=${routed.artifactDigest} corpusDigest=${routed.corpusDigest} candidates=${routed.candidateSpecSet.join(', ') || '(none)'}`);
           lines.push(`Candidate escalation: requiresEscalation=${routed.requiresEscalation} reasons=${routed.escalationReasons.join(', ') || 'none'}`);
-          if (routed.requiresEscalation && !routed.fullScan) {
-            lines.push('STOP — candidate routing escalation is unresolved. Do not submit review_pass_set or finding evidence using this artifact.');
-            lines.push(`Exact owner resolution action: lattice candidate_spec_route '{"storyId":"${args.storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`);
-          }
+          appendCandidateEscalationGuidance(lines, args.storyId, routed, false);
         }
         lines.push('');
         lines.push('Conclusion record (must choose one of two):');
@@ -613,6 +620,13 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push(`- Test:   ${filesBlock.test}`);
       lines.push('');
       lines.push(`Verify: ${verifyText}`);
+      const routed = store.readCandidateSpecSet(args.storyId);
+      if (routed) {
+        lines.push('');
+        lines.push(`Candidate routing: digest=${routed.artifactDigest} corpusDigest=${routed.corpusDigest} candidates=${routed.candidateSpecSet.join(', ') || '(none)'}`);
+        lines.push(`Candidate escalation: requiresEscalation=${routed.requiresEscalation} reasons=${routed.escalationReasons.join(', ') || 'none'}`);
+        appendCandidateEscalationGuidance(lines, args.storyId, routed, false);
+      }
       lines.push('');
       lines.push('After completion:');
       appendImplementerCommitSteps(lines, `${args.storyId} ${args.itemId}: ${item.title}`);

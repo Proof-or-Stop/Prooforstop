@@ -258,8 +258,15 @@ B-3aec implements this workstream at the existing shared boundaries:
   stdout or stderr byte clears only the startup timer. Results distinguish
   `startup_no_output_timeout`, `total_timeout`, and caller abort while retaining
   first-output and total-duration diagnostics; timeout/abort settlement waits
-  for child close before the existing `finally` releases capacity;
+  for child close before the existing `finally` releases capacity. Auth and
+  interactive diagnostics are classified incrementally from both stdout and
+  stderr into bounded sticky state (`missing executable > auth > interactive >
+  wrong launcher > timeout > generic`), so a later output tail cannot erase an
+  earlier actionable diagnosis;
 - the existing `maxDocumentFrequencyRatio` filter remains authoritative.
+  Document-frequency filtering occurs before the query-group budget is spent,
+  so generic groups cannot starve a later specific term; filtered terms remain
+  in signed audit metrics.
   Truncation artifacts now record query group, retained/omitted counts, omitted
   maximum score, and selected cutoff; raw overflow escalates only when an
   omitted candidate can enter or tie the bounded selection;
@@ -269,21 +276,28 @@ B-3aec implements this workstream at the existing shared boundaries:
   Existing safe repo-relative files outside the requirements corpus receive a
   content hash and remain mandatory; unsafe/missing/non-file paths produce a
   typed diagnostic. Mandatory candidates are retained before the ordinary
-  candidate budget and may exceed it without silent loss. Generic structured
-  auth/production risks may escalate but do not fabricate a path. Story title,
+  candidate budget and may exceed it without silent loss. Cutoff/tie decisions
+  are computed only from ordinary ranking, so a protected-only route does not
+  escalate because mandatory count exceeds the ordinary budget. Generic
+  structured auth/production risks may escalate but do not fabricate a path;
+  a structured signal protects a source only when it resolves to an existing
+  exact repo-relative path or a declared canonical registry/source mapping. Story title,
   description, and checklist prose remain ordinary search seeds and cannot
   trigger typed-risk escalation;
 - the signed artifact carries `mode`, while the candidate/reason projection is
   identical across shadow, warn, and enforce. Renderer, reviewer dispatch, and
-  read-binding consumers detect mode disagreement and apply hard rejection only
-  in enforce: shadow records and warn advises;
+  read-binding consumers detect mode disagreement for story-level and actual
+  item-scoped dispatch. Diagnostics are separate from blocking errors: shadow
+  records, warn advises with an owner next action, and enforce rejects;
 - when every usable query term is filtered as generic, routing records a bounded
   generic-only disposition rather than manufacturing `zero_candidates` or a
   full-corpus escalation. Raw-hit truncation compares omitted relevance against
   the ordinary (non-mandatory) selected cutoff.
 
-Deterministic smoke coverage uses injected readiness rows and local Node child
-processes only; it never launches Codex CLI, Claude Code CLI, or Antigravity CLI.
+Deterministic smoke coverage uses injected readiness rows, a minimal child/timer
+seam for explicit output/timeout/error/abort race schedules, and local Node child
+processes only; it asserts settle-once, kill-at-most-once, timer/listener cleanup,
+and capacity reacquisition, and never launches Codex CLI, Claude Code CLI, or Antigravity CLI.
 The readiness probe remains the existing bounded synchronous classifier; this
 work does not redesign probe scheduling or change quorum/production authority.
 Startup/total watchdog defaults are enabled for automatic candidate proposals;

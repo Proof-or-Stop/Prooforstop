@@ -622,7 +622,7 @@ function assertProofStoryProgressiveBoundary() {
   assert(read('packages/main/src/core/candidate-spec-routing.ts').includes("classification: 'safe_below_cutoff' | 'ranking_affecting'"), 'candidate routing: signed artifact must carry typed query-level truncation classification');
   assert(read('packages/main/src/core/candidate-spec-routing.ts').includes('protectedSources?: StoryRoutingInput'), 'candidate routing: protected exact sources must use a separate typed input, not narrative prose');
   assert(read('packages/main/src/core/candidate-spec-routing.ts').includes("mode: 'shadow' | 'warn' | 'enforce'"), 'candidate routing: rollout mode must be signed into the candidate artifact');
-  assert(read('packages/main/src/core/candidate-spec-routing.ts').includes("if (args.mode !== 'enforce') return errors"), 'candidate routing: shadow/warn read binding must never hard-block');
+  assert(read('packages/main/src/core/candidate-spec-routing.ts').includes("filter(diagnostic => diagnostic.blocking)"), 'candidate routing: every mode must diagnose disagreement while shadow/warn never return blocking errors');
   assert(read('packages/main/src/handlers/candidate-spec-routing.ts').includes('withUnattendedReadiness'), 'candidate routing: automatic proposal execution must consume positive unattended readiness before spawn');
   assert(read('packages/main/src/handlers/candidate-spec-routing.ts').includes('!isStoryMetadataPath(path, ctx.root)'), 'candidate routing: its own story metadata writes must not stale storyInputDigest');
   assert(read('packages/main/src/handlers/story-dispatch.ts').includes('STOP — candidate routing escalation is unresolved'), 'candidate routing: PLAN/REVIEW dispatch must render unresolved escalation and resolution action');

@@ -475,13 +475,20 @@ function searchable(entry: CorpusIndexEntry, body: string): string {
   return `${entry.path}\n${entry.headings.join('\n')}\n${body}`.toLowerCase();
 }
 
-export function buildQueryGroups(seeds: KeywordSeed[], proposals: HostKeywordProposal[] = [], budget = DEFAULT_QUERY_GROUP_BUDGET): string[][] {
+function orderedQueryTerms(seeds: KeywordSeed[], proposals: HostKeywordProposal[] = []): string[] {
   const terms = [...seeds.filter(seed => seed.source !== 'relatedDoc').map(seed => seed.normalized), ...proposals.flatMap(proposal => proposal.terms.map(term => normalizeKeyword(term.term)))]
     .filter(term => term.length >= 3);
-  const unique = [...new Set(terms)];
+  return [...new Set(terms)];
+}
+
+function queryGroupsFromTerms(unique: string[], budget: number): string[][] {
   const groups = unique.slice(0, budget).map(term => [term]);
   if (unique.length >= 2 && groups.length < budget) groups.push([unique[0], unique[1]]);
   return groups.slice(0, budget);
+}
+
+export function buildQueryGroups(seeds: KeywordSeed[], proposals: HostKeywordProposal[] = [], budget = DEFAULT_QUERY_GROUP_BUDGET): string[][] {
+  return queryGroupsFromTerms(orderedQueryTerms(seeds, proposals), budget);
 }
 
 export function routeCandidateSpecs(args: {
@@ -515,7 +522,10 @@ export function routeCandidateSpecs(args: {
     ? configuredDocumentFrequencyRatio
     : DEFAULT_MAX_QUERY_DOCUMENT_FREQUENCY_RATIO;
   const proposals = args.proposals ?? [];
-  const unfilteredQueryGroups = buildQueryGroups(args.seeds.seeds, proposals, queryGroupBudget);
+  // Compute document frequency for every ordered term before spending the
+  // query-group budget. Otherwise generic terms at the front can consume the
+  // entire budget and starve a later specific term that would survive DF.
+  const unfilteredQueryTerms = orderedQueryTerms(args.seeds.seeds, proposals);
   const reasonMap = new Map<string, CandidateReason[]>();
   const entryByPath = new Map(args.corpus.entries.map(entry => [entry.path, entry]));
   const searchableByPath = new Map(args.corpus.entries.map(entry => [
@@ -523,8 +533,7 @@ export function routeCandidateSpecs(args: {
     searchable(entry, readFileSync(join(args.projectRoot, entry.path), 'utf8')),
   ]));
   const queryTerms = [...new Set([
-    ...unfilteredQueryGroups.flat(),
-    ...proposals.flatMap(proposal => proposal.terms.map(term => normalizeKeyword(term.term))),
+    ...unfilteredQueryTerms,
   ])].sort((left, right) => left.localeCompare(right, 'en'));
   const documentCounts = new Map(queryTerms.map(term => [
     term,
@@ -541,9 +550,10 @@ export function routeCandidateSpecs(args: {
       documentCount: documentCounts.get(term) ?? 0,
       documentFrequencyRatio: (documentCounts.get(term) ?? 0) / Math.max(args.corpus.entries.length, 1),
     }));
-  const queryGroups = unfilteredQueryGroups
-    .map(group => group.filter(term => !isOverbroadTerm(term)))
-    .filter(group => group.length > 0);
+  const queryGroups = queryGroupsFromTerms(
+    unfilteredQueryTerms.filter(term => !isOverbroadTerm(term)),
+    queryGroupBudget,
+  );
   const relatedSources: NonNullable<StoryRoutingInput['protectedSources']> = args.seeds.seeds
     .filter(seed => seed.source === 'relatedDoc')
     .map(seed => ({ kind: 'related-doc', path: seed.term.split('#')[0], sourceRef: seed.sourceRef }));
@@ -676,13 +686,12 @@ export function routeCandidateSpecs(args: {
   const genericOnlyFiltered = ranked.length === 0 && filteredTerms.length > 0 && queryGroups.length === 0;
   if (ranked.length === 0 && !genericOnlyFiltered) ambiguitySignals.push('zero_candidates');
   if (genericOnlyFiltered) ambiguitySignals.push('generic_only_filtered_bounded');
-  const rankedReasonKinds = new Set(ranked.flatMap(candidate => candidate.reasons.map(reason => reason.kind)));
-  const hasExplicitRelatedDoc = ranked.some(candidate => candidate.reasons.some(reason => reason.kind === 'related-doc'));
-  if (ranked.length > 0 && rankedReasonKinds.size < 2 && !hasExplicitRelatedDoc) ambiguitySignals.push('weak_source_class_coverage');
+  const ordinaryReasonKinds = new Set(ordinaryRanked.flatMap(candidate => candidate.reasons.map(reason => reason.kind)));
+  if (ordinaryRanked.length > 0 && ordinaryReasonKinds.size < 2 && protectedRanked.length === 0) ambiguitySignals.push('weak_source_class_coverage');
   if (queryTruncation.length > 0) ambiguitySignals.push('query_results_truncated');
-  const cutoffScore = ranked[candidateBudget - 1]?.score;
-  const cutoffTie = ranked.length > candidateBudget
-    && cutoffScore === ranked[candidateBudget]?.score
+  const cutoffScore = ordinaryRanked[candidateBudget - 1]?.score;
+  const cutoffTie = ordinaryRanked.length > candidateBudget
+    && cutoffScore === ordinaryRanked[candidateBudget]?.score
     && typeof cutoffScore === 'number'
     && cutoffScore >= MIN_RANKING_AFFECTING_CUTOFF_SCORE;
   if (cutoffTie) ambiguitySignals.push('candidate_cutoff_tie');
@@ -780,6 +789,52 @@ export function verifyCandidateSpecSet(artifact: CandidateSpecSetArtifact): bool
   return artifactDigest === digestCandidateRoutingValue(base);
 }
 
+export interface CandidateReadBindingDiagnostic {
+  code: string;
+  message: string;
+  blocking: boolean;
+}
+
+export function candidateReadBindingDiagnostics(args: {
+  manifest: ReviewerReadManifest;
+  artifact: CandidateSpecSetArtifact | null;
+  mode: 'shadow' | 'warn' | 'enforce';
+  currentMaterialHash?: string;
+  currentStoryFilesHash?: string;
+  currentStoryInputDigest?: string;
+}): CandidateReadBindingDiagnostic[] {
+  const diagnostics: CandidateReadBindingDiagnostic[] = [];
+  const add = (code: string, message: string): void => {
+    diagnostics.push({ code, message, blocking: args.mode === 'enforce' });
+  };
+  const digest = args.manifest.candidateSpecSetDigest;
+  if (args.artifact && args.artifact.mode !== args.mode) {
+    add('mode_mismatch', `candidate artifact mode=${args.artifact.mode} does not match configured mode=${args.mode}; rerun candidate_spec_route`);
+  }
+  if (!digest) {
+    if (args.mode === 'enforce') add('missing_digest', 'candidateSpecSetDigest is required in enforce mode');
+    return diagnostics;
+  }
+  if (!args.artifact) {
+    add('missing_artifact', 'candidate-spec-set.json is missing');
+    return diagnostics;
+  }
+  if (!verifyCandidateSpecSet(args.artifact)) add('invalid_artifact', 'candidate artifact signature/digest is invalid');
+  if (args.artifact.requiresEscalation && !args.artifact.fullScan) {
+    add('unresolved_escalation', `candidate routing escalation is unresolved: ${args.artifact.escalationReasons.join(', ')}; Story owner must rerun candidate_spec_route with a nonblank forceFullScanReason before scope/review evidence can be accepted`);
+  }
+  if (digest !== args.artifact.artifactDigest) add('digest_mismatch', 'candidateSpecSetDigest does not match current artifact');
+  if (args.manifest.corpusDigest !== args.artifact.corpusDigest) add('corpus_mismatch', 'read manifest corpusDigest does not match current artifact');
+  const fullyRead = new Set(args.manifest.filesReadFully);
+  const missingCandidateReads = args.artifact.candidateSpecSet.filter(path => !fullyRead.has(path));
+  if (missingCandidateReads.length > 0) add('missing_candidate_reads', `read manifest is missing candidate full reads: ${missingCandidateReads.join(', ')}`);
+  if (args.artifact.fullScan && args.manifest.scanEscalationReason !== args.artifact.scanEscalationReason) add('scan_reason_mismatch', 'read manifest scanEscalationReason does not match full-scan artifact');
+  if (args.currentMaterialHash && args.artifact.materialHash !== args.currentMaterialHash) add('stale_material', 'candidate artifact materialHash is stale');
+  if (args.currentStoryFilesHash && args.artifact.storyFilesHash && args.artifact.storyFilesHash !== args.currentStoryFilesHash) add('stale_story_files', 'candidate artifact storyFilesHash is stale');
+  if (args.currentStoryInputDigest && args.artifact.storyInputDigest !== args.currentStoryInputDigest) add('stale_story_input', 'candidate artifact storyInputDigest is stale');
+  return diagnostics;
+}
+
 export function candidateReadBindingErrors(args: {
   manifest: ReviewerReadManifest;
   artifact: CandidateSpecSetArtifact | null;
@@ -788,31 +843,7 @@ export function candidateReadBindingErrors(args: {
   currentStoryFilesHash?: string;
   currentStoryInputDigest?: string;
 }): string[] {
-  const errors: string[] = [];
-  // Shadow and warn are observational/advisory by contract. They never reject
-  // reviewer evidence; enforce alone consumes candidate routing as a hard gate.
-  if (args.mode !== 'enforce') return errors;
-  const digest = args.manifest.candidateSpecSetDigest;
-  if (!digest) {
-    if (args.mode === 'enforce') errors.push('candidateSpecSetDigest is required in enforce mode');
-    return errors;
-  }
-  if (!args.artifact) return ['candidate-spec-set.json is missing'];
-  if (args.artifact.mode !== 'enforce') errors.push(`candidate artifact mode=${args.artifact.mode} does not match enforce gate; rerun candidate_spec_route under enforce mode`);
-  if (!verifyCandidateSpecSet(args.artifact)) errors.push('candidate artifact signature/digest is invalid');
-  if (args.artifact.requiresEscalation && !args.artifact.fullScan) {
-    errors.push(`candidate routing escalation is unresolved: ${args.artifact.escalationReasons.join(', ')}; Story owner must rerun candidate_spec_route with a nonblank forceFullScanReason before scope/review evidence can be accepted`);
-  }
-  if (digest !== args.artifact.artifactDigest) errors.push('candidateSpecSetDigest does not match current artifact');
-  if (args.manifest.corpusDigest !== args.artifact.corpusDigest) errors.push('read manifest corpusDigest does not match current artifact');
-  const fullyRead = new Set(args.manifest.filesReadFully);
-  const missingCandidateReads = args.artifact.candidateSpecSet.filter(path => !fullyRead.has(path));
-  if (missingCandidateReads.length > 0) errors.push(`read manifest is missing candidate full reads: ${missingCandidateReads.join(', ')}`);
-  if (args.artifact.fullScan && args.manifest.scanEscalationReason !== args.artifact.scanEscalationReason) errors.push('read manifest scanEscalationReason does not match full-scan artifact');
-  if (args.currentMaterialHash && args.artifact.materialHash !== args.currentMaterialHash) errors.push('candidate artifact materialHash is stale');
-  if (args.currentStoryFilesHash && args.artifact.storyFilesHash && args.artifact.storyFilesHash !== args.currentStoryFilesHash) errors.push('candidate artifact storyFilesHash is stale');
-  if (args.currentStoryInputDigest && args.artifact.storyInputDigest !== args.currentStoryInputDigest) errors.push('candidate artifact storyInputDigest is stale');
-  return errors;
+  return candidateReadBindingDiagnostics(args).filter(diagnostic => diagnostic.blocking).map(diagnostic => diagnostic.message);
 }
 
 export function assertCandidateReadBinding(args: Parameters<typeof candidateReadBindingErrors>[0]): void {

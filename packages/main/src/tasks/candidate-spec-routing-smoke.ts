@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import {
   buildCorpusIndex,
   buildKeywordSeeds,
+  candidateReadBindingDiagnostics,
   candidateReadBindingErrors,
   collectHostKeywordProposals,
   digestCandidateRoutingValue,
@@ -26,6 +28,8 @@ import {
 } from '../handlers/candidate-spec-routing.js';
 import { resetConfigCache } from '../core/config.js';
 import { renderDeliveryContextPackReport, type DeliveryContextPackReport } from '../handlers/delivery-context-pack.js';
+import { signReviewPass } from '../core/finding-verify.js';
+import { captureReviewRunSnapshot, signReviewRun } from '../core/review-run.js';
 
 function fixtureRoot(): string {
   const root = join(tmpdir(), `candidate-routing-${process.pid}-${Date.now()}`);
@@ -157,17 +161,78 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
       valid: [],
       invalid: [{ code: 'stale_run_hash', kind: 'pass', evidenceId: 'RP-stale', agent: 'lattice-review-quality', message: 'stale/unbound evidence' }],
     }), [], 'collector-invalid stale/unbound reviewer evidence contributes no protected path');
+    mkdirSync(join(root, 'packages/main/src/core'), { recursive: true });
+    writeFileSync(join(root, 'packages/main/src/core/machine.ts'), 'export const machine = true;\n');
+    const collectorRoot = join(tmpdir(), `candidate-routing-collector-${process.pid}-${Date.now()}`);
+    mkdirSync(join(collectorRoot, 'packages/main/src'), { recursive: true });
+    mkdirSync(join(collectorRoot, 'docs/requirements/decisions'), { recursive: true });
+    writeFileSync(join(collectorRoot, '.gitignore'), '.lattice/\n');
+    writeFileSync(join(collectorRoot, 'lattice.config.json'), JSON.stringify({ requirementsDir: 'docs/requirements' }));
+    writeFileSync(join(collectorRoot, 'packages/main/src/reviewer-full.ts'), 'export const reviewerFull = true;\n');
+    writeFileSync(join(collectorRoot, 'docs/requirements/decisions/noise.md'), '# Noise\n');
+    const git = (args: string[]): string => execFileSync('git', args, { cwd: collectorRoot, encoding: 'utf8' }).trim();
+    git(['init']);
+    git(['checkout', '-B', 'main']);
+    git(['add', '.']);
+    git(['-c', 'user.name=lattice-test', '-c', 'user.email=lattice-test@proofbound.local', 'commit', '-m', 'collector base']);
+    const collectorStore = new StoryStore(collectorRoot);
+    const collectorRound = '2026-07-12T00:02:00.000Z';
+    collectorStore.writeStory(story.storyId, {
+      storyId: story.storyId, name: 'collector-integration', title: 'Collector integration', description: 'Signed current reviewer evidence',
+      type: 'feature', phase: 'REVIEW', priority: 'medium', createdAt: '2026-07-12T00:00:00.000Z', startedAt: '2026-07-12T00:00:00.000Z', endedAt: null,
+      currentReviewRound: collectorRound, events: [],
+    });
+    collectorStore.writeChecklist(story.storyId, { items: [] });
+    const collectorSnapshot = captureReviewRunSnapshot(collectorRoot);
+    const reviewRunId = `${story.storyId}:RR-001`;
+    const reviewAgent = 'lattice-review-quality';
+    const reviewStartedAt = '2026-07-12T00:03:00.000Z';
+    const reviewRun = {
+      reviewRunId, storyId: story.storyId, agent: reviewAgent, lane: reviewAgent, reviewRound: collectorRound,
+      startedAt: reviewStartedAt, ...collectorSnapshot, promptHash: '',
+    };
+    collectorStore.writeReviewRuns(story.storyId, { runs: [{
+      ...reviewRun,
+      _hash: signReviewRun(story.storyId, reviewRunId, reviewAgent, reviewAgent, collectorRound, reviewStartedAt, collectorSnapshot.headHash, collectorSnapshot.materialHash, '', undefined, undefined, collectorSnapshot.storyFilesHash),
+    }] });
+    const reviewPass = {
+      id: `${story.storyId}:RP-001`,
+      agent: reviewAgent,
+      note: 'collector integration pass',
+      createdAt: '2026-07-12T00:04:00.000Z',
+      reviewRound: collectorRound,
+      reviewRunId,
+      readManifest: {
+        filesReadFully: ['packages/main/src/reviewer-full.ts'],
+        filesTriagedByName: ['docs/requirements/decisions/noise.md'],
+        scanEscalationReason: null,
+      },
+    };
+    collectorStore.writeReviewPasses(story.storyId, { passes: [{
+      ...reviewPass,
+      _hash: signReviewPass(story.storyId, reviewPass.id, reviewPass.agent, reviewPass.note, reviewPass.createdAt, collectorRound, reviewRunId, reviewPass.readManifest),
+    }] });
+    const collectorBoundInput = currentStoryRoutingInput({ store: collectorStore, root: collectorRoot, scanRoot: join(collectorRoot, 'packages/main') }, story.storyId);
+    assert.ok(collectorBoundInput.protectedSources?.some(source => source.kind === 'reviewer-evidence' && source.path === 'packages/main/src/reviewer-full.ts'), 'handler consumes current collector-valid filesReadFully');
+    assert.equal(collectorBoundInput.protectedSources?.some(source => source.path === 'docs/requirements/decisions/noise.md' && source.kind === 'reviewer-evidence'), false, 'collector triage never becomes protected authority');
+    writeFileSync(join(collectorRoot, 'packages/main/src/reviewer-full.ts'), 'export const reviewerFull = false;\n');
+    git(['add', '.']);
+    git(['-c', 'user.name=lattice-test', '-c', 'user.email=lattice-test@proofbound.local', 'commit', '-m', 'make reviewer evidence stale']);
+    const collectorStaleInput = currentStoryRoutingInput({ store: collectorStore, root: collectorRoot, scanRoot: join(collectorRoot, 'packages/main') }, story.storyId);
+    assert.equal(collectorStaleInput.protectedSources?.some(source => source.kind === 'reviewer-evidence'), false, 'stale/unbound collector evidence is rejected by ordinary handler input');
+    rmSync(collectorRoot, { recursive: true, force: true });
     store.writeStory(story.storyId, {
       ...store.readStory(story.storyId),
       riskSignals: [
         { category: 'Security/Credentials', matched: 'auth' },
         { category: 'Production/Emergency', matched: 'production' },
+        { category: 'State Machine/Gate', matched: 'machine.ts' },
       ],
     });
     const realInput = currentStoryRoutingInput({ store, root, scanRoot: join(root, 'packages/main') }, story.storyId);
-    assert.deepEqual(realInput.riskSignals, ['Security/Credentials:auth', 'Production/Emergency:production']);
+    assert.deepEqual(realInput.riskSignals, ['Security/Credentials:auth', 'Production/Emergency:production', 'State Machine/Gate:machine.ts']);
     assert.ok(realInput.protectedSources?.some(source => source.kind === 'related-doc' && source.path === 'docs/requirements/decisions/auth-session.md'));
-    assert.equal(realInput.protectedSources?.some(source => source.kind === 'typed-risk'), false, 'generic typed risks escalate structurally but never fabricate a path candidate');
+    assert.deepEqual(realInput.protectedSources?.filter(source => source.kind === 'typed-risk').map(source => source.path), ['packages/main/src/core/machine.ts'], 'only a canonical structured source path is protected; generic typed risks fabricate nothing');
     const structuredRiskRoute = routeCandidateSpecs({ projectRoot: root, storyId: story.storyId, corpus: first, seeds: buildKeywordSeeds(realInput), riskSignals: realInput.riskSignals, protectedSources: realInput.protectedSources });
     assert.ok(structuredRiskRoute.escalationReasons.includes('high_risk_structured_signal'));
     const deliveryText = renderDeliveryContextPackReport({
@@ -323,6 +388,24 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     const aboveRow = dfBoundary.queryFiltering.filteredTerms.find(row => row.term === 'aboveterm');
     assert.equal(boundaryRow, undefined, 'exactly 2/5 stays eligible at the 0.4 boundary despite duplicate occurrences');
     assert.deepEqual(aboveRow && { count: aboveRow.documentCount, ratio: aboveRow.documentFrequencyRatio }, { count: 3, ratio: 0.6 });
+    for (let index = 0; index < 5; index += 1) {
+      writeFileSync(join(dfRoot, `docs/requirements/decisions/df-${index}.md`), `# DF ${index}\n${Array.from({ length: 12 }, (_, term) => `generic${String(term).padStart(2, '0')}`).join(' ')}${index === 4 ? ' zzspecificsurvivor' : ''}\n`);
+    }
+    const starvationCorpus = buildCorpusIndex(dfRoot);
+    const starvationRoute = routeCandidateSpecs({
+      projectRoot: dfRoot,
+      storyId: story.storyId,
+      corpus: starvationCorpus,
+      seeds: buildKeywordSeeds({
+        storyId: story.storyId,
+        keywords: [...Array.from({ length: 12 }, (_, index) => `generic${String(index).padStart(2, '0')}`), 'zzspecificsurvivor'],
+      }),
+      queryGroupBudget: 4,
+      maxDocumentFrequencyRatio: 0.4,
+    });
+    assert.ok(starvationRoute.queryFiltering.filteredTerms.length >= 12, 'generic terms are audited even though they do not spend query budget');
+    assert.deepEqual(starvationRoute.queryGroups, [['zzspecificsurvivor']], 'specific term receives budget after generic DF filtering');
+    assert.ok(starvationRoute.candidateSpecSet.includes('docs/requirements/decisions/df-4.md'), 'specific candidate survives >budget generic seeds');
     rmSync(dfRoot, { recursive: true, force: true });
 
     const protectedKinds = ['related-doc', 'exact-path', 'registry-ref', 'typed-risk', 'reviewer-evidence'] as const;
@@ -337,7 +420,7 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
       projectRoot: root,
       storyId: story.storyId,
       corpus: protectedCorpus,
-      seeds: buildKeywordSeeds({ storyId: story.storyId, title: 'lattice proofbound core handlers' }),
+      seeds: buildKeywordSeeds({ storyId: story.storyId, title: 'zz-no-ordinary-match' }),
       protectedSources,
       candidateBudget: 8,
     });
@@ -349,7 +432,9 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     assert.equal(protectedRoute.protectedRouting.protectedCount, 10);
     assert.equal(protectedRoute.protectedRouting.exceedsOrdinaryBudget, true);
     assert.equal(protectedRoute.candidateSpecSet.filter(path => path.includes('protected-')).length, 10, 'mandatory protected candidates may exceed ordinary budget without loss');
-    assert.ok(['lattice', 'proofbound', 'core', 'handlers'].every(term => protectedRoute.queryFiltering.filteredTerms.some(row => row.term === term)));
+    assert.equal(protectedRoute.escalationReasons.includes('candidate_cutoff_tie'), false, 'protected count never participates in ordinary cutoff ties');
+    assert.equal(protectedRoute.escalationReasons.includes('weak_source_class_coverage'), false, 'protected-only source concentration never requests a broad scan');
+    assert.equal(protectedRoute.requiresEscalation, false, 'ten valid mandatory protected candidates with zero ordinary matches remain bounded and valid');
     for (const source of protectedSources) rmSync(join(root, source.path));
 
     mkdirSync(join(root, 'packages/main/src/core'), { recursive: true });
@@ -422,8 +507,18 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     assert.deepEqual(decisionProjection(routesByMode.shadow), decisionProjection(routesByMode.warn));
     assert.deepEqual(decisionProjection(routesByMode.warn), decisionProjection(routesByMode.enforce));
     assert.throws(() => renderCandidateSpecRouteText(routesByMode.shadow, first.entries.length, [], 'enforce'), /mode disagreement/);
+    assert.match(renderCandidateSpecRouteText(routesByMode.enforce, first.entries.length, [], 'warn'), /WARNING_MODE_MISMATCH/);
+    assert.match(renderCandidateSpecRouteText(routesByMode.enforce, first.entries.length, [], 'shadow'), /SHADOW_MODE_MISMATCH_RECORDED/);
     assert.deepEqual(candidateReadBindingErrors({ manifest: truncatedManifest, artifact: routesByMode.shadow, mode: 'shadow' }), []);
     assert.deepEqual(candidateReadBindingErrors({ manifest: truncatedManifest, artifact: routesByMode.warn, mode: 'warn' }), []);
+    assert.deepEqual(candidateReadBindingDiagnostics({ manifest: { ...truncatedManifest, candidateSpecSetDigest: routesByMode.enforce.artifactDigest }, artifact: routesByMode.enforce, mode: 'shadow' })
+      .filter(diagnostic => diagnostic.code === 'mode_mismatch'), [{ code: 'mode_mismatch', message: 'candidate artifact mode=enforce does not match configured mode=shadow; rerun candidate_spec_route', blocking: false }]);
+    assert.equal(candidateReadBindingDiagnostics({ manifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null }, artifact: routesByMode.enforce, mode: 'warn' })
+      .find(diagnostic => diagnostic.code === 'mode_mismatch')?.blocking, false, 'mode mismatch remains observable even when advisory evidence omitted its digest');
+    assert.equal(candidateReadBindingDiagnostics({ manifest: { ...truncatedManifest, candidateSpecSetDigest: routesByMode.enforce.artifactDigest }, artifact: routesByMode.enforce, mode: 'warn' })
+      .find(diagnostic => diagnostic.code === 'mode_mismatch')?.blocking, false);
+    assert.equal(candidateReadBindingDiagnostics({ manifest: { ...truncatedManifest, candidateSpecSetDigest: routesByMode.shadow.artifactDigest }, artifact: routesByMode.shadow, mode: 'enforce' })
+      .find(diagnostic => diagnostic.code === 'mode_mismatch')?.blocking, true);
     assert.match(candidateReadBindingErrors({ manifest: { ...truncatedManifest, candidateSpecSetDigest: routesByMode.enforce.artifactDigest }, artifact: routesByMode.enforce, mode: 'enforce' }).join(' '), /escalation is unresolved/);
     for (const mode of ['shadow', 'warn', 'enforce'] as const) {
       writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({ candidateSpecRouting: { mode } }));
@@ -431,16 +526,37 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
       store.writeCandidateSpecSet(story.storyId, routesByMode[mode]);
       const modePrompt = createStoryDispatchHandlers({ store, root, scanRoot: join(root, 'packages/main') })
         .dispatch({ storyId: story.storyId, agentType: 'lattice-review-quality' }).prompt;
+      store.writeStory(story.storyId, { ...store.readStory(story.storyId), phase: 'DEV' });
+      const itemModePrompt = createStoryDispatchHandlers({ store, root, scanRoot: join(root, 'packages/main') })
+        .dispatch({ storyId: story.storyId, itemId: 'CHK-001', agentType: 'lattice-implementer' }).prompt;
+      store.writeStory(story.storyId, { ...store.readStory(story.storyId), phase: 'REVIEW' });
       if (mode === 'shadow') {
         assert.match(modePrompt, /SHADOW/);
         assert.doesNotMatch(modePrompt, /STOP — candidate routing/);
+        assert.doesNotMatch(itemModePrompt, /STOP — candidate routing/);
       } else if (mode === 'warn') {
         assert.match(modePrompt, /WARNING/);
         assert.doesNotMatch(modePrompt, /STOP — candidate routing/);
+        assert.doesNotMatch(itemModePrompt, /STOP — candidate routing/);
       } else {
         assert.match(modePrompt, /STOP — candidate routing/);
+        assert.match(itemModePrompt, /STOP — candidate routing/);
       }
     }
+    for (const mode of ['shadow', 'warn', 'enforce'] as const) {
+      writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({ candidateSpecRouting: { mode } }));
+      resetConfigCache();
+      store.writeCandidateSpecSet(story.storyId, mode === 'enforce' ? routesByMode.shadow : routesByMode.enforce);
+      for (const itemId of [undefined, 'CHK-001'] as const) {
+        store.writeStory(story.storyId, { ...store.readStory(story.storyId), phase: itemId ? 'DEV' : 'REVIEW' });
+        const mismatchPrompt = createStoryDispatchHandlers({ store, root, scanRoot: join(root, 'packages/main') })
+          .dispatch({ storyId: story.storyId, ...(itemId ? { itemId } : {}), agentType: itemId ? 'lattice-implementer' : 'lattice-review-quality' }).prompt;
+        assert.match(mismatchPrompt, /MODE_MISMATCH/);
+        if (mode === 'enforce') assert.match(mismatchPrompt, /STOP — MODE_MISMATCH/);
+        else assert.doesNotMatch(mismatchPrompt, /STOP — MODE_MISMATCH/);
+      }
+    }
+    store.writeStory(story.storyId, { ...store.readStory(story.storyId), phase: 'REVIEW' });
     rmSync(join(root, 'lattice.config.json'), { force: true });
     resetConfigCache();
 
@@ -638,6 +754,7 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     };
     assert.equal(candidateHostFailureReason({ ...failedRunBase, failureKind: 'auth' }), 'post_readiness_auth_required');
     assert.equal(candidateHostFailureReason({ ...failedRunBase, failureKind: 'interactive' }), 'post_readiness_interactive_required');
+    assert.equal(candidateHostFailureReason({ ...failedRunBase, timedOut: true, timeoutKind: 'total_timeout', failureKind: 'auth' }), 'post_readiness_auth_required', 'sticky actionable classification outranks a later generic timeout');
     assert.equal(candidateHostFailureReason({ ...failedRunBase, firstOutputMs: null, failureKind: 'unknown' }), 'post_readiness_no_output');
     assert.equal(candidateHostFailureReason({ ...failedRunBase, terminalReason: 'spawn_error', failureKind: 'missing_executable' }), 'post_readiness_spawn_error:missing_executable');
 

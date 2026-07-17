@@ -1,5 +1,7 @@
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
+import { join, posix } from 'node:path';
 import type { HandlerContext } from './context.js';
 import type { FormatArgs } from './verdict.js';
 import {
@@ -79,10 +81,10 @@ export function withUnattendedReadiness(
 export function candidateHostFailureReason(result: Pick<HostRunResult,
   'blocked' | 'refusalReason' | 'timedOut' | 'timeoutKind' | 'firstOutputMs' | 'durationMs' | 'exitCode' | 'terminalReason' | 'failureKind'>): string | null {
   if (result.blocked) return result.refusalReason || 'host_unavailable';
-  if (result.timedOut) return `${result.timeoutKind ?? 'host_timeout'}; firstOutputMs=${result.firstOutputMs ?? 'none'} durationMs=${result.durationMs ?? 'unknown'}`;
   if (result.terminalReason === 'spawn_error') return `post_readiness_spawn_error:${result.failureKind ?? 'unknown'}`;
   if (result.failureKind === 'auth') return 'post_readiness_auth_required';
   if (result.failureKind === 'interactive') return 'post_readiness_interactive_required';
+  if (result.timedOut) return `${result.timeoutKind ?? 'host_timeout'}; firstOutputMs=${result.firstOutputMs ?? 'none'} durationMs=${result.durationMs ?? 'unknown'}`;
   if (result.exitCode !== 0 && result.firstOutputMs === null) return 'post_readiness_no_output';
   if (result.exitCode !== 0) return `post_readiness_execution_failure:${result.failureKind ?? 'unknown'}:exit_${result.exitCode}`;
   return null;
@@ -101,8 +103,9 @@ export function renderCandidateSpecRouteText(
   attempts: Array<{ host: string; status: string }>,
   mode?: 'shadow' | 'warn' | 'enforce',
 ): string {
-  if (mode && mode !== artifact.mode) throw new Error(`candidate routing mode disagreement: artifact=${artifact.mode} configured=${mode}`);
-  const effectiveMode = artifact.mode;
+  const effectiveMode = mode ?? artifact.mode;
+  const modeMismatch = effectiveMode !== artifact.mode;
+  if (modeMismatch && effectiveMode === 'enforce') throw new Error(`candidate routing mode disagreement: artifact=${artifact.mode} configured=${effectiveMode}`);
   const lines = [
     `Candidate spec route: ${artifact.storyId}`,
     `corpus=${artifact.candidateSpecSet.length}/${corpusCount} candidates digest=${artifact.artifactDigest}`,
@@ -111,6 +114,12 @@ export function renderCandidateSpecRouteText(
     `escalationReasons=${artifact.escalationReasons.join(',') || 'none'}`,
     `queryFiltering=maxDocumentFrequencyRatio=${artifact.queryFiltering.maxDocumentFrequencyRatio} filtered=${artifact.queryFiltering.filteredTerms.map(term => `${term.term}:${term.documentCount}`).join(',') || 'none'}`,
   ];
+  if (modeMismatch && effectiveMode === 'warn') {
+    lines.push(`status=WARNING_MODE_MISMATCH artifact=${artifact.mode} configured=${effectiveMode}`);
+    lines.push(`nextAction=lattice candidate_spec_route '{"storyId":"${artifact.storyId}"}'`);
+  } else if (modeMismatch) {
+    lines.push(`status=SHADOW_MODE_MISMATCH_RECORDED artifact=${artifact.mode} configured=${effectiveMode}`);
+  }
   if (artifact.requiresEscalation && !artifact.fullScan && effectiveMode === 'enforce') {
     lines.push('status=BLOCKED_PENDING_ESCALATION');
     lines.push(`resolutionAction=lattice candidate_spec_route '{"storyId":"${artifact.storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`);
@@ -165,6 +174,19 @@ function hostName(host: HostKeywordProposal['host']): 'codex' | 'claude' | 'agy'
 
 function projectRootHash(root: string): string {
   return `sha256:${createHash('sha256').update(root).digest('hex')}`;
+}
+
+const CANONICAL_STRUCTURED_RISK_PATHS: Readonly<Record<string, string>> = {
+  'machine.ts': 'packages/main/src/core/machine.ts',
+  'process-fact-registry.ts': 'packages/main/src/core/process-fact-registry.ts',
+  'runtime-fact-registry.ts': 'packages/main/src/core/runtime-fact-registry.ts',
+};
+
+function structuredRiskProtectedPath(root: string, matched: string): string | null {
+  const normalized = posix.normalize(matched.trim().replace(/\\/g, '/')).replace(/^\.\//, '');
+  if (!normalized || normalized === '..' || normalized.startsWith('../')) return null;
+  const candidate = normalized.includes('/') ? normalized : CANONICAL_STRUCTURED_RISK_PATHS[normalized.toLowerCase()];
+  return candidate && existsSync(join(root, candidate)) ? candidate : null;
 }
 
 function productionExecutor(
@@ -237,7 +259,8 @@ export function currentStoryRoutingInput(ctx: HandlerContext, storyId: string): 
   } catch {
     // Missing/stale/unbound evidence is intentionally not promoted.
   }
-  const riskSignals = story.riskSignals?.map(signal => `${signal.category}:${signal.matched}`) ?? [];
+  const structuredRiskSignals = story.riskSignals ?? [];
+  const riskSignals = structuredRiskSignals.map(signal => `${signal.category}:${signal.matched}`);
   const protectedSources: NonNullable<StoryRoutingInput['protectedSources']> = [
     ...relatedDocs.map((path, index) => ({ kind: 'related-doc' as const, path, sourceRef: `relatedDocs[${index}]` })),
     ...exactPaths.map((path, index) => ({
@@ -245,9 +268,9 @@ export function currentStoryRoutingInput(ctx: HandlerContext, storyId: string): 
       path,
       sourceRef: `exactPaths[${index}]`,
     })),
-    ...riskSignals
-      .map((signal, index) => ({ signal, index, path: signal.slice(signal.indexOf(':') + 1) }))
-      .filter(row => /[/\\]|\.md$|\.ts$/i.test(row.path))
+    ...structuredRiskSignals
+      .map((signal, index) => ({ index, path: structuredRiskProtectedPath(ctx.root, signal.matched) }))
+      .filter((row): row is { index: number; path: string } => row.path !== null)
       .map(row => ({ kind: 'typed-risk' as const, path: row.path, sourceRef: `riskSignals[${row.index}]` })),
     ...reviewerEvidencePaths.map((path, index) => ({ kind: 'reviewer-evidence' as const, path, sourceRef: `reviewerEvidence[${index}]` })),
   ];
