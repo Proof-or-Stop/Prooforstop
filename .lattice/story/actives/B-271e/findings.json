@@ -300,6 +300,24 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-271e:F-015",
+      "desc": "67a0644063 closes the exact F-012/F-013 mutable-receiver, constructor-alias, local array/tuple/spread, and unknown-apply operand cases, but state-aware aliasing still treats a const array as immutable when one of its elements is reassigned. The built analyzer returns [] for `const unsafe={run(command){exec(command)}}; const args=[\"/fixed\"]; args[0]=process.env.TEST_COMMAND; unsafe.run.apply(null,args)`. collectMutations only marks assignments whose left side is an Identifier, so `args[0]=...` leaves aliases.args immutable; resolveArrayElements then replays the stale `/fixed` initializer and discards the later TEST-bearing element state. This is a simple-local mutation of the exact newly supported apply-array form, not a dynamic/interprocedural edge. Mark aliases mutable on property/element writes (at minimum static index writes), so apply falls back to conservative operand propagation, and add this exact negative. A mutating `args.push(TEST_VALUE)` shows the same broader state issue, but indexed assignment alone is sufficient to reproduce the declared-boundary blocker.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-17T00:52:03.223Z",
+      "reviewRound": "2026-07-17T00:50:33.918Z",
+      "reviewRunId": "B-271e:RR-019",
+      "_hash": "426f55f0df4b53882165a38fbf8a18d4cab404bca08387106c397dd7e2accede",
+      "files": [
+        "packages/main/src/tasks/production-test-seam-guard.ts"
+      ],
+      "signatureTag": "production-test-seam-mutable-array-alias-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
