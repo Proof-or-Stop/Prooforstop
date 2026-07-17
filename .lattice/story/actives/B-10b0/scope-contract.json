@@ -1,0 +1,32 @@
+{
+  "storyId": "B-10b0",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/closeout-trust.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/lifecycle-readiness.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/core/phase-gates.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/handlers/validate-concept.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/closeout-trust-smoke.ts",
+    "packages/main/src/tasks/lifecycle-check-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+    "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-17T13:21:14.674Z",
+  "updatedAt": "2026-07-17T13:21:14.674Z"
+}

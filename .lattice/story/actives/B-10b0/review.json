@@ -116,6 +116,34 @@
         }
       ],
       "_hash": "85120a39cce79dea7e61d2c7f8580c73a26d981d46a4bbe660df320b82f2f6a5"
+    },
+    {
+      "timestamp": "2026-07-17T13:20:03.390Z",
+      "issueCount": 4,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Retain valid review receipts across trusted closeout metadata writes + Make REVIEW to TEST to DONE closeout ordering converge in one pass are performed simultaneously?)"
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_acceptance_binding: No ProofStory acceptance binding maps the snapshot acceptanceClaim to checklist/verificationIntent refs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_red_evidence: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-10b0 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "9449d17bfacc966ff3a68df9e8858c37e063930bee57559ddbcf2037a5cb4c41"
     }
   ]
 }
