@@ -37,7 +37,22 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees \"session identity degraded: derived-ppid\" with an actionable LATTICE_SESSION_ID/adapter hint before the first owner-gated mutation; supported adapters report their provider and source without raw tokens.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/owner-session-token-store.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/doctor.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/owner-session-guardrail.ts",
+          "packages/main/src/tasks/cli-surface-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-003",
