@@ -185,6 +185,27 @@
         "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
       },
       "_hash": "ae1f8517b91469cb66aaeeee3cba0baf49e366f7ef6224f2f3a6c6351bb90fd6"
+    },
+    {
+      "id": "B-10b0:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Incremental concept re-review of f32537b95a found no blocker. The only material delta repins the existing canonical structural fingerprints for closeout-trust.ts and closeout-trust-smoke.ts after their already-reviewed changes; it does not expand quarantine membership, approved legacy symbols/call shapes, occurrence budgets, or dynamic-code exemptions. The retired-authority vocabulary guard and closeout-trust smoke both pass on the current worktree.",
+      "createdAt": "2026-07-17T17:00:50.055Z",
+      "reviewRound": "2026-07-17T16:57:40.721Z",
+      "reviewRunId": "B-10b0:RR-010",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "63d3126468f4cfd7e24d3acfdf01a68ddf3920e6aa0b363411474c1e2bd966c8"
     }
   ]
 }
