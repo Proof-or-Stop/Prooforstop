@@ -14,6 +14,21 @@
       "_hash": "6e952d96f17f41d433252af322ed6f3b3123f1615afadad9efc16c23609b495a",
       "signatureTag": "missing|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-62b8:F-002",
+      "desc": "packages/main/src/core/lattice-dispatch.ts:1682-1687 — HIGH: buildCanonicalHostRuntimeEnv re-adds process.env.LATTICE_SESSION_ID whenever envAllowlist contains it, without honoring envDenylist. This bypasses buildRequiredCommandEnv deny precedence and can propagate the parent owner identity into a reviewer child even under an explicit deny policy, collapsing role isolation. Repro on current dist with both lists containing LATTICE_SESSION_ID returns DENYLIST_RESULT=must-stay-denied instead of absent. Preserve explicit override only when allowlisted AND not denied, with a regression for conflicting policy entries.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-17T23:30:34.617Z",
+      "reviewRound": "2026-07-17T23:28:37.387Z",
+      "reviewRunId": "B-62b8:RR-002",
+      "_hash": "72253f0b6494887b27d208d66203e6f0c989baefaaa43d99795b28cf963ca3b9",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
