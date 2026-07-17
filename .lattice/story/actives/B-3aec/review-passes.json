@@ -302,6 +302,23 @@
         "scanEscalationReason": null
       },
       "_hash": "2df019eb03e6eb08c877b6cba9e2a0ca6b046b5d87b7315a01d41f35bac0b6ea"
+    },
+    {
+      "id": "B-3aec:RP-015",
+      "agent": "lattice-review-quality",
+      "note": "Post-delivery final quality re-attestation: implementation commit 62abc146dc and signed delivery commit 01c003459f are both ancestors of current HEAD. The delivery commit changes only canonical closeout receipt and delivery-check metadata; committed and uncommitted business material remain unchanged. Prior quality findings remain resolved and no new blocker is introduced after delivery signing.",
+      "createdAt": "2026-07-17T10:47:17.597Z",
+      "reviewRound": "2026-07-17T10:45:40.047Z",
+      "reviewRunId": "B-3aec:RR-025",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "07e420ffbdbdfdb9fb65e4779ea95a8661dfb7466f9f7e8f46167567d0a582e2"
     }
   ]
 }
