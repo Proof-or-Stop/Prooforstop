@@ -64,7 +64,19 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees the same established stale/active takeover guidance for a genuine foreign lease, while same-task shell changes proceed without \"foreign owner\".",
+      "files": {
+        "modify": [
+          "packages/main/src/core/story-owner-lease.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "packages/main/src/tasks/owner-session-guardrail.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-004",
