@@ -468,6 +468,28 @@
         "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
       },
       "_hash": "567150e803ed1a54a234901487d8259e664f267115a27e057f8f291254de18fd"
+    },
+    {
+      "id": "B-10b0:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "Targeted concept review of 2183cf10ad found no blocker. pre-commit, prepare-commit-msg, and commit-msg run against the isolated index before the final exact path/blob/tree verification; prepare-commit-msg receives the normal message source and commit-msg edits are consumed through commit-tree -F. commit.gpgSign and user.signingKey are propagated to commit-tree, so required-signing failure occurs before CAS and leaves HEAD/real index unchanged. post-commit runs only after successful branch CAS and real-index refresh and is notification-only, matching normal Git semantics. Immutable tree, captured parent, and CAS remain intact; no Authority credential or reset/clean/checkout/push behavior was added. Auto-closeout and merge-rerun smokes pass, including hook edit/rejection, identity/parent/message, CAS/post-hook timing, and signing failure cases.",
+      "createdAt": "2026-07-17T21:18:02.003Z",
+      "reviewRound": "2026-07-17T21:15:27.401Z",
+      "reviewRunId": "B-10b0:RR-034",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "148c5bcce710967c0b339f32cd06b3d217d5008fca18882174165f4185e4ee1b"
     }
   ]
 }
