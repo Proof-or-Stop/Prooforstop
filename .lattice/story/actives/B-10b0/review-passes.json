@@ -358,6 +358,29 @@
         "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
       },
       "_hash": "c14a936a795a3595bc7d309f91e98f3d6f23b54b311ef506fdd2d560a0771815"
+    },
+    {
+      "id": "B-10b0:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted F-012 re-review of 779c187d79 found no blocker. The exact-valid control is bound to story, attempt, round, command-set/material/story-files hashes, phase, disposition, result, zero executions, and invocation time window. The 19-case negative matrix covers forged story/attempt/round/bindings, extra fields, phase/disposition/result/execution mismatches, malformed hash/time/JSON/newline, prefix rewrite/truncation, and mixed lines. The focused integration still proves real reused-validation auto-close leaves a clean tree and pre-existing process-events dirt remains blocked; focused smoke passed.",
+      "createdAt": "2026-07-17T20:50:22.337Z",
+      "reviewRound": "2026-07-17T20:47:46.221Z",
+      "reviewRunId": "B-10b0:RR-023",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "9fc6c9e6575210482030fe3baf7160163d5b3b54c14c1068949039307388dbb2"
     }
   ]
 }
