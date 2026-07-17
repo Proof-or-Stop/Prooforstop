@@ -116,6 +116,54 @@
           "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
           "scripts/verify-proof-or-stop-prompt-baseline.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run the existing Proof-or-Stop baseline verifier in read-only mode and prove the canonical registry still contains exactly the same 16 roles, with every generated agent_prompt byte count and whole-output SHA-256 equal to the pre-Story baseline; the verifier must offer no hash-refresh path and docs/requirements/baselines/proof-or-stop-prompt-baseline.json must remain byte-identical.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Build packages/main, run the focused prompt-contract/measurement smoke, and run scripts/verify-proof-or-stop-prompt-baseline.mjs successfully; two measurements of the same pinned inputs must serialize to byte-identical output with identical aggregate and per-role values.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Assert the role registry has exactly 16 unique canonical role IDs and exact lifecycle metadata for boundary cases: lattice-review-channel is retired and non-default, product-reviewer is active INIT authority, implementation-reviewer is compatibility, and test-intent/test-case-reviewer replace or alias to canonical verification-intent without changing currently legal dispatch behavior.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "For all 16 roles, compare both source template output and the two generated mirror surfaces against the pre-implementation tree; git diff must be empty for packages/main templates, .lattice-codex/agents, and .claude/agents, including newline and final-byte differences.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Exercise canonical serialization at boundary values (empty optional observations, unavailable known/provider input, multibyte text and newline-sensitive byte/line counts): repeated equivalent input must keep the same digest and measurement, while a semantically relevant contract-field change must change the canonical digest.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Mutation probes must fail closed when any required RuntimeContract, RoleContract, PromptEnvelope, or PromptMeasurementRecord field is absent, when schemaVersion is unknown, or when lifecycle status/replacement/defaultDispatch violates the frozen role policy; no partial registry or permissive fallback is accepted.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Tampering with canonical contract data, semantic/render/assembled digests, bytes, lines, estimated tokens, repetition values, or unavailable usage markers must be detected by the focused smoke/verifier rather than normalized away or reported as a passing measurement.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "A controlled temporary mutation of one of the 16 assembled Prompt outputs must make the baseline verifier fail on exact bytes/hash, and restoring the source must restore PASS; accepting or refreshing the baseline hash to hide that drift is explicitly forbidden and the repository baseline/templates/mirrors must finish with an empty diff.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
       }
     }
   ]
