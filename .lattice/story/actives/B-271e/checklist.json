@@ -187,9 +187,9 @@
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
         "AGENTS.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-16T23:45:36.627Z",
-      "endTime": "2026-07-16T23:56:28.255Z",
+      "endTime": "2026-07-17T00:17:55.841Z",
       "userSees": "The guard prints `Production test seam guard: PASS — no unsafe SMOKE/TEST control reaches a filesystem or process sink.` A negative fixture using env-derived readyFile to writeFileSync is rejected, while ordinary PATH/runtime reads and sanitized bounded numeric/enum controls remain accepted.",
       "excludes": [
         "Repository-wide taint analysis",
@@ -419,6 +419,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "F-001/F-006 fixed: exact evidence authority table and generated 640-case no-write matrix passed on commit 969ffd1d98."
+    },
+    {
+      "timestamp": "2026-07-17T00:17:55.841Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-002/F-003/F-004/F-005 fixed: structural sanitizer proof, missing taint flows, and real verifier lock-order instrumentation passed on commit 969ffd1d98."
     }
   ]
 }
