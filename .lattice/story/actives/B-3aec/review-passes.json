@@ -161,6 +161,23 @@
         "scanEscalationReason": null
       },
       "_hash": "52e9080fc1ddd1a727793da046ba8a56b20a468c84335d0fa7a4877020497246"
+    },
+    {
+      "id": "B-3aec:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Recovery re-attestation confirms 62abc146dc is an ancestor of current HEAD and every descendant change is confined to trusted B-3aec story metadata; non-metadata material diff is empty. Read-only lifecycle_check classifies canonical test-evidence.json as validation PASS at 2026-07-17T10:24:12.322Z, with current-identical materialHash 8c26e249 and storyFilesHash 12a2eb67. Prior concept conclusions therefore remain valid without rerunning tests; no distinct blocker found.",
+      "createdAt": "2026-07-17T10:25:38.146Z",
+      "reviewRound": "2026-07-17T10:24:42.265Z",
+      "reviewRunId": "B-3aec:RR-016",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "b6343ded127f85577a27f558d51618a22a8bc5667e4d1e230903541acbbc861c"
     }
   ]
 }
