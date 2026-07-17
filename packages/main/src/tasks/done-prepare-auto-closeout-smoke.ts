@@ -260,6 +260,16 @@ function setupFixture(options: FixtureOptions = {}): Fixture {
       endTime: NOW,
     }],
   } as ChecklistData);
+  const attemptMaterialHash = currentMaterialHash(root, 'HEAD', root)!;
+  const attemptStoryFilesHash = currentStoryFilesHash(root, 'HEAD', root)!;
+  store.appendProcessEvent(STORY_ID, {
+    type: 'phase_transition', storyId: STORY_ID, attemptId: NOW, fromPhase: 'DEV', toPhase: 'REVIEW',
+    materialHash: attemptMaterialHash, storyFilesHash: attemptStoryFilesHash, reviewRound: NOW,
+  });
+  store.appendProcessEvent(STORY_ID, {
+    type: 'phase_transition', storyId: STORY_ID, attemptId: NOW, fromPhase: 'REVIEW', toPhase: 'TEST',
+    materialHash: attemptMaterialHash, storyFilesHash: attemptStoryFilesHash, reviewRound: NOW,
+  });
   seedDoneGateEvidence(root, STORY_ID);
   commitAll(root, 'seed done_prepare auto-closeout story metadata');
   assert.equal(git(root, ['status', '--porcelain']), '', 'fixture must start clean');
@@ -348,6 +358,7 @@ async function assertManifestOnlyAutoCloseout(): Promise<void> {
     assert.deepEqual(committedFiles, [
       `.lattice/story/actives/${storyId}/closeout-write-receipts.jsonl`,
       `.lattice/story/actives/${storyId}/done-required-evidence.json`,
+      `.lattice/story/actives/${storyId}/process-events.jsonl`,
       `.lattice/story/actives/${storyId}/test-evidence.json`,
     ]);
     const evidenceStore = new StoryStore(root);

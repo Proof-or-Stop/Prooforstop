@@ -25,6 +25,7 @@
  */
 
 import { execSync, spawn } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -623,6 +624,9 @@ function evaluateStoryRoutineReuse(args: {
 }
 
 function reusedStoryValidationResult(args: {
+  ctx: HandlerContext;
+  storyId: string;
+  gitCwd: string;
   snapshot: ReturnType<typeof routineVerificationSnapshot>;
   identity: RoutineValidationIdentity;
   reuse: RoutineValidationReuseEvaluation;
@@ -643,7 +647,7 @@ function reusedStoryValidationResult(args: {
     commands: [],
     ...(args.focus ? { focus: { name: args.focus, mode: 'focused', finalFullValidation: false, doneRequiredProof: false } } : {}),
   });
-  return {
+  const reused = {
     ...result,
     disposition: 'reused',
     commandExecutions: 0,
@@ -656,6 +660,42 @@ function reusedStoryValidationResult(args: {
       identityDigest: args.identity.digest,
     },
   };
+  recordValidationTerminal(args.ctx, args.storyId, args.gitCwd, reused, args.identity);
+  return reused;
+}
+
+function recordValidationTerminal(
+  ctx: HandlerContext,
+  storyId: string,
+  gitCwd: string,
+  result: any,
+  identity?: RoutineValidationIdentity,
+): void {
+  let story;
+  try { story = ctx.store.readStory(storyId); } catch { return; }
+  ctx.store.appendProcessEvent(storyId, {
+    type: 'validation_terminal',
+    storyId,
+    attemptId: story.currentReviewRound ?? '',
+    phase: story.phase,
+    reviewRound: story.currentReviewRound ?? '',
+    commandSetHash: identity?.digest ?? createHash('sha256').update(JSON.stringify(
+      Array.isArray(result.commands)
+        ? result.commands.map((command: any) => ({
+          label: command?.label ?? '',
+          command: command?.command ?? '',
+          args: Array.isArray(command?.args) ? command.args : [],
+          shell: command?.shell === true,
+          cwd: command?.cwd ?? '',
+        }))
+        : [],
+    )).digest('hex'),
+    disposition: result.disposition === 'reused' ? 'reused' : 'executed',
+    commandExecutions: Number(result.commandExecutions ?? result.commands?.length ?? 0),
+    result: result.allPass === false || result.status === 'fail' ? 'fail' : 'pass',
+    materialHash: currentMaterialHash(gitCwd, 'HEAD', ctx.root) ?? '',
+    storyFilesHash: currentStoryFilesHash(gitCwd, 'HEAD', ctx.root) ?? '',
+  });
 }
 
 function resolveStoryVerificationPolicy(ctx: HandlerContext, storyId: string) {
@@ -715,6 +755,7 @@ function persistStoryValidationEvidence(
   autoCommitStoryMetadata(ctx.root, storyId, 'validate', {
     closeoutArtifactPaths: ['test-evidence.json'],
   });
+  recordValidationTerminal(ctx, storyId, gitCwd, result, identity);
 }
 
 function externalResult(args: {
@@ -963,7 +1004,10 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             const reuse = built
               ? evaluateStoryRoutineReuse({ ctx, storyId: args.story, gitCwd: handlerGitCwd, identity: built.identity, coverage: built.snapshot.coverage })
               : null;
-            if (reuse?.reusable && built) return reusedStoryValidationResult({ snapshot: built.snapshot, identity: built.identity, reuse, warn: true });
+            if (reuse?.reusable && built) return reusedStoryValidationResult({
+              ctx, storyId: args.story!, gitCwd: handlerGitCwd,
+              snapshot: built.snapshot, identity: built.identity, reuse, warn: true,
+            });
             const base = externalResult({
               provider: 'lattice-verifier-no-validation-entry',
               status: 'warn',
@@ -1015,7 +1059,10 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             : null;
           if (reuse?.reusable && built) {
             ctx.log?.('routine validation reused; commandExecutions=0');
-            return reusedStoryValidationResult({ snapshot: built.snapshot, identity: built.identity, reuse, focus });
+            return reusedStoryValidationResult({
+              ctx, storyId: args.story!, gitCwd: handlerGitCwd,
+              snapshot: built.snapshot, identity: built.identity, reuse, focus,
+            });
           }
           ctx.log?.(usingConfigured
             ? `running ${commands.length} configured validate.command(s)${focus ? ` for focus=${focus}` : ''}`
@@ -1146,7 +1193,10 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           : null;
         if (reuse?.reusable && built) {
           ctx.log?.('routine validation reused; commandExecutions=0');
-          const reused = reusedStoryValidationResult({ snapshot: built.snapshot, identity: built.identity, reuse, focus });
+          const reused = reusedStoryValidationResult({
+            ctx, storyId: args.story!, gitCwd: handlerGitCwd,
+            snapshot: built.snapshot, identity: built.identity, reuse, focus,
+          });
           return args.json ? JSON.stringify(reused) : renderExternalResult(reused);
         }
         const commandResult = await runValidateFile();

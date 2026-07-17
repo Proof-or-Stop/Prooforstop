@@ -87,6 +87,7 @@ import { buildDoneClosureRunbook } from '../handlers/done-closure.js';
 import { checkCommitAuthor } from '../handlers/validate-channel.js';
 import { repairGlobalLatticeLinkBeforeWorktreeDelete } from '../handlers/worktree.js';
 import { assertDonePreparePassConvergence, deriveDonePreparePassConvergence, donePrepareJsonResult, validationCloseoutAdvancePaths } from '../handlers/done-prepare.js';
+import { buildPhaseTransitionProcessEvent } from '../handlers/transition-orchestrator.js';
 
 function write(root: string, path: string, content: string): void {
   mkdirSync(dirname(join(root, path)), { recursive: true });
@@ -4385,11 +4386,51 @@ function assertDonePrepareOnePassConvergenceContract(): void {
       unchangedSuiteExecutions: 0,
       successfulCloseout: 1,
     });
-    const derived = deriveDonePreparePassConvergence([
+    const baseFacts = {
+      anchor: {
+        timestamp: '2026-01-01T00:00:00.000Z',
+        attemptId: 'round-1',
+        materialHash: 'material-1',
+        storyFilesHash: 'story-1',
+        reviewRound: 'round-1',
+      },
+      phaseTransitions: [],
+      humanConfirmations: [],
+      validationTerminals: [{
+        type: 'validation_terminal',
+        timestamp: '2026-01-01T00:01:00.000Z',
+        commandSetHash: 'commands-1',
+        materialHash: 'material-1',
+        storyFilesHash: 'story-1',
+        disposition: 'executed',
+        commandExecutions: 1,
+      }],
+      reviewerIdentityIds: [],
+      closeoutWriterSequence: ['validate:test-evidence.json'],
+    } as any;
+    assert.deepEqual(buildPhaseTransitionProcessEvent({
+      storyId,
+      fromPhase: 'REVIEW',
+      toPhase: 'TEST',
+      materialHash: 'material-1',
+      storyFilesHash: 'story-1',
+      reviewRound: 'round-1',
+    }), {
+      type: 'phase_transition',
+      storyId,
+      attemptId: 'round-1',
+      fromPhase: 'REVIEW',
+      toPhase: 'TEST',
+      materialHash: 'material-1',
+      storyFilesHash: 'story-1',
+      reviewRound: 'round-1',
+    });
+    const passSteps = [
       { id: 'validate', status: 'pass', reason: 'Validation PASS reused (trusted-story-metadata-descendant); commandExecutions=0' },
       { id: 'doneClosure', status: 'pass' },
       { id: 'cleanTree', status: 'pass' },
-    ] as any, { blockers: [] } as any);
+    ] as any;
+    const derived = deriveDonePreparePassConvergence(passSteps, { blockers: [] } as any, baseFacts);
     assert.deepEqual(derived, {
       metadataRollbacks: 0,
       reviewerReattestations: 0,
@@ -4397,18 +4438,31 @@ function assertDonePrepareOnePassConvergenceContract(): void {
       unchangedSuiteExecutions: 0,
       successfulCloseout: 1,
     });
-    const duplicateExecution = deriveDonePreparePassConvergence([
-      { id: 'validate', status: 'pass', reason: 'Validation PASS reused; commandExecutions=1' },
-      { id: 'doneClosure', status: 'pass' },
-      { id: 'cleanTree', status: 'pass' },
-    ] as any, { blockers: [] } as any);
-    assert.equal(duplicateExecution.unchangedSuiteExecutions, 1, 'a nested redundant execution must make the PASS convergence invariant fail');
+    const duplicateExecution = deriveDonePreparePassConvergence(passSteps, { blockers: [] } as any, {
+      ...baseFacts,
+      validationTerminals: [
+        ...baseFacts.validationTerminals,
+        { ...baseFacts.validationTerminals[0], timestamp: '2026-01-01T00:02:00.000Z' },
+      ],
+    });
+    assert.equal(duplicateExecution?.unchangedSuiteExecutions, 1, 'a second execution of an unchanged command set must make the PASS convergence invariant fail');
     assert.throws(
-      () => assertDonePreparePassConvergence(duplicateExecution),
+      () => assertDonePreparePassConvergence(duplicateExecution!),
       /done_prepare convergence invariant failed/,
       'reused validation with commandExecutions>0 must never render PASS',
     );
-    assert.doesNotThrow(() => assertDonePreparePassConvergence(derived));
+    for (const negative of [
+      { ...baseFacts, phaseTransitions: [{ type: 'phase_transition', timestamp: '2026-01-01T00:03:00.000Z', fromPhase: 'TEST', toPhase: 'DEV', materialHash: 'material-1', storyFilesHash: 'story-1' }] },
+      { ...baseFacts, reviewerIdentityIds: ['B-convergence:RR-002'] },
+      { ...baseFacts, humanConfirmations: [{ type: 'human_confirmation', timestamp: '2026-01-01T00:03:00.000Z' }] },
+    ] as any[]) {
+      assert.throws(
+        () => assertDonePreparePassConvergence(deriveDonePreparePassConvergence(passSteps, { blockers: [] } as any, negative)!),
+        /done_prepare convergence invariant failed/,
+      );
+    }
+    assert.equal(deriveDonePreparePassConvergence(passSteps, { blockers: [] } as any, null), null, 'legacy/missing attempt telemetry must omit the convergence claim');
+    assert.doesNotThrow(() => assertDonePreparePassConvergence(derived!));
     assert.equal(donePrepareJsonResult(storyId, 'DONE prepare: BLOCKED\nblockedAt: cleanTree\nreason: materialHash changed').convergence, undefined);
 
     const handlerSource = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../handlers/done-prepare.js'), 'utf8');

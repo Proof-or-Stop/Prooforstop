@@ -43,11 +43,11 @@ import { execFileSync } from 'child_process';
 import type { HandlerContext } from './context.js';
 import { collectContext, PHASE_TO_EVENT, assertCwdInWorktree } from './context.js';
 import { createStoryActor, getStateName, canSendStoryEventWithoutSnapshotCan } from '../core/machine.js';
-import type { StoryInfo, StoryPhase } from '../core/types.js';
+import type { ProcessEvent, StoryInfo, StoryPhase } from '../core/types.js';
 import { checkMetaStoryAdvanceGuard } from '../core/audit-meta-store.js';
 import { renderSummaryForHint } from './summary.js';
 import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-risk.js';
-import { currentGitHead } from '../core/evidence-freshness.js';
+import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { currentMilestoneStatusEvidenceBinding } from '../core/milestone-status.js';
 import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
 import { checkMainDivergence } from '../core/done-oracle.js';
@@ -380,6 +380,26 @@ export async function runStoryTransition(
   return runStoryTransitionInner(ctx, args);
 }
 
+export function buildPhaseTransitionProcessEvent(input: {
+  storyId: string;
+  fromPhase: string;
+  toPhase: string;
+  materialHash: string;
+  storyFilesHash: string;
+  reviewRound: string;
+}): Omit<ProcessEvent, 'timestamp'> {
+  return {
+    type: 'phase_transition',
+    storyId: input.storyId,
+    attemptId: input.reviewRound,
+    fromPhase: input.fromPhase,
+    toPhase: input.toPhase,
+    materialHash: input.materialHash,
+    storyFilesHash: input.storyFilesHash,
+    reviewRound: input.reviewRound,
+  };
+}
+
 async function runStoryTransitionInner(
   ctx: HandlerContext,
   args: StoryTransitionArgs,
@@ -645,6 +665,20 @@ async function runStoryTransitionInner(
       story.currentReviewRound = now;
     }
     store.writeStory(args.storyId, story);
+    const transitionGitCwd = resolveGitCwd({
+      store,
+      storyId: args.storyId,
+      metadataRoot: ctx.root,
+      projectRoot: ctx.root,
+    });
+    store.appendProcessEvent(args.storyId, buildPhaseTransitionProcessEvent({
+      storyId: args.storyId,
+      fromPhase: oldPhase,
+      toPhase: newState,
+      materialHash: currentMaterialHash(transitionGitCwd, 'HEAD', ctx.root) ?? '',
+      storyFilesHash: currentStoryFilesHash(transitionGitCwd, 'HEAD', ctx.root) ?? '',
+      reviewRound: story.currentReviewRound ?? '',
+    }));
 
     // ── post effects. B-56d3: non-DONE transition effects in
     // transition-effects.ts; each call site stays in the exact order it ran

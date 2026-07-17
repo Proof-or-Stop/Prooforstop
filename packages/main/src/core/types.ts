@@ -1185,7 +1185,10 @@ export type ProcessEventType =
   | 'auxiliary_worktree_cleanup'
   // B-6bfd CHK-004: Proofbound-managed guard session projection lifecycle events.
   | 'guard_session_start'
-  | 'guard_session_check';
+  | 'guard_session_check'
+  | 'phase_transition'
+  | 'human_confirmation'
+  | 'validation_terminal';
 
 export type ProcessEvent = {
   type: ProcessEventType;

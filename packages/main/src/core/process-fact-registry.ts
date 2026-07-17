@@ -1231,6 +1231,36 @@ export const PROCESS_FACT_SIGNED_ARTIFACTS = PROCESS_FACT_ARTIFACTS.filter(
   (entry) => entry.artifact?.signed === true,
 ) as readonly ProcessFactRegistryEntry[];
 
+const PROCESS_FACT_CLOSEOUT_TELEMETRY = [
+  {
+    name: 'runtime:closeout_phase_transition',
+    kind: 'runtime-behavior',
+    semantics: ['runtime-behavior', 'gate-evidence'],
+    level: 'L4',
+    producer: 'handlers/transition-orchestrator',
+    consumerGate: 'done_prepare convergence acceptance',
+    rationale: 'Typed from/to phase transitions bind attempt, review round, materialHash, and storyFilesHash so metadata-only rollback counts are mechanically derived.',
+  },
+  {
+    name: 'runtime:closeout_human_confirmation',
+    kind: 'runtime-behavior',
+    semantics: ['runtime-behavior', 'gate-evidence'],
+    level: 'L4',
+    producer: 'handlers/story story_resume',
+    consumerGate: 'done_prepare convergence acceptance',
+    rationale: 'A successful human convergence-breaker acknowledgement emits a durable typed event inside the active review attempt.',
+  },
+  {
+    name: 'runtime:closeout_validation_terminal',
+    kind: 'runtime-behavior',
+    semantics: ['runtime-behavior', 'validation-result', 'gate-evidence'],
+    level: 'L4',
+    producer: 'handlers/verifier',
+    consumerGate: 'done_prepare convergence acceptance',
+    rationale: 'Routine validation terminals bind attempt, command-set identity, disposition, commandExecutions, materialHash, and storyFilesHash for duplicate-suite accounting.',
+  },
+] as const satisfies readonly ProcessFactRegistryEntry[];
+
 export const PROCESS_FACT_REQUIRED_ARTIFACTS = PROCESS_FACT_ARTIFACTS.filter(
   (entry) => entry.artifact && PROCESS_FACT_REQUIRED_ARTIFACT_NAMES.includes(entry.artifact.path as typeof PROCESS_FACT_REQUIRED_ARTIFACT_NAMES[number]),
 ) as readonly ProcessFactRegistryEntry[];
@@ -1240,6 +1270,7 @@ export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = [
   ...PROCESS_FACT_REVIEWER_LANES,
   ...PROCESS_FACT_ARTIFACTS,
   ...PROCESS_FACT_FLOW_POLICIES,
+  ...PROCESS_FACT_CLOSEOUT_TELEMETRY,
 ];
 
 export const PROCESS_FACT_REGISTRY_BY_NAME: Record<string, ProcessFactRegistryEntry> = Object.fromEntries(

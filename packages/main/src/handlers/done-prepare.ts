@@ -12,7 +12,10 @@ import { createVerifierHandlers } from './verifier.js';
 import { loadConfig } from '../core/config.js';
 import { resolveDoneRequiredPolicy } from '../core/done-required-validation.js';
 import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash, isStoryMetadataPath } from '../core/evidence-freshness.js';
-import { closeoutArtifactPolicyFor } from '../core/closeout-trust.js';
+import { closeoutArtifactPolicyFor, readCloseoutWriteReceipts } from '../core/closeout-trust.js';
+import { verifyReviewRun } from '../core/review-run.js';
+import { verifyReviewPass } from '../core/finding-verify.js';
+import type { ProcessEvent } from '../core/types.js';
 import { formatValidationProgressEvent } from '../core/validation-executor.js';
 import { buildVerificationCoverage } from '../core/verification.js';
 import {
@@ -117,6 +120,21 @@ interface DonePrepareCurrentBinding {
 }
 
 type DonePrepareConvergence = NonNullable<DonePrepareJsonResult['convergence']>;
+
+export interface DonePrepareConvergenceFacts {
+  anchor: {
+    timestamp: string;
+    attemptId: string;
+    materialHash: string;
+    storyFilesHash: string;
+    reviewRound: string;
+  };
+  phaseTransitions: ProcessEvent[];
+  humanConfirmations: ProcessEvent[];
+  validationTerminals: ProcessEvent[];
+  reviewerIdentityIds: string[];
+  closeoutWriterSequence: string[];
+}
 
 interface DonePrepareReviewAssurancePlan {
   requiredGates: Array<{
@@ -1439,22 +1457,106 @@ function currentDoneMaterialBinding(ctx: HandlerContext, gitCwd: string): DonePr
   };
 }
 
+function eventText(event: ProcessEvent, field: string): string {
+  return typeof event[field] === 'string' ? event[field] as string : '';
+}
+
+function eventNumber(event: ProcessEvent, field: string): number {
+  const value = event[field];
+  return typeof value === 'number' && Number.isFinite(value) ? value : 0;
+}
+
+export function collectDonePrepareConvergenceFacts(
+  ctx: HandlerContext,
+  storyId: string,
+): DonePrepareConvergenceFacts | null {
+  const events = ctx.store.readProcessEvents(storyId);
+  const transitions = events
+    .filter((event) => event.type === 'phase_transition' && eventText(event, 'storyId') === storyId)
+    .sort((left, right) => left.timestamp.localeCompare(right.timestamp));
+  const currentTestEntry = transitions.filter((event) => eventText(event, 'toPhase') === 'TEST').at(-1);
+  if (!currentTestEntry) return null;
+  const currentMaterial = eventText(currentTestEntry, 'materialHash');
+  const currentStoryFiles = eventText(currentTestEntry, 'storyFilesHash');
+  const anchorEvent = transitions.find((event) => (
+    eventText(event, 'toPhase') === 'REVIEW'
+    && event.timestamp <= currentTestEntry.timestamp
+    && eventText(event, 'materialHash') === currentMaterial
+    && eventText(event, 'storyFilesHash') === currentStoryFiles
+  ));
+  if (!anchorEvent) return null;
+  const anchor = {
+    timestamp: anchorEvent.timestamp,
+    attemptId: eventText(anchorEvent, 'attemptId'),
+    materialHash: eventText(anchorEvent, 'materialHash'),
+    storyFilesHash: eventText(anchorEvent, 'storyFilesHash'),
+    reviewRound: eventText(anchorEvent, 'reviewRound'),
+  };
+  if (!anchor.attemptId || !anchor.materialHash || !anchor.storyFilesHash || !anchor.reviewRound) return null;
+  const windowEvents = events.filter((event) => event.timestamp >= anchor.timestamp);
+  const phaseTransitions = transitions.filter((event) => event.timestamp >= anchor.timestamp);
+  const testEntry = phaseTransitions.find((event) => (
+    eventText(event, 'toPhase') === 'TEST'
+    && eventText(event, 'materialHash') === anchor.materialHash
+    && eventText(event, 'storyFilesHash') === anchor.storyFilesHash
+  ));
+  if (!testEntry) return null;
+  const runs = ctx.store.readReviewRuns(storyId).runs
+    .filter((run) => run.startedAt > testEntry.timestamp && verifyReviewRun(run));
+  const passes = ctx.store.readReviewPasses(storyId).passes
+    .filter((pass) => pass.createdAt > testEntry.timestamp && verifyReviewPass(storyId, pass));
+  const reviewerIdentityIds = [...new Set([
+    ...runs.map((run) => run.reviewRunId),
+    ...passes.map((pass) => pass.reviewRunId || pass.id),
+  ])];
+  let receipts: ReturnType<typeof readCloseoutWriteReceipts> = [];
+  try { receipts = readCloseoutWriteReceipts(ctx.store.storyDirPath(storyId)); } catch { return null; }
+  return {
+    anchor,
+    phaseTransitions,
+    humanConfirmations: windowEvents.filter((event) => event.type === 'human_confirmation'),
+    validationTerminals: windowEvents.filter((event) => event.type === 'validation_terminal'),
+    reviewerIdentityIds,
+    closeoutWriterSequence: receipts
+      .filter((receipt) => receipt.timestamp >= anchor.timestamp)
+      .map((receipt) => `${receipt.writerCommand}:${receipt.artifactPath}`),
+  };
+}
+
 export function deriveDonePreparePassConvergence(
   steps: DonePrepareStep[],
   runbook: DoneClosureRunbook,
-): DonePrepareConvergence {
-  const stepText = steps.map((step) => `${step.status} ${step.reason ?? ''} ${step.command ?? ''}`).join('\n');
-  const validationText = steps.find((step) => step.id === 'validate')?.reason ?? '';
-  const validationWasReused = /\bdisposition=reused\b|validation pass reused|validation reused/i.test(validationText);
-  const executionCounts = [...validationText.matchAll(/commandExecutions=(\d+)/g)].map((match) => Number(match[1]));
-  const metadataRollbacks = /rollback (?:performed|completed|failed)/i.test(stepText) ? 1 : 0;
-  const reviewerReattestations = blockingRows(runbook).filter(
-    (row) => row.id === 'review-assurance-floor' || row.id === 'review-escalation',
-  ).length;
-  const humanConfirmations = /human(?: confirmation| ack|:true)|story_resume/i.test(stepText) ? 1 : 0;
-  const unchangedSuiteExecutions = validationWasReused
-    ? executionCounts.reduce((sum, count) => sum + count, 0)
-    : 0;
+  facts: DonePrepareConvergenceFacts | null,
+): DonePrepareConvergence | null {
+  if (!facts) return null;
+  const metadataRollbacks = facts.phaseTransitions.filter((event) => (
+    (eventText(event, 'fromPhase') === 'REVIEW' || eventText(event, 'fromPhase') === 'TEST')
+    && eventText(event, 'toPhase') === 'DEV'
+    && eventText(event, 'materialHash') === facts.anchor.materialHash
+    && eventText(event, 'storyFilesHash') === facts.anchor.storyFilesHash
+  )).length;
+  const reviewerReattestations = facts.reviewerIdentityIds.length;
+  const humanConfirmations = facts.humanConfirmations.length;
+  const validationGroups = new Map<string, ProcessEvent[]>();
+  for (const event of facts.validationTerminals) {
+    const key = [
+      eventText(event, 'commandSetHash'),
+      eventText(event, 'materialHash'),
+      eventText(event, 'storyFilesHash'),
+    ].join(':');
+    if (!eventText(event, 'commandSetHash') || !eventText(event, 'materialHash') || !eventText(event, 'storyFilesHash')) {
+      return null;
+    }
+    validationGroups.set(key, [...(validationGroups.get(key) ?? []), event]);
+  }
+  let unchangedSuiteExecutions = 0;
+  for (const terminals of validationGroups.values()) {
+    const executed = terminals.filter((event) => eventText(event, 'disposition') === 'executed' && eventNumber(event, 'commandExecutions') > 0);
+    unchangedSuiteExecutions += Math.max(0, executed.length - 1);
+    unchangedSuiteExecutions += terminals.filter(
+      (event) => eventText(event, 'disposition') === 'reused' && eventNumber(event, 'commandExecutions') > 0,
+    ).length;
+  }
   const successfulCloseout = steps.every((step) => step.status !== 'blocked')
     && blockingRows(runbook).length === 0
     ? 1
@@ -1488,9 +1590,10 @@ function renderPass(args: {
   runtime: RuntimeChangeReport;
   dryRun: boolean;
   showMemoryPack: boolean;
+  convergenceFacts: DonePrepareConvergenceFacts | null;
 }): string {
-  const convergence = deriveDonePreparePassConvergence(args.steps, args.runbook);
-  assertDonePreparePassConvergence(convergence);
+  const convergence = deriveDonePreparePassConvergence(args.steps, args.runbook, args.convergenceFacts);
+  if (convergence) assertDonePreparePassConvergence(convergence);
   const lines = [
     'DONE prepare: PASS',
     `storyId: ${args.storyId}`,
@@ -1502,10 +1605,12 @@ function renderPass(args: {
     `validate: ${ensureStep(args.steps, 'validate').status.toUpperCase()}`,
     `doneClosure: ${ensureStep(args.steps, 'doneClosure').status.toUpperCase()}`,
     `worktreeClean: ${ensureStep(args.steps, 'cleanTree').status.toUpperCase()}`,
-    'closeoutWriteSequence: validation->done-required->done-closure->clean-tree',
-    `convergence: metadataRollbacks=${convergence.metadataRollbacks} reviewerReattestations=${convergence.reviewerReattestations} ` +
+    `closeoutWriteSequence: ${args.convergenceFacts?.closeoutWriterSequence.join('->') || 'unavailable'}`,
+    ...(convergence ? [`convergence: metadataRollbacks=${convergence.metadataRollbacks} reviewerReattestations=${convergence.reviewerReattestations} ` +
       `humanConfirmations=${convergence.humanConfirmations} unchangedSuiteExecutions=${convergence.unchangedSuiteExecutions} ` +
-      `successfulCloseout=${convergence.successfulCloseout}`,
+      `successfulCloseout=${convergence.successfulCloseout}`] : [
+      'convergenceUnavailable: missing durable REVIEW-to-TEST attempt window; no zero-cost convergence claim emitted',
+    ]),
     ...renderRuntimeReport(args.runtime),
     '',
     'Local assurance:',
@@ -2207,6 +2312,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       runtime,
       dryRun: args.dryRun,
       showMemoryPack: packSurface.shouldRender,
+      convergenceFacts: collectDonePrepareConvergenceFacts(ctx, storyId),
     }), rawArgs);
   } catch (err) {
     if (isDonePreparePhaseTimeout(err)) return phaseTimeoutBlock(storyId, steps, err, args.dryRun);

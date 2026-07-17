@@ -240,6 +240,16 @@ function setupFixture(options: FixtureOptions = {}): Fixture {
       endTime: NOW,
     }],
   } as ChecklistData);
+  const attemptMaterialHash = currentMaterialHash(root, 'HEAD', root)!;
+  const attemptStoryFilesHash = currentStoryFilesHash(root, 'HEAD', root)!;
+  store.appendProcessEvent(STORY_ID, {
+    type: 'phase_transition', storyId: STORY_ID, attemptId: NOW, fromPhase: 'DEV', toPhase: 'REVIEW',
+    materialHash: attemptMaterialHash, storyFilesHash: attemptStoryFilesHash, reviewRound: NOW,
+  });
+  store.appendProcessEvent(STORY_ID, {
+    type: 'phase_transition', storyId: STORY_ID, attemptId: NOW, fromPhase: 'REVIEW', toPhase: 'TEST',
+    materialHash: attemptMaterialHash, storyFilesHash: attemptStoryFilesHash, reviewRound: NOW,
+  });
   seedDoneGateEvidence(root, STORY_ID);
   commitAll(root, 'seed done_prepare merge/rerun story metadata');
   assert.equal(git(root, ['status', '--porcelain']), '', 'fixture must start clean');
