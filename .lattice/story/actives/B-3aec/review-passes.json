@@ -201,6 +201,28 @@
         "scanEscalationReason": null
       },
       "_hash": "1e02a0eb0d66a2d909748c17c288e5ceac050de1ac127b482af6cc54cd03c71b"
+    },
+    {
+      "id": "B-3aec:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Recovery re-attestation: git confirms 62abc146dc..HEAD contains only canonical Lattice checklist/review/validate/process metadata; no docs/requirements, packages/main/src, package.json, or lockfile material changed. Latest session_brief reports routine test PASS, so the previously reviewed documentation claims remain aligned with unchanged business material.",
+      "createdAt": "2026-07-17T10:27:17.317Z",
+      "reviewRound": "2026-07-17T10:24:42.265Z",
+      "reviewRunId": "B-3aec:RR-019",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/handlers/story-dispatch.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c3c499a7c24969f20b2811ca6b9b1ef1f6ac422550811e44e53b491788d24c3b"
     }
   ]
 }
