@@ -194,6 +194,76 @@
         "bindingHash": "53bbc1468c01ebd540e9b0719065b475bed73d8293d26f16bc633c016fb502a7"
       },
       "_hash": "725e89f1ce3bf8dc88874858279767f26d751b9d4bbaeda5cb13a275fabd0a4e"
+    },
+    {
+      "reviewRunId": "B-62b8:RR-004",
+      "storyId": "B-62b8",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-07-17T23:28:37.387Z",
+      "startedAt": "2026-07-17T23:31:18.027Z",
+      "headHash": "2d51614674b94cf15873be0fb62e1bcac5f1fb6d",
+      "materialHash": "a18f6a942cfea5fa08a9a832b241fc1c2a2785d7d641b8cc3d364f957a0e1d67",
+      "storyFilesHash": "a9d080acdc0deaa99ddb6f3ba7f3db26861cb05c1b13005d7f35a0798bc8182a",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "d7f4694f7335b5bdb559d5a8fa400db6e35a8dcb4ad9923402ed64bae8f6bde9",
+        "diffPackHash": "6e85e8ca9700a8b46efc52378bc83de67772242e42186b03790d0decdb9db6e0",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/owner-session-token-store.ts",
+          "packages/main/src/core/owner-session.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/tasks/owner-session-guardrail.ts",
+          "packages/main/src/tasks/story-owner-lease-smoke.ts"
+        ],
+        "reviewedIntentRefs": [
+          "CHK-001:adversarial:3",
+          "CHK-002:adversarial:diagnostic-source-truth",
+          "CHK-002:adversarial:raw-token-redaction",
+          "CHK-004:reject-assurance-escalation"
+        ],
+        "reviewedHunkDigests": [
+          "2485790085d16aeb7b934d0bc51384aa68af06c3abfea107dbf471ed37838885",
+          "2f71a888c668130065ad2693105c3a9f8383240734e4160d7f42c6e6b4fcadda",
+          "3589cff93acb7af7cb35d7765becda25c65f36e4286588ef3286ed91013fa275",
+          "3a842833ecde7f486b56e87d57cb5a362ccf4857e30286b2603405ef625b778d",
+          "44660f1656acadec3135b24f383fb6179d9335fdd76dc400b27d2ebc51c73b19",
+          "46fb8dcc58f0b947fed200c92a857ae56d6534d6a6a110cd1b6cac9fd19ee5c6",
+          "668b1f3a543b010897bcba0e102170031edb7400a0d298789098c0d4327cfbc3",
+          "7d652569d1da760a9a4a152c31f59af9d7e1c6c009a664a5d269f56f7714d39f",
+          "814aeaf699cc99a1da76478929b1f4910093c56504c2bbcc332aefbe60920c3a",
+          "83e6298d90234d4b718db9432c57713a5cc3cf8370f8c6caffe5325d42629c6e",
+          "a325f9d5f588cddebd037fa69722d7f4cff6370faf43db34269691673d85b95c",
+          "b1fcec0811e2554df01605c02cae0f97de34e12e4d6485fd77824d5765689d29",
+          "bf0980ddeead795bf64359260e1ea81cf859319e95f7dce7ecfba915d830ef2b",
+          "cc48bc18ed03885643e855d22d15e4981f0e8c9b839f9449f798bd0a4b2954db",
+          "d68c85617a608e9cc3678b17ded89f0711d7db67e9285cf6631658328ca82d16",
+          "db6aef12012fadc6f7561f241299c408919fbfc00d72bb712b135cb3b5be78fc",
+          "de0262dc0652aed9ce2c3f781c6d3b0a154c4eb52aad56292502d611df37695b",
+          "ea19519e6fb44667758dd6e243cbacfbdea150ee9a918a75287272d0c97ab9c4",
+          "eb48634a816b3e3205295f1c33721d719a99c58cfdb58559d7382712a27cfec7",
+          "ebe386dedec805e6ff5ce811f8ca72236d5198acb932b721fc72c5b9edee8a5f"
+        ],
+        "bindingHash": "f89ee9f0b15ecbaeaade42e6f5c1e665f3ceeea62b913640f8de380496375dbb"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-62b8",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-62b8",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-62b8",
+        "workspaceMode": "story-worktree",
+        "headHash": "2d51614674b94cf15873be0fb62e1bcac5f1fb6d",
+        "materialHash": "a18f6a942cfea5fa08a9a832b241fc1c2a2785d7d641b8cc3d364f957a0e1d67",
+        "storyFilesHash": "a9d080acdc0deaa99ddb6f3ba7f3db26861cb05c1b13005d7f35a0798bc8182a",
+        "bindingHash": "e74a1aca6135cc1037afbc8454c8ea88e77d4e358e9b458357095ffeebc0c985"
+      },
+      "_hash": "017931edbd7d47c1742983a2abb826f1ffcb79b04ef2b6a0066647931fbae944"
     }
   ]
 }

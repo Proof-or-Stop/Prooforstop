@@ -74,6 +74,21 @@
       "_hash": "759b903375921c8392d2e92b7f7b42c2ee476df03dd25138d381cc5692a705cc",
       "signatureTag": "missing|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-62b8:F-006",
+      "desc": "docs/requirements/decisions/owner-session-contract-execution-plan.md:397-404 and CHK-002 verificationEvidence — HIGH: the ratified contract requires a post-implementation matrix on at least two real hosts and explicitly says pre-implementation document reviews do not count, while every CHK-002 real-host/child-shell intent is marked satisfied only by deterministic story-owner-lease/guardrail/CLI smokes. Those tests exercise synthetic env objects, not actual Codex/Claude/Antigravity launcher propagation or nested child shells, so host-specific env loss and source/provider drift remain untested. Run and bind fresh post-implementation real-host transcripts (at least two providers, plus one degraded ppid negative) or keep the affected intents/checklist incomplete.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-17T23:31:19.119Z",
+      "reviewRound": "2026-07-17T23:28:37.387Z",
+      "reviewRunId": "B-62b8:RR-002",
+      "_hash": "d089fb53feed82a68084d1f3be1dc614c1fcc6154070ce79ba7021f105ab11bc",
+      "signatureTag": "missing|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
