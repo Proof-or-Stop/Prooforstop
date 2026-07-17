@@ -24,6 +24,84 @@
         "test": [
           "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "prompt-contract-schemas-versioned",
+            "desc": "A focused contract smoke imports RuntimeContract, RoleContract, PromptMeasurementRecord, and PromptEnvelope, validates their exact proofbound.*.v1 schema discriminators and required digest/version/binding fields, and also validates the DispatchUsageObservation shape without granting it Story or reviewer authority.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "prompt-contract-deterministic-algorithms",
+            "desc": "The exported contract metadata names and pins the canonical-serialization, UTF-8 byte, LF logical-line, token-estimator, and repetition algorithms/versions; the same structured value and prompt text produce byte-identical canonical bytes, digests, bytes, lines, token estimates, and repetition results across repeated calls.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "prompt-contract-reuses-estimator",
+            "desc": "Token estimation reuses the existing usage-ledger bytesCharsEstimator contract (bytes-chars-heuristic version 1, utf8-bytes) and matches its empty, ASCII, CJK, and emoji results; Story 1 does not fork the estimator formula or mint a competing version.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "prompt-contract-canonical-order-unicode",
+            "desc": "Canonical serialization recursively orders object keys by a pinned ordinal/Unicode-code-point rule independent of insertion order and locale, preserves array order and Unicode scalar content without implicit normalization, and yields identical bytes/digests for insertion-order variants while distinguishing intentionally different Unicode sequences.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "prompt-contract-lf-byte-boundary",
+            "desc": "Tests pin LF logical-line behavior for empty text, one line, trailing LF, multiple LF separators, and CRLF input, while UTF-8 byte measurement remains the raw final text bytes; normalized line semantics and raw-byte/assembled-prompt digests are separate and cannot be substituted for one another.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "prompt-contract-digest-domains",
+            "desc": "Every semantic, render, assembled-prompt, measurement, and envelope/content-address digest is SHA-256 over a documented versioned domain plus canonical bytes; changing only the digest purpose/domain or algorithm/schema version changes the digest, preventing a digest from one field from being replayed as another.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "prompt-contract-repetition-versioned",
+            "desc": "The repetition metric pins normalization, shingle/matching behavior, denominator/empty-input behavior, ordering, and an explicit algorithm version; repeated and no-repetition fixtures have reproducible bounded results and a version change is observable in contract metadata.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "prompt-contract-canonical-fail-closed",
+            "desc": "Canonical serialization and digest entry points reject rather than omit/coerce undefined (including nested object/array values), NaN, positive/negative Infinity, unsupported values, sparse/cyclic structures, or otherwise non-canonical input; no invalid value can collapse to null, disappear, or produce an admissible digest.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "prompt-contract-schema-fail-closed",
+            "desc": "Mutation probes reject missing required fields, unknown schema/algorithm versions, malformed digest values, invalid status/context/dispatch enums, non-finite or negative measurements, and inconsistent envelope bindings instead of applying permissive defaults.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "prompt-contract-story1-no-envelope",
+            "desc": "Repository/runtime probes prove Story 1 defines and validates the PromptEnvelope type/schema only: the measurement report and baseline emit PromptMeasurementRecord sidecars, never instantiate or persist a Story-bound PromptEnvelope, never mint envelopeId/reviewRun authority, and do not alter full/incremental assembly or review-pass gates.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
