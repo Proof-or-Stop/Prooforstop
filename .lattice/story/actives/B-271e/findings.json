@@ -266,7 +266,7 @@
       "desc": "2bcc76fbdd closes the exact same-name receiver, unknown-receiver union, IIFE, direct constructor, method alias, literal call/apply, and parameter/return recursion cases, but two callable-resolution paths remain safety fail-open. The built analyzer returns [] for `class R { constructor({env}) { exec(env.TEST_COMMAND) } } const Alias = R; new Alias(process)` because resolveConstructorCandidates does not follow CallableIndex.aliases, and for `const unsafe={run(target){exec(target)}}; const args=[process.env.TEST_COMMAND]; unsafe.run.apply(null,args)` because invocation() supplies apply arguments only when the second operand is an inline ArrayLiteralExpression and otherwise returns an empty args list. Both are ordinary local aliases of already-supported forms and deliver TEST data to exec. Resolve constructor identifiers through the same cycle-safe alias chain as callables; for apply, resolve local array aliases or conservatively propagate a nonliteral applied operand source to candidate parameters. Add both exact negatives. Separately, `function fixed(v){return \"/fixed\"}; writeFileSync(fixed(process.env.TEST_FILE),\"x\")` is conservatively reported because call arguments are unioned into call-result taint; that is a false positive, not the safety blocker recorded here.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-17T00:43:34.340Z",
@@ -277,7 +277,11 @@
         "packages/main/src/tasks/production-test-seam-guard.ts"
       ],
       "signatureTag": "production-test-seam-callable-alias-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Constructor aliases share the state-aware resolver; call/apply/direct/New spread expansion follows immutable local arrays/tuples, while unknown operand taint is merged into every candidate parameter. Constructor/apply alias regressions pass.",
+      "resolvedAt": "2026-07-17T00:50:37.051Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
