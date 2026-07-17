@@ -279,6 +279,16 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "Concept validation accepts body-only edits without deleted-symbol warnings and still blocks true deletions with residual references.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/validate-concept.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+        ]
       }
     }
   ]
