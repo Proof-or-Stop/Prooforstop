@@ -88,7 +88,7 @@
       "desc": "packages/main/src/tasks/production-test-seam-guard.ts:66-84 classifies any function as a positive-integer sanitizer when its body merely contains Number(...), Number.isFinite(...), a > 0 comparison, and Math.floor(...), without proving that the returned value is derived from those checks. At lines 178-181, calls to any such function then clear all argument taint unconditionally. A decoy function can perform those four operations on unrelated constants and return its raw SMOKE/TEST environment argument, allowing the tainted value to reach an fs/process sink without a finding. The built-in self-test covers a genuine sanitizer but no decoy-return-raw adversarial case. This violates CHK-002: inherited test controls cannot enable production side effects and only explicit bounded sanitizers are accepted. Fix by structurally proving every reachable returned value is bounded/fixed and derived from the input, or by using a narrowly audited sanitizer allowlist/body contract; add a negative decoy sanitizer test that returns the raw argument.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-17T00:04:21.534Z",
@@ -99,7 +99,11 @@
         "packages/main/src/tasks/production-test-seam-guard.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Finite-enum sanitizer recognition now requires every return path to be a fixed literal; mixed literal/raw decoys remain tainted and reach the modeled sink. Evidence: node packages/main/dist/tasks/production-test-seam-guard.js.",
+      "resolvedAt": "2026-07-17T00:18:29.155Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-271e:F-006",
