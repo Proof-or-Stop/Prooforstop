@@ -4,11 +4,11 @@
   "title": "Prevent closeout metadata from invalidating reviewer receipts",
   "description": "Fix the lifecycle closeout ordering and canonical-writer retention gaps observed in B-3aec. Trusted command-generated validation, DONE-required, live-smoke, summary, delivery-check, and done_prepare artifacts must not force repeated metadata-only DEV/REVIEW rounds. Align delivery dispatch and write phases, and stop concept preflight from treating function-body edits as deleted symbols.",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-07-17T11:15:40.064Z",
   "startedAt": "2026-07-17T11:15:40.064Z",
-  "endedAt": null,
+  "endedAt": "2026-07-17T22:21:25.834Z",
   "events": [
     {
       "phase": "INIT",
@@ -351,12 +351,16 @@
       "user": "Harmonygo",
       "sessionId": "codex-wa-final",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-17T22:21:25.834Z",
+      "branch": "story/B-10b0",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-10b0",
-    "branch": "story/B-10b0",
-    "createdAt": "2026-07-17T11:18:29.259Z"
-  },
   "currentReviewRound": "2026-07-17T22:03:21.496Z"
 }
