@@ -296,6 +296,21 @@
       "_hash": "baea413b3c563ec57882635010cd4bc569b37846c8bd5dc76cd5d8c5fe8f5782",
       "signatureTag": "missing|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3aec:F-017",
+      "desc": "packages/main/src/core/candidate-spec-routing.ts:679-688 — HIGH: mandatory protected candidates are retained, but ambiguity/cutoff escalation is still computed over the combined ranked list. A deterministic route with 10 exact-path protected sources, candidateBudget=8, and zero ordinary candidates returns all 10 candidates yet requiresEscalation=true with candidate_cutoff_tie and weak_source_class_coverage. Because the ordinary budget is explicitly separate from protectedRouting, mandatory-source count/ties and a single authoritative protected kind must not manufacture a full-corpus escalation; compute cutoff/tie over ordinaryRanked and exempt authoritative protected-only routing from weak-source ambiguity (while preserving missing/unsafe protected-source escalation).",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-17T09:42:34.870Z",
+      "reviewRound": "2026-07-17T09:39:13.057Z",
+      "reviewRunId": "B-3aec:RR-007",
+      "_hash": "6423d0fcecdc71c7bdc2c0e83b64957c9fc8ccde4077a53b93629e1da1a4d2ce",
+      "signatureTag": "edge|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
