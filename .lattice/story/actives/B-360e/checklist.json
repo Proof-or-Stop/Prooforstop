@@ -68,7 +68,25 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/cli/activity-policy.ts"
+        ],
+        "create": [
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/handlers/prompt-measurement.ts",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json"
+        ],
+        "test": [
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-004",
