@@ -259,9 +259,13 @@
       "q": "Which scoped diagnostics consumer is correct: handlers/session.ts, handlers/session-brief.ts, or both?",
       "evidence": "Checklist file map and understanding touchpoints disagree.",
       "sourcePointers": [
-        "CHK-002 files.modify",
-        "understanding.json touchpoints"
-      ]
+        "CHK-002",
+        "packages/main/src/handlers/session.ts",
+        "packages/main/src/handlers/context.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "resolution": "The actual session_brief consumer is packages/main/src/handlers/session.ts; packages/main/src/handlers/session-brief.ts does not exist and was a planning-path typo. CHK-002 and understanding touchpoints now name session.ts, plus handlers/context.ts and transition-orchestrator.ts for event and DEV-claim consumers.",
+      "resolvedAt": "2026-07-17T23:04:08.650Z"
     },
     {
       "id": "OQ-B62B8-005",
