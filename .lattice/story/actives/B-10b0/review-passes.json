@@ -250,6 +250,28 @@
         "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
       },
       "_hash": "08dd13e5cce83e61ac66dd73e81f718760937241deb8a96c2dc6ef50a6d01778"
+    },
+    {
+      "id": "B-10b0:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Incremental quality review of 19b630265c: exactly two paired entrypoint/baseline changes; canonical worktree bootstrap rejects unknown roles nonzero and the complete proof-or-stop prompt baseline passes without weakened assertions.",
+      "createdAt": "2026-07-17T19:58:57.538Z",
+      "reviewRound": "2026-07-17T19:56:56.495Z",
+      "reviewRunId": "B-10b0:RR-015",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "c42ef28d9419e243865b3720a30d8757313a1af324fb9addf0aa1ef9dacab8d7"
     }
   ]
 }
