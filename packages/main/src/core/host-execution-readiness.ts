@@ -23,6 +23,7 @@ export type HostExecutionFailureKind =
   | 'version_failed'
   | 'wrong_launcher'
   | 'auth'
+  | 'interactive'
   | 'timeout'
   | 'silent_final_output'
   | 'unsupported'
@@ -329,6 +330,17 @@ function boundedOutputForClassification(value: unknown): string {
   return value.trim().replace(/\s+/g, ' ').slice(0, 240);
 }
 
+export function classifyHostExecutionDiagnosticText(text: string): 'auth' | 'interactive' | null {
+  const normalized = text.toLowerCase();
+  if (/token_invalidated|refresh_token_invalidated|invalidated token|unauthori[sz]ed|authentication|auth required|not logged in|login required|please login|invalid api key|401/.test(normalized)) {
+    return 'auth';
+  }
+  if (/interactive|requires? (?:a )?tty|terminal required|cannot prompt|confirmation required|press enter|choose an option/.test(normalized)) {
+    return 'interactive';
+  }
+  return null;
+}
+
 function outputByteCount(result: Pick<SpawnSyncReturns<string>, 'stderr' | 'stdout'>): number {
   return Buffer.byteLength(result.stdout || '', 'utf8') + Buffer.byteLength(result.stderr || '', 'utf8');
 }
@@ -348,9 +360,8 @@ export function classifyHostExecutionFailure(
   const text = `${boundedOutputForClassification(result.stderr)} ${boundedOutputForClassification(result.stdout)}`.trim().toLowerCase();
   if (result.error && /timed?out|etimedout/i.test(result.error.message)) return 'timeout';
   if (result.signal === 'SIGTERM' || result.signal === 'SIGKILL') return 'timeout';
-  if (/token_invalidated|refresh_token_invalidated|invalidated token|unauthori[sz]ed|authentication|auth required|not logged in|login required|please login|invalid api key|401/.test(text)) {
-    return 'auth';
-  }
+  const diagnostic = classifyHostExecutionDiagnosticText(text);
+  if (diagnostic) return diagnostic;
   if (/flag provided but not defined|unknown flag|unknown option|unrecognized option|unexpected argument|invalid option|unknown command/.test(text)) {
     return 'wrong_launcher';
   }
@@ -362,7 +373,7 @@ export function classifyHostExecutionFailure(
 function supportForFailure(failureKind: HostExecutionFailureKind): HostLauncherSupport {
   if (failureKind === 'none') return 'supported';
   if (failureKind === 'wrong_launcher') return 'wrong_launcher';
-  if (failureKind === 'missing_executable' || failureKind === 'version_failed' || failureKind === 'auth' || failureKind === 'timeout') {
+  if (failureKind === 'missing_executable' || failureKind === 'version_failed' || failureKind === 'auth' || failureKind === 'interactive' || failureKind === 'timeout') {
     return 'unverified';
   }
   return 'unsupported';

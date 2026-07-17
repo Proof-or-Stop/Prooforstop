@@ -102,6 +102,7 @@
 
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
+import { EventEmitter } from 'node:events';
 import {
   existsSync,
   mkdirSync,
@@ -116,6 +117,7 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, isAbsolute, join } from 'node:path';
+import { PassThrough } from 'node:stream';
 
 import {
   acquireHostRunSlot,
@@ -132,6 +134,7 @@ import {
   writeSlotFileExclusive,
   CODEX_TURN_FAILED_DIGEST_MAX_CHARS,
   HOST_RUN_REFUSAL_EXIT_CODE,
+  HOST_RUN_FAILURE_TEXT_CAP,
   HOST_RUN_RETAINED_LINE_CAP,
   HOST_RUN_RETENTION_TRUNCATED_REASON,
   UsageLineScanner,
@@ -142,6 +145,7 @@ import {
   type HostRunSpawnPlan,
   type HostRunSpawnResult,
   type HostRunStoryResolver,
+  type HostRunRunnerRuntime,
 } from '../core/host-run.js';
 import {
   runClaudeRepair,
@@ -320,6 +324,68 @@ function seedSlot(dir: string, index: number, pid: number): string {
 
 function slotMeta(agentType: string): { pid: number; startedAt: string; host: string; storyId: string | null; agentType: string } {
   return { pid: process.pid, startedAt: '2026-07-10T00:00:00.000Z', host: 'codex', storyId: null, agentType };
+}
+
+function deterministicHostRuntime() {
+  const child = new EventEmitter() as EventEmitter & {
+    stdin: { end(): void };
+    stdout: PassThrough;
+    stderr: PassThrough;
+    kill(signal?: NodeJS.Signals): boolean;
+  };
+  child.stdin = { end() {} };
+  child.stdout = new PassThrough();
+  child.stderr = new PassThrough();
+  let killCount = 0;
+  child.kill = () => { killCount += 1; return true; };
+  const scheduled = new Map<NodeJS.Timeout, { callback: () => void; delayMs: number }>();
+  const runtime: HostRunRunnerRuntime = {
+    spawnChild: () => child as unknown as ReturnType<typeof spawn>,
+    schedule: (callback, delayMs) => {
+      const timer = {} as NodeJS.Timeout;
+      scheduled.set(timer, { callback, delayMs });
+      return timer;
+    },
+    cancel: timer => { scheduled.delete(timer); },
+  };
+  return {
+    child,
+    runtime,
+    fire(delayMs: number) {
+      const found = [...scheduled.entries()].find(([, task]) => task.delayMs === delayMs);
+      assert.ok(found, `expected active ${delayMs}ms timer`);
+      scheduled.delete(found[0]);
+      found[1].callback();
+    },
+    activeTimers: () => scheduled.size,
+    killCount: () => killCount,
+    listenerCount: () => child.listenerCount('error') + child.listenerCount('close')
+      + child.stdout.listenerCount('data') + child.stderr.listenerCount('data'),
+  };
+}
+
+function trackedAbortSignal() {
+  let listener: (() => void) | null = null;
+  let listenerCount = 0;
+  const signal = {
+    aborted: false,
+    addEventListener(_type: string, callback: EventListenerOrEventListenerObject) {
+      listener = typeof callback === 'function' ? callback as () => void : () => callback.handleEvent(new Event('abort'));
+      listenerCount += 1;
+    },
+    removeEventListener() {
+      listener = null;
+      listenerCount = Math.max(0, listenerCount - 1);
+    },
+  } as unknown as AbortSignal;
+  return {
+    signal,
+    abort() {
+      (signal as unknown as { aborted: boolean }).aborted = true;
+      listener?.();
+    },
+    listenerCount: () => listenerCount,
+  };
 }
 
 const DEAD_PID = 2147483646; // a pid that is (all but certainly) not running
@@ -2752,6 +2818,258 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     assert.equal(owner.token, token, 'owner.json records the minted token after the clean acquire');
     releaseLedgerLock(lockDir, token as string);
     assert.equal(existsSync(lockDir), false, 'the clean acquire releases normally');
+  });
+
+  // =========================================================================
+  // B-3aec: independent first-output and total deadlines.
+  // =========================================================================
+  await checkAsync('B-3aec startup watchdog: silent child is killed/reaped before total timeout and reports startup_no_output_timeout', async () => {
+    const result = await defaultHostRunRunner({
+      command: process.execPath,
+      argv: ['-e', 'setTimeout(() => process.exit(0), 5000)'],
+      env: process.env,
+      cwd: process.cwd(),
+      startupTimeoutMs: 40,
+      timeoutMs: 1000,
+    });
+    assert.equal(result.exitCode, 124);
+    assert.equal(result.timedOut, true);
+    assert.equal(result.timeoutKind, 'startup_no_output_timeout');
+    assert.equal(result.terminalReason, 'startup_no_output_timeout');
+    assert.equal(result.firstOutputMs, null);
+    assert.ok((result.durationMs ?? 1000) < 900, 'startup timeout returns without waiting for total deadline');
+  });
+
+  await checkAsync('B-3aec first byte: stderr clears startup timer; productive runtime may exceed startup budget and still finish', async () => {
+    const result = await defaultHostRunRunner({
+      command: process.execPath,
+      argv: ['-e', 'setTimeout(() => process.stderr.write("ready\\n"), 50); setTimeout(() => process.exit(0), 450)'],
+      env: process.env,
+      cwd: process.cwd(),
+      startupTimeoutMs: 300,
+      timeoutMs: 1000,
+    });
+    assert.equal(result.exitCode, 0);
+    assert.equal(result.timeoutKind, null);
+    assert.equal(result.terminalReason, 'completed');
+    assert.ok((result.firstOutputMs ?? 1000) < 300);
+    assert.ok((result.durationMs ?? 0) >= 400, 'run continues beyond startup budget after first output');
+  });
+
+  await checkAsync('B-3aec total deadline: early stdout preserves first-output evidence but a later hang is total_timeout', async () => {
+    const result = await defaultHostRunRunner({
+      command: process.execPath,
+      argv: ['-e', 'process.stdout.write("ready\\n"); setInterval(() => {}, 1000)'],
+      env: process.env,
+      cwd: process.cwd(),
+      startupTimeoutMs: 100,
+      timeoutMs: 120,
+    });
+    assert.equal(result.exitCode, 124);
+    assert.equal(result.timeoutKind, 'total_timeout');
+    assert.equal(result.terminalReason, 'total_timeout');
+    assert.ok(result.firstOutputMs !== null);
+  });
+
+  await checkAsync('B-3aec abort cleanup: caller abort waits for close and runHostRun releases cap=1 slot for immediate reacquisition', async () => {
+    const sub = freshRoot();
+    const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
+    const controller = new AbortController();
+    const runner: HostRunRunner = plan => defaultHostRunRunner({
+      ...plan,
+      command: process.execPath,
+      argv: ['-e', 'setInterval(() => {}, 1000)'],
+    });
+    setTimeout(() => controller.abort(), 40);
+    const result = await runHostRun({ ...baseArgs({ root: sub, host: 'codex', env }), signal: controller.signal, timeoutMs: 1000 }, { runner });
+    assert.equal(result.terminalReason, 'aborted');
+    assert.equal(result.exitCode, 130);
+    assert.equal(result.timedOut, false);
+    const dir = hostRunSlotsDir(sub);
+    const reacquired = acquireHostRunSlot(dir, 1, 6 * 60 * 60 * 1000, Date.now(), slotMeta('after-abort'));
+    assert.ok(reacquired, 'slot is released only after the aborted child closes');
+    if (reacquired) releaseSlot(reacquired.file, reacquired.token);
+  });
+
+  await checkAsync('B-3aec async spawn error: ENOENT is stable spawn_error/missing_executable exit 1 and settles once on close', async () => {
+    const result = await defaultHostRunRunner({
+      command: '/definitely/missing/b3aec-host',
+      argv: [],
+      env: process.env,
+      cwd: process.cwd(),
+      startupTimeoutMs: 100,
+      timeoutMs: 500,
+    });
+    assert.equal(result.exitCode, 1);
+    assert.equal(result.terminalReason, 'spawn_error');
+    assert.equal(result.failureKind, 'missing_executable');
+    assert.equal(result.timedOut, false);
+  });
+
+  await checkAsync('B-3aec post-readiness diagnostics: bounded stderr classifies auth and interactive terminal failures', async () => {
+    for (const row of [
+      { text: 'authentication required: please login', failureKind: 'auth' },
+      { text: 'interactive terminal required; cannot prompt', failureKind: 'interactive' },
+    ] as const) {
+      const result = await defaultHostRunRunner({
+        command: process.execPath,
+        argv: ['-e', `process.stderr.write(${JSON.stringify(row.text)}); process.exit(1)`],
+        env: process.env,
+        cwd: process.cwd(),
+        startupTimeoutMs: 300,
+        timeoutMs: 1000,
+      });
+      assert.equal(result.exitCode, 1);
+      assert.equal(result.failureKind, row.failureKind);
+      assert.equal(result.terminalReason, 'exit_nonzero');
+      assert.ok(result.stderr.includes(row.text));
+      assert.ok(Buffer.byteLength(result.stderr) <= HOST_RUN_FAILURE_TEXT_CAP);
+    }
+  });
+
+  await checkAsync('B-3aec dual-stream sticky diagnostics: stdout-only and early auth/interactive survive a later >64KiB tail', async () => {
+    for (const row of [
+      { text: 'authentication required: please login', failureKind: 'auth' },
+      { text: 'interactive terminal required; cannot prompt', failureKind: 'interactive' },
+    ] as const) {
+      const stdoutOnly = await defaultHostRunRunner({
+        command: process.execPath,
+        argv: ['-e', `process.stdout.write(${JSON.stringify(row.text)}); process.exit(1)`],
+        env: process.env,
+        cwd: process.cwd(),
+        startupTimeoutMs: 300,
+        timeoutMs: 1000,
+      });
+      assert.equal(stdoutOnly.failureKind, row.failureKind, `${row.failureKind} is classified from stdout alone`);
+      const tailed = await defaultHostRunRunner({
+        command: process.execPath,
+        argv: ['-e', `process.stdout.write(${JSON.stringify(`${row.text}\n`)}); process.stdout.write('x'.repeat(70 * 1024)); process.exit(1)`],
+        env: process.env,
+        cwd: process.cwd(),
+        startupTimeoutMs: 300,
+        timeoutMs: 1000,
+      });
+      assert.equal(tailed.failureKind, row.failureKind, `${row.failureKind} is sticky after a bounded tail evicts the diagnostic text`);
+      assert.ok(Buffer.byteLength(tailed.stderr) <= HOST_RUN_FAILURE_TEXT_CAP);
+    }
+    const singleChunk = deterministicHostRuntime();
+    const singleChunkPromise = defaultHostRunRunner({ command: 'fake-host', argv: [], env: process.env, cwd: process.cwd() }, singleChunk.runtime);
+    singleChunk.child.stdout.emit('data', `authentication required: please login\n${'x'.repeat(70 * 1024)}`);
+    singleChunk.child.emit('close', 1, null);
+    assert.equal((await singleChunkPromise).failureKind, 'auth', 'a diagnostic at the start of one oversized delivered chunk is classified before only the bounded boundary tail is retained');
+
+    const crossStream = deterministicHostRuntime();
+    const crossStreamPromise = defaultHostRunRunner({ command: 'fake-host', argv: [], env: process.env, cwd: process.cwd() }, crossStream.runtime);
+    crossStream.child.stdout.emit('data', 'auth');
+    crossStream.child.stderr.emit('data', 'entication required');
+    crossStream.child.emit('close', 1, null);
+    assert.notEqual((await crossStreamPromise).failureKind, 'auth', 'stdout and stderr fragments are never concatenated into a fabricated authentication diagnostic');
+
+    const sameStream = deterministicHostRuntime();
+    const sameStreamPromise = defaultHostRunRunner({ command: 'fake-host', argv: [], env: process.env, cwd: process.cwd() }, sameStream.runtime);
+    sameStream.child.stdout.emit('data', 'auth');
+    sameStream.child.stdout.emit('data', 'entication required');
+    sameStream.child.emit('close', 1, null);
+    assert.equal((await sameStreamPromise).failureKind, 'auth', 'split diagnostic chunks remain recognizable within one stream');
+  });
+
+  await checkAsync('B-3aec deterministic race schedules settle once, kill at most once, and clean timers/listeners', async () => {
+    const basePlan = {
+      command: 'fake-host', argv: [], env: process.env, cwd: process.cwd(),
+      startupTimeoutMs: 10, timeoutMs: 20,
+    };
+
+    const outputFirst = deterministicHostRuntime();
+    let outputSettles = 0;
+    const outputPromise = defaultHostRunRunner(basePlan, outputFirst.runtime).then(result => { outputSettles += 1; return result; });
+    outputFirst.child.stdout.emit('data', 'ready\n');
+    assert.equal(outputFirst.activeTimers(), 1, 'first output cancels only the startup timer');
+    outputFirst.child.emit('close', 0, null);
+    const outputResult = await outputPromise;
+    outputFirst.child.emit('close', 1, null);
+    assert.equal(outputResult.terminalReason, 'completed');
+    assert.equal(outputFirst.killCount(), 0);
+    assert.equal(outputSettles, 1);
+    assert.equal(outputFirst.activeTimers(), 0);
+    assert.equal(outputFirst.listenerCount(), 0);
+
+    const timeoutFirst = deterministicHostRuntime();
+    let timeoutSettles = 0;
+    const timeoutPromise = defaultHostRunRunner(basePlan, timeoutFirst.runtime).then(result => { timeoutSettles += 1; return result; });
+    timeoutFirst.fire(20);
+    timeoutFirst.child.emit('close', null, 'SIGKILL');
+    const timeoutResult = await timeoutPromise;
+    timeoutFirst.child.emit('close', 0, null);
+    assert.equal(timeoutResult.timeoutKind, 'total_timeout');
+    assert.equal(timeoutFirst.killCount(), 1);
+    assert.equal(timeoutSettles, 1);
+    assert.equal(timeoutFirst.activeTimers(), 0);
+    assert.equal(timeoutFirst.listenerCount(), 0);
+
+    const errorFirst = deterministicHostRuntime();
+    let errorSettles = 0;
+    const errorPromise = defaultHostRunRunner(basePlan, errorFirst.runtime).then(result => { errorSettles += 1; return result; });
+    errorFirst.child.emit('error', Object.assign(new Error('missing'), { code: 'ENOENT' }));
+    errorFirst.child.emit('close', null, null);
+    const errorResult = await errorPromise;
+    errorFirst.child.emit('close', 0, null);
+    assert.equal(errorResult.terminalReason, 'spawn_error');
+    assert.equal(errorResult.failureKind, 'missing_executable');
+    assert.equal(errorFirst.killCount(), 0);
+    assert.equal(errorSettles, 1);
+    assert.equal(errorFirst.activeTimers(), 0);
+    assert.equal(errorFirst.listenerCount(), 0);
+
+    const abortFirst = deterministicHostRuntime();
+    const trackedAbort = trackedAbortSignal();
+    const abortPromise = defaultHostRunRunner({ ...basePlan, signal: trackedAbort.signal }, abortFirst.runtime);
+    trackedAbort.abort();
+    abortFirst.child.stdout.emit('data', 'late output\n');
+    abortFirst.child.emit('close', null, 'SIGKILL');
+    const abortResult = await abortPromise;
+    assert.equal(abortResult.terminalReason, 'aborted');
+    assert.equal(abortResult.exitCode, 130);
+    assert.equal(abortFirst.killCount(), 1);
+    assert.equal(abortFirst.activeTimers(), 0);
+    assert.equal(abortFirst.listenerCount(), 0);
+    assert.equal(trackedAbort.listenerCount(), 0, 'abort listener is removed at settlement');
+
+    const releaseRoot = freshRoot();
+    const releaseEnv = { LATTICE_USAGE_LEDGER: '1', LATTICE_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
+    const releaseRace = deterministicHostRuntime();
+    const releaseController = new AbortController();
+    const releasePromise = runHostRun({
+      ...baseArgs({ root: releaseRoot, host: 'codex', env: releaseEnv }),
+      signal: releaseController.signal,
+      startupTimeoutMs: 10,
+      timeoutMs: 20,
+    }, { runner: plan => defaultHostRunRunner(plan, releaseRace.runtime) });
+    releaseController.abort();
+    releaseRace.child.emit('close', null, 'SIGKILL');
+    await releasePromise;
+    const releaseDir = hostRunSlotsDir(releaseRoot);
+    const reacquired = acquireHostRunSlot(releaseDir, 1, 6 * 60 * 60 * 1000, Date.now(), slotMeta('deterministic-reacquire'));
+    assert.ok(reacquired, 'abort close releases the slot for immediate deterministic reacquisition');
+    releaseRace.child.emit('close', 0, null);
+    assert.equal(reacquired && existsSync(reacquired.file), true, 'a duplicate close cannot release the new owner slot');
+    if (reacquired) releaseSlot(reacquired.file, reacquired.token);
+  });
+
+  await checkAsync('B-3aec timeout cleanup through runHostRun: startup and total timeout both release cap=1 for the next run', async () => {
+    for (const scenario of [
+      { script: 'setInterval(() => {}, 1000)', startupTimeoutMs: 40, timeoutMs: 500, expected: 'startup_no_output_timeout' },
+      { script: 'process.stdout.write("ready\\n"); setInterval(() => {}, 1000)', startupTimeoutMs: 300, timeoutMs: 80, expected: 'total_timeout' },
+    ] as const) {
+      const sub = freshRoot();
+      const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
+      const runner: HostRunRunner = plan => defaultHostRunRunner({ ...plan, command: process.execPath, argv: ['-e', scenario.script] });
+      const result = await runHostRun({ ...baseArgs({ root: sub, host: 'codex', env }), startupTimeoutMs: scenario.startupTimeoutMs, timeoutMs: scenario.timeoutMs }, { runner });
+      assert.equal(result.timeoutKind, scenario.expected);
+      const dir = hostRunSlotsDir(sub);
+      const next = acquireHostRunSlot(dir, 1, 6 * 60 * 60 * 1000, Date.now(), slotMeta(`after-${scenario.expected}`));
+      assert.ok(next, `${scenario.expected} close/reap released the slot exactly once`);
+      if (next) releaseSlot(next.file, next.token);
+    }
   });
 
   // =========================================================================

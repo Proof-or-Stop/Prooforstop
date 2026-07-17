@@ -1,0 +1,59 @@
+{
+  "storyId": "B-3aec",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/host-run.ts",
+    "packages/main/src/core/host-execution-readiness.ts",
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/src/handlers/candidate-spec-routing.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/tasks/host-run-usage-smoke.ts",
+    "packages/main/src/tasks/review-host-execution-readiness-smoke.ts",
+    "packages/main/src/core/candidate-spec-routing.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/host-run-usage-smoke.ts",
+    "packages/main/src/tasks/review-host-execution-readiness-smoke.ts",
+    "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/verdicts.ts",
+    "packages/main/src/core/review-assurance-floor.ts",
+    "packages/main/src/core/owner-session.ts",
+    "packages/main/src/core/story-owner-lease.ts"
+  ],
+  "explicitExcludes": [
+    "docs/story",
+    "tests/fixtures",
+    ".omx"
+  ],
+  "scopeChangeReason": "Initialize enforce scope from the user-approved B-3aec PLAN after independent scope review; protect quorum and owner-identity implementations.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Reviewer finding F-008 proved routing mode must be consumed by the real story-dispatch gate path; this bounded file change is required for shadow and warn to remain non-blocking while enforce alone blocks.",
+      "timestamp": "2026-07-17T09:39:05.956Z",
+      "paths": [
+        "packages/main/src/handlers/story-dispatch.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/story-dispatch.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "b35de767a4660581784deebf74b398e54aaac7c7",
+      "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9"
+    }
+  ],
+  "createdAt": "2026-07-17T08:59:31.906Z",
+  "updatedAt": "2026-07-17T09:39:05.956Z"
+}

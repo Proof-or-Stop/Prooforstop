@@ -1,0 +1,387 @@
+{
+  "passes": [
+    {
+      "id": "B-3aec:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Targeted third-round docs review of commit 2075608ac0: F-012 mode mismatch claims now match renderer, story-level and item-scoped dispatch, and read-binding diagnostics; shadow records, warn advises, enforce blocks. No blocker found in the scoped delta.",
+      "createdAt": "2026-07-17T10:05:48.395Z",
+      "reviewRound": "2026-07-17T10:04:28.478Z",
+      "reviewRunId": "B-3aec:RR-010",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b99b4af72fca5d29c7bf3a69aa0ff7109dfeff1864dafdc21c429a35cc331983"
+    },
+    {
+      "id": "B-3aec:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Reviewed commit 2075608ac0 against all 22 must intents and F-013 through F-018. Verified pre-budget DF filtering preserves a later specific term, bounded dual-stream sticky auth/interactive diagnostics, deterministic output/timeout/error/abort settlement with timer/listener cleanup and slot ownership protection, path-bearing typed-risk protection, actual signed current reviewer filesReadFully promotion and stale rejection through currentStoryRoutingInput, protected-only ordinary-cutoff isolation, and shadow/warn/enforce diagnostics. Focused outputs passed: candidate routing; host-run 83/83; readiness 10/10; process-fact contract. No real host, network, root suite, validate, or lifecycle advance used.",
+      "createdAt": "2026-07-17T10:06:42.999Z",
+      "reviewRound": "2026-07-17T10:04:28.478Z",
+      "reviewRunId": "B-3aec:RR-009",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "92a41c9d718fc8b9c2935eb8aecae78e11cd19e0639d55c8a17948f5bc383a1f"
+    },
+    {
+      "id": "B-3aec:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Targeted third-round concept review of commit 2075608ac0 found F-012/F-013/F-016/F-017 closed: DF filtering precedes group budget, ambiguity/cutoff uses ordinary candidates, signed mode disposition is consistent across renderer and story/item dispatch, and structured risk plus collector-valid reviewer evidence preserve authority without promoting stale or triage-only paths. Focused candidate routing smoke passed; no new distinct blocker found.",
+      "createdAt": "2026-07-17T10:06:51.400Z",
+      "reviewRound": "2026-07-17T10:04:28.478Z",
+      "reviewRunId": "B-3aec:RR-011",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "11665e03f58bb84ae5235058f0b0934c34c5c8883a5ee80368dd829b5a850bda"
+    },
+    {
+      "id": "B-3aec:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final narrow F-019/F-020 re-review at commit 62abc146dc: exactly 12 ordered zero-hit terms no longer consume query budget before the later rare match, with deterministic zero_hits audit rows; stdout/stderr diagnostic tails are isolated so cross-stream fragments cannot fabricate auth, while same-stream split, stdout-only, and early diagnostic plus >64KiB tail behavior remain covered. Focused candidate routing smoke PASS and host-run usage smoke PASS (83 checks). Checklist reports all 22 verification intents covered and passing. No root suite, real host, network, lifecycle advance, or OMX actions were used.",
+      "createdAt": "2026-07-17T10:15:34.963Z",
+      "reviewRound": "2026-07-17T10:14:00.168Z",
+      "reviewRunId": "B-3aec:RR-013",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4bc481c1c8ca4b67e40b1ddc26bfca47dd8c1fe8b295dd39b710e9f057207f2c"
+    },
+    {
+      "id": "B-3aec:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Final narrow quality re-review of commit 62abc146dc found no additional blocker: exact F-019 zero-hit starvation now preserves the later matching candidate, the remaining weak-source escalation is identical without zero-hit terms, and F-020 cross-stream fragments no longer stitch while same-stream split diagnostics still classify.",
+      "createdAt": "2026-07-17T10:15:40.080Z",
+      "reviewRound": "2026-07-17T10:14:00.168Z",
+      "reviewRunId": "B-3aec:RR-014",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ec4d1e81177a23dee38b7c65154d0bc54102ba7bb11bd9d78647359485a71e58"
+    },
+    {
+      "id": "B-3aec:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Freshness review of commit 62abc146dc found no deleted-symbol migration or public-contract break: buildQueryGroups, candidateReadBindingErrors, and defaultHostRunRunner retain their exported names and consumer-compatible signatures; preflight residual references are semantic-anchor false positives from internal body edits. F-019 now excludes zero-hit and empty-intersection groups before budget while preserving signed audit reasons, and F-020 keeps separate stdout/stderr classifier tails with shared typed precedence. Candidate routing smoke and host-run usage 83/83 passed.",
+      "createdAt": "2026-07-17T10:17:34.422Z",
+      "reviewRound": "2026-07-17T10:14:00.168Z",
+      "reviewRunId": "B-3aec:RR-015",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f24b484a258b41dd30ebd0df900c6348fa5d7a5790d71ce6ff08bc22e28940e9"
+    },
+    {
+      "id": "B-3aec:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Quality re-attestation after routine validate: commit 62abc146dc is an ancestor of current HEAD; committed and uncommitted diffs since it are confined to canonical B-3aec story metadata, with zero changes under packages/main, scripts, docs/requirements, config, or package manifests. Prior F-019/F-020 narrow-review conclusions therefore remain applicable and no new quality blocker is introduced.",
+      "createdAt": "2026-07-17T10:25:36.190Z",
+      "reviewRound": "2026-07-17T10:24:42.265Z",
+      "reviewRunId": "B-3aec:RR-017",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "52e9080fc1ddd1a727793da046ba8a56b20a468c84335d0fa7a4877020497246"
+    },
+    {
+      "id": "B-3aec:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Recovery re-attestation confirms 62abc146dc is an ancestor of current HEAD and every descendant change is confined to trusted B-3aec story metadata; non-metadata material diff is empty. Read-only lifecycle_check classifies canonical test-evidence.json as validation PASS at 2026-07-17T10:24:12.322Z, with current-identical materialHash 8c26e249 and storyFilesHash 12a2eb67. Prior concept conclusions therefore remain valid without rerunning tests; no distinct blocker found.",
+      "createdAt": "2026-07-17T10:25:38.146Z",
+      "reviewRound": "2026-07-17T10:24:42.265Z",
+      "reviewRunId": "B-3aec:RR-016",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "b6343ded127f85577a27f558d51618a22a8bc5667e4d1e230903541acbbc861c"
+    },
+    {
+      "id": "B-3aec:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Recovery current-round test re-attestation only. Canonical test_list reports PASS disposition=executed at 2026-07-17T10:24:12.322Z with 46-command strict validation identity digest f7ba5d719b47a5da16804ca1b84632485a42ad200b0eea2bc601393ac3d84ec7 and policy digest fac09eadf4547ec947e00d9ba3df2c24972f3529a77881eea583995f7d1731b3. Material hash 8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4 and storyFilesHash 12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8 are unchanged from the reviewed 62abc146dc implementation; only canonical validation/review metadata advanced HEAD. Checklist and canonical coverage both report 22 required, 22 covered/passing, missingRequired=0. No suite was rerun and no broad scan, real host, network, lifecycle, or OMX action was used.",
+      "createdAt": "2026-07-17T10:26:18.004Z",
+      "reviewRound": "2026-07-17T10:24:42.265Z",
+      "reviewRunId": "B-3aec:RR-018",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1e02a0eb0d66a2d909748c17c288e5ceac050de1ac127b482af6cc54cd03c71b"
+    },
+    {
+      "id": "B-3aec:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Recovery re-attestation: git confirms 62abc146dc..HEAD contains only canonical Lattice checklist/review/validate/process metadata; no docs/requirements, packages/main/src, package.json, or lockfile material changed. Latest session_brief reports routine test PASS, so the previously reviewed documentation claims remain aligned with unchanged business material.",
+      "createdAt": "2026-07-17T10:27:17.317Z",
+      "reviewRound": "2026-07-17T10:24:42.265Z",
+      "reviewRunId": "B-3aec:RR-019",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/handlers/story-dispatch.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c3c499a7c24969f20b2811ca6b9b1ef1f6ac422550811e44e53b491788d24c3b"
+    },
+    {
+      "id": "B-3aec:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Final closeout-aware re-attestation confirms current HEAD remains a trusted metadata-only descendant of 62abc146dc with unchanged materialHash 8c26e249 and storyFilesHash 12a2eb67. Read-only DONE lifecycle classification reports routine validation PASS, DONE-required PASS for 2 commands, fresh 22/22 verification coverage, successful live-smoke transcript, complete summary/user-value summary, and satisfied degraded-single-host fallback plus assurance floor. Remaining delivery-check and done_prepare are normal later-step artifacts, not concept regressions. Prior concept conclusions remain valid without test rerun.",
+      "createdAt": "2026-07-17T10:40:24.562Z",
+      "reviewRound": "2026-07-17T10:39:37.375Z",
+      "reviewRunId": "B-3aec:RR-020",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "66ea09587ec8e2bdfef92359b5f5c0b6dbc962f2246ece13ea276a2bc87a1f98"
+    },
+    {
+      "id": "B-3aec:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Final closeout-aware quality re-attestation: 62abc146dc remains an ancestor; all committed and uncommitted changes since that reviewed implementation are confined to canonical B-3aec lifecycle/closeout metadata, including routine and DONE-required evidence, live transcript, summary, review records, and fallback process evidence. There are zero changes under business code, scripts, requirements, config, or package manifests, so the prior F-019/F-020 quality conclusions remain current and no new blocker exists.",
+      "createdAt": "2026-07-17T10:40:25.444Z",
+      "reviewRound": "2026-07-17T10:39:37.375Z",
+      "reviewRunId": "B-3aec:RR-022",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "7beeb3b21b063a644ddccabd25983b3550cf4fcf33b18427b276ff4015fc08c3"
+    },
+    {
+      "id": "B-3aec:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final closeout-aware test re-attestation. Canonical routine validation remains PASS/executed with 46 commands, identity digest f7ba5d719b47a5da16804ca1b84632485a42ad200b0eea2bc601393ac3d84ec7, policy digest fac09eadf4547ec947e00d9ba3df2c24972f3529a77881eea583995f7d1731b3. DONE-required validation is PASS for 2 required commands at 2026-07-17T10:33:53.690Z. Read-only lifecycle projection also reports PASS for the live-smoke transcript, story summary, and degraded fallback/review-assurance floor. Current materialHash 8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4 and storyFilesHash 12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8 match the reviewed 62abc146dc implementation despite closeout metadata HEAD movement. Checklist and canonical validation report 22 required, 22 covered/passing, 0 missing/failing. No suite rerun, broad scan, real host, network, lifecycle mutation, or OMX action was used.",
+      "createdAt": "2026-07-17T10:41:02.239Z",
+      "reviewRound": "2026-07-17T10:39:37.375Z",
+      "reviewRunId": "B-3aec:RR-021",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5bfca5b5dd654175ee1be562d7a898e285cdad19bbbec6b9b747cd862dedb295"
+    },
+    {
+      "id": "B-3aec:RP-014",
+      "agent": "lattice-review-docs",
+      "note": "Final closeout-aware re-attestation: docs remain unchanged since reviewed material 62abc146dc; summary, fresh live-smoke status, canonical validation/DONE-required evidence, and explicit limitations align. Summary truthfully separates hosts=false live routing from deterministic injected-child checks, disclaims production authority and real host execution, records degraded-single-host 3x1 assurance, and preserves legitimate typed/cutoff escalation limits.",
+      "createdAt": "2026-07-17T10:42:08.421Z",
+      "reviewRound": "2026-07-17T10:39:37.375Z",
+      "reviewRunId": "B-3aec:RR-023",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "lifecycle_check:DONE",
+          "live_smoke_transcript:B-3aec",
+          "summary_get:B-3aec"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2df019eb03e6eb08c877b6cba9e2a0ca6b046b5d87b7315a01d41f35bac0b6ea"
+    },
+    {
+      "id": "B-3aec:RP-015",
+      "agent": "lattice-review-quality",
+      "note": "Post-delivery final quality re-attestation: implementation commit 62abc146dc and signed delivery commit 01c003459f are both ancestors of current HEAD. The delivery commit changes only canonical closeout receipt and delivery-check metadata; committed and uncommitted business material remain unchanged. Prior quality findings remain resolved and no new blocker is introduced after delivery signing.",
+      "createdAt": "2026-07-17T10:47:17.597Z",
+      "reviewRound": "2026-07-17T10:45:40.047Z",
+      "reviewRunId": "B-3aec:RR-025",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "07e420ffbdbdfdb9fb65e4779ea95a8661dfb7466f9f7e8f46167567d0a582e2"
+    },
+    {
+      "id": "B-3aec:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "Post-delivery final concept re-attestation confirms commit 01c003459f changes only delivery-check metadata and closeout receipts; 62abc146dc remains an ancestor and the non-metadata business diff is empty. Read-only DONE lifecycle reports delivery-check PASS for 3 docs promises while routine validation, DONE-required validation, evidence freshness, live transcript, summary, degraded fallback and assurance floor remain PASS. No concept conclusion changed and no distinct blocker exists.",
+      "createdAt": "2026-07-17T10:47:20.376Z",
+      "reviewRound": "2026-07-17T10:45:40.047Z",
+      "reviewRunId": "B-3aec:RR-024",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "6858211a03462a373968be2a2591f5b7a6877c7fac28da746b14bd14c1e3fcad"
+    },
+    {
+      "id": "B-3aec:RP-017",
+      "agent": "lattice-review-test-coverage",
+      "note": "Post-delivery final test re-attestation at delivery-check commit 01c003459f3c0e03e733021e20ab4401127ef302. Read-only lifecycle identity reports delivery-check PASS with 3 docsPromises checked and DONE-required validation PASS for 2 required commands. Canonical routine validation remains PASS for 46 commands with identity digest f7ba5d719b47a5da16804ca1b84632485a42ad200b0eea2bc601393ac3d84ec7. Current and validation materialHash 8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4 and storyFilesHash 12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8 remain identical to reviewed implementation 62abc146dc. Checklist/canonical coverage reports 22 required, 22 covered/passing, 0 missing/failing. No suite rerun, broad scan, real host, network, lifecycle mutation, or OMX action was used.",
+      "createdAt": "2026-07-17T10:47:25.115Z",
+      "reviewRound": "2026-07-17T10:45:40.047Z",
+      "reviewRunId": "B-3aec:RR-026",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "39dedb0d5ee996112791832736c17855c7c3edb79f77f16a74f6984f20c9040b"
+    },
+    {
+      "id": "B-3aec:RP-018",
+      "agent": "lattice-review-docs",
+      "note": "Post-delivery final docs pass: delivery-check signed in the current review round and lifecycle_check reports 3 docs promises passed, bound to unchanged material/story files. Summary and fresh transcript preserve explicit hosts=false, fake/injected-child, degraded-single-host, and non-production limitations; localReady=true while authorityDone/fullAuthorityDone/productionDone remain false. No business/docs change since 62abc146dc.",
+      "createdAt": "2026-07-17T10:48:23.511Z",
+      "reviewRound": "2026-07-17T10:45:40.047Z",
+      "reviewRunId": "B-3aec:RR-027",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "delivery-check:B-3aec",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "lifecycle_check:DONE",
+          "live_smoke_transcript:B-3aec",
+          "summary_get:B-3aec"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ad14aa42f37220a40f6c5a6e520fe9b92a4e240e62e3fc1c402baad616e1a07b"
+    }
+  ]
+}

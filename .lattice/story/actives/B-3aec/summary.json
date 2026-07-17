@@ -1,0 +1,56 @@
+{
+  "storyId": "B-3aec",
+  "changes": "Unattended candidate-host execution now requires positive canonical readiness and uses separate startup and total deadlines with bounded dual-stream diagnostics, deterministic cleanup, and capacity release. Candidate routing now filters overbroad and zero-hit query groups before budgeting, preserves mandatory protected sources, uses ordinary-only cutoff logic, consumes signed mode consistently across renderer and gates, and binds only current signed reviewer full-read evidence.",
+  "usage": "Run `node bin/lattice.js candidate_spec_route --storyId=B-3aec --hosts=false --persist=false --format=text` for deterministic local routing. Production host proposals remain gated by canonical readiness; routine `node bin/lattice.js validate --story=B-3aec` reuses fresh PASS evidence when only trusted story metadata changed.",
+  "expectedOutcome": "Local routing stays bounded, reports filtered overbroad or zero-hit terms, preserves exact mandatory sources, and shadow mode records without blocking. Silent or hung fake children terminate with distinct startup or total timeout, are reaped exactly once, and immediately release capacity; auth and interactive diagnostics remain bounded and stream-safe.",
+  "actualTranscript": "Live transcript exited 0: candidate routing reported corpus=26/119, hosts=disabled, SHADOW_RECORDED, explicit overbroad and zero_hits audit entries, and a bounded candidate list. The same capture ran the deterministic host-run smoke, which passed 83 checks including total timeout, abort cleanup, spawn_error, sticky dual-stream diagnostics, race settlement, listener/timer cleanup, and slot release. Canonical routine validation passed 46/46; DONE-required build plus root npm test passed.",
+  "outcomeDiff": "No product-contract difference within the approved local and fake-host scope. The live route intentionally used hosts=false, so it demonstrated local bounded routing rather than launching real codex, claude, or agy; the zero-spawn readiness refusal and timeout paths were exercised by deterministic injected-child integration checks as required.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "No real codex, claude, or agy process was launched and fake hosts are not production assurance. Review assurance is explicitly recorded as degraded-single-host 3x1 under the prior unattended-run approval. Candidate routing may still report legitimate typed high-risk or cutoff escalation; the change removes false generic, zero-hit, and protected-only escalation, not real escalation.",
+  "pitfalls": "The implementation required three bounded repair rounds because reviewers found query-budget starvation, cross-mode gate mismatches, missing race and collector integration, zero-hit budget use, and cross-stream fragment stitching. A routine validate inside REVIEW wrote canonical test metadata and invalidated current review receipts, forcing metadata-only re-attestation; the subsequent validate correctly reused PASS with zero commands. DONE preparation is intentionally two-pass after it commits generated evidence.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 79020
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 79335
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 676761
+    },
+    "DEV": {
+      "count": 5,
+      "durationMs": 3136462
+    },
+    "REVIEW": {
+      "count": 5,
+      "durationMs": 2129827
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 525697
+    }
+  },
+  "totalDurationMs": 6627526,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-17T10:36:45.124Z",
+  "updatedAt": "2026-07-17T10:36:45.124Z"
+}

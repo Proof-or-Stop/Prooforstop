@@ -264,6 +264,17 @@ try {
     assert.doesNotMatch(JSON.stringify(codex), /refresh_token_invalidated|please login again/);
   });
 
+  check('interactive-only launcher output is classified non-ready without treating it as generic unknown', () => {
+    const interactive = classifyHostExecutionReadiness({
+      host: 'codex', executablePath: '/fake/bin/codex', versionOk: true, durationMs: 11, exitCode: 1,
+      result: { status: 1, signal: null, stdout: '', stderr: 'interactive terminal required; cannot prompt without a TTY' },
+    });
+    assert.equal(interactive.failureKind, 'interactive');
+    assert.equal(interactive.executionReady, false);
+    assert.equal(interactive.reviewReady, false);
+    assert.equal(interactive.launcherSupport, 'unverified');
+  });
+
   check('bounded probe checks launcher readiness with a smoke prompt', () => {
     const argvLog = join(root, 'readiness-argv.log');
     const bin = installFakeHosts(root, ['codex', 'claude', 'agy'], argvLog);

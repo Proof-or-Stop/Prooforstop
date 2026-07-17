@@ -1,0 +1,49 @@
+{
+  "storyId": "B-3aec",
+  "checkedAt": "2026-07-17T10:46:21.218Z",
+  "headHash": "b9b827e54e0847413f009f9744bc74fc4f97ccd7",
+  "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+  "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+  "reviewRound": "2026-07-17T10:45:40.047Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-3aec/checklist.json#CHK-001",
+      "promise": "Candidate routing refuses an unattended host before spawn when canonical readiness is not positive; silent and hung children are bounded by distinct startup and total deadlines, reaped, and release capacity.",
+      "status": "verified",
+      "verifiedBy": "Current material-bound integration evidence plus fresh live-smoke/DONE readiness.",
+      "evidence": "CHK-001 has 10/10 required intents covered. Focused host-run smoke passed 83 checks and readiness smoke passed 10 checks, including zero-spawn non-ready states, startup and total deadlines, abort/spawn_error, bounded diagnostics, deterministic cleanup and slot reacquisition. Routine validation and DONE-required evidence are PASS."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-3aec/checklist.json#CHK-002",
+      "promise": "Candidate routing filters overbroad generic and zero-hit terms before budgeting, preserves exact mandatory sources, stays bounded with fullScan=false absent a real escalation reason, and applies shadow/warn/enforce consistently.",
+      "status": "verified",
+      "verifiedBy": "Fresh local live transcript, focused routing evidence, and canonical validation.",
+      "evidence": "Live transcript exited 0 with corpus=26/119, hosts=disabled, SHADOW_RECORDED, typed overbroad and zero_hits entries, and bounded candidates. CHK-002 has 12/12 required intents covered; routine validation passed 46/46."
+    },
+    {
+      "docPath": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#77-b-3aec-implementation-contract",
+      "promise": "The documented B-3aec contract accurately limits implementation to canonical readiness admission, optional dual deadlines, bounded per-stream diagnostics, query specificity, protected-source retention, and mode-consistent routing without changing quorum or production authority.",
+      "status": "verified",
+      "verifiedBy": "Reverse comparison of the current production/document/test diff and current lifecycle evidence.",
+      "evidence": "Changes remain within declared host-run/routing/config/dispatch/process-fact surfaces. The document states deterministic local fake-child coverage, no real Codex/Claude/Antigravity launch, unchanged quorum/production authority, and backward-compatible opt-in deadlines for other callers."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Fresh canonical live-smoke artifact records exit 0; the same local capture ran deterministic host-run smoke with 83 passing checks covering startup/total timeout, abort, spawn_error, bounded stream-safe diagnostics, race settlement, cleanup, reap, and capacity release. No real host CLI was launched, as required."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Fresh canonical live-smoke artifact records exit 0 for local candidate routing: corpus=26/119, hosts=disabled, SHADOW_RECORDED, explicit overbroad and zero_hits entries, and bounded output. Routine validation passed 46/46 and DONE-required build plus root npm test passed."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery promises match current unchanged material within the explicit no-real-host limitation. All 20 findings are resolved, 22/22 intents are covered, validation and DONE-required evidence pass, live smoke is fresh, and degraded-single-host 3x1 assurance is explicitly authorized. Fake/local evidence is not production assurance."
+  },
+  "_hash": "2345095864c06b5bdc039bbb2359aa79a4ea20a84215343bbe2e09b3623e8ad5"
+}

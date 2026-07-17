@@ -88,6 +88,10 @@ export interface LatticeConfig {
     queryGroupBudget?: number;
     rawHitsPerGroup?: number;
     maxDocumentFrequencyRatio?: number;
+    /** First-output budget for unattended semantic proposal hosts. */
+    hostStartupTimeoutMs?: number;
+    /** Independent total runtime budget for unattended semantic proposal hosts. */
+    hostTotalTimeoutMs?: number;
   };
   storyPrefix: string;
   flows: LatticeFlowConfig;
@@ -193,6 +197,9 @@ export interface LatticeConfig {
     onPhaseChange?: Record<string, string[]>;
   };
 }
+
+export const DEFAULT_CANDIDATE_HOST_STARTUP_TIMEOUT_MS = 10_000;
+export const DEFAULT_CANDIDATE_HOST_TOTAL_TIMEOUT_MS = 120_000;
 
 /** 默认各阶段可用命令白名单 */
 export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
@@ -462,6 +469,8 @@ const DEFAULT_CONFIG: LatticeConfig = {
     queryGroupBudget: 10,
     rawHitsPerGroup: 50,
     maxDocumentFrequencyRatio: 0.4,
+    hostStartupTimeoutMs: DEFAULT_CANDIDATE_HOST_STARTUP_TIMEOUT_MS,
+    hostTotalTimeoutMs: DEFAULT_CANDIDATE_HOST_TOTAL_TIMEOUT_MS,
   },
   storyPrefix: 'B',
   flows: {

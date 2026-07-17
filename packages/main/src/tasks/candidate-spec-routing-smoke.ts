@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import {
   buildCorpusIndex,
   buildKeywordSeeds,
+  candidateReadBindingDiagnostics,
   candidateReadBindingErrors,
   collectHostKeywordProposals,
   digestCandidateRoutingValue,
@@ -17,8 +19,17 @@ import {
 } from '../core/candidate-spec-routing.js';
 import { StoryStore } from '../core/store.js';
 import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
-import { renderCandidateSpecRouteText } from '../handlers/candidate-spec-routing.js';
+import {
+  candidateHostFailureReason,
+  currentReviewerFullyReadPaths,
+  currentStoryRoutingInput,
+  renderCandidateSpecRouteText,
+  withUnattendedReadiness,
+} from '../handlers/candidate-spec-routing.js';
+import { resetConfigCache } from '../core/config.js';
 import { renderDeliveryContextPackReport, type DeliveryContextPackReport } from '../handlers/delivery-context-pack.js';
+import { signReviewPass } from '../core/finding-verify.js';
+import { captureReviewRunSnapshot, signReviewRun } from '../core/review-run.js';
 
 function fixtureRoot(): string {
   const root = join(tmpdir(), `candidate-routing-${process.pid}-${Date.now()}`);
@@ -117,6 +128,7 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     store.writeChecklist(story.storyId, { items: [{
       id: 'CHK-001', title: 'Preserve AuthSession behavior', context: 'Review routed auth specifications.',
       status: 'pending', startTime: null, endTime: null,
+      relatedDocs: ['docs/requirements/decisions/auth-session.md'],
       files: { modify: ['packages/main/src/auth/session.ts'], create: [], test: [] },
     }] });
     store.writeCandidateSpecSet(story.storyId, artifact);
@@ -131,6 +143,98 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     assert.match(reviewPrompt, new RegExp(artifact.artifactDigest));
     assert.match(reviewPrompt, /review_run_start/);
     assert.match(reviewPrompt, /candidateSpecSetDigest/);
+    assert.deepEqual(currentReviewerFullyReadPaths({
+      valid: [{
+        id: 'RP-valid', kind: 'pass', agent: 'lattice-review-quality',
+        pass: {
+          id: 'RP-valid', agent: 'lattice-review-quality', note: 'valid signed/current projection supplied by collector', createdAt: new Date().toISOString(),
+          readManifest: {
+            filesReadFully: ['docs/requirements/decisions/auth-session.md'],
+            filesTriagedByName: ['docs/requirements/decisions/noise.md'],
+            scanEscalationReason: null,
+          },
+        },
+      }],
+      invalid: [],
+    }), ['docs/requirements/decisions/auth-session.md'], 'only fully-read paths from collector-valid evidence are promoted; triage is never authority');
+    assert.deepEqual(currentReviewerFullyReadPaths({
+      valid: [],
+      invalid: [{ code: 'stale_run_hash', kind: 'pass', evidenceId: 'RP-stale', agent: 'lattice-review-quality', message: 'stale/unbound evidence' }],
+    }), [], 'collector-invalid stale/unbound reviewer evidence contributes no protected path');
+    mkdirSync(join(root, 'packages/main/src/core'), { recursive: true });
+    writeFileSync(join(root, 'packages/main/src/core/machine.ts'), 'export const machine = true;\n');
+    const collectorRoot = join(tmpdir(), `candidate-routing-collector-${process.pid}-${Date.now()}`);
+    mkdirSync(join(collectorRoot, 'packages/main/src'), { recursive: true });
+    mkdirSync(join(collectorRoot, 'docs/requirements/decisions'), { recursive: true });
+    writeFileSync(join(collectorRoot, '.gitignore'), '.lattice/\n');
+    writeFileSync(join(collectorRoot, 'lattice.config.json'), JSON.stringify({ requirementsDir: 'docs/requirements' }));
+    writeFileSync(join(collectorRoot, 'packages/main/src/reviewer-full.ts'), 'export const reviewerFull = true;\n');
+    writeFileSync(join(collectorRoot, 'docs/requirements/decisions/noise.md'), '# Noise\n');
+    const git = (args: string[]): string => execFileSync('git', args, { cwd: collectorRoot, encoding: 'utf8' }).trim();
+    git(['init']);
+    git(['checkout', '-B', 'main']);
+    git(['add', '.']);
+    git(['-c', 'user.name=lattice-test', '-c', 'user.email=lattice-test@proofbound.local', 'commit', '-m', 'collector base']);
+    const collectorStore = new StoryStore(collectorRoot);
+    const collectorRound = '2026-07-12T00:02:00.000Z';
+    collectorStore.writeStory(story.storyId, {
+      storyId: story.storyId, name: 'collector-integration', title: 'Collector integration', description: 'Signed current reviewer evidence',
+      type: 'feature', phase: 'REVIEW', priority: 'medium', createdAt: '2026-07-12T00:00:00.000Z', startedAt: '2026-07-12T00:00:00.000Z', endedAt: null,
+      currentReviewRound: collectorRound, events: [],
+    });
+    collectorStore.writeChecklist(story.storyId, { items: [] });
+    const collectorSnapshot = captureReviewRunSnapshot(collectorRoot);
+    const reviewRunId = `${story.storyId}:RR-001`;
+    const reviewAgent = 'lattice-review-quality';
+    const reviewStartedAt = '2026-07-12T00:03:00.000Z';
+    const reviewRun = {
+      reviewRunId, storyId: story.storyId, agent: reviewAgent, lane: reviewAgent, reviewRound: collectorRound,
+      startedAt: reviewStartedAt, ...collectorSnapshot, promptHash: '',
+    };
+    collectorStore.writeReviewRuns(story.storyId, { runs: [{
+      ...reviewRun,
+      _hash: signReviewRun(story.storyId, reviewRunId, reviewAgent, reviewAgent, collectorRound, reviewStartedAt, collectorSnapshot.headHash, collectorSnapshot.materialHash, '', undefined, undefined, collectorSnapshot.storyFilesHash),
+    }] });
+    const reviewPass = {
+      id: `${story.storyId}:RP-001`,
+      agent: reviewAgent,
+      note: 'collector integration pass',
+      createdAt: '2026-07-12T00:04:00.000Z',
+      reviewRound: collectorRound,
+      reviewRunId,
+      readManifest: {
+        filesReadFully: ['packages/main/src/reviewer-full.ts'],
+        filesTriagedByName: ['docs/requirements/decisions/noise.md'],
+        scanEscalationReason: null,
+      },
+    };
+    collectorStore.writeReviewPasses(story.storyId, { passes: [{
+      ...reviewPass,
+      _hash: signReviewPass(story.storyId, reviewPass.id, reviewPass.agent, reviewPass.note, reviewPass.createdAt, collectorRound, reviewRunId, reviewPass.readManifest),
+    }] });
+    const collectorBoundInput = currentStoryRoutingInput({ store: collectorStore, root: collectorRoot, scanRoot: join(collectorRoot, 'packages/main') }, story.storyId);
+    assert.ok(collectorBoundInput.protectedSources?.some(source => source.kind === 'reviewer-evidence' && source.path === 'packages/main/src/reviewer-full.ts'), 'handler consumes current collector-valid filesReadFully');
+    assert.equal(collectorBoundInput.protectedSources?.some(source => source.path === 'docs/requirements/decisions/noise.md' && source.kind === 'reviewer-evidence'), false, 'collector triage never becomes protected authority');
+    writeFileSync(join(collectorRoot, 'packages/main/src/reviewer-full.ts'), 'export const reviewerFull = false;\n');
+    git(['add', '.']);
+    git(['-c', 'user.name=lattice-test', '-c', 'user.email=lattice-test@proofbound.local', 'commit', '-m', 'make reviewer evidence stale']);
+    const collectorStaleInput = currentStoryRoutingInput({ store: collectorStore, root: collectorRoot, scanRoot: join(collectorRoot, 'packages/main') }, story.storyId);
+    assert.equal(collectorStaleInput.protectedSources?.some(source => source.kind === 'reviewer-evidence'), false, 'stale/unbound collector evidence is rejected by ordinary handler input');
+    rmSync(collectorRoot, { recursive: true, force: true });
+    store.writeStory(story.storyId, {
+      ...store.readStory(story.storyId),
+      riskSignals: [
+        { category: 'Security/Credentials', matched: 'auth' },
+        { category: 'Production/Emergency', matched: 'production' },
+        { category: 'State Machine/Gate', matched: 'machine.ts' },
+      ],
+    });
+    const realInput = currentStoryRoutingInput({ store, root, scanRoot: join(root, 'packages/main') }, story.storyId);
+    assert.deepEqual(realInput.riskSignals, ['Security/Credentials:auth', 'Production/Emergency:production', 'State Machine/Gate:machine.ts']);
+    assert.ok(realInput.protectedSources?.some(source => source.kind === 'related-doc' && source.path === 'docs/requirements/decisions/auth-session.md'));
+    assert.deepEqual(realInput.protectedSources?.filter(source => source.kind === 'typed-risk').map(source => source.path), ['packages/main/src/core/machine.ts'], 'only a canonical structured source path is protected; generic typed risks fabricate nothing');
+    const structuredRiskRoute = routeCandidateSpecs({ projectRoot: root, storyId: story.storyId, corpus: first, seeds: buildKeywordSeeds(realInput), riskSignals: realInput.riskSignals, protectedSources: realInput.protectedSources });
+    assert.ok(structuredRiskRoute.escalationReasons.includes('high_risk_structured_signal'));
     const deliveryText = renderDeliveryContextPackReport({
       storyId: story.storyId, generatedFor: 'delivery-review', phase: 'REVIEW',
       mode: { runCommands: false, writeEvidence: false },
@@ -222,6 +326,7 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     });
     assert.equal(truncatedRoute.requiresEscalation, true, 'ranking-affecting truncation must require an explicit escalation decision');
     assert.ok(truncatedRoute.escalationReasons.includes('ranking_affecting_query_truncation'));
+    assert.ok(truncatedRoute.queryTruncation.some(row => row.omittedMaxScore === row.selectedCutoffScore && row.classification === 'ranking_affecting'), 'a score tied at the selected cutoff must be ranking-affecting');
     assert.equal(truncatedRoute.fullScan, false, 'common-term truncation must never authorize full-corpus reads');
     assert.equal(truncatedRoute.scanEscalationReason, null);
     assert.ok(truncatedRoute.candidateSpecSet.length <= truncatedRoute.budgets.candidates);
@@ -233,7 +338,8 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
       corpusDigest: truncatedRoute.corpusDigest,
     };
     assert.match(candidateReadBindingErrors({ manifest: truncatedManifest, artifact: truncatedRoute, mode: 'enforce' }).join(' '), /escalation is unresolved/);
-    assert.match(candidateReadBindingErrors({ manifest: truncatedManifest, artifact: truncatedRoute, mode: 'shadow' }).join(' '), /escalation is unresolved/, 'supplying a digest makes shadow evidence subject to the same fail-closed binding');
+    assert.deepEqual(candidateReadBindingErrors({ manifest: truncatedManifest, artifact: truncatedRoute, mode: 'shadow' }), [], 'shadow is observational even when a digest is supplied');
+    assert.deepEqual(candidateReadBindingErrors({ manifest: truncatedManifest, artifact: truncatedRoute, mode: 'warn' }), [], 'warn is advisory even when a digest is supplied');
     const pendingCliText = renderCandidateSpecRouteText(truncatedRoute, first.entries.length, []);
     assert.match(pendingCliText, /BLOCKED_PENDING_ESCALATION/);
     assert.match(pendingCliText, /fullScanReason/);
@@ -254,6 +360,225 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     assert.equal(frequencyFilteredRoute.fullScan, false);
     assert.ok(frequencyFilteredRoute.candidateSpecSet.includes('docs/requirements/decisions/auth-session.md'), 'explicit relatedDocs bypass frequency filtering');
     assert.match(renderCandidateSpecRouteText(frequencyFilteredRoute, first.entries.length, []), /queryFiltering=maxDocumentFrequencyRatio=0\.4 filtered=.*decision:3/);
+
+    const genericOnly = routeCandidateSpecs({
+      projectRoot: root,
+      storyId: story.storyId,
+      corpus: first,
+      seeds: buildKeywordSeeds({ storyId: story.storyId, title: 'decision decision decision' }),
+    });
+    assert.ok(genericOnly.queryFiltering.filteredTerms.some(term => term.term === 'decision'));
+    assert.ok(genericOnly.ambiguitySignals.includes('generic_only_filtered_bounded'));
+    assert.ok(!genericOnly.ambiguitySignals.includes('zero_candidates'));
+    assert.equal(genericOnly.requiresEscalation, false, 'generic-only filtered vocabulary is bounded without full-scan pressure');
+    assert.equal(genericOnly.fullScan, false);
+
+    const dfRoot = join(tmpdir(), `candidate-routing-df-${process.pid}-${Date.now()}`);
+    mkdirSync(join(dfRoot, 'docs/requirements/decisions'), { recursive: true });
+    for (let index = 0; index < 5; index += 1) {
+      writeFileSync(join(dfRoot, `docs/requirements/decisions/df-${index}.md`), `# DF ${index}\n${index < 2 ? 'boundaryterm boundaryterm boundaryterm' : ''}${index < 3 ? ' aboveterm' : ''}\n`);
+    }
+    const dfCorpus = buildCorpusIndex(dfRoot);
+    const dfBoundary = routeCandidateSpecs({
+      projectRoot: dfRoot, storyId: story.storyId, corpus: dfCorpus,
+      seeds: buildKeywordSeeds({ storyId: story.storyId, title: 'boundaryterm aboveterm' }),
+      maxDocumentFrequencyRatio: 0.4,
+    });
+    const boundaryRow = dfBoundary.queryFiltering.filteredTerms.find(row => row.term === 'boundaryterm');
+    const aboveRow = dfBoundary.queryFiltering.filteredTerms.find(row => row.term === 'aboveterm');
+    assert.equal(boundaryRow, undefined, 'exactly 2/5 stays eligible at the 0.4 boundary despite duplicate occurrences');
+    assert.deepEqual(aboveRow && { count: aboveRow.documentCount, ratio: aboveRow.documentFrequencyRatio }, { count: 3, ratio: 0.6 });
+    for (let index = 0; index < 5; index += 1) {
+      writeFileSync(join(dfRoot, `docs/requirements/decisions/df-${index}.md`), `# DF ${index}\n${Array.from({ length: 12 }, (_, term) => `generic${String(term).padStart(2, '0')}`).join(' ')}${index === 0 ? ' firstonlyterm' : ''}${index === 4 ? ' zzspecificsurvivor' : ''}\n`);
+    }
+    const starvationCorpus = buildCorpusIndex(dfRoot);
+    const starvationRoute = routeCandidateSpecs({
+      projectRoot: dfRoot,
+      storyId: story.storyId,
+      corpus: starvationCorpus,
+      seeds: buildKeywordSeeds({
+        storyId: story.storyId,
+        keywords: [...Array.from({ length: 12 }, (_, index) => `generic${String(index).padStart(2, '0')}`), 'zzspecificsurvivor'],
+      }),
+      queryGroupBudget: 4,
+      maxDocumentFrequencyRatio: 0.4,
+    });
+    assert.ok(starvationRoute.queryFiltering.filteredTerms.length >= 12, 'generic terms are audited even though they do not spend query budget');
+    assert.deepEqual(starvationRoute.queryGroups, [['zzspecificsurvivor']], 'specific term receives budget after generic DF filtering');
+    assert.ok(starvationRoute.candidateSpecSet.includes('docs/requirements/decisions/df-4.md'), 'specific candidate survives >budget generic seeds');
+    const zeroHitStarvation = routeCandidateSpecs({
+      projectRoot: dfRoot,
+      storyId: story.storyId,
+      corpus: starvationCorpus,
+      seeds: buildKeywordSeeds({
+        storyId: story.storyId,
+        keywords: [...Array.from({ length: 12 }, (_, index) => `aaazerohit${String(index).padStart(2, '0')}`), 'zzspecificsurvivor'],
+      }),
+      queryGroupBudget: 2,
+      maxDocumentFrequencyRatio: 1,
+    });
+    assert.deepEqual(zeroHitStarvation.queryGroups, [['zzspecificsurvivor']], 'many ordered zero-hit groups do not spend budget before a later rare matching term');
+    assert.equal(zeroHitStarvation.queryFiltering.filteredTerms.filter(term => term.reason === 'zero_hits').length, 12, 'every skipped zero-hit term remains in deterministic signed audit metrics');
+    assert.ok(zeroHitStarvation.candidateSpecSet.includes('docs/requirements/decisions/df-4.md'));
+    const emptyIntersection = routeCandidateSpecs({
+      projectRoot: dfRoot, storyId: story.storyId, corpus: starvationCorpus,
+      seeds: buildKeywordSeeds({ storyId: story.storyId, keywords: ['firstonlyterm', 'zzspecificsurvivor'] }),
+      queryGroupBudget: 3, maxDocumentFrequencyRatio: 1,
+    });
+    assert.deepEqual(emptyIntersection.queryGroups, [['firstonlyterm'], ['zzspecificsurvivor']], 'a generated multi-term group with no intersection does not consume spare budget');
+    rmSync(dfRoot, { recursive: true, force: true });
+
+    const protectedKinds = ['related-doc', 'exact-path', 'registry-ref', 'typed-risk', 'reviewer-evidence'] as const;
+    const protectedSources = Array.from({ length: 10 }, (_, index) => {
+      const kind = protectedKinds[index % protectedKinds.length];
+      const path = `docs/requirements/decisions/protected-${index}.md`;
+      writeFileSync(join(root, path), `# Protected ${index}\n\nlattice core handlers proofbound\n`);
+      return { kind, path, sourceRef: `typed.${kind}` };
+    });
+    const protectedCorpus = buildCorpusIndex(root);
+    const protectedRoute = routeCandidateSpecs({
+      projectRoot: root,
+      storyId: story.storyId,
+      corpus: protectedCorpus,
+      seeds: buildKeywordSeeds({ storyId: story.storyId, title: 'zz-no-ordinary-match' }),
+      protectedSources,
+      candidateBudget: 8,
+    });
+    for (const source of protectedSources) {
+      assert.ok(protectedRoute.candidateSpecSet.includes(source.path), `${source.kind} exact source survives generic filtering`);
+      assert.ok(protectedRoute.candidateBasis[source.path]?.some(reason => reason.kind === source.kind && reason.source === source.sourceRef));
+    }
+    assert.equal(protectedRoute.fullScan, false);
+    assert.equal(protectedRoute.protectedRouting.protectedCount, 10);
+    assert.equal(protectedRoute.protectedRouting.exceedsOrdinaryBudget, true);
+    assert.equal(protectedRoute.candidateSpecSet.filter(path => path.includes('protected-')).length, 10, 'mandatory protected candidates may exceed ordinary budget without loss');
+    assert.equal(protectedRoute.escalationReasons.includes('candidate_cutoff_tie'), false, 'protected count never participates in ordinary cutoff ties');
+    assert.equal(protectedRoute.escalationReasons.includes('weak_source_class_coverage'), false, 'protected-only source concentration never requests a broad scan');
+    assert.equal(protectedRoute.requiresEscalation, false, 'ten valid mandatory protected candidates with zero ordinary matches remain bounded and valid');
+    for (const source of protectedSources) rmSync(join(root, source.path));
+
+    mkdirSync(join(root, 'packages/main/src/core'), { recursive: true });
+    const externalRegistry = 'packages/main/src/core/process-fact-registry.ts';
+    writeFileSync(join(root, externalRegistry), 'export const PROCESS_FACT = true;\n');
+    const externalProtected = routeCandidateSpecs({
+      projectRoot: root, storyId: story.storyId, corpus: first, seeds: seedsA,
+      protectedSources: [
+        { kind: 'registry-ref', path: externalRegistry, sourceRef: 'understanding.touchpoints[0]' },
+        { kind: 'exact-path', path: 'packages/main/src/missing.ts', sourceRef: 'changedPaths[1]' },
+      ],
+    });
+    assert.ok(externalProtected.candidateSpecSet.includes(externalRegistry));
+    assert.match(externalProtected.candidates.find(candidate => candidate.path === externalRegistry)?.contentHash ?? '', /^[a-f0-9]{64}$/);
+    assert.deepEqual(externalProtected.protectedRouting.missing, [{ kind: 'exact-path', path: 'packages/main/src/missing.ts', sourceRef: 'changedPaths[1]', reason: 'missing' }]);
+    assert.ok(externalProtected.escalationReasons.some(reason => reason.startsWith('missing_protected_source:missing:')));
+
+    writeFileSync(join(root, 'docs/requirements/decisions/aaa-incidentalcommonterm.md'), '# Strong First\n\nincidentalcommonterm\n');
+    writeFileSync(join(root, 'docs/requirements/decisions/common-b.md'), '# Common B\n\nincidentalcommonterm\n');
+    writeFileSync(join(root, 'docs/requirements/decisions/common-c.md'), '# Common C\n\nincidentalcommonterm\n');
+    const safeTruncationCorpus = buildCorpusIndex(root);
+    const safeTruncation = routeCandidateSpecs({
+      projectRoot: root,
+      storyId: story.storyId,
+      corpus: safeTruncationCorpus,
+      seeds: buildKeywordSeeds({ storyId: story.storyId, title: 'incidentalcommonterm' }),
+      candidateBudget: 1,
+      rawHitsPerGroup: 1,
+      maxDocumentFrequencyRatio: 1,
+    });
+    assert.ok(safeTruncation.queryTruncation.some(row => row.classification === 'safe_below_cutoff' && row.omittedMaxScore === 8 && row.selectedCutoffScore === 20));
+    assert.ok(!safeTruncation.escalationReasons.includes('ranking_affecting_query_truncation'), 'raw overflow below the selected cutoff is diagnostic-only');
+    assert.equal(verifyCandidateSpecSet({
+      ...safeTruncation,
+      queryTruncation: safeTruncation.queryTruncation.map((row, index) => index === 0 ? { ...row, omittedMaxScore: Number.NaN } : row),
+    }), false, 'non-finite truncation evidence fails closed instead of claiming safe or ranking-affecting');
+    const firstTruncation = safeTruncation.queryTruncation[0];
+    assert.ok(firstTruncation);
+    assert.equal(verifyCandidateSpecSet({
+      ...safeTruncation,
+      queryTruncation: [{ ...firstTruncation, omittedHits: firstTruncation.omittedHits + 1 }, ...safeTruncation.queryTruncation.slice(1)],
+    }), false, 'inconsistent retained/omitted counts fail closed');
+    assert.equal(verifyCandidateSpecSet({
+      ...safeTruncation,
+      queryTruncation: [{ ...firstTruncation, selectedCutoffScore: null }, ...safeTruncation.queryTruncation.slice(1)],
+    }), false, 'missing cutoff cannot claim safe truncation');
+    assert.equal(verifyCandidateSpecSet({
+      ...safeTruncation,
+      queryTruncation: [{ ...firstTruncation, selectedCutoffScore: (firstTruncation.selectedCutoffScore ?? 0) + 1 }, ...safeTruncation.queryTruncation.slice(1)],
+    }), false, 'independently recomputed artifact digest rejects finite cutoff tampering');
+    for (const name of ['aaa-incidentalcommonterm.md', 'common-b.md', 'common-c.md']) rmSync(join(root, `docs/requirements/decisions/${name}`));
+
+    const routesByMode = Object.fromEntries((['shadow', 'warn', 'enforce'] as const).map(mode => [mode, routeCandidateSpecs({
+      projectRoot: root, storyId: story.storyId, corpus: first,
+      seeds: buildKeywordSeeds({ storyId: story.storyId, title: 'decision' }), rawHitsPerGroup: 1,
+      maxDocumentFrequencyRatio: 1, mode,
+    })])) as Record<'shadow' | 'warn' | 'enforce', typeof truncatedRoute>;
+    const enforceText = renderCandidateSpecRouteText(routesByMode.enforce, first.entries.length, []);
+    const warnText = renderCandidateSpecRouteText(routesByMode.warn, first.entries.length, []);
+    const shadowText = renderCandidateSpecRouteText(routesByMode.shadow, first.entries.length, []);
+    assert.match(enforceText, /BLOCKED_PENDING_ESCALATION/);
+    assert.match(warnText, /WARNING_PENDING_ESCALATION/);
+    assert.doesNotMatch(warnText, /BLOCKED|STOP/);
+    assert.match(shadowText, /SHADOW_RECORDED/);
+    assert.doesNotMatch(shadowText, /BLOCKED|STOP/);
+    const decisionProjection = (value: typeof truncatedRoute) => {
+      const { mode: _mode, artifactDigest: _digest, ...decision } = value;
+      return decision;
+    };
+    assert.deepEqual(decisionProjection(routesByMode.shadow), decisionProjection(routesByMode.warn));
+    assert.deepEqual(decisionProjection(routesByMode.warn), decisionProjection(routesByMode.enforce));
+    assert.throws(() => renderCandidateSpecRouteText(routesByMode.shadow, first.entries.length, [], 'enforce'), /mode disagreement/);
+    assert.match(renderCandidateSpecRouteText(routesByMode.enforce, first.entries.length, [], 'warn'), /WARNING_MODE_MISMATCH/);
+    assert.match(renderCandidateSpecRouteText(routesByMode.enforce, first.entries.length, [], 'shadow'), /SHADOW_MODE_MISMATCH_RECORDED/);
+    assert.deepEqual(candidateReadBindingErrors({ manifest: truncatedManifest, artifact: routesByMode.shadow, mode: 'shadow' }), []);
+    assert.deepEqual(candidateReadBindingErrors({ manifest: truncatedManifest, artifact: routesByMode.warn, mode: 'warn' }), []);
+    assert.deepEqual(candidateReadBindingDiagnostics({ manifest: { ...truncatedManifest, candidateSpecSetDigest: routesByMode.enforce.artifactDigest }, artifact: routesByMode.enforce, mode: 'shadow' })
+      .filter(diagnostic => diagnostic.code === 'mode_mismatch'), [{ code: 'mode_mismatch', message: 'candidate artifact mode=enforce does not match configured mode=shadow; rerun candidate_spec_route', blocking: false }]);
+    assert.equal(candidateReadBindingDiagnostics({ manifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null }, artifact: routesByMode.enforce, mode: 'warn' })
+      .find(diagnostic => diagnostic.code === 'mode_mismatch')?.blocking, false, 'mode mismatch remains observable even when advisory evidence omitted its digest');
+    assert.equal(candidateReadBindingDiagnostics({ manifest: { ...truncatedManifest, candidateSpecSetDigest: routesByMode.enforce.artifactDigest }, artifact: routesByMode.enforce, mode: 'warn' })
+      .find(diagnostic => diagnostic.code === 'mode_mismatch')?.blocking, false);
+    assert.equal(candidateReadBindingDiagnostics({ manifest: { ...truncatedManifest, candidateSpecSetDigest: routesByMode.shadow.artifactDigest }, artifact: routesByMode.shadow, mode: 'enforce' })
+      .find(diagnostic => diagnostic.code === 'mode_mismatch')?.blocking, true);
+    assert.match(candidateReadBindingErrors({ manifest: { ...truncatedManifest, candidateSpecSetDigest: routesByMode.enforce.artifactDigest }, artifact: routesByMode.enforce, mode: 'enforce' }).join(' '), /escalation is unresolved/);
+    for (const mode of ['shadow', 'warn', 'enforce'] as const) {
+      writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({ candidateSpecRouting: { mode } }));
+      resetConfigCache();
+      store.writeCandidateSpecSet(story.storyId, routesByMode[mode]);
+      const modePrompt = createStoryDispatchHandlers({ store, root, scanRoot: join(root, 'packages/main') })
+        .dispatch({ storyId: story.storyId, agentType: 'lattice-review-quality' }).prompt;
+      store.writeStory(story.storyId, { ...store.readStory(story.storyId), phase: 'DEV' });
+      const itemModePrompt = createStoryDispatchHandlers({ store, root, scanRoot: join(root, 'packages/main') })
+        .dispatch({ storyId: story.storyId, itemId: 'CHK-001', agentType: 'lattice-implementer' }).prompt;
+      store.writeStory(story.storyId, { ...store.readStory(story.storyId), phase: 'REVIEW' });
+      if (mode === 'shadow') {
+        assert.match(modePrompt, /SHADOW/);
+        assert.doesNotMatch(modePrompt, /STOP — candidate routing/);
+        assert.doesNotMatch(itemModePrompt, /STOP — candidate routing/);
+      } else if (mode === 'warn') {
+        assert.match(modePrompt, /WARNING/);
+        assert.doesNotMatch(modePrompt, /STOP — candidate routing/);
+        assert.doesNotMatch(itemModePrompt, /STOP — candidate routing/);
+      } else {
+        assert.match(modePrompt, /STOP — candidate routing/);
+        assert.match(itemModePrompt, /STOP — candidate routing/);
+      }
+    }
+    for (const mode of ['shadow', 'warn', 'enforce'] as const) {
+      writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({ candidateSpecRouting: { mode } }));
+      resetConfigCache();
+      store.writeCandidateSpecSet(story.storyId, mode === 'enforce' ? routesByMode.shadow : routesByMode.enforce);
+      for (const itemId of [undefined, 'CHK-001'] as const) {
+        store.writeStory(story.storyId, { ...store.readStory(story.storyId), phase: itemId ? 'DEV' : 'REVIEW' });
+        const mismatchPrompt = createStoryDispatchHandlers({ store, root, scanRoot: join(root, 'packages/main') })
+          .dispatch({ storyId: story.storyId, ...(itemId ? { itemId } : {}), agentType: itemId ? 'lattice-implementer' : 'lattice-review-quality' }).prompt;
+        assert.match(mismatchPrompt, /MODE_MISMATCH/);
+        if (mode === 'enforce') assert.match(mismatchPrompt, /STOP — MODE_MISMATCH/);
+        else assert.doesNotMatch(mismatchPrompt, /STOP — MODE_MISMATCH/);
+      }
+    }
+    store.writeStory(story.storyId, { ...store.readStory(story.storyId), phase: 'REVIEW' });
+    rmSync(join(root, 'lattice.config.json'), { force: true });
+    resetConfigCache();
 
     for (let index = 0; index < 8; index += 1) {
       writeFileSync(join(root, `docs/requirements/decisions/body-only-${index}.md`), `# Unique ${index}\n\nincidentalbodysignal\n`);
@@ -328,17 +653,21 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
       riskSignals: ['State Machine/Gate:process-fact global rename'],
     });
     store.writeStory(story.storyId, { ...store.readStory(story.storyId), phase: 'PLAN' });
-    assert.ok(highRisk.escalationReasons.includes('high_risk_lifecycle_gate_process_fact_or_global_rename'));
+    assert.ok(highRisk.escalationReasons.includes('high_risk_structured_signal'));
     assert.equal(highRisk.fullScan, false);
     store.writeCandidateSpecSet(story.storyId, highRisk);
+    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({ candidateSpecRouting: { mode: 'enforce' } }));
+    resetConfigCache();
     const pendingPlanPrompt = dispatch.dispatch({ storyId: story.storyId, agentType: 'lattice-review-scope-plan' }).prompt;
     assert.match(pendingPlanPrompt, /STOP — candidate routing escalation is unresolved/);
-    assert.match(pendingPlanPrompt, /high_risk_lifecycle_gate_process_fact_or_global_rename/);
+    assert.match(pendingPlanPrompt, /high_risk_structured_signal/);
     assert.match(pendingPlanPrompt, /fullScanReason/);
     store.writeStory(story.storyId, { ...store.readStory(story.storyId), phase: 'REVIEW' });
     const pendingReviewPrompt = dispatch.dispatch({ storyId: story.storyId, agentType: 'lattice-review-quality' }).prompt;
     assert.match(pendingReviewPrompt, /Do not submit review_pass_set or finding evidence/);
-    assert.match(pendingReviewPrompt, /high_risk_lifecycle_gate_process_fact_or_global_rename/);
+    assert.match(pendingReviewPrompt, /high_risk_structured_signal/);
+    rmSync(join(root, 'lattice.config.json'), { force: true });
+    resetConfigCache();
 
     const unmatchedLegacyProposal: HostKeywordProposal = {
       ...validProposal,
@@ -404,6 +733,50 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     });
     assert.equal(unsafeCalls, 0);
     assert.ok(unsafe.attempts.every(attempt => attempt.status === 'skipped-unsafe'));
+
+    const readinessBase = {
+      launcherOk: true,
+      reviewReady: true,
+      progressMode: 'jsonl' as const,
+      diagnostic: undefined,
+      remediation: '',
+    };
+    let missingRowCalls = 0;
+    const missingRowExecutor = withUnattendedReadiness(async () => { missingRowCalls += 1; return {}; }, []);
+    await assert.rejects(() => missingRowExecutor({ host: 'codex-cli', storyId: story.storyId, sanitizedPayload: {}, promptDigest: 'p', seedDigest: 's' }), /readiness_missing.*skipped pre-spawn/);
+    assert.equal(missingRowCalls, 0);
+    for (const row of [
+      { launcherSupport: 'unverified' as const, launcherOk: false, executionReady: false, failureKind: 'missing_executable' as const, progressMode: 'jsonl' as const },
+      { launcherSupport: 'unverified' as const, executionReady: false, failureKind: 'unknown' as const },
+      { launcherSupport: 'unsupported' as const, executionReady: false, failureKind: 'unsupported' as const },
+      { launcherSupport: 'wrong_launcher' as const, launcherOk: false, executionReady: false, failureKind: 'wrong_launcher' as const, progressMode: 'jsonl' as const },
+      { launcherSupport: 'supported' as const, launcherOk: false, executionReady: false, failureKind: 'wrong_launcher' as const, progressMode: 'jsonl' as const },
+      { launcherSupport: 'supported' as const, executionReady: false, failureKind: 'auth' as const },
+      { launcherSupport: 'supported' as const, executionReady: false, failureKind: 'interactive' as const },
+      { launcherSupport: 'supported' as const, executionReady: false, failureKind: 'timeout' as const },
+      { launcherSupport: 'supported' as const, executionReady: true, failureKind: 'none' as const, progressMode: 'none' as const },
+    ]) {
+      let spawnCalls = 0;
+      const admitted = withUnattendedReadiness(async () => { spawnCalls += 1; return {}; }, [{ host: 'codex', ...readinessBase, ...row }]);
+      await assert.rejects(() => admitted({ host: 'codex-cli', storyId: story.storyId, sanitizedPayload: {}, promptDigest: 'p', seedDigest: 's' }), /skipped pre-spawn/);
+      assert.equal(spawnCalls, 0, `${row.launcherSupport}/${row.failureKind} refuses with zero executor calls`);
+    }
+    let readyCalls = 0;
+    const readyExecutor = withUnattendedReadiness(async () => { readyCalls += 1; return { ok: true }; }, [{
+      host: 'codex', ...readinessBase, launcherSupport: 'supported', executionReady: true, failureKind: 'none',
+    }]);
+    assert.deepEqual(await readyExecutor({ host: 'codex-cli', storyId: story.storyId, sanitizedPayload: {}, promptDigest: 'p', seedDigest: 's' }), { ok: true });
+    assert.equal(readyCalls, 1);
+
+    const failedRunBase = {
+      blocked: false, refusalReason: null, timedOut: false, timeoutKind: null,
+      firstOutputMs: 2, durationMs: 8, exitCode: 1, terminalReason: 'exit_nonzero' as const,
+    };
+    assert.equal(candidateHostFailureReason({ ...failedRunBase, failureKind: 'auth' }), 'post_readiness_auth_required');
+    assert.equal(candidateHostFailureReason({ ...failedRunBase, failureKind: 'interactive' }), 'post_readiness_interactive_required');
+    assert.equal(candidateHostFailureReason({ ...failedRunBase, timedOut: true, timeoutKind: 'total_timeout', failureKind: 'auth' }), 'post_readiness_auth_required', 'sticky actionable classification outranks a later generic timeout');
+    assert.equal(candidateHostFailureReason({ ...failedRunBase, firstOutputMs: null, failureKind: 'unknown' }), 'post_readiness_no_output');
+    assert.equal(candidateHostFailureReason({ ...failedRunBase, terminalReason: 'spawn_error', failureKind: 'missing_executable' }), 'post_readiness_spawn_error:missing_executable');
 
     const passingWindow = (id: string) => ({
       id,

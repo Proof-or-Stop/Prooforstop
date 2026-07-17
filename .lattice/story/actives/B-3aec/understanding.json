@@ -1,0 +1,39 @@
+{
+  "task": "Bound unattended candidate host execution and finish the routing-specificity contract without changing quorum policy.",
+  "outcome": "The terminal reports candidate host codex skipped pre-spawn: unattended readiness is unverified for an unready launcher; a silent child reports startup_no_output_timeout and is killed/reaped with its capacity slot released; a productive slow child survives startup and remains bounded by the total deadline. Candidate routing reports generic terms such as lattice/core/handlers as filtered, keeps exact relatedDocs and exact paths, and returns a bounded candidate set with fullScan=false unless an explicit relevance-affecting reason is recorded.",
+  "facts": [
+    "candidate-spec productionExecutor currently calls shared runHostRun directly",
+    "defaultHostRunRunner streams stdout/stderr and enforces only one total timeoutMs",
+    "probeReviewHostAvailability already performs bounded canonical headless readiness probes and records launcherSupport/executionReady/reviewReady",
+    "candidate routing already has configurable maxDocumentFrequencyRatio=0.4 and records filteredTerms",
+    "current truncation still maps any raw hit overflow to ranking_affecting_query_truncation",
+    "B-3aec must verify existing #3 behavior rather than reimplement it"
+  ],
+  "constraints": [
+    "No real codex/claude/agy processes during DEV verification",
+    "Unverified unattended launchers must fail before the actual proposal spawn",
+    "Startup watchdog and total deadline are distinct and independently configurable",
+    "Any timeout or abort must kill/reap the child and release the host-run slot",
+    "Exact relatedDocs, paths, registry references, typed risks, and reviewer-bound evidence cannot be frequency-filtered",
+    "Shadow/warn/enforce text and gate semantics must remain distinct",
+    "Do not change quorum policy, owner identity, scope anchors, or unrelated active stories",
+    "Synchronize main before final validation and assurance"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/host-run.ts",
+    "packages/main/src/core/host-execution-readiness.ts",
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/src/handlers/candidate-spec-routing.ts",
+    "packages/main/src/core/candidate-spec-routing.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/tasks/host-run-usage-smoke.ts",
+    "packages/main/src/tasks/review-host-execution-readiness-smoke.ts",
+    "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+  ],
+  "timestamp": "2026-07-17T08:50:36.679Z"
+}

@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-3aec",
+  "state": "confirmed",
+  "ledgerHash": "sha256:9f45ee464341dc8556910d49b3a20a60b6abd97d0367c6678d6e2a9326f687f6",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-B3AEC-HOST-LIVENESS",
+      "claim": "Unattended candidate hosts are positively admitted and bounded by distinct startup and total deadlines with complete cleanup.",
+      "doneMeans": "Focused deterministic tests prove pre-spawn refusal, first-output handling, startup and total timeout classification, child reap, and capacity reacquisition.",
+      "requiredEvidence": [
+        "logic_test",
+        "integration_test"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:happy:1",
+        "CHK-001:edge:0",
+        "CHK-001:edge:1",
+        "CHK-001:edge:2",
+        "CHK-001:adversarial:0",
+        "CHK-001:adversarial:1",
+        "CHK-001:adversarial:2",
+        "CHK-001:adversarial:3",
+        "CHK-001:adversarial:4"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-B3AEC-ROUTING-SPECIFICITY",
+      "claim": "Generic routing vocabulary cannot force full-corpus review while every protected explicit source and genuine ranking-affecting escalation remains intact.",
+      "doneMeans": "Synthetic-corpus tests prove DF filtering, protected sources, relevance-aware truncation, typed risk escalation, and mode-consistent rendering and gates.",
+      "requiredEvidence": [
+        "logic_test",
+        "integration_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:happy:1",
+        "CHK-002:edge:0",
+        "CHK-002:edge:1",
+        "CHK-002:edge:2",
+        "CHK-002:edge:3",
+        "CHK-002:edge:4",
+        "CHK-002:adversarial:0",
+        "CHK-002:adversarial:1",
+        "CHK-002:adversarial:2",
+        "CHK-002:adversarial:3",
+        "CHK-002:adversarial:4"
+      ],
+      "status": "covered"
+    }
+  ],
+  "createdAt": "2026-07-17T08:59:29.216Z",
+  "updatedAt": "2026-07-17T08:59:30.981Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260717085456",
+    "acceptedInterpretationHash": "sha256:1edfb52291e61dec017cdb0937817c1fa02dbe410632fca2526ac4cc62e4d1cc",
+    "acceptedAt": "2026-07-17T08:59:30.981Z"
+  }
+}

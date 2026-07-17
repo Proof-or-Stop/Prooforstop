@@ -72,6 +72,12 @@ export interface StoryRoutingInput {
   understanding?: { touchpoints?: string[]; facts?: string[]; constraints?: string[] } | null;
   changedPaths?: string[];
   memoryTerms?: string[];
+  /** Structured exact-path authorities. Narrative prose must never populate this field. */
+  protectedSources?: Array<{
+    kind: 'related-doc' | 'exact-path' | 'registry-ref' | 'typed-risk' | 'reviewer-evidence';
+    path: string;
+    sourceRef: string;
+  }>;
 }
 
 export interface SanitizedHostPayload {
@@ -119,7 +125,7 @@ export type CandidateHostExecutor = (args: {
 }) => Promise<unknown>;
 
 export interface CandidateReason {
-  kind: 'related-doc' | 'path' | 'heading' | 'body' | 'host' | 'negative-control';
+  kind: 'related-doc' | 'exact-path' | 'registry-ref' | 'typed-risk' | 'reviewer-evidence' | 'path' | 'heading' | 'body' | 'host' | 'negative-control';
   term: string;
   source: string;
   points: number;
@@ -138,13 +144,35 @@ export interface CandidateSpecSetArtifact {
   corpusDigest: string;
   seedDigest: string;
   promptDigests: string[];
+  mode: 'shadow' | 'warn' | 'enforce';
   candidates: CandidateSpec[];
   candidateSpecSet: string[];
   candidateBasis: Record<string, CandidateReason[]>;
   queryGroups: string[][];
   queryFiltering: {
     maxDocumentFrequencyRatio: number;
-    filteredTerms: Array<{ term: string; documentCount: number; documentFrequencyRatio: number }>;
+    filteredTerms: Array<{ term: string; documentCount: number; documentFrequencyRatio: number; reason: 'overbroad' | 'zero_hits' }>;
+  };
+  queryTruncation: Array<{
+    queryGroup: string[];
+    totalHits: number;
+    retainedHits: number;
+    omittedHits: number;
+    omittedMaxScore: number | null;
+    selectedCutoffScore: number | null;
+    classification: 'safe_below_cutoff' | 'ranking_affecting';
+  }>;
+  protectedRouting: {
+    selectedPaths: string[];
+    missing: Array<{
+      kind: NonNullable<StoryRoutingInput['protectedSources']>[number]['kind'];
+      path: string;
+      sourceRef: string;
+      reason: 'unsafe_path' | 'missing' | 'not_regular_file';
+    }>;
+    ordinaryBudget: number;
+    protectedCount: number;
+    exceedsOrdinaryBudget: boolean;
   };
   rankingPolicy: { minRankingAffectingCutoffScore: number };
   budgets: { candidates: number; queryGroups: number; rawHitsPerGroup: number };
@@ -447,13 +475,20 @@ function searchable(entry: CorpusIndexEntry, body: string): string {
   return `${entry.path}\n${entry.headings.join('\n')}\n${body}`.toLowerCase();
 }
 
-export function buildQueryGroups(seeds: KeywordSeed[], proposals: HostKeywordProposal[] = [], budget = DEFAULT_QUERY_GROUP_BUDGET): string[][] {
+function orderedQueryTerms(seeds: KeywordSeed[], proposals: HostKeywordProposal[] = []): string[] {
   const terms = [...seeds.filter(seed => seed.source !== 'relatedDoc').map(seed => seed.normalized), ...proposals.flatMap(proposal => proposal.terms.map(term => normalizeKeyword(term.term)))]
     .filter(term => term.length >= 3);
-  const unique = [...new Set(terms)];
+  return [...new Set(terms)];
+}
+
+function queryGroupsFromTerms(unique: string[], budget: number): string[][] {
   const groups = unique.slice(0, budget).map(term => [term]);
   if (unique.length >= 2 && groups.length < budget) groups.push([unique[0], unique[1]]);
   return groups.slice(0, budget);
+}
+
+export function buildQueryGroups(seeds: KeywordSeed[], proposals: HostKeywordProposal[] = [], budget = DEFAULT_QUERY_GROUP_BUDGET): string[][] {
+  return queryGroupsFromTerms(orderedQueryTerms(seeds, proposals), budget);
 }
 
 export function routeCandidateSpecs(args: {
@@ -469,6 +504,8 @@ export function routeCandidateSpecs(args: {
   forceFullScanReason?: string | null;
   hostDisagreement?: boolean;
   riskSignals?: string[];
+  protectedSources?: StoryRoutingInput['protectedSources'];
+  mode?: 'shadow' | 'warn' | 'enforce';
   storyInputDigest?: string;
   headHash?: string;
   materialHash?: string;
@@ -485,7 +522,10 @@ export function routeCandidateSpecs(args: {
     ? configuredDocumentFrequencyRatio
     : DEFAULT_MAX_QUERY_DOCUMENT_FREQUENCY_RATIO;
   const proposals = args.proposals ?? [];
-  const unfilteredQueryGroups = buildQueryGroups(args.seeds.seeds, proposals, queryGroupBudget);
+  // Compute document frequency for every ordered term before spending the
+  // query-group budget. Otherwise generic terms at the front can consume the
+  // entire budget and starve a later specific term that would survive DF.
+  const unfilteredQueryTerms = orderedQueryTerms(args.seeds.seeds, proposals);
   const reasonMap = new Map<string, CandidateReason[]>();
   const entryByPath = new Map(args.corpus.entries.map(entry => [entry.path, entry]));
   const searchableByPath = new Map(args.corpus.entries.map(entry => [
@@ -493,8 +533,7 @@ export function routeCandidateSpecs(args: {
     searchable(entry, readFileSync(join(args.projectRoot, entry.path), 'utf8')),
   ]));
   const queryTerms = [...new Set([
-    ...unfilteredQueryGroups.flat(),
-    ...proposals.flatMap(proposal => proposal.terms.map(term => normalizeKeyword(term.term))),
+    ...unfilteredQueryTerms,
   ])].sort((left, right) => left.localeCompare(right, 'en'));
   const documentCounts = new Map(queryTerms.map(term => [
     term,
@@ -505,20 +544,69 @@ export function routeCandidateSpecs(args: {
     return (documentCounts.get(term) ?? 0) / args.corpus.entries.length > maxDocumentFrequencyRatio;
   };
   const filteredTerms = queryTerms
-    .filter(isOverbroadTerm)
+    .filter(term => isOverbroadTerm(term) || (documentCounts.get(term) ?? 0) === 0)
     .map(term => ({
       term,
       documentCount: documentCounts.get(term) ?? 0,
       documentFrequencyRatio: (documentCounts.get(term) ?? 0) / Math.max(args.corpus.entries.length, 1),
+      reason: isOverbroadTerm(term) ? 'overbroad' as const : 'zero_hits' as const,
     }));
-  const queryGroups = unfilteredQueryGroups
-    .map(group => group.filter(term => !isOverbroadTerm(term)))
-    .filter(group => group.length > 0);
-  const related = new Set(args.seeds.seeds.filter(seed => seed.source === 'relatedDoc').map(seed => seed.term.split('#')[0]));
-  let truncated = false;
+  const queryGroups = queryGroupsFromTerms(
+    unfilteredQueryTerms.filter(term => !isOverbroadTerm(term) && (documentCounts.get(term) ?? 0) > 0),
+    queryGroupBudget,
+  ).filter(group => args.corpus.entries.some(entry => {
+    const haystack = searchableByPath.get(entry.path) ?? '';
+    return group.every(term => haystack.includes(term));
+  }));
+  const relatedSources: NonNullable<StoryRoutingInput['protectedSources']> = args.seeds.seeds
+    .filter(seed => seed.source === 'relatedDoc')
+    .map(seed => ({ kind: 'related-doc', path: seed.term.split('#')[0], sourceRef: seed.sourceRef }));
+  const completeReasonMap = new Map<string, CandidateReason[]>();
+  const truncatedGroups: Array<{ queryGroup: string[]; totalHits: number; retainedHits: number; omittedPaths: string[] }> = [];
 
-  for (const entry of args.corpus.entries) {
-    if (related.has(entry.path)) reasonMap.set(entry.path, [{ kind: 'related-doc', term: entry.path, source: 'relatedDoc', points: 100 }]);
+  const addReason = (map: Map<string, CandidateReason[]>, path: string, reason: CandidateReason): void => {
+    const reasons = map.get(path) ?? [];
+    if (!reasons.some(existing => existing.kind === reason.kind && existing.term === reason.term && existing.source === reason.source)) {
+      reasons.push(reason);
+    }
+    map.set(path, reasons);
+  };
+
+  const protectedMissing: CandidateSpecSetArtifact['protectedRouting']['missing'] = [];
+  const rootReal = realpathSync(args.projectRoot);
+  const protectedInputs = [...relatedSources, ...(args.protectedSources ?? [])]
+    .sort((a, b) => a.path.localeCompare(b.path, 'en') || a.kind.localeCompare(b.kind, 'en') || a.sourceRef.localeCompare(b.sourceRef, 'en'));
+  for (const source of protectedInputs) {
+    const rawPath = source.path.split('#')[0].replace(/\\/g, '/');
+    const path = posix.normalize(rawPath).replace(/^\.\//, '');
+    if (!path || isAbsolute(rawPath) || path === '..' || path.startsWith('../')) {
+      protectedMissing.push({ ...source, path: rawPath, reason: 'unsafe_path' });
+      continue;
+    }
+    let contentHash = entryByPath.get(path)?.contentHash;
+    if (!contentHash) {
+      const absolute = resolve(args.projectRoot, path);
+      let fileReal: string;
+      try {
+        fileReal = realpathSync(absolute);
+      } catch {
+        protectedMissing.push({ ...source, path, reason: 'missing' });
+        continue;
+      }
+      if (fileReal !== rootReal && !fileReal.startsWith(`${rootReal}/`)) {
+        protectedMissing.push({ ...source, path, reason: 'unsafe_path' });
+        continue;
+      }
+      if (!lstatSync(fileReal).isFile()) {
+        protectedMissing.push({ ...source, path, reason: 'not_regular_file' });
+        continue;
+      }
+      contentHash = SHA256(readFileSync(fileReal));
+      entryByPath.set(path, { path, headings: [], byteSize: statSync(fileReal).size, contentHash, title: null, statusHints: [] });
+    }
+    const reason: CandidateReason = { kind: source.kind, term: path, source: source.sourceRef, points: 100 };
+    addReason(reasonMap, path, reason);
+    addReason(completeReasonMap, path, reason);
   }
   for (const group of queryGroups) {
     const hits: Array<{ entry: CorpusIndexEntry; body: string }> = [];
@@ -527,18 +615,26 @@ export function routeCandidateSpecs(args: {
       const haystack = searchableByPath.get(entry.path) ?? searchable(entry, body);
       if (group.every(term => haystack.includes(term))) hits.push({ entry, body });
     }
-    if (hits.length > rawHitsPerGroup) truncated = true;
-    for (const { entry, body } of hits.slice(0, rawHitsPerGroup)) {
-      const reasons = reasonMap.get(entry.path) ?? [];
+    const retained = hits.slice(0, rawHitsPerGroup);
+    if (hits.length > retained.length) truncatedGroups.push({
+      queryGroup: [...group],
+      totalHits: hits.length,
+      retainedHits: retained.length,
+      omittedPaths: hits.slice(retained.length).map(hit => hit.entry.path),
+    });
+    for (const { entry, body } of hits) {
       for (const term of group) {
         const pathHit = normalizeKeyword(entry.path).includes(term);
         const headingHit = entry.headings.some(heading => normalizeKeyword(heading).includes(term));
         const bodyHit = normalizeKeyword(body).includes(term);
         const kind: CandidateReason['kind'] = pathHit ? 'path' : headingHit ? 'heading' : 'body';
         const points = pathHit ? 20 : headingHit ? 15 : bodyHit ? 8 : 0;
-        if (points > 0 && !reasons.some(reason => reason.kind === kind && reason.term === term)) reasons.push({ kind, term, source: group.join('+'), points });
+        if (points > 0) {
+          const reason: CandidateReason = { kind, term, source: group.join('+'), points };
+          addReason(completeReasonMap, entry.path, reason);
+          if (retained.some(hit => hit.entry.path === entry.path)) addReason(reasonMap, entry.path, reason);
+        }
       }
-      reasonMap.set(entry.path, reasons);
     }
   }
   for (const proposal of proposals) {
@@ -547,9 +643,9 @@ export function routeCandidateSpecs(args: {
       if (isOverbroadTerm(normalized)) continue;
       for (const entry of args.corpus.entries) {
         if (!searchableByPath.get(entry.path)?.includes(normalized)) continue;
-        const reasons = reasonMap.get(entry.path) ?? [];
-        reasons.push({ kind: term.kind === 'negative-control' ? 'negative-control' : 'host', term: normalized, source: proposal.host, points: term.kind === 'negative-control' ? -25 : 4 });
-        reasonMap.set(entry.path, reasons);
+        const reason: CandidateReason = { kind: term.kind === 'negative-control' ? 'negative-control' : 'host', term: normalized, source: proposal.host, points: term.kind === 'negative-control' ? -25 : 4 };
+        addReason(reasonMap, entry.path, reason);
+        addReason(completeReasonMap, entry.path, reason);
       }
     }
   }
@@ -559,16 +655,47 @@ export function routeCandidateSpecs(args: {
     score: reasons.reduce((sum, reason) => sum + reason.points, 0),
     reasons: reasons.sort((a, b) => b.points - a.points || a.kind.localeCompare(b.kind, 'en') || a.term.localeCompare(b.term, 'en')),
   })).sort((a, b) => b.score - a.score || a.path.localeCompare(b.path, 'en'));
+  const protectedKinds = new Set<CandidateReason['kind']>(['related-doc', 'exact-path', 'registry-ref', 'typed-risk', 'reviewer-evidence']);
+  const protectedRanked = ranked.filter(candidate => candidate.reasons.some(reason => protectedKinds.has(reason.kind)));
+  const ordinaryRanked = ranked.filter(candidate => !candidate.reasons.some(reason => protectedKinds.has(reason.kind)));
+  const completeScores = new Map([...completeReasonMap.entries()].map(([path, reasons]) => [
+    path,
+    reasons.reduce((sum, reason) => sum + reason.points, 0),
+  ]));
+  const selectedCutoffScore = ordinaryRanked.length === 0
+    ? null
+    : ordinaryRanked[Math.min(candidateBudget, ordinaryRanked.length) - 1]?.score ?? null;
+  const queryTruncation = truncatedGroups.map(group => {
+    // A path found through another retained group is not omitted from the final ranking.
+    const omittedScores = group.omittedPaths
+      .filter(path => !reasonMap.has(path))
+      .map(path => completeScores.get(path))
+      .filter((score): score is number => typeof score === 'number' && Number.isFinite(score));
+    const omittedMaxScore = omittedScores.length > 0 ? Math.max(...omittedScores) : null;
+    const affectsRanking = omittedMaxScore !== null
+      && (selectedCutoffScore === null || ordinaryRanked.length < candidateBudget || omittedMaxScore >= selectedCutoffScore);
+    return {
+      queryGroup: group.queryGroup,
+      totalHits: group.totalHits,
+      retainedHits: group.retainedHits,
+      omittedHits: group.totalHits - group.retainedHits,
+      omittedMaxScore,
+      selectedCutoffScore,
+      classification: affectsRanking ? 'ranking_affecting' as const : 'safe_below_cutoff' as const,
+    };
+  });
+  const rankingAffectingTruncation = queryTruncation.some(row => row.classification === 'ranking_affecting');
 
   const ambiguitySignals: string[] = [];
-  if (ranked.length === 0) ambiguitySignals.push('zero_candidates');
-  const rankedReasonKinds = new Set(ranked.flatMap(candidate => candidate.reasons.map(reason => reason.kind)));
-  const hasExplicitRelatedDoc = ranked.some(candidate => candidate.reasons.some(reason => reason.kind === 'related-doc'));
-  if (ranked.length > 0 && rankedReasonKinds.size < 2 && !hasExplicitRelatedDoc) ambiguitySignals.push('weak_source_class_coverage');
-  if (truncated) ambiguitySignals.push('query_results_truncated');
-  const cutoffScore = ranked[candidateBudget - 1]?.score;
-  const cutoffTie = ranked.length > candidateBudget
-    && cutoffScore === ranked[candidateBudget]?.score
+  const genericOnlyFiltered = ranked.length === 0 && filteredTerms.some(term => term.reason === 'overbroad') && queryGroups.length === 0;
+  if (ranked.length === 0 && !genericOnlyFiltered) ambiguitySignals.push('zero_candidates');
+  if (genericOnlyFiltered) ambiguitySignals.push('generic_only_filtered_bounded');
+  const ordinaryReasonKinds = new Set(ordinaryRanked.flatMap(candidate => candidate.reasons.map(reason => reason.kind)));
+  if (ordinaryRanked.length > 0 && ordinaryReasonKinds.size < 2 && protectedRanked.length === 0) ambiguitySignals.push('weak_source_class_coverage');
+  if (queryTruncation.length > 0) ambiguitySignals.push('query_results_truncated');
+  const cutoffScore = ordinaryRanked[candidateBudget - 1]?.score;
+  const cutoffTie = ordinaryRanked.length > candidateBudget
+    && cutoffScore === ordinaryRanked[candidateBudget]?.score
     && typeof cutoffScore === 'number'
     && cutoffScore >= MIN_RANKING_AFFECTING_CUTOFF_SCORE;
   if (cutoffTie) ambiguitySignals.push('candidate_cutoff_tie');
@@ -576,14 +703,15 @@ export function routeCandidateSpecs(args: {
     .filter(term => term.kind === 'legacy-term' && term.confidence === 'high')
     .map(term => normalizeKeyword(term.term))
     .filter(term => !args.corpus.entries.some(entry => searchable(entry, readFileSync(join(args.projectRoot, entry.path), 'utf8')).includes(term)));
-  const highRiskRouting = (args.riskSignals ?? []).some(signal => /lifecycle|state.?machine|guard|gate|process.?fact|global.?rename|breaking.?rename/i.test(signal));
+  const highRiskRouting = (args.riskSignals ?? []).some(signal => /lifecycle|state.?machine|guard|gate|process.?fact|global.?rename|breaking.?rename|security|credential|\bauth\b|production|emergency/i.test(signal));
   const escalationReasons = [
     ...(ambiguitySignals.includes('zero_candidates') ? ['zero_candidates'] : []),
-    ...(truncated ? ['ranking_affecting_query_truncation'] : []),
+    ...(rankingAffectingTruncation ? ['ranking_affecting_query_truncation'] : []),
     ...(cutoffTie ? ['candidate_cutoff_tie'] : []),
     ...(ambiguitySignals.includes('weak_source_class_coverage') ? ['weak_source_class_coverage'] : []),
     ...(args.hostDisagreement ? ['primary_host_disagreement'] : []),
-    ...(highRiskRouting ? ['high_risk_lifecycle_gate_process_fact_or_global_rename'] : []),
+    ...(highRiskRouting ? ['high_risk_structured_signal'] : []),
+    ...protectedMissing.map(source => `missing_protected_source:${source.reason}:${source.path}`),
     ...unmatchedHighConfidenceLegacyTerms.map(term => `unmatched_high_confidence_legacy_term:${term}`),
   ];
   const requiresEscalation = escalationReasons.length > 0;
@@ -592,22 +720,32 @@ export function routeCandidateSpecs(args: {
   // Full scan means every indexed document, including zero-score entries. It is
   // still path/hash metadata only; reviewers read bodies with tools.
   const candidates = fullScan
-    ? args.corpus.entries.map(entry => {
+    ? [...protectedRanked, ...args.corpus.entries.map(entry => {
         const rankedCandidate = ranked.find(candidate => candidate.path === entry.path);
         return rankedCandidate ?? { path: entry.path, contentHash: entry.contentHash, score: 0, reasons: [] };
-      }).sort((a, b) => b.score - a.score || a.path.localeCompare(b.path, 'en'))
-    : ranked.slice(0, candidateBudget);
+      }).filter((candidate, index, all) => all.findIndex(other => other.path === candidate.path) === index)]
+        .sort((a, b) => b.score - a.score || a.path.localeCompare(b.path, 'en'))
+    : [...protectedRanked, ...ordinaryRanked.slice(0, candidateBudget)];
   const base = {
     schemaVersion: CANDIDATE_SET_SCHEMA,
     storyId: args.storyId,
     corpusDigest: args.corpus.corpusDigest,
     seedDigest: args.seeds.seedDigest,
     promptDigests: proposals.map(proposal => proposal.promptDigest).sort(),
+    mode: args.mode ?? 'enforce',
     candidates,
     candidateSpecSet: candidates.map(candidate => candidate.path),
     candidateBasis: Object.fromEntries(candidates.map(candidate => [candidate.path, candidate.reasons])),
     queryGroups,
     queryFiltering: { maxDocumentFrequencyRatio, filteredTerms },
+    queryTruncation,
+    protectedRouting: {
+      selectedPaths: protectedRanked.map(candidate => candidate.path),
+      missing: protectedMissing,
+      ordinaryBudget: candidateBudget,
+      protectedCount: protectedRanked.length,
+      exceedsOrdinaryBudget: protectedRanked.length > candidateBudget,
+    },
     rankingPolicy: { minRankingAffectingCutoffScore: MIN_RANKING_AFFECTING_CUTOFF_SCORE },
     budgets: { candidates: candidateBudget, queryGroups: queryGroupBudget, rawHitsPerGroup },
     ambiguitySignals,
@@ -626,11 +764,86 @@ export function routeCandidateSpecs(args: {
 export function verifyCandidateSpecSet(artifact: CandidateSpecSetArtifact): boolean {
   const { artifactDigest, ...base } = artifact;
   if (artifact.schemaVersion !== CANDIDATE_SET_SCHEMA) return false;
-  if (!artifact.fullScan && artifact.candidateSpecSet.length > artifact.budgets.candidates) return false;
+  if (artifact.mode !== 'shadow' && artifact.mode !== 'warn' && artifact.mode !== 'enforce') return false;
+  if (!artifact.queryFiltering || !Array.isArray(artifact.queryFiltering.filteredTerms)) return false;
+  for (const term of artifact.queryFiltering.filteredTerms) {
+    if (!term || typeof term.term !== 'string' || !Number.isInteger(term.documentCount) || term.documentCount < 0) return false;
+    if (!Number.isFinite(term.documentFrequencyRatio) || term.documentFrequencyRatio < 0 || term.documentFrequencyRatio > 1) return false;
+    if (term.reason !== 'overbroad' && term.reason !== 'zero_hits') return false;
+    if ((term.reason === 'zero_hits') !== (term.documentCount === 0)) return false;
+  }
+  if (!artifact.protectedRouting || !Array.isArray(artifact.protectedRouting.selectedPaths) || !Array.isArray(artifact.protectedRouting.missing)) return false;
+  if (!Array.isArray(artifact.queryTruncation)) return false;
+  for (const row of artifact.queryTruncation) {
+    if (!row || !Array.isArray(row.queryGroup) || !row.queryGroup.every(term => typeof term === 'string')) return false;
+    if (![row.totalHits, row.retainedHits, row.omittedHits].every(value => Number.isInteger(value) && value >= 0)) return false;
+    if (row.retainedHits > row.totalHits || row.omittedHits !== row.totalHits - row.retainedHits) return false;
+    if (row.omittedMaxScore !== null && !Number.isFinite(row.omittedMaxScore)) return false;
+    if (row.selectedCutoffScore !== null && !Number.isFinite(row.selectedCutoffScore)) return false;
+    if (row.classification !== 'safe_below_cutoff' && row.classification !== 'ranking_affecting') return false;
+    const mechanicallyAffects = row.omittedMaxScore !== null && (
+      row.selectedCutoffScore === null
+      || artifact.candidateSpecSet.length - artifact.protectedRouting.protectedCount < artifact.budgets.candidates
+      || row.omittedMaxScore >= row.selectedCutoffScore
+    );
+    if ((row.classification === 'ranking_affecting') !== mechanicallyAffects) return false;
+  }
+  const hasRankingTruncationReason = artifact.escalationReasons.includes('ranking_affecting_query_truncation');
+  if (hasRankingTruncationReason !== artifact.queryTruncation.some(row => row.classification === 'ranking_affecting')) return false;
+  if (!artifact.fullScan && artifact.candidateSpecSet.length > artifact.protectedRouting.protectedCount + artifact.budgets.candidates) return false;
+  if (artifact.protectedRouting.protectedCount !== artifact.protectedRouting.selectedPaths.length) return false;
+  if (artifact.protectedRouting.exceedsOrdinaryBudget !== (artifact.protectedRouting.protectedCount > artifact.budgets.candidates)) return false;
+  if (!artifact.protectedRouting.selectedPaths.every(path => artifact.candidateSpecSet.includes(path))) return false;
   if (artifact.queryGroups.length > artifact.budgets.queryGroups) return false;
   if (artifact.fullScan !== Boolean(artifact.scanEscalationReason)) return false;
   if (artifact.requiresEscalation !== (artifact.escalationReasons.length > 0)) return false;
   return artifactDigest === digestCandidateRoutingValue(base);
+}
+
+export interface CandidateReadBindingDiagnostic {
+  code: string;
+  message: string;
+  blocking: boolean;
+}
+
+export function candidateReadBindingDiagnostics(args: {
+  manifest: ReviewerReadManifest;
+  artifact: CandidateSpecSetArtifact | null;
+  mode: 'shadow' | 'warn' | 'enforce';
+  currentMaterialHash?: string;
+  currentStoryFilesHash?: string;
+  currentStoryInputDigest?: string;
+}): CandidateReadBindingDiagnostic[] {
+  const diagnostics: CandidateReadBindingDiagnostic[] = [];
+  const add = (code: string, message: string): void => {
+    diagnostics.push({ code, message, blocking: args.mode === 'enforce' });
+  };
+  const digest = args.manifest.candidateSpecSetDigest;
+  if (args.artifact && args.artifact.mode !== args.mode) {
+    add('mode_mismatch', `candidate artifact mode=${args.artifact.mode} does not match configured mode=${args.mode}; rerun candidate_spec_route`);
+  }
+  if (!digest) {
+    if (args.mode === 'enforce') add('missing_digest', 'candidateSpecSetDigest is required in enforce mode');
+    return diagnostics;
+  }
+  if (!args.artifact) {
+    add('missing_artifact', 'candidate-spec-set.json is missing');
+    return diagnostics;
+  }
+  if (!verifyCandidateSpecSet(args.artifact)) add('invalid_artifact', 'candidate artifact signature/digest is invalid');
+  if (args.artifact.requiresEscalation && !args.artifact.fullScan) {
+    add('unresolved_escalation', `candidate routing escalation is unresolved: ${args.artifact.escalationReasons.join(', ')}; Story owner must rerun candidate_spec_route with a nonblank forceFullScanReason before scope/review evidence can be accepted`);
+  }
+  if (digest !== args.artifact.artifactDigest) add('digest_mismatch', 'candidateSpecSetDigest does not match current artifact');
+  if (args.manifest.corpusDigest !== args.artifact.corpusDigest) add('corpus_mismatch', 'read manifest corpusDigest does not match current artifact');
+  const fullyRead = new Set(args.manifest.filesReadFully);
+  const missingCandidateReads = args.artifact.candidateSpecSet.filter(path => !fullyRead.has(path));
+  if (missingCandidateReads.length > 0) add('missing_candidate_reads', `read manifest is missing candidate full reads: ${missingCandidateReads.join(', ')}`);
+  if (args.artifact.fullScan && args.manifest.scanEscalationReason !== args.artifact.scanEscalationReason) add('scan_reason_mismatch', 'read manifest scanEscalationReason does not match full-scan artifact');
+  if (args.currentMaterialHash && args.artifact.materialHash !== args.currentMaterialHash) add('stale_material', 'candidate artifact materialHash is stale');
+  if (args.currentStoryFilesHash && args.artifact.storyFilesHash && args.artifact.storyFilesHash !== args.currentStoryFilesHash) add('stale_story_files', 'candidate artifact storyFilesHash is stale');
+  if (args.currentStoryInputDigest && args.artifact.storyInputDigest !== args.currentStoryInputDigest) add('stale_story_input', 'candidate artifact storyInputDigest is stale');
+  return diagnostics;
 }
 
 export function candidateReadBindingErrors(args: {
@@ -641,27 +854,7 @@ export function candidateReadBindingErrors(args: {
   currentStoryFilesHash?: string;
   currentStoryInputDigest?: string;
 }): string[] {
-  const errors: string[] = [];
-  const digest = args.manifest.candidateSpecSetDigest;
-  if (!digest) {
-    if (args.mode === 'enforce') errors.push('candidateSpecSetDigest is required in enforce mode');
-    return errors;
-  }
-  if (!args.artifact) return ['candidate-spec-set.json is missing'];
-  if (!verifyCandidateSpecSet(args.artifact)) errors.push('candidate artifact signature/digest is invalid');
-  if (args.artifact.requiresEscalation && !args.artifact.fullScan) {
-    errors.push(`candidate routing escalation is unresolved: ${args.artifact.escalationReasons.join(', ')}; Story owner must rerun candidate_spec_route with a nonblank forceFullScanReason before scope/review evidence can be accepted`);
-  }
-  if (digest !== args.artifact.artifactDigest) errors.push('candidateSpecSetDigest does not match current artifact');
-  if (args.manifest.corpusDigest !== args.artifact.corpusDigest) errors.push('read manifest corpusDigest does not match current artifact');
-  const fullyRead = new Set(args.manifest.filesReadFully);
-  const missingCandidateReads = args.artifact.candidateSpecSet.filter(path => !fullyRead.has(path));
-  if (missingCandidateReads.length > 0) errors.push(`read manifest is missing candidate full reads: ${missingCandidateReads.join(', ')}`);
-  if (args.artifact.fullScan && args.manifest.scanEscalationReason !== args.artifact.scanEscalationReason) errors.push('read manifest scanEscalationReason does not match full-scan artifact');
-  if (args.currentMaterialHash && args.artifact.materialHash !== args.currentMaterialHash) errors.push('candidate artifact materialHash is stale');
-  if (args.currentStoryFilesHash && args.artifact.storyFilesHash && args.artifact.storyFilesHash !== args.currentStoryFilesHash) errors.push('candidate artifact storyFilesHash is stale');
-  if (args.currentStoryInputDigest && args.artifact.storyInputDigest !== args.currentStoryInputDigest) errors.push('candidate artifact storyInputDigest is stale');
-  return errors;
+  return candidateReadBindingDiagnostics(args).filter(diagnostic => diagnostic.blocking).map(diagnostic => diagnostic.message);
 }
 
 export function assertCandidateReadBinding(args: Parameters<typeof candidateReadBindingErrors>[0]): void {

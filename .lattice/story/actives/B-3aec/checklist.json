@@ -9,9 +9,203 @@
         "docs/requirements/decisions/host-overflow.md",
         "AGENTS.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-17T10:13:44.382Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A candidate host with positive canonical unattended readiness is admitted before spawn; the injected fake child emits stdout or stderr before the configurable startup watchdog, the watchdog is cleared on the first byte, the child completes normally, and the result records readiness source, startup-to-first-output, total duration, and a successful terminal classification.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A delayed but productive fake child emits its first byte just inside the startup budget, continues running beyond that startup budget without being killed, and completes inside the independently configured total deadline, proving startup silence and productive runtime use distinct clocks.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The startup watchdog counts the first byte from either stdout or stderr, handles the configured boundary deterministically, and cannot later fire after output has cleared it; a child that emits output but exceeds the total deadline is classified as total_timeout rather than startup_no_output_timeout.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Startup timeout, total timeout, and caller abort each follow the shared host-run cleanup path: terminate the fake child, wait for close/reap settlement, settle the run exactly once, and release the concurrency slot so an immediately queued run acquires capacity and completes.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Readiness probe success is necessary but not treated as permanent: if readiness changes between probe and actual spawn, the actual child remains protected by the startup watchdog and returns a distinct stale-readiness/auth/interactive/no-output diagnostic without changing quorum or production-assurance facts.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Canonical readiness states unverified, unsupported, unavailable, supervised-only, auth-required, interactive-only, or executionReady=false are refused before the proposal executor is invoked; a spy runner observes zero spawn attempts and the refusal provides an actionable stable reason.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A fake child that remains silent past the startup budget is classified startup_no_output_timeout, is killed and reaped, leaves no orphan or held host-run slot, and does not wait for the longer total deadline before returning.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "A child that produces early output but then hangs is not misclassified as startup silence: the total deadline kills/reaps it, releases capacity, and reports total_timeout with first-output evidence preserved.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Racing first output, timeout, close, error, and abort signals cannot double-settle, double-kill, leak listeners/timers, or release a slot twice; deterministic fake-child schedules cover every ordering without launching real codex, claude, or agy processes.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "host=fake and injected fake-child success remain diagnostic-only: they cannot set production assurance, review quorum, receipt verification, authorityChanged, or productionDone, and no timeout configuration change can bypass the positive readiness admission check.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "Candidate routing prints `host codex skipped pre-spawn: unattended readiness unverified` without invoking the proposal runner. A silent fake child terminates as `startup_no_output_timeout; child reaped; capacity released`, while a delayed productive child clears startup and completes under the total deadline.",
+      "excludes": [
+        "Changing quorum or independent-host assurance policy",
+        "Launching real codex, claude, or agy during DEV verification",
+        "Using fake hosts as production evidence",
+        "Refactoring unrelated host-run usage accounting"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/host-execution-readiness.ts",
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/review-host-execution-readiness-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/host-run-usage-smoke.ts",
+          "packages/main/src/tasks/review-host-execution-readiness-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Independent owner rerun at commit 62abc146dc passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. Per-stream bounded sticky classifiers prevent cross-stream fragment synthesis while preserving same-stream split diagnostics, early diagnostics with large tails, deterministic races, cleanup, and capacity release.",
+          "headHash": "62abc146dce1b2a3b39cb07d7efc3110e16d1890",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:44.669Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Independent owner rerun at commit 62abc146dc passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. Per-stream bounded sticky classifiers prevent cross-stream fragment synthesis while preserving same-stream split diagnostics, early diagnostics with large tails, deterministic races, cleanup, and capacity release.",
+          "headHash": "62abc146dce1b2a3b39cb07d7efc3110e16d1890",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:44.850Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Independent owner rerun at commit 62abc146dc passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. Per-stream bounded sticky classifiers prevent cross-stream fragment synthesis while preserving same-stream split diagnostics, early diagnostics with large tails, deterministic races, cleanup, and capacity release.",
+          "headHash": "62abc146dce1b2a3b39cb07d7efc3110e16d1890",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:45.032Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Independent owner rerun at commit 62abc146dc passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. Per-stream bounded sticky classifiers prevent cross-stream fragment synthesis while preserving same-stream split diagnostics, early diagnostics with large tails, deterministic races, cleanup, and capacity release.",
+          "headHash": "62abc146dce1b2a3b39cb07d7efc3110e16d1890",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:45.209Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Independent owner rerun at commit 62abc146dc passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. Per-stream bounded sticky classifiers prevent cross-stream fragment synthesis while preserving same-stream split diagnostics, early diagnostics with large tails, deterministic races, cleanup, and capacity release.",
+          "headHash": "62abc146dce1b2a3b39cb07d7efc3110e16d1890",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:45.385Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Independent owner rerun at commit 62abc146dc passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. Per-stream bounded sticky classifiers prevent cross-stream fragment synthesis while preserving same-stream split diagnostics, early diagnostics with large tails, deterministic races, cleanup, and capacity release.",
+          "headHash": "62abc146dce1b2a3b39cb07d7efc3110e16d1890",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:45.562Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Independent owner rerun at commit 62abc146dc passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. Per-stream bounded sticky classifiers prevent cross-stream fragment synthesis while preserving same-stream split diagnostics, early diagnostics with large tails, deterministic races, cleanup, and capacity release.",
+          "headHash": "62abc146dce1b2a3b39cb07d7efc3110e16d1890",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:45.742Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Independent owner rerun at commit 62abc146dc passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. Per-stream bounded sticky classifiers prevent cross-stream fragment synthesis while preserving same-stream split diagnostics, early diagnostics with large tails, deterministic races, cleanup, and capacity release.",
+          "headHash": "62abc146dce1b2a3b39cb07d7efc3110e16d1890",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:45.974Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Independent owner rerun at commit 62abc146dc passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. Per-stream bounded sticky classifiers prevent cross-stream fragment synthesis while preserving same-stream split diagnostics, early diagnostics with large tails, deterministic races, cleanup, and capacity release.",
+          "headHash": "62abc146dce1b2a3b39cb07d7efc3110e16d1890",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:46.150Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:4",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Independent owner rerun at commit 62abc146dc passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. Per-stream bounded sticky classifiers prevent cross-stream fragment synthesis while preserving same-stream split diagnostics, early diagnostics with large tails, deterministic races, cleanup, and capacity release.",
+          "headHash": "62abc146dce1b2a3b39cb07d7efc3110e16d1890",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:46.318Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -22,9 +216,236 @@
         "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
         "AGENTS.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-17T10:13:48.266Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "With a corpus where lattice, proofbound, core, and handlers each exceed maxDocumentFrequencyRatio, candidate routing records those terms with document frequency and threshold in filteredTerms, excludes their raw matches from ranking, returns a bounded deterministic candidateSpecSet, and keeps fullScan=false when no other escalation signal exists.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Exact relatedDocs, exact normalized source paths, process/runtime registry references, typed risk-signal sources, and current reviewer-bound evidence are materialized as protected direct candidates before frequency filtering; each remains selected with an auditable source/reason even when its tokens exceed the frequency threshold.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Document-frequency behavior is deterministic at the configurable threshold boundary: terms at or below the ratio remain eligible, terms above it are filtered, corpus-size and duplicate-occurrence changes do not alter document counts incorrectly, and the artifact explains numerator, denominator, configured ratio, and decision.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "When raw search hits exceed the collection cap but every omitted hit scores below the final selected cutoff, routing records bounded truncation metrics without full-scan escalation; only an omitted score at/above the cutoff or a cutoff tie emits the typed ranking_affecting_query_truncation reason with query group and cutoff evidence.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "A mixture of generic and specific terms filters only the generic terms: remaining high-specificity command, field, path, and config identifiers still rank deterministically, and permutation of query order or host proposal order does not change the selected set or escalation decision.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Typed high-risk signals independently trigger the configured broader-scan/escalation contract even when candidate ranking is otherwise bounded, while untyped prose, generic path segments, and model-only claims cannot impersonate a typed risk or gate fact.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "For identical routing inputs, shadow, warn, and enforce produce the same candidate set, filteredTerms, truncation classification, metrics, and reason codes; only presentation/gate disposition differs: shadow records without STOP, warn advises with next action, and enforce alone may block.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Flooding the corpus and host proposals with only lattice/proofbound/core/handlers tokens cannot cause ranking_affecting_query_truncation, ambiguity escalation, or full-corpus reading; filtered generic hits cannot influence cutoff relevance after removal.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Frequency filtering cannot remove, down-rank below the bounded selection floor, or relabel an explicit relatedDoc/path/registry/risk/reviewer-evidence candidate, including when the same protected path is reached through a high-frequency token or multiple source categories.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Raw hit-count overflow alone cannot synthesize a relevance-affecting reason; malformed, missing, non-finite, or inconsistent omitted-score/cutoff evidence fails closed to a typed diagnostic rather than silently claiming either safe truncation or an unexplained full scan.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Shadow artifacts/renderers never contain enforce-style STOP or become lifecycle gate evidence, warn never hard-blocks, and enforce cannot block without the same typed artifact reason consumed by its renderer and gate; mode disagreement is detected rather than normalized away.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Host/model candidate proposals remain advisory and cannot count as reviewer pass, scope check, finding resolution, delivery, or production assurance; reviewer-bound evidence is protected for discovery only through its signed/current binding and stale or unbound prose does not gain protected-source authority.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "Candidate routing reports `filtered generic terms: lattice, proofbound, core, handlers`, preserves exact relatedDocs and exact paths, returns the bounded candidate set with `fullScan=false`, and names the precise query/cutoff reason only when omitted hits can affect ranking.",
+      "excludes": [
+        "Replacing the existing document-frequency implementation",
+        "Full repository document scanning",
+        "Treating model proposals as gate evidence",
+        "Changing scope paths or semantic anchors"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Independent owner rerun at commit 62abc146dc passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. Query auditing distinguishes overbroad and zero-hit groups; only eligible groups with actual hits consume budget, preserving a rare specific candidate after 12 zero-hit terms while retaining all prior protected, cutoff, mode, risk, and reviewer-current/stale contracts.",
+          "headHash": "409c6230c58a77742ffc636ec9c9ceedff8402d8",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:48.454Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Independent owner rerun at commit 62abc146dc passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. Query auditing distinguishes overbroad and zero-hit groups; only eligible groups with actual hits consume budget, preserving a rare specific candidate after 12 zero-hit terms while retaining all prior protected, cutoff, mode, risk, and reviewer-current/stale contracts.",
+          "headHash": "409c6230c58a77742ffc636ec9c9ceedff8402d8",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:48.702Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Independent owner rerun at commit 62abc146dc passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. Query auditing distinguishes overbroad and zero-hit groups; only eligible groups with actual hits consume budget, preserving a rare specific candidate after 12 zero-hit terms while retaining all prior protected, cutoff, mode, risk, and reviewer-current/stale contracts.",
+          "headHash": "409c6230c58a77742ffc636ec9c9ceedff8402d8",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:48.948Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Independent owner rerun at commit 62abc146dc passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. Query auditing distinguishes overbroad and zero-hit groups; only eligible groups with actual hits consume budget, preserving a rare specific candidate after 12 zero-hit terms while retaining all prior protected, cutoff, mode, risk, and reviewer-current/stale contracts.",
+          "headHash": "409c6230c58a77742ffc636ec9c9ceedff8402d8",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:49.225Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Independent owner rerun at commit 62abc146dc passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. Query auditing distinguishes overbroad and zero-hit groups; only eligible groups with actual hits consume budget, preserving a rare specific candidate after 12 zero-hit terms while retaining all prior protected, cutoff, mode, risk, and reviewer-current/stale contracts.",
+          "headHash": "409c6230c58a77742ffc636ec9c9ceedff8402d8",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:49.488Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Independent owner rerun at commit 62abc146dc passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. Query auditing distinguishes overbroad and zero-hit groups; only eligible groups with actual hits consume budget, preserving a rare specific candidate after 12 zero-hit terms while retaining all prior protected, cutoff, mode, risk, and reviewer-current/stale contracts.",
+          "headHash": "409c6230c58a77742ffc636ec9c9ceedff8402d8",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:49.721Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:4",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Independent owner rerun at commit 62abc146dc passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. Query auditing distinguishes overbroad and zero-hit groups; only eligible groups with actual hits consume budget, preserving a rare specific candidate after 12 zero-hit terms while retaining all prior protected, cutoff, mode, risk, and reviewer-current/stale contracts.",
+          "headHash": "409c6230c58a77742ffc636ec9c9ceedff8402d8",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:49.951Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Independent owner rerun at commit 62abc146dc passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. Query auditing distinguishes overbroad and zero-hit groups; only eligible groups with actual hits consume budget, preserving a rare specific candidate after 12 zero-hit terms while retaining all prior protected, cutoff, mode, risk, and reviewer-current/stale contracts.",
+          "headHash": "409c6230c58a77742ffc636ec9c9ceedff8402d8",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:50.199Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Independent owner rerun at commit 62abc146dc passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. Query auditing distinguishes overbroad and zero-hit groups; only eligible groups with actual hits consume budget, preserving a rare specific candidate after 12 zero-hit terms while retaining all prior protected, cutoff, mode, risk, and reviewer-current/stale contracts.",
+          "headHash": "409c6230c58a77742ffc636ec9c9ceedff8402d8",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:50.644Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Independent owner rerun at commit 62abc146dc passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. Query auditing distinguishes overbroad and zero-hit groups; only eligible groups with actual hits consume budget, preserving a rare specific candidate after 12 zero-hit terms while retaining all prior protected, cutoff, mode, risk, and reviewer-current/stale contracts.",
+          "headHash": "409c6230c58a77742ffc636ec9c9ceedff8402d8",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:50.876Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Independent owner rerun at commit 62abc146dc passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. Query auditing distinguishes overbroad and zero-hit groups; only eligible groups with actual hits consume budget, preserving a rare specific candidate after 12 zero-hit terms while retaining all prior protected, cutoff, mode, risk, and reviewer-current/stale contracts.",
+          "headHash": "409c6230c58a77742ffc636ec9c9ceedff8402d8",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:51.092Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:4",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Independent owner rerun at commit 62abc146dc passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. Query auditing distinguishes overbroad and zero-hit groups; only eligible groups with actual hits consume budget, preserving a rare specific candidate after 12 zero-hit terms while retaining all prior protected, cutoff, mode, risk, and reviewer-current/stale contracts.",
+          "headHash": "409c6230c58a77742ffc636ec9c9ceedff8402d8",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:51.287Z"
+        }
+      ]
     }
   ]
 }

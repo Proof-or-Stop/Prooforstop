@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-3aec",
+  "records": [
+    {
+      "id": "RED-20260717085531",
+      "trigger": "Unattended candidate host execution can remain silent until the long total timeout because the shared runner has no first-output watchdog and candidate productionExecutor performs no positive readiness admission.",
+      "acceptanceTargetRef": "CHK-001:adversarial:1",
+      "baselineHeadHash": "7c62806695dfbfc0425ee6bc0395c40acafeb6db",
+      "baselineMaterialHash": "b95885d87966265cc415e4e504d45b06f75337ea3271438b7c25968274c72503",
+      "observedFailure": "At baseline HEAD, defaultHostRunRunner owns only timeoutMs and clears no startup timer on first stdout/stderr; candidate-spec productionExecutor invokes runHostRun directly. A silent or interactive launcher therefore remains alive until the total deadline instead of returning startup_no_output_timeout.",
+      "failureReceiptHash": "source-observation:afcc56d097:host-run-1043-1145:candidate-routing-handler-106-145",
+      "expectedGreenCommand": "npm --prefix packages/main run build && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node packages/main/dist/tasks/candidate-spec-routing-smoke.js",
+      "greenRelation": {
+        "targetRef": "CHK-001:adversarial:1",
+        "relation": "regression_to_green",
+        "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node packages/main/dist/tasks/candidate-spec-routing-smoke.js"
+      },
+      "note": "Source-bound red receipt is used because execution boundaries prohibit live external hosts and ad-hoc temporary commands; focused deterministic green commands will exercise fake local children.",
+      "createdAt": "2026-07-17T08:55:31.235Z"
+    }
+  ],
+  "createdAt": "2026-07-17T08:55:31.235Z",
+  "updatedAt": "2026-07-17T08:55:31.235Z"
+}
