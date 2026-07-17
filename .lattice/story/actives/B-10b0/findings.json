@@ -145,7 +145,7 @@
       "desc": "packages/main/src/handlers/done-prepare.ts:1442-1467 — MEDIUM: the advertised convergence counters are inferred from absence/presence of phrases in the final DonePrepareStep text, not from durable lifecycle events. metadataRollbacks and humanConfirmations default to zero whenever those words are absent; reviewerReattestations counts only current blocking rows (a completed re-attestation is zero); unchangedSuiteExecutions is forced to zero whenever the output is not recognized as reused. Thus a run can print successfulCloseout=1 and all-zero counters after earlier metadata rollback/re-attestation/human intervention, so the acceptance metric is cosmetic rather than the requested mechanical proof. Derive counts from bounded process-event/receipt deltas for this closeout attempt (or rename them to current-run diagnostics and add a real one-pass integration assertion over event history).",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-17T14:56:53.186Z",
@@ -157,7 +157,11 @@
         "packages/main/src/tasks/flow-stability-smoke.ts"
       ],
       "signatureTag": "cosmetic-convergence-counters",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by d952808c92 durable typed event facts; missing windows omit zero claims and focused flow tests pass.",
+      "resolvedAt": "2026-07-17T16:40:20.205Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-10b0:F-008",
