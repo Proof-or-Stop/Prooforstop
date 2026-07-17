@@ -148,8 +148,22 @@
         ]
       },
       "verificationIntent": {
-        "happy": [],
-        "edge": [],
+        "happy": [
+          {
+            "id": "CHK-003:happy:stable-owner-refresh",
+            "desc": "In a bounded deterministic owner-lease regression, one supported adapter resolves a validated taskIdentity plus agentOrRoleIdentity, acquires the story lease, then a second child shell with a different ppid but the same project/worktree, task, role, provider, and adapter session boundary performs an owner-gated mutation successfully; the resolved opaque owner id is identical, heartbeat advances, and no foreign-owner or takeover guidance is emitted.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:edge:stale-threshold-and-parent-change",
+            "desc": "Using a deterministic clock, verify the same composite owner refreshes across a ppid change immediately before the configured stale boundary, while a genuinely different composite at the exact stale boundary remains blocked without a flag, transfers only with --takeover and an audit event, and an active foreign lease one tick before the boundary still rejects --takeover and requires --forceTakeover/human approval.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
         "adversarial": [
           {
             "id": "CHK-003:adversarial:cross-ppid-same-composite",
