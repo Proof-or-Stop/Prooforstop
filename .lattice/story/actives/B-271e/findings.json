@@ -332,7 +332,7 @@
       "desc": "packages/main/src/tasks/production-test-seam-guard.ts:220-227 builds mutation aliasEdges only from variable declarations whose initializer is an identifier. An alias established by assignment is marked as a mutated base but is never linked back to the referenced object, so a property write through that alias does not invalidate exact resolution on the original receiver. Confirmed repro: const unsafe={run(path){writeFileSync(path,0)}}; const safe={run(payload){return payload}}; let alias; alias=safe; alias.run=unsafe.run; safe.run(process.env.TEST_FILE). analyzeProductionTestSeams returns [] because alias.run invalidates only alias, while safe.run replays the original exact payload candidate and misses the replacement path sink. Conservatively add identifier-to-identifier simple assignments to the alias graph before propagating property mutations (or otherwise invalidate both assigned and source bases); add an assignment-established alias mutation regression with distinct parameters.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-17T00:59:26.098Z",
@@ -343,7 +343,11 @@
         "packages/main/src/tasks/production-test-seam-guard.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Alias graph now includes simple/chained/parenthesized identifier assignments; property mutation propagates across assignment-created aliases while unknown RHS stays fail-closed. Assignment-alias method replacement regressions pass.",
+      "resolvedAt": "2026-07-17T01:03:55.072Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-271e:F-017",
