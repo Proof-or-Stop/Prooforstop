@@ -228,6 +228,28 @@
         "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
       },
       "_hash": "44b49f0b00e8e5eade1da0f4bd78aa1ffaacfdc9f10c89a1a28387d5779a3a56"
+    },
+    {
+      "id": "B-10b0:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted incremental review of commit 19b630265c found no blocker. The verifier and persisted baseline command consistently route agent_prompt through canonical `node bin/lattice.js`, avoiding the stale/direct dist entrypoint that caused the formal root-suite probe failure. Isolated `npm run test:proof-or-stop-prompt-baseline` passed all 16 roles, ten mechanical drift mutations, role-matrix drift checks, and unknown-role rejection; diff check is clean.",
+      "createdAt": "2026-07-17T19:58:21.839Z",
+      "reviewRound": "2026-07-17T19:56:56.495Z",
+      "reviewRunId": "B-10b0:RR-014",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "08dd13e5cce83e61ac66dd73e81f718760937241deb8a96c2dc6ef50a6d01778"
     }
   ]
 }
