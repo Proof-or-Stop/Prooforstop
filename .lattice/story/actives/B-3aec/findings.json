@@ -358,6 +358,25 @@
       "resolvedAt": "2026-07-17T10:04:55.579Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3aec:F-019",
+      "desc": "packages/main/src/core/candidate-spec-routing.ts:475-559 — HIGH: F-013 now removes over-frequency terms before queryGroupBudget, but zero-hit terms still consume the budget ahead of a later matching specific term. Deterministic temp-corpus repro with four budget slots, five high-weight title terms absent from the corpus, and description term `zzspecificsurvivor` present in the only decision doc produced queryGroups=[zeroaa,zerobb,zerocc,zerodd], candidates=[], zero_candidates escalation=true. Thus irrelevant prose can still starve a specific identifier and force the same unnecessary broad-scan path. Spend the budget only on terms with positive document count (then apply DF/specificity ordering), preserve deterministic order, and add over-budget zero-hit plus specific permutation coverage.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-17T10:08:56.579Z",
+      "reviewRound": "2026-07-17T10:04:28.478Z",
+      "reviewRunId": "B-3aec:RR-012",
+      "_hash": "632375f8e1dc4116c60561a3ac20a5e0275d6fa16bef00e8dbb61ad7bc515a29",
+      "files": [
+        "packages/main/src/core/candidate-spec-routing.ts",
+        "packages/main/src/tasks/candidate-spec-routing-smoke.ts"
+      ],
+      "signatureTag": "zero-hit-query-budget-starvation",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
