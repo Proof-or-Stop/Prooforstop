@@ -81,7 +81,7 @@
       "desc": "packages/main/src/tasks/candidate-spec-routing-smoke.ts:245-317 covers one above-threshold example, one safe truncation example, only NaN malformed evidence, and renderer strings. It does not cover the required exact DF boundary (at threshold vs just above), duplicate occurrences counting once per document, omitted-score/cutoff missing or inconsistent combinations, cutoff equality, or gate-level shadow/warn/enforce dispositions. The assertion at line 317 compares artifactDigest to itself and cannot detect mode-induced artifact disagreement. Add a table-driven matrix for these stated must cases and exercise the actual binding/gate consumer for each mode.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-17T09:20:03.535Z",
@@ -89,7 +89,11 @@
       "reviewRunId": "B-3aec:RR-003",
       "_hash": "6616c1e8575e7acec528be7891dfe9299f36487ecf6b480988093d96421ba5b1",
       "signatureTag": "missing|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Routing smoke now covers exact DF boundary and deduplication, malformed/non-finite truncation evidence, independent digest verification, and shadow/warn/enforce disposition.",
+      "resolvedAt": "2026-07-17T09:39:32.004Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3aec:F-006",
