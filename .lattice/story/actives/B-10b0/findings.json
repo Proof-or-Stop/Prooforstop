@@ -51,7 +51,7 @@
       "desc": "packages/main/src/handlers/validate-concept.ts:120-155 — scanDeletedSymbols is still a line regex keyed only by declaration kind+name, not the declaration/file/scope/signature identity required by CHK-003. It ignores class methods/constructors and collapses overloads/same-name declarations. Repro against current dist: a diff replacing `export function f(x: string): string;` with `export function f(x: number): number;` returns [], and a changed method signature also returns []; thus removal of one overload/signature can be hidden by any added same-name declaration. The focused smoke passes because it tests only an unmatched removed overload and explicitly narrows methods/constructors out of scope, contradicting the must verification intents. Implement declaration-aware identity (or an explicit fail-closed parser/ambiguity diagnostic) and cover same-name overload/scope/signature replacement, methods, and constructors.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-17T14:55:03.070Z",
@@ -63,7 +63,11 @@
         "packages/main/src/tasks/concept-gate-scope-smoke.ts"
       ],
       "signatureTag": "edge|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by f9948df787 syntax-aware declaration identity including file/scope/kind/signature/multiplicity; concept corpus passes.",
+      "resolvedAt": "2026-07-17T16:40:14.065Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-10b0:F-004",
