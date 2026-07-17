@@ -222,7 +222,7 @@
       "desc": "b05cb889ac closes all exact F-009 declaration/assignment/named-function/assigned-arrow/method/default/rest/static-computed/multi-hop probes, but a materially distinct binding entry remains fail-open: directly invoked function-like expressions are never registered or bound. The built analyzer returns [] for `(({env}) => exec(env.TEST_COMMAND))(process)` and `(function({env}){ exec(env.TEST_COMMAND) })(process)`; `class R { constructor({env}) { exec(env.TEST_COMMAND) } } new R(process)` is likewise missed because NewExpression/constructor parameters are not modeled. These are production-reachable environment-to-process-sink flows and require no dynamic property trick. functionParameters records only declarations, variable-assigned functions, and MethodDeclaration, while CallExpression binding only resolves identifier/property-name callees. Bind inline arrow/function expressions directly at CallExpression and constructor parameters at NewExpression, or conservatively flag unsupported function-like bindings when a TEST/SMOKE-bearing process source is supplied. Add the exact IIFE process-sink negative (and constructor if constructors are in the supported bounded surface). A same-name local shadow still causes a conservative false positive, but that is not the safety blocker here.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-17T00:34:41.910Z",
@@ -233,7 +233,11 @@
         "packages/main/src/tasks/production-test-seam-guard.ts"
       ],
       "signatureTag": "production-test-seam-taint-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Unified callable resolver now models inline arrow/function IIFEs, named/anonymous constructors and NewExpression, method aliases/call/apply, unioned parameter/return taint with recursion guard; generated regressions pass. Evidence: build, production-test-seam-guard, validate-execution-lock smoke.",
+      "resolvedAt": "2026-07-17T00:41:55.187Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
