@@ -100,7 +100,7 @@
       "desc": "packages/main/src/handlers/candidate-spec-routing.ts:214-217 — HIGH: currentStoryRoutingInput promotes both filesReadFully and filesTriagedByName from every valid reviewer manifest into reviewer-evidence protectedSources. filesTriagedByName is explicitly the non-selected remainder of the requirements corpus, not reviewer-selected evidence; after one bounded review it can therefore promote nearly the whole corpus at 100 points on the next route, recreating the candidate inflation/full-scan cost this story is meant to remove and crowding out genuinely selected evidence under the 8-item budget. Only positively selected/read evidence should be protected; filename/title triage must remain audit evidence, not direct-candidate authority.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-17T09:20:06.782Z",
@@ -112,7 +112,11 @@
         "packages/main/src/core/candidate-spec-routing.ts"
       ],
       "signatureTag": "candidate-triage-feedback-inflation",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Only current signed filesReadFully evidence is promoted; filesTriagedByName is excluded from protected reviewer evidence.",
+      "resolvedAt": "2026-07-17T09:39:33.234Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3aec:F-007",
