@@ -371,8 +371,86 @@ async function assertManifestOnlyAutoCloseout(): Promise<void> {
       deliveryBefore,
       'done_prepare must not self-sign or rewrite delivery-check evidence',
     );
+
+    const reuseHeadBefore = git(root, ['rev-parse', 'HEAD']);
+    const reuseEventCountBefore = evidenceStore.readProcessEvents(storyId)
+      .filter((event) => event.type === 'validation_terminal').length;
+    const reuseLogs: string[] = [];
+    const reuseTranscript = await withEnv(gitIdentityEnv(), async () => String(await createDonePrepareHandlers(
+      mkCtx(root, (msg) => reuseLogs.push(msg)),
+    ).done_prepare({
+      storyId,
+      mergeMain: false,
+      refreshStale: false,
+      validate: true,
+      autoCloseGeneratedMetadata: true,
+      reuseFreshValidation: true,
+      reuseFreshDoneRequired: true,
+    })));
+    assert.match(reuseTranscript, /^DONE prepare: PASS/, reuseTranscript);
+    assert.ok(
+      reuseLogs.some((line) => line.includes('done_prepare auto-closeout: committed generated metadata')),
+      'same-run reused validation terminal is closed by the bounded generated-metadata writer',
+    );
+    assert.equal(git(root, ['status', '--porcelain']), '', 'reused-validation auto-closeout leaves the worktree clean');
+    assert.equal(git(root, ['log', '-1', '--pretty=%s']), AUTO_CLOSE_MESSAGE);
+    assert.deepEqual(
+      git(root, ['diff', '--name-only', `${reuseHeadBefore}..HEAD`]).split('\n').filter(Boolean).sort(),
+      [
+        `.lattice/story/actives/${storyId}/done-required-evidence.json`,
+        `.lattice/story/actives/${storyId}/process-events.jsonl`,
+      ],
+      'reused validation closes only its trusted terminal and reuse record',
+    );
+    const reuseTerminals = evidenceStore.readProcessEvents(storyId)
+      .filter((event) => event.type === 'validation_terminal');
+    assert.equal(reuseTerminals.length, reuseEventCountBefore + 1);
+    assert.equal(reuseTerminals.at(-1)?.disposition, 'reused');
+    assert.equal(reuseTerminals.at(-1)?.commandExecutions, 0);
   } finally {
     restoreSpy();
+    process.chdir(oldCwd);
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertPreexistingProcessEventsRemainFailClosed(): Promise<void> {
+  const { root, storyId } = setupFixture();
+  const oldCwd = process.cwd();
+  try {
+    process.chdir(root);
+    const first = await withEnv(gitIdentityEnv(), async () => String(await createDonePrepareHandlers(mkCtx(root)).done_prepare({
+      storyId,
+      mergeMain: false,
+      refreshStale: false,
+      validate: true,
+      autoCloseGeneratedMetadata: true,
+      reuseFreshValidation: true,
+    })));
+    assert.match(first, /^DONE prepare: PASS/, first);
+
+    new StoryStore(root).appendProcessEvent(storyId, {
+      type: 'human_confirmation',
+      storyId,
+      reason: 'pre-existing dirty process event must not be adopted by done_prepare',
+    });
+    assert.match(git(root, ['status', '--porcelain']), /process-events\.jsonl/);
+
+    const retry = await withEnv(gitIdentityEnv(), async () => String(await createDonePrepareHandlers(mkCtx(root)).done_prepare({
+      storyId,
+      mergeMain: false,
+      refreshStale: false,
+      validate: true,
+      autoCloseGeneratedMetadata: true,
+      reuseFreshValidation: true,
+      reuseFreshDoneRequired: true,
+    })));
+    assert.match(retry, /^DONE prepare: BLOCKED/, retry);
+    assert.match(retry, /^blockedAt: cleanTree$/m);
+    assert.match(retry, /process-events\.jsonl/);
+    assert.match(retry, /path was dirty before this done_prepare run/);
+    assert.match(git(root, ['status', '--porcelain']), /process-events\.jsonl/);
+  } finally {
     process.chdir(oldCwd);
     rmSync(root, { recursive: true, force: true });
   }
@@ -488,6 +566,40 @@ function assertPreexistingLifecycleMetadataIsUnsafe(): void {
     assert.equal(entry.safeToAutoStage, false);
     assert.deepEqual(manifest.safePaths, []);
     assert.deepEqual(manifest.unsafePaths, [testEvidencePath]);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertUntrustedCurrentRunProcessEventIsUnsafe(): void {
+  const { root, storyId } = setupFixture();
+  try {
+    const processEventsPath = `.lattice/story/actives/${storyId}/process-events.jsonl`;
+    const baseline = captureDonePrepareGeneratedMetadataBaseline({
+      root,
+      storyDirRel: '.lattice/story/actives',
+      storyId,
+      initialDirtyRows: [],
+    });
+    new StoryStore(root).appendProcessEvent(storyId, {
+      type: 'human_confirmation',
+      storyId,
+      reason: 'not a trusted reused validation terminal',
+    });
+    const manifest = buildDonePrepareGeneratedMetadataManifest({
+      root,
+      storyId,
+      storyDirRel: '.lattice/story/actives',
+      baseline,
+      statusRows: gitStatusRowsForDonePrepareGeneratedMetadata(root),
+    });
+    const entry = manifest.entries.find((candidate) => candidate.path === processEventsPath);
+    assert.ok(entry);
+    assert.equal(entry.safety, 'unsafe_untrusted_process_events_delta');
+    assert.equal(entry.currentRunGenerated, false);
+    assert.equal(entry.safeToAutoStage, false);
+    assert.deepEqual(manifest.safePaths, []);
+    assert.deepEqual(manifest.unsafePaths, [processEventsPath]);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -655,9 +767,11 @@ function assertJsonStdoutClean(): void {
 void (async () => {
   try {
     await assertManifestOnlyAutoCloseout();
+    await assertPreexistingProcessEventsRemainFailClosed();
     await assertUnsafePathRefusesBeforeReuseRecord();
     await assertCommitHookFailureRemainsFailClosed();
     assertPreexistingLifecycleMetadataIsUnsafe();
+    assertUntrustedCurrentRunProcessEventIsUnsafe();
     assertDeletesAndRenamesAreUnsafe();
     assertMissingHashesRefuseReuse();
     await assertReuseRefusesConfigAndMaterialDrift();

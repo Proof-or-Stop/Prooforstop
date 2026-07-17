@@ -10,6 +10,7 @@ export const DONE_PREPARE_GENERATED_METADATA_SCHEMA = 'lattice.done-prepare-gene
 export type DonePrepareGeneratedMetadataSafety =
   | 'safe_lifecycle_metadata'
   | 'unsafe_preexisting_dirty'
+  | 'unsafe_untrusted_process_events_delta'
   | 'unsafe_not_story_lifecycle_metadata'
   | 'unsafe_wrong_story'
   | 'unsafe_unsupported_lifecycle_metadata'
@@ -22,6 +23,7 @@ export interface DonePrepareGeneratedMetadataBaseline {
   storyMetadataDir: string;
   initialDirtyPaths: string[];
   initialHashes: Record<string, string>;
+  initialContents: Record<string, string>;
 }
 
 export interface DonePrepareGeneratedMetadataEntry {
@@ -82,8 +84,68 @@ export interface DonePrepareGeneratedMetadataRollbackResult {
 
 const SAFE_GENERATED_METADATA_FILENAMES = new Set([
   'done-required-evidence.json',
+  'process-events.jsonl',
   'test-evidence.json',
 ]);
+
+const VALIDATION_TERMINAL_KEYS = new Set([
+  'attemptId',
+  'commandExecutions',
+  'commandSetHash',
+  'disposition',
+  'materialHash',
+  'phase',
+  'result',
+  'reviewRound',
+  'storyFilesHash',
+  'storyId',
+  'timestamp',
+  'type',
+]);
+
+function isSha256(value: unknown): boolean {
+  return typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
+}
+
+function isTrustedReusedValidationTerminal(value: unknown, storyId: string): boolean {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const event = value as Record<string, unknown>;
+  if (Object.keys(event).some((key) => !VALIDATION_TERMINAL_KEYS.has(key))) return false;
+  return event.type === 'validation_terminal'
+    && event.storyId === storyId
+    && event.phase === 'TEST'
+    && event.disposition === 'reused'
+    && event.commandExecutions === 0
+    && event.result === 'pass'
+    && typeof event.attemptId === 'string'
+    && typeof event.reviewRound === 'string'
+    && typeof event.timestamp === 'string'
+    && Number.isFinite(Date.parse(event.timestamp))
+    && isSha256(event.commandSetHash)
+    && isSha256(event.materialHash)
+    && isSha256(event.storyFilesHash);
+}
+
+function isTrustedProcessEventsAppend(args: {
+  before: string | undefined;
+  after: string;
+  storyId: string;
+}): boolean {
+  const before = args.before ?? '';
+  if (!args.after.startsWith(before)) return false;
+  if (before.length > 0 && !before.endsWith('\n')) return false;
+  const appended = args.after.slice(before.length);
+  if (!appended || !appended.endsWith('\n')) return false;
+  const lines = appended.split('\n').filter(Boolean);
+  if (lines.length === 0) return false;
+  return lines.every((line) => {
+    try {
+      return isTrustedReusedValidationTerminal(JSON.parse(line), args.storyId);
+    } catch {
+      return false;
+    }
+  });
+}
 
 function normalizeRelPath(path: string): string {
   return path
@@ -135,6 +197,14 @@ function readStoryMetadataHashes(root: string, storyMetadataDir: string): Record
   };
   visit(base);
   return hashes;
+}
+
+function readStoryMetadataContents(root: string, storyMetadataDir: string): Record<string, string> {
+  const relPath = normalizeRelPath(`${storyMetadataDir}/process-events.jsonl`);
+  const absPath = join(root, relPath);
+  return existsSync(absPath) && statSync(absPath).isFile()
+    ? { [relPath]: readFileSync(absPath, 'utf8') }
+    : {};
 }
 
 function storyMetadataDir(storyDirRel: string, storyId: string): string {
@@ -209,6 +279,19 @@ function classifyEntry(args: {
   if (!afterHash) {
     return unsafe('unsafe_missing_after', 'safe metadata candidate is missing or not a file after done_prepare');
   }
+  if (basename(path) === 'process-events.jsonl') {
+    const after = readFileSync(join(args.root, path), 'utf8');
+    if (!isTrustedProcessEventsAppend({
+      before: args.baseline.initialContents[path],
+      after,
+      storyId: args.storyId,
+    })) {
+      return unsafe(
+        'unsafe_untrusted_process_events_delta',
+        'process-events delta is not an append-only set of trusted reused validation_terminal events from this done_prepare run',
+      );
+    }
+  }
 
   return {
     ...base,
@@ -266,6 +349,7 @@ export function captureDonePrepareGeneratedMetadataBaseline(args: {
     storyMetadataDir: storyMetadataDirRel,
     initialDirtyPaths,
     initialHashes: readStoryMetadataHashes(args.root, storyMetadataDirRel),
+    initialContents: readStoryMetadataContents(args.root, storyMetadataDirRel),
   };
 }
 
