@@ -1,17 +1,17 @@
 {
   "storyId": "B-10b0",
-  "changes": "Closeout metadata writers now preserve valid reviewer freshness through bounded cooperative lineage, routine validation reuses unchanged PASS evidence, convergence telemetry records real backsteps, and concept deletion detection is syntax-aware.",
-  "usage": "Run the normal REVIEW to TEST to DONE flow; canonical summary, delivery, live-smoke, validation, and DONE-required metadata writes no longer require metadata-only re-review.",
-  "expectedOutcome": "Review evidence remains fresh when only trusted closeout metadata changes, artifact gates remain independently enforced, and unchanged validation reports reused with commandExecutions=0.",
-  "actualTranscript": "Formal validation passed all 46 configured commands; two subsequent routine validate calls reported trusted-story-metadata-descendant reuse with commandExecutions=0, and delivery review verified all 3 promises.",
-  "outcomeDiff": "No product-level difference from the expected outcome: trusted metadata retained review freshness, real material drift forced validation, and the only initial guard failure was fixed and revalidated.",
+  "changes": "Closeout metadata now preserves valid reviewer freshness through bounded cooperative lineage; unchanged routine validation reuses PASS evidence; convergence telemetry and syntax-aware concept detection were hardened; the prompt baseline now uses canonical bin/lattice.js in worktrees.",
+  "usage": "Run the normal REVIEW to TEST to DONE flow through node bin/lattice.js; canonical closeout metadata writes no longer require metadata-only re-review, and unchanged validation reuses current PASS evidence.",
+  "expectedOutcome": "Review evidence remains fresh when only trusted closeout metadata changes, artifact gates stay independent, unchanged validation reports commandExecutions=0, and worktree prompt probes reach the intended CLI behavior.",
+  "actualTranscript": "Final-material formal validation passed all 46 commands; repeated routine validate reported trusted-story-metadata-descendant reuse with zero command executions; prompt baseline passed 16 role outputs and drift probes; delivery verified all 3 promises.",
+  "outcomeDiff": "No difference from the expected product outcome: real material changes forced revalidation, bounded metadata retained review freshness, and the worktree probe now exercises the canonical runtime entrypoint.",
   "acceptanceVerdict": "accepted",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "Cooperative local-runtime lineage is not same-UID authentication; hostile same-UID forgery remains explicitly outside this local assurance boundary, while specialized artifact gates remain independent.",
-  "pitfalls": "Structural fingerprint pins must be reviewed and refreshed whenever approved compatibility importers change; never whitelist downstream modules to hide fingerprint drift.",
+  "limitations": "Cooperative local-runtime lineage is not same-UID authentication; hostile same-UID forgery remains outside this local assurance boundary, and the recorded escalation is explicitly degraded single-host rather than multi-host.",
+  "pitfalls": "Always invoke self-hosted Lattice probes through bin/lattice.js in a worktree, and review structural fingerprint changes rather than whitelisting downstream imports or bypassing freshness gates.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -26,19 +26,19 @@
       "durationMs": 7507432
     },
     "DEV": {
-      "count": 5,
-      "durationMs": 10380799
+      "count": 6,
+      "durationMs": 10516208
     },
     "REVIEW": {
-      "count": 4,
-      "durationMs": 3148125
+      "count": 5,
+      "durationMs": 3609812
     },
     "TEST": {
-      "count": 1,
-      "durationMs": 351937
+      "count": 2,
+      "durationMs": 10034975
     }
   },
-  "totalDurationMs": 21608027,
+  "totalDurationMs": 31888161,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -51,5 +51,5 @@
     "open": 0
   },
   "createdAt": "2026-07-17T17:15:48.092Z",
-  "updatedAt": "2026-07-17T17:15:48.092Z"
+  "updatedAt": "2026-07-17T20:07:08.225Z"
 }
