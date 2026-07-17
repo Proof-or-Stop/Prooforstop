@@ -11,7 +11,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-17T10:04:16.331Z",
+      "endTime": "2026-07-17T10:13:44.382Z",
       "verificationIntent": {
         "happy": [
           {
@@ -100,110 +100,110 @@
           "kind": "integration_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit 2075608ac0 passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. It proves dual-stream sticky bounded diagnostics, stdout-only and early auth/interactive with large tails, deterministic output/startup timeout/close/error/abort schedules, settle-once, kill-at-most-once, listener/timer cleanup, and immediate slot reacquisition without real hosts.",
-          "headHash": "2075608ac0728a3c0d5b39dae204acea2dec8ffd",
-          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
-          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
-          "timestamp": "2026-07-17T10:04:16.692Z"
+          "note": "Independent owner rerun at commit 62abc146dc passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. Per-stream bounded sticky classifiers prevent cross-stream fragment synthesis while preserving same-stream split diagnostics, early diagnostics with large tails, deterministic races, cleanup, and capacity release.",
+          "headHash": "62abc146dce1b2a3b39cb07d7efc3110e16d1890",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:44.669Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit 2075608ac0 passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. It proves dual-stream sticky bounded diagnostics, stdout-only and early auth/interactive with large tails, deterministic output/startup timeout/close/error/abort schedules, settle-once, kill-at-most-once, listener/timer cleanup, and immediate slot reacquisition without real hosts.",
-          "headHash": "2075608ac0728a3c0d5b39dae204acea2dec8ffd",
-          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
-          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
-          "timestamp": "2026-07-17T10:04:17.014Z"
+          "note": "Independent owner rerun at commit 62abc146dc passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. Per-stream bounded sticky classifiers prevent cross-stream fragment synthesis while preserving same-stream split diagnostics, early diagnostics with large tails, deterministic races, cleanup, and capacity release.",
+          "headHash": "62abc146dce1b2a3b39cb07d7efc3110e16d1890",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:44.850Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit 2075608ac0 passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. It proves dual-stream sticky bounded diagnostics, stdout-only and early auth/interactive with large tails, deterministic output/startup timeout/close/error/abort schedules, settle-once, kill-at-most-once, listener/timer cleanup, and immediate slot reacquisition without real hosts.",
-          "headHash": "2075608ac0728a3c0d5b39dae204acea2dec8ffd",
-          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
-          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
-          "timestamp": "2026-07-17T10:04:17.214Z"
+          "note": "Independent owner rerun at commit 62abc146dc passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. Per-stream bounded sticky classifiers prevent cross-stream fragment synthesis while preserving same-stream split diagnostics, early diagnostics with large tails, deterministic races, cleanup, and capacity release.",
+          "headHash": "62abc146dce1b2a3b39cb07d7efc3110e16d1890",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:45.032Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit 2075608ac0 passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. It proves dual-stream sticky bounded diagnostics, stdout-only and early auth/interactive with large tails, deterministic output/startup timeout/close/error/abort schedules, settle-once, kill-at-most-once, listener/timer cleanup, and immediate slot reacquisition without real hosts.",
-          "headHash": "2075608ac0728a3c0d5b39dae204acea2dec8ffd",
-          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
-          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
-          "timestamp": "2026-07-17T10:04:17.531Z"
+          "note": "Independent owner rerun at commit 62abc146dc passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. Per-stream bounded sticky classifiers prevent cross-stream fragment synthesis while preserving same-stream split diagnostics, early diagnostics with large tails, deterministic races, cleanup, and capacity release.",
+          "headHash": "62abc146dce1b2a3b39cb07d7efc3110e16d1890",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:45.209Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
           "kind": "integration_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit 2075608ac0 passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. It proves dual-stream sticky bounded diagnostics, stdout-only and early auth/interactive with large tails, deterministic output/startup timeout/close/error/abort schedules, settle-once, kill-at-most-once, listener/timer cleanup, and immediate slot reacquisition without real hosts.",
-          "headHash": "2075608ac0728a3c0d5b39dae204acea2dec8ffd",
-          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
-          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
-          "timestamp": "2026-07-17T10:04:17.711Z"
+          "note": "Independent owner rerun at commit 62abc146dc passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. Per-stream bounded sticky classifiers prevent cross-stream fragment synthesis while preserving same-stream split diagnostics, early diagnostics with large tails, deterministic races, cleanup, and capacity release.",
+          "headHash": "62abc146dce1b2a3b39cb07d7efc3110e16d1890",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:45.385Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "integration_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit 2075608ac0 passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. It proves dual-stream sticky bounded diagnostics, stdout-only and early auth/interactive with large tails, deterministic output/startup timeout/close/error/abort schedules, settle-once, kill-at-most-once, listener/timer cleanup, and immediate slot reacquisition without real hosts.",
-          "headHash": "2075608ac0728a3c0d5b39dae204acea2dec8ffd",
-          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
-          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
-          "timestamp": "2026-07-17T10:04:17.908Z"
+          "note": "Independent owner rerun at commit 62abc146dc passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. Per-stream bounded sticky classifiers prevent cross-stream fragment synthesis while preserving same-stream split diagnostics, early diagnostics with large tails, deterministic races, cleanup, and capacity release.",
+          "headHash": "62abc146dce1b2a3b39cb07d7efc3110e16d1890",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:45.562Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit 2075608ac0 passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. It proves dual-stream sticky bounded diagnostics, stdout-only and early auth/interactive with large tails, deterministic output/startup timeout/close/error/abort schedules, settle-once, kill-at-most-once, listener/timer cleanup, and immediate slot reacquisition without real hosts.",
-          "headHash": "2075608ac0728a3c0d5b39dae204acea2dec8ffd",
-          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
-          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
-          "timestamp": "2026-07-17T10:04:18.105Z"
+          "note": "Independent owner rerun at commit 62abc146dc passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. Per-stream bounded sticky classifiers prevent cross-stream fragment synthesis while preserving same-stream split diagnostics, early diagnostics with large tails, deterministic races, cleanup, and capacity release.",
+          "headHash": "62abc146dce1b2a3b39cb07d7efc3110e16d1890",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:45.742Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit 2075608ac0 passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. It proves dual-stream sticky bounded diagnostics, stdout-only and early auth/interactive with large tails, deterministic output/startup timeout/close/error/abort schedules, settle-once, kill-at-most-once, listener/timer cleanup, and immediate slot reacquisition without real hosts.",
-          "headHash": "2075608ac0728a3c0d5b39dae204acea2dec8ffd",
-          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
-          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
-          "timestamp": "2026-07-17T10:04:18.304Z"
+          "note": "Independent owner rerun at commit 62abc146dc passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. Per-stream bounded sticky classifiers prevent cross-stream fragment synthesis while preserving same-stream split diagnostics, early diagnostics with large tails, deterministic races, cleanup, and capacity release.",
+          "headHash": "62abc146dce1b2a3b39cb07d7efc3110e16d1890",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:45.974Z"
         },
         {
           "intentRef": "CHK-001:adversarial:3",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit 2075608ac0 passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. It proves dual-stream sticky bounded diagnostics, stdout-only and early auth/interactive with large tails, deterministic output/startup timeout/close/error/abort schedules, settle-once, kill-at-most-once, listener/timer cleanup, and immediate slot reacquisition without real hosts.",
-          "headHash": "2075608ac0728a3c0d5b39dae204acea2dec8ffd",
-          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
-          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
-          "timestamp": "2026-07-17T10:04:18.508Z"
+          "note": "Independent owner rerun at commit 62abc146dc passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. Per-stream bounded sticky classifiers prevent cross-stream fragment synthesis while preserving same-stream split diagnostics, early diagnostics with large tails, deterministic races, cleanup, and capacity release.",
+          "headHash": "62abc146dce1b2a3b39cb07d7efc3110e16d1890",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:46.150Z"
         },
         {
           "intentRef": "CHK-001:adversarial:4",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit 2075608ac0 passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. It proves dual-stream sticky bounded diagnostics, stdout-only and early auth/interactive with large tails, deterministic output/startup timeout/close/error/abort schedules, settle-once, kill-at-most-once, listener/timer cleanup, and immediate slot reacquisition without real hosts.",
-          "headHash": "2075608ac0728a3c0d5b39dae204acea2dec8ffd",
-          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
-          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
-          "timestamp": "2026-07-17T10:04:18.702Z"
+          "note": "Independent owner rerun at commit 62abc146dc passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. Per-stream bounded sticky classifiers prevent cross-stream fragment synthesis while preserving same-stream split diagnostics, early diagnostics with large tails, deterministic races, cleanup, and capacity release.",
+          "headHash": "62abc146dce1b2a3b39cb07d7efc3110e16d1890",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:46.318Z"
         }
       ]
     },
