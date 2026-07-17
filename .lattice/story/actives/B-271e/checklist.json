@@ -9,9 +9,9 @@
         "docs/requirements/decisions/testing-completeness.md",
         "AGENTS.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-16T23:35:51.690Z",
-      "endTime": "2026-07-16T23:45:28.552Z",
+      "endTime": "2026-07-17T00:17:54.537Z",
       "userSees": "Contradictory input prints `Blocked [delivery_promise_outcome_contradiction]: status=unverified cannot include verifiedBy; delivery-check was not written.` Valid verified/met/waived and documented legacy inputs still save and DONE readiness consumes the same normalized outcome.",
       "excludes": [
         "Changing routine validation reuse behavior",
@@ -410,6 +410,15 @@
       "to": "in_progress",
       "reason": "Fix REVIEW findings F-002/F-003/F-004/F-005: structural sanitizers, missing data flows, and real verifier ordering contract.",
       "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-17T00:17:54.537Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-001/F-006 fixed: exact evidence authority table and generated 640-case no-write matrix passed on commit 969ffd1d98."
     }
   ]
 }
