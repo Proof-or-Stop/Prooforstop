@@ -115,6 +115,25 @@
       ],
       "signatureTag": "concept-deletion-cross-file-alias",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-10b0:F-007",
+      "desc": "packages/main/src/handlers/done-prepare.ts:1442-1467 — MEDIUM: the advertised convergence counters are inferred from absence/presence of phrases in the final DonePrepareStep text, not from durable lifecycle events. metadataRollbacks and humanConfirmations default to zero whenever those words are absent; reviewerReattestations counts only current blocking rows (a completed re-attestation is zero); unchangedSuiteExecutions is forced to zero whenever the output is not recognized as reused. Thus a run can print successfulCloseout=1 and all-zero counters after earlier metadata rollback/re-attestation/human intervention, so the acceptance metric is cosmetic rather than the requested mechanical proof. Derive counts from bounded process-event/receipt deltas for this closeout attempt (or rename them to current-run diagnostics and add a real one-pass integration assertion over event history).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-17T14:56:53.186Z",
+      "reviewRound": "2026-07-17T14:39:47.580Z",
+      "reviewRunId": "B-10b0:RR-003",
+      "_hash": "592c556db0f31294a505c7afdbc439d7b79b65b1fa14a43f8efb4397670b7561",
+      "files": [
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "signatureTag": "cosmetic-convergence-counters",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
