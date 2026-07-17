@@ -273,6 +273,25 @@
       "resolvedAt": "2026-07-17T16:40:25.704Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-10b0:F-012",
+      "desc": "The positive reused-validation closeout, pre-existing dirty rejection, and current-run human_confirmation rejection pass, but the newly trusted process-events.jsonl auto-stage path lacks the required strict append-only/schema negative matrix. Current tests never exercise a current-run `validation_terminal` lookalike with an extra key, wrong story/phase/disposition/result, nonzero commandExecutions, malformed hashes/timestamp, malformed JSON, missing terminal newline, or replacement/truncation of baseline bytes. The single human_confirmation case only proves type rejection and would not catch a future weakening of the exact-key/value checks or prefix invariant. Add a table-driven manifest test for these malformed same-type events plus at least one non-append baseline mutation; every row must classify unsafe_untrusted_process_events_delta with no safe path/staging. Keep the passing real second done_prepare assertion unchanged.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-17T20:41:46.375Z",
+      "reviewRound": "2026-07-17T20:39:28.295Z",
+      "reviewRunId": "B-10b0:RR-021",
+      "_hash": "859d68f3d8bc81111e4f99a5a1bce2e2220b335ab71c63318a7d490d3954d68e",
+      "files": [
+        "packages/main/src/core/done-prepare-generated-metadata.ts",
+        "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|positive-reused-validation",
+      "signatureTagSource": "auto"
     }
   ]
 }
