@@ -11,7 +11,21 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees \"owner session: <stable-id> [host-adapter]\" remain unchanged across same-task shell boundaries; a different task or role sees the existing foreign-owner rejection.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/owner-session.ts",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/owner-session-token-store.ts",
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/owner-session-guardrail.ts",
+          "packages/main/src/tasks/story-owner-lease-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-002",
