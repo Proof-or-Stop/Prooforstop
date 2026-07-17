@@ -225,9 +225,12 @@
       "q": "Must the canonical owner-session document be updated first and then both Codex and agy reviews rerun against the new hash before runtime code begins?",
       "evidence": "CHK-004 requires updating/confirming the canonical contract, but both PASS reviews bind current documentHash 04f744fa; the owner document requires reviews over the version implemented.",
       "sourcePointers": [
-        "owner-session-contract-execution-plan.md#two-host-review-evidence-before-implementation",
-        "CHK-004"
-      ]
+        "CHK-004",
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md#Two-Host-Review-Evidence-Before-Implementation",
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#9-workstream-d--stable-per-task-per-agent-owner-identity"
+      ],
+      "resolution": "Yes. In DEV, CHK-004 lands the canonical owner-session document update first. The initial Codex+agy reviews are planning evidence only and become stale when the document changes. Recompute HEAD/material/document hashes and obtain two fresh independent real-host PASS reviews before any runtime source or test implementation begins.",
+      "resolvedAt": "2026-07-17T23:04:05.004Z"
     },
     {
       "id": "OQ-B62B8-002",
