@@ -97,7 +97,7 @@
       "desc": "CHK-002 one-pass acceptance counters are not measured from lifecycle history, so DONE prepare can report zero-cost convergence without proving it. deriveDonePreparePassConvergence infers metadataRollbacks/humanConfirmations by regexing only current step text and reviewerReattestations from current blocking runbook rows; it does not bind initial/final phase, review round/receipt identity, actual artifact writer sequence, or prior re-attestation/ack/backstep events. closeoutWriteSequence is a constant string. The positive smoke mostly asserts the resulting literal zeros, so a past metadata-only rollback or reviewer re-attestation is invisible. Emit counters from durable process events/review receipt identity and artifact receipts over the closeout window, and add a negative fixture containing a prior backstep/re-attestation/human ack that must make PASS convergence fail.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-17T14:55:15.753Z",
@@ -111,7 +111,11 @@
         "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts"
       ],
       "signatureTag": "missing|ts|pass-acceptance-counters",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Durable convergence history implemented by d952808c92 and completed for the pre-TEST edge by 1c694f1c8e; real collector regression passes.",
+      "resolvedAt": "2026-07-17T16:40:17.252Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-10b0:F-006",
