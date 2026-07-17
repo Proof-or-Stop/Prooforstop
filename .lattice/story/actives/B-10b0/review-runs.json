@@ -2954,6 +2954,67 @@
         "bindingHash": "7e17e0c87df54a8f877138776ee0b00cb8b305ad0d206c048cc7b9215b058ccd"
       },
       "_hash": "1ee55e65f84cec35e482fbb213cfe63cbc4b66c1dec3c993be1824ead7cc0109"
+    },
+    {
+      "reviewRunId": "B-10b0:RR-025",
+      "storyId": "B-10b0",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-07-17T20:47:46.221Z",
+      "startedAt": "2026-07-17T20:50:53.407Z",
+      "headHash": "4652ea695c1448cc2d5e37cf7a5dd5117d8eb386",
+      "materialHash": "582f764902cad404811fbbac25b8dde5d962ad442f83319ac80276593c936d6c",
+      "storyFilesHash": "15b9888f3032c6ac78d4fd51771a128e120051cf2f3df4a023822e0fe108bc6a",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "853852be7c2c3502e020be8e6313ef82bb7cc09d5a180afb64d65966bd5b5b8d",
+        "diffPackHash": "f8accebe99632ce38b5c96ed5b599839c0cf426ec9e120434fe2a04a53df4586",
+        "reviewedChangedFiles": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [],
+        "bindingHash": "59ffd2cfe588fd83fff7b31d6573acafb410ef425aee58ab95a2418fb482e107"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-10b0",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-10b0",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-10b0",
+        "workspaceMode": "story-worktree",
+        "headHash": "4652ea695c1448cc2d5e37cf7a5dd5117d8eb386",
+        "materialHash": "582f764902cad404811fbbac25b8dde5d962ad442f83319ac80276593c936d6c",
+        "storyFilesHash": "15b9888f3032c6ac78d4fd51771a128e120051cf2f3df4a023822e0fe108bc6a",
+        "bindingHash": "035058c62ce57665de214ee73ffcbae5efaba138c6e950cc917ad6458f378ddb"
+      },
+      "_hash": "d0024bb961d9b57bf94beb37c55d41d94b9ffb65c23f83b5193e22a9995c27f6"
     }
   ]
 }

@@ -381,6 +381,29 @@
         "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
       },
       "_hash": "9fc6c9e6575210482030fe3baf7160163d5b3b54c14c1068949039307388dbb2"
+    },
+    {
+      "id": "B-10b0:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "Targeted concept review of 779c187d79 and F-012/F-013 closure evidence found no blocker. done_prepare derives the expected terminal from the same routine validate result and binds story/current round attempt, validation identity digest, current material/story-files hashes, fixed TEST/reused/pass/zero-execution semantics, and an inclusive invocation start/end timestamp window. Manifest preflight and commit recheck consume the same binding; missing identity or hashes fail closed. The classifier remains a bounded local auto-stage decision and does not create an Authority credential. The 19-case negative matrix covers identity/hash/semantic/time/prefix/JSON/mixed-row drift, while the real rerun remains the positive path. No classifier-version field or contract expansion remains. Auto-closeout and merge-rerun focused smokes pass.",
+      "createdAt": "2026-07-17T20:51:02.299Z",
+      "reviewRound": "2026-07-17T20:47:46.221Z",
+      "reviewRunId": "B-10b0:RR-025",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "31fbc0142d14de24c4c8bba44e73ed3c89e7233c302fa257d752a7e1d7f9f707"
     }
   ]
 }
