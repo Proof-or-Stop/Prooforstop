@@ -87,7 +87,7 @@
         "docs/requirements/decisions/owner-session-contract-execution-plan.md",
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
-      "userSees": "PLAN diagnostics show a ratified identity decision, at least three pre-mortems, and fresh independent-host review evidence before DEV is allowed.",
+      "userSees": "User sees \"two-host owner-session contract review: PASS (codex + antigravity; local assurance only)\" before runtime implementation begins.",
       "excludes": [
         "No runtime owner-session implementation begins before the decision and independent-host review evidence are accepted."
       ],
@@ -119,7 +119,14 @@
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-07-17T22:57:25.841Z"
         }
-      ]
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      }
     }
   ]
 }
