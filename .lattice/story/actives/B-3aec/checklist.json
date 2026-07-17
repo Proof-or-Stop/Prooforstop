@@ -11,7 +11,65 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A candidate host with positive canonical unattended readiness is admitted before spawn; the injected fake child emits stdout or stderr before the configurable startup watchdog, the watchdog is cleared on the first byte, the child completes normally, and the result records readiness source, startup-to-first-output, total duration, and a successful terminal classification.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A delayed but productive fake child emits its first byte just inside the startup budget, continues running beyond that startup budget without being killed, and completes inside the independently configured total deadline, proving startup silence and productive runtime use distinct clocks.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The startup watchdog counts the first byte from either stdout or stderr, handles the configured boundary deterministically, and cannot later fire after output has cleared it; a child that emits output but exceeds the total deadline is classified as total_timeout rather than startup_no_output_timeout.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Startup timeout, total timeout, and caller abort each follow the shared host-run cleanup path: terminate the fake child, wait for close/reap settlement, settle the run exactly once, and release the concurrency slot so an immediately queued run acquires capacity and completes.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Readiness probe success is necessary but not treated as permanent: if readiness changes between probe and actual spawn, the actual child remains protected by the startup watchdog and returns a distinct stale-readiness/auth/interactive/no-output diagnostic without changing quorum or production-assurance facts.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Canonical readiness states unverified, unsupported, unavailable, supervised-only, auth-required, interactive-only, or executionReady=false are refused before the proposal executor is invoked; a spy runner observes zero spawn attempts and the refusal provides an actionable stable reason.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A fake child that remains silent past the startup budget is classified startup_no_output_timeout, is killed and reaped, leaves no orphan or held host-run slot, and does not wait for the longer total deadline before returning.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "A child that produces early output but then hangs is not misclassified as startup silence: the total deadline kills/reaps it, releases capacity, and reports total_timeout with first-output evidence preserved.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Racing first output, timeout, close, error, and abort signals cannot double-settle, double-kill, leak listeners/timers, or release a slot twice; deterministic fake-child schedules cover every ordering without launching real codex, claude, or agy processes.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "host=fake and injected fake-child success remain diagnostic-only: they cannot set production assurance, review quorum, receipt verification, authorityChanged, or productionDone, and no timeout configuration change can bypass the positive readiness admission check.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

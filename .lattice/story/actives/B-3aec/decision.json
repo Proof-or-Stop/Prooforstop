@@ -1,0 +1,95 @@
+{
+  "principles": [
+    "Reuse one canonical readiness classification and one shared streaming host runner",
+    "Fail closed before automatic execution when unattended readiness is not positively established",
+    "Make timeouts observable, bounded, and cleanup-complete",
+    "Protect explicit high-authority routing inputs from statistical filtering",
+    "Design the full positive/edge/adversarial matrix before implementation"
+  ],
+  "drivers": [
+    "Prevent multi-minute silent host stalls",
+    "Avoid duplicate runner semantics across candidate and review paths",
+    "Preserve productive long-running hosts after their first output",
+    "Keep small changes from escalating to full-corpus review",
+    "Minimize new code and review surface"
+  ],
+  "options": [
+    {
+      "name": "A: Shared readiness admission plus dual-deadline host_run",
+      "pros": [
+        "Reuses canonical readiness evidence and shared slot lifecycle",
+        "Covers every candidate host consistently",
+        "Separates startup silence from productive total runtime",
+        "Supports deterministic injected-runner and fake-child tests"
+      ],
+      "cons": [
+        "Requires extending shared runner result/config types",
+        "Needs careful compatibility defaults for existing callers"
+      ]
+    },
+    {
+      "name": "B: Candidate-handler-local Promise race and kill wrapper",
+      "pros": [
+        "Smaller initial diff",
+        "Touches only candidate proposal routing"
+      ],
+      "cons": [
+        "Duplicates process and timeout logic",
+        "Cannot reliably own or reap the shared host_run child",
+        "Risks slot leakage and divergent diagnostics"
+      ]
+    },
+    {
+      "name": "C: Lower the existing total timeout only",
+      "pros": [
+        "Minimal configuration change"
+      ],
+      "cons": [
+        "Kills productive slow hosts and still cannot distinguish startup silence",
+        "Does not enforce positive unattended readiness",
+        "Does not solve cleanup diagnostics or candidate specificity acceptance"
+      ]
+    }
+  ],
+  "chosen": "A: Shared readiness admission plus dual-deadline host_run",
+  "rationale": "Option A closes the actual execution boundary while preserving one canonical process lifecycle. Candidate routing will consume positive unattended readiness before spawn and pass a startup watchdog into host_run; host_run remains the only owner of child kill, close settlement, output observation, and slot release. Existing document-frequency work is retained and completed with relevance-aware escalation and artifact/mode tests.",
+  "preMortem": [
+    {
+      "scenario": "A legitimate launcher emits no early bytes and is killed as silent",
+      "trigger": "Startup budget is shorter than the launcher-specific valid startup envelope",
+      "consequence": "Usable unattended capacity is falsely rejected",
+      "mitigation": "Use configurable launcher-aware defaults, clear startup timer on first stdout or stderr byte, and test a delayed-but-productive child independently from total timeout"
+    },
+    {
+      "scenario": "The child is killed but the host-run concurrency slot remains held",
+      "trigger": "Startup timeout settles outside the existing try/finally release path",
+      "consequence": "Later hosts are blocked and the workflow appears deadlocked",
+      "mitigation": "Keep timeout ownership inside the shared runner and assert a new run immediately reacquires capacity after startup and total timeout paths"
+    },
+    {
+      "scenario": "A readiness probe reports supported but actual execution still blocks",
+      "trigger": "Authentication or session state changes between probe and proposal spawn",
+      "consequence": "Automatic routing waits until timeout despite admission",
+      "mitigation": "Treat readiness as necessary but not sufficient; retain startup watchdog on the actual child and emit distinct stale-readiness or no-output diagnostics"
+    },
+    {
+      "scenario": "Frequency filtering removes an explicit required source",
+      "trigger": "A common term also appears in relatedDocs, exact paths, registry refs, or bound reviewer evidence",
+      "consequence": "Relevant requirements are omitted from review",
+      "mitigation": "Materialize explicit sources as direct candidates before statistical filtering and test each protected source category at document frequency above the threshold"
+    },
+    {
+      "scenario": "Raw hit overflow still forces broad review even though omitted hits cannot affect ranking",
+      "trigger": "Truncation is classified without comparing omitted relevance to the candidate cutoff",
+      "consequence": "Tiny changes again demand full-corpus reads",
+      "mitigation": "Escalate only for cutoff ties or omitted scores at or above the deterministic relevance floor, and record the exact query group and cutoff cause"
+    },
+    {
+      "scenario": "Shadow mode emits enforce-style STOP guidance",
+      "trigger": "Artifact status and renderer use different rollout-mode predicates",
+      "consequence": "Nonblocking rollout behaves like a hard gate",
+      "mitigation": "Bind mode through handler, artifact, renderer, and gate tests; assert shadow records metrics without STOP, warn advises, and enforce alone blocks"
+    }
+  ],
+  "timestamp": "2026-07-17T08:50:37.432Z"
+}
