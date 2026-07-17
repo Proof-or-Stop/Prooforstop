@@ -741,6 +741,182 @@ function assertIndexValidationClosesMutationWindows(): void {
   }
 }
 
+function isolatedCommitCandidate(): Fixture & {
+  processEventsPath: string;
+  baseline: ReturnType<typeof captureDonePrepareGeneratedMetadataBaseline>;
+  expected: DonePrepareGeneratedProcessEventBinding;
+  validContent: string;
+} {
+  const fixture = setupFixture();
+  const processEventsPath = `.lattice/story/actives/${fixture.storyId}/process-events.jsonl`;
+  const baseline = captureDonePrepareGeneratedMetadataBaseline({
+    root: fixture.root,
+    storyDirRel: '.lattice/story/actives',
+    storyId: fixture.storyId,
+    initialDirtyRows: [],
+  });
+  const expected: DonePrepareGeneratedProcessEventBinding = {
+    storyId: fixture.storyId,
+    attemptId: NOW,
+    reviewRound: NOW,
+    commandSetHash: 'a'.repeat(64),
+    materialHash: 'b'.repeat(64),
+    storyFilesHash: 'c'.repeat(64),
+    phase: 'TEST',
+    disposition: 'reused',
+    result: 'pass',
+    commandExecutions: 0,
+    notBefore: '2026-07-09T00:00:01.000Z',
+    notAfter: '2026-07-09T00:00:03.000Z',
+  };
+  const event = {
+    type: 'validation_terminal',
+    storyId: fixture.storyId,
+    attemptId: NOW,
+    phase: 'TEST',
+    reviewRound: NOW,
+    commandSetHash: expected.commandSetHash,
+    disposition: 'reused',
+    commandExecutions: 0,
+    result: 'pass',
+    materialHash: expected.materialHash,
+    storyFilesHash: expected.storyFilesHash,
+    timestamp: '2026-07-09T00:00:02.000Z',
+  };
+  const validContent = `${baseline.initialContents[processEventsPath]}${JSON.stringify(event)}\n`;
+  write(fixture.root, processEventsPath, validContent);
+  return { ...fixture, processEventsPath, baseline, expected, validContent };
+}
+
+function temporaryIndexGit(root: string, indexFile: string, args: string[]): string {
+  return execFileSync('git', args, {
+    cwd: root,
+    env: { ...process.env, ...gitIdentityEnv(), GIT_INDEX_FILE: indexFile },
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+}
+
+function assertIsolatedTreeExcludesSharedIndexRaces(): void {
+  const candidate = isolatedCommitCandidate();
+  const { root, storyId, processEventsPath, baseline, expected } = candidate;
+  try {
+    write(root, 'README.md', '# unrelated pre-staged user change\n');
+    git(root, ['add', 'README.md']);
+    const readmeBlob = git(root, ['rev-parse', ':README.md']);
+    const parent = git(root, ['rev-parse', 'HEAD']);
+    let temporaryIndexFile = '';
+    const result = commitDonePrepareGeneratedMetadata({
+      root,
+      gitCwd: root,
+      storyId,
+      storyDirRel: '.lattice/story/actives',
+      baseline,
+      expectedProcessEventBinding: expected,
+      testHooks: {
+        afterTreeVerificationBeforeCommit: (indexFile) => {
+          temporaryIndexFile = indexFile;
+          write(root, 'late-unrelated.txt', 'late shared-index mutation\n');
+          git(root, ['add', 'late-unrelated.txt']);
+        },
+      },
+    });
+    assert.equal(result.ok, true, result.reason);
+    assert.equal(existsSync(temporaryIndexFile), false, 'successful isolated commit removes its temporary index');
+    assert.deepEqual(
+      git(root, ['diff', '--name-only', `${parent}..HEAD`]).split('\n').filter(Boolean),
+      [processEventsPath],
+      'immutable closeout tree excludes late real-index staging',
+    );
+    assert.equal(git(root, ['rev-parse', ':README.md']), readmeBlob, 'pre-staged blob survives successful CAS byte-for-byte');
+    assert.equal(git(root, ['rev-parse', ':late-unrelated.txt']).length, 40, 'late unrelated blob remains staged for the user');
+    assert.equal(readFileSync(join(root, 'README.md'), 'utf8'), '# unrelated pre-staged user change\n');
+    assert.equal(readFileSync(join(root, 'late-unrelated.txt'), 'utf8'), 'late shared-index mutation\n');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertConcurrentHeadCasRefusesAndPreservesIndex(): void {
+  const candidate = isolatedCommitCandidate();
+  const { root, storyId, baseline, expected, validContent, processEventsPath } = candidate;
+  try {
+    write(root, 'README.md', '# unrelated staged before CAS failure\n');
+    git(root, ['add', 'README.md']);
+    const readmeBlob = git(root, ['rev-parse', ':README.md']);
+    const parent = git(root, ['rev-parse', 'HEAD']);
+    let temporaryIndexFile = '';
+    const transaction = captureDonePrepareGeneratedMetadataTransaction({
+      root,
+      gitCwd: root,
+      paths: [processEventsPath],
+    });
+    const result = commitDonePrepareGeneratedMetadata({
+      root,
+      gitCwd: root,
+      storyId,
+      storyDirRel: '.lattice/story/actives',
+      baseline,
+      expectedProcessEventBinding: expected,
+      testHooks: {
+        afterTreeVerificationBeforeCommit: (indexFile) => {
+          temporaryIndexFile = indexFile;
+        },
+        beforeCasUpdate: (oldHead, targetRef) => {
+          const tree = git(root, ['rev-parse', `${oldHead}^{tree}`]);
+          const concurrent = git(root, ['commit-tree', tree, '-p', oldHead, '-m', 'concurrent head advance']);
+          git(root, ['update-ref', targetRef, concurrent, oldHead]);
+        },
+      },
+    });
+    assert.equal(result.ok, false);
+    assert.equal(existsSync(temporaryIndexFile), false, 'CAS refusal removes its temporary index');
+    assert.match(result.reason ?? '', /HEAD changed.*CAS/);
+    assert.equal(git(root, ['log', '-1', '--pretty=%s']), 'concurrent head advance');
+    assert.deepEqual(git(root, ['diff', '--name-only', `${parent}..HEAD`]), '', 'CAS failure installs no closeout tree');
+    assert.equal(git(root, ['rev-parse', ':README.md']), readmeBlob, 'pre-staged blob survives CAS failure byte-for-byte');
+    const rollback = rollbackDonePrepareGeneratedMetadataTransaction({ root, gitCwd: root, transaction });
+    assert.equal(rollback.ok, true);
+    assert.equal(readFileSync(join(root, processEventsPath), 'utf8'), validContent);
+    assert.equal(git(root, ['rev-parse', ':README.md']), readmeBlob, 'rollback does not disturb unrelated staged state');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertIsolatedIndexPathSetIsExact(): void {
+  for (const mode of ['missing', 'extra'] as const) {
+    const candidate = isolatedCommitCandidate();
+    const { root, storyId, processEventsPath, baseline, expected } = candidate;
+    try {
+      const parent = git(root, ['rev-parse', 'HEAD']);
+      const result = commitDonePrepareGeneratedMetadata({
+        root,
+        gitCwd: root,
+        storyId,
+        storyDirRel: '.lattice/story/actives',
+        baseline,
+        expectedProcessEventBinding: expected,
+        testHooks: {
+          afterAddBeforeCommit: (indexFile) => {
+            if (mode === 'missing') {
+              temporaryIndexGit(root, indexFile, ['read-tree', parent]);
+            } else {
+              write(root, 'README.md', '# injected only into isolated index\n');
+              temporaryIndexGit(root, indexFile, ['add', '--', 'README.md']);
+            }
+          },
+        },
+      });
+      assert.equal(result.ok, false, mode);
+      assert.match(result.reason ?? '', /isolated index paths do not exactly match/, mode);
+      assert.equal(git(root, ['rev-parse', 'HEAD']), parent, `${mode} path-set mutation does not advance HEAD`);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+}
+
 function assertDeletesAndRenamesAreUnsafe(): void {
   for (const mode of ['delete', 'rename'] as const) {
     const { root, storyId } = setupFixture();
@@ -909,6 +1085,9 @@ void (async () => {
     assertPreexistingLifecycleMetadataIsUnsafe();
     assertProcessEventBindingIsExactAndFailClosed();
     assertIndexValidationClosesMutationWindows();
+    assertIsolatedTreeExcludesSharedIndexRaces();
+    assertConcurrentHeadCasRefusesAndPreservesIndex();
+    assertIsolatedIndexPathSetIsExact();
     assertDeletesAndRenamesAreUnsafe();
     assertMissingHashesRefuseReuse();
     await assertReuseRefusesConfigAndMaterialDrift();

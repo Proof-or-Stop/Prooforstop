@@ -1,7 +1,8 @@
 import childProcess from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
-import { basename, dirname, join, relative } from 'node:path';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { basename, dirname, isAbsolute, join, relative } from 'node:path';
 import { isStoryMetadataPath } from './evidence-freshness.js';
 import { parseGitPorcelainRow, type DirtyWorktreeParsedRow } from './dirty-worktree.js';
 
@@ -492,6 +493,18 @@ export function buildDonePrepareGeneratedMetadataManifest(args: {
       });
       continue;
     }
+    const parsedEntryPaths = parsedPaths(parsed).map((path) => canonicalStatusPath(args.root, path));
+    const indexOnly = hasIndexChange(parsed.statusCode) && parsed.statusCode[1] === ' ';
+    if (
+      indexOnly
+      && parsedEntryPaths.length > 0
+      && parsedEntryPaths.every((path) => !isSameStoryPath(storyMetadataDirRel, path))
+    ) {
+      // The isolated closeout index never consumes unrelated real-index state.
+      // Preserve an index-only user change verbatim instead of treating it as
+      // part of the generated-metadata transaction.
+      continue;
+    }
     entries.push(classifyEntry({
       root: args.root,
       storyId: args.storyId,
@@ -514,13 +527,6 @@ export function buildDonePrepareGeneratedMetadataManifest(args: {
   };
 }
 
-function stagedRows(rows: string[]): string[] {
-  return rows.filter((row) => {
-    const parsed = parseGitPorcelainRow(row);
-    return parsed ? hasIndexChange(parsed.statusCode) : true;
-  });
-}
-
 function filterIgnoredRows(root: string, rows: string[], ignoredPaths: readonly string[] = []): string[] {
   const ignored = new Set(ignoredPaths.map(normalizeRelPath));
   if (ignored.size === 0) return rows;
@@ -532,33 +538,78 @@ function filterIgnoredRows(root: string, rows: string[], ignoredPaths: readonly 
   });
 }
 
-function hasCachedChanges(gitCwd: string, paths: string[]): boolean {
-  try {
-    childProcess.execFileSync('git', ['diff', '--cached', '--quiet', '--', ...paths], {
-      cwd: gitCwd,
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-    return false;
-  } catch (err: any) {
-    if (err?.status === 1) return true;
-    throw err;
-  }
+function isolatedGit(gitCwd: string, indexFile: string, args: string[]): string {
+  return childProcess.execFileSync('git', args, {
+    cwd: gitCwd,
+    env: { ...process.env, GIT_INDEX_FILE: indexFile },
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
 }
 
-function stagedChangedPaths(gitCwd: string): string[] {
-  const raw = gitRaw(gitCwd, ['diff', '--cached', '--name-only', '-z']);
+function isolatedChangedPaths(gitCwd: string, indexFile: string, parent: string): string[] {
+  const raw = isolatedGit(gitCwd, indexFile, ['diff', '--cached', '--name-only', '-z', parent]);
   return sortedUnique(raw.split('\0').filter(Boolean));
 }
 
-function stagedBlobHash(gitCwd: string, path: string): string | null {
+function isolatedBlobHash(gitCwd: string, indexFile: string, path: string): string | null {
   try {
     const content = childProcess.execFileSync('git', ['show', `:${path}`], {
+      cwd: gitCwd,
+      env: { ...process.env, GIT_INDEX_FILE: indexFile },
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    return sha256(content);
+  } catch {
+    return null;
+  }
+}
+
+function treeChangedPaths(gitCwd: string, parentTree: string, tree: string): string[] {
+  const raw = gitRaw(gitCwd, ['diff-tree', '-r', '--name-only', '-z', parentTree, tree]);
+  return sortedUnique(raw.split('\0').filter(Boolean));
+}
+
+function treeBlobHash(gitCwd: string, tree: string, path: string): string | null {
+  try {
+    const content = childProcess.execFileSync('git', ['show', `${tree}:${path}`], {
       cwd: gitCwd,
       stdio: ['pipe', 'pipe', 'pipe'],
     });
     return sha256(content);
   } catch {
     return null;
+  }
+}
+
+function runPreCommitHook(gitCwd: string, indexFile: string): { ok: true } | { ok: false; error: string } {
+  const hookPathResult = gitMaybe(gitCwd, ['rev-parse', '--git-path', 'hooks/pre-commit']);
+  if (!hookPathResult.ok) return { ok: false, error: hookPathResult.error };
+  const hookPath = isAbsolute(hookPathResult.output)
+    ? hookPathResult.output
+    : join(gitCwd, hookPathResult.output);
+  if (!existsSync(hookPath) || (statSync(hookPath).mode & 0o111) === 0) return { ok: true };
+  try {
+    childProcess.execFileSync(hookPath, [], {
+      cwd: gitCwd,
+      env: { ...process.env, GIT_INDEX_FILE: indexFile },
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    return { ok: true };
+  } catch (err: any) {
+    return { ok: false, error: String(err?.stderr || err?.stdout || err?.message || err).trim() };
+  }
+}
+
+function updateRealIndexFromTree(gitCwd: string, tree: string, paths: string[]): void {
+  for (const path of paths) {
+    const row = gitRaw(gitCwd, ['ls-tree', tree, '--', path]).trim();
+    const match = row.match(/^(\d+)\s+blob\s+([a-f0-9]+)\t/);
+    if (!match) throw new Error(`committed tree entry unavailable for ${path}`);
+    childProcess.execFileSync('git', ['update-index', '--add', '--cacheinfo', match[1], match[2], path], {
+      cwd: gitCwd,
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
   }
 }
 
@@ -576,8 +627,10 @@ export function commitDonePrepareGeneratedMetadata(args: {
   ignoredPaths?: readonly string[];
   /** Hermetic TOCTOU seams. Production callers must omit these hooks. */
   testHooks?: {
-    beforeAdd?: () => void;
-    afterAddBeforeCommit?: () => void;
+    beforeAdd?: (temporaryIndexFile: string) => void;
+    afterAddBeforeCommit?: (temporaryIndexFile: string) => void;
+    afterTreeVerificationBeforeCommit?: (temporaryIndexFile: string) => void;
+    beforeCasUpdate?: (oldHead: string, targetRef: string) => void;
   };
 }): DonePrepareGeneratedMetadataCommitResult {
   const rows = filterIgnoredRows(args.root, gitStatusRowsForDonePrepareGeneratedMetadata(args.gitCwd), args.ignoredPaths);
@@ -610,23 +663,6 @@ export function commitDonePrepareGeneratedMetadata(args: {
     };
   }
 
-  const stagedBefore = stagedRows(rows);
-  const stagedOutsideManifest = stagedBefore
-    .map((row) => parseGitPorcelainRow(row))
-    .filter((row): row is DirtyWorktreeParsedRow => Boolean(row))
-    .flatMap(parsedPaths)
-    .map((path) => canonicalStatusPath(args.root, path))
-    .filter((path) => !manifest.safePaths.includes(path));
-  if (stagedOutsideManifest.length > 0) {
-    return {
-      ok: false,
-      files: sortedUnique(stagedOutsideManifest),
-      message,
-      reason: 'staged changes outside the safe generated metadata manifest are present',
-      manifest,
-    };
-  }
-
   const ident = gitMaybe(args.gitCwd, ['var', 'GIT_AUTHOR_IDENT']);
   if (!ident.ok) {
     return {
@@ -638,71 +674,141 @@ export function commitDonePrepareGeneratedMetadata(args: {
     };
   }
 
-  args.testHooks?.beforeAdd?.();
-  childProcess.execFileSync('git', ['add', '--', ...manifest.safePaths], {
-    cwd: args.gitCwd,
-    stdio: ['pipe', 'pipe', 'pipe'],
-  });
-  args.testHooks?.afterAddBeforeCommit?.();
-
-  const stagedPaths = stagedChangedPaths(args.gitCwd);
-  const stagedUnexpected = stagedPaths.filter((path) => !manifest.safePaths.includes(path));
-  const stagedMissing = manifest.safePaths.filter((path) => !stagedPaths.includes(path));
-  if (stagedUnexpected.length > 0 || stagedMissing.length > 0) {
-    return {
-      ok: false,
-      files: sortedUnique([...stagedUnexpected, ...stagedMissing]),
-      message,
-      reason: 'staged index paths do not exactly match the safe generated metadata manifest',
-      manifest,
-    };
-  }
   const verifiedHashes = new Map(manifest.entries
     .filter((entry) => entry.safeToAutoStage && entry.afterHash)
     .map((entry) => [entry.path, entry.afterHash!]));
-  const stagedDigestMismatch = manifest.safePaths.filter(
-    (path) => stagedBlobHash(args.gitCwd, path) !== verifiedHashes.get(path),
-  );
-  const worktreeDigestMismatch = manifest.safePaths.filter(
-    (path) => hashFile(args.root, path) !== verifiedHashes.get(path),
-  );
-  if (stagedDigestMismatch.length > 0 || worktreeDigestMismatch.length > 0) {
-    return {
-      ok: false,
-      files: sortedUnique([...stagedDigestMismatch, ...worktreeDigestMismatch]),
-      message,
-      reason: 'safe generated metadata changed after manifest verification',
-      manifest,
-    };
-  }
-  if (!hasCachedChanges(args.gitCwd, manifest.safePaths)) {
+  const oldHeadResult = gitMaybe(args.gitCwd, ['rev-parse', 'HEAD']);
+  const oldTreeResult = gitMaybe(args.gitCwd, ['rev-parse', 'HEAD^{tree}']);
+  const targetRefResult = gitMaybe(args.gitCwd, ['symbolic-ref', '-q', 'HEAD']);
+  if (!oldHeadResult.ok || !oldTreeResult.ok || !targetRefResult.ok) {
     return {
       ok: false,
       files: manifest.safePaths,
       message,
-      reason: 'safe generated metadata has no staged content to commit',
+      reason: 'cannot capture the current branch HEAD/tree for isolated closeout commit',
       manifest,
     };
   }
+  const oldHead = oldHeadResult.output;
+  const oldTree = oldTreeResult.output;
+  const targetRef = targetRefResult.output;
+  const tempDir = mkdtempSync(join(tmpdir(), 'lattice-done-prepare-index-'));
+  const temporaryIndexFile = join(tempDir, 'index');
+  try {
+    isolatedGit(args.gitCwd, temporaryIndexFile, ['read-tree', oldHead]);
+    args.testHooks?.beforeAdd?.(temporaryIndexFile);
+    isolatedGit(args.gitCwd, temporaryIndexFile, ['add', '--', ...manifest.safePaths]);
+    args.testHooks?.afterAddBeforeCommit?.(temporaryIndexFile);
 
-  // Commit the exact index verified above. A pathspec commit may re-read and
-  // restage worktree bytes, reopening the manifest-to-add TOCTOU window.
-  const commit = gitMaybe(args.gitCwd, ['commit', '-m', message]);
-  if (!commit.ok) {
+    const isolatedPaths = isolatedChangedPaths(args.gitCwd, temporaryIndexFile, oldHead);
+    const isolatedUnexpected = isolatedPaths.filter((path) => !manifest.safePaths.includes(path));
+    const isolatedMissing = manifest.safePaths.filter((path) => !isolatedPaths.includes(path));
+    if (isolatedUnexpected.length > 0 || isolatedMissing.length > 0) {
+      return {
+        ok: false,
+        files: sortedUnique([...isolatedUnexpected, ...isolatedMissing]),
+        message,
+        reason: 'isolated index paths do not exactly match the safe generated metadata manifest',
+        manifest,
+      };
+    }
+    const isolatedDigestMismatch = manifest.safePaths.filter(
+      (path) => isolatedBlobHash(args.gitCwd, temporaryIndexFile, path) !== verifiedHashes.get(path),
+    );
+    const worktreeDigestMismatch = manifest.safePaths.filter(
+      (path) => hashFile(args.root, path) !== verifiedHashes.get(path),
+    );
+    if (isolatedDigestMismatch.length > 0 || worktreeDigestMismatch.length > 0) {
+      return {
+        ok: false,
+        files: sortedUnique([...isolatedDigestMismatch, ...worktreeDigestMismatch]),
+        message,
+        reason: 'safe generated metadata changed after manifest verification',
+        manifest,
+      };
+    }
+
+    const tree = isolatedGit(args.gitCwd, temporaryIndexFile, ['write-tree']).trim();
+    const treePaths = treeChangedPaths(args.gitCwd, oldTree, tree);
+    const treeUnexpected = treePaths.filter((path) => !manifest.safePaths.includes(path));
+    const treeMissing = manifest.safePaths.filter((path) => !treePaths.includes(path));
+    const treeDigestMismatch = manifest.safePaths.filter(
+      (path) => treeBlobHash(args.gitCwd, tree, path) !== verifiedHashes.get(path),
+    );
+    if (treeUnexpected.length > 0 || treeMissing.length > 0 || treeDigestMismatch.length > 0) {
+      return {
+        ok: false,
+        files: sortedUnique([...treeUnexpected, ...treeMissing, ...treeDigestMismatch]),
+        message,
+        reason: 'isolated tree does not exactly match the safe generated metadata manifest',
+        manifest,
+      };
+    }
+    args.testHooks?.afterTreeVerificationBeforeCommit?.(temporaryIndexFile);
+
+    const hook = runPreCommitHook(args.gitCwd, temporaryIndexFile);
+    if (!hook.ok) {
+      return {
+        ok: false,
+        files: manifest.safePaths,
+        message,
+        reason: `git commit failed: ${hook.error}`,
+        manifest,
+      };
+    }
+    const commitSha = isolatedGit(
+      args.gitCwd,
+      temporaryIndexFile,
+      ['commit-tree', tree, '-p', oldHead, '-m', message],
+    ).trim();
+    args.testHooks?.beforeCasUpdate?.(oldHead, targetRef);
+    const cas = gitMaybe(args.gitCwd, ['update-ref', targetRef, commitSha, oldHead]);
+    if (!cas.ok) {
+      return {
+        ok: false,
+        files: manifest.safePaths,
+        message,
+        reason: `HEAD changed before isolated closeout commit CAS: ${cas.error}`,
+        manifest,
+      };
+    }
+    const realIndexBefore = indexEntriesForPaths(args.gitCwd, manifest.safePaths);
+    try {
+      updateRealIndexFromTree(args.gitCwd, tree, manifest.safePaths);
+    } catch (err: any) {
+      for (const path of manifest.safePaths) {
+        restoreIndexEntries(
+          args.gitCwd,
+          path,
+          realIndexBefore.filter((entry) => entry.path === path),
+        );
+      }
+      const rollbackRef = gitMaybe(args.gitCwd, ['update-ref', targetRef, oldHead, commitSha]);
+      return {
+        ok: false,
+        files: manifest.safePaths,
+        message,
+        reason: `real index refresh after isolated commit failed: ${String(err?.stderr || err?.stdout || err?.message || err).trim()}`
+          + (rollbackRef.ok ? '' : `; HEAD rollback CAS failed: ${rollbackRef.error}`),
+        manifest,
+      };
+    }
+    return {
+      ok: true,
+      commitSha,
+      files: manifest.safePaths,
+      message,
+      manifest,
+    };
+  } catch (err: any) {
     return {
       ok: false,
       files: manifest.safePaths,
       message,
-      reason: `git commit failed: ${commit.error}`,
+      reason: `isolated generated metadata commit failed: ${String(err?.stderr || err?.stdout || err?.message || err).trim()}`,
       manifest,
     };
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
   }
-  const commitSha = git(args.gitCwd, ['rev-parse', 'HEAD']);
-  return {
-    ok: true,
-    commitSha,
-    files: manifest.safePaths,
-    message,
-    manifest,
-  };
 }
