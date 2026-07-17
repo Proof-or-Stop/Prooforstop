@@ -10,3 +10,8 @@
 {"type":"subagent_result","checklistId":"CHK-001","success":true,"timestamp":"2026-07-16T23:45:28.553Z"}
 {"type":"dispatch","checklistId":"CHK-002","agent":"lattice-implementer","timestamp":"2026-07-16T23:45:36.629Z"}
 {"type":"subagent_result","checklistId":"CHK-002","success":true,"timestamp":"2026-07-16T23:56:28.255Z"}
+{"type":"dispatch","storyId":"B-271e","phase":"REVIEW","source":"lattice dispatch","targetKind":"story-review","agentType":"lattice-review-concept","timestamp":"2026-07-17T00:01:41.262Z"}
+{"type":"dispatch","storyId":"B-271e","phase":"REVIEW","source":"lattice dispatch","targetKind":"story-review","agentType":"lattice-review-quality","timestamp":"2026-07-17T00:01:45.618Z"}
+{"type":"dispatch","storyId":"B-271e","phase":"REVIEW","source":"lattice dispatch","targetKind":"story-review","agentType":"lattice-review-test-coverage","timestamp":"2026-07-17T00:01:57.197Z"}
+{"type":"reviewer_finding","storyId":"B-271e","command":"finding_add","role":"reviewer","agent":"lattice-review-concept","result":"pass","findingId":"B-271e:F-001","severity":"high","missingAttribution":false,"timestamp":"2026-07-17T00:03:14.469Z"}
+{"type":"reviewer_finding","storyId":"B-271e","command":"finding_add","role":"reviewer","agent":"lattice-review-test-coverage","result":"pass","findingId":"B-271e:F-002","severity":"high","missingAttribution":false,"timestamp":"2026-07-17T00:03:14.533Z"}

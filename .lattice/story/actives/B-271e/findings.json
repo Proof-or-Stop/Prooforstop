@@ -1,0 +1,34 @@
+{
+  "findings": [
+    {
+      "id": "B-271e:F-001",
+      "desc": "packages/main/src/core/delivery-promise-outcome.ts:61-106 and packages/main/src/tasks/delivery-check-freshness-smoke.ts:378-409 — HIGH: the accepted delivery table is materially weaker than CHK-001. For explicit status=met/verified, the normalizer synthesizes verifiedBy=status:<value> and never requires evidence, so incomplete explicit PASS rows are persisted and pass both machine/DONE consumers. status=waived rejects verifiedBy but accepts evidence, and status=unverified accepts evidence; the checklist explicitly requires met/verified without required claims plus waived/unverified verification claims to be contradictions before persistence. The smoke institutionalizes the bug by listing status=met with no verifiedBy/evidence as passing and omits waived+evidence / unverified+evidence from invalidRows. Remove synthesized certification, define the exact accepted table (explicit met/verified require the promised non-empty claims; waived/unverified reject every incompatible verification field), and generate the matrix from that table so writer and readers share a correct predicate rather than the same false PASS.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-17T00:03:14.469Z",
+      "reviewRound": "2026-07-17T00:01:11.144Z",
+      "reviewRunId": "B-271e:RR-001",
+      "_hash": "9cc5102520d942e5f2d350d02ae37135e19ad80336b6412137d27947554158c5",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-271e:F-002",
+      "desc": "packages/main/src/tasks/production-test-seam-guard.ts:66-84,178-181 — HIGH: sanitizer recognition is text-presence based, not return/data-flow based. Any function whose body merely contains Number(...), Number.isFinite(...), >0, and Math.floor(...) is globally trusted; expressionSources then erases all argument taint for calls to it. Repro on the built analyzer: function fakePositiveInt(raw){ const n=Number(raw); Number.isFinite(n); if(n>0)Math.floor(n); return raw; } writeFileSync(fakePositiveInt(process.env.TEST_TARGET), owned) returns [] issues. This lets an env-derived arbitrary filesystem/process value bypass the new production guard without a file allowlist, so CHK-002 edge:0/adversarial coverage does not close the F-011 class. Require structural proof that every returned value is the bounded parsed/fallback or finite fixed enum, and add this deceptive-sanitizer negative fixture.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-17T00:03:14.532Z",
+      "reviewRound": "2026-07-17T00:01:11.144Z",
+      "reviewRunId": "B-271e:RR-003",
+      "_hash": "171b47ef815446010174b58b1c52ef62f148b5148891e748473ac62899479dd5",
+      "signatureTag": "adversarial|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
