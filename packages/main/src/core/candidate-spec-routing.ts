@@ -72,6 +72,12 @@ export interface StoryRoutingInput {
   understanding?: { touchpoints?: string[]; facts?: string[]; constraints?: string[] } | null;
   changedPaths?: string[];
   memoryTerms?: string[];
+  /** Structured exact-path authorities. Narrative prose must never populate this field. */
+  protectedSources?: Array<{
+    kind: 'related-doc' | 'exact-path' | 'registry-ref' | 'typed-risk' | 'reviewer-evidence';
+    path: string;
+    sourceRef: string;
+  }>;
 }
 
 export interface SanitizedHostPayload {
@@ -119,7 +125,7 @@ export type CandidateHostExecutor = (args: {
 }) => Promise<unknown>;
 
 export interface CandidateReason {
-  kind: 'related-doc' | 'path' | 'heading' | 'body' | 'host' | 'negative-control';
+  kind: 'related-doc' | 'exact-path' | 'registry-ref' | 'typed-risk' | 'reviewer-evidence' | 'path' | 'heading' | 'body' | 'host' | 'negative-control';
   term: string;
   source: string;
   points: number;
@@ -146,6 +152,15 @@ export interface CandidateSpecSetArtifact {
     maxDocumentFrequencyRatio: number;
     filteredTerms: Array<{ term: string; documentCount: number; documentFrequencyRatio: number }>;
   };
+  queryTruncation: Array<{
+    queryGroup: string[];
+    totalHits: number;
+    retainedHits: number;
+    omittedHits: number;
+    omittedMaxScore: number | null;
+    selectedCutoffScore: number | null;
+    classification: 'safe_below_cutoff' | 'ranking_affecting';
+  }>;
   rankingPolicy: { minRankingAffectingCutoffScore: number };
   budgets: { candidates: number; queryGroups: number; rawHitsPerGroup: number };
   ambiguitySignals: string[];
@@ -469,6 +484,7 @@ export function routeCandidateSpecs(args: {
   forceFullScanReason?: string | null;
   hostDisagreement?: boolean;
   riskSignals?: string[];
+  protectedSources?: StoryRoutingInput['protectedSources'];
   storyInputDigest?: string;
   headHash?: string;
   materialHash?: string;
@@ -515,10 +531,30 @@ export function routeCandidateSpecs(args: {
     .map(group => group.filter(term => !isOverbroadTerm(term)))
     .filter(group => group.length > 0);
   const related = new Set(args.seeds.seeds.filter(seed => seed.source === 'relatedDoc').map(seed => seed.term.split('#')[0]));
-  let truncated = false;
+  const completeReasonMap = new Map<string, CandidateReason[]>();
+  const truncatedGroups: Array<{ queryGroup: string[]; totalHits: number; retainedHits: number; omittedPaths: string[] }> = [];
+
+  const addReason = (map: Map<string, CandidateReason[]>, path: string, reason: CandidateReason): void => {
+    const reasons = map.get(path) ?? [];
+    if (!reasons.some(existing => existing.kind === reason.kind && existing.term === reason.term && existing.source === reason.source)) {
+      reasons.push(reason);
+    }
+    map.set(path, reasons);
+  };
 
   for (const entry of args.corpus.entries) {
-    if (related.has(entry.path)) reasonMap.set(entry.path, [{ kind: 'related-doc', term: entry.path, source: 'relatedDoc', points: 100 }]);
+    if (related.has(entry.path)) {
+      const reason: CandidateReason = { kind: 'related-doc', term: entry.path, source: 'relatedDoc', points: 100 };
+      addReason(reasonMap, entry.path, reason);
+      addReason(completeReasonMap, entry.path, reason);
+    }
+  }
+  for (const source of args.protectedSources ?? []) {
+    const path = source.path.split('#')[0];
+    if (!entryByPath.has(path)) continue;
+    const reason: CandidateReason = { kind: source.kind, term: path, source: source.sourceRef, points: 100 };
+    addReason(reasonMap, path, reason);
+    addReason(completeReasonMap, path, reason);
   }
   for (const group of queryGroups) {
     const hits: Array<{ entry: CorpusIndexEntry; body: string }> = [];
@@ -527,18 +563,26 @@ export function routeCandidateSpecs(args: {
       const haystack = searchableByPath.get(entry.path) ?? searchable(entry, body);
       if (group.every(term => haystack.includes(term))) hits.push({ entry, body });
     }
-    if (hits.length > rawHitsPerGroup) truncated = true;
-    for (const { entry, body } of hits.slice(0, rawHitsPerGroup)) {
-      const reasons = reasonMap.get(entry.path) ?? [];
+    const retained = hits.slice(0, rawHitsPerGroup);
+    if (hits.length > retained.length) truncatedGroups.push({
+      queryGroup: [...group],
+      totalHits: hits.length,
+      retainedHits: retained.length,
+      omittedPaths: hits.slice(retained.length).map(hit => hit.entry.path),
+    });
+    for (const { entry, body } of hits) {
       for (const term of group) {
         const pathHit = normalizeKeyword(entry.path).includes(term);
         const headingHit = entry.headings.some(heading => normalizeKeyword(heading).includes(term));
         const bodyHit = normalizeKeyword(body).includes(term);
         const kind: CandidateReason['kind'] = pathHit ? 'path' : headingHit ? 'heading' : 'body';
         const points = pathHit ? 20 : headingHit ? 15 : bodyHit ? 8 : 0;
-        if (points > 0 && !reasons.some(reason => reason.kind === kind && reason.term === term)) reasons.push({ kind, term, source: group.join('+'), points });
+        if (points > 0) {
+          const reason: CandidateReason = { kind, term, source: group.join('+'), points };
+          addReason(completeReasonMap, entry.path, reason);
+          if (retained.some(hit => hit.entry.path === entry.path)) addReason(reasonMap, entry.path, reason);
+        }
       }
-      reasonMap.set(entry.path, reasons);
     }
   }
   for (const proposal of proposals) {
@@ -547,9 +591,9 @@ export function routeCandidateSpecs(args: {
       if (isOverbroadTerm(normalized)) continue;
       for (const entry of args.corpus.entries) {
         if (!searchableByPath.get(entry.path)?.includes(normalized)) continue;
-        const reasons = reasonMap.get(entry.path) ?? [];
-        reasons.push({ kind: term.kind === 'negative-control' ? 'negative-control' : 'host', term: normalized, source: proposal.host, points: term.kind === 'negative-control' ? -25 : 4 });
-        reasonMap.set(entry.path, reasons);
+        const reason: CandidateReason = { kind: term.kind === 'negative-control' ? 'negative-control' : 'host', term: normalized, source: proposal.host, points: term.kind === 'negative-control' ? -25 : 4 };
+        addReason(reasonMap, entry.path, reason);
+        addReason(completeReasonMap, entry.path, reason);
       }
     }
   }
@@ -559,13 +603,40 @@ export function routeCandidateSpecs(args: {
     score: reasons.reduce((sum, reason) => sum + reason.points, 0),
     reasons: reasons.sort((a, b) => b.points - a.points || a.kind.localeCompare(b.kind, 'en') || a.term.localeCompare(b.term, 'en')),
   })).sort((a, b) => b.score - a.score || a.path.localeCompare(b.path, 'en'));
+  const completeScores = new Map([...completeReasonMap.entries()].map(([path, reasons]) => [
+    path,
+    reasons.reduce((sum, reason) => sum + reason.points, 0),
+  ]));
+  const selectedCutoffScore = ranked.length === 0
+    ? null
+    : ranked[Math.min(candidateBudget, ranked.length) - 1]?.score ?? null;
+  const queryTruncation = truncatedGroups.map(group => {
+    // A path found through another retained group is not omitted from the final ranking.
+    const omittedScores = group.omittedPaths
+      .filter(path => !reasonMap.has(path))
+      .map(path => completeScores.get(path))
+      .filter((score): score is number => typeof score === 'number' && Number.isFinite(score));
+    const omittedMaxScore = omittedScores.length > 0 ? Math.max(...omittedScores) : null;
+    const affectsRanking = omittedMaxScore !== null
+      && (selectedCutoffScore === null || ranked.length < candidateBudget || omittedMaxScore >= selectedCutoffScore);
+    return {
+      queryGroup: group.queryGroup,
+      totalHits: group.totalHits,
+      retainedHits: group.retainedHits,
+      omittedHits: group.totalHits - group.retainedHits,
+      omittedMaxScore,
+      selectedCutoffScore,
+      classification: affectsRanking ? 'ranking_affecting' as const : 'safe_below_cutoff' as const,
+    };
+  });
+  const rankingAffectingTruncation = queryTruncation.some(row => row.classification === 'ranking_affecting');
 
   const ambiguitySignals: string[] = [];
   if (ranked.length === 0) ambiguitySignals.push('zero_candidates');
   const rankedReasonKinds = new Set(ranked.flatMap(candidate => candidate.reasons.map(reason => reason.kind)));
   const hasExplicitRelatedDoc = ranked.some(candidate => candidate.reasons.some(reason => reason.kind === 'related-doc'));
   if (ranked.length > 0 && rankedReasonKinds.size < 2 && !hasExplicitRelatedDoc) ambiguitySignals.push('weak_source_class_coverage');
-  if (truncated) ambiguitySignals.push('query_results_truncated');
+  if (queryTruncation.length > 0) ambiguitySignals.push('query_results_truncated');
   const cutoffScore = ranked[candidateBudget - 1]?.score;
   const cutoffTie = ranked.length > candidateBudget
     && cutoffScore === ranked[candidateBudget]?.score
@@ -579,7 +650,7 @@ export function routeCandidateSpecs(args: {
   const highRiskRouting = (args.riskSignals ?? []).some(signal => /lifecycle|state.?machine|guard|gate|process.?fact|global.?rename|breaking.?rename/i.test(signal));
   const escalationReasons = [
     ...(ambiguitySignals.includes('zero_candidates') ? ['zero_candidates'] : []),
-    ...(truncated ? ['ranking_affecting_query_truncation'] : []),
+    ...(rankingAffectingTruncation ? ['ranking_affecting_query_truncation'] : []),
     ...(cutoffTie ? ['candidate_cutoff_tie'] : []),
     ...(ambiguitySignals.includes('weak_source_class_coverage') ? ['weak_source_class_coverage'] : []),
     ...(args.hostDisagreement ? ['primary_host_disagreement'] : []),
@@ -608,6 +679,7 @@ export function routeCandidateSpecs(args: {
     candidateBasis: Object.fromEntries(candidates.map(candidate => [candidate.path, candidate.reasons])),
     queryGroups,
     queryFiltering: { maxDocumentFrequencyRatio, filteredTerms },
+    queryTruncation,
     rankingPolicy: { minRankingAffectingCutoffScore: MIN_RANKING_AFFECTING_CUTOFF_SCORE },
     budgets: { candidates: candidateBudget, queryGroups: queryGroupBudget, rawHitsPerGroup },
     ambiguitySignals,
@@ -626,6 +698,23 @@ export function routeCandidateSpecs(args: {
 export function verifyCandidateSpecSet(artifact: CandidateSpecSetArtifact): boolean {
   const { artifactDigest, ...base } = artifact;
   if (artifact.schemaVersion !== CANDIDATE_SET_SCHEMA) return false;
+  if (!Array.isArray(artifact.queryTruncation)) return false;
+  for (const row of artifact.queryTruncation) {
+    if (!row || !Array.isArray(row.queryGroup) || !row.queryGroup.every(term => typeof term === 'string')) return false;
+    if (![row.totalHits, row.retainedHits, row.omittedHits].every(value => Number.isInteger(value) && value >= 0)) return false;
+    if (row.retainedHits > row.totalHits || row.omittedHits !== row.totalHits - row.retainedHits) return false;
+    if (row.omittedMaxScore !== null && !Number.isFinite(row.omittedMaxScore)) return false;
+    if (row.selectedCutoffScore !== null && !Number.isFinite(row.selectedCutoffScore)) return false;
+    if (row.classification !== 'safe_below_cutoff' && row.classification !== 'ranking_affecting') return false;
+    const mechanicallyAffects = row.omittedMaxScore !== null && (
+      row.selectedCutoffScore === null
+      || artifact.candidateSpecSet.length < artifact.budgets.candidates
+      || row.omittedMaxScore >= row.selectedCutoffScore
+    );
+    if ((row.classification === 'ranking_affecting') !== mechanicallyAffects) return false;
+  }
+  const hasRankingTruncationReason = artifact.escalationReasons.includes('ranking_affecting_query_truncation');
+  if (hasRankingTruncationReason !== artifact.queryTruncation.some(row => row.classification === 'ranking_affecting')) return false;
   if (!artifact.fullScan && artifact.candidateSpecSet.length > artifact.budgets.candidates) return false;
   if (artifact.queryGroups.length > artifact.budgets.queryGroups) return false;
   if (artifact.fullScan !== Boolean(artifact.scanEscalationReason)) return false;

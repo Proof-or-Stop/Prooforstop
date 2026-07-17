@@ -247,6 +247,35 @@ and gate:
 Roll out IDF and unattended-readiness enforcement behind separate configuration
 flags. Roll back ranking changes without re-enabling unverified unattended hosts.
 
+### 7.7 B-3aec implementation contract
+
+B-3aec implements this workstream at the existing shared boundaries:
+
+- candidate proposal execution consumes the canonical unattended-readiness row
+  before `runHostRun`; any non-positive/unverified launcher state is a stable
+  pre-spawn refusal and invokes no proposal executor;
+- `host-run` has independent optional startup and total deadlines. The first
+  stdout or stderr byte clears only the startup timer. Results distinguish
+  `startup_no_output_timeout`, `total_timeout`, and caller abort while retaining
+  first-output and total-duration diagnostics; timeout/abort settlement waits
+  for child close before the existing `finally` releases capacity;
+- the existing `maxDocumentFrequencyRatio` filter remains authoritative.
+  Truncation artifacts now record query group, retained/omitted counts, omitted
+  maximum score, and selected cutoff; raw overflow escalates only when an
+  omitted candidate can enter or tie the bounded selection;
+- direct candidates use explicit typed sources (`related-doc`, exact path,
+  registry reference, structured risk, or current bound reviewer evidence).
+  Story title, description, and checklist prose remain ordinary search seeds
+  and cannot trigger typed-risk escalation;
+- the deterministic routing artifact is deliberately mode-neutral so shadow,
+  warn, and enforce compute the same candidate decision. The handler and
+  existing gate consumers apply the configured mode only to presentation and
+  blocking: shadow records, warn advises, and enforce may stop on the same typed
+  unresolved reason.
+
+Deterministic smoke coverage uses injected readiness rows and local Node child
+processes only; it never launches Codex CLI, Claude Code CLI, or Antigravity CLI.
+
 ## 8. Workstream C — Typed Agent Dispatch Contract
 
 ### 8.1 Scope

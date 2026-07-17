@@ -118,6 +118,10 @@ export interface HostRunSpawnPlan {
    */
   cwd: string;
   timeoutMs?: number;
+  /** Optional silence budget. Cleared by the first stdout OR stderr byte. */
+  startupTimeoutMs?: number;
+  /** Optional caller cancellation; termination still waits for child close/reap. */
+  signal?: AbortSignal;
   /** The absolute prompt-file path for claude (informational; runner reads argv). */
   promptFile?: string;
   /** The launcher host (lets the default runner pick the right usage-line scanner). */
@@ -149,6 +153,10 @@ export interface HostRunSpawnResult {
   stderr: string;
   exitCode: number;
   timedOut: boolean;
+  timeoutKind?: 'startup_no_output_timeout' | 'total_timeout' | null;
+  terminalReason?: 'completed' | 'exit_nonzero' | 'spawn_error' | 'child_error' | 'aborted' | 'startup_no_output_timeout' | 'total_timeout';
+  firstOutputMs?: number | null;
+  durationMs?: number;
   /**
    * True when an over-cap line was dropped AFTER (or without) the last retained
    * usage-bearing line (F-013/F-026: truncation is tracked RELATIVE to the
@@ -220,6 +228,10 @@ export interface HostRunArgs {
   reviewRunId?: string | null;
   lane?: string | null;
   timeoutMs?: number;
+  /** Optional first-output deadline, independent of timeoutMs total runtime. */
+  startupTimeoutMs?: number;
+  /** Optional caller cancellation. */
+  signal?: AbortSignal;
   /** agy --print-timeout override (e.g. '30m'); must match /^\d+[smh]$/. */
   agyPrintTimeout?: string;
   env: NodeJS.ProcessEnv;
@@ -275,6 +287,10 @@ export interface HostRunResult {
   liveRuns: HostRunLiveDescriptor[] | null;
   exitCode: number;
   timedOut: boolean;
+  timeoutKind: 'startup_no_output_timeout' | 'total_timeout' | null;
+  terminalReason: HostRunSpawnResult['terminalReason'] | null;
+  firstOutputMs: number | null;
+  durationMs: number | null;
   stdout: string;
   stderr: string;
   usageSummary: HostRunUsageSummary;
@@ -1058,9 +1074,15 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan): Promise<HostRunSpa
     // turn_failed(<digest>). The usage lane's own flag still feeds
     // retentionTruncated with ABSOLUTE priority (F-013/F-026 unchanged).
     const failureScanner = new UsageLineScanner(plan.retainFailureLine);
+    const startedAt = Date.now();
     let settled = false;
     let timedOut = false;
-    let timer: NodeJS.Timeout | null = null;
+    let timeoutKind: 'startup_no_output_timeout' | 'total_timeout' | null = null;
+    let terminalReason: HostRunSpawnResult['terminalReason'] = 'completed';
+    let firstOutputMs: number | null = null;
+    let startupTimer: NodeJS.Timeout | null = null;
+    let totalTimer: NodeJS.Timeout | null = null;
+    let abortListener: (() => void) | null = null;
 
     // F-008: a throwing onChunk (e.g. EPIPE from a closed consumer pipe) must
     // never escape a 'data' listener as an uncaught EventEmitter exception —
@@ -1080,10 +1102,18 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan): Promise<HostRunSpa
       }
     };
 
+    const clearTimersAndListener = (): void => {
+      if (startupTimer) clearTimeout(startupTimer);
+      if (totalTimer) clearTimeout(totalTimer);
+      startupTimer = null;
+      totalTimer = null;
+      if (abortListener && plan.signal) plan.signal.removeEventListener('abort', abortListener);
+      abortListener = null;
+    };
     const finish = (exitCode: number): void => {
       if (settled) return;
       settled = true;
-      if (timer) clearTimeout(timer);
+      clearTimersAndListener();
       scanner.flush();
       failureScanner.flush();
       resolve({
@@ -1091,6 +1121,10 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan): Promise<HostRunSpa
         stderr: '',
         exitCode,
         timedOut,
+        timeoutKind,
+        terminalReason,
+        firstOutputMs,
+        durationMs: Math.max(0, Date.now() - startedAt),
         retentionTruncated: scanner.truncated,
         failureText: failureScanner.retainedText(),
         // B-3ddc (codex round-1 F1): honor the failure lane's own truncation.
@@ -1107,9 +1141,33 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan): Promise<HostRunSpa
         stdio: ['pipe', 'pipe', 'pipe'],
       });
     } catch {
+      terminalReason = 'spawn_error';
       finish(1);
       return;
     }
+
+    const terminate = (reason: 'startup_no_output_timeout' | 'total_timeout' | 'aborted'): void => {
+      if (settled || timeoutKind !== null || terminalReason === 'aborted') return;
+      if (reason === 'aborted') {
+        terminalReason = 'aborted';
+      } else {
+        timedOut = true;
+        timeoutKind = reason;
+        terminalReason = reason;
+      }
+      clearTimersAndListener();
+      try {
+        child.kill('SIGKILL');
+      } catch {
+        // best-effort; settlement still waits for error/close
+      }
+    };
+    const markFirstOutput = (): void => {
+      if (firstOutputMs !== null) return;
+      firstOutputMs = Math.max(0, Date.now() - startedAt);
+      if (startupTimer) clearTimeout(startupTimer);
+      startupTimer = null;
+    };
 
     // No stdin payload — mirror the previous `input: ''`.
     try {
@@ -1118,19 +1176,19 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan): Promise<HostRunSpa
       // best-effort
     }
 
-    if (plan.timeoutMs && plan.timeoutMs > 0) {
-      timer = setTimeout(() => {
-        timedOut = true;
-        try {
-          child.kill('SIGKILL');
-        } catch {
-          // best-effort
-        }
-      }, plan.timeoutMs);
+    if (plan.startupTimeoutMs && plan.startupTimeoutMs > 0) {
+      startupTimer = setTimeout(() => terminate('startup_no_output_timeout'), plan.startupTimeoutMs);
     }
+    if (plan.timeoutMs && plan.timeoutMs > 0) {
+      totalTimer = setTimeout(() => terminate('total_timeout'), plan.timeoutMs);
+    }
+    abortListener = () => terminate('aborted');
+    if (plan.signal?.aborted) abortListener();
+    else plan.signal?.addEventListener('abort', abortListener, { once: true });
 
     child.stdout?.setEncoding('utf8');
     child.stdout?.on('data', (text: string) => {
+      if (text.length > 0) markFirstOutput();
       deliver({ stream: 'stdout', text });
       scanner.push(text);
       // B-3ddc: the failure lane sees the same live text; delivery above is
@@ -1139,14 +1197,20 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan): Promise<HostRunSpa
     });
     child.stderr?.setEncoding('utf8');
     child.stderr?.on('data', (text: string) => {
+      if (text.length > 0) markFirstOutput();
       deliver({ stream: 'stderr', text });
     });
 
-    child.on('error', () => finish(timedOut ? 124 : 1));
+    child.on('error', () => {
+      if (!timedOut && terminalReason !== 'aborted') terminalReason = 'child_error';
+      // Node emits `close` after `error`; settle there so every spawned child
+      // follows the same close/reap boundary before capacity can be released.
+    });
     child.on('close', (code, signal) => {
-      const timed = timedOut || signal === 'SIGKILL' || signal === 'SIGTERM';
-      timedOut = timed;
-      const exitCode = typeof code === 'number' ? code : timed ? 124 : 1;
+      if (!timedOut && terminalReason !== 'aborted' && terminalReason !== 'child_error') {
+        terminalReason = typeof code === 'number' && code === 0 ? 'completed' : 'exit_nonzero';
+      }
+      const exitCode = timedOut ? 124 : terminalReason === 'aborted' ? 130 : typeof code === 'number' ? code : signal ? 1 : 1;
       finish(exitCode);
     });
   });
@@ -1272,6 +1336,8 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
         // F-011: every spawn path executes in the resolved project root.
         cwd: args.cwd,
         timeoutMs: args.timeoutMs,
+        startupTimeoutMs: args.startupTimeoutMs,
+        signal: args.signal,
         promptFile: launch.promptFile,
         host: args.host,
         retainUsageLine: usageLineRetainerFor(args.host),
@@ -1326,6 +1392,10 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
       liveRuns: null,
       exitCode: spawn.exitCode,
       timedOut: spawn.timedOut,
+      timeoutKind: spawn.timeoutKind ?? null,
+      terminalReason: spawn.terminalReason ?? null,
+      firstOutputMs: spawn.firstOutputMs ?? null,
+      durationMs: spawn.durationMs ?? null,
       stdout: spawn.stdout,
       stderr: spawn.stderr,
       usageSummary: disabledSummary(),
@@ -1367,6 +1437,10 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
       liveRuns: null,
       exitCode: HOST_RUN_REFUSAL_EXIT_CODE,
       timedOut: false,
+      timeoutKind: null,
+      terminalReason: null,
+      firstOutputMs: null,
+      durationMs: null,
       stdout: '',
       stderr: '',
       usageSummary: {
@@ -1421,6 +1495,10 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
       liveRuns: live,
       exitCode: HOST_RUN_REFUSAL_EXIT_CODE,
       timedOut: false,
+      timeoutKind: null,
+      terminalReason: null,
+      firstOutputMs: null,
+      durationMs: null,
       stdout: '',
       stderr: '',
       usageSummary: {
@@ -1470,6 +1548,10 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
     liveRuns: null,
     exitCode: spawn.exitCode,
     timedOut: spawn.timedOut,
+    timeoutKind: spawn.timeoutKind ?? null,
+    terminalReason: spawn.terminalReason ?? null,
+    firstOutputMs: spawn.firstOutputMs ?? null,
+    durationMs: spawn.durationMs ?? null,
     stdout: spawn.stdout,
     stderr: spawn.stderr,
     usageSummary: summary,

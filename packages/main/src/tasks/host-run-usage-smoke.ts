@@ -2755,6 +2755,77 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
   });
 
   // =========================================================================
+  // B-3aec: independent first-output and total deadlines.
+  // =========================================================================
+  await checkAsync('B-3aec startup watchdog: silent child is killed/reaped before total timeout and reports startup_no_output_timeout', async () => {
+    const result = await defaultHostRunRunner({
+      command: process.execPath,
+      argv: ['-e', 'setTimeout(() => process.exit(0), 5000)'],
+      env: process.env,
+      cwd: process.cwd(),
+      startupTimeoutMs: 40,
+      timeoutMs: 1000,
+    });
+    assert.equal(result.exitCode, 124);
+    assert.equal(result.timedOut, true);
+    assert.equal(result.timeoutKind, 'startup_no_output_timeout');
+    assert.equal(result.terminalReason, 'startup_no_output_timeout');
+    assert.equal(result.firstOutputMs, null);
+    assert.ok((result.durationMs ?? 1000) < 900, 'startup timeout returns without waiting for total deadline');
+  });
+
+  await checkAsync('B-3aec first byte: stderr clears startup timer; productive runtime may exceed startup budget and still finish', async () => {
+    const result = await defaultHostRunRunner({
+      command: process.execPath,
+      argv: ['-e', 'setTimeout(() => process.stderr.write("ready\\n"), 50); setTimeout(() => process.exit(0), 450)'],
+      env: process.env,
+      cwd: process.cwd(),
+      startupTimeoutMs: 300,
+      timeoutMs: 1000,
+    });
+    assert.equal(result.exitCode, 0);
+    assert.equal(result.timeoutKind, null);
+    assert.equal(result.terminalReason, 'completed');
+    assert.ok((result.firstOutputMs ?? 1000) < 300);
+    assert.ok((result.durationMs ?? 0) >= 400, 'run continues beyond startup budget after first output');
+  });
+
+  await checkAsync('B-3aec total deadline: early stdout preserves first-output evidence but a later hang is total_timeout', async () => {
+    const result = await defaultHostRunRunner({
+      command: process.execPath,
+      argv: ['-e', 'process.stdout.write("ready\\n"); setInterval(() => {}, 1000)'],
+      env: process.env,
+      cwd: process.cwd(),
+      startupTimeoutMs: 100,
+      timeoutMs: 120,
+    });
+    assert.equal(result.exitCode, 124);
+    assert.equal(result.timeoutKind, 'total_timeout');
+    assert.equal(result.terminalReason, 'total_timeout');
+    assert.ok(result.firstOutputMs !== null);
+  });
+
+  await checkAsync('B-3aec abort cleanup: caller abort waits for close and runHostRun releases cap=1 slot for immediate reacquisition', async () => {
+    const sub = freshRoot();
+    const env = { LATTICE_USAGE_LEDGER: '1', LATTICE_HOST_RUN_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv;
+    const controller = new AbortController();
+    const runner: HostRunRunner = plan => defaultHostRunRunner({
+      ...plan,
+      command: process.execPath,
+      argv: ['-e', 'setInterval(() => {}, 1000)'],
+    });
+    setTimeout(() => controller.abort(), 40);
+    const result = await runHostRun({ ...baseArgs({ root: sub, host: 'codex', env }), signal: controller.signal, timeoutMs: 1000 }, { runner });
+    assert.equal(result.terminalReason, 'aborted');
+    assert.equal(result.exitCode, 130);
+    assert.equal(result.timedOut, false);
+    const dir = hostRunSlotsDir(sub);
+    const reacquired = acquireHostRunSlot(dir, 1, 6 * 60 * 60 * 1000, Date.now(), slotMeta('after-abort'));
+    assert.ok(reacquired, 'slot is released only after the aborted child closes');
+    if (reacquired) releaseSlot(reacquired.file, reacquired.token);
+  });
+
+  // =========================================================================
   // Isolation
   // =========================================================================
   check('isolation: all artifacts live under the temp root (no repo pollution)', () => {

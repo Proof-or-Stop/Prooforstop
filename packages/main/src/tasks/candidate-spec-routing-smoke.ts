@@ -17,7 +17,10 @@ import {
 } from '../core/candidate-spec-routing.js';
 import { StoryStore } from '../core/store.js';
 import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
-import { renderCandidateSpecRouteText } from '../handlers/candidate-spec-routing.js';
+import {
+  renderCandidateSpecRouteText,
+  withUnattendedReadiness,
+} from '../handlers/candidate-spec-routing.js';
 import { renderDeliveryContextPackReport, type DeliveryContextPackReport } from '../handlers/delivery-context-pack.js';
 
 function fixtureRoot(): string {
@@ -255,6 +258,64 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     assert.ok(frequencyFilteredRoute.candidateSpecSet.includes('docs/requirements/decisions/auth-session.md'), 'explicit relatedDocs bypass frequency filtering');
     assert.match(renderCandidateSpecRouteText(frequencyFilteredRoute, first.entries.length, []), /queryFiltering=maxDocumentFrequencyRatio=0\.4 filtered=.*decision:3/);
 
+    const protectedKinds = ['related-doc', 'exact-path', 'registry-ref', 'typed-risk', 'reviewer-evidence'] as const;
+    const protectedSources = protectedKinds.map((kind, index) => {
+      const path = `docs/requirements/decisions/protected-${index}.md`;
+      writeFileSync(join(root, path), `# Protected ${index}\n\nlattice core handlers proofbound\n`);
+      return { kind, path, sourceRef: `typed.${kind}` };
+    });
+    const protectedCorpus = buildCorpusIndex(root);
+    const protectedRoute = routeCandidateSpecs({
+      projectRoot: root,
+      storyId: story.storyId,
+      corpus: protectedCorpus,
+      seeds: buildKeywordSeeds({ storyId: story.storyId, title: 'lattice proofbound core handlers' }),
+      protectedSources,
+      candidateBudget: 8,
+    });
+    for (const source of protectedSources) {
+      assert.ok(protectedRoute.candidateSpecSet.includes(source.path), `${source.kind} exact source survives generic filtering`);
+      assert.ok(protectedRoute.candidateBasis[source.path]?.some(reason => reason.kind === source.kind && reason.source === source.sourceRef));
+    }
+    assert.equal(protectedRoute.fullScan, false);
+    assert.ok(['lattice', 'proofbound', 'core', 'handlers'].every(term => protectedRoute.queryFiltering.filteredTerms.some(row => row.term === term)));
+    for (const source of protectedSources) rmSync(join(root, source.path));
+
+    writeFileSync(join(root, 'docs/requirements/decisions/common-a.md'), '# Common A\n\nincidentalcommonterm\n');
+    writeFileSync(join(root, 'docs/requirements/decisions/common-b.md'), '# Common B\n\nincidentalcommonterm\n');
+    writeFileSync(join(root, 'docs/requirements/decisions/common-c.md'), '# Common C\n\nincidentalcommonterm\n');
+    const safeTruncationCorpus = buildCorpusIndex(root);
+    const safeTruncation = routeCandidateSpecs({
+      projectRoot: root,
+      storyId: story.storyId,
+      corpus: safeTruncationCorpus,
+      seeds: buildKeywordSeeds({ storyId: story.storyId, title: 'incidentalcommonterm' }),
+      protectedSources: [
+        { kind: 'exact-path', path: 'docs/requirements/decisions/auth-session.md', sourceRef: 'scope.path[0]' },
+        { kind: 'registry-ref', path: 'docs/requirements/decisions/legacy-login.md', sourceRef: 'registry.ref[0]' },
+      ],
+      candidateBudget: 2,
+      rawHitsPerGroup: 1,
+      maxDocumentFrequencyRatio: 1,
+    });
+    assert.ok(safeTruncation.queryTruncation.some(row => row.classification === 'safe_below_cutoff' && row.omittedMaxScore === 8 && row.selectedCutoffScore === 100));
+    assert.ok(!safeTruncation.escalationReasons.includes('ranking_affecting_query_truncation'), 'raw overflow below the selected cutoff is diagnostic-only');
+    assert.equal(verifyCandidateSpecSet({
+      ...safeTruncation,
+      queryTruncation: safeTruncation.queryTruncation.map((row, index) => index === 0 ? { ...row, omittedMaxScore: Number.NaN } : row),
+    }), false, 'non-finite truncation evidence fails closed instead of claiming safe or ranking-affecting');
+    for (const name of ['common-a.md', 'common-b.md', 'common-c.md']) rmSync(join(root, `docs/requirements/decisions/${name}`));
+
+    const enforceText = renderCandidateSpecRouteText(truncatedRoute, first.entries.length, [], 'enforce');
+    const warnText = renderCandidateSpecRouteText(truncatedRoute, first.entries.length, [], 'warn');
+    const shadowText = renderCandidateSpecRouteText(truncatedRoute, first.entries.length, [], 'shadow');
+    assert.match(enforceText, /BLOCKED_PENDING_ESCALATION/);
+    assert.match(warnText, /WARNING_PENDING_ESCALATION/);
+    assert.doesNotMatch(warnText, /BLOCKED|STOP/);
+    assert.match(shadowText, /SHADOW_RECORDED/);
+    assert.doesNotMatch(shadowText, /BLOCKED|STOP/);
+    assert.equal(truncatedRoute.artifactDigest, truncatedRoute.artifactDigest, 'rollout presentation cannot alter the routing decision artifact');
+
     for (let index = 0; index < 8; index += 1) {
       writeFileSync(join(root, `docs/requirements/decisions/body-only-${index}.md`), `# Unique ${index}\n\nincidentalbodysignal\n`);
     }
@@ -404,6 +465,31 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     });
     assert.equal(unsafeCalls, 0);
     assert.ok(unsafe.attempts.every(attempt => attempt.status === 'skipped-unsafe'));
+
+    const readinessBase = {
+      launcherOk: true,
+      reviewReady: true,
+      progressMode: 'jsonl' as const,
+      diagnostic: undefined,
+      remediation: '',
+    };
+    for (const row of [
+      { launcherSupport: 'unverified' as const, executionReady: false, failureKind: 'unknown' as const },
+      { launcherSupport: 'unsupported' as const, executionReady: false, failureKind: 'unsupported' as const },
+      { launcherSupport: 'supported' as const, executionReady: false, failureKind: 'auth' as const },
+      { launcherSupport: 'supported' as const, executionReady: false, failureKind: 'timeout' as const },
+    ]) {
+      let spawnCalls = 0;
+      const admitted = withUnattendedReadiness(async () => { spawnCalls += 1; return {}; }, [{ host: 'codex', ...readinessBase, ...row }]);
+      await assert.rejects(() => admitted({ host: 'codex-cli', storyId: story.storyId, sanitizedPayload: {}, promptDigest: 'p', seedDigest: 's' }), /skipped pre-spawn/);
+      assert.equal(spawnCalls, 0, `${row.launcherSupport}/${row.failureKind} refuses with zero executor calls`);
+    }
+    let readyCalls = 0;
+    const readyExecutor = withUnattendedReadiness(async () => { readyCalls += 1; return { ok: true }; }, [{
+      host: 'codex', ...readinessBase, launcherSupport: 'supported', executionReady: true, failureKind: 'none',
+    }]);
+    assert.deepEqual(await readyExecutor({ host: 'codex-cli', storyId: story.storyId, sanitizedPayload: {}, promptDigest: 'p', seedDigest: 's' }), { ok: true });
+    assert.equal(readyCalls, 1);
 
     const passingWindow = (id: string) => ({
       id,
