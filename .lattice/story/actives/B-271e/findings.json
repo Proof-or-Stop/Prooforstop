@@ -5,7 +5,7 @@
       "desc": "packages/main/src/core/delivery-promise-outcome.ts:61-106 and packages/main/src/tasks/delivery-check-freshness-smoke.ts:378-409 — HIGH: the accepted delivery table is materially weaker than CHK-001. For explicit status=met/verified, the normalizer synthesizes verifiedBy=status:<value> and never requires evidence, so incomplete explicit PASS rows are persisted and pass both machine/DONE consumers. status=waived rejects verifiedBy but accepts evidence, and status=unverified accepts evidence; the checklist explicitly requires met/verified without required claims plus waived/unverified verification claims to be contradictions before persistence. The smoke institutionalizes the bug by listing status=met with no verifiedBy/evidence as passing and omits waived+evidence / unverified+evidence from invalidRows. Remove synthesized certification, define the exact accepted table (explicit met/verified require the promised non-empty claims; waived/unverified reject every incompatible verification field), and generate the matrix from that table so writer and readers share a correct predicate rather than the same false PASS.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-17T00:03:14.469Z",
@@ -13,7 +13,11 @@
       "reviewRunId": "B-271e:RR-001",
       "_hash": "9cc5102520d942e5f2d350d02ae37135e19ad80336b6412137d27947554158c5",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Explicit met/verified now require non-empty verifiedBy and evidence; waived and unverified reject conflicting fields before write. Generated 640-case cross-product verifies schema, handler pre-write rejection, and DONE predicate agreement. Evidence: npm --prefix packages/main run build; node packages/main/dist/tasks/delivery-check-freshness-smoke.js.",
+      "resolvedAt": "2026-07-17T00:18:23.057Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-271e:F-002",
