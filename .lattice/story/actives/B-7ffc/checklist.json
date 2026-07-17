@@ -80,7 +80,45 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "docs/requirements/NAV.md contains a descriptive Markdown entry whose relative target is exactly decisions/role-prompt-modularization-and-budget-execution-plan.md; resolving that link from NAV.md reaches the promoted canonical document, so a reader can discover and open the plan without using /tmp.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "After promotion, navigation metadata remains internally accurate: the direct decisions-document inventory count is updated if the new file changes it, and the plan has exactly one canonical navigation entry with no duplicate entry or alternate repository path.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "The navigation entry preserves the curated decisions list structure and uses the actual promoted document title and path with exact case, punctuation, and .md suffix so it resolves on case-sensitive filesystems.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Repository search proves docs/requirements/NAV.md does not link to /tmp, /private/tmp, the attachment path, an absolute local filesystem path, or any compatibility/staging copy; deleting the temporary source would not break discovery of the canonical plan.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "A link-resolution check from docs/requirements/NAV.md must fail for typoed, missing, directory-traversing, or non-canonical targets; acceptance requires the checked-in target under docs/requirements/decisions and must not be satisfied by matching link text alone.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "The navigation wording must not claim that the execution plan has already changed runtime behavior, completed its numbered implementation Stories, or enabled budget enforcement; it exposes a plan-only decision record whose later Stories remain responsible for implementation.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
