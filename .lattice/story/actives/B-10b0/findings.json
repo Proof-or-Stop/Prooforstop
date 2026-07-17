@@ -401,7 +401,7 @@
       "desc": "packages/main/src/handlers/verifier.ts:679-708 [HIGH] The canonical-reuse failure rollback restores only worktree bytes, but autoCommitStoryMetadata stages the entire story directory at packages/main/src/core/auto-commit-metadata.ts:285-306 before a pre-commit/commit failure. Therefore the tested writer-failure path returns infra_failure with HEAD unchanged while the Git index can still contain the newly generated PASS test-evidence, validation_terminal, and closeout receipt. A later ordinary commit can publish the receipt that this path claims to have rolled back. Capture and restore the affected index entries (plus worktree bytes) transactionally around terminal/evidence/receipt persistence, and extend the rejected-persistence smoke to require an empty/byte-identical cached diff and no staged PASS/terminal/receipt after failure. Also catch writer exceptions so partial writes take the same infra-failure rollback path.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-17T21:38:36.810Z",
@@ -413,7 +413,11 @@
         "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Same root cause fixed by a74f57732a: canonical reuse snapshots exact worktree bytes/existence and managed real-index entries, issues the receipt strictly, commits exactly test-evidence/process-events/closeout-receipts through an isolated GIT_INDEX_FILE, and rolls back managed worktree+index on hook/commit/receipt failure while preserving unrelated staged blobs. Build, validation-evidence-reuse-smoke, and process-fact contract PASS.",
+      "resolvedAt": "2026-07-17T21:49:12.871Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-10b0:F-019",
