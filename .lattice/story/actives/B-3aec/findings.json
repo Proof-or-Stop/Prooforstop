@@ -113,6 +113,21 @@
       ],
       "signatureTag": "protected-candidate-silent-drop",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-3aec:F-008",
+      "desc": "packages/main/src/handlers/story-dispatch.ts:241-244,292-294 and packages/main/src/core/candidate-spec-routing.ts:741-743 [HIGH] Mode consistency is only fixed in renderCandidateSpecRouteText. PLAN/REVIEW dispatch still emits unconditional STOP for an unresolved artifact in shadow or warn, and candidateReadBindingErrors rejects that artifact whenever the encouraged optional digest is supplied, regardless of mode. Because prompts explicitly require the digest, configured shadow/warn can still behave as enforce and force the broad scan this story is meant to prevent. Thread routing mode through dispatch and blocking predicates; shadow records, warn advises, enforce alone blocks, with end-to-end dispatch/gate tests.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-17T09:20:25.797Z",
+      "reviewRound": "2026-07-17T09:17:08.260Z",
+      "reviewRunId": "B-3aec:RR-001",
+      "_hash": "8b99cee20cff78851c17588caee6960a6b52de79258ab81a045e09bfa92f442e",
+      "signatureTag": "adversarial|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
