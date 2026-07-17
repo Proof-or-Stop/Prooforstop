@@ -263,11 +263,11 @@
           "file": "packages/main/src/tasks/production-test-seam-guard.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "F-010/F-011 final material passed: callable resolution uses append-only candidate sets with receiver qualification and conservative same-name fallback; declaration/variable functions, methods, aliases, call/apply, arrow/function IIFEs, named/anonymous constructors, return flows, filesystem/process sinks, and safe controls are covered.",
-          "headHash": "2bcc76fbddc827a815f7f62bbd716c0cbc1aa077",
-          "materialHash": "12e6dbeed7e568aa469e126adb151cdd3395a9c1133eb1275d6bd4191de72b73",
-          "storyFilesHash": "18667858d9e2aa475579b64042ff62af8d4c8f0d944e54868ce9aafd81611976",
-          "timestamp": "2026-07-17T00:41:11.917Z"
+          "note": "F-012/F-013 final material passed: exact alias resolution requires immutable unmodified const; mutable receiver/constructor aliases union candidates; local array/tuple aliases and call/apply/spreads expand positionally; unknown operands propagate taint into every candidate parameter; fs/process negatives and safe controls pass.",
+          "headHash": "67a064406331be0276babd6c85480944b000bbf1",
+          "materialHash": "ef5de866a16b55c8214984d4e6ab8e95432c4160071e8f100199695a215a5d76",
+          "storyFilesHash": "8624e86be7d8599d3d0ca7d49395c841f10f54917bce79ac039627c0d0a7cf60",
+          "timestamp": "2026-07-17T00:50:03.744Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -276,11 +276,11 @@
           "file": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "F-010/F-011 final material passed: callable resolution uses append-only candidate sets with receiver qualification and conservative same-name fallback; declaration/variable functions, methods, aliases, call/apply, arrow/function IIFEs, named/anonymous constructors, return flows, filesystem/process sinks, and safe controls are covered.",
-          "headHash": "2bcc76fbddc827a815f7f62bbd716c0cbc1aa077",
-          "materialHash": "12e6dbeed7e568aa469e126adb151cdd3395a9c1133eb1275d6bd4191de72b73",
-          "storyFilesHash": "18667858d9e2aa475579b64042ff62af8d4c8f0d944e54868ce9aafd81611976",
-          "timestamp": "2026-07-17T00:41:11.917Z"
+          "note": "F-012/F-013 final material passed: exact alias resolution requires immutable unmodified const; mutable receiver/constructor aliases union candidates; local array/tuple aliases and call/apply/spreads expand positionally; unknown operands propagate taint into every candidate parameter; fs/process negatives and safe controls pass.",
+          "headHash": "67a064406331be0276babd6c85480944b000bbf1",
+          "materialHash": "ef5de866a16b55c8214984d4e6ab8e95432c4160071e8f100199695a215a5d76",
+          "storyFilesHash": "8624e86be7d8599d3d0ca7d49395c841f10f54917bce79ac039627c0d0a7cf60",
+          "timestamp": "2026-07-17T00:50:03.744Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -289,11 +289,11 @@
           "file": "packages/main/src/tasks/production-test-seam-guard.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "F-010/F-011 final material passed: callable resolution uses append-only candidate sets with receiver qualification and conservative same-name fallback; declaration/variable functions, methods, aliases, call/apply, arrow/function IIFEs, named/anonymous constructors, return flows, filesystem/process sinks, and safe controls are covered.",
-          "headHash": "2bcc76fbddc827a815f7f62bbd716c0cbc1aa077",
-          "materialHash": "12e6dbeed7e568aa469e126adb151cdd3395a9c1133eb1275d6bd4191de72b73",
-          "storyFilesHash": "18667858d9e2aa475579b64042ff62af8d4c8f0d944e54868ce9aafd81611976",
-          "timestamp": "2026-07-17T00:41:11.917Z"
+          "note": "F-012/F-013 final material passed: exact alias resolution requires immutable unmodified const; mutable receiver/constructor aliases union candidates; local array/tuple aliases and call/apply/spreads expand positionally; unknown operands propagate taint into every candidate parameter; fs/process negatives and safe controls pass.",
+          "headHash": "67a064406331be0276babd6c85480944b000bbf1",
+          "materialHash": "ef5de866a16b55c8214984d4e6ab8e95432c4160071e8f100199695a215a5d76",
+          "storyFilesHash": "8624e86be7d8599d3d0ca7d49395c841f10f54917bce79ac039627c0d0a7cf60",
+          "timestamp": "2026-07-17T00:50:03.744Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -302,11 +302,11 @@
           "file": "packages/main/src/tasks/production-test-seam-guard.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "F-010/F-011 final material passed: callable resolution uses append-only candidate sets with receiver qualification and conservative same-name fallback; declaration/variable functions, methods, aliases, call/apply, arrow/function IIFEs, named/anonymous constructors, return flows, filesystem/process sinks, and safe controls are covered.",
-          "headHash": "2bcc76fbddc827a815f7f62bbd716c0cbc1aa077",
-          "materialHash": "12e6dbeed7e568aa469e126adb151cdd3395a9c1133eb1275d6bd4191de72b73",
-          "storyFilesHash": "18667858d9e2aa475579b64042ff62af8d4c8f0d944e54868ce9aafd81611976",
-          "timestamp": "2026-07-17T00:41:11.917Z"
+          "note": "F-012/F-013 final material passed: exact alias resolution requires immutable unmodified const; mutable receiver/constructor aliases union candidates; local array/tuple aliases and call/apply/spreads expand positionally; unknown operands propagate taint into every candidate parameter; fs/process negatives and safe controls pass.",
+          "headHash": "67a064406331be0276babd6c85480944b000bbf1",
+          "materialHash": "ef5de866a16b55c8214984d4e6ab8e95432c4160071e8f100199695a215a5d76",
+          "storyFilesHash": "8624e86be7d8599d3d0ca7d49395c841f10f54917bce79ac039627c0d0a7cf60",
+          "timestamp": "2026-07-17T00:50:03.744Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -315,11 +315,11 @@
           "file": "packages/main/src/tasks/production-test-seam-guard.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "F-010/F-011 final material passed: callable resolution uses append-only candidate sets with receiver qualification and conservative same-name fallback; declaration/variable functions, methods, aliases, call/apply, arrow/function IIFEs, named/anonymous constructors, return flows, filesystem/process sinks, and safe controls are covered.",
-          "headHash": "2bcc76fbddc827a815f7f62bbd716c0cbc1aa077",
-          "materialHash": "12e6dbeed7e568aa469e126adb151cdd3395a9c1133eb1275d6bd4191de72b73",
-          "storyFilesHash": "18667858d9e2aa475579b64042ff62af8d4c8f0d944e54868ce9aafd81611976",
-          "timestamp": "2026-07-17T00:41:11.917Z"
+          "note": "F-012/F-013 final material passed: exact alias resolution requires immutable unmodified const; mutable receiver/constructor aliases union candidates; local array/tuple aliases and call/apply/spreads expand positionally; unknown operands propagate taint into every candidate parameter; fs/process negatives and safe controls pass.",
+          "headHash": "67a064406331be0276babd6c85480944b000bbf1",
+          "materialHash": "ef5de866a16b55c8214984d4e6ab8e95432c4160071e8f100199695a215a5d76",
+          "storyFilesHash": "8624e86be7d8599d3d0ca7d49395c841f10f54917bce79ac039627c0d0a7cf60",
+          "timestamp": "2026-07-17T00:50:03.744Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -328,11 +328,11 @@
           "file": "packages/main/src/tasks/production-test-seam-guard.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "F-010/F-011 final material passed: callable resolution uses append-only candidate sets with receiver qualification and conservative same-name fallback; declaration/variable functions, methods, aliases, call/apply, arrow/function IIFEs, named/anonymous constructors, return flows, filesystem/process sinks, and safe controls are covered.",
-          "headHash": "2bcc76fbddc827a815f7f62bbd716c0cbc1aa077",
-          "materialHash": "12e6dbeed7e568aa469e126adb151cdd3395a9c1133eb1275d6bd4191de72b73",
-          "storyFilesHash": "18667858d9e2aa475579b64042ff62af8d4c8f0d944e54868ce9aafd81611976",
-          "timestamp": "2026-07-17T00:41:11.917Z"
+          "note": "F-012/F-013 final material passed: exact alias resolution requires immutable unmodified const; mutable receiver/constructor aliases union candidates; local array/tuple aliases and call/apply/spreads expand positionally; unknown operands propagate taint into every candidate parameter; fs/process negatives and safe controls pass.",
+          "headHash": "67a064406331be0276babd6c85480944b000bbf1",
+          "materialHash": "ef5de866a16b55c8214984d4e6ab8e95432c4160071e8f100199695a215a5d76",
+          "storyFilesHash": "8624e86be7d8599d3d0ca7d49395c841f10f54917bce79ac039627c0d0a7cf60",
+          "timestamp": "2026-07-17T00:50:03.744Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
@@ -341,11 +341,11 @@
           "file": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "F-010/F-011 final material passed: callable resolution uses append-only candidate sets with receiver qualification and conservative same-name fallback; declaration/variable functions, methods, aliases, call/apply, arrow/function IIFEs, named/anonymous constructors, return flows, filesystem/process sinks, and safe controls are covered.",
-          "headHash": "2bcc76fbddc827a815f7f62bbd716c0cbc1aa077",
-          "materialHash": "12e6dbeed7e568aa469e126adb151cdd3395a9c1133eb1275d6bd4191de72b73",
-          "storyFilesHash": "18667858d9e2aa475579b64042ff62af8d4c8f0d944e54868ce9aafd81611976",
-          "timestamp": "2026-07-17T00:41:11.917Z"
+          "note": "F-012/F-013 final material passed: exact alias resolution requires immutable unmodified const; mutable receiver/constructor aliases union candidates; local array/tuple aliases and call/apply/spreads expand positionally; unknown operands propagate taint into every candidate parameter; fs/process negatives and safe controls pass.",
+          "headHash": "67a064406331be0276babd6c85480944b000bbf1",
+          "materialHash": "ef5de866a16b55c8214984d4e6ab8e95432c4160071e8f100199695a215a5d76",
+          "storyFilesHash": "8624e86be7d8599d3d0ca7d49395c841f10f54917bce79ac039627c0d0a7cf60",
+          "timestamp": "2026-07-17T00:50:03.744Z"
         }
       ]
     }
