@@ -82,7 +82,75 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "With a corpus where lattice, proofbound, core, and handlers each exceed maxDocumentFrequencyRatio, candidate routing records those terms with document frequency and threshold in filteredTerms, excludes their raw matches from ranking, returns a bounded deterministic candidateSpecSet, and keeps fullScan=false when no other escalation signal exists.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Exact relatedDocs, exact normalized source paths, process/runtime registry references, typed risk-signal sources, and current reviewer-bound evidence are materialized as protected direct candidates before frequency filtering; each remains selected with an auditable source/reason even when its tokens exceed the frequency threshold.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Document-frequency behavior is deterministic at the configurable threshold boundary: terms at or below the ratio remain eligible, terms above it are filtered, corpus-size and duplicate-occurrence changes do not alter document counts incorrectly, and the artifact explains numerator, denominator, configured ratio, and decision.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "When raw search hits exceed the collection cap but every omitted hit scores below the final selected cutoff, routing records bounded truncation metrics without full-scan escalation; only an omitted score at/above the cutoff or a cutoff tie emits the typed ranking_affecting_query_truncation reason with query group and cutoff evidence.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "A mixture of generic and specific terms filters only the generic terms: remaining high-specificity command, field, path, and config identifiers still rank deterministically, and permutation of query order or host proposal order does not change the selected set or escalation decision.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Typed high-risk signals independently trigger the configured broader-scan/escalation contract even when candidate ranking is otherwise bounded, while untyped prose, generic path segments, and model-only claims cannot impersonate a typed risk or gate fact.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "For identical routing inputs, shadow, warn, and enforce produce the same candidate set, filteredTerms, truncation classification, metrics, and reason codes; only presentation/gate disposition differs: shadow records without STOP, warn advises with next action, and enforce alone may block.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Flooding the corpus and host proposals with only lattice/proofbound/core/handlers tokens cannot cause ranking_affecting_query_truncation, ambiguity escalation, or full-corpus reading; filtered generic hits cannot influence cutoff relevance after removal.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Frequency filtering cannot remove, down-rank below the bounded selection floor, or relabel an explicit relatedDoc/path/registry/risk/reviewer-evidence candidate, including when the same protected path is reached through a high-frequency token or multiple source categories.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Raw hit-count overflow alone cannot synthesize a relevance-affecting reason; malformed, missing, non-finite, or inconsistent omitted-score/cutoff evidence fails closed to a typed diagnostic rather than silently claiming either safe truncation or an unexplained full scan.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Shadow artifacts/renderers never contain enforce-style STOP or become lifecycle gate evidence, warn never hard-blocks, and enforce cannot block without the same typed artifact reason consumed by its renderer and gate; mode disagreement is detected rather than normalized away.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Host/model candidate proposals remain advisory and cannot count as reviewer pass, scope check, finding resolution, delivery, or production assurance; reviewer-bound evidence is protected for discovery only through its signed/current binding and stale or unbound prose does not gain protected-source authority.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
