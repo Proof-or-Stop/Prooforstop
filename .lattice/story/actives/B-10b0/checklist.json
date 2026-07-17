@@ -107,10 +107,10 @@
           "command": "npm run test:closeout-trust && npm run test:process-fact-contract",
           "result": "pass",
           "note": "Cooperative local-runtime lineage preserves review freshness; specialized gate validators remain independent and hostile same-UID authority is not claimed.",
-          "headHash": "e80da86a1a5337c183a7f5f7ee9895f0c60d7b89",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:35:39.079Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.209Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -118,10 +118,10 @@
           "command": "npm run test:closeout-trust",
           "result": "pass",
           "note": "Multi-writer closeout retains the review round across bounded metadata descendants.",
-          "headHash": "e80da86a1a5337c183a7f5f7ee9895f0c60d7b89",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:35:39.385Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.209Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -129,10 +129,10 @@
           "command": "npm run test:closeout-trust",
           "result": "pass",
           "note": "Repeated writes, replay, modify-revert, and causal chains remain bounded.",
-          "headHash": "e80da86a1a5337c183a7f5f7ee9895f0c60d7b89",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:35:39.682Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.209Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -140,10 +140,10 @@
           "command": "npm run test:closeout-trust",
           "result": "pass",
           "note": "Stable before/after HEAD is required; concurrent movement refuses retention.",
-          "headHash": "e80da86a1a5337c183a7f5f7ee9895f0c60d7b89",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:35:39.984Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.209Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
@@ -151,10 +151,10 @@
           "command": "npm run test:closeout-trust && npm run test:process-fact-contract",
           "result": "pass",
           "note": "Legacy/missing lineage is not promoted and dead pseudo-authority helpers remain absent.",
-          "headHash": "e80da86a1a5337c183a7f5f7ee9895f0c60d7b89",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:35:40.322Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.209Z"
         },
         {
           "intentRef": "CHK-001:edge:3",
@@ -162,10 +162,10 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "Producer and specialized consumer matrix is mechanically checked.",
-          "headHash": "e80da86a1a5337c183a7f5f7ee9895f0c60d7b89",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:35:40.637Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.209Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -173,10 +173,10 @@
           "command": "npm run test:closeout-trust",
           "result": "pass",
           "note": "Source and story-owned material drift invalidates retention.",
-          "headHash": "e80da86a1a5337c183a7f5f7ee9895f0c60d7b89",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:35:40.973Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.209Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -184,10 +184,10 @@
           "command": "npm run test:closeout-trust",
           "result": "pass",
           "note": "Material/story/scope/round bindings reject real drift.",
-          "headHash": "e80da86a1a5337c183a7f5f7ee9895f0c60d7b89",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:35:41.311Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.209Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
@@ -195,10 +195,10 @@
           "command": "npm run test:closeout-trust",
           "result": "pass",
           "note": "Unknown and non-registered labels fail the cooperative boundary.",
-          "headHash": "e80da86a1a5337c183a7f5f7ee9895f0c60d7b89",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:35:41.641Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.209Z"
         },
         {
           "intentRef": "CHK-001:adversarial:3",
@@ -206,10 +206,10 @@
           "command": "npm run test:closeout-trust",
           "result": "pass",
           "note": "Manual incoherent mutation fails; coherent hostile same-UID forgery is explicitly exercised as a non-goal, not durable authority.",
-          "headHash": "e80da86a1a5337c183a7f5f7ee9895f0c60d7b89",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:35:41.956Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.209Z"
         },
         {
           "intentRef": "CHK-001:adversarial:4",
@@ -217,10 +217,10 @@
           "command": "npm run test:closeout-trust",
           "result": "pass",
           "note": "Malformed, reordered, copied, non-ancestor, and incoherent lineage fails closed.",
-          "headHash": "e80da86a1a5337c183a7f5f7ee9895f0c60d7b89",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:35:42.274Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.209Z"
         },
         {
           "intentRef": "CHK-001:adversarial:5",
@@ -228,10 +228,10 @@
           "command": "npm run test:closeout-trust && npm run test:process-fact-contract",
           "result": "pass",
           "note": "Unregistered paths remain untrusted and gates do not consume receipt lineage as approval.",
-          "headHash": "e80da86a1a5337c183a7f5f7ee9895f0c60d7b89",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:35:42.707Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.209Z"
         },
         {
           "intentRef": "CHK-001:adversarial:6",
@@ -239,10 +239,10 @@
           "command": "npm run test:lifecycle-check-smoke",
           "result": "pass",
           "note": "Lifecycle retention requires unchanged material/story/scope/round and stable metadata lineage; prior focused lifecycle check remains applicable because F-008/F-011 do not modify retention consumers.",
-          "headHash": "e80da86a1a5337c183a7f5f7ee9895f0c60d7b89",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:35:42.999Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.209Z"
         }
       ]
     },
@@ -372,10 +372,10 @@
           "command": "npm run test:flow-stability-smoke && npm --prefix packages/main run test:done-prepare-auto-closeout-smoke",
           "result": "pass",
           "note": "One-pass closeout and durable convergence telemetry pass with zero-cost claims derived from actual event history.",
-          "headHash": "1c694f1c8eb924271aee04f874ce98db94d64ceb",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:34:53.974Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.209Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -383,10 +383,10 @@
           "command": "npm run test:flow-stability-smoke",
           "result": "pass",
           "note": "Machine-readable counters derive phase, validation, review, and human facts; pre-TEST re-attestation is now non-zero.",
-          "headHash": "1c694f1c8eb924271aee04f874ce98db94d64ceb",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:34:54.274Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.209Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -394,10 +394,10 @@
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
           "note": "Delivery reviewer dispatch/writer phase contract remains aligned.",
-          "headHash": "1c694f1c8eb924271aee04f874ce98db94d64ceb",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:34:54.595Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.209Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -405,10 +405,10 @@
           "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
           "result": "pass",
           "note": "Fresh validation/DONE-required reuse remains bounded and zero-execution semantics are preserved.",
-          "headHash": "1c694f1c8eb924271aee04f874ce98db94d64ceb",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:34:54.898Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.210Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
@@ -416,10 +416,10 @@
           "command": "npm run test:closeout-trust",
           "result": "pass",
           "note": "Trusted closeout metadata lineage preserves review freshness across multiple writes.",
-          "headHash": "1c694f1c8eb924271aee04f874ce98db94d64ceb",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:34:55.211Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.210Z"
         },
         {
           "intentRef": "CHK-002:edge:3",
@@ -427,10 +427,10 @@
           "command": "npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke",
           "result": "pass",
           "note": "Interrupted closeout recovery remains bounded and does not duplicate reviewer work.",
-          "headHash": "1c694f1c8eb924271aee04f874ce98db94d64ceb",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:34:55.563Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.210Z"
         },
         {
           "intentRef": "CHK-002:edge:4",
@@ -438,10 +438,10 @@
           "command": "npm run test:flow-stability-smoke",
           "result": "pass",
           "note": "Missing or incomplete convergence facts omit the cosmetic zero claim.",
-          "headHash": "1c694f1c8eb924271aee04f874ce98db94d64ceb",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:34:55.879Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.210Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -449,10 +449,10 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "Durable closeout telemetry remains registered as gate-consumed process facts.",
-          "headHash": "1c694f1c8eb924271aee04f874ce98db94d64ceb",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:34:56.211Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.210Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -460,10 +460,10 @@
           "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
           "result": "pass",
           "note": "Real material and unsafe-path drift remain fail-closed.",
-          "headHash": "1c694f1c8eb924271aee04f874ce98db94d64ceb",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:34:56.517Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.210Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
@@ -471,10 +471,10 @@
           "command": "npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke",
           "result": "pass",
           "note": "True validation failure and timeout remain blocking terminals.",
-          "headHash": "1c694f1c8eb924271aee04f874ce98db94d64ceb",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:34:56.841Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.210Z"
         },
         {
           "intentRef": "CHK-002:adversarial:3",
@@ -482,10 +482,10 @@
           "command": "npm --prefix packages/main run test:done-prepare-auto-closeout-smoke",
           "result": "pass",
           "note": "Current-run telemetry stays inside the bounded metadata manifest.",
-          "headHash": "1c694f1c8eb924271aee04f874ce98db94d64ceb",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:34:57.156Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.210Z"
         },
         {
           "intentRef": "CHK-002:adversarial:4",
@@ -493,10 +493,10 @@
           "command": "npm run test:flow-stability-smoke",
           "result": "pass",
           "note": "Duplicate unchanged execution and reused-with-execution violate convergence.",
-          "headHash": "1c694f1c8eb924271aee04f874ce98db94d64ceb",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:34:57.464Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.210Z"
         },
         {
           "intentRef": "CHK-002:adversarial:5",
@@ -504,10 +504,10 @@
           "command": "npm run test:flow-stability-smoke",
           "result": "pass",
           "note": "Collector regression proves REVIEW-anchor re-attestation before TEST is counted while old rounds are excluded.",
-          "headHash": "1c694f1c8eb924271aee04f874ce98db94d64ceb",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:34:57.765Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.210Z"
         },
         {
           "intentRef": "CHK-002:adversarial:6",
@@ -515,10 +515,10 @@
           "command": "npm run test:convergence-breaker && node packages/main/dist/tasks/validation-protocol-smoke.js",
           "result": "pass",
           "note": "Human acknowledgement and validation terminals remain durable typed facts.",
-          "headHash": "1c694f1c8eb924271aee04f874ce98db94d64ceb",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:34:58.133Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.210Z"
         }
       ]
     },
@@ -612,10 +612,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/concept-gate-scope-smoke.js",
           "result": "pass",
           "note": "Observed TypeScript body-only edits remain modifications, not deletions.",
-          "headHash": "c8e868d7d985198f8692db8a967755b3479d30aa",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:35:15.882Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.210Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -623,10 +623,10 @@
           "command": "node packages/main/dist/tasks/concept-gate-scope-smoke.js",
           "result": "pass",
           "note": "True TypeScript and multiline Python declaration deletion remains detected.",
-          "headHash": "c8e868d7d985198f8692db8a967755b3479d30aa",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:35:16.205Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.210Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -634,10 +634,10 @@
           "command": "node packages/main/dist/tasks/concept-gate-scope-smoke.js",
           "result": "pass",
           "note": "Nested body/control-flow edits preserve enclosing declaration identity.",
-          "headHash": "c8e868d7d985198f8692db8a967755b3479d30aa",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:35:16.527Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.210Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -645,10 +645,10 @@
           "command": "node packages/main/dist/tasks/concept-gate-scope-smoke.js",
           "result": "pass",
           "note": "Signature replacements and multiline Python header identity are deterministic.",
-          "headHash": "c8e868d7d985198f8692db8a967755b3479d30aa",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:35:16.823Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.210Z"
         },
         {
           "intentRef": "CHK-003:edge:2",
@@ -656,10 +656,10 @@
           "command": "node packages/main/dist/tasks/concept-gate-scope-smoke.js",
           "result": "pass",
           "note": "Functions, methods, constructors, overloads, Python multiline def/class, and scoped duplicates are covered.",
-          "headHash": "c8e868d7d985198f8692db8a967755b3479d30aa",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:35:17.137Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.210Z"
         },
         {
           "intentRef": "CHK-003:edge:3",
@@ -667,10 +667,10 @@
           "command": "node packages/main/dist/tasks/concept-gate-scope-smoke.js",
           "result": "pass",
           "note": "Renames and export removal remain detectable declaration identity changes.",
-          "headHash": "c8e868d7d985198f8692db8a967755b3479d30aa",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:35:17.446Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.210Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -678,10 +678,10 @@
           "command": "node packages/main/dist/tasks/concept-gate-scope-smoke.js",
           "result": "pass",
           "note": "Comments, strings, and unrelated scopes cannot forge declaration survivors.",
-          "headHash": "c8e868d7d985198f8692db8a967755b3479d30aa",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:35:17.785Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.210Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -689,10 +689,10 @@
           "command": "node packages/main/dist/tasks/concept-gate-scope-smoke.js",
           "result": "pass",
           "note": "Export/signature incompatibility remains fail-closed rather than body-only.",
-          "headHash": "c8e868d7d985198f8692db8a967755b3479d30aa",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:35:18.092Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.210Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
@@ -700,10 +700,10 @@
           "command": "node packages/main/dist/tasks/concept-gate-scope-smoke.js",
           "result": "pass",
           "note": "Same-name overload multiplicity and cross-file scope remain explicit identities.",
-          "headHash": "c8e868d7d985198f8692db8a967755b3479d30aa",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:35:18.406Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.210Z"
         },
         {
           "intentRef": "CHK-003:adversarial:3",
@@ -711,10 +711,10 @@
           "command": "node packages/main/dist/tasks/concept-gate-scope-smoke.js",
           "result": "pass",
           "note": "Malformed TypeScript plus malformed/unterminated multiline Python headers emit diagnostics and concept FAIL.",
-          "headHash": "c8e868d7d985198f8692db8a967755b3479d30aa",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:35:18.720Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.210Z"
         },
         {
           "intentRef": "CHK-003:adversarial:4",
@@ -722,10 +722,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/concept-gate-scope-smoke.js",
           "result": "pass",
           "note": "Combined corpus now includes observed false positives, true deletions, cross-file collisions, overloads, and multiline Python regressions.",
-          "headHash": "c8e868d7d985198f8692db8a967755b3479d30aa",
-          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
-          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
-          "timestamp": "2026-07-17T16:35:19.032Z"
+          "headHash": "f32537b95a89f31dfaf821da92fb4a692853d577",
+          "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
+          "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
+          "timestamp": "2026-07-17T16:57:28.210Z"
         }
       ]
     }

@@ -52,8 +52,24 @@
       "phase": "DEV",
       "headHash": "21202c5c80ce30d6cd01360cf80f69a780876bb1",
       "materialHash": "33817f70838ca9c8a7ff73d59571d8d331a11b07f05531c08fa1aff199303336"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Formal TEST exposed stale reviewed structural fingerprints for two B-10b0-owned executable sources; repinning the guard is required to validate the implemented closeout boundary without adding downstream compatibility whitelists.",
+      "timestamp": "2026-07-17T16:51:18.412Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "9971708050826cbe3b314b2f35e9ee7952b21928",
+      "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1"
     }
   ],
   "createdAt": "2026-07-17T13:21:14.674Z",
-  "updatedAt": "2026-07-17T15:58:23.142Z"
+  "updatedAt": "2026-07-17T16:51:18.412Z"
 }
