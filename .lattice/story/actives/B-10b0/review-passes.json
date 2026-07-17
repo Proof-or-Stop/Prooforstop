@@ -1,0 +1,41 @@
+{
+  "passes": [
+    {
+      "id": "B-10b0:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Incremental concept re-review found no new blocker. F-001 was disproven because it conflated cooperative review freshness with hostile same-UID artifact authority contrary to the retired-Authority/local-assurance truth source; 7050b07a24 now removes the pseudo-authority helper and pins specialized consumer validation. F-002 durable convergence facts and F-003 scope/signature-aware declaration analysis were verified with focused tests and the original adversarial repros.",
+      "createdAt": "2026-07-17T16:12:51.933Z",
+      "reviewRound": "2026-07-17T16:07:26.297Z",
+      "reviewRunId": "B-10b0:RR-004",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/closeout-trust.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "6b197b198a62578486967e744e7fc87d364584e13e0537406e92584626d3308f"
+    }
+  ]
+}
