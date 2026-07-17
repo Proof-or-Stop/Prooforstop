@@ -218,7 +218,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-17T09:38:47.484Z",
+      "endTime": "2026-07-17T10:04:20.830Z",
       "verificationIntent": {
         "happy": [
           {
@@ -318,132 +318,132 @@
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit d842757356 passed build, candidate routing smoke, host-run 81/81, readiness 10/10, and process-fact contract. Tests cover protected-before-budget retention including safe external paths and typed missing diagnostics, current signed full-read reviewer evidence only, generic-only bounded behavior, exact DF boundary, honest truncation evidence, structured risks, independent digest checks, and end-to-end shadow/warn/enforce disposition.",
-          "headHash": "696e713fba7409e54ef5593aa5909141f09a5f79",
-          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
-          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
-          "timestamp": "2026-07-17T09:38:47.659Z"
+          "note": "Independent owner rerun at commit 2075608ac0 passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. It proves DF filtering before query budget, rare-term survival, ordinary-only cutoff, protected-only no false escalation, typed missing escalation, all-mode mismatch diagnostics with enforce-only blocking, structured-risk handler behavior, and real signed current-to-stale reviewer collector integration.",
+          "headHash": "6347305fd77783eac60c162d2fccfca1a5abcc74",
+          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
+          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
+          "timestamp": "2026-07-17T10:04:21.059Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit d842757356 passed build, candidate routing smoke, host-run 81/81, readiness 10/10, and process-fact contract. Tests cover protected-before-budget retention including safe external paths and typed missing diagnostics, current signed full-read reviewer evidence only, generic-only bounded behavior, exact DF boundary, honest truncation evidence, structured risks, independent digest checks, and end-to-end shadow/warn/enforce disposition.",
-          "headHash": "696e713fba7409e54ef5593aa5909141f09a5f79",
-          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
-          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
-          "timestamp": "2026-07-17T09:38:47.903Z"
+          "note": "Independent owner rerun at commit 2075608ac0 passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. It proves DF filtering before query budget, rare-term survival, ordinary-only cutoff, protected-only no false escalation, typed missing escalation, all-mode mismatch diagnostics with enforce-only blocking, structured-risk handler behavior, and real signed current-to-stale reviewer collector integration.",
+          "headHash": "6347305fd77783eac60c162d2fccfca1a5abcc74",
+          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
+          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
+          "timestamp": "2026-07-17T10:04:21.269Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit d842757356 passed build, candidate routing smoke, host-run 81/81, readiness 10/10, and process-fact contract. Tests cover protected-before-budget retention including safe external paths and typed missing diagnostics, current signed full-read reviewer evidence only, generic-only bounded behavior, exact DF boundary, honest truncation evidence, structured risks, independent digest checks, and end-to-end shadow/warn/enforce disposition.",
-          "headHash": "696e713fba7409e54ef5593aa5909141f09a5f79",
-          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
-          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
-          "timestamp": "2026-07-17T09:38:48.105Z"
+          "note": "Independent owner rerun at commit 2075608ac0 passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. It proves DF filtering before query budget, rare-term survival, ordinary-only cutoff, protected-only no false escalation, typed missing escalation, all-mode mismatch diagnostics with enforce-only blocking, structured-risk handler behavior, and real signed current-to-stale reviewer collector integration.",
+          "headHash": "6347305fd77783eac60c162d2fccfca1a5abcc74",
+          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
+          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
+          "timestamp": "2026-07-17T10:04:21.447Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit d842757356 passed build, candidate routing smoke, host-run 81/81, readiness 10/10, and process-fact contract. Tests cover protected-before-budget retention including safe external paths and typed missing diagnostics, current signed full-read reviewer evidence only, generic-only bounded behavior, exact DF boundary, honest truncation evidence, structured risks, independent digest checks, and end-to-end shadow/warn/enforce disposition.",
-          "headHash": "696e713fba7409e54ef5593aa5909141f09a5f79",
-          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
-          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
-          "timestamp": "2026-07-17T09:38:48.287Z"
+          "note": "Independent owner rerun at commit 2075608ac0 passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. It proves DF filtering before query budget, rare-term survival, ordinary-only cutoff, protected-only no false escalation, typed missing escalation, all-mode mismatch diagnostics with enforce-only blocking, structured-risk handler behavior, and real signed current-to-stale reviewer collector integration.",
+          "headHash": "6347305fd77783eac60c162d2fccfca1a5abcc74",
+          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
+          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
+          "timestamp": "2026-07-17T10:04:21.618Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit d842757356 passed build, candidate routing smoke, host-run 81/81, readiness 10/10, and process-fact contract. Tests cover protected-before-budget retention including safe external paths and typed missing diagnostics, current signed full-read reviewer evidence only, generic-only bounded behavior, exact DF boundary, honest truncation evidence, structured risks, independent digest checks, and end-to-end shadow/warn/enforce disposition.",
-          "headHash": "696e713fba7409e54ef5593aa5909141f09a5f79",
-          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
-          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
-          "timestamp": "2026-07-17T09:38:48.552Z"
+          "note": "Independent owner rerun at commit 2075608ac0 passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. It proves DF filtering before query budget, rare-term survival, ordinary-only cutoff, protected-only no false escalation, typed missing escalation, all-mode mismatch diagnostics with enforce-only blocking, structured-risk handler behavior, and real signed current-to-stale reviewer collector integration.",
+          "headHash": "6347305fd77783eac60c162d2fccfca1a5abcc74",
+          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
+          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
+          "timestamp": "2026-07-17T10:04:21.789Z"
         },
         {
           "intentRef": "CHK-002:edge:3",
           "kind": "integration_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit d842757356 passed build, candidate routing smoke, host-run 81/81, readiness 10/10, and process-fact contract. Tests cover protected-before-budget retention including safe external paths and typed missing diagnostics, current signed full-read reviewer evidence only, generic-only bounded behavior, exact DF boundary, honest truncation evidence, structured risks, independent digest checks, and end-to-end shadow/warn/enforce disposition.",
-          "headHash": "696e713fba7409e54ef5593aa5909141f09a5f79",
-          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
-          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
-          "timestamp": "2026-07-17T09:38:48.748Z"
+          "note": "Independent owner rerun at commit 2075608ac0 passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. It proves DF filtering before query budget, rare-term survival, ordinary-only cutoff, protected-only no false escalation, typed missing escalation, all-mode mismatch diagnostics with enforce-only blocking, structured-risk handler behavior, and real signed current-to-stale reviewer collector integration.",
+          "headHash": "6347305fd77783eac60c162d2fccfca1a5abcc74",
+          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
+          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
+          "timestamp": "2026-07-17T10:04:21.977Z"
         },
         {
           "intentRef": "CHK-002:edge:4",
           "kind": "integration_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit d842757356 passed build, candidate routing smoke, host-run 81/81, readiness 10/10, and process-fact contract. Tests cover protected-before-budget retention including safe external paths and typed missing diagnostics, current signed full-read reviewer evidence only, generic-only bounded behavior, exact DF boundary, honest truncation evidence, structured risks, independent digest checks, and end-to-end shadow/warn/enforce disposition.",
-          "headHash": "696e713fba7409e54ef5593aa5909141f09a5f79",
-          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
-          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
-          "timestamp": "2026-07-17T09:38:49.320Z"
+          "note": "Independent owner rerun at commit 2075608ac0 passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. It proves DF filtering before query budget, rare-term survival, ordinary-only cutoff, protected-only no false escalation, typed missing escalation, all-mode mismatch diagnostics with enforce-only blocking, structured-risk handler behavior, and real signed current-to-stale reviewer collector integration.",
+          "headHash": "6347305fd77783eac60c162d2fccfca1a5abcc74",
+          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
+          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
+          "timestamp": "2026-07-17T10:04:22.157Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit d842757356 passed build, candidate routing smoke, host-run 81/81, readiness 10/10, and process-fact contract. Tests cover protected-before-budget retention including safe external paths and typed missing diagnostics, current signed full-read reviewer evidence only, generic-only bounded behavior, exact DF boundary, honest truncation evidence, structured risks, independent digest checks, and end-to-end shadow/warn/enforce disposition.",
-          "headHash": "696e713fba7409e54ef5593aa5909141f09a5f79",
-          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
-          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
-          "timestamp": "2026-07-17T09:38:49.614Z"
+          "note": "Independent owner rerun at commit 2075608ac0 passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. It proves DF filtering before query budget, rare-term survival, ordinary-only cutoff, protected-only no false escalation, typed missing escalation, all-mode mismatch diagnostics with enforce-only blocking, structured-risk handler behavior, and real signed current-to-stale reviewer collector integration.",
+          "headHash": "6347305fd77783eac60c162d2fccfca1a5abcc74",
+          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
+          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
+          "timestamp": "2026-07-17T10:04:22.330Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit d842757356 passed build, candidate routing smoke, host-run 81/81, readiness 10/10, and process-fact contract. Tests cover protected-before-budget retention including safe external paths and typed missing diagnostics, current signed full-read reviewer evidence only, generic-only bounded behavior, exact DF boundary, honest truncation evidence, structured risks, independent digest checks, and end-to-end shadow/warn/enforce disposition.",
-          "headHash": "696e713fba7409e54ef5593aa5909141f09a5f79",
-          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
-          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
-          "timestamp": "2026-07-17T09:38:49.847Z"
+          "note": "Independent owner rerun at commit 2075608ac0 passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. It proves DF filtering before query budget, rare-term survival, ordinary-only cutoff, protected-only no false escalation, typed missing escalation, all-mode mismatch diagnostics with enforce-only blocking, structured-risk handler behavior, and real signed current-to-stale reviewer collector integration.",
+          "headHash": "6347305fd77783eac60c162d2fccfca1a5abcc74",
+          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
+          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
+          "timestamp": "2026-07-17T10:04:22.498Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit d842757356 passed build, candidate routing smoke, host-run 81/81, readiness 10/10, and process-fact contract. Tests cover protected-before-budget retention including safe external paths and typed missing diagnostics, current signed full-read reviewer evidence only, generic-only bounded behavior, exact DF boundary, honest truncation evidence, structured risks, independent digest checks, and end-to-end shadow/warn/enforce disposition.",
-          "headHash": "696e713fba7409e54ef5593aa5909141f09a5f79",
-          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
-          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
-          "timestamp": "2026-07-17T09:38:50.102Z"
+          "note": "Independent owner rerun at commit 2075608ac0 passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. It proves DF filtering before query budget, rare-term survival, ordinary-only cutoff, protected-only no false escalation, typed missing escalation, all-mode mismatch diagnostics with enforce-only blocking, structured-risk handler behavior, and real signed current-to-stale reviewer collector integration.",
+          "headHash": "6347305fd77783eac60c162d2fccfca1a5abcc74",
+          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
+          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
+          "timestamp": "2026-07-17T10:04:22.725Z"
         },
         {
           "intentRef": "CHK-002:adversarial:3",
           "kind": "integration_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit d842757356 passed build, candidate routing smoke, host-run 81/81, readiness 10/10, and process-fact contract. Tests cover protected-before-budget retention including safe external paths and typed missing diagnostics, current signed full-read reviewer evidence only, generic-only bounded behavior, exact DF boundary, honest truncation evidence, structured risks, independent digest checks, and end-to-end shadow/warn/enforce disposition.",
-          "headHash": "696e713fba7409e54ef5593aa5909141f09a5f79",
-          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
-          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
-          "timestamp": "2026-07-17T09:38:50.431Z"
+          "note": "Independent owner rerun at commit 2075608ac0 passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. It proves DF filtering before query budget, rare-term survival, ordinary-only cutoff, protected-only no false escalation, typed missing escalation, all-mode mismatch diagnostics with enforce-only blocking, structured-risk handler behavior, and real signed current-to-stale reviewer collector integration.",
+          "headHash": "6347305fd77783eac60c162d2fccfca1a5abcc74",
+          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
+          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
+          "timestamp": "2026-07-17T10:04:22.984Z"
         },
         {
           "intentRef": "CHK-002:adversarial:4",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit d842757356 passed build, candidate routing smoke, host-run 81/81, readiness 10/10, and process-fact contract. Tests cover protected-before-budget retention including safe external paths and typed missing diagnostics, current signed full-read reviewer evidence only, generic-only bounded behavior, exact DF boundary, honest truncation evidence, structured risks, independent digest checks, and end-to-end shadow/warn/enforce disposition.",
-          "headHash": "696e713fba7409e54ef5593aa5909141f09a5f79",
-          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
-          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
-          "timestamp": "2026-07-17T09:38:50.616Z"
+          "note": "Independent owner rerun at commit 2075608ac0 passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. It proves DF filtering before query budget, rare-term survival, ordinary-only cutoff, protected-only no false escalation, typed missing escalation, all-mode mismatch diagnostics with enforce-only blocking, structured-risk handler behavior, and real signed current-to-stale reviewer collector integration.",
+          "headHash": "6347305fd77783eac60c162d2fccfca1a5abcc74",
+          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
+          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
+          "timestamp": "2026-07-17T10:04:23.216Z"
         }
       ]
     }
