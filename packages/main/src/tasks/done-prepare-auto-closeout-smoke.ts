@@ -24,6 +24,7 @@ import {
   buildDonePrepareGeneratedMetadataManifest,
   captureDonePrepareGeneratedMetadataBaseline,
   gitStatusRowsForDonePrepareGeneratedMetadata,
+  type DonePrepareGeneratedProcessEventBinding,
 } from '../core/done-prepare-generated-metadata.js';
 import type {
   ChecklistData,
@@ -571,7 +572,7 @@ function assertPreexistingLifecycleMetadataIsUnsafe(): void {
   }
 }
 
-function assertUntrustedCurrentRunProcessEventIsUnsafe(): void {
+function assertProcessEventBindingIsExactAndFailClosed(): void {
   const { root, storyId } = setupFixture();
   try {
     const processEventsPath = `.lattice/story/actives/${storyId}/process-events.jsonl`;
@@ -581,25 +582,82 @@ function assertUntrustedCurrentRunProcessEventIsUnsafe(): void {
       storyId,
       initialDirtyRows: [],
     });
-    new StoryStore(root).appendProcessEvent(storyId, {
-      type: 'human_confirmation',
+    const before = baseline.initialContents[processEventsPath];
+    assert.ok(before?.endsWith('\n'));
+    const expected: DonePrepareGeneratedProcessEventBinding = {
       storyId,
-      reason: 'not a trusted reused validation terminal',
-    });
-    const manifest = buildDonePrepareGeneratedMetadataManifest({
-      root,
+      attemptId: NOW,
+      reviewRound: NOW,
+      commandSetHash: 'a'.repeat(64),
+      materialHash: 'b'.repeat(64),
+      storyFilesHash: 'c'.repeat(64),
+      phase: 'TEST',
+      disposition: 'reused',
+      result: 'pass',
+      commandExecutions: 0,
+      notBefore: '2026-07-09T00:00:01.000Z',
+      notAfter: '2026-07-09T00:00:03.000Z',
+    };
+    const validEvent = {
+      type: 'validation_terminal',
       storyId,
-      storyDirRel: '.lattice/story/actives',
-      baseline,
-      statusRows: gitStatusRowsForDonePrepareGeneratedMetadata(root),
-    });
-    const entry = manifest.entries.find((candidate) => candidate.path === processEventsPath);
-    assert.ok(entry);
-    assert.equal(entry.safety, 'unsafe_untrusted_process_events_delta');
-    assert.equal(entry.currentRunGenerated, false);
-    assert.equal(entry.safeToAutoStage, false);
-    assert.deepEqual(manifest.safePaths, []);
-    assert.deepEqual(manifest.unsafePaths, [processEventsPath]);
+      attemptId: NOW,
+      phase: 'TEST',
+      reviewRound: NOW,
+      commandSetHash: expected.commandSetHash,
+      disposition: 'reused',
+      commandExecutions: 0,
+      result: 'pass',
+      materialHash: expected.materialHash,
+      storyFilesHash: expected.storyFilesHash,
+      timestamp: '2026-07-09T00:00:02.000Z',
+    };
+    const classify = (content: string) => {
+      write(root, processEventsPath, content);
+      return buildDonePrepareGeneratedMetadataManifest({
+        root,
+        storyId,
+        storyDirRel: '.lattice/story/actives',
+        baseline,
+        statusRows: gitStatusRowsForDonePrepareGeneratedMetadata(root),
+        expectedProcessEventBinding: expected,
+      });
+    };
+    const line = (event: unknown): string => `${before}${JSON.stringify(event)}\n`;
+    const valid = classify(line(validEvent));
+    assert.deepEqual(valid.safePaths, [processEventsPath], 'exact current-invocation binding is eligible');
+    assert.deepEqual(valid.unsafePaths, []);
+
+    const invalidCases: Array<[string, string]> = [
+      ['different story', line({ ...validEvent, storyId: 'B-forged' })],
+      ['different attempt', line({ ...validEvent, attemptId: 'forged-attempt' })],
+      ['different review round', line({ ...validEvent, reviewRound: 'forged-round' })],
+      ['different command set', line({ ...validEvent, commandSetHash: 'd'.repeat(64) })],
+      ['different material', line({ ...validEvent, materialHash: 'd'.repeat(64) })],
+      ['different story files', line({ ...validEvent, storyFilesHash: 'd'.repeat(64) })],
+      ['extra field', line({ ...validEvent, forged: true })],
+      ['wrong phase', line({ ...validEvent, phase: 'REVIEW' })],
+      ['wrong disposition', line({ ...validEvent, disposition: 'executed' })],
+      ['wrong result', line({ ...validEvent, result: 'fail' })],
+      ['nonzero executions', line({ ...validEvent, commandExecutions: 1 })],
+      ['bad hash', line({ ...validEvent, commandSetHash: 'not-a-hash' })],
+      ['outside run boundary', line({ ...validEvent, timestamp: '2026-07-09T00:00:04.000Z' })],
+      ['bad timestamp', line({ ...validEvent, timestamp: 'not-a-timestamp' })],
+      ['malformed json', `${before}{not-json}\n`],
+      ['missing final newline', `${before}${JSON.stringify(validEvent)}`],
+      ['prefix rewrite', `rewritten-prefix\n${JSON.stringify(validEvent)}\n`],
+      ['prefix truncation', `${before.slice(0, -2)}${JSON.stringify(validEvent)}\n`],
+      ['mixed valid and invalid', `${line(validEvent)}${JSON.stringify({ ...validEvent, storyId: 'B-forged' })}\n`],
+    ];
+    for (const [name, content] of invalidCases) {
+      const manifest = classify(content);
+      const entry = manifest.entries.find((candidate) => candidate.path === processEventsPath);
+      assert.equal(entry?.safety, 'unsafe_untrusted_process_events_delta', name);
+      assert.equal(entry?.currentRunGenerated, false, name);
+      assert.equal(entry?.safeToAutoStage, false, name);
+      assert.deepEqual(manifest.safePaths, [], name);
+      assert.deepEqual(manifest.unsafePaths, [processEventsPath], name);
+    }
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -771,7 +829,7 @@ void (async () => {
     await assertUnsafePathRefusesBeforeReuseRecord();
     await assertCommitHookFailureRemainsFailClosed();
     assertPreexistingLifecycleMetadataIsUnsafe();
-    assertUntrustedCurrentRunProcessEventIsUnsafe();
+    assertProcessEventBindingIsExactAndFailClosed();
     assertDeletesAndRenamesAreUnsafe();
     assertMissingHashesRefuseReuse();
     await assertReuseRefusesConfigAndMaterialDrift();

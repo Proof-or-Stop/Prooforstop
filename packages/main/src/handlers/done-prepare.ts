@@ -42,6 +42,7 @@ import {
   type DonePrepareGeneratedMetadataBaseline,
   type DonePrepareGeneratedMetadataCommitResult,
   type DonePrepareGeneratedMetadataManifest,
+  type DonePrepareGeneratedProcessEventBinding,
   type DonePrepareGeneratedMetadataTransaction,
 } from '../core/done-prepare-generated-metadata.js';
 import {
@@ -1105,6 +1106,7 @@ function parseValidateOutput(text: string, next = 'lattice validate --story=<sto
   refusalReasons?: string[];
   timeoutLayer?: string | null;
   existingEvidenceBasis?: string;
+  identityDigest?: string;
 } {
   try {
     const parsed = JSON.parse(text);
@@ -1126,6 +1128,7 @@ function parseValidateOutput(text: string, next = 'lattice validate --story=<sto
       ...(Array.isArray(parsed.refusalReasons) ? { refusalReasons: parsed.refusalReasons.map(String) } : {}),
       ...(parsed.timeoutLayer === null || typeof parsed.timeoutLayer === 'string' ? { timeoutLayer: parsed.timeoutLayer } : {}),
       ...(typeof parsed.existingEvidenceBasis === 'string' ? { existingEvidenceBasis: parsed.existingEvidenceBasis } : {}),
+      ...(typeof parsed.reuse?.identityDigest === 'string' ? { identityDigest: parsed.reuse.identityDigest } : {}),
     };
   } catch {
     return {
@@ -1842,6 +1845,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     initialDirtyRows: nonLeaseDirtyRows(ctx, storyId, gitStatusRows(gitCwd)),
   });
   let validationReuseBasis: DonePrepareValidationReuseBasis | undefined;
+  let expectedProcessEventBinding: DonePrepareGeneratedProcessEventBinding | undefined;
 
   let stalePlan: StaleEvidencePlan;
   try {
@@ -1892,6 +1896,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     setStep(steps, 'validate', 'skipped', 'planned mutation skipped: dryRun does not run lattice validate');
   } else {
     const verifier = createVerifierHandlers(ctx);
+    const routineValidationStartedAt = new Date().toISOString();
     let validateText = '';
     const validationSummaries: string[] = [];
     try {
@@ -1917,6 +1922,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       });
     }
     const parsed = parseValidateOutput(validateText);
+    const routineValidationEndedAt = new Date().toISOString();
     const routineTimeoutLayer = timeoutLayerFromReason(rawArgs.abortSignal?.reason);
     if (routineTimeoutLayer) {
       const reason = `routine validation exceeded CLI ${routineTimeoutLayer} timeout; disposition=executed result=timed_out refusalReasons=routine-validation-${routineTimeoutLayer}-timeout timeoutLayer=${routineTimeoutLayer} existingEvidenceBasis=stale`;
@@ -1933,6 +1939,26 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       });
     }
     validationSummaries.push(parsed.summary);
+    if (parsed.disposition === 'reused' && parsed.identityDigest) {
+      const materialHash = currentMaterialHash(gitCwd, 'HEAD', ctx.root);
+      const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', ctx.root);
+      if (materialHash && storyFilesHash) {
+        expectedProcessEventBinding = {
+          storyId,
+          attemptId: story.currentReviewRound ?? '',
+          reviewRound: story.currentReviewRound ?? '',
+          commandSetHash: parsed.identityDigest,
+          materialHash,
+          storyFilesHash,
+          phase: 'TEST',
+          disposition: 'reused',
+          result: 'pass',
+          commandExecutions: 0,
+          notBefore: routineValidationStartedAt,
+          notAfter: routineValidationEndedAt,
+        };
+      }
+    }
 
     const doneRequiredPolicy = resolveDoneRequiredPolicy(ctx.root);
     if (doneRequiredPolicy.required) {
@@ -2181,6 +2207,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       storyDirRel: ctx.store.storyDirRel(),
       baseline: generatedMetadataBaseline,
       statusRows: nonLeaseDirtyRows(ctx, storyId, gitStatusRowsForDonePrepareGeneratedMetadata(gitCwd)),
+      expectedProcessEventBinding,
     });
     if (args.autoCloseGeneratedMetadata && !args.dryRun) {
       if (!args.reuseFreshValidation) {
@@ -2266,6 +2293,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
         storyId,
         storyDirRel: ctx.store.storyDirRel(),
         baseline: generatedMetadataBaseline,
+        expectedProcessEventBinding,
         ignoredPaths: [ownerLeaseRelPath(ctx, storyId)],
       });
       if (!autoCommit.ok) {

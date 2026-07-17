@@ -26,6 +26,21 @@ export interface DonePrepareGeneratedMetadataBaseline {
   initialContents: Record<string, string>;
 }
 
+export interface DonePrepareGeneratedProcessEventBinding {
+  storyId: string;
+  attemptId: string;
+  reviewRound: string;
+  commandSetHash: string;
+  materialHash: string;
+  storyFilesHash: string;
+  phase: 'TEST';
+  disposition: 'reused';
+  result: 'pass';
+  commandExecutions: 0;
+  notBefore: string;
+  notAfter: string;
+}
+
 export interface DonePrepareGeneratedMetadataEntry {
   path: string;
   originalPath?: string;
@@ -107,30 +122,41 @@ function isSha256(value: unknown): boolean {
   return typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
 }
 
-function isTrustedReusedValidationTerminal(value: unknown, storyId: string): boolean {
+function isTrustedReusedValidationTerminal(
+  value: unknown,
+  expected: DonePrepareGeneratedProcessEventBinding,
+): boolean {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const event = value as Record<string, unknown>;
   if (Object.keys(event).some((key) => !VALIDATION_TERMINAL_KEYS.has(key))) return false;
+  const timestamp = typeof event.timestamp === 'string' ? event.timestamp : '';
+  const timestampMs = Date.parse(timestamp);
   return event.type === 'validation_terminal'
-    && event.storyId === storyId
-    && event.phase === 'TEST'
-    && event.disposition === 'reused'
-    && event.commandExecutions === 0
-    && event.result === 'pass'
-    && typeof event.attemptId === 'string'
-    && typeof event.reviewRound === 'string'
-    && typeof event.timestamp === 'string'
-    && Number.isFinite(Date.parse(event.timestamp))
+    && event.storyId === expected.storyId
+    && event.attemptId === expected.attemptId
+    && event.reviewRound === expected.reviewRound
+    && event.commandSetHash === expected.commandSetHash
+    && event.materialHash === expected.materialHash
+    && event.storyFilesHash === expected.storyFilesHash
+    && event.phase === expected.phase
+    && event.disposition === expected.disposition
+    && event.commandExecutions === expected.commandExecutions
+    && event.result === expected.result
     && isSha256(event.commandSetHash)
     && isSha256(event.materialHash)
-    && isSha256(event.storyFilesHash);
+    && isSha256(event.storyFilesHash)
+    && Number.isFinite(timestampMs)
+    && timestampMs >= Date.parse(expected.notBefore)
+    && timestampMs <= Date.parse(expected.notAfter);
 }
 
 function isTrustedProcessEventsAppend(args: {
   before: string | undefined;
   after: string;
-  storyId: string;
+  expected: DonePrepareGeneratedProcessEventBinding | undefined;
 }): boolean {
+  const expected = args.expected;
+  if (!expected) return false;
   const before = args.before ?? '';
   if (!args.after.startsWith(before)) return false;
   if (before.length > 0 && !before.endsWith('\n')) return false;
@@ -140,7 +166,7 @@ function isTrustedProcessEventsAppend(args: {
   if (lines.length === 0) return false;
   return lines.every((line) => {
     try {
-      return isTrustedReusedValidationTerminal(JSON.parse(line), args.storyId);
+      return isTrustedReusedValidationTerminal(JSON.parse(line), expected);
     } catch {
       return false;
     }
@@ -230,6 +256,7 @@ function classifyEntry(args: {
   storyMetadataDirRel: string;
   baseline: DonePrepareGeneratedMetadataBaseline;
   parsed: DirtyWorktreeParsedRow;
+  expectedProcessEventBinding?: DonePrepareGeneratedProcessEventBinding;
 }): DonePrepareGeneratedMetadataEntry {
   const path = canonicalStatusPath(args.root, args.parsed.path);
   const originalPath = args.parsed.originalPath ? canonicalStatusPath(args.root, args.parsed.originalPath) : undefined;
@@ -284,11 +311,11 @@ function classifyEntry(args: {
     if (!isTrustedProcessEventsAppend({
       before: args.baseline.initialContents[path],
       after,
-      storyId: args.storyId,
+      expected: args.expectedProcessEventBinding,
     })) {
       return unsafe(
         'unsafe_untrusted_process_events_delta',
-        'process-events delta is not an append-only set of trusted reused validation_terminal events from this done_prepare run',
+        'process-events delta is not an append-only exact match for this done_prepare invocation reused validation_terminal binding',
       );
     }
   }
@@ -445,6 +472,7 @@ export function buildDonePrepareGeneratedMetadataManifest(args: {
   storyDirRel: string;
   baseline: DonePrepareGeneratedMetadataBaseline;
   statusRows: string[];
+  expectedProcessEventBinding?: DonePrepareGeneratedProcessEventBinding;
 }): DonePrepareGeneratedMetadataManifest {
   const storyMetadataDirRel = storyMetadataDir(args.storyDirRel, args.storyId);
   const entries: DonePrepareGeneratedMetadataEntry[] = [];
@@ -470,6 +498,7 @@ export function buildDonePrepareGeneratedMetadataManifest(args: {
       storyMetadataDirRel,
       baseline: args.baseline,
       parsed,
+      expectedProcessEventBinding: args.expectedProcessEventBinding,
     }));
   }
   const safePaths = sortedUnique(entries.filter((entry) => entry.safeToAutoStage).map((entry) => entry.path));
@@ -526,6 +555,7 @@ export function commitDonePrepareGeneratedMetadata(args: {
   storyId: string;
   storyDirRel: string;
   baseline: DonePrepareGeneratedMetadataBaseline;
+  expectedProcessEventBinding?: DonePrepareGeneratedProcessEventBinding;
   ignoredPaths?: readonly string[];
 }): DonePrepareGeneratedMetadataCommitResult {
   const rows = filterIgnoredRows(args.root, gitStatusRowsForDonePrepareGeneratedMetadata(args.gitCwd), args.ignoredPaths);
@@ -535,6 +565,7 @@ export function commitDonePrepareGeneratedMetadata(args: {
     storyDirRel: args.storyDirRel,
     baseline: args.baseline,
     statusRows: rows,
+    expectedProcessEventBinding: args.expectedProcessEventBinding,
   });
   const message = commitMessage(args.storyId);
 
