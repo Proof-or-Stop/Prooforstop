@@ -578,6 +578,33 @@
         "scanEscalationReason": null
       },
       "_hash": "160a0d651894e3b20d3abee677b802cd37ac95574fc987be76127f64ea43f3c6"
+    },
+    {
+      "id": "B-10b0:RP-025",
+      "agent": "lattice-review-concept",
+      "note": "Concept review PASS for 5ccc15d47e: done_prepare and verifier share one immutable metadata commit primitive; hook-mutated index paths/blobs and frozen tree are checked exactly, commit-tree is parented to captured HEAD, update-ref CAS preserves concurrent HEAD and suppresses post-commit on refusal, verifier rejects pre-existing canonical metadata dirt before mutation, and hook/message/signing behavior remains covered. Build, both focused integration smokes, and process-fact contract passed.",
+      "createdAt": "2026-07-17T22:07:15.011Z",
+      "reviewRound": "2026-07-17T22:03:21.496Z",
+      "reviewRunId": "B-10b0:RR-043",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "d9ee6d521e87d8f9681756c41f4cc00da15d4464352881a6fc1003490b7feab5"
     }
   ]
 }
