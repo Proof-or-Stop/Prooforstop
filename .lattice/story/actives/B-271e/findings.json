@@ -344,6 +344,24 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-271e:F-017",
+      "desc": "5e79f26940 closes the exact F-014/F-015 identifier/property/element/delete/update/Object API/direct-mutator/numeric-key and alias cases, but mutator argument taint is still dropped for a simple-local spread. The built analyzer returns [] for `const unsafe={run(_fixed,command){exec(command)}}; const args=[\"/fixed\"]; args.push(...[process.env.TEST_COMMAND]); unsafe.run.apply(null,args)` and likewise for `const extra=[process.env.TEST_COMMAND]; args.push(...extra)`. The whole-source mutation barrier correctly marks args mutable, but the mutator propagation calls expressionSources on each CallExpression argument; SpreadElement has no expressionSources branch, so no TEST source is added to args. Later conservative apply propagation sees a mutated operand with an empty taint set and the exec sink stays green. Recurse through SpreadElement in expressionSources (and keep the receiver mutation barrier), then add literal-spread and local-alias-spread mutator negatives. This is within the declared simple-local array mutation boundary, not an interprocedural edge.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-17T01:00:06.773Z",
+      "reviewRound": "2026-07-17T00:58:18.088Z",
+      "reviewRunId": "B-271e:RR-023",
+      "_hash": "3635efe35a762c277604c6d21d5f98c1ad5c9dfed199d2b234d0b1c14edaa1a5",
+      "files": [
+        "packages/main/src/tasks/production-test-seam-guard.ts"
+      ],
+      "signatureTag": "production-test-seam-mutator-spread-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
