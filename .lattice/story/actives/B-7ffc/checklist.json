@@ -1,0 +1,42 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Promote the reviewed execution plan into the canonical decisions corpus",
+      "context": "Preserve the evidence-calibrated /tmp document as docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md without changing runtime behavior.",
+      "relatedDocs": [
+        "docs/requirements/NAV.md"
+      ],
+      "userSees": "The reviewed plan is durable in the repository decision source of truth.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Expose the promoted plan through requirements navigation",
+      "context": "Add a concise navigation entry so later Stories and reviewers can find the canonical plan without relying on the temporary file.",
+      "relatedDocs": [
+        "docs/requirements/NAV.md"
+      ],
+      "userSees": "The canonical requirements navigation links to the promoted plan.",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

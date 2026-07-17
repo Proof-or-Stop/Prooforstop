@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-7ffc",
+  "state": "candidate",
+  "ledgerHash": "sha256:5de2f358705ba1c70975dfc6d2e3a566a26a74ff936370a134c1a217842f88f1",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "USR-2026-07-18-PROMOTE",
+      "claim": "The reviewed plan exists in the canonical decisions corpus.",
+      "doneMeans": "The repository contains the reviewed plan at the canonical decisions path with temporary-source claims removed.",
+      "requiredEvidence": [
+        "document-diff",
+        "content-integrity"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "USR-2026-07-18-DISCOVER",
+      "claim": "The canonical plan is discoverable from requirements navigation.",
+      "doneMeans": "docs/requirements/NAV.md links to the canonical plan.",
+      "requiredEvidence": [
+        "navigation-check"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-17T23:07:45.050Z",
+  "updatedAt": "2026-07-17T23:07:45.050Z"
+}
