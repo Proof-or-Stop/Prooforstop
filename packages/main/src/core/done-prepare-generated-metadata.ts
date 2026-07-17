@@ -545,6 +545,23 @@ function hasCachedChanges(gitCwd: string, paths: string[]): boolean {
   }
 }
 
+function stagedChangedPaths(gitCwd: string): string[] {
+  const raw = gitRaw(gitCwd, ['diff', '--cached', '--name-only', '-z']);
+  return sortedUnique(raw.split('\0').filter(Boolean));
+}
+
+function stagedBlobHash(gitCwd: string, path: string): string | null {
+  try {
+    const content = childProcess.execFileSync('git', ['show', `:${path}`], {
+      cwd: gitCwd,
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    return sha256(content);
+  } catch {
+    return null;
+  }
+}
+
 function commitMessage(storyId: string): string {
   return `lattice: auto-close ${storyId} generated DONE metadata`;
 }
@@ -557,6 +574,11 @@ export function commitDonePrepareGeneratedMetadata(args: {
   baseline: DonePrepareGeneratedMetadataBaseline;
   expectedProcessEventBinding?: DonePrepareGeneratedProcessEventBinding;
   ignoredPaths?: readonly string[];
+  /** Hermetic TOCTOU seams. Production callers must omit these hooks. */
+  testHooks?: {
+    beforeAdd?: () => void;
+    afterAddBeforeCommit?: () => void;
+  };
 }): DonePrepareGeneratedMetadataCommitResult {
   const rows = filterIgnoredRows(args.root, gitStatusRowsForDonePrepareGeneratedMetadata(args.gitCwd), args.ignoredPaths);
   const manifest = buildDonePrepareGeneratedMetadataManifest({
@@ -616,23 +638,40 @@ export function commitDonePrepareGeneratedMetadata(args: {
     };
   }
 
+  args.testHooks?.beforeAdd?.();
   childProcess.execFileSync('git', ['add', '--', ...manifest.safePaths], {
     cwd: args.gitCwd,
     stdio: ['pipe', 'pipe', 'pipe'],
   });
+  args.testHooks?.afterAddBeforeCommit?.();
 
-  const rowsAfterAdd = gitStatusRowsForDonePrepareGeneratedMetadata(args.gitCwd);
-  const stagedAfterAdd = stagedRows(rowsAfterAdd)
-    .map((row) => parseGitPorcelainRow(row))
-    .filter((row): row is DirtyWorktreeParsedRow => Boolean(row));
-  const stagedPaths = sortedUnique(stagedAfterAdd.flatMap(parsedPaths).map((path) => canonicalStatusPath(args.root, path)));
+  const stagedPaths = stagedChangedPaths(args.gitCwd);
   const stagedUnexpected = stagedPaths.filter((path) => !manifest.safePaths.includes(path));
-  if (stagedUnexpected.length > 0) {
+  const stagedMissing = manifest.safePaths.filter((path) => !stagedPaths.includes(path));
+  if (stagedUnexpected.length > 0 || stagedMissing.length > 0) {
     return {
       ok: false,
-      files: stagedUnexpected,
+      files: sortedUnique([...stagedUnexpected, ...stagedMissing]),
       message,
-      reason: 'git add would stage paths outside the safe generated metadata manifest',
+      reason: 'staged index paths do not exactly match the safe generated metadata manifest',
+      manifest,
+    };
+  }
+  const verifiedHashes = new Map(manifest.entries
+    .filter((entry) => entry.safeToAutoStage && entry.afterHash)
+    .map((entry) => [entry.path, entry.afterHash!]));
+  const stagedDigestMismatch = manifest.safePaths.filter(
+    (path) => stagedBlobHash(args.gitCwd, path) !== verifiedHashes.get(path),
+  );
+  const worktreeDigestMismatch = manifest.safePaths.filter(
+    (path) => hashFile(args.root, path) !== verifiedHashes.get(path),
+  );
+  if (stagedDigestMismatch.length > 0 || worktreeDigestMismatch.length > 0) {
+    return {
+      ok: false,
+      files: sortedUnique([...stagedDigestMismatch, ...worktreeDigestMismatch]),
+      message,
+      reason: 'safe generated metadata changed after manifest verification',
       manifest,
     };
   }
@@ -646,7 +685,9 @@ export function commitDonePrepareGeneratedMetadata(args: {
     };
   }
 
-  const commit = gitMaybe(args.gitCwd, ['commit', '-m', message, '--', ...manifest.safePaths]);
+  // Commit the exact index verified above. A pathspec commit may re-read and
+  // restage worktree bytes, reopening the manifest-to-add TOCTOU window.
+  const commit = gitMaybe(args.gitCwd, ['commit', '-m', message]);
   if (!commit.ok) {
     return {
       ok: false,

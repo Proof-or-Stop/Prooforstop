@@ -23,7 +23,10 @@ import { StoryStore } from '../core/store.js';
 import {
   buildDonePrepareGeneratedMetadataManifest,
   captureDonePrepareGeneratedMetadataBaseline,
+  captureDonePrepareGeneratedMetadataTransaction,
+  commitDonePrepareGeneratedMetadata,
   gitStatusRowsForDonePrepareGeneratedMetadata,
+  rollbackDonePrepareGeneratedMetadataTransaction,
   type DonePrepareGeneratedProcessEventBinding,
 } from '../core/done-prepare-generated-metadata.js';
 import type {
@@ -663,6 +666,81 @@ function assertProcessEventBindingIsExactAndFailClosed(): void {
   }
 }
 
+function assertIndexValidationClosesMutationWindows(): void {
+  for (const seam of ['beforeAdd', 'afterAddBeforeCommit'] as const) {
+    const { root, storyId } = setupFixture();
+    try {
+      const processEventsPath = `.lattice/story/actives/${storyId}/process-events.jsonl`;
+      const baseline = captureDonePrepareGeneratedMetadataBaseline({
+        root,
+        storyDirRel: '.lattice/story/actives',
+        storyId,
+        initialDirtyRows: [],
+      });
+      const expected: DonePrepareGeneratedProcessEventBinding = {
+        storyId,
+        attemptId: NOW,
+        reviewRound: NOW,
+        commandSetHash: 'a'.repeat(64),
+        materialHash: 'b'.repeat(64),
+        storyFilesHash: 'c'.repeat(64),
+        phase: 'TEST',
+        disposition: 'reused',
+        result: 'pass',
+        commandExecutions: 0,
+        notBefore: '2026-07-09T00:00:01.000Z',
+        notAfter: '2026-07-09T00:00:03.000Z',
+      };
+      const validEvent = {
+        type: 'validation_terminal',
+        storyId,
+        attemptId: NOW,
+        phase: 'TEST',
+        reviewRound: NOW,
+        commandSetHash: expected.commandSetHash,
+        disposition: 'reused',
+        commandExecutions: 0,
+        result: 'pass',
+        materialHash: expected.materialHash,
+        storyFilesHash: expected.storyFilesHash,
+        timestamp: '2026-07-09T00:00:02.000Z',
+      };
+      const before = baseline.initialContents[processEventsPath]!;
+      const validContent = `${before}${JSON.stringify(validEvent)}\n`;
+      const forgedContent = `${before}${JSON.stringify({ ...validEvent, storyId: 'B-forged' })}\n`;
+      write(root, processEventsPath, validContent);
+      const transaction = captureDonePrepareGeneratedMetadataTransaction({
+        root,
+        gitCwd: root,
+        paths: [processEventsPath],
+      });
+      const headBefore = git(root, ['rev-parse', 'HEAD']);
+      const mutate = () => write(root, processEventsPath, forgedContent);
+      const result = commitDonePrepareGeneratedMetadata({
+        root,
+        gitCwd: root,
+        storyId,
+        storyDirRel: '.lattice/story/actives',
+        baseline,
+        expectedProcessEventBinding: expected,
+        testHooks: { [seam]: mutate },
+      });
+      assert.equal(result.ok, false, `${seam} mutation must refuse commit`);
+      assert.match(result.reason ?? '', /changed after manifest verification/, seam);
+      assert.equal(git(root, ['rev-parse', 'HEAD']), headBefore, `${seam} mutation must not create a commit`);
+      assert.equal(readFileSync(join(root, processEventsPath), 'utf8'), forgedContent, `${seam} reproducer reached the mutation window`);
+
+      const rollback = rollbackDonePrepareGeneratedMetadataTransaction({ root, gitCwd: root, transaction });
+      assert.equal(rollback.ok, true, `${seam} rollback succeeds`);
+      assert.equal(readFileSync(join(root, processEventsPath), 'utf8'), validContent, `${seam} rollback restores verified worktree bytes`);
+      assert.equal(git(root, ['diff', '--cached', '--name-only']), '', `${seam} rollback restores the original index`);
+      assert.match(git(root, ['status', '--porcelain']), /process-events\.jsonl/, `${seam} leaves the original safe unstaged delta`);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+}
+
 function assertDeletesAndRenamesAreUnsafe(): void {
   for (const mode of ['delete', 'rename'] as const) {
     const { root, storyId } = setupFixture();
@@ -830,6 +908,7 @@ void (async () => {
     await assertCommitHookFailureRemainsFailClosed();
     assertPreexistingLifecycleMetadataIsUnsafe();
     assertProcessEventBindingIsExactAndFailClosed();
+    assertIndexValidationClosesMutationWindows();
     assertDeletesAndRenamesAreUnsafe();
     assertMissingHashesRefuseReuse();
     await assertReuseRefusesConfigAndMaterialDrift();
