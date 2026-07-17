@@ -1,57 +1,57 @@
 {
   "storyId": "B-10b0",
-  "checkedAt": "2026-07-17T20:06:39.274Z",
-  "headHash": "41ca1637bc746503767fb7083a43eb81f1471ab5",
-  "materialHash": "7d87c6e807c3dc6fd01841a5bb8b60b164541c51ebe2d559100dc7e2750574b9",
-  "storyFilesHash": "17423edf7ebba0649948742de4ed20e86c89035635973313980602ea41b4526a",
-  "reviewRound": "2026-07-17T19:56:56.495Z",
+  "checkedAt": "2026-07-17T20:27:23.584Z",
+  "headHash": "6a05ea419f305e7eba77e0a6275e930a9b690ee5",
+  "materialHash": "8b00697ef2cfdea590d53d8efcd3d834c8e024f2a394b10c3323eb50bfe15d99",
+  "storyFilesHash": "7756ffa2affc11fab0595d032cd1471c99db81d5a09d625bb9cf669f15e0be09",
+  "reviewRound": "2026-07-17T20:17:32.463Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
       "docPath": ".lattice/story/actives/B-10b0/checklist.json#CHK-001.userSees",
       "promise": "User sees review evidence retained: unchanged reviewed material; artifact gate validation remains independent.",
       "status": "verified",
-      "verifiedBy": "lattice-review-delivery current-binding review",
-      "evidence": "Current formal validation PASS at 2026-07-17T20:04:36.331Z on materialHash 7d87c6e8... and storyFilesHash 17423edf...; current canonical live-smoke transcript is present-fresh and records successful exit. Commit 19b630265c only routes prompt-baseline verification through bin/lattice.js and does not change closeout lineage or artifact gates."
+      "verifiedBy": "lattice-review-delivery exact-binding review",
+      "evidence": "Final formal TEST is 46/46 PASS and subsequent routine validation reused with commandExecutions=0 on materialHash 8b00697e... / storyFilesHash 7756ffa2.... Current live-smoke transcript is present-fresh with successful command exit. Delta 2974a70406 changes only two independent expected fingerprint literals in process-fact contract verification."
     },
     {
       "docPath": ".lattice/story/actives/B-10b0/checklist.json#CHK-002.userSees",
       "promise": "User sees DONE prepare: PASS with metadataRollbacks=0, reviewerReattestations=0, humanConfirmations=0, unchangedSuiteExecutions=0.",
       "status": "verified",
-      "verifiedBy": "lattice-review-delivery current formal PASS and prior focused convergence transcript",
-      "evidence": "Current routine validation PASS reused unchanged evidence with commandExecutions=0 on materialHash 7d87c6e8...; summary records all 46 configured commands previously passed and two subsequent trusted-metadata-descendant reuses. The two-file 19b630265c change is limited to canonical prompt-baseline CLI routing and cannot alter DONE convergence counters."
+      "verifiedBy": "lattice-review-delivery final formal PASS and bounded delta review",
+      "evidence": "Final 46-command TEST PASS plus subsequent routine reuse commandExecutions=0 validates current closeout behavior. Commit 2974a70406 is an expected-pin synchronization in scripts/verify-process-fact-contract.mjs only and does not touch done_prepare or convergence telemetry."
     },
     {
       "docPath": ".lattice/story/actives/B-10b0/checklist.json#CHK-003.userSees",
       "promise": "User sees no deleted exports for declaration/body edits, while a true deletion with residual references remains WARN or FAIL.",
       "status": "verified",
-      "verifiedBy": "lattice-review-delivery current formal PASS and bounded two-file diff review",
-      "evidence": "Current formal validation PASS at 2026-07-17T20:04:36.331Z retains concept-gate coverage. Commit 19b630265c changes only the prompt-baseline JSON command string and verifier CLI_PATH; it does not touch validate-concept or declaration fixtures."
+      "verifiedBy": "lattice-review-delivery final formal PASS and bounded delta review",
+      "evidence": "Final 46/46 TEST PASS retains concept-gate coverage. Commit 2974a70406 does not touch validate-concept or declaration fixtures; it only updates two expected fingerprints for already-reviewed vocabulary-guard source changes."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "Current canonical live-smoke transcript is present-fresh at the new material binding and readiness reports a successful command exit; formal validation PASS binds materialHash 7d87c6e8... and storyFilesHash 17423edf...."
+      "transcript": "Current live-smoke artifact is present-fresh and records successful command exit; final formal TEST 46/46 PASS binds exact material 8b00697ef2cfdea590d53d8efcd3d834c8e024f2a394b10c3323eb50bfe15d99 and storyFiles 7756ffa2affc11fab0595d032cd1471c99db81d5a09d625bb9cf669f15e0be09."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "Current routine validation at 2026-07-17T20:04:36.331Z is PASS with trusted unchanged-evidence reuse and commandExecutions=0; prior formal 46-command suite and focused done-prepare convergence smoke remain applicable because the new delta is prompt-baseline-only."
+      "transcript": "Final formal TEST passed all 46 configured commands; subsequent routine validate reused unchanged evidence with commandExecutions=0 on the exact current bindings."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "Current formal validation is PASS. Bounded review of 19b630265c confirms no concept-classifier or fixture change, so the previously passed paired body-edit/true-deletion real-machine coverage remains applicable."
+      "transcript": "Final formal TEST 46/46 PASS includes the concept regression suite; the sole delta does not touch concept production or fixture code."
     },
     {
-      "featureId": "19b630265c",
-      "transcript": "node scripts/verify-proof-or-stop-prompt-baseline.mjs exited 0: all 16 role IDs/body hashes, registry snapshot, agent_prompt output hashes, 10 mechanical drift mutations, role matrix, vocabulary, and direct story-file findings passed through canonical bin/lattice.js."
+      "featureId": "2974a70406",
+      "transcript": "node scripts/verify-process-fact-contract.mjs exited 0 and ended Process fact contract verified after the two expected structural fingerprint pins were synchronized."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "The only new material is the reviewed two-file canonical prompt-baseline entrypoint correction. Its focused verifier and current formal validation pass, the live transcript is fresh, all three delivery promises remain satisfied, and no TODO/FIXME/HACK or waiver was introduced."
+    "summary": "Exact current bindings were checked against the one-file two-pin delta, final 46-command PASS, zero-execution routine reuse, fresh live transcript, and focused process-fact contract verification. All delivery promises remain satisfied with no waiver or unresolved delivery issue."
   },
-  "_hash": "9afdc2b75cbaf0435e3c34e1874f0065223cf807158f61a120ecc8e3e205b1c1"
+  "_hash": "82e8d0805a8674a82d8520ce3d9f0fcc0dc9f8c15714956bf800f47e8f1b32a7"
 }
