@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-62b8",
+  "records": [
+    {
+      "id": "RED-20260717230615",
+      "trigger": "Current owner-session adapter ignores validated taskIdentity plus agentOrRoleIdentity and falls to PPID, so the same host task/agent resolves as two owners across parent changes.",
+      "acceptanceTargetRef": "ACC-B62B8-OWNER-STABILITY",
+      "baselineHeadHash": "0f280f323cd2bb1c8c0b18f744a02febe1ff21a2",
+      "baselineMaterialHash": "6778b035b19c8ce4f555882b2567fce4c14d5fb2cf04dd3e5b4f69f14f0cf68e",
+      "observedFailure": "With provider=codex, task=task-red, agent=implementer and only ppid changed 111 to 222, both resolutions reported derived-ppid and produced sess-1ae7500aad951197 versus sess-d183e4b49e9312ce; assertion expected host-adapter and failed.",
+      "failingCommand": "node --input-type=module -e <B-62b8 deterministic resolveSessionIdentity task+agent cross-ppid assertion>",
+      "expectedGreenCommand": "npm --prefix packages/main run test:story-owner-lease-smoke && npm --prefix packages/main run test:owner-session-guardrail",
+      "greenRelation": {
+        "targetRef": "ACC-B62B8-OWNER-STABILITY",
+        "relation": "regression_to_green",
+        "command": "npm --prefix packages/main run test:story-owner-lease-smoke && npm --prefix packages/main run test:owner-session-guardrail"
+      },
+      "note": "The no-adapter derived-ppid behavior remains intentionally ppid-sensitive; this red proof specifically supplies validated adapter task+agent inputs that current code does not consume.",
+      "createdAt": "2026-07-17T23:06:15.838Z"
+    }
+  ],
+  "createdAt": "2026-07-17T23:06:15.838Z",
+  "updatedAt": "2026-07-17T23:06:15.838Z"
+}

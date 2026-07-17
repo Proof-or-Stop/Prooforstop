@@ -307,8 +307,8 @@
       "excludes": [
         "No runtime owner-session implementation begins before the decision and independent-host review evidence are accepted."
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-17T23:06:34.377Z",
       "endTime": null,
       "verificationEvidence": [
         {
@@ -399,6 +399,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-17T23:06:34.377Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin the pre-runtime ratification slice: canonical document update first; runtime source remains locked until fresh two-host reviews and three manual transcripts are rebound."
     }
   ]
 }
