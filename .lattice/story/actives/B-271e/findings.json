@@ -65,7 +65,7 @@
       "desc": "The replacement post-command lock test no longer exercises the real verifier path it claims to protect. assertPostCommandPersistenceHoldsLock directly calls withValidationExecutionLock and directly writes StoryStore evidence inside that test-owned closure; it can still pass if verifier.ts later moves decorateAndMaybePersistStoryValidation outside its lock. The current production code does keep execution and persistence in the wrapper, but the regression test does not bind that ordering. Add a capability-limited handler seam or instrumentation that invokes the actual validate handler through command completion and evidence persistence without accepting caller-selected paths/commands; alternatively add a structural contract that mechanically proves the persistence calls remain inside the locked closure.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-17T00:03:52.712Z",
@@ -77,7 +77,11 @@
         "packages/main/src/handlers/verifier.ts"
       ],
       "signatureTag": "validate-lock-test-does-not-cover-production-ordering",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Lock smoke now invokes the real createVerifierHandlers validate path and instruments its fixed StoryStore capability to assert command completion precedes persistence and the validation lock exists at writeTestEvidence. Evidence: node packages/main/dist/tasks/validate-execution-lock-smoke.js.",
+      "resolvedAt": "2026-07-17T00:18:27.856Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-271e:F-005",
