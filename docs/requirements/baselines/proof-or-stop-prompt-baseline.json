@@ -213,7 +213,7 @@
     ]
   },
   "agentPrompt": {
-    "command": "node packages/main/dist/cli.js agent_prompt --role=<role>",
+    "command": "node bin/lattice.js agent_prompt --role=<role>",
     "metadata": "sha256, bytes, and lines are computed from raw stdout; registry parity strips the CLI print newline only.",
     "outputs": [
       {

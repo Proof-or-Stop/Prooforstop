@@ -13,7 +13,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const BUILT_REGISTRY_PATH = join(ROOT, 'packages/main/dist/core/prompt-registry.js');
-const CLI_PATH = join(ROOT, 'packages/main/dist/cli.js');
+const CLI_PATH = join(ROOT, 'bin/lattice.js');
 const BASELINE_PATH = join(
   ROOT,
   'docs/requirements/baselines/proof-or-stop-prompt-baseline.json',
@@ -1336,7 +1336,7 @@ function normalizeCliPrint(stdout) {
 function assertBuiltArtifacts() {
   if (!existsSync(BUILT_REGISTRY_PATH) || !existsSync(CLI_PATH)) {
     throw new Error(
-      'Built prompt registry not found. Run `npm --prefix packages/main run build` before this verifier.',
+      'Built prompt registry or canonical CLI bootstrap not found. Run `npm --prefix packages/main run build` before this verifier.',
     );
   }
 }
@@ -1954,7 +1954,7 @@ function buildCurrentBaseline({ snapshot, roleEntries, agentPromptOutputs }) {
       roles: roleEntries.map(({ content: _content, ...entry }) => entry),
     },
     agentPrompt: {
-      command: 'node packages/main/dist/cli.js agent_prompt --role=<role>',
+      command: 'node bin/lattice.js agent_prompt --role=<role>',
       metadata: 'sha256, bytes, and lines are computed from raw stdout; registry parity strips the CLI print newline only.',
       outputs: agentPromptOutputs,
     },
