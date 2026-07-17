@@ -334,6 +334,21 @@
       "resolvedAt": "2026-07-17T20:55:40.935Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-10b0:F-015",
+      "desc": "packages/main/src/core/done-prepare-generated-metadata.ts:648-690 [HIGH] F-014 remains partially open: the new exact staged-path/blob/worktree checks close the beforeAdd and afterAddBeforeCommit worktree seams, and an unrelated pre-staged path is correctly refused, but the live index can still change after the final checks and before git commit. A clean temporary-repo probe intercepted the git commit invocation, staged late-unrelated.txt after lines 648-685 had passed, then allowed the no-pathspec commit; commitDonePrepareGeneratedMetadata returned ok:true and HEAD contained both process-events.jsonl and late-unrelated.txt. Because success prevents handler rollback, the unrelated file remains committed. Freeze an immutable verified tree instead of later committing the mutable shared index: e.g. build an isolated temporary index, write-tree, verify the resulting tree/blob IDs and exact diff against the expected parent, create commit from that tree, and CAS update HEAD against the captured parent; restore/refresh the real index and worktree transaction on any failure. Add a seam immediately after final index verification/before commit, plus assertions for HEAD/index/worktree rollback.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-17T20:58:14.813Z",
+      "reviewRound": "2026-07-17T20:55:18.822Z",
+      "reviewRunId": "B-10b0:RR-028",
+      "_hash": "16105f47a2e696dbb2a5e4aeccb6cf0184dc74cb47e81d9ca42ba92412ac6afd",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
