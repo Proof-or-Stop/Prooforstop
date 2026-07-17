@@ -743,10 +743,10 @@ export function evaluatePersistedReviewToTestIndexTransition(
   if (event.phase !== 'TEST' || event.action !== 'advance') {
     return { ok: false, reason: 'transition event is not exactly TEST/advance' };
   }
-  // Local event identity/timing strings are audit context, not writer
-  // authentication: the same-UID actor can freely mint them and git user.name
-  // is legitimately absent in env-only commit setups.  They therefore cannot
-  // affect authorization.  Only reject malformed types when a field exists;
+  // Local event identity/timing strings are cooperative runtime audit context,
+  // not writer authentication, and git user.name is legitimately absent in
+  // env-only commit setups. They therefore cannot affect retention. Only
+  // reject malformed types when a field exists;
   // the gate authority comes from the already-verified signed review
   // run/pass/round plus the exact stable index delta above/below.
   for (const key of ['timestamp', 'branch', 'user', 'sessionId', 'agent'] as const) {

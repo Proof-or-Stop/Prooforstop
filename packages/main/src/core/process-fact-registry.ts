@@ -177,7 +177,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     path: 'closeout-write-receipts.jsonl',
     signed: false,
     producerCommand: 'core/auto-commit-metadata',
-    consumerGate: 'review-run metadata-only retention classifier (never closeout-artifact admissibility)',
+    consumerGate: 'review-run metadata-only retention classifier (artifact gate validation remains independent)',
   },
   story_advance: {
     name: 'index.json',
@@ -1032,9 +1032,9 @@ export const PROCESS_FACT_ARTIFACTS = [
     semantics: ['artifact', 'schema-contract', 'freshness-policy', 'gate-evidence'],
     level: 'L4',
     producer: 'core/auto-commit-metadata',
-    consumerGate: 'review-run metadata-only retention classifier (never closeout-artifact admissibility)',
+    consumerGate: 'review-run metadata-only retention classifier (artifact gate validation remains independent)',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.closeout_write_receipt,
-    rationale: 'Append-only integrity-chained causal co-commit telemetry. It may classify a registered nonmaterial closeout write as a review-retention descendant only when material, story-owned files, scope, review round, and HEAD evaluation remain unchanged. Under the local same-UID threat model it is forgeable, is not canonical-writer authentication, cannot authorize a closeout artifact, and is not closeout evidence itself.',
+    rationale: 'Append-only integrity-chained cooperative local-runtime lineage. It may classify a registered nonmaterial closeout write as a review-retention descendant only when material, story-owned files, scope, review round, and HEAD evaluation remain unchanged. writerCommand is a registered writer label, not same-UID authentication; this lineage does not approve an artifact, and artifact gate validation remains independent.',
   },
   {
     name: 'artifact:evidence/delivery-context-pack.json',

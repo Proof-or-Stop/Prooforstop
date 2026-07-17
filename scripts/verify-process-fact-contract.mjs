@@ -1559,7 +1559,9 @@ function assertCloseoutTrustBoundary() {
   const receiptFact = registry.get('artifact:closeout-write-receipts.jsonl');
   assert(receiptFact?.level === 'L4' && receiptFact?.artifact?.signed === false, `${processFactRegistryPath}: local closeout receipts must remain honestly non-signed while their bounded review-retention use is gate-consumed`);
   assert(receiptFact?.consumerGate?.includes('metadata-only retention') && receiptFact?.artifact?.consumerGate?.includes('metadata-only retention') && receiptFact?.semantics.includes('gate-evidence'), `${processFactRegistryPath}: closeout receipt review-retention consumption must be registered as gate evidence`);
-  assert(receiptFact?.rationale.includes('same-UID') && receiptFact?.rationale.includes('forgeable') && receiptFact?.rationale.includes('not canonical-writer authentication') && receiptFact?.rationale.includes('cannot authorize a closeout artifact') && receiptFact?.rationale.includes('not closeout evidence'), `${processFactRegistryPath}: receipts must disclose the local same-UID trust limit and separate review retention from artifact authority`);
+  for (const token of ['cooperative local-runtime lineage', 'registered writer label', 'not same-UID authentication', 'does not approve an artifact', 'artifact gate validation remains independent']) {
+    assert(receiptFact?.rationale.includes(token), `${processFactRegistryPath}: closeout lineage rationale missing honest boundary token ${token}`);
+  }
   assert(read(lifecycleRegistryPath).includes("'closeout-write-receipts.jsonl'"), `${lifecycleRegistryPath}: receipt ledger must remain classified lifecycle metadata`);
   const lifecycleText = read(lifecycleRegistryPath);
   assert(lifecycleText.includes('REVIEW_RETENTION_PROTOCOL_METADATA_PATHS') && lifecycleText.includes("'process-metrics.json'") && lifecycleText.includes("'test-runs.json'") && lifecycleText.includes("'owner-lease.json'"), `${lifecycleRegistryPath}: non-authoritative review-retention companion metadata must remain closed and registry-backed`);
@@ -1580,7 +1582,7 @@ function assertCloseoutTrustBoundary() {
   for (const exactUserLine of [
     'PASS closeout artifact classifications: closed policy set verified',
     'PASS closeout review retention binds material, story files, scope, round, and stable HEAD',
-    'PASS closeout review retention is separate from artifact admissibility',
+    'review evidence retained: unchanged reviewed material; artifact gate validation remains independent',
   ]) {
     assert(closeoutSmokeText.includes(`console.log('${exactUserLine}')`), `closeout smoke missing revised exact userSees line: ${exactUserLine}`);
   }
@@ -1596,7 +1598,7 @@ function assertCloseoutTrustBoundary() {
   }
   assert(/if \(!story\.currentReviewRound\)[\s\S]{0,300}review_round_missing/.test(machineText), 'reviewer-required lifecycle verdict must fail closed before legacy evidence validation when currentReviewRound is absent');
   const reviewRunText = read('packages/main/src/core/review-run.ts');
-  for (const token of ['evaluateReviewRunMetadataRetention', 'evaluateMetadataOnlyReviewRetention', 'evaluatePersistedReviewToTestIndexTransition', 'changedFilesBetween', 'uncommittedPathsUnder', 'classifyCurrentCloseoutArtifactForReviewRetention', 'storyFilesUnchanged', 'stableEvaluationHead', 'relative(gitRoot, storyDir)', 'same-UID actor can freely mint them', "reviewedStory.phase !== 'REVIEW'", "currentStory.phase !== 'TEST'"]) {
+  for (const token of ['evaluateReviewRunMetadataRetention', 'evaluateMetadataOnlyReviewRetention', 'evaluatePersistedReviewToTestIndexTransition', 'changedFilesBetween', 'uncommittedPathsUnder', 'classifyCurrentCloseoutArtifactForReviewRetention', 'storyFilesUnchanged', 'stableEvaluationHead', 'relative(gitRoot, storyDir)', 'not writer authentication', "reviewedStory.phase !== 'REVIEW'", "currentStory.phase !== 'TEST'"]) {
     assert(reviewRunText.includes(token), `review-run metadata retention consumer missing ${token}`);
   }
   const transitionText = read('packages/main/src/handlers/transition-orchestrator.ts');
@@ -1618,6 +1620,46 @@ function assertCloseoutTrustBoundary() {
   ]) {
     const handlerText = read(handlerPath);
     assert(handlerText.includes(`'${writerCommand}'`) && handlerText.includes('closeoutArtifactPaths') && handlerText.includes(artifactPath), `${handlerPath}: ${writerCommand} must explicitly attest its just-written closeout artifact ${artifactPath}`);
+  }
+  const closeoutConsumerMatrix = [
+    {
+      artifact: 'test-evidence.json',
+      path: 'packages/main/src/core/done-oracle.ts',
+      validators: ['readTestEvidence', 'checkEvidenceFreshness'],
+    },
+    {
+      artifact: 'done-required-evidence.json',
+      path: 'packages/main/src/core/done-oracle.ts',
+      validators: ['evaluateDoneRequiredEvidence'],
+    },
+    {
+      artifact: 'delivery-check.json',
+      path: 'packages/main/src/core/machine.ts',
+      validators: ['evaluateDeliveryCheckFreshness', 'evaluateReviewVerdict'],
+    },
+    {
+      artifact: 'evidence/live-smoke-transcript.json',
+      path: 'packages/main/src/core/machine.ts',
+      validators: ['evaluateOptionalLiveSmokeTranscript', 'evaluateReviewVerdict'],
+    },
+    {
+      artifact: 'summary.json',
+      path: 'packages/main/src/core/done-oracle.ts',
+      validators: ['readSummary', 'summary.changes', 'summary.usage', 'summary.acceptanceVerdict'],
+    },
+  ];
+  for (const consumer of closeoutConsumerMatrix) {
+    const consumerText = read(consumer.path);
+    for (const validator of consumer.validators) {
+      assert(consumerText.includes(validator), `${consumer.path}: ${consumer.artifact} consumer must retain specialized validator ${validator}`);
+    }
+    for (const forbidden of ['latestCausallyValidCloseoutReceipt', 'CLOSEOUT_WRITE_RECEIPTS_PATH']) {
+      assert(!consumerText.includes(forbidden), `${consumer.path}: ${consumer.artifact} consumer must not treat review-retention lineage as artifact approval (${forbidden})`);
+    }
+  }
+  const closeoutTrustText = read('packages/main/src/core/closeout-trust.ts');
+  for (const removedHelper of ['latestValidCloseoutReceipt', 'validateCurrentCloseoutArtifact']) {
+    assert(!closeoutTrustText.includes(removedHelper), `closeout trust must not expose unused pseudo-authority helper ${removedHelper}`);
   }
   const packageText = read('package.json');
   assert(packageText.includes('test:closeout-trust') && /"test"[^\n]+npm run test:closeout-trust/.test(packageText), 'package.json: closeout trust handler/replay smoke must remain in routine npm test');
