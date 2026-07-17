@@ -214,6 +214,23 @@ function collectCallableIndex(sourceFile: ts.SourceFile): CallableIndex {
     while (ts.isPropertyAccessExpression(value) || ts.isElementAccessExpression(value)) value = value.expression;
     return ts.isIdentifier(value) ? value.text : undefined;
   };
+  const assignedIdentifier = (expression: ts.Expression): string | undefined => {
+    let value = expression;
+    while (ts.isParenthesizedExpression(value) || ts.isAsExpression(value)
+      || ts.isTypeAssertionExpression(value) || ts.isNonNullExpression(value)) value = value.expression;
+    if (ts.isBinaryExpression(value) && value.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
+      return assignedIdentifier(value.right);
+    }
+    return ts.isIdentifier(value) ? value.text : undefined;
+  };
+  const connectAliases = (leftName: string, rightName: string): void => {
+    const left = aliasEdges.get(leftName) ?? new Set<string>();
+    const right = aliasEdges.get(rightName) ?? new Set<string>();
+    left.add(rightName);
+    right.add(leftName);
+    aliasEdges.set(leftName, left);
+    aliasEdges.set(rightName, right);
+  };
   const recordPropertyMutation = (expression: ts.Expression): void => {
     if (!ts.isPropertyAccessExpression(expression) && !ts.isElementAccessExpression(expression)) return;
     const base = rootIdentifier(expression);
@@ -223,17 +240,16 @@ function collectCallableIndex(sourceFile: ts.SourceFile): CallableIndex {
   };
   const collectMutations = (node: ts.Node): void => {
     if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer && ts.isIdentifier(node.initializer)) {
-      const left = aliasEdges.get(node.name.text) ?? new Set<string>();
-      const right = aliasEdges.get(node.initializer.text) ?? new Set<string>();
-      left.add(node.initializer.text);
-      right.add(node.name.text);
-      aliasEdges.set(node.name.text, left);
-      aliasEdges.set(node.initializer.text, right);
+      connectAliases(node.name.text, node.initializer.text);
     }
     if (ts.isBinaryExpression(node)
       && node.operatorToken.kind >= ts.SyntaxKind.FirstAssignment
       && node.operatorToken.kind <= ts.SyntaxKind.LastAssignment) {
-      if (ts.isIdentifier(node.left)) mutatedBases.add(node.left.text);
+      if (ts.isIdentifier(node.left)) {
+        const alias = node.operatorToken.kind === ts.SyntaxKind.EqualsToken ? assignedIdentifier(node.right) : undefined;
+        if (alias) connectAliases(node.left.text, alias);
+        mutatedBases.add(node.left.text);
+      }
       else recordPropertyMutation(node.left);
     }
     if ((ts.isPrefixUnaryExpression(node) || ts.isPostfixUnaryExpression(node))
@@ -273,7 +289,6 @@ function collectCallableIndex(sourceFile: ts.SourceFile): CallableIndex {
     }
     return found;
   };
-  for (const name of [...mutatedBases]) for (const alias of aliasesOf(name)) mutatedBases.add(alias);
   for (const mutation of rawPropertyMutations) {
     for (const alias of aliasesOf(mutation.base)) {
       mutatedBases.add(alias);
@@ -538,8 +553,19 @@ export function analyzeProductionTestSeams(sourceText: string, file = 'inline.ts
     return new Set();
   };
 
+  const sourcePayload = (expression: ts.Expression): ts.Expression => {
+    let value = expression;
+    while (ts.isSpreadElement(value) || ts.isParenthesizedExpression(value) || ts.isAsExpression(value)
+      || ts.isTypeAssertionExpression(value) || ts.isNonNullExpression(value) || ts.isAwaitExpression(value)) {
+      value = value.expression;
+    }
+    return value;
+  };
+
   const expressionSources = (expression: ts.Expression | undefined): Sources => {
     if (!expression) return new Set();
+    const payload = sourcePayload(expression);
+    if (payload !== expression) return expressionSources(payload);
     const direct = sourceFromEnvironment(expression);
     if (direct.size > 0) return direct;
     if (ts.isIdentifier(expression)) {
@@ -548,10 +574,6 @@ export function analyzeProductionTestSeams(sourceText: string, file = 'inline.ts
         new Set(taint.get(expression.text) ?? []),
         ...[...taint.entries()].filter(([key]) => key.startsWith(prefix)).map(([, sources]) => sources),
       );
-    }
-    if (ts.isParenthesizedExpression(expression) || ts.isAsExpression(expression) || ts.isTypeAssertionExpression(expression)
-      || ts.isNonNullExpression(expression) || ts.isAwaitExpression(expression)) {
-      return expressionSources(expression.expression);
     }
     if (ts.isConditionalExpression(expression)) {
       // Tainted control choosing only fixed, untainted constants is a finite
@@ -878,6 +900,9 @@ function selfTest(): void {
     ['Object.assign replacement invalidates receiver', `const unsafe = { run(command: string) { exec(command) } }; const safe = { run(payload: string) { return payload } }; Object.assign(safe, { run: unsafe.run }); safe.run(process.env.TEST_COMMAND)`],
     ['Object.defineProperty replacement invalidates receiver', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const safe = { run(payload: string) { return payload } }; Object.defineProperty(safe, 'run', { value: unsafe.run }); safe.run(process.env.TEST_FILE)`],
     ['Object.defineProperties replacement invalidates receiver', `const unsafe = { run(command: string) { exec(command) } }; const safe = { run(payload: string) { return payload } }; Object.defineProperties(safe, { run: { value: unsafe.run } }); safe.run(process.env.TEST_COMMAND)`],
+    ['assignment-created alias mutation', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const safe = { run(payload: string) { return payload } }; let alias; alias = safe; alias.run = unsafe.run; safe.run(process.env.TEST_FILE)`],
+    ['parenthesized assignment alias mutation', `const unsafe = { run(command: string) { exec(command) } }; const safe = { run(payload: string) { return payload } }; let alias; alias = (safe); alias['run'] = unsafe.run; safe.run(process.env.TEST_COMMAND)`],
+    ['chained assignment alias mutation', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const safe = { run(payload: string) { return payload } }; let first, second; first = (second = safe); second.run = unsafe.run; safe.run(process.env.TEST_FILE)`],
   ];
   for (const [name, source] of callableContextCases) {
     const issues = analyzeProductionTestSeams(source, `${name}.ts`);
@@ -899,6 +924,12 @@ function selfTest(): void {
     ['reverse mutator', `const args = ['/fixed', process.env.TEST_COMMAND]; args.reverse(); unsafe.run.apply(null, args)`],
     ['copyWithin mutator', `const args = ['/fixed', process.env.TEST_COMMAND]; args.copyWithin(0, 1); unsafe.run.apply(null, args)`],
     ['fill mutator', `const args = ['/fixed']; args.fill(process.env.TEST_COMMAND); unsafe.run.apply(null, args)`],
+    ['push inline spread', `const args = ['/fixed']; args.push(...[process.env.TEST_COMMAND]); unsafe.run.apply(null, args)`],
+    ['push local alias spread', `const args = ['/fixed']; const extra = [process.env.TEST_COMMAND]; args.push(...extra); unsafe.run.apply(null, args)`],
+    ['unshift inline spread', `const args = ['/fixed']; args.unshift(...[process.env.TEST_COMMAND]); unsafe.run.apply(null, args)`],
+    ['unshift local alias spread', `const args = ['/fixed']; const extra = [process.env.TEST_COMMAND]; args.unshift(...extra); unsafe.run.apply(null, args)`],
+    ['splice inline spread', `const args = ['/fixed']; args.splice(0, 1, ...[process.env.TEST_COMMAND]); unsafe.run.apply(null, args)`],
+    ['splice local alias spread', `const args = ['/fixed']; const extra = [process.env.TEST_COMMAND]; args.splice(0, 1, ...extra); unsafe.run.apply(null, args)`],
   ];
   for (const [name, body] of arrayMutationCases) {
     const sink = name.length % 2 === 0
@@ -921,6 +952,8 @@ function selfTest(): void {
     ['safe call spread input', `const safe = { run(payload: string) { writeFileSync('/fixed', payload) } }; const args = ['fixed payload']; safe.run.call(null, ...args)`],
     ['safe immutable method receiver', `const safe = { run(payload: string) { writeFileSync('/fixed', payload) } }; safe.run('fixed payload')`],
     ['safe immutable apply array', `const safe = { run(payload: string) { writeFileSync('/fixed', payload) } }; const args = ['fixed payload'] as const; safe.run.apply(null, args)`],
+    ['safe assignment alias without object mutation', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const safe = { run(payload: string) { writeFileSync('/fixed', payload) } }; let alias; alias = safe; safe.run(process.env.TEST_FILE)`],
+    ['safe mutator fixed spread', `const safe = { run(payload: string) { writeFileSync('/fixed', payload) } }; const args = ['fixed']; const extra = ['payload']; args.push(...extra); safe.run.apply(null, args)`],
   ];
   for (const [name, source] of safeBindingControls) {
     assert.deepEqual(analyzeProductionTestSeams(source, `${name}.ts`), [], `${name} must remain outside TEST/SMOKE taint`);
