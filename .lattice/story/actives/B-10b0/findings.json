@@ -382,7 +382,7 @@
       "desc": "packages/main/src/core/done-prepare-generated-metadata.ts:585-602,749-763 [HIGH] The immutable-tree/CAS path preserves tree, parent, author/committer defaults, message, unrelated staged state, and temp cleanup, but it regresses normal git commit policy semantics. It manually invokes only pre-commit and then calls git commit-tree directly. commit-tree does not run prepare-commit-msg, commit-msg, or post-commit hooks and does not honor commit.gpgSign automatically, so repositories that require message validation/transformation, audit hooks, or signed commits can have those policies silently bypassed by auto-closeout. The prior git commit implementation exercised those policies. Preserve immutable-tree/CAS while explicitly reproducing the remaining hook pipeline around a temporary message file and honoring configured signing for commit-tree (or use an equivalent plumbing flow that retains these policies); add focused tests for rejecting commit-msg and for commit.gpgSign/signing configuration, plus parent/author/committer/message assertions.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-17T21:10:12.672Z",
@@ -390,7 +390,11 @@
       "reviewRunId": "B-10b0:RR-031",
       "_hash": "38e448615cfef4dac26f67d12a74f96b96618a9ae09335ff92b2f2899093ee91",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: isolated commit-tree preserved tree/CAS safety but bypassed prepare-commit-msg, commit-msg, post-commit, and commit.gpgSign policy. Root cause: commitDonePrepareGeneratedMetadata invoked only pre-commit before raw commit-tree and supplied a fixed -m message. Fixed by 2183cf10ad: a temporary COMMIT_EDITMSG is processed in normal pre-commit → prepare-commit-msg(message source) → commit-msg order under the isolated GIT_INDEX_FILE; hook-edited content feeds commit-tree -F; commit.gpgSign/user.signingKey/gpg.format are read and required signing uses -S/fails closed; post-commit runs notification-only after successful CAS. Tests prove prepare edit reaches commit, commit-msg rejection preserves HEAD/index/worktree and cleans temps, post-commit runs on success but not CAS failure, missing SSH signing key fails closed with config/args observed, and parent/author/committer/default message remain unchanged. Build, auto-closeout smoke, merge-rerun smoke PASS.",
+      "resolvedAt": "2026-07-17T21:15:41.306Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
