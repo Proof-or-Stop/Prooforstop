@@ -302,7 +302,7 @@
       "desc": "packages/main/src/core/done-prepare-generated-metadata.ts:110-143 [HIGH] The new process-events allowlist validates only shape/format after the baseline prefix; it does not bind attemptId/reviewRound/timestamp/commandSetHash/materialHash/storyFilesHash to the current done_prepare validation attempt or current evidence. A clean-repo probe appended a forged validation_terminal after baseline with arbitrary strings and a/b/c SHA-256 values, and buildDonePrepareGeneratedMetadataManifest classified it safe_lifecycle_metadata/currentRunGenerated=true. Thus any concurrent/injected same-shape terminal can be auto-staged and committed as trusted closeout evidence despite not being the current-run exact reused terminal. Carry the expected terminal binding in the baseline/run context and require exact equality (including current attempt/review round and canonical hashes), then add adversarial smoke cases for forged-but-well-shaped terminal, extra fields, prefix rewrite, and mixed appended lines.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-17T20:41:47.521Z",
@@ -310,7 +310,11 @@
       "reviewRunId": "B-10b0:RR-020",
       "_hash": "d2c3296a25d40598bff1bb110df45bbfd052f7ada3ecd2ead062c1b0a1db18e1",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: a structurally valid forged reused validation_terminal with arbitrary attempt/review/hash values was classified safe. Root cause: generated-metadata classification had no expected current-invocation binding. Fixed by 779c187d79: done_prepare now carries the routine validation identity, current story/round/material/story-files binding, and start/end time window into both manifest preflight and commit recheck; only exact TEST/reused/pass/zero-execution append-only rows match. Verification: build, done-prepare-auto-closeout smoke, and done-prepare-merge-rerun smoke all PASS.",
+      "resolvedAt": "2026-07-17T20:48:42.885Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
