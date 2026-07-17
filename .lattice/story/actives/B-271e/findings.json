@@ -43,7 +43,7 @@
       "desc": "The new production test-seam guard is bypassable through ordinary local data flow, so it does not enforce the advertised no environment-controlled side-effect invariant. analyzeProductionTestSeams only propagates taint into function parameters and simple identifier assignments; CallExpression returns only union(argument sources), and property assignments are ignored. A minimal executable repro against the built analyzer reports [] for both `function target(){ return process.env.TEST_FILE; } writeFileSync(target(), \"x\")` and `const x={}; x.path=process.env.TEST_FILE; writeFileSync(x.path, \"x\")`, while the direct form is detected. Production core/handler code can therefore reintroduce an arbitrary TEST/SMOKE-selected filesystem/process target and keep this guard green. Track return-value/property data flow (or use a conservative AST rule that rejects any TEST/SMOKE env source in production side-effect code), and add these bypasses plus process-sink equivalents as self-tests.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-17T00:03:50.679Z",
@@ -54,7 +54,11 @@
         "packages/main/src/tasks/production-test-seam-guard.ts"
       ],
       "signatureTag": "production-test-seam-taint-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Taint propagation now covers helper return values, object property assignment/read, process element access, and process aliases, with adversarial self-tests. Evidence: node packages/main/dist/tasks/production-test-seam-guard.js.",
+      "resolvedAt": "2026-07-17T00:18:26.043Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-271e:F-004",
