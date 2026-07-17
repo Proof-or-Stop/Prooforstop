@@ -68,6 +68,44 @@
       },
       "readDiagnostics": [],
       "_hash": "5ac89ff1ef02574a53aeb21366644f806119e4d9e2eb9c33378bf75ca0f583ae"
+    },
+    {
+      "id": "B-7ffc:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality review found no blocker: canonical decision content preserves source SHA-256 3a7e9b…0610 through the documented fence-aware transform, saved digest ef7c3b…ba0b matches the target, NAV resolves exactly once with accurate inventory, and the non-metadata diff is docs-only with explicit plan-not-implementation boundaries.",
+      "createdAt": "2026-07-17T23:23:32.032Z",
+      "reviewRound": "2026-07-17T23:21:14.128Z",
+      "reviewRunId": "B-7ffc:RR-004",
+      "writerSessionId": "sess-2a40d3cb626970d2",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7ffc/background.md",
+          ".lattice/story/actives/B-7ffc/checklist.json",
+          ".lattice/story/actives/B-7ffc/decision-doc-proposals.json",
+          ".lattice/story/actives/B-7ffc/proofstory.json",
+          ".lattice/story/actives/B-7ffc/scope-contract.json",
+          ".lattice/story/actives/B-7ffc/understanding.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "0b00ae586930afd8310856dfd777837eb6748e3eda6c7081416082618ba5d3c9"
+      },
+      "readDiagnostics": [],
+      "_hash": "3e71f89d1b1124a97af985e47bd2639d3458c5415faa701b70b375834e784278"
     }
   ]
 }
