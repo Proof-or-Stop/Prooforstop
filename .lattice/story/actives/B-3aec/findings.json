@@ -246,7 +246,7 @@
       "desc": "packages/main/src/core/candidate-spec-routing.ts:478-545 still applies queryGroupBudget before document-frequency filtering. Ten high-frequency seed terms can consume all ten groups, be filtered away, and starve an eleventh specific term that uniquely matches a required document. Deterministic reproduction with 5 temp docs yielded groups=[], candidates=[], ambiguity=[generic_only_filtered_bounded], requiresEscalation=false even though rareneedle matched one document. This violates CHK-002 edge:2 (generic+specific mixture preserves specific identifiers) and can silently omit the exact document without escalation. Filter/rank terms before the group budget or refill vacated generic slots, and add a >budget mixed-order/permutation test.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-17T09:41:45.480Z",
@@ -254,7 +254,11 @@
       "reviewRunId": "B-3aec:RR-005",
       "_hash": "2b4a702c8ba2edb7a167c5817011950f2c0676a7521540f66d9c4ddffda6c0aa",
       "signatureTag": "edge|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "All ordered query terms are document-frequency filtered before queryGroupBudget; deterministic over-budget generic starvation repro preserves the later rare candidate and audit metrics.",
+      "resolvedAt": "2026-07-17T10:04:48.752Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3aec:F-014",
