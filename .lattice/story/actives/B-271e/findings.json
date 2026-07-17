@@ -194,6 +194,24 @@
       "resolvedAt": "2026-07-17T00:33:06.206Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-271e:F-010",
+      "desc": "packages/main/src/tasks/production-test-seam-guard.ts:161-178 and 411-420 index every method parameter list by bare static method name, and resolve every property call by that same bare name. Common same-name methods on different receivers therefore overwrite each other in the shared map. Repro: const unsafe={run(target){writeFileSync(target,0)}}; const safe={run({env}){return env.PATH}}; unsafe.run(process.env.TEST_FILE). analyzeProductionTestSeams returns [] because the later safe.run parameters replace unsafe.run parameters, so TEST_FILE taint is bound to env instead of the target used by writeFileSync. This weakens the production side-effect guard introduced by the shared binding walker. Key methods by a receiver-qualified symbol or resolve the actual method declaration from the call target; when receiver identity is unknown, conservatively union all same-name parameter bindings. Add a same-name multi-receiver negative test.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-17T00:34:22.232Z",
+      "reviewRound": "2026-07-17T00:33:03.384Z",
+      "reviewRunId": "B-271e:RR-012",
+      "_hash": "bc2d7518bc9a20c6aec8af4a5143f4de6460417593e88e07ebb2d41edb416081",
+      "files": [
+        "packages/main/src/tasks/production-test-seam-guard.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
