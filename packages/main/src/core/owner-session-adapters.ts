@@ -26,6 +26,7 @@ export interface OwnerSessionEnv {
   CLAUDE_CODE_SESSION_ID?: string | undefined;
   CLAUDE_SESSION_ID?: string | undefined;
   CODEX_SESSION_ID?: string | undefined;
+  CODEX_THREAD_ID?: string | undefined;
   OPENAI_SESSION_ID?: string | undefined;
   TERM_SESSION_ID?: string | undefined;
   ANTIGRAVITY_SESSION_ID?: string | undefined;
@@ -64,7 +65,7 @@ function detectProvider(env: OwnerSessionEnv): OwnerSessionHostProvider | null {
   return normalizeProvider(env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER)
     ?? normalizeProvider(env.LATTICE_ACTIVITY_SOURCE)
     ?? (trimToNull(env.CLAUDE_CODE_SESSION_ID) || trimToNull(env.CLAUDE_SESSION_ID) ? 'claude-code' : null)
-    ?? (trimToNull(env.CODEX_SESSION_ID) || trimToNull(env.OPENAI_SESSION_ID) ? 'codex' : null)
+    ?? (trimToNull(env.CODEX_THREAD_ID) || trimToNull(env.CODEX_SESSION_ID) || trimToNull(env.OPENAI_SESSION_ID) ? 'codex' : null)
     ?? (trimToNull(env.ANTIGRAVITY_SESSION_ID) || trimToNull(env.AGY_SESSION_ID) ? 'antigravity' : null);
 }
 
@@ -77,7 +78,9 @@ function nativeTaskIdentity(
       ?? trimToNull(env.CLAUDE_SESSION_ID);
   }
   if (provider === 'codex') {
-    return trimToNull(env.LATTICE_ACTIVITY_SESSION)
+    return trimToNull(env.LATTICE_OWNER_SESSION_ADAPTER_TASK)
+      ?? trimToNull(env.CODEX_THREAD_ID)
+      ?? trimToNull(env.LATTICE_ACTIVITY_SESSION)
       ?? trimToNull(env.CODEX_SESSION_ID)
       ?? trimToNull(env.OPENAI_SESSION_ID)
       ?? trimToNull(env.TERM_SESSION_ID);
@@ -127,14 +130,16 @@ export function resolveAdapterOwnerSession(
   const provider = detectProvider(env);
   if (provider === null) return null;
 
-  const taskIdentity = trimToNull(env.LATTICE_OWNER_SESSION_ADAPTER_TASK)
-    ?? nativeTaskIdentity(env, provider);
+  const canonicalTaskIdentity = trimToNull(env.LATTICE_OWNER_SESSION_ADAPTER_TASK);
+  const nativeTask = nativeTaskIdentity(env, provider);
+  const taskIdentity = canonicalTaskIdentity ?? nativeTask;
   const agentIdentity = trimToNull(env.LATTICE_OWNER_SESSION_ADAPTER_AGENT);
   const roleIdentity = trimToNull(env.LATTICE_OWNER_SESSION_ADAPTER_ROLE);
   if (agentIdentity !== null && roleIdentity !== null && agentIdentity !== roleIdentity) return null;
   const agentOrRoleIdentity = agentIdentity
     ?? roleIdentity
-    ?? trimToNull(env.LATTICE_AGENT);
+    ?? trimToNull(env.LATTICE_AGENT)
+    ?? (canonicalTaskIdentity === null && nativeTask !== null ? 'main' : null);
   if (taskIdentity === null || agentOrRoleIdentity === null) return null;
 
   const boundary = trimToNull(env.LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY);

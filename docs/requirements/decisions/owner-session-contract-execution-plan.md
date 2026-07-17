@@ -191,8 +191,12 @@ adapter:
 Codex must use the same canonical contract:
 
 - if the invoking environment already provides `LATTICE_SESSION_ID`, preserve it;
-- if a Codex adapter or wrapper has a native stable run/session signal, map it
-  to the canonical env at the adapter boundary;
+- use `CODEX_THREAD_ID` as the ordinary direct Codex task boundary when present
+  (with legacy session candidates only as adapter fallbacks), pair it with the
+  policy-distinct `main` role for a direct owner, and require spawned reviewer /
+  intent / delivery wrappers to inject their true role;
+- hash the raw thread/session and role dimensions at the adapter boundary; raw
+  native values must never become activity or story process-event session ids;
 - if no native stable signal is available, use the generated-token fallback for
   the Codex session;
 - do not add Codex-specific env exceptions to core owner-lease code.
@@ -241,6 +245,15 @@ Rules:
   so two roles or tasks in the same worktree never collide.
 - Define storage ownership and cleanup at that same boundary. A token owned by
   one adapter task-and-role pair must not be reused or deleted by another pair.
+- Persisted fallback records expire seven days after creation. Resolution
+  replaces an expired record under the same scope lock; `doctor` reports
+  healthy/expired/corrupt/orphan-lock/orphan-temp counts and `doctor --repair`
+  removes only expired, corrupt, or abandoned store artifacts.
+- Publish through a bounded per-scope lock and atomic temporary-file rename so
+  concurrent creators converge on one token and a partial final file can be
+  repaired without a permanent `EEXIST` wedge. Scope-specific cleanup computes
+  the full project/provider/task/agent-or-role/boundary key and cannot delete a
+  sibling task or role record.
 - Register any persisted token path as a runtime artifact, ignored by git and
   excluded from material evidence.
 - Do not write generated tokens or their raw lookup dimensions into story prose,

@@ -75,6 +75,7 @@ import {
   runStoryCreateLifecycleDispatch,
 } from './cli/lifecycle-dispatch.js';
 import { CliWatchdogTimeoutError, effectiveCommandCliMaxBudget, NODE_TIMER_MAX_MS } from './core/done-required-timeout-budget.js';
+import { getSessionIdentity } from './core/owner-session.js';
 import {
   classifyRuntimeEntrypointAuthority,
   renderRuntimeEntrypointAuthorityFailure,
@@ -1129,9 +1130,12 @@ export async function runCli(opts?: {
           }
         }
       }
+      const sessionIdentity = getSessionIdentity();
       const record: Record<string, unknown> = {
         source: resolveActivitySource(),
-        session: process.env.LATTICE_ACTIVITY_SESSION || '',
+        session: sessionIdentity.sessionId,
+        sessionSource: sessionIdentity.sessionSource,
+        hostProvider: sessionIdentity.hostProvider ?? null,
         entrypoint: inferCodexEntrypoint(),
         startTime: entry.startTime,
         endTime: entry.endTime,
@@ -1188,10 +1192,13 @@ export async function runCli(opts?: {
       if (!phase) {
         try { phase = store.readStory(storyId).phase; } catch { phase = ''; }
       }
+      const sessionIdentity = getSessionIdentity();
       store.appendProcessEvent(storyId, {
         type: 'codex_cli',
         source: 'codex',
-        session: process.env.LATTICE_ACTIVITY_SESSION || '',
+        session: sessionIdentity.sessionId,
+        sessionSource: sessionIdentity.sessionSource,
+        hostProvider: sessionIdentity.hostProvider ?? null,
         role: inferActivityRole(entry.args, process.env.LATTICE_ACTIVITY_ROLE || process.env.LATTICE_AGENT),
         storyId,
         phase,

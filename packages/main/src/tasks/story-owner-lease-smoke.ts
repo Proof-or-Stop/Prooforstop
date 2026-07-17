@@ -77,7 +77,14 @@ import {
   isVolatileRuntimeArtifactPath,
   listRuntimeArtifactIgnorePatterns,
 } from '../core/runtime-artifact-registry.js';
-import { OWNER_SESSION_TOKEN_DIR } from '../core/owner-session-token-store.js';
+import {
+  OWNER_SESSION_TOKEN_DIR,
+  OWNER_SESSION_TOKEN_TTL_MS,
+  readOrCreateOwnerSessionToken,
+  removeOwnerSessionTokenForScope,
+  repairOwnerSessionTokenStore,
+  scanOwnerSessionTokenStore,
+} from '../core/owner-session-token-store.js';
 import {
   renderStoryOwnerLeaseScan,
   scanStoryOwnerLeases,
@@ -87,9 +94,35 @@ import {
   enforceStoryOwnerLeaseGate,
   resolveEffectiveOwnershipClass,
 } from '../cli-engine.js';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { buildCanonicalHostRuntimeEnv } from '../core/lattice-dispatch.js';
 
+const ownerSessionChildMode = process.env.LATTICE_OWNER_SESSION_SMOKE_CHILD_MODE;
+if (ownerSessionChildMode === 'identity') {
+  const identity = resolveSessionIdentity(
+    process.env,
+    {
+      hostname: 'child-host',
+      root: process.env.LATTICE_OWNER_SESSION_SMOKE_ROOT || process.cwd(),
+      ppid: process.ppid,
+    },
+  );
+  process.stdout.write(`${JSON.stringify(identity)}\n`);
+  process.exit(0);
+}
+if (ownerSessionChildMode === 'token') {
+  const token = readOrCreateOwnerSessionToken(
+    process.env.LATTICE_OWNER_SESSION_SMOKE_ROOT || process.cwd(),
+    process.env.LATTICE_OWNER_SESSION_SMOKE_PROVIDER || 'fake',
+    process.env.LATTICE_OWNER_SESSION_SMOKE_TASK || 'task',
+    process.env.LATTICE_OWNER_SESSION_SMOKE_ROLE || 'role',
+    process.env.LATTICE_OWNER_SESSION_SMOKE_BOUNDARY || 'boundary',
+  );
+  process.stdout.write(`${token}\n`);
+  process.exit(0);
+}
+
+const projectRoot = join(new URL('../../../..', import.meta.url).pathname);
 const root = join(tmpdir(), `lattice-story-owner-lease-smoke-${process.pid}-${Date.now()}`);
 mkdirSync(root, { recursive: true });
 
@@ -156,7 +189,16 @@ try {
     );
     assert.equal(rOneDimensional.sessionSource, 'derived-ppid', 'task-only adapter input falls through safely');
     const rNativeOnly = resolveSessionIdentity({ CODEX_SESSION_ID: 'raw-native-session' }, inA);
-    assert.equal(rNativeOnly.sessionSource, 'derived-ppid', 'a raw provider-native session is not promoted alone');
+    assert.equal(rNativeOnly.sessionSource, 'host-adapter', 'ordinary direct Codex maps its native task to the policy-distinct main role');
+    assert.equal(JSON.stringify(rNativeOnly).includes('raw-native-session'), false, 'raw direct-host task material is hashed at the adapter boundary');
+    const rCodexThreadA = resolveSessionIdentity({ CODEX_THREAD_ID: 'codex-thread-red' }, { ...inA, ppid: 111 });
+    const rCodexThreadB = resolveSessionIdentity({ CODEX_THREAD_ID: 'codex-thread-red' }, { ...inA, ppid: 222 });
+    const rCodexThreadOtherRole = resolveSessionIdentity(
+      { CODEX_THREAD_ID: 'codex-thread-red', LATTICE_AGENT: 'reviewer' },
+      { ...inA, ppid: 333 },
+    );
+    assert.equal(rCodexThreadA.sessionId, rCodexThreadB.sessionId, 'CODEX_THREAD_ID plus main role is stable across ppid changes');
+    assert.notEqual(rCodexThreadA.sessionId, rCodexThreadOtherRole.sessionId, 'direct Codex reviewer role remains isolated from main owner');
     const rCodexWrapperComposite = resolveSessionIdentity(
       {
         LATTICE_ACTIVITY_SOURCE: 'codex',
@@ -339,6 +381,78 @@ try {
       .join('\n');
     assert.equal(persistedTokenStore.includes(rawSentinel), false, 'persisted token store hashes every raw task/role/boundary lookup dimension');
 
+    // Corrupt final files are repaired under the bounded scope lock instead of
+    // permanently wedging on EEXIST.
+    const fakeProviderDir = readdirSync(tokenStoreRoot, { withFileTypes: true })
+      .filter(entry => entry.isDirectory())
+      .map(entry => join(tokenStoreRoot, entry.name))
+      .find(dir => readdirSync(dir).some(file => {
+        if (!file.endsWith('.json')) return false;
+        try { return JSON.parse(readFileSync(join(dir, file), 'utf8')).provider === 'fake'; } catch { return false; }
+      }));
+    assert.ok(fakeProviderDir, 'fake generated-token provider directory exists');
+    const fakeTokenFile = readdirSync(fakeProviderDir!)
+      .find(file => file.endsWith('.json') && JSON.parse(readFileSync(join(fakeProviderDir!, file), 'utf8')).provider === 'fake');
+    assert.ok(fakeTokenFile, 'fake generated-token record exists');
+    writeFileSync(join(fakeProviderDir!, fakeTokenFile!), '{partial', 'utf8');
+    const repairedCorrupt = resolveSessionIdentity(
+      {
+        LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'fake',
+        LATTICE_OWNER_SESSION_ADAPTER_TASK: `${rawSentinel}-generated-task`,
+        LATTICE_OWNER_SESSION_ADAPTER_AGENT: `${rawSentinel}-generated-agent`,
+        LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY: `${rawSentinel}-generated-boundary`,
+        LATTICE_OWNER_SESSION_ADAPTER_GENERATED: 'true',
+      },
+      generatedInputs,
+      { now: () => '2026-06-20T12:30:00.000Z' },
+    );
+    assert.equal(repairedCorrupt.sessionSource, 'generated-token', 'corrupt final record is repaired and resolution converges');
+    assert.notEqual(repairedCorrupt.sessionId, generatedRawSafe.sessionId, 'corrupt token material is replaced rather than trusted');
+
+    // Expiry and scope-owned deletion are bounded: deleting task A cannot
+    // remove or reuse task B's token.
+    const expiryStart = Date.now() - OWNER_SESSION_TOKEN_TTL_MS - 1;
+    const expiryA = readOrCreateOwnerSessionToken(
+      root,
+      'codex',
+      'expiry-task',
+      'implementer',
+      'expiry-boundary',
+      () => new Date(expiryStart).toISOString(),
+    );
+    const expiryB = readOrCreateOwnerSessionToken(
+      root,
+      'codex',
+      'expiry-task',
+      'implementer',
+      'expiry-boundary',
+      () => new Date(expiryStart + OWNER_SESSION_TOKEN_TTL_MS + 1).toISOString(),
+    );
+    assert.notEqual(expiryA, expiryB, 'expired generated token is replaced atomically');
+    const scopeA = readOrCreateOwnerSessionToken(root, 'codex', 'scope-task-a', 'implementer', 'scope-boundary');
+    const scopeB = readOrCreateOwnerSessionToken(root, 'codex', 'scope-task-b', 'implementer', 'scope-boundary');
+    assert.equal(
+      removeOwnerSessionTokenForScope(root, 'codex', 'scope-task-a', 'implementer', 'scope-boundary'),
+      true,
+      'scope A may remove its own generated token',
+    );
+    assert.equal(
+      readOrCreateOwnerSessionToken(root, 'codex', 'scope-task-b', 'implementer', 'scope-boundary'),
+      scopeB,
+      'scope A cleanup leaves scope B token untouched',
+    );
+    assert.notEqual(
+      readOrCreateOwnerSessionToken(root, 'codex', 'scope-task-a', 'implementer', 'scope-boundary'),
+      scopeA,
+      'removed scope A receives a fresh token and cannot reuse deleted material',
+    );
+    const storeHealth = scanOwnerSessionTokenStore(root);
+    assert.equal(storeHealth.corrupt, 0, 'token-store health scan reports no corrupt records after bounded repair');
+    assert.ok(storeHealth.expired >= 1, 'token-store health scan enumerates expired records without exposing their dimensions');
+    const storeRepair = repairOwnerSessionTokenStore(root);
+    assert.ok(storeRepair.removedExpired >= 1, 'doctor repair primitive removes expired records');
+    assert.equal(storeRepair.health.needsRepair, false, 'doctor repair primitive converges to a healthy token store');
+
     // Spawned provider children receive truthful task + role dimensions rather
     // than the parent owner's canonical id. Only an explicitly allowlisted
     // external LATTICE_SESSION_ID is preserved.
@@ -371,6 +485,20 @@ try {
       },
     );
     assert.equal(explicitChildEnv.LATTICE_SESSION_ID, 'parent-owner-must-not-collapse-reviewer', 'deliberately allowlisted external override is preserved');
+    const deniedExplicitChildEnv = buildCanonicalHostRuntimeEnv(
+      {
+        ...dispatchPolicy,
+        envAllowlist: ['LATTICE_SESSION_ID'],
+        envDenylist: ['LATTICE_SESSION_ID'],
+      },
+      'codex',
+      {
+        taskIdentity: 'dispatch:task-red',
+        agentOrRoleIdentity: 'reviewer',
+        adapterBoundary: 'dispatch-boundary-red',
+      },
+    );
+    assert.equal(deniedExplicitChildEnv.LATTICE_SESSION_ID, undefined, 'denylist wins an allowlist conflict for LATTICE_SESSION_ID');
     if (savedExplicit === undefined) delete process.env.LATTICE_SESSION_ID;
     else process.env.LATTICE_SESSION_ID = savedExplicit;
 
@@ -419,6 +547,17 @@ try {
       LATTICE_OWNER_SESSION_ADAPTER_ROLE: process.env.LATTICE_OWNER_SESSION_ADAPTER_ROLE,
       LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY: process.env.LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY,
       LATTICE_OWNER_SESSION_ADAPTER_GENERATED: process.env.LATTICE_OWNER_SESSION_ADAPTER_GENERATED,
+      LATTICE_ACTIVITY_SOURCE: process.env.LATTICE_ACTIVITY_SOURCE,
+      LATTICE_ACTIVITY_SESSION: process.env.LATTICE_ACTIVITY_SESSION,
+      LATTICE_AGENT: process.env.LATTICE_AGENT,
+      CODEX_THREAD_ID: process.env.CODEX_THREAD_ID,
+      CODEX_SESSION_ID: process.env.CODEX_SESSION_ID,
+      OPENAI_SESSION_ID: process.env.OPENAI_SESSION_ID,
+      TERM_SESSION_ID: process.env.TERM_SESSION_ID,
+      CLAUDE_CODE_SESSION_ID: process.env.CLAUDE_CODE_SESSION_ID,
+      CLAUDE_SESSION_ID: process.env.CLAUDE_SESSION_ID,
+      ANTIGRAVITY_SESSION_ID: process.env.ANTIGRAVITY_SESSION_ID,
+      AGY_SESSION_ID: process.env.AGY_SESSION_ID,
     };
     for (const name of Object.keys(saved)) delete process.env[name];
     resetSessionIdForTest();
@@ -440,6 +579,199 @@ try {
     assert.equal(warnings.length, 1, 'derived-ppid warning is emitted only for the first story mutation');
     assert.ok(warnings[0].includes('session identity degraded: derived-ppid'), 'pre-mutation warning names the degraded source');
     assert.ok(warnings[0].includes('LATTICE_SESSION_ID') && warnings[0].includes('supported host adapter'), 'pre-mutation warning is actionable');
+  }
+
+  // B-62b8 F-005: real child-process boundaries. Direct and shell-nested Node
+  // processes have different PPID shapes but must converge for every supported
+  // adapter while preserving task/role isolation and redaction.
+  {
+    const childFile = process.argv[1];
+    const cleanChildEnv = (): NodeJS.ProcessEnv => {
+      const env = { ...process.env };
+      for (const name of [
+        'LATTICE_SESSION_ID',
+        'LATTICE_OWNER_SESSION_ADAPTER_PROVIDER',
+        'LATTICE_OWNER_SESSION_ADAPTER_TASK',
+        'LATTICE_OWNER_SESSION_ADAPTER_AGENT',
+        'LATTICE_OWNER_SESSION_ADAPTER_ROLE',
+        'LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY',
+        'LATTICE_OWNER_SESSION_ADAPTER_GENERATED',
+        'LATTICE_ACTIVITY_SOURCE',
+        'LATTICE_ACTIVITY_SESSION',
+        'LATTICE_AGENT',
+        'CODEX_THREAD_ID',
+        'CODEX_SESSION_ID',
+        'OPENAI_SESSION_ID',
+        'TERM_SESSION_ID',
+        'CLAUDE_CODE_SESSION_ID',
+        'CLAUDE_SESSION_ID',
+        'ANTIGRAVITY_SESSION_ID',
+        'AGY_SESSION_ID',
+      ]) delete env[name];
+      env.LATTICE_OWNER_SESSION_SMOKE_CHILD_MODE = 'identity';
+      env.LATTICE_OWNER_SESSION_SMOKE_ROOT = root;
+      return env;
+    };
+    const runChildIdentity = (env: NodeJS.ProcessEnv, nested: boolean): {
+      identity: ReturnType<typeof resolveSessionIdentity>;
+      combinedOutput: string;
+    } => {
+      const result = nested
+        ? spawnSync('/bin/sh', ['-c', '"$OWNER_NODE" "$OWNER_CHILD"'], {
+          env: { ...env, OWNER_NODE: process.execPath, OWNER_CHILD: childFile },
+          encoding: 'utf8',
+          timeout: 10_000,
+        })
+        : spawnSync(process.execPath, [childFile], { env, encoding: 'utf8', timeout: 10_000 });
+      assert.equal(result.status, 0, `owner-session child exits cleanly: ${result.stderr}`);
+      const stdout = String(result.stdout).trim();
+      return {
+        identity: JSON.parse(stdout) as ReturnType<typeof resolveSessionIdentity>,
+        combinedOutput: `${stdout}\n${String(result.stderr)}`,
+      };
+    };
+    const providerCases: Array<{
+      provider: string;
+      sentinel: string;
+      env: NodeJS.ProcessEnv;
+    }> = [
+      {
+        provider: 'codex',
+        sentinel: 'RAW-CODEX-THREAD-CHILD',
+        env: { CODEX_THREAD_ID: 'RAW-CODEX-THREAD-CHILD' },
+      },
+      {
+        provider: 'claude-code',
+        sentinel: 'RAW-CLAUDE-SESSION-CHILD',
+        env: { CLAUDE_CODE_SESSION_ID: 'RAW-CLAUDE-SESSION-CHILD' },
+      },
+      {
+        provider: 'antigravity',
+        sentinel: 'RAW-AGY-SESSION-CHILD',
+        env: { AGY_SESSION_ID: 'RAW-AGY-SESSION-CHILD' },
+      },
+      {
+        provider: 'fake',
+        sentinel: 'RAW-FAKE-TASK-CHILD',
+        env: {
+          LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'fake',
+          LATTICE_OWNER_SESSION_ADAPTER_TASK: 'RAW-FAKE-TASK-CHILD',
+          LATTICE_OWNER_SESSION_ADAPTER_AGENT: 'main',
+        },
+      },
+    ];
+    for (const candidate of providerCases) {
+      const env = { ...cleanChildEnv(), ...candidate.env };
+      const direct = runChildIdentity(env, false);
+      const nested = runChildIdentity(env, true);
+      assert.equal(direct.identity.sessionSource, 'host-adapter', `${candidate.provider} direct child uses host-adapter`);
+      assert.equal(direct.identity.hostProvider, candidate.provider, `${candidate.provider} child reports truthful provider`);
+      assert.equal(direct.identity.sessionId, nested.identity.sessionId, `${candidate.provider} identity survives a nested parent-process boundary`);
+      assert.equal(direct.combinedOutput.includes(candidate.sentinel), false, `${candidate.provider} direct output redacts raw task token`);
+      assert.equal(nested.combinedOutput.includes(candidate.sentinel), false, `${candidate.provider} nested output redacts raw task token`);
+    }
+    const codexBase = cleanChildEnv();
+    codexBase.CODEX_THREAD_ID = 'codex-child-task-a';
+    const codexTaskA = runChildIdentity(codexBase, false).identity;
+    const codexTaskB = runChildIdentity({ ...codexBase, CODEX_THREAD_ID: 'codex-child-task-b' }, true).identity;
+    const codexReviewer = runChildIdentity({ ...codexBase, LATTICE_AGENT: 'reviewer' }, true).identity;
+    assert.notEqual(codexTaskA.sessionId, codexTaskB.sessionId, 'different spawned Codex tasks remain isolated');
+    assert.notEqual(codexTaskA.sessionId, codexReviewer.sessionId, 'spawned Codex main and reviewer roles remain isolated');
+    const blankOverride = runChildIdentity({ ...codexBase, LATTICE_SESSION_ID: '   ' }, true).identity;
+    assert.equal(blankOverride.sessionId, codexTaskA.sessionId, 'blank explicit override falls through in a real child process');
+
+    // Race two independent token creator processes for one scope. The scope
+    // lock plus atomic rename makes both children return exactly one token.
+    const raceRoot = join(root, 'token-race');
+    mkdirSync(raceRoot, { recursive: true });
+    const raceEnv = {
+      ...cleanChildEnv(),
+      LATTICE_OWNER_SESSION_SMOKE_CHILD_MODE: 'token',
+      LATTICE_OWNER_SESSION_SMOKE_ROOT: raceRoot,
+      LATTICE_OWNER_SESSION_SMOKE_PROVIDER: 'fake',
+      LATTICE_OWNER_SESSION_SMOKE_TASK: 'race-task',
+      LATTICE_OWNER_SESSION_SMOKE_ROLE: 'race-role',
+      LATTICE_OWNER_SESSION_SMOKE_BOUNDARY: 'race-boundary',
+    };
+    const spawnTokenChild = (): Promise<string> => new Promise((resolvePromise, rejectPromise) => {
+      const child = spawn(process.execPath, [childFile], { env: raceEnv, stdio: ['ignore', 'pipe', 'pipe'] });
+      let stdout = '';
+      let stderr = '';
+      child.stdout.on('data', chunk => { stdout += String(chunk); });
+      child.stderr.on('data', chunk => { stderr += String(chunk); });
+      child.on('error', rejectPromise);
+      child.on('close', code => {
+        if (code !== 0) rejectPromise(new Error(`token child exited ${code}: ${stderr}`));
+        else resolvePromise(stdout.trim());
+      });
+    });
+    const [raceTokenA, raceTokenB] = await Promise.all([spawnTokenChild(), spawnTokenChild()]);
+    assert.equal(raceTokenA, raceTokenB, 'concurrent generated-token creators converge on one token');
+    assert.equal(scanOwnerSessionTokenStore(raceRoot).healthy, 1, 'concurrent token race publishes one healthy final record');
+
+    // Exercise the real CLI renderers. The native Codex thread is never
+    // printed, while session_brief and doctor bind the same opaque id.
+    const cliSentinel = 'RAW-CODEX-CLI-THREAD-SENTINEL';
+    const cliEnv = {
+      ...cleanChildEnv(),
+      LATTICE_OWNER_SESSION_SMOKE_CHILD_MODE: undefined,
+      CODEX_THREAD_ID: cliSentinel,
+      LATTICE_ACTIVITY_SOURCE: 'codex',
+      LATTICE_ACTIVITY_SESSION: cliSentinel,
+      LATTICE_ACTIVITY_RECORD_READONLY: '1',
+    };
+    delete cliEnv.LATTICE_OWNER_SESSION_SMOKE_CHILD_MODE;
+    const briefDirect = spawnSync(process.execPath, ['bin/lattice.js', 'session_brief'], {
+      cwd: projectRoot,
+      env: cliEnv,
+      encoding: 'utf8',
+      timeout: 30_000,
+    });
+    assert.equal(briefDirect.status, 0, `real session_brief exits cleanly: ${briefDirect.stderr}`);
+    const briefOutput = `${briefDirect.stdout}\n${briefDirect.stderr}`;
+    assert.ok(briefOutput.includes('[host-adapter provider=codex]'), 'real session_brief reports Codex host-adapter identity');
+    assert.equal(briefOutput.includes(cliSentinel), false, 'real session_brief redacts CODEX_THREAD_ID');
+    const briefSessionId = briefOutput.match(/session identity: (sess-[a-f0-9]+)/)?.[1];
+    assert.ok(briefSessionId, 'real session_brief renders an opaque session id');
+    const recentActivity = readActivityLogTail(projectRoot, 20);
+    assert.equal(JSON.stringify(recentActivity).includes(cliSentinel), false, 'activity events never persist raw LATTICE_ACTIVITY_SESSION');
+    assert.ok(
+      recentActivity.some(event => event.session === briefSessionId),
+      'activity event persists the same opaque canonical id rendered by session_brief',
+    );
+    const doctor = spawnSync(process.execPath, ['bin/lattice.js', 'doctor', '--format=json'], {
+      cwd: projectRoot,
+      env: cliEnv,
+      encoding: 'utf8',
+      timeout: 60_000,
+    });
+    assert.equal(doctor.status, 0, `real doctor exits cleanly: ${doctor.stderr}`);
+    const doctorOutput = `${doctor.stdout}\n${doctor.stderr}`;
+    assert.ok(doctorOutput.includes('"sessionSource": "host-adapter"'), 'real doctor JSON reports host-adapter source');
+    assert.ok(doctorOutput.includes('"hostProvider": "codex"'), 'real doctor JSON reports Codex provider');
+    assert.equal(doctorOutput.includes(cliSentinel), false, 'real doctor output redacts CODEX_THREAD_ID');
+
+    const degradedEnv = cleanChildEnv();
+    delete degradedEnv.LATTICE_OWNER_SESSION_SMOKE_CHILD_MODE;
+    const degradedMutation = spawnSync(
+      process.execPath,
+      [
+        'bin/lattice.js',
+        'checklist_update',
+        JSON.stringify({ storyId: 'B-62b8', itemId: 'CHK-001', status: 'done' }),
+      ],
+      {
+        cwd: projectRoot,
+        env: degradedEnv,
+        encoding: 'utf8',
+        timeout: 30_000,
+      },
+    );
+    assert.notEqual(degradedMutation.status, 0, 'derived-ppid foreign mutation remains blocked');
+    const mutationStderr = String(degradedMutation.stderr);
+    const warningIndex = mutationStderr.indexOf('session identity degraded: derived-ppid');
+    const errorIndex = mutationStderr.indexOf('Error:');
+    assert.ok(warningIndex >= 0 && errorIndex > warningIndex, 'real mutation prints degraded guidance before the foreign-owner error');
   }
 
   // ── 2. acquire — schema-complete lease at the canonical path ─────────────

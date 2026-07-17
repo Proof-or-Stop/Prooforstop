@@ -6,11 +6,12 @@ import { join, relative } from 'node:path';
 const projectRoot = join(new URL('../../../..', import.meta.url).pathname);
 const srcRoot = join(projectRoot, 'packages/main/src');
 
-const HOST_SESSION_ENV_RE = /\b(?:CLAUDE_CODE_SESSION_ID|CLAUDE_SESSION_ID|CODEX_[A-Z0-9_]*SESSION[A-Z0-9_]*|OPENAI_SESSION_ID|AGY_[A-Z0-9_]*SESSION[A-Z0-9_]*|ANTIGRAVITY_[A-Z0-9_]*SESSION[A-Z0-9_]*|GEMINI_[A-Z0-9_]*SESSION[A-Z0-9_]*)\b/g;
+const HOST_SESSION_ENV_RE = /\b(?:CLAUDE_CODE_SESSION_ID|CLAUDE_SESSION_ID|CODEX_THREAD_ID|CODEX_[A-Z0-9_]*SESSION[A-Z0-9_]*|OPENAI_SESSION_ID|AGY_[A-Z0-9_]*SESSION[A-Z0-9_]*|ANTIGRAVITY_[A-Z0-9_]*SESSION[A-Z0-9_]*|GEMINI_[A-Z0-9_]*SESSION[A-Z0-9_]*)\b/g;
 
 const ALLOWLIST = [
   'packages/main/src/core/owner-session-adapters.ts',
   'packages/main/src/core/lattice-dispatch.ts',
+  'packages/main/src/core/codex-adapter-checks.ts',
   'packages/main/src/init-assets.ts',
 ];
 
@@ -54,6 +55,26 @@ assert.deepEqual(
 
 const adapterPath = join(projectRoot, 'packages/main/src/core/owner-session-adapters.ts');
 assert.equal(existsSync(adapterPath), true, 'owner-session adapter boundary exists');
+
+const cliEngine = readFileSync(join(projectRoot, 'packages/main/src/cli-engine.ts'), 'utf8');
+assert.doesNotMatch(
+  cliEngine,
+  /process\.env\.LATTICE_ACTIVITY_SESSION/,
+  'CLI activity and story process-event writers never consume the raw activity-session token',
+);
+assert.match(
+  cliEngine,
+  /session:\s*sessionIdentity\.sessionId/g,
+  'CLI activity and story process-event writers persist the shared opaque canonical id',
+);
+const initAssets = readFileSync(join(projectRoot, 'packages/main/src/init-assets.ts'), 'utf8');
+assert.match(initAssets, /process\.env\.CODEX_THREAD_ID/, 'Codex wrapper consumes the real durable thread boundary');
+assert.match(initAssets, /LATTICE_OWNER_SESSION_ADAPTER_AGENT/, 'Codex wrapper injects a policy-distinct agent/role boundary');
+assert.doesNotMatch(
+  initAssets,
+  /process\.env\.LATTICE_ACTIVITY_SESSION\s*=\s*[\s\S]{0,180}process\.env\.CODEX_/,
+  'Codex wrapper never maps a raw native token into the logged activity-session field',
+);
 
 for (const relPath of [
   'packages/main/src/handlers/context.ts',
