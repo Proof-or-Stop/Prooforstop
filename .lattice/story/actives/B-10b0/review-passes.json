@@ -336,6 +336,28 @@
         "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
       },
       "_hash": "4e0b43e150ded06ccddfbd551a67edecc2f1cc2cfd987354841f86523312bed1"
+    },
+    {
+      "id": "B-10b0:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Targeted concept review of 4d34a3093b found no blocker. The generated-metadata classifier captures the clean baseline before the run and permits process-events.jsonl only as an exact prefix-preserving append whose every new row has the closed validation_terminal key set, matching storyId, TEST/reused/pass semantics, zero executions, parseable timestamp, and SHA-256 command/material/story hashes. Pre-existing dirty paths, deletions/renames, cross-story paths, non-append deltas, extra fields, and other event types remain fail-closed. This adds no authority claim; it is a bounded local auto-stage classification. The focused done-prepare auto-closeout smoke passes, including reused-terminal convergence and pre-existing/untrusted dirty refusal.",
+      "createdAt": "2026-07-17T20:40:42.351Z",
+      "reviewRound": "2026-07-17T20:39:28.295Z",
+      "reviewRunId": "B-10b0:RR-019",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "c14a936a795a3595bc7d309f91e98f3d6f23b54b311ef506fdd2d560a0771815"
     }
   ]
 }
