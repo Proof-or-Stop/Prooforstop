@@ -156,7 +156,7 @@
       "desc": "F-003 remains bypassable after 969ffd1d98. The focused analyzer returns [] for two ordinary source-to-sink flows: (1) `const { env } = process; const target = env.TEST_FILE; writeFileSync(target, \"x\")`, because object destructuring from a process alias never adds `env` to envObjects; and (2) `function positive(raw,fallback){ const parsed=Number(raw); return Number.isFinite(parsed) || parsed > 0 ? Math.floor(parsed) : fallback } writeFileSync(positive(process.env.TEST_FILE, \"/fixed\"), \"x\")`, because sanitizer recognition merely searches for isFinite and >0 nodes without requiring the condition to be a conjunction. Infinity therefore reaches the sink through a function classified as a sanitizer. The original helper-return, property-assignment, and process-sink repros now pass, but these same-class bypasses keep the advertised production guard fail-open. Track `{env}=process`/process aliases and structurally require the safe boolean predicate (or conservatively refuse sanitizer exemptions not proven safe); add both exact negatives.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-17T00:21:17.219Z",
@@ -167,7 +167,11 @@
         "packages/main/src/tasks/production-test-seam-guard.ts"
       ],
       "signatureTag": "production-test-seam-taint-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Guard now propagates process/alias {env} and nested destructuring taint, and sanitizer admission requires independent top-level conjunction of finite and positive checks; OR, negated, alternate-OR, Infinity, and raw-return fixtures are rejected. Evidence: npm --prefix packages/main run build; npm run test:production-test-seam-guard; node packages/main/dist/tasks/validate-execution-lock-smoke.js.",
+      "resolvedAt": "2026-07-17T00:25:53.395Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
