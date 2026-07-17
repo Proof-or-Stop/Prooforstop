@@ -1562,7 +1562,7 @@ function assertCloseoutTrustBoundary() {
   assert(receiptFact?.rationale.includes('same-UID') && receiptFact?.rationale.includes('forgeable') && receiptFact?.rationale.includes('not canonical-writer authentication') && receiptFact?.rationale.includes('cannot authorize a closeout artifact') && receiptFact?.rationale.includes('not closeout evidence'), `${processFactRegistryPath}: receipts must disclose the local same-UID trust limit and separate review retention from artifact authority`);
   assert(read(lifecycleRegistryPath).includes("'closeout-write-receipts.jsonl'"), `${lifecycleRegistryPath}: receipt ledger must remain classified lifecycle metadata`);
   const lifecycleText = read(lifecycleRegistryPath);
-  assert(lifecycleText.includes('REVIEW_RETENTION_PROTOCOL_METADATA_PATHS') && lifecycleText.includes("'process-metrics.json'") && lifecycleText.includes("'test-runs.json'"), `${lifecycleRegistryPath}: non-authoritative review-retention companion metadata must remain closed and registry-backed`);
+  assert(lifecycleText.includes('REVIEW_RETENTION_PROTOCOL_METADATA_PATHS') && lifecycleText.includes("'process-metrics.json'") && lifecycleText.includes("'test-runs.json'") && lifecycleText.includes("'owner-lease.json'"), `${lifecycleRegistryPath}: non-authoritative review-retention companion metadata must remain closed and registry-backed`);
 
   const autoCommitText = read('packages/main/src/core/auto-commit-metadata.ts');
   for (const token of ['closeoutArtifactPaths', 'declaredPaths.has(policy.path)', 'buildCloseoutWriteReceipt', 'appendCloseoutWriteReceipt']) {

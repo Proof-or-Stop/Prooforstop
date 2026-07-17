@@ -27,6 +27,7 @@ import { createInitCheckHandlers } from '../handlers/init-check.js';
 import { createScopeCheckHandlers } from '../handlers/scope-check.js';
 import { createDeliveryCheckHandlers } from '../handlers/delivery-check.js';
 import { captureReviewerReadEvent } from '../core/reviewer-read-evidence.js';
+import { DEFAULT_PHASE_TOOLS } from '../core/config.js';
 import { REVIEW_RUN_LANES, resolveReviewRunLane } from '../core/review-run.js';
 import type {
   AgentDispatchMutationCommand,
@@ -77,6 +78,12 @@ assert.equal(
   false,
   'legacy implementation-reviewer stays deliberately folded into quality/behavior instead of acquiring a third REVIEW authority',
 );
+const deliveryEntry = AGENT_DISPATCH_REGISTRY.find((entry) => entry.canonicalName === 'lattice-review-delivery');
+assert.deepEqual(deliveryEntry?.allowedPhases, ['TEST'], 'delivery reviewer dispatch is TEST-only');
+assert.equal(DEFAULT_PHASE_TOOLS.TEST.includes('delivery_check_set'), true, 'delivery_check_set must be legal in TEST');
+assert.equal(DEFAULT_PHASE_TOOLS.REVIEW.includes('delivery_check_set'), false, 'delivery_check_set must not be legal outside the delivery reviewer dispatch phase');
+assert.equal(DEFAULT_PHASE_TOOLS.TEST.includes('delivery_waiver_add'), true, 'delivery waiver must share the delivery reviewer phase');
+assert.equal(DEFAULT_PHASE_TOOLS.REVIEW.includes('delivery_waiver_add'), false, 'delivery waiver must reject REVIEW before mutation');
 
 for (const entry of AGENT_DISPATCH_REGISTRY) {
   assert.ok(entry.allowedPhases.length > 0, `${entry.canonicalName} must declare an allowed phase`);

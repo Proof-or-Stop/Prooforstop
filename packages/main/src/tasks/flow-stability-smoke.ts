@@ -86,6 +86,7 @@ import { createSessionHandlers } from '../handlers/session.js';
 import { buildDoneClosureRunbook } from '../handlers/done-closure.js';
 import { checkCommitAuthor } from '../handlers/validate-channel.js';
 import { repairGlobalLatticeLinkBeforeWorktreeDelete } from '../handlers/worktree.js';
+import { assertDonePreparePassConvergence, deriveDonePreparePassConvergence, donePrepareJsonResult, validationCloseoutAdvancePaths } from '../handlers/done-prepare.js';
 
 function write(root: string, path: string, content: string): void {
   mkdirSync(dirname(join(root, path)), { recursive: true });
@@ -4333,8 +4334,97 @@ function assertCustomStoryDirDirtyWorktreeClassification(): void {
   }
 }
 
+function assertDonePrepareOnePassConvergenceContract(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-done-prepare-convergence-'));
+  try {
+    write(root, 'lattice.config.json', JSON.stringify({
+      scanRoot: '.', rootDir: 'src', storyDir: '.lattice/story/actives', testsDir: 'tests',
+      fixturesDir: 'tests/fixtures', requirementsDir: 'docs/requirements', storyPrefix: 'B',
+    }));
+    write(root, 'src/app.ts', 'export const stable = true;\n');
+    git(root, ['init', '-b', 'main']);
+    git(root, ['config', 'user.email', 'convergence@example.test']);
+    git(root, ['config', 'user.name', 'convergence-smoke']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'baseline']);
+    resetConfigCache();
+    const store = new StoryStore(root);
+    const storyId = 'B-convergence';
+    const ctx = { store, root, scanRoot: root } as any;
+    const before = currentGitHead(root)!;
+    write(root, `.lattice/story/actives/${storyId}/test-evidence.json`, '{}\n');
+    write(root, `.lattice/story/actives/${storyId}/closeout-write-receipts.jsonl`, '{}\n');
+    write(root, `.lattice/story/actives/${storyId}/owner-lease.json`, '{}\n');
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'canonical validation closeout metadata']);
+    const metadataHead = currentGitHead(root)!;
+    const accepted = validationCloseoutAdvancePaths(ctx, storyId, root, before, metadataHead);
+    assert.equal(accepted.eligible, true, accepted.reasons.join('; '));
+    assert.deepEqual(accepted.paths.sort(), [
+      `.lattice/story/actives/${storyId}/closeout-write-receipts.jsonl`,
+      `.lattice/story/actives/${storyId}/owner-lease.json`,
+      `.lattice/story/actives/${storyId}/test-evidence.json`,
+    ]);
+
+    write(root, 'src/app.ts', 'export const stable = false;\n');
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'real material drift']);
+    const drifted = validationCloseoutAdvancePaths(ctx, storyId, root, metadataHead, currentGitHead(root)!);
+    assert.equal(drifted.eligible, false, 'real source drift must never be normalized as closeout metadata');
+    assert(drifted.reasons.some((reason) => reason.includes('non-story path')));
+
+    const transcript = [
+      'DONE prepare: PASS',
+      `storyId: ${storyId}`,
+      'convergence: metadataRollbacks=0 reviewerReattestations=0 humanConfirmations=0 unchangedSuiteExecutions=0 successfulCloseout=1',
+    ].join('\n');
+    assert.deepEqual(donePrepareJsonResult(storyId, transcript).convergence, {
+      metadataRollbacks: 0,
+      reviewerReattestations: 0,
+      humanConfirmations: 0,
+      unchangedSuiteExecutions: 0,
+      successfulCloseout: 1,
+    });
+    const derived = deriveDonePreparePassConvergence([
+      { id: 'validate', status: 'pass', reason: 'Validation PASS reused (trusted-story-metadata-descendant); commandExecutions=0' },
+      { id: 'doneClosure', status: 'pass' },
+      { id: 'cleanTree', status: 'pass' },
+    ] as any, { blockers: [] } as any);
+    assert.deepEqual(derived, {
+      metadataRollbacks: 0,
+      reviewerReattestations: 0,
+      humanConfirmations: 0,
+      unchangedSuiteExecutions: 0,
+      successfulCloseout: 1,
+    });
+    const duplicateExecution = deriveDonePreparePassConvergence([
+      { id: 'validate', status: 'pass', reason: 'Validation PASS reused; commandExecutions=1' },
+      { id: 'doneClosure', status: 'pass' },
+      { id: 'cleanTree', status: 'pass' },
+    ] as any, { blockers: [] } as any);
+    assert.equal(duplicateExecution.unchangedSuiteExecutions, 1, 'a nested redundant execution must make the PASS convergence invariant fail');
+    assert.throws(
+      () => assertDonePreparePassConvergence(duplicateExecution),
+      /done_prepare convergence invariant failed/,
+      'reused validation with commandExecutions>0 must never render PASS',
+    );
+    assert.doesNotThrow(() => assertDonePreparePassConvergence(derived));
+    assert.equal(donePrepareJsonResult(storyId, 'DONE prepare: BLOCKED\nblockedAt: cleanTree\nreason: materialHash changed').convergence, undefined);
+
+    const handlerSource = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../handlers/done-prepare.js'), 'utf8');
+    assert.equal((handlerSource.match(/await verifier\.validate\(/g) ?? []).length, 1, 'done_prepare must have one routine validation invocation site');
+    assert.match(handlerSource, /runDonePrepare\(ctx,[\s\S]{0,500}validate: false/, 'auto-closeout recursion must disable nested validation');
+    assert.match(handlerSource, /deriveDonePreparePassConvergence/, 'PASS counters must be derived from steps and runbook facts');
+    assert.doesNotMatch(handlerSource, /convergence: metadataRollbacks=0 reviewerReattestations=0/, 'PASS must not print cosmetic hard-coded zero counters');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+    resetConfigCache();
+  }
+}
+
 assertProductionHelperPassesProjectRootToClassifier();
 assertCustomStoryDirDirtyWorktreeClassification();
+assertDonePrepareOnePassConvergenceContract();
 assertSessionBriefGate();
 assertDirtyWorktreeClassifierGroupsOwnership();
 assertDirtyGatePolicyAcrossGates();

@@ -322,6 +322,7 @@ async function assertManifestOnlyAutoCloseout(): Promise<void> {
   try {
     process.chdir(root);
     const deliveryBefore = readFileSync(join(root, '.lattice', 'story', 'actives', storyId, 'delivery-check.json'), 'utf8');
+    const beforeHead = git(root, ['rev-parse', 'HEAD']);
     const logs: string[] = [];
     const transcript = await withEnv(gitIdentityEnv(), async () => String(await createDonePrepareHandlers(mkCtx(root, (msg) => logs.push(msg))).done_prepare({
       storyId,
@@ -333,36 +334,32 @@ async function assertManifestOnlyAutoCloseout(): Promise<void> {
     })));
 
     assert.match(transcript, /^DONE prepare: PASS/, transcript);
-    assert.match(transcript, /^autoCloseGeneratedMetadata: PASS$/m);
-    assert.match(transcript, /^validationReused: true$/m);
-    assert.match(transcript, /^validationReuseRecord: done-required-evidence\.json$/m);
+    assert.match(transcript, /^convergence: metadataRollbacks=0 reviewerReattestations=0 humanConfirmations=0 unchangedSuiteExecutions=0 successfulCloseout=1$/m);
+    assert.doesNotMatch(transcript, /^autoCloseGeneratedMetadata:/m, 'canonical validation writers converge without nested auto-closeout recursion');
     assert.match(transcript, /lattice story_advance '\{"storyId":"B-done-prepare-auto-closeout","phase":"DONE"\}'/);
-    assert.ok(logs.some((line) => line.includes('done_prepare auto-closeout: committed generated metadata')), 'auto-closeout commit is logged to side channel');
+    assert.ok(logs.some((line) => line.includes('done_prepare convergence: retained review across trusted validation metadata advance')), 'trusted metadata advance is logged to the side channel');
     assert.equal(git(root, ['status', '--porcelain']), '', 'auto-closeout leaves the worktree clean');
-    assert.equal(git(root, ['log', '-1', '--pretty=%s']), AUTO_CLOSE_MESSAGE);
-    const committedFiles = git(root, ['show', '--pretty=', '--name-only', 'HEAD'])
+    assert.notEqual(git(root, ['log', '-1', '--pretty=%s']), AUTO_CLOSE_MESSAGE, 'one-pass closeout must not create the legacy synthetic auto-close commit');
+    const committedFiles = git(root, ['diff', '--name-only', `${beforeHead}..HEAD`])
       .split('\n')
       .map((line) => line.trim())
       .filter(Boolean)
       .sort();
     assert.deepEqual(committedFiles, [
+      `.lattice/story/actives/${storyId}/closeout-write-receipts.jsonl`,
       `.lattice/story/actives/${storyId}/done-required-evidence.json`,
       `.lattice/story/actives/${storyId}/test-evidence.json`,
     ]);
-    const evidence = new StoryStore(root).readDoneRequiredEvidence(storyId) as any;
-    assert.equal(evidence.donePrepareValidationReuse?.status, 'reused');
-    assert.equal(evidence.donePrepareValidationReuse?.commandsRerunAfterAutoCloseout, false);
-    assert.match(evidence.donePrepareValidationReuse?.statement ?? '', /not rerun/);
-    assert.equal(evidence.donePrepareValidationReuse?.priorEvidenceRefs?.testEvidence?.command, `lattice validate --story=${storyId} --json`);
-    assert.equal(evidence.donePrepareValidationReuse?.priorEvidenceRefs?.doneRequiredEvidence?.receipts?.[0]?.label, 'smoke DONE-required validation');
-    assert.match(evidence.donePrepareValidationReuse?.priorEvidenceRefs?.doneRequiredEvidence?.receipts?.[0]?.outputDigest ?? '', /^[a-f0-9]{64}$/);
+    const evidenceStore = new StoryStore(root);
+    const evidence = evidenceStore.readDoneRequiredEvidence(storyId) as any;
+    assert.equal(evidence.donePrepareValidationReuse, undefined, 'direct one-pass closeout needs no recursive validation-reuse record');
+    assert.equal(evidenceStore.readTestEvidence(storyId)?.commandExecution?.commandCount, 1, 'routine validation suite executes exactly once');
+    assert.equal(evidence.receipts?.length, 1, 'DONE-required suite executes exactly once');
     assert.equal(
       readFileSync(join(root, '.lattice', 'story', 'actives', storyId, 'delivery-check.json'), 'utf8'),
       deliveryBefore,
       'done_prepare must not self-sign or rewrite delivery-check evidence',
     );
-    assert.ok(observed.some((line) => line.includes('git add --')), `spy must observe explicit git add pathspecs:\n${observed.join('\n')}`);
-    assert.ok(observed.some((line) => line.includes('git commit -m')), `spy must observe git commit:\n${observed.join('\n')}`);
   } finally {
     restoreSpy();
     process.chdir(oldCwd);
@@ -397,7 +394,7 @@ async function assertUnsafePathRefusesBeforeReuseRecord(): Promise<void> {
   }
 }
 
-async function assertCommitHookFailureRollsBackReuseAndIndex(): Promise<void> {
+async function assertCommitHookFailureRemainsFailClosed(): Promise<void> {
   const { root, storyId } = setupFixture();
   const oldCwd = process.cwd();
   const observed: string[] = [];
@@ -410,6 +407,7 @@ async function assertCommitHookFailureRollsBackReuseAndIndex(): Promise<void> {
 
     const headBefore = git(root, ['rev-parse', 'HEAD']);
     const safePaths = [
+      `.lattice/story/actives/${storyId}/closeout-write-receipts.jsonl`,
       `.lattice/story/actives/${storyId}/done-required-evidence.json`,
       `.lattice/story/actives/${storyId}/test-evidence.json`,
     ];
@@ -424,10 +422,15 @@ async function assertCommitHookFailureRollsBackReuseAndIndex(): Promise<void> {
 
     assert.match(transcript, /^DONE prepare: BLOCKED/, transcript);
     assert.match(transcript, /^blockedAt: cleanTree$/m);
-    assert.match(transcript, /git commit failed/);
-    assert.match(transcript, /failing pre-commit/);
-    assert.equal(git(root, ['rev-parse', 'HEAD']), headBefore, 'failed auto-closeout must not advance HEAD');
-    assert.equal(git(root, ['diff', '--cached', '--name-only', '--', ...safePaths]), '', 'rollback must leave generated metadata unstaged');
+    assert.match(transcript, /git status contains path\(s\) outside the safe generated metadata manifest/);
+    assert.match(transcript, /closeout-write-receipts\.jsonl/);
+    assert.equal(git(root, ['rev-parse', 'HEAD']), headBefore, 'failed canonical writer commits must not advance HEAD');
+    const stagedSafePaths = git(root, ['diff', '--cached', '--name-only', '--', ...safePaths])
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .sort();
+    assert.deepEqual(stagedSafePaths, safePaths.slice().sort(), 'failed writer commit leaves only its bounded generated metadata staged');
     const unstagedSafePaths = git(root, ['diff', '--name-only', '--', ...safePaths])
       .split('\n')
       .map((line) => line.trim())
@@ -436,15 +439,10 @@ async function assertCommitHookFailureRollsBackReuseAndIndex(): Promise<void> {
       .split('\n')
       .map((line) => line.trim())
       .filter(Boolean);
-    assert.deepEqual(
-      [...unstagedSafePaths, ...untrackedSafePaths].sort(),
-      safePaths.sort(),
-      'rollback must leave original generated metadata dirty only in the worktree',
-    );
+    assert.deepEqual([...unstagedSafePaths, ...untrackedSafePaths], [], 'no extra unstaged or untracked generated metadata remains');
     const evidence = new StoryStore(root).readDoneRequiredEvidence(storyId) as any;
-    assert.equal(evidence.donePrepareValidationReuse, undefined, 'failed commit rollback must remove the validation reuse claim');
-    assert.ok(observed.some((line) => line.includes('git update-index --force-remove --')), `rollback must restore index entries explicitly:\n${observed.join('\n')}`);
-    assert.ok(observed.some((line) => line.includes('git update-index --index-info')), `rollback must restore captured index state:\n${observed.join('\n')}`);
+    assert.equal(evidence.donePrepareValidationReuse, undefined, 'failed writer commits must not mint a validation reuse claim');
+    assert.equal(observed.some((line) => line.includes('git update-index')), false, 'no auto-close transaction starts for an unsafe receipt-ledger dirty set');
   } finally {
     restoreSpy();
     process.chdir(oldCwd);
@@ -637,7 +635,7 @@ function assertJsonStdoutClean(): void {
     assert.equal(parsed.storyId, storyId);
     assert.equal(parsed.status, 'pass', `JSON done_prepare should pass:\nstderr:\n${result.stderr}\nstdout:\n${result.stdout}`);
     assert.match(parsed.transcript ?? '', /^DONE prepare: PASS/);
-    assert.match(parsed.transcript ?? '', /^autoCloseGeneratedMetadata: PASS$/m);
+    assert.match(parsed.transcript ?? '', /^convergence: metadataRollbacks=0 reviewerReattestations=0 humanConfirmations=0 unchangedSuiteExecutions=0 successfulCloseout=1$/m);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -647,7 +645,7 @@ void (async () => {
   try {
     await assertManifestOnlyAutoCloseout();
     await assertUnsafePathRefusesBeforeReuseRecord();
-    await assertCommitHookFailureRollsBackReuseAndIndex();
+    await assertCommitHookFailureRemainsFailClosed();
     assertPreexistingLifecycleMetadataIsUnsafe();
     assertDeletesAndRenamesAreUnsafe();
     assertMissingHashesRefuseReuse();

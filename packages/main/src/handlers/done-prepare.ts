@@ -12,6 +12,7 @@ import { createVerifierHandlers } from './verifier.js';
 import { loadConfig } from '../core/config.js';
 import { resolveDoneRequiredPolicy } from '../core/done-required-validation.js';
 import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash, isStoryMetadataPath } from '../core/evidence-freshness.js';
+import { closeoutArtifactPolicyFor } from '../core/closeout-trust.js';
 import { formatValidationProgressEvent } from '../core/validation-executor.js';
 import { buildVerificationCoverage } from '../core/verification.js';
 import {
@@ -115,6 +116,8 @@ interface DonePrepareCurrentBinding {
   currentStoryFilesHash?: string;
 }
 
+type DonePrepareConvergence = NonNullable<DonePrepareJsonResult['convergence']>;
+
 interface DonePrepareReviewAssurancePlan {
   requiredGates: Array<{
     source: ReviewAssuranceGuidance['source'];
@@ -161,7 +164,7 @@ interface CloseoutPhase {
   timeoutEnv: string;
 }
 
-interface DonePrepareJsonResult {
+export interface DonePrepareJsonResult {
   schemaVersion: 'lattice.done_prepare.v1';
   storyId: string;
   status: 'pass' | 'blocked' | 'unknown';
@@ -173,6 +176,13 @@ interface DonePrepareJsonResult {
   refusalReasons?: string[];
   timeoutLayer?: 'command' | 'phase' | 'idle' | 'max' | null;
   existingEvidenceBasis?: 'fresh' | 'stale' | 'missing';
+  convergence?: {
+    metadataRollbacks: number;
+    reviewerReattestations: number;
+    humanConfirmations: number;
+    unchangedSuiteExecutions: number;
+    successfulCloseout: number;
+  };
 }
 
 interface ObservedValidationTerminalContext {
@@ -1028,7 +1038,7 @@ function observedValidationTerminalContext(steps: DonePrepareStep[]): ObservedVa
   };
 }
 
-function donePrepareJsonResult(storyId: string, transcript: string): DonePrepareJsonResult {
+export function donePrepareJsonResult(storyId: string, transcript: string): DonePrepareJsonResult {
   const status: DonePrepareJsonResult['status'] = transcript.startsWith('DONE prepare: PASS')
     ? 'pass'
     : transcript.startsWith('DONE prepare: BLOCKED')
@@ -1041,6 +1051,9 @@ function donePrepareJsonResult(storyId: string, transcript: string): DonePrepare
   const basis = transcript.match(/existingEvidenceBasis=(fresh|stale|missing)/)?.[1] as DonePrepareJsonResult['existingEvidenceBasis'];
   const timeoutLayer = transcript.match(/timeoutLayer=(command|phase|idle|max)/)?.[1] as Exclude<DonePrepareJsonResult['timeoutLayer'], null> | undefined;
   const refusalText = transcript.match(/refusalReasons=([^;\n]*?)(?=\s+timeoutLayer=|\s+existingEvidenceBasis=|;|$)/)?.[1];
+  const convergenceMatch = transcript.match(
+    /convergence: metadataRollbacks=(\d+) reviewerReattestations=(\d+) humanConfirmations=(\d+) unchangedSuiteExecutions=(\d+) successfulCloseout=(\d+)/,
+  );
   return {
     schemaVersion: 'lattice.done_prepare.v1',
     storyId,
@@ -1053,6 +1066,15 @@ function donePrepareJsonResult(storyId: string, transcript: string): DonePrepare
     ...(basis ? { existingEvidenceBasis: basis } : {}),
     ...(timeoutLayer ? { timeoutLayer } : /\btimeoutLayer=null\b/.test(transcript) ? { timeoutLayer: null } : {}),
     ...(refusalText ? { refusalReasons: refusalText === 'none' ? [] : refusalText.split(',') } : {}),
+    ...(convergenceMatch ? {
+      convergence: {
+        metadataRollbacks: Number(convergenceMatch[1]),
+        reviewerReattestations: Number(convergenceMatch[2]),
+        humanConfirmations: Number(convergenceMatch[3]),
+        unchangedSuiteExecutions: Number(convergenceMatch[4]),
+        successfulCloseout: Number(convergenceMatch[5]),
+      },
+    } : {}),
   };
 }
 
@@ -1144,6 +1166,40 @@ function commitSummariesSince(gitCwd: string, beforeHead: string, afterHead: str
     return result.output.split('\n').map((line) => line.trim()).filter(Boolean);
   }
   return [afterHead.slice(0, 12)];
+}
+
+const VALIDATION_CLOSEOUT_PROTOCOL_PATHS = new Set([
+  'closeout-write-receipts.jsonl',
+  'process-events.jsonl',
+  'process-metrics.json',
+  'test-runs.json',
+  'owner-lease.json',
+]);
+
+export function validationCloseoutAdvancePaths(
+  ctx: HandlerContext,
+  storyId: string,
+  gitCwd: string,
+  beforeHead: string,
+  afterHead: string,
+): { eligible: boolean; paths: string[]; reasons: string[] } {
+  const result = gitMaybe(gitCwd, ['diff', '--name-only', `${beforeHead}..${afterHead}`]);
+  if (!result.ok) return { eligible: false, paths: [], reasons: ['unable to read validation commit paths'] };
+  const paths = result.output.split('\n').map((line) => line.trim()).filter(Boolean);
+  const storyPrefix = `${ctx.store.storyDirRel().replace(/\\/g, '/').replace(/\/+$/, '')}/${storyId}/`;
+  const reasons: string[] = [];
+  for (const path of paths) {
+    if (!path.startsWith(storyPrefix)) {
+      reasons.push(`validation commit changed non-story path: ${path}`);
+      continue;
+    }
+    const relativePath = path.slice(storyPrefix.length);
+    const policy = closeoutArtifactPolicyFor(relativePath);
+    if (policy?.artifactClass === 'closeout-evidence') continue;
+    if (VALIDATION_CLOSEOUT_PROTOCOL_PATHS.has(relativePath)) continue;
+    reasons.push(`validation commit changed non-closeout metadata: ${relativePath}`);
+  }
+  return { eligible: paths.length > 0 && reasons.length === 0, paths, reasons };
 }
 
 function blockingRows(runbook: DoneClosureRunbook) {
@@ -1383,6 +1439,47 @@ function currentDoneMaterialBinding(ctx: HandlerContext, gitCwd: string): DonePr
   };
 }
 
+export function deriveDonePreparePassConvergence(
+  steps: DonePrepareStep[],
+  runbook: DoneClosureRunbook,
+): DonePrepareConvergence {
+  const stepText = steps.map((step) => `${step.status} ${step.reason ?? ''} ${step.command ?? ''}`).join('\n');
+  const validationText = steps.find((step) => step.id === 'validate')?.reason ?? '';
+  const validationWasReused = /\bdisposition=reused\b|validation pass reused|validation reused/i.test(validationText);
+  const executionCounts = [...validationText.matchAll(/commandExecutions=(\d+)/g)].map((match) => Number(match[1]));
+  const metadataRollbacks = /rollback (?:performed|completed|failed)/i.test(stepText) ? 1 : 0;
+  const reviewerReattestations = blockingRows(runbook).filter(
+    (row) => row.id === 'review-assurance-floor' || row.id === 'review-escalation',
+  ).length;
+  const humanConfirmations = /human(?: confirmation| ack|:true)|story_resume/i.test(stepText) ? 1 : 0;
+  const unchangedSuiteExecutions = validationWasReused
+    ? executionCounts.reduce((sum, count) => sum + count, 0)
+    : 0;
+  const successfulCloseout = steps.every((step) => step.status !== 'blocked')
+    && blockingRows(runbook).length === 0
+    ? 1
+    : 0;
+  return {
+    metadataRollbacks,
+    reviewerReattestations,
+    humanConfirmations,
+    unchangedSuiteExecutions,
+    successfulCloseout,
+  };
+}
+
+export function assertDonePreparePassConvergence(convergence: DonePrepareConvergence): void {
+  if (
+    convergence.metadataRollbacks !== 0
+    || convergence.reviewerReattestations !== 0
+    || convergence.humanConfirmations !== 0
+    || convergence.unchangedSuiteExecutions !== 0
+    || convergence.successfulCloseout !== 1
+  ) {
+    throw new Error(`done_prepare convergence invariant failed: ${JSON.stringify(convergence)}`);
+  }
+}
+
 function renderPass(args: {
   storyId: string;
   phase: string;
@@ -1392,6 +1489,8 @@ function renderPass(args: {
   dryRun: boolean;
   showMemoryPack: boolean;
 }): string {
+  const convergence = deriveDonePreparePassConvergence(args.steps, args.runbook);
+  assertDonePreparePassConvergence(convergence);
   const lines = [
     'DONE prepare: PASS',
     `storyId: ${args.storyId}`,
@@ -1403,6 +1502,10 @@ function renderPass(args: {
     `validate: ${ensureStep(args.steps, 'validate').status.toUpperCase()}`,
     `doneClosure: ${ensureStep(args.steps, 'doneClosure').status.toUpperCase()}`,
     `worktreeClean: ${ensureStep(args.steps, 'cleanTree').status.toUpperCase()}`,
+    'closeoutWriteSequence: validation->done-required->done-closure->clean-tree',
+    `convergence: metadataRollbacks=${convergence.metadataRollbacks} reviewerReattestations=${convergence.reviewerReattestations} ` +
+      `humanConfirmations=${convergence.humanConfirmations} unchangedSuiteExecutions=${convergence.unchangedSuiteExecutions} ` +
+      `successfulCloseout=${convergence.successfulCloseout}`,
     ...renderRuntimeReport(args.runtime),
     '',
     'Local assurance:',
@@ -1606,6 +1709,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       steps,
     });
   }
+  const prepareMutationStartBinding = currentDoneMaterialBinding(ctx, gitCwd);
   const generatedMetadataBaseline = captureDonePrepareGeneratedMetadataBaseline({
     root: ctx.root,
     storyDirRel: ctx.store.storyDirRel(),
@@ -1782,20 +1886,43 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     const dirtyRows = nonLeaseDirtyRows(ctx, storyId, gitStatusRows(gitCwd));
     const files = statusFiles(dirtyRows);
     const currentBinding = currentDoneMaterialBinding(ctx, gitCwd);
-    setStep(steps, 'cleanTree', 'blocked', 'refresh/validate produced commit(s); rerun from the new HEAD before DONE');
-    return blocked({
-      blockedAt: 'cleanTree',
-      reason: 'done_prepare produced commit(s) during refresh/validate; rerun from the new HEAD before DONE',
-      commits,
-      ...(files.length > 0 ? { files } : {}),
-      guidanceSections: buildRerunReasonGuidance(commits, currentBinding),
-      commands: [
-        `git log --oneline ${prepareMutationStartHead}..HEAD`,
-        `lattice done_prepare '{"storyId":"${storyId}"}'`,
-      ],
-      next: 'review the generated commit(s), then rerun lattice done_prepare from the new HEAD',
-      steps,
-    });
+    const advance = validationCloseoutAdvancePaths(
+      ctx,
+      storyId,
+      gitCwd,
+      prepareMutationStartHead,
+      prepareMutationEndHead,
+    );
+    const materialUnchanged = Boolean(prepareMutationStartBinding.currentMaterialHash)
+      && prepareMutationStartBinding.currentMaterialHash === currentBinding.currentMaterialHash;
+    const storyFilesUnchanged = Boolean(prepareMutationStartBinding.currentStoryFilesHash)
+      && prepareMutationStartBinding.currentStoryFilesHash === currentBinding.currentStoryFilesHash;
+    if (!validationReuseBasis || !advance.eligible || !materialUnchanged || !storyFilesUnchanged) {
+      const driftReasons = [
+        ...advance.reasons,
+        ...(!validationReuseBasis ? ['validation reuse basis missing after validation'] : []),
+        ...(!materialUnchanged ? ['materialHash changed during validation'] : []),
+        ...(!storyFilesUnchanged ? ['storyFilesHash changed during validation'] : []),
+      ];
+      setStep(steps, 'cleanTree', 'blocked', 'refresh/validate produced non-closeout or material-changing commit(s); rerun required');
+      return blocked({
+        blockedAt: 'cleanTree',
+        reason: `done_prepare produced commit(s) that are not a trusted nonmaterial validation closeout advance: ${driftReasons.join('; ')}`,
+        commits,
+        ...(files.length > 0 ? { files } : {}),
+        guidanceSections: buildRerunReasonGuidance(commits, currentBinding),
+        commands: [
+          `git log --oneline ${prepareMutationStartHead}..HEAD`,
+          `lattice done_prepare '{"storyId":"${storyId}"}'`,
+        ],
+        next: 'inspect the generated commits and rerun only after resolving real drift',
+        steps,
+      });
+    }
+    ctx.log?.(
+      `done_prepare convergence: retained review across trusted validation metadata advance ` +
+      `paths=${advance.paths.join(',')} metadataRollbacks=0 reviewerReattestations=0 humanConfirmations=0`,
+    );
   }
 
   if (args.build) {
