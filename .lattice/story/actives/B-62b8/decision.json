@@ -1,0 +1,88 @@
+{
+  "principles": [
+    "Owner identity is local accidental-write coordination, never authentication or Authority evidence.",
+    "Stability must be scoped by both task identity and agent-or-role identity.",
+    "Unknown or unvalidated identity inputs fail toward isolated/degraded behavior, never toward shared privilege.",
+    "Provider-specific signals stay at adapter boundaries; generic core consumes one canonical result."
+  ],
+  "drivers": [
+    "Eliminate false foreign-owner rejection when one agent crosses shell/ppid boundaries.",
+    "Preserve isolation between concurrent tasks and between implementer/reviewer roles.",
+    "Keep existing explicit override, lease, stale takeover, and active takeover semantics compatible.",
+    "Make degraded fallback visible and actionable."
+  ],
+  "options": [
+    {
+      "name": "A: Repository/worktree token",
+      "pros": [
+        "Stable across shells",
+        "Simple storage"
+      ],
+      "cons": [
+        "Collapses independent tasks and roles",
+        "Creates cross-task privilege sharing",
+        "Explicitly forbidden by the accepted workstream"
+      ]
+    },
+    {
+      "name": "B: Adapter-derived task plus agent identity with bounded token fallback",
+      "pros": [
+        "Stable across shell parents",
+        "Preserves task and role isolation",
+        "Matches accepted resolution order and future-host adapter model"
+      ],
+      "cons": [
+        "Requires validated host signal mapping",
+        "Requires lifecycle rules for generated-token storage and cleanup",
+        "Needs multi-host regression coverage"
+      ]
+    },
+    {
+      "name": "C: Retain ppid identity and improve guidance",
+      "pros": [
+        "Minimal code change",
+        "No new storage"
+      ],
+      "cons": [
+        "Does not fix the observed self-conflict",
+        "Continues requiring manual env workarounds",
+        "Leaves unattended workflows fragile"
+      ]
+    }
+  ],
+  "chosen": "B: Adapter-derived task plus agent identity with bounded token fallback",
+  "rationale": "Derive the canonical local session id from validated task identity plus agent/role identity at host adapters, preserving an explicit LATTICE_SESSION_ID override. When a host exposes a task boundary but no stable native id, use a bounded generated token scoped to project, provider, task boundary, and agent/role; otherwise retain derived-ppid as a warned degraded fallback. This is the only option that removes the false self-conflict without collapsing independent tasks or roles.",
+  "preMortem": [
+    {
+      "scenario": "Two independent tasks accidentally share an adapter boundary value.",
+      "trigger": "A wrapper supplies only repository/worktree identity or reuses one task token globally.",
+      "consequence": "One task can refresh or inherit another task owner lease.",
+      "mitigation": "Require validated task identity as an independent dimension and add same-repo/same-worktree different-task negative tests."
+    },
+    {
+      "scenario": "Implementer and reviewer collapse to one owner identity.",
+      "trigger": "The adapter hashes thread id but omits agent/role identity.",
+      "consequence": "Reviewer isolation and owner-gated mutation boundaries are weakened.",
+      "mitigation": "Require normalized agentOrRoleIdentity in the composite and test implementer, verification-intent, reviewer, and delivery separation."
+    },
+    {
+      "scenario": "Generated tokens dirty evidence or live forever.",
+      "trigger": "Fallback storage is unregistered, not ignored, or lacks bounded ownership and cleanup.",
+      "consequence": "Material hashes drift, stale tokens accumulate, or sessions are unintentionally reused.",
+      "mitigation": "Register the path in runtime-artifact-registry, exclude it from material hashes, scope it to task+agent boundary, and define cleanup/doctor behavior."
+    },
+    {
+      "scenario": "Host-native secrets leak through diagnostics.",
+      "trigger": "Raw task/session tokens are logged as nativeSessionRef or process-event fields.",
+      "consequence": "Local logs expose reusable host identifiers.",
+      "mitigation": "Hash/derive the canonical id and render only provider/source plus a redacted digest prefix; assert raw-token absence in tests."
+    },
+    {
+      "scenario": "The fix silently changes takeover behavior.",
+      "trigger": "Lease equality or migration code rewrites foreign/stale ownership decisions along with identity resolution.",
+      "consequence": "Active foreign leases may be seized or legitimate takeover may fail.",
+      "mitigation": "Keep lease/takeover state machine untouched and run active foreign, stale takeover, force takeover, and legacy lease compatibility regressions."
+    }
+  ],
+  "timestamp": "2026-07-17T22:47:15.651Z"
+}

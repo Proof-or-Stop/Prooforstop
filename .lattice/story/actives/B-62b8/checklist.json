@@ -52,7 +52,33 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:two-host:codex",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "codex exec --ephemeral (bounded owner-contract review)",
+          "result": "pass",
+          "note": "Independent Codex CLI PASS; reviewer=codex-review-b62b8-7f3c91; all seven contract checks PASS; localAssuranceOnly=true; bound documentHash=04f744fa16ec2536829ba8c265795cca4e6140f2d3967b69db8e56b85ea16797.",
+          "headHash": "821d8dab3faaefb64fc0cde07f9d2609e156c77b",
+          "materialHash": "6778b035b19c8ce4f555882b2567fce4c14d5fb2cf04dd3e5b4f69f14f0cf68e",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-17T22:57:25.677Z"
+        },
+        {
+          "intentRef": "CHK-004:two-host:antigravity",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "agy --dangerously-skip-permissions --print-timeout 90s (no tools; supplied bounded contract extract)",
+          "result": "pass",
+          "note": "Independent Antigravity/agy CLI PASS; reviewer=3030bdac-006e-4ce8-af94-8741aced472e; all seven contract checks PASS; localAssuranceOnly=true; bound documentHash=04f744fa16ec2536829ba8c265795cca4e6140f2d3967b69db8e56b85ea16797.",
+          "headHash": "821d8dab3faaefb64fc0cde07f9d2609e156c77b",
+          "materialHash": "6778b035b19c8ce4f555882b2567fce4c14d5fb2cf04dd3e5b4f69f14f0cf68e",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-07-17T22:57:25.841Z"
+        }
+      ]
     }
   ]
 }

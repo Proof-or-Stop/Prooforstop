@@ -1,0 +1,36 @@
+{
+  "task": "Stabilize local story owner identity across shell boundaries without collapsing independent tasks or agents.",
+  "outcome": "The same host task and agent can invoke Lattice through different shell parent processes without a false foreign-owner rejection; a different task or agent remains rejected, and degraded ppid identity is clearly diagnosed.",
+  "facts": [
+    "Core ownership consumes a resolved session identity and currently falls back to hostname+root+ppid.",
+    "Canonical documents require LATTICE_SESSION_ID as the only generic core owner id and keep provider-specific signals at adapter boundaries.",
+    "The accepted Workstream D contract requires a composite taskIdentity + agentOrRoleIdentity; repository-global and thread-only identities are rejected.",
+    "Codex, Claude, and agy launchers are installed, but the current parent environment exposes no native stable session variables; supported adapters/wrappers must inject validated dimensions or a bounded generated boundary.",
+    "Owner leases are local non-cryptographic write-coordination metadata; takeover semantics remain unchanged.",
+    "Fresh Codex review PASS: reviewer codex-review-b62b8-7f3c91, bound to HEAD 821d8dab3faaefb64fc0cde07f9d2609e156c77b, material 6778b035b19c8ce4f555882b2567fce4c14d5fb2cf04dd3e5b4f69f14f0cf68e, document 04f744fa16ec2536829ba8c265795cca4e6140f2d3967b69db8e56b85ea16797; local assurance only.",
+    "Fresh Antigravity/agy review PASS: reviewer 3030bdac-006e-4ce8-af94-8741aced472e, bound to the same HEAD/material/document hashes; local assurance only.",
+    "Claude review was not counted: one run lacked file permission, one copied the HEAD incorrectly, and one produced no first byte within 90 seconds; no PASS was fabricated."
+  ],
+  "constraints": [
+    "Do not use a repo-global token that collapses independent tasks.",
+    "Do not collapse implementer, verification-intent, reviewer, or other agent/role identities within one task.",
+    "Do not treat the local identity as authentication, Authority evidence, or reviewer independence proof.",
+    "Keep explicit LATTICE_SESSION_ID highest priority and derived-ppid only as a visible degraded fallback.",
+    "Persisted generated tokens must be registered runtime artifacts, gitignored, excluded from material hashes, and have bounded cleanup.",
+    "Keep lease equality and takeover state-machine semantics unchanged.",
+    "No raw host-native token may be logged or persisted as review/story prose."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+    "packages/main/src/core/owner-session.ts",
+    "packages/main/src/core/owner-session-adapters.ts",
+    "packages/main/src/core/owner-session-token-store.ts",
+    "packages/main/src/core/story-owner-lease.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/handlers/session-brief.ts",
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/tests"
+  ],
+  "timestamp": "2026-07-17T22:57:15.012Z"
+}
