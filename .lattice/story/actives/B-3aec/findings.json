@@ -341,7 +341,7 @@
       "desc": "packages/main/src/core/host-run.ts:1210-1233 — MEDIUM: bounded stderr classification keeps only the last 64 KiB, then classifies auth/interactive only at close from that retained tail. A child that emits `authentication required: please login` first, flushes more than 64 KiB of later stderr, and exits 1 deterministically returns failureKind=unknown because the decisive early line was sliced away. This is distinct from F-014 (stdout is not retained): stderr is retained, but its tail-only policy still loses an earlier stable failure classification and violates the promised post-readiness auth/interactive diagnostic. Classify bounded chunks incrementally into a sticky typed failure state (without retaining unbounded text), define precedence, and add early-auth/interactive-plus-large-tail tests.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-17T09:46:43.483Z",
@@ -353,7 +353,11 @@
         "packages/main/src/tasks/host-run-usage-smoke.ts"
       ],
       "signatureTag": "bounded-stderr-tail-loses-failure-kind",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Bounded sticky auth/interactive state is classified per stdout and stderr chunk before tail truncation, so an early diagnostic survives a later 70 KiB tail with deterministic precedence.",
+      "resolvedAt": "2026-07-17T10:04:55.579Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
