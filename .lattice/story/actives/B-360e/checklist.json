@@ -104,7 +104,19 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "create": [
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ]
+      }
     }
   ]
 }
