@@ -36,7 +36,24 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main",
+      "reason": "F-001 remediation must align the L4 trust-boundary wording with the active local-assurance contract and remove the unsupported same-UID authority implication.",
+      "timestamp": "2026-07-17T15:58:23.142Z",
+      "paths": [
+        "packages/main/src/core/process-fact-levels.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/process-fact-levels.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "21202c5c80ce30d6cd01360cf80f69a780876bb1",
+      "materialHash": "33817f70838ca9c8a7ff73d59571d8d331a11b07f05531c08fa1aff199303336"
+    }
+  ],
   "createdAt": "2026-07-17T13:21:14.674Z",
-  "updatedAt": "2026-07-17T15:03:38.860Z"
+  "updatedAt": "2026-07-17T15:58:23.142Z"
 }

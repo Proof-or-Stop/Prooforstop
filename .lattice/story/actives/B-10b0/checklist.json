@@ -9,9 +9,9 @@
         "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-17T13:21:15.635Z",
-      "endTime": "2026-07-17T14:01:32.077Z",
+      "endTime": "2026-07-17T16:07:15.569Z",
       "verificationIntent": {
         "happy": [
           {
@@ -104,112 +104,112 @@
         {
           "intentRef": "CHK-001:happy:0",
           "kind": "integration_test",
-          "command": "npm run test:closeout-trust",
+          "command": "npm run test:closeout-trust && npm run test:process-fact-contract",
           "result": "pass",
-          "note": "Real canonical closeout writers retain the original signed review while validateCurrentCloseoutArtifact remains independently fail-closed.",
-          "headHash": "4e3034919066c340df4acfd9d25cfe5d1066aad2",
-          "materialHash": "8d0bb78f3f9e0ea77abfbb28188a9091de06f723c51bfc45692f3fd5fd90ef95",
-          "storyFilesHash": "63d33d48d7236474e897684030a53440d2c0d00f5fe694f75926deb95e62b658",
-          "timestamp": "2026-07-17T14:01:32.447Z"
+          "note": "Registered closeout writers preserve review freshness through cooperative local-runtime causal lineage; independent artifact-specific gate validators remain mechanically enumerated.",
+          "headHash": "7050b07a24a297ee5e7d02c22622cc422c2cc21f",
+          "materialHash": "63db23e9bedcf18e94542c1fe824aef860e811c6c7c40495a600d333d70cfa91",
+          "storyFilesHash": "bdef387f8cfd26717fa16f2041481fe6e2449437c9b00a4a0803e4d924cfeb7a",
+          "timestamp": "2026-07-17T16:07:15.992Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
           "kind": "integration_test",
           "command": "npm run test:closeout-trust",
           "result": "pass",
-          "note": "Multi-writer integration preserves review freshness and reports the next independent reviewer-lane blocker, not stale_closeout_review.",
-          "headHash": "4e3034919066c340df4acfd9d25cfe5d1066aad2",
-          "materialHash": "8d0bb78f3f9e0ea77abfbb28188a9091de06f723c51bfc45692f3fd5fd90ef95",
-          "storyFilesHash": "63d33d48d7236474e897684030a53440d2c0d00f5fe694f75926deb95e62b658",
-          "timestamp": "2026-07-17T14:01:32.741Z"
+          "note": "Multi-writer closeout retains the review round across bounded metadata descendants and prints the explicit independent-gate wording.",
+          "headHash": "7050b07a24a297ee5e7d02c22622cc422c2cc21f",
+          "materialHash": "63db23e9bedcf18e94542c1fe824aef860e811c6c7c40495a600d333d70cfa91",
+          "storyFilesHash": "bdef387f8cfd26717fa16f2041481fe6e2449437c9b00a4a0803e4d924cfeb7a",
+          "timestamp": "2026-07-17T16:07:16.303Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
           "command": "npm run test:closeout-trust",
           "result": "pass",
-          "note": "Repeated writes, causal chain ordering, replay, and modify/revert behavior are covered.",
-          "headHash": "4e3034919066c340df4acfd9d25cfe5d1066aad2",
-          "materialHash": "8d0bb78f3f9e0ea77abfbb28188a9091de06f723c51bfc45692f3fd5fd90ef95",
-          "storyFilesHash": "63d33d48d7236474e897684030a53440d2c0d00f5fe694f75926deb95e62b658",
-          "timestamp": "2026-07-17T14:01:33.051Z"
+          "note": "Repeated writes, replay, modify-revert, and causal-chain cases remain bounded.",
+          "headHash": "7050b07a24a297ee5e7d02c22622cc422c2cc21f",
+          "materialHash": "63db23e9bedcf18e94542c1fe824aef860e811c6c7c40495a600d333d70cfa91",
+          "storyFilesHash": "bdef387f8cfd26717fa16f2041481fe6e2449437c9b00a4a0803e4d924cfeb7a",
+          "timestamp": "2026-07-17T16:07:16.684Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
           "kind": "integration_test",
           "command": "npm run test:closeout-trust",
           "result": "pass",
-          "note": "Stable before/after HEAD is required; concurrent HEAD movement fails retention.",
-          "headHash": "4e3034919066c340df4acfd9d25cfe5d1066aad2",
-          "materialHash": "8d0bb78f3f9e0ea77abfbb28188a9091de06f723c51bfc45692f3fd5fd90ef95",
-          "storyFilesHash": "63d33d48d7236474e897684030a53440d2c0d00f5fe694f75926deb95e62b658",
-          "timestamp": "2026-07-17T14:01:33.322Z"
+          "note": "Stable before/after HEAD remains required and concurrent movement refuses retention.",
+          "headHash": "7050b07a24a297ee5e7d02c22622cc422c2cc21f",
+          "materialHash": "63db23e9bedcf18e94542c1fe824aef860e811c6c7c40495a600d333d70cfa91",
+          "storyFilesHash": "bdef387f8cfd26717fa16f2041481fe6e2449437c9b00a4a0803e4d924cfeb7a",
+          "timestamp": "2026-07-17T16:07:16.993Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
           "kind": "logic_test",
-          "command": "npm run test:closeout-trust",
+          "command": "npm run test:closeout-trust && npm run test:process-fact-contract",
           "result": "pass",
-          "note": "Missing or legacy lineage is refused and never promoted to artifact authority.",
-          "headHash": "4e3034919066c340df4acfd9d25cfe5d1066aad2",
-          "materialHash": "8d0bb78f3f9e0ea77abfbb28188a9091de06f723c51bfc45692f3fd5fd90ef95",
-          "storyFilesHash": "63d33d48d7236474e897684030a53440d2c0d00f5fe694f75926deb95e62b658",
-          "timestamp": "2026-07-17T14:01:33.599Z"
+          "note": "Legacy or missing lineage is not promoted; unused always-false pseudo-authority helpers were removed.",
+          "headHash": "7050b07a24a297ee5e7d02c22622cc422c2cc21f",
+          "materialHash": "63db23e9bedcf18e94542c1fe824aef860e811c6c7c40495a600d333d70cfa91",
+          "storyFilesHash": "bdef387f8cfd26717fa16f2041481fe6e2449437c9b00a4a0803e4d924cfeb7a",
+          "timestamp": "2026-07-17T16:07:17.309Z"
         },
         {
           "intentRef": "CHK-001:edge:3",
           "kind": "logic_test",
           "command": "npm run test:process-fact-contract",
           "result": "pass",
-          "note": "All registered producers and the bounded retention-only gate consumer are contract-checked.",
-          "headHash": "4e3034919066c340df4acfd9d25cfe5d1066aad2",
-          "materialHash": "8d0bb78f3f9e0ea77abfbb28188a9091de06f723c51bfc45692f3fd5fd90ef95",
-          "storyFilesHash": "63d33d48d7236474e897684030a53440d2c0d00f5fe694f75926deb95e62b658",
-          "timestamp": "2026-07-17T14:01:33.869Z"
+          "note": "Producer matrix and specialized test, DONE-required, delivery, live-smoke, and summary consumer validators are contract checked.",
+          "headHash": "7050b07a24a297ee5e7d02c22622cc422c2cc21f",
+          "materialHash": "63db23e9bedcf18e94542c1fe824aef860e811c6c7c40495a600d333d70cfa91",
+          "storyFilesHash": "bdef387f8cfd26717fa16f2041481fe6e2449437c9b00a4a0803e4d924cfeb7a",
+          "timestamp": "2026-07-17T16:07:17.711Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "integration_test",
           "command": "npm run test:closeout-trust",
           "result": "pass",
-          "note": "Source and story-owned drift invalidate retention.",
-          "headHash": "4e3034919066c340df4acfd9d25cfe5d1066aad2",
-          "materialHash": "8d0bb78f3f9e0ea77abfbb28188a9091de06f723c51bfc45692f3fd5fd90ef95",
-          "storyFilesHash": "63d33d48d7236474e897684030a53440d2c0d00f5fe694f75926deb95e62b658",
-          "timestamp": "2026-07-17T14:01:34.140Z"
+          "note": "Source and story-owned material drift still invalidate retention.",
+          "headHash": "7050b07a24a297ee5e7d02c22622cc422c2cc21f",
+          "materialHash": "63db23e9bedcf18e94542c1fe824aef860e811c6c7c40495a600d333d70cfa91",
+          "storyFilesHash": "bdef387f8cfd26717fa16f2041481fe6e2449437c9b00a4a0803e4d924cfeb7a",
+          "timestamp": "2026-07-17T16:07:18.039Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
           "kind": "integration_test",
           "command": "npm run test:closeout-trust",
           "result": "pass",
-          "note": "Exact materialHash plus storyFilesHash rejects configuration, policy, and command-set drift.",
-          "headHash": "4e3034919066c340df4acfd9d25cfe5d1066aad2",
-          "materialHash": "8d0bb78f3f9e0ea77abfbb28188a9091de06f723c51bfc45692f3fd5fd90ef95",
-          "storyFilesHash": "63d33d48d7236474e897684030a53440d2c0d00f5fe694f75926deb95e62b658",
-          "timestamp": "2026-07-17T14:01:34.412Z"
+          "note": "Material, story-files, scope, round, and stable-HEAD bindings continue to reject real configuration or policy drift.",
+          "headHash": "7050b07a24a297ee5e7d02c22622cc422c2cc21f",
+          "materialHash": "63db23e9bedcf18e94542c1fe824aef860e811c6c7c40495a600d333d70cfa91",
+          "storyFilesHash": "bdef387f8cfd26717fa16f2041481fe6e2449437c9b00a4a0803e4d924cfeb7a",
+          "timestamp": "2026-07-17T16:07:18.341Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
           "kind": "logic_test",
           "command": "npm run test:closeout-trust",
           "result": "pass",
-          "note": "Unknown and non-canonical writer identities fail the closed policy matrix.",
-          "headHash": "4e3034919066c340df4acfd9d25cfe5d1066aad2",
-          "materialHash": "8d0bb78f3f9e0ea77abfbb28188a9091de06f723c51bfc45692f3fd5fd90ef95",
-          "storyFilesHash": "63d33d48d7236474e897684030a53440d2c0d00f5fe694f75926deb95e62b658",
-          "timestamp": "2026-07-17T14:01:34.687Z"
+          "note": "Unknown and non-registered writer labels remain rejected inside the cooperative runtime contract.",
+          "headHash": "7050b07a24a297ee5e7d02c22622cc422c2cc21f",
+          "materialHash": "63db23e9bedcf18e94542c1fe824aef860e811c6c7c40495a600d333d70cfa91",
+          "storyFilesHash": "bdef387f8cfd26717fa16f2041481fe6e2449437c9b00a4a0803e4d924cfeb7a",
+          "timestamp": "2026-07-17T16:07:18.676Z"
         },
         {
           "intentRef": "CHK-001:adversarial:3",
           "kind": "integration_test",
           "command": "npm run test:closeout-trust",
           "result": "pass",
-          "note": "Manual mutation without coherent current causal lineage is rejected; local lineage never authorizes the artifact.",
-          "headHash": "4e3034919066c340df4acfd9d25cfe5d1066aad2",
-          "materialHash": "8d0bb78f3f9e0ea77abfbb28188a9091de06f723c51bfc45692f3fd5fd90ef95",
-          "storyFilesHash": "63d33d48d7236474e897684030a53440d2c0d00f5fe694f75926deb95e62b658",
-          "timestamp": "2026-07-17T14:01:34.979Z"
+          "note": "Manual mutation without coherent current causal lineage is rejected; lineage is never consumed as artifact approval.",
+          "headHash": "7050b07a24a297ee5e7d02c22622cc422c2cc21f",
+          "materialHash": "63db23e9bedcf18e94542c1fe824aef860e811c6c7c40495a600d333d70cfa91",
+          "storyFilesHash": "bdef387f8cfd26717fa16f2041481fe6e2449437c9b00a4a0803e4d924cfeb7a",
+          "timestamp": "2026-07-17T16:07:19.022Z"
         },
         {
           "intentRef": "CHK-001:adversarial:4",
@@ -217,32 +217,32 @@
           "command": "npm run test:closeout-trust",
           "result": "pass",
           "note": "Malformed, reordered, copied, non-ancestor, and incoherent lineage fails closed.",
-          "headHash": "4e3034919066c340df4acfd9d25cfe5d1066aad2",
-          "materialHash": "8d0bb78f3f9e0ea77abfbb28188a9091de06f723c51bfc45692f3fd5fd90ef95",
-          "storyFilesHash": "63d33d48d7236474e897684030a53440d2c0d00f5fe694f75926deb95e62b658",
-          "timestamp": "2026-07-17T14:01:35.250Z"
+          "headHash": "7050b07a24a297ee5e7d02c22622cc422c2cc21f",
+          "materialHash": "63db23e9bedcf18e94542c1fe824aef860e811c6c7c40495a600d333d70cfa91",
+          "storyFilesHash": "bdef387f8cfd26717fa16f2041481fe6e2449437c9b00a4a0803e4d924cfeb7a",
+          "timestamp": "2026-07-17T16:07:19.339Z"
         },
         {
           "intentRef": "CHK-001:adversarial:5",
           "kind": "logic_test",
-          "command": "npm run test:closeout-trust",
+          "command": "npm run test:closeout-trust && npm run test:process-fact-contract",
           "result": "pass",
-          "note": "Unknown story metadata and bundled unregistered paths remain untrusted.",
-          "headHash": "4e3034919066c340df4acfd9d25cfe5d1066aad2",
-          "materialHash": "8d0bb78f3f9e0ea77abfbb28188a9091de06f723c51bfc45692f3fd5fd90ef95",
-          "storyFilesHash": "63d33d48d7236474e897684030a53440d2c0d00f5fe694f75926deb95e62b658",
-          "timestamp": "2026-07-17T14:01:35.521Z"
+          "note": "Unregistered paths remain untrusted and gate consumers cannot treat the receipt ledger as artifact approval.",
+          "headHash": "7050b07a24a297ee5e7d02c22622cc422c2cc21f",
+          "materialHash": "63db23e9bedcf18e94542c1fe824aef860e811c6c7c40495a600d333d70cfa91",
+          "storyFilesHash": "bdef387f8cfd26717fa16f2041481fe6e2449437c9b00a4a0803e4d924cfeb7a",
+          "timestamp": "2026-07-17T16:07:19.670Z"
         },
         {
           "intentRef": "CHK-001:adversarial:6",
           "kind": "logic_test",
           "command": "npm run test:lifecycle-check-smoke",
           "result": "pass",
-          "note": "Lifecycle consumption requires exact material/storyFiles/scope/round and verified metadata-descendant lineage; head movement alone is insufficient.",
-          "headHash": "4e3034919066c340df4acfd9d25cfe5d1066aad2",
-          "materialHash": "8d0bb78f3f9e0ea77abfbb28188a9091de06f723c51bfc45692f3fd5fd90ef95",
-          "storyFilesHash": "63d33d48d7236474e897684030a53440d2c0d00f5fe694f75926deb95e62b658",
-          "timestamp": "2026-07-17T14:01:35.793Z"
+          "note": "Lifecycle retention continues to require unchanged material/story files/scope/round and stable metadata-descendant lineage; head movement alone is insufficient.",
+          "headHash": "7050b07a24a297ee5e7d02c22622cc422c2cc21f",
+          "materialHash": "63db23e9bedcf18e94542c1fe824aef860e811c6c7c40495a600d333d70cfa91",
+          "storyFilesHash": "bdef387f8cfd26717fa16f2041481fe6e2449437c9b00a4a0803e4d924cfeb7a",
+          "timestamp": "2026-07-17T16:07:19.997Z"
         }
       ]
     },
@@ -795,6 +795,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "User approved direct expansion; implement the audited local-assurance boundary, remove misleading pseudo-authority helpers, and mechanically preserve independent artifact-specific gate validation.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-17T16:07:15.569Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Commit 7050b07a24 removes unused pseudo-authority helpers, states the cooperative local-runtime review-freshness boundary honestly, and mechanically verifies independent specialized artifact consumers. F-001 hostile same-UID durable authority premise is outside the retired-Authority local-assurance contract.",
       "agent": "lattice-implementer"
     }
   ]
