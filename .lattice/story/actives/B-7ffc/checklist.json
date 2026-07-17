@@ -22,13 +22,13 @@
         "happy": [
           {
             "id": "CHK-001:happy:0",
-            "desc": "Canonical decision file exists at docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md and is byte-for-byte identical to the reviewed /tmp source: SHA-256 3a7e9beaf60b692753de91ee50eeacccdadfd57586fb28b6d07189d953b60610, 50,347 bytes, and 1,256 lines; while the source remains available, cmp -s must also pass.",
+            "desc": "Using the reviewed source identified by SHA-256 3a7e9beaf60b692753de91ee50eeacccdadfd57586fb28b6d07189d953b60610, decision_doc_preview for the reviewed DDP proposal renders the canonical target docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md with Status: accepted, Source story: B-7ffc, Source proposal, Created, and the documented Decision/Context/Scope/Non-Goals/Options Considered/Chosen Approach/Operational Rules/Verification Requirements/Risks/Supersession wrapper; decision_doc_save create materializes that reviewed proposal at the exact canonical path.",
             "type": "docs",
             "priority": "must"
           },
           {
             "id": "CHK-001:happy:1",
-            "desc": "The promoted document remains a complete readable Markdown execution plan with the original H1, all numbered sections, seven ordered Story milestones, and the separate conditional budget-enforcement follow-up; its 18 fenced-code delimiters remain balanced.",
+            "desc": "A deterministic content-equivalence check proves that the complete substantive reviewed plan is embedded under Chosen Approach: the source H1 text maps exactly to the generated document H1; after the canonical Chosen Approach introduction, every source heading outside fenced code is demoted by exactly one level, while every other source line is preserved in order. The resulting plan still contains all substantive prose, tables, identifiers, 18 fence delimiters, seven ordered Story milestones, and the separate conditional budget-enforcement follow-up.",
             "type": "docs",
             "priority": "must"
           }
@@ -36,13 +36,13 @@
         "edge": [
           {
             "id": "CHK-001:edge:0",
-            "desc": "Verification does not depend solely on the temporary file continuing to exist: if /tmp is later unavailable, the committed destination must still match the recorded SHA-256, byte count, and line count rather than being reconstructed or silently truncated.",
+            "desc": "The heading transformation is fence-aware: opening and closing fence delimiters and every line inside each fenced block remain byte-for-byte unchanged, including lines that begin with #; only Markdown ATX headings outside fences receive one additional #, with no heading skipped, double-demoted, or promoted beyond its canonical nesting under Chosen Approach.",
             "type": "docs",
             "priority": "must"
           },
           {
             "id": "CHK-001:edge:1",
-            "desc": "The Unicode Chinese/English content, code blocks, tables, inline identifiers, paths, and relative references survive promotion without encoding corruption, newline-induced content drift, or broken Markdown fence structure.",
+            "desc": "Rendered output is reproducible across preview and save: compute SHA-256 with the repository digestText algorithm over the exact Markdown payload rendered by decision_doc_preview, then require decision_doc_save renderedDocDigest, the persisted decision_doc_save process-event renderedDocDigest, and digestText of the saved target bytes to equal that preview digest. A stale proposal digest, different preview, or post-save edit fails verification.",
             "type": "docs",
             "priority": "must"
           }
@@ -50,13 +50,13 @@
         "adversarial": [
           {
             "id": "CHK-001:adversarial:0",
-            "desc": "Promotion introduces no optimization, paraphrase, omitted caveat, changed role status, altered budget threshold, or reordered milestone: any content delta from the reviewed source fails this item even if the resulting document appears editorially improved.",
+            "desc": "Normalize the saved document by removing only the documented canonical wrapper/provenance fields, the canonical Chosen Approach introduction, mapping the generated H1 back to the reviewed source H1, and reversing exactly one fence-external heading demotion; the normalized result must equal the reviewed source content. Any other paraphrase, omission, insertion into the embedded plan, reordered milestone, changed role status, altered budget threshold, encoding corruption, table drift, or code-fence mutation fails even if editorially plausible.",
             "type": "docs",
             "priority": "must"
           },
           {
             "id": "CHK-001:adversarial:1",
-            "desc": "This documentation-only item changes no runtime source, prompt asset, registry, configuration, handler, gate, generated artifact, package version, or test behavior; repository diff attributable to CHK-001 is limited to creation of the canonical decision document, with navigation handled separately by CHK-002.",
+            "desc": "The promotion remains documentation-only: the Story diff attributable to CHK-001 creates the canonical decision document through decision_doc_save and records its local workflow metadata, but changes no runtime source, Prompt asset, registry, configuration, handler, gate, package version, generated runtime artifact, or test behavior; NAV discovery remains the separate CHK-002 concern, and the accepted plan is not represented as completed implementation evidence.",
             "type": "docs",
             "priority": "must"
           }
