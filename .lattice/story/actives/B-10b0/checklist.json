@@ -529,9 +529,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-17T14:34:08.777Z",
-      "endTime": "2026-07-17T15:28:55.945Z",
+      "endTime": "2026-07-17T16:35:15.546Z",
       "verificationIntent": {
         "happy": [
           {
@@ -611,121 +611,121 @@
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/concept-gate-scope-smoke.js",
           "result": "pass",
-          "note": "Observed buildQueryGroups, candidateReadBindingErrors, and defaultHostRunRunner body-only edits preserve declaration identity.",
-          "headHash": "f9948df7879a3946dfd04116dc8496241d3004d0",
-          "materialHash": "33817f70838ca9c8a7ff73d59571d8d331a11b07f05531c08fa1aff199303336",
-          "storyFilesHash": "aac8555764239ae3ccbf505d7e4f91984e0a959ec93a809ba6e8367dc1bda26a",
-          "timestamp": "2026-07-17T15:28:56.371Z"
+          "note": "Observed TypeScript body-only edits remain modifications, not deletions.",
+          "headHash": "c8e868d7d985198f8692db8a967755b3479d30aa",
+          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
+          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
+          "timestamp": "2026-07-17T16:35:15.882Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/concept-gate-scope-smoke.js",
+          "command": "node packages/main/dist/tasks/concept-gate-scope-smoke.js",
           "result": "pass",
-          "note": "A real audit_resources deletion is detected and residual filtering remains intact.",
-          "headHash": "f9948df7879a3946dfd04116dc8496241d3004d0",
-          "materialHash": "33817f70838ca9c8a7ff73d59571d8d331a11b07f05531c08fa1aff199303336",
-          "storyFilesHash": "aac8555764239ae3ccbf505d7e4f91984e0a959ec93a809ba6e8367dc1bda26a",
-          "timestamp": "2026-07-17T15:28:56.710Z"
+          "note": "True TypeScript and multiline Python declaration deletion remains detected.",
+          "headHash": "c8e868d7d985198f8692db8a967755b3479d30aa",
+          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
+          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
+          "timestamp": "2026-07-17T16:35:16.205Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/concept-gate-scope-smoke.js",
+          "command": "node packages/main/dist/tasks/concept-gate-scope-smoke.js",
           "result": "pass",
-          "note": "Body-only edits pair for functions, async and generator functions, const arrows, classes, methods, and constructors.",
-          "headHash": "f9948df7879a3946dfd04116dc8496241d3004d0",
-          "materialHash": "33817f70838ca9c8a7ff73d59571d8d331a11b07f05531c08fa1aff199303336",
-          "storyFilesHash": "aac8555764239ae3ccbf505d7e4f91984e0a959ec93a809ba6e8367dc1bda26a",
-          "timestamp": "2026-07-17T15:28:57.029Z"
+          "note": "Nested body/control-flow edits preserve enclosing declaration identity.",
+          "headHash": "c8e868d7d985198f8692db8a967755b3479d30aa",
+          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
+          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
+          "timestamp": "2026-07-17T16:35:16.527Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/concept-gate-scope-smoke.js",
+          "command": "node packages/main/dist/tasks/concept-gate-scope-smoke.js",
           "result": "pass",
-          "note": "Function, method, and constructor signature replacements remain detectable deletion signals.",
-          "headHash": "f9948df7879a3946dfd04116dc8496241d3004d0",
-          "materialHash": "33817f70838ca9c8a7ff73d59571d8d331a11b07f05531c08fa1aff199303336",
-          "storyFilesHash": "aac8555764239ae3ccbf505d7e4f91984e0a959ec93a809ba6e8367dc1bda26a",
-          "timestamp": "2026-07-17T15:28:57.386Z"
+          "note": "Signature replacements and multiline Python header identity are deterministic.",
+          "headHash": "c8e868d7d985198f8692db8a967755b3479d30aa",
+          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
+          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
+          "timestamp": "2026-07-17T16:35:16.823Z"
         },
         {
           "intentRef": "CHK-003:edge:2",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/concept-gate-scope-smoke.js",
+          "command": "node packages/main/dist/tasks/concept-gate-scope-smoke.js",
           "result": "pass",
-          "note": "File and lexical-scope identity prevents same-name cross-file and Python scope cancellation.",
-          "headHash": "f9948df7879a3946dfd04116dc8496241d3004d0",
-          "materialHash": "33817f70838ca9c8a7ff73d59571d8d331a11b07f05531c08fa1aff199303336",
-          "storyFilesHash": "aac8555764239ae3ccbf505d7e4f91984e0a959ec93a809ba6e8367dc1bda26a",
-          "timestamp": "2026-07-17T15:28:58.117Z"
+          "note": "Functions, methods, constructors, overloads, Python multiline def/class, and scoped duplicates are covered.",
+          "headHash": "c8e868d7d985198f8692db8a967755b3479d30aa",
+          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
+          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
+          "timestamp": "2026-07-17T16:35:17.137Z"
         },
         {
           "intentRef": "CHK-003:edge:3",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/concept-gate-scope-smoke.js",
+          "command": "node packages/main/dist/tasks/concept-gate-scope-smoke.js",
           "result": "pass",
-          "note": "Renames and exported-to-local changes are reported as removed declaration identities.",
-          "headHash": "f9948df7879a3946dfd04116dc8496241d3004d0",
-          "materialHash": "33817f70838ca9c8a7ff73d59571d8d331a11b07f05531c08fa1aff199303336",
-          "storyFilesHash": "aac8555764239ae3ccbf505d7e4f91984e0a959ec93a809ba6e8367dc1bda26a",
-          "timestamp": "2026-07-17T15:28:58.676Z"
+          "note": "Renames and export removal remain detectable declaration identity changes.",
+          "headHash": "c8e868d7d985198f8692db8a967755b3479d30aa",
+          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
+          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
+          "timestamp": "2026-07-17T16:35:17.446Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/concept-gate-scope-smoke.js",
+          "command": "node packages/main/dist/tasks/concept-gate-scope-smoke.js",
           "result": "pass",
-          "note": "Comments and string literals cannot forge declaration survivors or suppress true removals.",
-          "headHash": "f9948df7879a3946dfd04116dc8496241d3004d0",
-          "materialHash": "33817f70838ca9c8a7ff73d59571d8d331a11b07f05531c08fa1aff199303336",
-          "storyFilesHash": "aac8555764239ae3ccbf505d7e4f91984e0a959ec93a809ba6e8367dc1bda26a",
-          "timestamp": "2026-07-17T15:28:59.072Z"
+          "note": "Comments, strings, and unrelated scopes cannot forge declaration survivors.",
+          "headHash": "c8e868d7d985198f8692db8a967755b3479d30aa",
+          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
+          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
+          "timestamp": "2026-07-17T16:35:17.785Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/concept-gate-scope-smoke.js",
+          "command": "node packages/main/dist/tasks/concept-gate-scope-smoke.js",
           "result": "pass",
-          "note": "Removing export while retaining a local same-name declaration remains detectable.",
-          "headHash": "f9948df7879a3946dfd04116dc8496241d3004d0",
-          "materialHash": "33817f70838ca9c8a7ff73d59571d8d331a11b07f05531c08fa1aff199303336",
-          "storyFilesHash": "aac8555764239ae3ccbf505d7e4f91984e0a959ec93a809ba6e8367dc1bda26a",
-          "timestamp": "2026-07-17T15:28:59.472Z"
+          "note": "Export/signature incompatibility remains fail-closed rather than body-only.",
+          "headHash": "c8e868d7d985198f8692db8a967755b3479d30aa",
+          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
+          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
+          "timestamp": "2026-07-17T16:35:18.092Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/concept-gate-scope-smoke.js",
+          "command": "node packages/main/dist/tasks/concept-gate-scope-smoke.js",
           "result": "pass",
-          "note": "Removing one overload remains detectable despite same-name overload and implementation survivors.",
-          "headHash": "f9948df7879a3946dfd04116dc8496241d3004d0",
-          "materialHash": "33817f70838ca9c8a7ff73d59571d8d331a11b07f05531c08fa1aff199303336",
-          "storyFilesHash": "aac8555764239ae3ccbf505d7e4f91984e0a959ec93a809ba6e8367dc1bda26a",
-          "timestamp": "2026-07-17T15:28:59.829Z"
+          "note": "Same-name overload multiplicity and cross-file scope remain explicit identities.",
+          "headHash": "c8e868d7d985198f8692db8a967755b3479d30aa",
+          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
+          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
+          "timestamp": "2026-07-17T16:35:18.406Z"
         },
         {
           "intentRef": "CHK-003:adversarial:3",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/concept-gate-scope-smoke.js",
+          "command": "node packages/main/dist/tasks/concept-gate-scope-smoke.js",
           "result": "pass",
-          "note": "Malformed TypeScript produces typed diagnostics and a fail-closed concept result.",
-          "headHash": "f9948df7879a3946dfd04116dc8496241d3004d0",
-          "materialHash": "33817f70838ca9c8a7ff73d59571d8d331a11b07f05531c08fa1aff199303336",
-          "storyFilesHash": "aac8555764239ae3ccbf505d7e4f91984e0a959ec93a809ba6e8367dc1bda26a",
-          "timestamp": "2026-07-17T15:29:00.167Z"
+          "note": "Malformed TypeScript plus malformed/unterminated multiline Python headers emit diagnostics and concept FAIL.",
+          "headHash": "c8e868d7d985198f8692db8a967755b3479d30aa",
+          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
+          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
+          "timestamp": "2026-07-17T16:35:18.720Z"
         },
         {
           "intentRef": "CHK-003:adversarial:4",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/concept-gate-scope-smoke.js",
           "result": "pass",
-          "note": "Combined regression corpus covers observed false positives plus true deletion and cross-file collision cases.",
-          "headHash": "f9948df7879a3946dfd04116dc8496241d3004d0",
-          "materialHash": "33817f70838ca9c8a7ff73d59571d8d331a11b07f05531c08fa1aff199303336",
-          "storyFilesHash": "aac8555764239ae3ccbf505d7e4f91984e0a959ec93a809ba6e8367dc1bda26a",
-          "timestamp": "2026-07-17T15:29:00.500Z"
+          "note": "Combined corpus now includes observed false positives, true deletions, cross-file collisions, overloads, and multiline Python regressions.",
+          "headHash": "c8e868d7d985198f8692db8a967755b3479d30aa",
+          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
+          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
+          "timestamp": "2026-07-17T16:35:19.032Z"
         }
       ]
     }
@@ -835,6 +835,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Commit 1c694f1c8e fixes F-008 by counting same-binding same-lane re-attestations from the REVIEW anchor, including those completed before TEST; focused closeout suite passed.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-17T16:35:15.546Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Commit 1c694f1c8e fixes F-011 with bounded multiline Python header accumulation and fail-closed malformed/unterminated diagnostics; build and concept regression passed.",
       "agent": "lattice-implementer"
     }
   ]
