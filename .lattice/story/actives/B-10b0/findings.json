@@ -449,7 +449,7 @@
       "desc": "packages/main/src/handlers/verifier.ts:679-720 [HIGH] The new canonical-reuse failure rollback restores only worktree bytes after autoCommitStoryMetadata reports failure. That writer stages the entire story metadata directory before invoking git commit; a pre-commit/commit failure therefore leaves the new test-evidence PASS, validation_terminal event, and closeout receipt in the Git index. Lines 705-708 rewrite the old bytes only in the worktree and never restore/reset the corresponding index entries. A later unrelated commit can publish the rejected canonical PASS/event/receipt even though validate returned canonical-pass-persistence-failed, violating fail-closed artifact/event consistency. The new rejection test at validation-evidence-reuse-smoke.ts:210-219 checks HEAD and worktree evidence but never asserts git diff --cached/status or staged blob restoration, so it passes with this leak. Snapshot and restore the story-scoped index entries (including absent paths) around the writer, or use an isolated transactional commit path, and assert that failed writer/commit leaves HEAD, index, worktree, event log, receipt log, and canonical evidence byte-for-byte at the prior state.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-17T21:39:52.673Z",
@@ -461,7 +461,11 @@
         "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
       ],
       "signatureTag": "validation-reuse-failed-commit-index-leak",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Same root cause fixed by a74f57732a: canonical reuse snapshots exact worktree bytes/existence and managed real-index entries, issues the receipt strictly, commits exactly test-evidence/process-events/closeout-receipts through an isolated GIT_INDEX_FILE, and rolls back managed worktree+index on hook/commit/receipt failure while preserving unrelated staged blobs. Build, validation-evidence-reuse-smoke, and process-fact contract PASS.",
+      "resolvedAt": "2026-07-17T21:49:15.622Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
