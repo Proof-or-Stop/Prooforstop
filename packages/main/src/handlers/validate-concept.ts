@@ -107,7 +107,10 @@ const defaultGrepReader: GrepReader = ({ symbol, projectRoot: gitCwd }) => {
 /**
  * Extract deleted exported symbols (TS / Python) from the raw `git diff` text.
  *
- * Rule: only look at lines starting with `-` but not `--` (`---` is a diff header). Ignore comment lines.
+ * Rule: collect declarations from removed and added diff lines, then report only
+ * removed declaration identities that have no matching added declaration. This
+ * prevents a changed declaration line from looking like a deletion while still
+ * treating renames, export removal, and true declaration removal as deletions.
  *
  * TS:     `-export (async )?function NAME`, `-export class NAME`, `-export const NAME`
  * Python: `-def NAME`, `-class NAME`
@@ -115,39 +118,41 @@ const defaultGrepReader: GrepReader = ({ symbol, projectRoot: gitCwd }) => {
  * Returns a deduplicated and sorted symbol list.
  */
 export function scanDeletedSymbols(diff: string): string[] {
-  const out = new Set<string>();
+  const removed = new Map<string, string>();
+  const added = new Set<string>();
   const lines = diff.split('\n');
 
-  // TS patterns — permit optional whitespace after `-`
-  const reTsFunc = /^-\s*export\s+(?:async\s+)?function\s+(\w+)/;
-  const reTsClass = /^-\s*export\s+class\s+(\w+)/;
-  const reTsConst = /^-\s*export\s+const\s+(\w+)/;
+  const declarationPatterns: Array<{ kind: string; re: RegExp }> = [
+    { kind: 'ts-function', re: /^\s*export\s+(?:async\s+)?function\s*\*?\s*(\w+)/ },
+    { kind: 'ts-class', re: /^\s*export\s+class\s+(\w+)/ },
+    { kind: 'ts-const', re: /^\s*export\s+const\s+(\w+)/ },
+    { kind: 'py-def', re: /^\s*def\s+(\w+)/ },
+    { kind: 'py-class', re: /^\s*class\s+(\w+)/ },
+  ];
 
-  // Python patterns (also permit leading indentation after `-`)
-  const rePyDef = /^-\s*def\s+(\w+)/;
-  const rePyClass = /^-\s*class\s+(\w+)/;
-
-  // Comment lines we ignore even if they happen to delete a "fake" symbol
-  const reTsComment = /^-\s*\/\//;
-  const rePyComment = /^-\s*#/;
+  const declaration = (line: string): { key: string; name: string } | null => {
+    const content = line.slice(1);
+    if (/^\s*(?:\/\/|#)/.test(content)) return null;
+    for (const pattern of declarationPatterns) {
+      const match = pattern.re.exec(content);
+      if (match) return { key: `${pattern.kind}:${match[1]}`, name: match[1] };
+    }
+    return null;
+  };
 
   for (const line of lines) {
-    // Skip diff meta (---) — regex wouldn't match anyway but cheap to short-circuit
-    if (line.startsWith('---')) continue;
-    if (!line.startsWith('-')) continue;
-    if (reTsComment.test(line)) continue;
-    if (rePyComment.test(line)) continue;
-
-    const m =
-      reTsFunc.exec(line) ||
-      reTsClass.exec(line) ||
-      reTsConst.exec(line) ||
-      rePyDef.exec(line) ||
-      rePyClass.exec(line);
-    if (m) out.add(m[1]);
+    if (line.startsWith('---') || line.startsWith('+++')) continue;
+    if (!line.startsWith('-') && !line.startsWith('+')) continue;
+    const found = declaration(line);
+    if (!found) continue;
+    if (line.startsWith('-')) removed.set(found.key, found.name);
+    else added.add(found.key);
   }
 
-  return Array.from(out).sort();
+  return Array.from(removed.entries())
+    .filter(([key]) => !added.has(key))
+    .map(([, name]) => name)
+    .sort();
 }
 
 // ── residual grep ──
