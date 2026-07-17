@@ -218,7 +218,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-17T10:04:20.830Z",
+      "endTime": "2026-07-17T10:13:48.266Z",
       "verificationIntent": {
         "happy": [
           {
@@ -318,132 +318,132 @@
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit 2075608ac0 passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. It proves DF filtering before query budget, rare-term survival, ordinary-only cutoff, protected-only no false escalation, typed missing escalation, all-mode mismatch diagnostics with enforce-only blocking, structured-risk handler behavior, and real signed current-to-stale reviewer collector integration.",
-          "headHash": "6347305fd77783eac60c162d2fccfca1a5abcc74",
-          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
-          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
-          "timestamp": "2026-07-17T10:04:21.059Z"
+          "note": "Independent owner rerun at commit 62abc146dc passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. Query auditing distinguishes overbroad and zero-hit groups; only eligible groups with actual hits consume budget, preserving a rare specific candidate after 12 zero-hit terms while retaining all prior protected, cutoff, mode, risk, and reviewer-current/stale contracts.",
+          "headHash": "409c6230c58a77742ffc636ec9c9ceedff8402d8",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:48.454Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit 2075608ac0 passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. It proves DF filtering before query budget, rare-term survival, ordinary-only cutoff, protected-only no false escalation, typed missing escalation, all-mode mismatch diagnostics with enforce-only blocking, structured-risk handler behavior, and real signed current-to-stale reviewer collector integration.",
-          "headHash": "6347305fd77783eac60c162d2fccfca1a5abcc74",
-          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
-          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
-          "timestamp": "2026-07-17T10:04:21.269Z"
+          "note": "Independent owner rerun at commit 62abc146dc passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. Query auditing distinguishes overbroad and zero-hit groups; only eligible groups with actual hits consume budget, preserving a rare specific candidate after 12 zero-hit terms while retaining all prior protected, cutoff, mode, risk, and reviewer-current/stale contracts.",
+          "headHash": "409c6230c58a77742ffc636ec9c9ceedff8402d8",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:48.702Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit 2075608ac0 passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. It proves DF filtering before query budget, rare-term survival, ordinary-only cutoff, protected-only no false escalation, typed missing escalation, all-mode mismatch diagnostics with enforce-only blocking, structured-risk handler behavior, and real signed current-to-stale reviewer collector integration.",
-          "headHash": "6347305fd77783eac60c162d2fccfca1a5abcc74",
-          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
-          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
-          "timestamp": "2026-07-17T10:04:21.447Z"
+          "note": "Independent owner rerun at commit 62abc146dc passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. Query auditing distinguishes overbroad and zero-hit groups; only eligible groups with actual hits consume budget, preserving a rare specific candidate after 12 zero-hit terms while retaining all prior protected, cutoff, mode, risk, and reviewer-current/stale contracts.",
+          "headHash": "409c6230c58a77742ffc636ec9c9ceedff8402d8",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:48.948Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit 2075608ac0 passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. It proves DF filtering before query budget, rare-term survival, ordinary-only cutoff, protected-only no false escalation, typed missing escalation, all-mode mismatch diagnostics with enforce-only blocking, structured-risk handler behavior, and real signed current-to-stale reviewer collector integration.",
-          "headHash": "6347305fd77783eac60c162d2fccfca1a5abcc74",
-          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
-          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
-          "timestamp": "2026-07-17T10:04:21.618Z"
+          "note": "Independent owner rerun at commit 62abc146dc passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. Query auditing distinguishes overbroad and zero-hit groups; only eligible groups with actual hits consume budget, preserving a rare specific candidate after 12 zero-hit terms while retaining all prior protected, cutoff, mode, risk, and reviewer-current/stale contracts.",
+          "headHash": "409c6230c58a77742ffc636ec9c9ceedff8402d8",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:49.225Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit 2075608ac0 passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. It proves DF filtering before query budget, rare-term survival, ordinary-only cutoff, protected-only no false escalation, typed missing escalation, all-mode mismatch diagnostics with enforce-only blocking, structured-risk handler behavior, and real signed current-to-stale reviewer collector integration.",
-          "headHash": "6347305fd77783eac60c162d2fccfca1a5abcc74",
-          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
-          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
-          "timestamp": "2026-07-17T10:04:21.789Z"
+          "note": "Independent owner rerun at commit 62abc146dc passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. Query auditing distinguishes overbroad and zero-hit groups; only eligible groups with actual hits consume budget, preserving a rare specific candidate after 12 zero-hit terms while retaining all prior protected, cutoff, mode, risk, and reviewer-current/stale contracts.",
+          "headHash": "409c6230c58a77742ffc636ec9c9ceedff8402d8",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:49.488Z"
         },
         {
           "intentRef": "CHK-002:edge:3",
           "kind": "integration_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit 2075608ac0 passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. It proves DF filtering before query budget, rare-term survival, ordinary-only cutoff, protected-only no false escalation, typed missing escalation, all-mode mismatch diagnostics with enforce-only blocking, structured-risk handler behavior, and real signed current-to-stale reviewer collector integration.",
-          "headHash": "6347305fd77783eac60c162d2fccfca1a5abcc74",
-          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
-          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
-          "timestamp": "2026-07-17T10:04:21.977Z"
+          "note": "Independent owner rerun at commit 62abc146dc passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. Query auditing distinguishes overbroad and zero-hit groups; only eligible groups with actual hits consume budget, preserving a rare specific candidate after 12 zero-hit terms while retaining all prior protected, cutoff, mode, risk, and reviewer-current/stale contracts.",
+          "headHash": "409c6230c58a77742ffc636ec9c9ceedff8402d8",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:49.721Z"
         },
         {
           "intentRef": "CHK-002:edge:4",
           "kind": "integration_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit 2075608ac0 passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. It proves DF filtering before query budget, rare-term survival, ordinary-only cutoff, protected-only no false escalation, typed missing escalation, all-mode mismatch diagnostics with enforce-only blocking, structured-risk handler behavior, and real signed current-to-stale reviewer collector integration.",
-          "headHash": "6347305fd77783eac60c162d2fccfca1a5abcc74",
-          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
-          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
-          "timestamp": "2026-07-17T10:04:22.157Z"
+          "note": "Independent owner rerun at commit 62abc146dc passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. Query auditing distinguishes overbroad and zero-hit groups; only eligible groups with actual hits consume budget, preserving a rare specific candidate after 12 zero-hit terms while retaining all prior protected, cutoff, mode, risk, and reviewer-current/stale contracts.",
+          "headHash": "409c6230c58a77742ffc636ec9c9ceedff8402d8",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:49.951Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit 2075608ac0 passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. It proves DF filtering before query budget, rare-term survival, ordinary-only cutoff, protected-only no false escalation, typed missing escalation, all-mode mismatch diagnostics with enforce-only blocking, structured-risk handler behavior, and real signed current-to-stale reviewer collector integration.",
-          "headHash": "6347305fd77783eac60c162d2fccfca1a5abcc74",
-          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
-          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
-          "timestamp": "2026-07-17T10:04:22.330Z"
+          "note": "Independent owner rerun at commit 62abc146dc passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. Query auditing distinguishes overbroad and zero-hit groups; only eligible groups with actual hits consume budget, preserving a rare specific candidate after 12 zero-hit terms while retaining all prior protected, cutoff, mode, risk, and reviewer-current/stale contracts.",
+          "headHash": "409c6230c58a77742ffc636ec9c9ceedff8402d8",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:50.199Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit 2075608ac0 passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. It proves DF filtering before query budget, rare-term survival, ordinary-only cutoff, protected-only no false escalation, typed missing escalation, all-mode mismatch diagnostics with enforce-only blocking, structured-risk handler behavior, and real signed current-to-stale reviewer collector integration.",
-          "headHash": "6347305fd77783eac60c162d2fccfca1a5abcc74",
-          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
-          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
-          "timestamp": "2026-07-17T10:04:22.498Z"
+          "note": "Independent owner rerun at commit 62abc146dc passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. Query auditing distinguishes overbroad and zero-hit groups; only eligible groups with actual hits consume budget, preserving a rare specific candidate after 12 zero-hit terms while retaining all prior protected, cutoff, mode, risk, and reviewer-current/stale contracts.",
+          "headHash": "409c6230c58a77742ffc636ec9c9ceedff8402d8",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:50.644Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit 2075608ac0 passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. It proves DF filtering before query budget, rare-term survival, ordinary-only cutoff, protected-only no false escalation, typed missing escalation, all-mode mismatch diagnostics with enforce-only blocking, structured-risk handler behavior, and real signed current-to-stale reviewer collector integration.",
-          "headHash": "6347305fd77783eac60c162d2fccfca1a5abcc74",
-          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
-          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
-          "timestamp": "2026-07-17T10:04:22.725Z"
+          "note": "Independent owner rerun at commit 62abc146dc passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. Query auditing distinguishes overbroad and zero-hit groups; only eligible groups with actual hits consume budget, preserving a rare specific candidate after 12 zero-hit terms while retaining all prior protected, cutoff, mode, risk, and reviewer-current/stale contracts.",
+          "headHash": "409c6230c58a77742ffc636ec9c9ceedff8402d8",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:50.876Z"
         },
         {
           "intentRef": "CHK-002:adversarial:3",
           "kind": "integration_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit 2075608ac0 passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. It proves DF filtering before query budget, rare-term survival, ordinary-only cutoff, protected-only no false escalation, typed missing escalation, all-mode mismatch diagnostics with enforce-only blocking, structured-risk handler behavior, and real signed current-to-stale reviewer collector integration.",
-          "headHash": "6347305fd77783eac60c162d2fccfca1a5abcc74",
-          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
-          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
-          "timestamp": "2026-07-17T10:04:22.984Z"
+          "note": "Independent owner rerun at commit 62abc146dc passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. Query auditing distinguishes overbroad and zero-hit groups; only eligible groups with actual hits consume budget, preserving a rare specific candidate after 12 zero-hit terms while retaining all prior protected, cutoff, mode, risk, and reviewer-current/stale contracts.",
+          "headHash": "409c6230c58a77742ffc636ec9c9ceedff8402d8",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:51.092Z"
         },
         {
           "intentRef": "CHK-002:adversarial:4",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit 2075608ac0 passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. It proves DF filtering before query budget, rare-term survival, ordinary-only cutoff, protected-only no false escalation, typed missing escalation, all-mode mismatch diagnostics with enforce-only blocking, structured-risk handler behavior, and real signed current-to-stale reviewer collector integration.",
-          "headHash": "6347305fd77783eac60c162d2fccfca1a5abcc74",
-          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
-          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
-          "timestamp": "2026-07-17T10:04:23.216Z"
+          "note": "Independent owner rerun at commit 62abc146dc passed build, candidate routing, host-run 83/83, readiness 10/10, and process-fact contract. Query auditing distinguishes overbroad and zero-hit groups; only eligible groups with actual hits consume budget, preserving a rare specific candidate after 12 zero-hit terms while retaining all prior protected, cutoff, mode, risk, and reviewer-current/stale contracts.",
+          "headHash": "409c6230c58a77742ffc636ec9c9ceedff8402d8",
+          "materialHash": "8c26e2495d7ff165c5faaa78855b6b93adf903bb7464551cf29bde0e52ef46e4",
+          "storyFilesHash": "12a2eb67ba4f5827d08c5edd5beb624d515ee23cca10330c436d03c52da1e6c8",
+          "timestamp": "2026-07-17T10:13:51.287Z"
         }
       ]
     }
