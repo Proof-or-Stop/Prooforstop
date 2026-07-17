@@ -86,8 +86,24 @@
       "phase": "DEV",
       "headHash": "7a4e11f5f966ca0eb3ee436cf1cb52dfd6b76e12",
       "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Necessary direct touchpoint for CHK-002: done_prepare generated-metadata cleanTree classification must safely accept only same-run reused validation terminal appends while rejecting pre-existing or untrusted process-events dirt.",
+      "timestamp": "2026-07-17T20:39:15.769Z",
+      "paths": [
+        "packages/main/src/core/done-prepare-generated-metadata.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/done-prepare-generated-metadata.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "9392d5aa4ed5b8ec4db968085990c981c06d0e94",
+      "materialHash": "0f91d4304ca1f9840b3ad871a6076fdbbc110db9ee28d2f7b85c597589b7dd2d"
     }
   ],
   "createdAt": "2026-07-17T13:21:14.674Z",
-  "updatedAt": "2026-07-17T19:54:49.269Z"
+  "updatedAt": "2026-07-17T20:39:15.769Z"
 }
