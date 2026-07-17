@@ -272,6 +272,27 @@
         "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
       },
       "_hash": "c42ef28d9419e243865b3720a30d8757313a1af324fb9addf0aa1ef9dacab8d7"
+    },
+    {
+      "id": "B-10b0:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Incremental review of 2974a70406: one-file two-hash update exactly matches the reviewed closeout-trust and closeout-trust-smoke guard pins; no guard or assertion logic changed, and both process-fact contract and retired-authority guard pass.",
+      "createdAt": "2026-07-17T20:19:13.358Z",
+      "reviewRound": "2026-07-17T20:17:32.463Z",
+      "reviewRunId": "B-10b0:RR-017",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "3a59c7ed5fe69a359b65c905bcda146613c69024252a498c9af168825078d70b"
     }
   ]
 }
