@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-10b0",
+  "records": [
+    {
+      "id": "RED-20260717131409",
+      "trigger": "Concept preflight classifies an edited exported declaration as a deleted symbol even when the same declaration remains in the added side.",
+      "acceptanceTargetRef": "CHK-003:happy:0",
+      "baselineHeadHash": "03e4f36d4a42a7ea8a1a63d798b17ea8cde84ce6",
+      "baselineMaterialHash": "0c4293e00cb2df1e7caaf530f7fa157cb74bb7eebbdb4171078e5a4cc52d60fc",
+      "observedFailure": "Current scanDeletedSymbols returned demo and exited 1 for a diff that only changes the demo signature and body while retaining the exported function.",
+      "failingCommand": "node --input-type=module -e \"import { scanDeletedSymbols } from \\\"./packages/main/dist/handlers/validate-concept.js\\\"; const diff=\\\"@@ -1 +1 @@\\\\n-export function demo(a: string) { return a; }\\\\n+export function demo(a: string, b = 1) { return a + b; }\\\"; const got=scanDeletedSymbols(diff); console.log(JSON.stringify(got)); if (got.length !== 0) process.exit(1);\"",
+      "expectedGreenCommand": "npm --prefix packages/main run build && node packages/main/dist/tasks/concept-gate-scope-smoke.js",
+      "greenRelation": {
+        "targetRef": "CHK-003:happy:0",
+        "relation": "regression_to_green",
+        "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/concept-gate-scope-smoke.js"
+      },
+      "note": "Focused deterministic RED; no full suite or external host.",
+      "createdAt": "2026-07-17T13:14:09.014Z"
+    },
+    {
+      "id": "RED-20260717132056",
+      "trigger": "B-3aec closeout generated metadata invalidated current reviewer receipts and current concept scan misclassifies retained declarations as deleted.",
+      "acceptanceTargetRef": "ACCEPT-001",
+      "baselineHeadHash": "0488c99880abedcc15a0736d3a66769a281b19b5",
+      "baselineMaterialHash": "0c4293e00cb2df1e7caaf530f7fa157cb74bb7eebbdb4171078e5a4cc52d60fc",
+      "observedFailure": "Normal closeout required metadata-only reviewer re-attestation after validation and closeout writes; focused concept RED also returns demo as deleted when the export remains on the added side.",
+      "failingCommand": "node --input-type=module -e \"import { scanDeletedSymbols } from \\\"./packages/main/dist/handlers/validate-concept.js\\\"; const diff=\\\"@@ -1 +1 @@\\\\n-export function demo(a: string) { return a; }\\\\n+export function demo(a: string, b = 1) { return a + b; }\\\"; const got=scanDeletedSymbols(diff); console.log(JSON.stringify(got)); if (got.length !== 0) process.exit(1);\"",
+      "expectedGreenCommand": "npm --prefix packages/main run build && node packages/main/dist/tasks/closeout-trust-smoke.js && node packages/main/dist/tasks/lifecycle-check-smoke.js && node packages/main/dist/tasks/concept-gate-scope-smoke.js",
+      "greenRelation": {
+        "targetRef": "ACCEPT-001",
+        "relation": "regression_to_green",
+        "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/closeout-trust-smoke.js && node packages/main/dist/tasks/lifecycle-check-smoke.js && node packages/main/dist/tasks/concept-gate-scope-smoke.js"
+      },
+      "note": "The lifecycle regression must additionally prove all four zero counters; the concept command is the focused executable RED.",
+      "createdAt": "2026-07-17T13:20:56.537Z"
+    }
+  ],
+  "createdAt": "2026-07-17T13:14:09.014Z",
+  "updatedAt": "2026-07-17T13:20:56.537Z"
+}

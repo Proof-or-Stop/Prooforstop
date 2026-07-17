@@ -648,6 +648,7 @@ export const REVIEW_RETENTION_PROTOCOL_METADATA_PATHS: ReadonlySet<string> = new
   'process-events.jsonl',
   'process-metrics.json',
   'test-runs.json',
+  'owner-lease.json',
   'closeout-write-receipts.jsonl',
 ]);
 

@@ -12,6 +12,25 @@ import {
   collectBreakerCounters,
   isInteractiveAckAllowed,
 } from '../core/convergence-breaker.js';
+import type { StoryStore } from '../core/store.js';
+
+export function recordStoryResumeHumanConfirmation(
+  store: StoryStore,
+  storyId: string,
+  reason: string,
+): void {
+  const story = store.readStory(storyId);
+  store.appendProcessEvent(storyId, {
+    type: 'human_confirmation',
+    storyId,
+    attemptId: story.currentReviewRound ?? '',
+    command: 'story_resume',
+    confirmation: 'convergence_breaker_resume',
+    reason,
+    phase: story.phase,
+    reviewRound: story.currentReviewRound ?? '',
+  });
+}
 
 /**
  * B-bbaf CHK-003: the human-only ack that clears a convergence-breaker freeze.
@@ -58,6 +77,7 @@ function createStoryResumeHandlers(ctx: HandlerContext) {
       const next = resumeBreakerState(counters);
       writeBreakerState(storyDir, next);
       resetGateFailureCounts(storyDir);
+      recordStoryResumeHumanConfirmation(store, storyId, reason);
 
       const tripped = (prior.trippedReasons ?? []).join(', ') || '(none recorded)';
       return (

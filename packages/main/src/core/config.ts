@@ -386,7 +386,6 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'finding_cluster',  // B-9d95 CHK-005: auto/merge/split 聚簇
     'validate', 'status',
     'bug_report', 'bug_update', 'bug_list',
-    'delivery_check_set', 'delivery_waiver_add', // delivery reviewer 在 REVIEW 阶段写签名/豁免，TEST→DONE gate 消费
     'review_loop_start', 'review_loop_iteration_add', 'review_loop_close',
     'review_escalation_policy_set',
     'review_host_availability_probe',

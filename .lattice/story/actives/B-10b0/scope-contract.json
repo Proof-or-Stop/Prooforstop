@@ -1,0 +1,141 @@
+{
+  "storyId": "B-10b0",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/closeout-trust.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/lifecycle-readiness.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/core/phase-gates.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/story.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/handlers/validate-concept.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/closeout-trust-smoke.ts",
+    "packages/main/src/tasks/lifecycle-check-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+    "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+    "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+    "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+    "packages/main/src/tasks/convergence-breaker-smoke.ts",
+    "packages/main/src/tasks/validation-protocol-smoke.ts",
+    "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main",
+      "reason": "F-001 remediation must align the L4 trust-boundary wording with the active local-assurance contract and remove the unsupported same-UID authority implication.",
+      "timestamp": "2026-07-17T15:58:23.142Z",
+      "paths": [
+        "packages/main/src/core/process-fact-levels.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/process-fact-levels.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "21202c5c80ce30d6cd01360cf80f69a780876bb1",
+      "materialHash": "33817f70838ca9c8a7ff73d59571d8d331a11b07f05531c08fa1aff199303336"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Formal TEST exposed stale reviewed structural fingerprints for two B-10b0-owned executable sources; repinning the guard is required to validate the implemented closeout boundary without adding downstream compatibility whitelists.",
+      "timestamp": "2026-07-17T16:51:18.412Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "9971708050826cbe3b314b2f35e9ee7952b21928",
+      "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "DONE-required exposed a deterministic worktree-only harness failure: the baseline verifier bypasses the canonical bin/lattice.js bootstrap and invokes dist/cli.js directly, so its unknown-role probe is rejected by runtime authority before reaching the behavior under test. The paired baseline command snapshot must follow the canonical entrypoint.",
+      "timestamp": "2026-07-17T19:54:49.269Z",
+      "paths": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "7a4e11f5f966ca0eb3ee436cf1cb52dfd6b76e12",
+      "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Necessary direct touchpoint for CHK-002: done_prepare generated-metadata cleanTree classification must safely accept only same-run reused validation terminal appends while rejecting pre-existing or untrusted process-events dirt.",
+      "timestamp": "2026-07-17T20:39:15.769Z",
+      "paths": [
+        "packages/main/src/core/done-prepare-generated-metadata.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/done-prepare-generated-metadata.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "9392d5aa4ed5b8ec4db968085990c981c06d0e94",
+      "materialHash": "0f91d4304ca1f9840b3ad871a6076fdbbc110db9ee28d2f7b85c597589b7dd2d"
+    },
+    {
+      "actor": "lattice-implementer",
+      "reason": "The canonical validation reuse behavior requires its focused integration regression in the existing validation reuse smoke.",
+      "timestamp": "2026-07-17T21:36:36.640Z",
+      "paths": [
+        "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "85656f434d705c756bef0df7adce5531375a298a",
+      "materialHash": "71a4d2e53b778547b98e30bf8c79573e39f92fde3722d00e74970cf91fff88aa"
+    },
+    {
+      "actor": "lattice-implementer",
+      "reason": "The verified canonical validation reuse findings require an opt-in isolated metadata transaction alongside the existing canonical metadata writer.",
+      "timestamp": "2026-07-17T21:48:51.743Z",
+      "paths": [
+        "packages/main/src/core/auto-commit-metadata.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/auto-commit-metadata.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "a74f57732a8d08c6831a8b7553fde64dfa1fbc15",
+      "materialHash": "8389bca2af0f7db3911756b236ed225a5e7d7bb142d7a0a02710997fec9ad614"
+    }
+  ],
+  "createdAt": "2026-07-17T13:21:14.674Z",
+  "updatedAt": "2026-07-17T21:48:51.743Z"
+}

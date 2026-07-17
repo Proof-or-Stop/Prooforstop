@@ -198,7 +198,7 @@ const requiredArtifactFacts = [
   { name: 'artifact:milestone-closeout.json', path: 'milestone-closeout.json', signed: false },
   { name: 'artifact:slice-plan.json', path: 'slice-plan.json', signed: false },
   { name: 'artifact:parent-ledger-rollup.json', path: 'parent-ledger-rollup.json', signed: false },
-  { name: 'artifact:closeout-write-receipts.jsonl', path: 'closeout-write-receipts.jsonl', signed: false, gateRequired: false },
+  { name: 'artifact:closeout-write-receipts.jsonl', path: 'closeout-write-receipts.jsonl', signed: false },
   { name: 'artifact:proofstory.json', path: 'proofstory.json', signed: false },
   { name: 'artifact:intent-collision.json', path: 'intent-collision.json', signed: false },
   { name: 'artifact:scope-shrinkage-decision.json', path: 'scope-shrinkage-decision.json', signed: false },
@@ -852,9 +852,9 @@ function assertCloseoutTrustBoundary() {
     'pinned executable source structural fingerprint drift',
     'review executable structure before updating the pinned fingerprint',
     'b2c006a5becbd456a5728bb7615cf999cb514137383bc935b128073240899d98',
-    'ccd079414da1e7aabbbc9afcd96a25ef37ae72d50d6817c340b37f152f711b06',
+    '458d8aeaf36286e2ca0cafe968c2e9559d46e57e6920ca9581ea58ee38b77887',
     '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844',
-    '0a10f408fa80e342b4bf2426fdd618cc3aa6f003e3f5da16a0856684f84d57a1',
+    'd6ca0a50fd24368b13817065278e2ca4d59d38983dc21a79322f9997de497e9e',
     'f3cbdee85850ad38eecf32073f2651309813e2ef6f68c4f843ec4a2d5c1356c1',
     '20149fa438b1ec78fc9c9713eb3cc4a890bc58a1d82e7a5fa0d588e9c4e7ee91',
     '518890b58fd8e369488721d66d954f9589a049a42066635f42c057227788ae45',
@@ -1557,12 +1557,22 @@ function assertCloseoutTrustBoundary() {
   assert(scopeAckPolicy && !scopeAckPolicy.allowedPhases.includes('TEST'), `${commandPolicyPath}: scope_contract_acknowledge must remain rejected in TEST`);
 
   const receiptFact = registry.get('artifact:closeout-write-receipts.jsonl');
-  assert(receiptFact?.level === 'L1' && receiptFact?.artifact?.signed === false, `${processFactRegistryPath}: local closeout receipts must remain an honestly non-signed audit artifact`);
-  assert(!receiptFact?.consumerGate && !receiptFact?.artifact?.consumerGate && !receiptFact?.semantics.includes('gate-evidence'), `${processFactRegistryPath}: local closeout receipts must have no lifecycle gate consumer or gate-evidence semantics`);
-  assert(receiptFact?.rationale.includes('same-UID') && receiptFact?.rationale.includes('forgeable') && receiptFact?.rationale.includes('not canonical-writer authentication') && receiptFact?.rationale.includes('cannot retain a signed review') && receiptFact?.rationale.includes('not closeout evidence'), `${processFactRegistryPath}: receipts must disclose the local same-UID trust limit and fail-closed retention policy`);
+  assert(receiptFact?.level === 'L4' && receiptFact?.artifact?.signed === false, `${processFactRegistryPath}: local closeout receipts must remain honestly non-signed while their bounded review-retention use is gate-consumed`);
+  assert(receiptFact?.consumerGate?.includes('metadata-only retention') && receiptFact?.artifact?.consumerGate?.includes('metadata-only retention') && receiptFact?.semantics.includes('gate-evidence'), `${processFactRegistryPath}: closeout receipt review-retention consumption must be registered as gate evidence`);
+  for (const token of ['cooperative local-runtime lineage', 'registered writer label', 'not same-UID authentication', 'does not approve an artifact', 'artifact gate validation remains independent']) {
+    assert(receiptFact?.rationale.includes(token), `${processFactRegistryPath}: closeout lineage rationale missing honest boundary token ${token}`);
+  }
   assert(read(lifecycleRegistryPath).includes("'closeout-write-receipts.jsonl'"), `${lifecycleRegistryPath}: receipt ledger must remain classified lifecycle metadata`);
   const lifecycleText = read(lifecycleRegistryPath);
-  assert(lifecycleText.includes('REVIEW_RETENTION_PROTOCOL_METADATA_PATHS') && lifecycleText.includes("'process-metrics.json'") && lifecycleText.includes("'test-runs.json'"), `${lifecycleRegistryPath}: non-authoritative review-retention companion metadata must remain closed and registry-backed`);
+  assert(lifecycleText.includes('REVIEW_RETENTION_PROTOCOL_METADATA_PATHS') && lifecycleText.includes("'process-metrics.json'") && lifecycleText.includes("'test-runs.json'") && lifecycleText.includes("'owner-lease.json'"), `${lifecycleRegistryPath}: non-authoritative review-retention companion metadata must remain closed and registry-backed`);
+  for (const fact of [
+    'runtime:closeout_phase_transition',
+    'runtime:closeout_human_confirmation',
+    'runtime:closeout_validation_terminal',
+  ]) {
+    assert(read(processFactRegistryPath).includes(`name: '${fact}'`), `${processFactRegistryPath}: missing durable closeout convergence fact ${fact}`);
+  }
+  assert(read(processFactRegistryPath).includes('...PROCESS_FACT_CLOSEOUT_TELEMETRY'), `${processFactRegistryPath}: durable closeout convergence facts must be included in the final registry`);
 
   const autoCommitText = read('packages/main/src/core/auto-commit-metadata.ts');
   for (const token of ['closeoutArtifactPaths', 'declaredPaths.has(policy.path)', 'buildCloseoutWriteReceipt', 'appendCloseoutWriteReceipt']) {
@@ -1571,8 +1581,8 @@ function assertCloseoutTrustBoundary() {
   const closeoutSmokeText = read('packages/main/src/tasks/closeout-trust-smoke.ts');
   for (const exactUserLine of [
     'PASS closeout artifact classifications: closed policy set verified',
-    'PASS local closeout requires fresh review before TEST retention',
-    'PASS metadata-only review retention is fail-closed',
+    'PASS closeout review retention binds material, story files, scope, round, and stable HEAD',
+    'review evidence retained: unchanged reviewed material; artifact gate validation remains independent',
   ]) {
     assert(closeoutSmokeText.includes(`console.log('${exactUserLine}')`), `closeout smoke missing revised exact userSees line: ${exactUserLine}`);
   }
@@ -1588,7 +1598,7 @@ function assertCloseoutTrustBoundary() {
   }
   assert(/if \(!story\.currentReviewRound\)[\s\S]{0,300}review_round_missing/.test(machineText), 'reviewer-required lifecycle verdict must fail closed before legacy evidence validation when currentReviewRound is absent');
   const reviewRunText = read('packages/main/src/core/review-run.ts');
-  for (const token of ['evaluateReviewRunMetadataRetention', 'evaluateMetadataOnlyReviewRetention', 'evaluatePersistedReviewToTestIndexTransition', 'changedFilesBetween', 'uncommittedPathsUnder', 'validateCurrentCloseoutArtifact', 'relative(gitRoot, storyDir)', 'same-UID actor can freely mint them', "reviewedStory.phase !== 'REVIEW'", "currentStory.phase !== 'TEST'"]) {
+  for (const token of ['evaluateReviewRunMetadataRetention', 'evaluateMetadataOnlyReviewRetention', 'evaluatePersistedReviewToTestIndexTransition', 'changedFilesBetween', 'uncommittedPathsUnder', 'classifyCurrentCloseoutArtifactForReviewRetention', 'storyFilesUnchanged', 'stableEvaluationHead', 'relative(gitRoot, storyDir)', 'not writer authentication', "reviewedStory.phase !== 'REVIEW'", "currentStory.phase !== 'TEST'"]) {
     assert(reviewRunText.includes(token), `review-run metadata retention consumer missing ${token}`);
   }
   const transitionText = read('packages/main/src/handlers/transition-orchestrator.ts');
@@ -1610,6 +1620,46 @@ function assertCloseoutTrustBoundary() {
   ]) {
     const handlerText = read(handlerPath);
     assert(handlerText.includes(`'${writerCommand}'`) && handlerText.includes('closeoutArtifactPaths') && handlerText.includes(artifactPath), `${handlerPath}: ${writerCommand} must explicitly attest its just-written closeout artifact ${artifactPath}`);
+  }
+  const closeoutConsumerMatrix = [
+    {
+      artifact: 'test-evidence.json',
+      path: 'packages/main/src/core/done-oracle.ts',
+      validators: ['readTestEvidence', 'checkEvidenceFreshness'],
+    },
+    {
+      artifact: 'done-required-evidence.json',
+      path: 'packages/main/src/core/done-oracle.ts',
+      validators: ['evaluateDoneRequiredEvidence'],
+    },
+    {
+      artifact: 'delivery-check.json',
+      path: 'packages/main/src/core/machine.ts',
+      validators: ['evaluateDeliveryCheckFreshness', 'evaluateReviewVerdict'],
+    },
+    {
+      artifact: 'evidence/live-smoke-transcript.json',
+      path: 'packages/main/src/core/machine.ts',
+      validators: ['evaluateOptionalLiveSmokeTranscript', 'evaluateReviewVerdict'],
+    },
+    {
+      artifact: 'summary.json',
+      path: 'packages/main/src/core/done-oracle.ts',
+      validators: ['readSummary', 'summary.changes', 'summary.usage', 'summary.acceptanceVerdict'],
+    },
+  ];
+  for (const consumer of closeoutConsumerMatrix) {
+    const consumerText = read(consumer.path);
+    for (const validator of consumer.validators) {
+      assert(consumerText.includes(validator), `${consumer.path}: ${consumer.artifact} consumer must retain specialized validator ${validator}`);
+    }
+    for (const forbidden of ['latestCausallyValidCloseoutReceipt', 'CLOSEOUT_WRITE_RECEIPTS_PATH']) {
+      assert(!consumerText.includes(forbidden), `${consumer.path}: ${consumer.artifact} consumer must not treat review-retention lineage as artifact approval (${forbidden})`);
+    }
+  }
+  const closeoutTrustText = read('packages/main/src/core/closeout-trust.ts');
+  for (const removedHelper of ['latestValidCloseoutReceipt', 'validateCurrentCloseoutArtifact']) {
+    assert(!closeoutTrustText.includes(removedHelper), `closeout trust must not expose unused pseudo-authority helper ${removedHelper}`);
   }
   const packageText = read('package.json');
   assert(packageText.includes('test:closeout-trust') && /"test"[^\n]+npm run test:closeout-trust/.test(packageText), 'package.json: closeout trust handler/replay smoke must remain in routine npm test');
@@ -3247,6 +3297,16 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
   assert(
     new RegExp(`['"]${doneRequiredArtifact.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"]`).test(lifecycleArtifactsInitializer),
     `${lifecycleRegistryPath}: LIFECYCLE_ARTIFACTS must include '${doneRequiredArtifact}'`,
+  );
+  const generatedMetadataText = read('packages/main/src/core/done-prepare-generated-metadata.ts');
+  for (const token of ['commitImmutableMetadataTree', "'commit-tree'", "'update-ref'", 'beforeCasUpdate', "'post-commit'"]) {
+    assert(generatedMetadataText.includes(token), `shared immutable metadata commit contract missing ${token}`);
+  }
+  const autoCommitText = read('packages/main/src/core/auto-commit-metadata.ts');
+  assert(
+    autoCommitText.includes('commitValidationReuseMetadataTransaction')
+      && autoCommitText.includes('commitImmutableMetadataTree'),
+    'canonical validation reuse must consume the shared immutable metadata commit primitive',
   );
 
   const phaseArtifactsInitializer = extractConstInitializer(lifecycleRegistryText, 'LIFECYCLE_PHASE_ARTIFACTS', lifecycleRegistryPath);
@@ -5314,6 +5374,9 @@ const inventory = [
         patterns: [
           'persistStoryValidationEvidence',
           'ctx.store.writeTestEvidence',
+          "disposition: 'reused'",
+          'canonical-pass-persistence-failed',
+          'commitValidationReuseMetadataTransaction',
           "autoCommitStoryMetadata(ctx.root, storyId, 'validate'",
           "closeoutArtifactPaths: ['test-evidence.json']",
         ],
@@ -5635,6 +5698,9 @@ const inventory = [
         patterns: [
           'persistStoryValidationEvidence',
           'ctx.store.writeTestEvidence',
+          "disposition: 'reused'",
+          'canonical-pass-persistence-failed',
+          'commitValidationReuseMetadataTransaction',
           "autoCommitStoryMetadata(ctx.root, storyId, 'validate'",
           "closeoutArtifactPaths: ['test-evidence.json']",
         ],

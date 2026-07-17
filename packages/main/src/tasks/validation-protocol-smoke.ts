@@ -1952,6 +1952,18 @@ try {
     assert.equal(evidence?.result, 'FAIL', 'timeout must still persist FAIL evidence');
     assert.equal(evidence?.failureKind, 'infra_failure', 'timeout must be classified as infra_failure');
     assert.match(evidence?.output ?? '', /"failureKind":"infra_failure"/, 'persisted validation JSON must expose infra_failure');
+    const terminal = store.readProcessEvents(storyId).find((event) => event.type === 'validation_terminal');
+    assert.ok(terminal, 'routine validation must emit a durable validation_terminal event');
+    assert.equal(terminal?.storyId, storyId);
+    assert.equal(terminal?.attemptId, now);
+    assert.equal(terminal?.reviewRound, now);
+    assert.equal(terminal?.disposition, 'executed');
+    assert.equal(terminal?.commandExecutions, 1);
+    assert.equal(terminal?.result, 'fail');
+    assert.equal(typeof terminal?.commandSetHash, 'string');
+    assert.ok(String(terminal?.commandSetHash).length > 0);
+    assert.equal(typeof terminal?.materialHash, 'string');
+    assert.equal(typeof terminal?.storyFilesHash, 'string');
   } finally {
     rmSync(gateInfraRoot, { recursive: true, force: true });
     resetConfigCache();

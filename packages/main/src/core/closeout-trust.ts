@@ -377,6 +377,8 @@ export function computeCompositeScopeDigest(args: {
 
 export interface MetadataOnlyReviewRetentionInput {
   materialUnchanged: boolean;
+  storyFilesUnchanged?: boolean;
+  stableEvaluationHead?: boolean;
   storedCompositeScopeDigest?: string;
   currentCompositeScopeDigest?: string;
   changedArtifacts: Array<{ path: string; writer: string; valid: boolean }>;
@@ -387,6 +389,8 @@ export interface MetadataOnlyReviewRetentionInput {
 export function evaluateMetadataOnlyReviewRetention(input: MetadataOnlyReviewRetentionInput): { ok: boolean; reasons: string[] } {
   const reasons: string[] = [];
   if (!input.materialUnchanged) reasons.push('product/material diff changed');
+  if (input.storyFilesUnchanged === false) reasons.push('story-owned file state changed');
+  if (input.stableEvaluationHead === false) reasons.push('HEAD changed during closeout lineage evaluation');
   if (!input.storedCompositeScopeDigest || !input.currentCompositeScopeDigest) reasons.push('composite scope digest missing');
   else if (input.storedCompositeScopeDigest !== input.currentCompositeScopeDigest) reasons.push('composite scope digest changed');
   if (input.storedReviewRound !== input.currentReviewRound) reasons.push('review round changed');
@@ -537,9 +541,10 @@ function causallyBoundToLatestArtifactCommit(receipt: CloseoutWriteReceipt, prov
 }
 
 /**
- * Local audit-only causal receipt. This proves byte/chain/Git coherence, not
- * canonical-writer authority: arbitrary code running as the project user can
- * mint the same fields. Lifecycle gates must never consume this as authority.
+ * Cooperative local-runtime lineage receipt. This proves byte/chain/Git
+ * coherence and carries a registered writer label for review freshness only.
+ * It is not same-UID authentication, does not approve the artifact, and must
+ * not replace the specialized schema/hash/freshness checks at artifact gates.
  */
 export function latestCausallyValidCloseoutReceipt(
   storyDir: string,
@@ -565,51 +570,67 @@ export function latestCausallyValidCloseoutReceipt(
   }).ok ? receipt : null;
 }
 
-/**
- * Gate-authoritative receipt lookup. Pure local same-UID receipts have no
- * isolated signing capability, so none are admissible as canonical-writer
- * proof. Post-review closeout changes therefore fail closed and require a new
- * review snapshot. An external/isolated authority can replace this boundary in
- * a future story; until then returning null is deliberate, not an outage.
- */
-export function latestValidCloseoutReceipt(
-  _storyDir: string,
-  _storyId: string,
-  _artifactPath: string,
-  _provenance?: { projectRoot: string; metadataRoot?: string },
-): CloseoutWriteReceipt | null {
-  return null;
-}
-
-export function validateCurrentCloseoutArtifact(
+function validateCloseoutArtifactShape(
   store: StoryStore,
   storyId: string,
   artifactPath: string,
-  projectRoot?: string,
-  metadataRoot?: string,
-): { valid: boolean; reason?: string } {
+  absolute: string,
+): void {
+  if (artifactPath === 'parent-ledger-rollup.json') readTrustedProofStoryScopeArtifacts(store, storyId);
+  else if (artifactPath === 'evidence/delivery-context-pack.json') validatePersistedDeliveryContextPack(JSON.parse(readFileSync(absolute, 'utf8')), storyId);
+  else if (artifactPath.endsWith('.json')) object(JSON.parse(readFileSync(absolute, 'utf8')), artifactPath);
+  else if (!readFileSync(absolute).length) throw new Error(`${artifactPath}: empty artifact`);
+}
+
+export interface CloseoutReviewRetentionResult {
+  retainsReview: boolean;
+  writer: string;
+  reason?: string;
+}
+
+/**
+ * Classify a changed closeout artifact for code-review freshness only.
+ *
+ * A causal receipt establishes that registered artifact bytes and their
+ * metadata commit move together inside the cooperative local-runtime boundary.
+ * The writer value is a registered label, not same-UID authentication. This
+ * classifier only retains review freshness; artifact gates independently run
+ * their specialized schema, digest, signature, and freshness validators.
+ */
+export function classifyCurrentCloseoutArtifactForReviewRetention(
+  store: StoryStore,
+  storyId: string,
+  artifactPath: string,
+  projectRoot: string,
+  metadataRoot: string,
+): CloseoutReviewRetentionResult {
   const policy = closeoutArtifactPolicyFor(artifactPath);
-  if (!policy || policy.artifactClass !== 'closeout-evidence') return { valid: false, reason: `untrusted closeout artifact path: ${artifactPath}` };
+  if (!policy) return { retainsReview: false, writer: '', reason: `untrusted closeout artifact path: ${artifactPath}` };
+  if (policy.artifactClass !== 'closeout-evidence') {
+    return { retainsReview: false, writer: '', reason: `scope-defining artifact changed: ${artifactPath}` };
+  }
   const storyDir = store.storyDirPath(storyId);
   const absolute = join(storyDir, artifactPath);
-  if (!existsSync(absolute)) return { valid: false, reason: `closeout artifact missing: ${artifactPath}` };
+  if (!existsSync(absolute)) {
+    return { retainsReview: false, writer: '', reason: `closeout artifact missing: ${artifactPath}` };
+  }
   try {
-    if (artifactPath === 'parent-ledger-rollup.json') readTrustedProofStoryScopeArtifacts(store, storyId);
-    else if (artifactPath === 'evidence/delivery-context-pack.json') validatePersistedDeliveryContextPack(JSON.parse(readFileSync(absolute, 'utf8')), storyId);
-    else if (artifactPath.endsWith('.json')) object(JSON.parse(readFileSync(absolute, 'utf8')), artifactPath);
-    else if (!readFileSync(absolute).length) throw new Error(`${artifactPath}: empty artifact`);
-    const receipt = latestValidCloseoutReceipt(
+    validateCloseoutArtifactShape(store, storyId, artifactPath, absolute);
+    const receipt = latestCausallyValidCloseoutReceipt(
       storyDir,
       storyId,
       artifactPath,
-      projectRoot ? { projectRoot, metadataRoot: metadataRoot ?? projectRoot } : undefined,
+      { projectRoot, metadataRoot },
     );
-    if (!receipt) return {
-      valid: false,
-      reason: `local causal receipt cannot authorize canonical writer provenance; re-review required: ${artifactPath}`,
-    };
-    return { valid: true };
+    if (!receipt) {
+      return {
+        retainsReview: false,
+        writer: '',
+        reason: `closeout artifact lacks coherent registered metadata lineage: ${artifactPath}`,
+      };
+    }
+    return { retainsReview: true, writer: receipt.writerCommand };
   } catch (error) {
-    return { valid: false, reason: String((error as Error).message) };
+    return { retainsReview: false, writer: '', reason: String((error as Error).message) };
   }
 }

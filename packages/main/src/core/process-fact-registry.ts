@@ -177,6 +177,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     path: 'closeout-write-receipts.jsonl',
     signed: false,
     producerCommand: 'core/auto-commit-metadata',
+    consumerGate: 'review-run metadata-only retention classifier (artifact gate validation remains independent)',
   },
   story_advance: {
     name: 'index.json',
@@ -1028,11 +1029,12 @@ export const PROCESS_FACT_ARTIFACTS = [
   {
     name: 'artifact:closeout-write-receipts.jsonl',
     kind: 'artifact',
-    semantics: ['artifact', 'schema-contract'],
-    level: 'L1',
+    semantics: ['artifact', 'schema-contract', 'freshness-policy', 'gate-evidence'],
+    level: 'L4',
     producer: 'core/auto-commit-metadata',
+    consumerGate: 'review-run metadata-only retention classifier (artifact gate validation remains independent)',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.closeout_write_receipt,
-    rationale: 'Append-only integrity-chained causal co-commit telemetry. Under the local same-UID threat model it is forgeable, is not canonical-writer authentication, cannot retain a signed review across closeout changes, and is not closeout evidence itself.',
+    rationale: 'Append-only integrity-chained cooperative local-runtime lineage. It may classify a registered nonmaterial closeout write as a review-retention descendant only when material, story-owned files, scope, review round, and HEAD evaluation remain unchanged. writerCommand is a registered writer label, not same-UID authentication; this lineage does not approve an artifact, and artifact gate validation remains independent.',
   },
   {
     name: 'artifact:evidence/delivery-context-pack.json',
@@ -1171,7 +1173,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/verifier',
     consumerGate: 'storyMachine.canFinish DONE gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.validate,
-    rationale: 'Validation status artifact is required before DONE.',
+    rationale: 'Validation status artifact is required before DONE; zero-command reuse must use the shared immutable-tree/CAS metadata primitive to commit canonical PASS, terminal, and receipt before returning PASS.',
   },
   {
     name: 'artifact:done-required-evidence.json',
@@ -1229,6 +1231,36 @@ export const PROCESS_FACT_SIGNED_ARTIFACTS = PROCESS_FACT_ARTIFACTS.filter(
   (entry) => entry.artifact?.signed === true,
 ) as readonly ProcessFactRegistryEntry[];
 
+const PROCESS_FACT_CLOSEOUT_TELEMETRY = [
+  {
+    name: 'runtime:closeout_phase_transition',
+    kind: 'runtime-behavior',
+    semantics: ['runtime-behavior', 'gate-evidence'],
+    level: 'L4',
+    producer: 'handlers/transition-orchestrator',
+    consumerGate: 'done_prepare convergence acceptance',
+    rationale: 'Typed from/to phase transitions bind attempt, review round, materialHash, and storyFilesHash so metadata-only rollback counts are mechanically derived.',
+  },
+  {
+    name: 'runtime:closeout_human_confirmation',
+    kind: 'runtime-behavior',
+    semantics: ['runtime-behavior', 'gate-evidence'],
+    level: 'L4',
+    producer: 'handlers/story story_resume',
+    consumerGate: 'done_prepare convergence acceptance',
+    rationale: 'A successful human convergence-breaker acknowledgement emits a durable typed event inside the active review attempt.',
+  },
+  {
+    name: 'runtime:closeout_validation_terminal',
+    kind: 'runtime-behavior',
+    semantics: ['runtime-behavior', 'validation-result', 'gate-evidence'],
+    level: 'L4',
+    producer: 'handlers/verifier',
+    consumerGate: 'done_prepare convergence acceptance',
+    rationale: 'Routine validation terminals bind attempt, command-set identity, disposition, commandExecutions, materialHash, and storyFilesHash for duplicate-suite accounting.',
+  },
+] as const satisfies readonly ProcessFactRegistryEntry[];
+
 export const PROCESS_FACT_REQUIRED_ARTIFACTS = PROCESS_FACT_ARTIFACTS.filter(
   (entry) => entry.artifact && PROCESS_FACT_REQUIRED_ARTIFACT_NAMES.includes(entry.artifact.path as typeof PROCESS_FACT_REQUIRED_ARTIFACT_NAMES[number]),
 ) as readonly ProcessFactRegistryEntry[];
@@ -1238,6 +1270,7 @@ export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = [
   ...PROCESS_FACT_REVIEWER_LANES,
   ...PROCESS_FACT_ARTIFACTS,
   ...PROCESS_FACT_FLOW_POLICIES,
+  ...PROCESS_FACT_CLOSEOUT_TELEMETRY,
 ];
 
 export const PROCESS_FACT_REGISTRY_BY_NAME: Record<string, ProcessFactRegistryEntry> = Object.fromEntries(

@@ -86,6 +86,8 @@ import { createSessionHandlers } from '../handlers/session.js';
 import { buildDoneClosureRunbook } from '../handlers/done-closure.js';
 import { checkCommitAuthor } from '../handlers/validate-channel.js';
 import { repairGlobalLatticeLinkBeforeWorktreeDelete } from '../handlers/worktree.js';
+import { assertDonePreparePassConvergence, collectDonePrepareConvergenceFacts, deriveDonePreparePassConvergence, donePrepareJsonResult, validationCloseoutAdvancePaths } from '../handlers/done-prepare.js';
+import { buildPhaseTransitionProcessEvent } from '../handlers/transition-orchestrator.js';
 
 function write(root: string, path: string, content: string): void {
   mkdirSync(dirname(join(root, path)), { recursive: true });
@@ -4333,8 +4335,220 @@ function assertCustomStoryDirDirtyWorktreeClassification(): void {
   }
 }
 
+function assertDonePrepareOnePassConvergenceContract(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-done-prepare-convergence-'));
+  try {
+    write(root, 'lattice.config.json', JSON.stringify({
+      scanRoot: '.', rootDir: 'src', storyDir: '.lattice/story/actives', testsDir: 'tests',
+      fixturesDir: 'tests/fixtures', requirementsDir: 'docs/requirements', storyPrefix: 'B',
+    }));
+    write(root, 'src/app.ts', 'export const stable = true;\n');
+    git(root, ['init', '-b', 'main']);
+    git(root, ['config', 'user.email', 'convergence@example.test']);
+    git(root, ['config', 'user.name', 'convergence-smoke']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'baseline']);
+    resetConfigCache();
+    const store = new StoryStore(root);
+    const storyId = 'B-convergence';
+    const ctx = { store, root, scanRoot: root } as any;
+    const before = currentGitHead(root)!;
+    write(root, `.lattice/story/actives/${storyId}/test-evidence.json`, '{}\n');
+    write(root, `.lattice/story/actives/${storyId}/closeout-write-receipts.jsonl`, '{}\n');
+    write(root, `.lattice/story/actives/${storyId}/owner-lease.json`, '{}\n');
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'canonical validation closeout metadata']);
+    const metadataHead = currentGitHead(root)!;
+    const accepted = validationCloseoutAdvancePaths(ctx, storyId, root, before, metadataHead);
+    assert.equal(accepted.eligible, true, accepted.reasons.join('; '));
+    assert.deepEqual(accepted.paths.sort(), [
+      `.lattice/story/actives/${storyId}/closeout-write-receipts.jsonl`,
+      `.lattice/story/actives/${storyId}/owner-lease.json`,
+      `.lattice/story/actives/${storyId}/test-evidence.json`,
+    ]);
+
+    write(root, 'src/app.ts', 'export const stable = false;\n');
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'real material drift']);
+    const drifted = validationCloseoutAdvancePaths(ctx, storyId, root, metadataHead, currentGitHead(root)!);
+    assert.equal(drifted.eligible, false, 'real source drift must never be normalized as closeout metadata');
+    assert(drifted.reasons.some((reason) => reason.includes('non-story path')));
+
+    const attemptMaterial = currentMaterialHash(root, 'HEAD', root)!;
+    const attemptStoryFiles = currentStoryFilesHash(root, 'HEAD', root)!;
+    const reviewRound = '2026-01-01T00:00:00.000Z';
+    const makeCompletedReview = (suffix: string, startedAt: string, completedAt: string, round = reviewRound) => {
+      const reviewRunId = `${storyId}:RR-${suffix}`;
+      const agent = 'lattice-review-quality';
+      const run: ReviewRun = {
+        reviewRunId,
+        storyId,
+        agent,
+        lane: agent,
+        reviewRound: round,
+        startedAt,
+        headHash: currentGitHead(root)!,
+        materialHash: attemptMaterial,
+        storyFilesHash: attemptStoryFiles,
+        promptHash: 'prompt',
+      };
+      run._hash = signReviewRun(
+        storyId, reviewRunId, agent, agent, round, startedAt, run.headHash, run.materialHash,
+        run.promptHash, undefined, undefined, run.storyFilesHash,
+      );
+      const pass = {
+        id: `RP-${suffix}`,
+        agent,
+        note: `review ${suffix}`,
+        createdAt: completedAt,
+        reviewRound: round,
+        reviewRunId,
+        _hash: signReviewPass(storyId, `RP-${suffix}`, agent, `review ${suffix}`, completedAt, round, reviewRunId),
+      };
+      return { run, pass };
+    };
+    const initialReview = makeCompletedReview('001', '2026-01-01T00:01:00.000Z', '2026-01-01T00:02:00.000Z');
+    const metadataReattestation = makeCompletedReview('002', '2026-01-01T00:03:00.000Z', '2026-01-01T00:04:00.000Z');
+    const historicalRound = makeCompletedReview('OLD', '2026-01-01T00:03:30.000Z', '2026-01-01T00:04:30.000Z', '2025-12-31T00:00:00.000Z');
+    assert.equal(verifyReviewRun(initialReview.run), true);
+    assert.equal(verifyReviewRun(metadataReattestation.run), true);
+    assert.equal(verifyReviewPass(storyId, initialReview.pass), true);
+    assert.equal(verifyReviewPass(storyId, metadataReattestation.pass), true);
+    store.writeReviewRuns(storyId, { runs: [historicalRound.run, initialReview.run, metadataReattestation.run] });
+    store.writeReviewPasses(storyId, { passes: [historicalRound.pass, initialReview.pass, metadataReattestation.pass] });
+    write(root, `.lattice/story/actives/${storyId}/process-events.jsonl`, [
+      JSON.stringify({
+        type: 'phase_transition', storyId, timestamp: reviewRound, attemptId: reviewRound,
+        fromPhase: 'DEV', toPhase: 'REVIEW', materialHash: attemptMaterial,
+        storyFilesHash: attemptStoryFiles, reviewRound,
+      }),
+      JSON.stringify({
+        type: 'phase_transition', storyId, timestamp: '2026-01-01T00:05:00.000Z', attemptId: reviewRound,
+        fromPhase: 'REVIEW', toPhase: 'TEST', materialHash: attemptMaterial,
+        storyFilesHash: attemptStoryFiles, reviewRound,
+      }),
+    ].join('\n'));
+    const collected = collectDonePrepareConvergenceFacts(ctx, storyId);
+    assert.deepEqual(
+      collected?.reviewerIdentityIds,
+      [metadataReattestation.run.reviewRunId],
+      'collector must count a same-binding REVIEW re-attestation completed before TEST and ignore an old round',
+    );
+    assert.equal(
+      deriveDonePreparePassConvergence([
+        { id: 'validate', status: 'pass', reason: 'Validation PASS reused; commandExecutions=0' },
+        { id: 'doneClosure', status: 'pass' },
+        { id: 'cleanTree', status: 'pass' },
+      ] as any, { blockers: [] } as any, collected)?.reviewerReattestations,
+      1,
+      'real collector history must make reviewerReattestations non-zero',
+    );
+
+    const transcript = [
+      'DONE prepare: PASS',
+      `storyId: ${storyId}`,
+      'convergence: metadataRollbacks=0 reviewerReattestations=0 humanConfirmations=0 unchangedSuiteExecutions=0 successfulCloseout=1',
+    ].join('\n');
+    assert.deepEqual(donePrepareJsonResult(storyId, transcript).convergence, {
+      metadataRollbacks: 0,
+      reviewerReattestations: 0,
+      humanConfirmations: 0,
+      unchangedSuiteExecutions: 0,
+      successfulCloseout: 1,
+    });
+    const baseFacts = {
+      anchor: {
+        timestamp: '2026-01-01T00:00:00.000Z',
+        attemptId: 'round-1',
+        materialHash: 'material-1',
+        storyFilesHash: 'story-1',
+        reviewRound: 'round-1',
+      },
+      phaseTransitions: [],
+      humanConfirmations: [],
+      validationTerminals: [{
+        type: 'validation_terminal',
+        timestamp: '2026-01-01T00:01:00.000Z',
+        commandSetHash: 'commands-1',
+        materialHash: 'material-1',
+        storyFilesHash: 'story-1',
+        disposition: 'executed',
+        commandExecutions: 1,
+      }],
+      reviewerIdentityIds: [],
+      closeoutWriterSequence: ['validate:test-evidence.json'],
+    } as any;
+    assert.deepEqual(buildPhaseTransitionProcessEvent({
+      storyId,
+      fromPhase: 'REVIEW',
+      toPhase: 'TEST',
+      materialHash: 'material-1',
+      storyFilesHash: 'story-1',
+      reviewRound: 'round-1',
+    }), {
+      type: 'phase_transition',
+      storyId,
+      attemptId: 'round-1',
+      fromPhase: 'REVIEW',
+      toPhase: 'TEST',
+      materialHash: 'material-1',
+      storyFilesHash: 'story-1',
+      reviewRound: 'round-1',
+    });
+    const passSteps = [
+      { id: 'validate', status: 'pass', reason: 'Validation PASS reused (trusted-story-metadata-descendant); commandExecutions=0' },
+      { id: 'doneClosure', status: 'pass' },
+      { id: 'cleanTree', status: 'pass' },
+    ] as any;
+    const derived = deriveDonePreparePassConvergence(passSteps, { blockers: [] } as any, baseFacts);
+    assert.deepEqual(derived, {
+      metadataRollbacks: 0,
+      reviewerReattestations: 0,
+      humanConfirmations: 0,
+      unchangedSuiteExecutions: 0,
+      successfulCloseout: 1,
+    });
+    const duplicateExecution = deriveDonePreparePassConvergence(passSteps, { blockers: [] } as any, {
+      ...baseFacts,
+      validationTerminals: [
+        ...baseFacts.validationTerminals,
+        { ...baseFacts.validationTerminals[0], timestamp: '2026-01-01T00:02:00.000Z' },
+      ],
+    });
+    assert.equal(duplicateExecution?.unchangedSuiteExecutions, 1, 'a second execution of an unchanged command set must make the PASS convergence invariant fail');
+    assert.throws(
+      () => assertDonePreparePassConvergence(duplicateExecution!),
+      /done_prepare convergence invariant failed/,
+      'reused validation with commandExecutions>0 must never render PASS',
+    );
+    for (const negative of [
+      { ...baseFacts, phaseTransitions: [{ type: 'phase_transition', timestamp: '2026-01-01T00:03:00.000Z', fromPhase: 'TEST', toPhase: 'DEV', materialHash: 'material-1', storyFilesHash: 'story-1' }] },
+      { ...baseFacts, reviewerIdentityIds: ['B-convergence:RR-002'] },
+      { ...baseFacts, humanConfirmations: [{ type: 'human_confirmation', timestamp: '2026-01-01T00:03:00.000Z' }] },
+    ] as any[]) {
+      assert.throws(
+        () => assertDonePreparePassConvergence(deriveDonePreparePassConvergence(passSteps, { blockers: [] } as any, negative)!),
+        /done_prepare convergence invariant failed/,
+      );
+    }
+    assert.equal(deriveDonePreparePassConvergence(passSteps, { blockers: [] } as any, null), null, 'legacy/missing attempt telemetry must omit the convergence claim');
+    assert.doesNotThrow(() => assertDonePreparePassConvergence(derived!));
+    assert.equal(donePrepareJsonResult(storyId, 'DONE prepare: BLOCKED\nblockedAt: cleanTree\nreason: materialHash changed').convergence, undefined);
+
+    const handlerSource = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../handlers/done-prepare.js'), 'utf8');
+    assert.equal((handlerSource.match(/await verifier\.validate\(/g) ?? []).length, 1, 'done_prepare must have one routine validation invocation site');
+    assert.match(handlerSource, /runDonePrepare\(ctx,[\s\S]{0,500}validate: false/, 'auto-closeout recursion must disable nested validation');
+    assert.match(handlerSource, /deriveDonePreparePassConvergence/, 'PASS counters must be derived from steps and runbook facts');
+    assert.doesNotMatch(handlerSource, /convergence: metadataRollbacks=0 reviewerReattestations=0/, 'PASS must not print cosmetic hard-coded zero counters');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+    resetConfigCache();
+  }
+}
+
 assertProductionHelperPassesProjectRootToClassifier();
 assertCustomStoryDirDirtyWorktreeClassification();
+assertDonePrepareOnePassConvergenceContract();
 assertSessionBriefGate();
 assertDirtyWorktreeClassifierGroupsOwnership();
 assertDirtyGatePolicyAcrossGates();

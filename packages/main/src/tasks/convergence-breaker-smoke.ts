@@ -39,6 +39,7 @@ import {
   isMaterialExcludedRuntimeArtifactPath,
   listRuntimeArtifactIgnorePatterns,
 } from '../core/runtime-artifact-registry.js';
+import { recordStoryResumeHumanConfirmation } from '../handlers/story.js';
 
 const T = DEFAULT_CONVERGENCE_THRESHOLDS;
 
@@ -58,6 +59,25 @@ const HEALTHY: BreakerCounters = {
   takeoverCount: 1,
   maxGateRepeat: 0,
 };
+
+{
+  const events: Array<Record<string, unknown>> = [];
+  const store = {
+    readStory: () => ({ phase: 'TEST', currentReviewRound: 'round-1' }),
+    appendProcessEvent: (_storyId: string, event: Record<string, unknown>) => events.push(event),
+  } as unknown as import('../core/store.js').StoryStore;
+  recordStoryResumeHumanConfirmation(store, 'B-human-confirmation', 'human reviewed the convergence freeze');
+  assert.deepEqual(events, [{
+    type: 'human_confirmation',
+    storyId: 'B-human-confirmation',
+    attemptId: 'round-1',
+    command: 'story_resume',
+    confirmation: 'convergence_breaker_resume',
+    reason: 'human reviewed the convergence freeze',
+    phase: 'TEST',
+    reviewRound: 'round-1',
+  }], 'successful story_resume must emit a typed durable human confirmation');
+}
 
 // ── 1. assessBreaker: storm trips on all four reasons; healthy never trips ────
 {

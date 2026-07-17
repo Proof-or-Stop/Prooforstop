@@ -52,6 +52,11 @@ import {
   rawArtifactDigest,
   readCloseoutWriteReceipts,
 } from './closeout-trust.js';
+import {
+  commitImmutableMetadataTree,
+  rollbackDonePrepareGeneratedMetadataTransaction,
+  type DonePrepareGeneratedMetadataTransaction,
+} from './done-prepare-generated-metadata.js';
 
 /**
  * Literal byte-equal user-visible prefix. Pinned for vocabulary consistency
@@ -110,6 +115,78 @@ function appendLocalCausalReceiptsBeforeCommit(args: {
       previousIntegrityHash: previous?.integrityHash ?? null,
     });
     appendCloseoutWriteReceipt(storyDir, receipt);
+  }
+}
+
+export interface ValidationReuseMetadataTransactionCommitResult {
+  ok: boolean;
+  commitSha?: string;
+  reason?: string;
+}
+
+/**
+ * Commit the already-mutated canonical validation-reuse evidence, terminal,
+ * and receipt through an isolated index. The caller captures `transaction`
+ * before the first mutation. Every failure restores both managed worktree bytes
+ * and their real-index entries; unrelated staged entries never enter the
+ * isolated index and remain untouched.
+ */
+export function commitValidationReuseMetadataTransaction(args: {
+  projectRoot: string;
+  gitCwd: string;
+  storyId: string;
+  storyRel: string;
+  reason: string;
+  transaction: DonePrepareGeneratedMetadataTransaction;
+  closeoutArtifactPaths: readonly string[];
+}): ValidationReuseMetadataTransactionCommitResult {
+  const managedPaths = [...args.transaction.paths].sort((a, b) => a.localeCompare(b));
+  const rollback = (reason: string): ValidationReuseMetadataTransactionCommitResult => {
+    const result = rollbackDonePrepareGeneratedMetadataTransaction({
+      root: args.gitCwd,
+      gitCwd: args.gitCwd,
+      transaction: args.transaction,
+    });
+    return {
+      ok: false,
+      reason: result.ok ? reason : `${reason}; rollback failed: ${result.errors.join(' | ')}`,
+    };
+  };
+  const expectedPrefix = `${normalizeRelPath(args.storyRel)}/`;
+  const expectedPaths = [
+    `${expectedPrefix}closeout-write-receipts.jsonl`,
+    `${expectedPrefix}process-events.jsonl`,
+    `${expectedPrefix}test-evidence.json`,
+  ];
+  if (
+    managedPaths.length !== expectedPaths.length
+    || managedPaths.some((path, index) => normalizeRelPath(path) !== expectedPaths[index])
+  ) return rollback('validation reuse transaction must manage exactly evidence, terminal, and receipt');
+
+  try {
+    appendLocalCausalReceiptsBeforeCommit({
+      projectRoot: args.projectRoot,
+      gitCwd: args.gitCwd,
+      storyId: args.storyId,
+      storyRel: args.storyRel,
+      reason: args.reason,
+      artifactPaths: args.closeoutArtifactPaths,
+    });
+    const subject = `lattice: record ${args.storyId} ${args.reason} metadata`;
+    const committed = commitImmutableMetadataTree({
+      root: args.gitCwd,
+      gitCwd: args.gitCwd,
+      paths: managedPaths,
+      verifiedHashes: new Map(managedPaths.map((path) => [
+        path,
+        rawArtifactDigest(readFileSync(join(args.gitCwd, path))),
+      ])),
+      message: subject,
+    });
+    if (!committed.ok) return rollback(committed.reason || 'immutable metadata commit failed');
+    return { ok: true, commitSha: committed.commitSha };
+  } catch (error: any) {
+    return rollback(`metadata transaction failed: ${String(error?.stderr || error?.stdout || error?.message || error).trim()}`);
   }
 }
 

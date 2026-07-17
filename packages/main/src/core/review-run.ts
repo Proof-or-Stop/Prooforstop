@@ -23,11 +23,9 @@ import {
   type ScopeBindingComparison,
 } from './review-scope-binding.js';
 import {
-  closeoutArtifactPolicyFor,
+  classifyCurrentCloseoutArtifactForReviewRetention,
   evaluateMetadataOnlyReviewRetention,
-  latestValidCloseoutReceipt,
   readTrustedProofStoryScopeArtifacts,
-  validateCurrentCloseoutArtifact,
 } from './closeout-trust.js';
 import { AGENT_DISPATCH_REGISTRY, resolveRegisteredAgentActor } from './agent-dispatch-registry.js';
 
@@ -745,10 +743,10 @@ export function evaluatePersistedReviewToTestIndexTransition(
   if (event.phase !== 'TEST' || event.action !== 'advance') {
     return { ok: false, reason: 'transition event is not exactly TEST/advance' };
   }
-  // Local event identity/timing strings are audit context, not writer
-  // authentication: the same-UID actor can freely mint them and git user.name
-  // is legitimately absent in env-only commit setups.  They therefore cannot
-  // affect authorization.  Only reject malformed types when a field exists;
+  // Local event identity/timing strings are cooperative runtime audit context,
+  // not writer authentication, and git user.name is legitimately absent in
+  // env-only commit setups. They therefore cannot affect retention. Only
+  // reject malformed types when a field exists;
   // the gate authority comes from the already-verified signed review
   // run/pass/round plus the exact stable index delta above/below.
   for (const key of ['timestamp', 'branch', 'user', 'sessionId', 'agent'] as const) {
@@ -774,13 +772,12 @@ export function evaluateReviewRunMetadataRetention(
   if (!run.scopeBinding?.compositeScopeDigest && !scopeContext?.compositeScopeDigest) {
     return { ok: true, reasons: [] };
   }
-  const freshness = checkEvidenceFreshnessForGit(
-    projectRoot,
-    run.headHash,
-    run.materialHash,
-    run.workspaceBinding?.metadataRoot ?? projectRoot,
-    run.storyFilesHash ?? run.workspaceBinding?.storyFilesHash,
-  );
+  const metadataRoot = run.workspaceBinding?.metadataRoot ?? projectRoot;
+  const evaluationHead = currentGitHead(projectRoot);
+  const materialUnchanged = currentMaterialHash(projectRoot, 'HEAD', metadataRoot) === run.materialHash;
+  const storedStoryFilesHash = run.storyFilesHash ?? run.workspaceBinding?.storyFilesHash;
+  const storyFilesUnchanged = Boolean(storedStoryFilesHash)
+    && currentStoryFilesHash(projectRoot, 'HEAD', metadataRoot) === storedStoryFilesHash;
   let changedFiles: string[];
   let storyPrefix: string;
   try {
@@ -809,25 +806,24 @@ export function evaluateReviewRunMetadataRetention(
     (path) => path !== 'index.json' || !indexTransition?.ok,
   );
   const changedArtifacts = effectiveMetadataPaths.map((artifactPath) => {
-    const policy = closeoutArtifactPolicyFor(artifactPath);
-    const metadataRoot = run.workspaceBinding?.metadataRoot ?? projectRoot;
-    const validation = validateCurrentCloseoutArtifact(store, story.storyId, artifactPath, projectRoot, metadataRoot);
-    const receipt = policy?.artifactClass === 'closeout-evidence'
-      ? latestValidCloseoutReceipt(
-        store.storyDirPath(story.storyId),
-        story.storyId,
-        artifactPath,
-        { projectRoot, metadataRoot },
-      )
-      : null;
+    const classification = classifyCurrentCloseoutArtifactForReviewRetention(
+      store,
+      story.storyId,
+      artifactPath,
+      projectRoot,
+      metadataRoot,
+    );
     return {
       path: artifactPath,
-      writer: receipt?.writerCommand ?? '',
-      valid: validation.valid,
+      writer: classification.writer,
+      valid: classification.retainsReview,
     };
   });
+  const finalHead = currentGitHead(projectRoot);
   return evaluateMetadataOnlyReviewRetention({
-    materialUnchanged: freshness.materialFiles.length === 0,
+    materialUnchanged,
+    storyFilesUnchanged,
+    stableEvaluationHead: Boolean(evaluationHead) && evaluationHead === finalHead,
     storedCompositeScopeDigest: run.scopeBinding?.compositeScopeDigest,
     currentCompositeScopeDigest: scopeContext?.compositeScopeDigest,
     changedArtifacts,

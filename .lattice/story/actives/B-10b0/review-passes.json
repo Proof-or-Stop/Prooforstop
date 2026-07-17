@@ -1,0 +1,610 @@
+{
+  "passes": [
+    {
+      "id": "B-10b0:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Incremental concept re-review found no new blocker. F-001 was disproven because it conflated cooperative review freshness with hostile same-UID artifact authority contrary to the retired-Authority/local-assurance truth source; 7050b07a24 now removes the pseudo-authority helper and pins specialized consumer validation. F-002 durable convergence facts and F-003 scope/signature-aware declaration analysis were verified with focused tests and the original adversarial repros.",
+      "createdAt": "2026-07-17T16:12:51.933Z",
+      "reviewRound": "2026-07-17T16:07:26.297Z",
+      "reviewRunId": "B-10b0:RR-004",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/closeout-trust.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/story.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "6b197b198a62578486967e744e7fc87d364584e13e0537406e92584626d3308f"
+    },
+    {
+      "id": "B-10b0:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Targeted concept re-review of commit 1c694f1c8e found no blocker. F-008 now counts only completed same-round/material/story REVIEW re-attestations beyond each lane baseline, including those before TEST, while ignoring historical rounds. F-011 now parses multiline Python def/class headers and fails closed with diagnostics on incomplete or malformed headers. concept-gate-scope and flow-stability focused regressions passed; the prior local-assurance concept pass remains valid.",
+      "createdAt": "2026-07-17T16:38:22.993Z",
+      "reviewRound": "2026-07-17T16:35:51.324Z",
+      "reviewRunId": "B-10b0:RR-007",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "b6017ae2c98b88c93d66d68524f3ed90c16b27174ad42cfc5f58b1f6c190ffe6"
+    },
+    {
+      "id": "B-10b0:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Incremental coverage re-review found no remaining implementation or test blocker: F-008 now has a real-store initial-pass/pre-TEST-reattestation/TEST collector regression with old-round exclusion; F-009 intent and evidence match the approved cooperative local-runtime non-goal; F-011 covers multiline Python deletion/body-only and malformed/unterminated fail-closed cases. Focused concept, flow-stability, closeout-trust, and process-fact checks passed. Reviewer role cannot mutate finding status, so owner must mark the verified fixed findings resolved.",
+      "createdAt": "2026-07-17T16:38:56.764Z",
+      "reviewRound": "2026-07-17T16:35:51.324Z",
+      "reviewRunId": "B-10b0:RR-008",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-10b0/background.md",
+          ".lattice/story/actives/B-10b0/checklist.json",
+          ".lattice/story/actives/B-10b0/plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/lifecycle-readiness.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/story-advance.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/lifecycle-check-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "bb66e4247059dfc0b3f0bd8e077cf45e04d3ff1827d9febb397a283104d08712"
+    },
+    {
+      "id": "B-10b0:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Incremental quality re-review found no current-round blocker. Verified F-006 scope-aware declaration identity, F-007/F-008 durable convergence collector including a real pre-TEST same-binding re-attestation, and F-011 multiline Python def/class deletion, body-only retention, valid comment/string headers, and malformed fail-closed behavior. Cooperative local-runtime lineage remains explicitly non-Authority for hostile same-UID actors.",
+      "createdAt": "2026-07-17T16:39:22.206Z",
+      "reviewRound": "2026-07-17T16:35:51.324Z",
+      "reviewRunId": "B-10b0:RR-009",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "2a0205e965d77d3535530def4e2fa5720fd27b17b68f5958a35be2366976b1c9"
+    },
+    {
+      "id": "B-10b0:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted incremental review of f32537b95a found no blocker. The only change updates the two canonical AST fingerprints for closeout-trust.ts and closeout-trust-smoke.ts. The formal guard command `node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js` now passes and its unconditional fingerprint validation confirms both pins match the reviewed current sources; git diff --check is clean.",
+      "createdAt": "2026-07-17T17:00:31.695Z",
+      "reviewRound": "2026-07-17T16:57:40.721Z",
+      "reviewRunId": "B-10b0:RR-012",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "8d50472da3a7bbbcaf806eb1c3eb695438bb2a0633811be6de379ff3aa9391a9"
+    },
+    {
+      "id": "B-10b0:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Targeted round-4 incremental review of f32537b95a passed. The commit changes exactly two canonical AST fingerprint pins in retired-authority-vocabulary-guard-smoke.ts; independently recomputed hashes match 458d8aea... and d6ca0a50..., no whitelist/call-shape/occurrence/graph data changed, and the retired authority vocabulary guard passes.",
+      "createdAt": "2026-07-17T17:00:42.457Z",
+      "reviewRound": "2026-07-17T16:57:40.721Z",
+      "reviewRunId": "B-10b0:RR-011",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "ae1f8517b91469cb66aaeeee3cba0baf49e366f7ef6224f2f3a6c6351bb90fd6"
+    },
+    {
+      "id": "B-10b0:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Incremental concept re-review of f32537b95a found no blocker. The only material delta repins the existing canonical structural fingerprints for closeout-trust.ts and closeout-trust-smoke.ts after their already-reviewed changes; it does not expand quarantine membership, approved legacy symbols/call shapes, occurrence budgets, or dynamic-code exemptions. The retired-authority vocabulary guard and closeout-trust smoke both pass on the current worktree.",
+      "createdAt": "2026-07-17T17:00:50.055Z",
+      "reviewRound": "2026-07-17T16:57:40.721Z",
+      "reviewRunId": "B-10b0:RR-010",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "63d3126468f4cfd7e24d3acfdf01a68ddf3920e6aa0b363411474c1e2bd966c8"
+    },
+    {
+      "id": "B-10b0:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Incremental concept re-review of 19b630265c found no blocker. The verifier now invokes the canonical project bootstrap at ROOT/bin/lattice.js while retaining the built prompt registry as its comparison source. The matching baseline command snapshot is updated without changing any role output hashes or policy data. Running the verifier on the current worktree passed all 16 role output checks, baseline drift probes, and the explicit unknown-role rejection probe.",
+      "createdAt": "2026-07-17T19:57:43.719Z",
+      "reviewRound": "2026-07-17T19:56:56.495Z",
+      "reviewRunId": "B-10b0:RR-013",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "44b49f0b00e8e5eade1da0f4bd78aa1ffaacfdc9f10c89a1a28387d5779a3a56"
+    },
+    {
+      "id": "B-10b0:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted incremental review of commit 19b630265c found no blocker. The verifier and persisted baseline command consistently route agent_prompt through canonical `node bin/lattice.js`, avoiding the stale/direct dist entrypoint that caused the formal root-suite probe failure. Isolated `npm run test:proof-or-stop-prompt-baseline` passed all 16 roles, ten mechanical drift mutations, role-matrix drift checks, and unknown-role rejection; diff check is clean.",
+      "createdAt": "2026-07-17T19:58:21.839Z",
+      "reviewRound": "2026-07-17T19:56:56.495Z",
+      "reviewRunId": "B-10b0:RR-014",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "08dd13e5cce83e61ac66dd73e81f718760937241deb8a96c2dc6ef50a6d01778"
+    },
+    {
+      "id": "B-10b0:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Incremental quality review of 19b630265c: exactly two paired entrypoint/baseline changes; canonical worktree bootstrap rejects unknown roles nonzero and the complete proof-or-stop prompt baseline passes without weakened assertions.",
+      "createdAt": "2026-07-17T19:58:57.538Z",
+      "reviewRound": "2026-07-17T19:56:56.495Z",
+      "reviewRunId": "B-10b0:RR-015",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "c42ef28d9419e243865b3720a30d8757313a1af324fb9addf0aa1ef9dacab8d7"
+    },
+    {
+      "id": "B-10b0:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Incremental review of 2974a70406: one-file two-hash update exactly matches the reviewed closeout-trust and closeout-trust-smoke guard pins; no guard or assertion logic changed, and both process-fact contract and retired-authority guard pass.",
+      "createdAt": "2026-07-17T20:19:13.358Z",
+      "reviewRound": "2026-07-17T20:17:32.463Z",
+      "reviewRunId": "B-10b0:RR-017",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "3a59c7ed5fe69a359b65c905bcda146613c69024252a498c9af168825078d70b"
+    },
+    {
+      "id": "B-10b0:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Incremental concept re-review of 2974a70406 found no blocker. The only changes replace two stale expected fingerprint literals in the process-fact contract with the exact closeout-trust.ts and closeout-trust-smoke.ts pins already reviewed in the vocabulary guard. No assertion list, boundary rule, quarantine, or exemption changed. Both the process-fact contract and retired-authority vocabulary guard pass on the current worktree.",
+      "createdAt": "2026-07-17T20:19:21.177Z",
+      "reviewRound": "2026-07-17T20:17:32.463Z",
+      "reviewRunId": "B-10b0:RR-016",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "b61f04efd91ffcab051585ab3925df8e47af82c6384c2c204de3a449549fad5d"
+    },
+    {
+      "id": "B-10b0:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted incremental review of 2974a70406 found no blocker. The only change synchronizes the two process-fact contract fingerprint literals with the already reviewed canonical AST pins in retired-authority-vocabulary-guard-smoke. Literal parity is exact, diff check is clean, and both `npm run test:process-fact-contract` and the vocabulary guard pass.",
+      "createdAt": "2026-07-17T20:19:49.968Z",
+      "reviewRound": "2026-07-17T20:17:32.463Z",
+      "reviewRunId": "B-10b0:RR-018",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "4e0b43e150ded06ccddfbd551a67edecc2f1cc2cfd987354841f86523312bed1"
+    },
+    {
+      "id": "B-10b0:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Targeted concept review of 4d34a3093b found no blocker. The generated-metadata classifier captures the clean baseline before the run and permits process-events.jsonl only as an exact prefix-preserving append whose every new row has the closed validation_terminal key set, matching storyId, TEST/reused/pass semantics, zero executions, parseable timestamp, and SHA-256 command/material/story hashes. Pre-existing dirty paths, deletions/renames, cross-story paths, non-append deltas, extra fields, and other event types remain fail-closed. This adds no authority claim; it is a bounded local auto-stage classification. The focused done-prepare auto-closeout smoke passes, including reused-terminal convergence and pre-existing/untrusted dirty refusal.",
+      "createdAt": "2026-07-17T20:40:42.351Z",
+      "reviewRound": "2026-07-17T20:39:28.295Z",
+      "reviewRunId": "B-10b0:RR-019",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "c14a936a795a3595bc7d309f91e98f3d6f23b54b311ef506fdd2d560a0771815"
+    },
+    {
+      "id": "B-10b0:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted F-012 re-review of 779c187d79 found no blocker. The exact-valid control is bound to story, attempt, round, command-set/material/story-files hashes, phase, disposition, result, zero executions, and invocation time window. The 19-case negative matrix covers forged story/attempt/round/bindings, extra fields, phase/disposition/result/execution mismatches, malformed hash/time/JSON/newline, prefix rewrite/truncation, and mixed lines. The focused integration still proves real reused-validation auto-close leaves a clean tree and pre-existing process-events dirt remains blocked; focused smoke passed.",
+      "createdAt": "2026-07-17T20:50:22.337Z",
+      "reviewRound": "2026-07-17T20:47:46.221Z",
+      "reviewRunId": "B-10b0:RR-023",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "9fc6c9e6575210482030fe3baf7160163d5b3b54c14c1068949039307388dbb2"
+    },
+    {
+      "id": "B-10b0:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "Targeted concept review of 779c187d79 and F-012/F-013 closure evidence found no blocker. done_prepare derives the expected terminal from the same routine validate result and binds story/current round attempt, validation identity digest, current material/story-files hashes, fixed TEST/reused/pass/zero-execution semantics, and an inclusive invocation start/end timestamp window. Manifest preflight and commit recheck consume the same binding; missing identity or hashes fail closed. The classifier remains a bounded local auto-stage decision and does not create an Authority credential. The 19-case negative matrix covers identity/hash/semantic/time/prefix/JSON/mixed-row drift, while the real rerun remains the positive path. No classifier-version field or contract expansion remains. Auto-closeout and merge-rerun focused smokes pass.",
+      "createdAt": "2026-07-17T20:51:02.299Z",
+      "reviewRound": "2026-07-17T20:47:46.221Z",
+      "reviewRunId": "B-10b0:RR-025",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "31fbc0142d14de24c4c8bba44e73ed3c89e7233c302fa257d752a7e1d7f9f707"
+    },
+    {
+      "id": "B-10b0:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Targeted concept review of F-014 fix 7c8923f674 found no blocker. After bounded safe-path classification and git add, the writer now requires the complete staged index path set to exactly equal the manifest, compares every staged blob and current worktree blob to the manifest-verified digest, and commits the already-verified index without a pathspec. The done_prepare caller retains the pre-write transaction and rolls back both original index entries and worktree bytes on refusal. The mutation hooks are explicit in-process hermetic test seams, not CLI/env inputs, and production callers omit them; they do not widen local proof into Authority. No forbidden reset/clean/checkout/push or no-verify behavior was added. Both auto-closeout and merge-rerun focused smokes pass.",
+      "createdAt": "2026-07-17T20:58:30.530Z",
+      "reviewRound": "2026-07-17T20:55:18.822Z",
+      "reviewRunId": "B-10b0:RR-027",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "a79489ffa5d0caeb21c54071940bc3ca06f0333900d05b05ffb6382315438c4a"
+    },
+    {
+      "id": "B-10b0:RP-018",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted coverage review of f3f6f78b60 found no blocker. The focused smoke proves isolated-index exclusion of late real-index staging; byte-for-byte preservation of unrelated pre-staged blobs on both success and CAS refusal; concurrent HEAD CAS refusal without installing the closeout tree; exact missing/extra temporary-index path-set rejection; forged-byte index/worktree digest refusal; exact committed-tree path outcome; temporary-index cleanup on success and CAS failure; managed rollback without disturbing unrelated index state; and existing positive done_prepare closeout plus merge/rerun convergence. npm build, done-prepare-auto-closeout smoke, and done-prepare-merge-rerun smoke all passed.",
+      "createdAt": "2026-07-17T21:09:41.210Z",
+      "reviewRound": "2026-07-17T21:07:07.937Z",
+      "reviewRunId": "B-10b0:RR-032",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cda29e941fcde846da2a3defdc27fb9557b5e3d77bf676446a191888be044db9"
+    },
+    {
+      "id": "B-10b0:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "Final targeted concept review of f3f6f78b60 found no blocker. The closeout candidate is built from an isolated temporary index seeded from the captured old HEAD; exact changed paths and blob digests are verified in the index and again in the immutable tree. The commit uses the existing auto-close message, current Git identity, and exactly oldHead as parent, then installs only through update-ref CAS against oldHead. Concurrent real-index staging is excluded from the tree and preserved byte-for-byte; CAS failure does not advance the branch, and temporary index artifacts are removed. After success only manifest paths are refreshed in the real index, with bounded restoration plus ref CAS rollback on refresh failure. This is local Git transaction integrity, not an Authority credential, and adds no reset/clean/checkout/push behavior. Auto-closeout and merge-rerun smokes pass.",
+      "createdAt": "2026-07-17T21:09:59.938Z",
+      "reviewRound": "2026-07-17T21:07:07.937Z",
+      "reviewRunId": "B-10b0:RR-030",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "567150e803ed1a54a234901487d8259e664f267115a27e057f8f291254de18fd"
+    },
+    {
+      "id": "B-10b0:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "Targeted concept review of 2183cf10ad found no blocker. pre-commit, prepare-commit-msg, and commit-msg run against the isolated index before the final exact path/blob/tree verification; prepare-commit-msg receives the normal message source and commit-msg edits are consumed through commit-tree -F. commit.gpgSign and user.signingKey are propagated to commit-tree, so required-signing failure occurs before CAS and leaves HEAD/real index unchanged. post-commit runs only after successful branch CAS and real-index refresh and is notification-only, matching normal Git semantics. Immutable tree, captured parent, and CAS remain intact; no Authority credential or reset/clean/checkout/push behavior was added. Auto-closeout and merge-rerun smokes pass, including hook edit/rejection, identity/parent/message, CAS/post-hook timing, and signing failure cases.",
+      "createdAt": "2026-07-17T21:18:02.003Z",
+      "reviewRound": "2026-07-17T21:15:27.401Z",
+      "reviewRunId": "B-10b0:RR-034",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "148c5bcce710967c0b339f32cd06b3d217d5008fca18882174165f4185e4ee1b"
+    },
+    {
+      "id": "B-10b0:RP-021",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted coverage review of 2183cf10ad found no blocker. Focused tests exercise the pre-commit/prepare-commit-msg/commit-msg pipeline under the isolated GIT_INDEX_FILE, prove prepare-commit-msg receives message source and edits the COMMIT_EDITMSG consumed by commit-tree, prove commit-msg rejection is fail-closed, and show post-commit runs after successful CAS but not after CAS refusal. Signing configuration and -S key propagation are observed and a missing SSH key fails closed. Success and failure cases verify temporary cleanup, unchanged real index/worktree on refusal, unrelated staged-state preservation through CAS behavior, and exact parent, author, committer, and default/hook-edited message invariants. Package build plus auto-closeout and merge-rerun focused smokes passed.",
+      "createdAt": "2026-07-17T21:18:21.012Z",
+      "reviewRound": "2026-07-17T21:15:27.401Z",
+      "reviewRunId": "B-10b0:RR-035",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f3230c26111f834e411098085136e5f8634b20120eba19794e0e396db471b17f"
+    },
+    {
+      "id": "B-10b0:RP-022",
+      "agent": "lattice-review-quality",
+      "note": "Incremental review of 2183cf10ad and its complete two-file patch PASS. F-017 is correctly fixed: isolated closeout now runs pre-commit, prepare-commit-msg with source=message, commit-msg, and notification-only post-commit at the correct CAS boundary; hook-edited COMMIT_EDITMSG feeds commit-tree; commit.gpgSign and user.signingKey propagate to -S and signing failures fail closed while immutable tree, parent, identity, real-index preservation, and temp cleanup remain intact. Focused build, auto-closeout smoke, and merge-rerun smoke all PASS.",
+      "createdAt": "2026-07-17T21:20:49.079Z",
+      "reviewRound": "2026-07-17T21:15:27.401Z",
+      "reviewRunId": "B-10b0:RR-036",
+      "writerSessionId": "sess-46474be4cabf4c77",
+      "sessionSource": "derived-ppid",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "abc581d8ad6f8154bc5d1b21744e931d70e857caab571ee0fc68b64f81c4c9de"
+    },
+    {
+      "id": "B-10b0:RP-023",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted final coverage review of 5ccc15d47e found no blocker. Combined focused tests exercise both done_prepare and canonical validation-reuse consumers of the shared immutable-tree/CAS primitive: successful exact commits and canonical PASS persistence, pre-existing managed-dirt refusal, pre-commit isolated-index expansion rejection, concurrent HEAD CAS refusal without rewind, exact managed worktree/index rollback, unrelated staged-blob preservation, temporary-index cleanup, hook order/arguments/environment, signing and message/identity/parent invariants, and post-commit only after successful CAS. Package build, done-prepare auto-closeout smoke, validation-evidence-reuse smoke, merge-rerun smoke, and process-fact contract all passed.",
+      "createdAt": "2026-07-17T22:06:52.426Z",
+      "reviewRound": "2026-07-17T22:03:21.496Z",
+      "reviewRunId": "B-10b0:RR-044",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3e4d126d2f946047d10e5e97863db4ddf01d64cb3c762649f6b13e9c7aa6fbb7"
+    },
+    {
+      "id": "B-10b0:RP-024",
+      "agent": "lattice-review-quality",
+      "note": "Incremental quality review of 5ccc15d47e and its complete seven-file patch PASS. The shared immutable metadata primitive runs commit hooks before exact post-hook path/blob/tree verification, preserves message/signing policy, commits the frozen tree through old-HEAD CAS, preserves concurrent advancement and unrelated real-index entries, refreshes only managed entries, and provides verifier rollback to the captured evidence/terminal/receipt worktree and index state. Evidence PASS: TypeScript build; validation-evidence-reuse smoke; done-prepare-auto-closeout smoke; done-prepare-merge-rerun smoke; process-fact contract.",
+      "createdAt": "2026-07-17T22:07:12.141Z",
+      "reviewRound": "2026-07-17T22:03:21.496Z",
+      "reviewRunId": "B-10b0:RR-045",
+      "writerSessionId": "sess-46474be4cabf4c77",
+      "sessionSource": "derived-ppid",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "160a0d651894e3b20d3abee677b802cd37ac95574fc987be76127f64ea43f3c6"
+    },
+    {
+      "id": "B-10b0:RP-025",
+      "agent": "lattice-review-concept",
+      "note": "Concept review PASS for 5ccc15d47e: done_prepare and verifier share one immutable metadata commit primitive; hook-mutated index paths/blobs and frozen tree are checked exactly, commit-tree is parented to captured HEAD, update-ref CAS preserves concurrent HEAD and suppresses post-commit on refusal, verifier rejects pre-existing canonical metadata dirt before mutation, and hook/message/signing behavior remains covered. Build, both focused integration smokes, and process-fact contract passed.",
+      "createdAt": "2026-07-17T22:07:15.011Z",
+      "reviewRound": "2026-07-17T22:03:21.496Z",
+      "reviewRunId": "B-10b0:RR-043",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "d9ee6d521e87d8f9681756c41f4cc00da15d4464352881a6fc1003490b7feab5"
+    }
+  ]
+}

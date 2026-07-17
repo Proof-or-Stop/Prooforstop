@@ -1,7 +1,8 @@
 import childProcess from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
-import { basename, dirname, join, relative } from 'node:path';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { basename, dirname, isAbsolute, join, relative } from 'node:path';
 import { isStoryMetadataPath } from './evidence-freshness.js';
 import { parseGitPorcelainRow, type DirtyWorktreeParsedRow } from './dirty-worktree.js';
 
@@ -10,6 +11,7 @@ export const DONE_PREPARE_GENERATED_METADATA_SCHEMA = 'lattice.done-prepare-gene
 export type DonePrepareGeneratedMetadataSafety =
   | 'safe_lifecycle_metadata'
   | 'unsafe_preexisting_dirty'
+  | 'unsafe_untrusted_process_events_delta'
   | 'unsafe_not_story_lifecycle_metadata'
   | 'unsafe_wrong_story'
   | 'unsafe_unsupported_lifecycle_metadata'
@@ -22,6 +24,22 @@ export interface DonePrepareGeneratedMetadataBaseline {
   storyMetadataDir: string;
   initialDirtyPaths: string[];
   initialHashes: Record<string, string>;
+  initialContents: Record<string, string>;
+}
+
+export interface DonePrepareGeneratedProcessEventBinding {
+  storyId: string;
+  attemptId: string;
+  reviewRound: string;
+  commandSetHash: string;
+  materialHash: string;
+  storyFilesHash: string;
+  phase: 'TEST';
+  disposition: 'reused';
+  result: 'pass';
+  commandExecutions: 0;
+  notBefore: string;
+  notAfter: string;
 }
 
 export interface DonePrepareGeneratedMetadataEntry {
@@ -82,8 +100,79 @@ export interface DonePrepareGeneratedMetadataRollbackResult {
 
 const SAFE_GENERATED_METADATA_FILENAMES = new Set([
   'done-required-evidence.json',
+  'process-events.jsonl',
   'test-evidence.json',
 ]);
+
+const VALIDATION_TERMINAL_KEYS = new Set([
+  'attemptId',
+  'commandExecutions',
+  'commandSetHash',
+  'disposition',
+  'materialHash',
+  'phase',
+  'result',
+  'reviewRound',
+  'storyFilesHash',
+  'storyId',
+  'timestamp',
+  'type',
+]);
+
+function isSha256(value: unknown): boolean {
+  return typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
+}
+
+function isTrustedReusedValidationTerminal(
+  value: unknown,
+  expected: DonePrepareGeneratedProcessEventBinding,
+): boolean {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const event = value as Record<string, unknown>;
+  if (Object.keys(event).some((key) => !VALIDATION_TERMINAL_KEYS.has(key))) return false;
+  const timestamp = typeof event.timestamp === 'string' ? event.timestamp : '';
+  const timestampMs = Date.parse(timestamp);
+  return event.type === 'validation_terminal'
+    && event.storyId === expected.storyId
+    && event.attemptId === expected.attemptId
+    && event.reviewRound === expected.reviewRound
+    && event.commandSetHash === expected.commandSetHash
+    && event.materialHash === expected.materialHash
+    && event.storyFilesHash === expected.storyFilesHash
+    && event.phase === expected.phase
+    && event.disposition === expected.disposition
+    && event.commandExecutions === expected.commandExecutions
+    && event.result === expected.result
+    && isSha256(event.commandSetHash)
+    && isSha256(event.materialHash)
+    && isSha256(event.storyFilesHash)
+    && Number.isFinite(timestampMs)
+    && timestampMs >= Date.parse(expected.notBefore)
+    && timestampMs <= Date.parse(expected.notAfter);
+}
+
+function isTrustedProcessEventsAppend(args: {
+  before: string | undefined;
+  after: string;
+  expected: DonePrepareGeneratedProcessEventBinding | undefined;
+}): boolean {
+  const expected = args.expected;
+  if (!expected) return false;
+  const before = args.before ?? '';
+  if (!args.after.startsWith(before)) return false;
+  if (before.length > 0 && !before.endsWith('\n')) return false;
+  const appended = args.after.slice(before.length);
+  if (!appended || !appended.endsWith('\n')) return false;
+  const lines = appended.split('\n').filter(Boolean);
+  if (lines.length === 0) return false;
+  return lines.every((line) => {
+    try {
+      return isTrustedReusedValidationTerminal(JSON.parse(line), expected);
+    } catch {
+      return false;
+    }
+  });
+}
 
 function normalizeRelPath(path: string): string {
   return path
@@ -137,6 +226,14 @@ function readStoryMetadataHashes(root: string, storyMetadataDir: string): Record
   return hashes;
 }
 
+function readStoryMetadataContents(root: string, storyMetadataDir: string): Record<string, string> {
+  const relPath = normalizeRelPath(`${storyMetadataDir}/process-events.jsonl`);
+  const absPath = join(root, relPath);
+  return existsSync(absPath) && statSync(absPath).isFile()
+    ? { [relPath]: readFileSync(absPath, 'utf8') }
+    : {};
+}
+
 function storyMetadataDir(storyDirRel: string, storyId: string): string {
   return normalizeRelPath(`${storyDirRel}/${storyId}`);
 }
@@ -160,6 +257,7 @@ function classifyEntry(args: {
   storyMetadataDirRel: string;
   baseline: DonePrepareGeneratedMetadataBaseline;
   parsed: DirtyWorktreeParsedRow;
+  expectedProcessEventBinding?: DonePrepareGeneratedProcessEventBinding;
 }): DonePrepareGeneratedMetadataEntry {
   const path = canonicalStatusPath(args.root, args.parsed.path);
   const originalPath = args.parsed.originalPath ? canonicalStatusPath(args.root, args.parsed.originalPath) : undefined;
@@ -208,6 +306,19 @@ function classifyEntry(args: {
   }
   if (!afterHash) {
     return unsafe('unsafe_missing_after', 'safe metadata candidate is missing or not a file after done_prepare');
+  }
+  if (basename(path) === 'process-events.jsonl') {
+    const after = readFileSync(join(args.root, path), 'utf8');
+    if (!isTrustedProcessEventsAppend({
+      before: args.baseline.initialContents[path],
+      after,
+      expected: args.expectedProcessEventBinding,
+    })) {
+      return unsafe(
+        'unsafe_untrusted_process_events_delta',
+        'process-events delta is not an append-only exact match for this done_prepare invocation reused validation_terminal binding',
+      );
+    }
   }
 
   return {
@@ -266,6 +377,7 @@ export function captureDonePrepareGeneratedMetadataBaseline(args: {
     storyMetadataDir: storyMetadataDirRel,
     initialDirtyPaths,
     initialHashes: readStoryMetadataHashes(args.root, storyMetadataDirRel),
+    initialContents: readStoryMetadataContents(args.root, storyMetadataDirRel),
   };
 }
 
@@ -361,6 +473,7 @@ export function buildDonePrepareGeneratedMetadataManifest(args: {
   storyDirRel: string;
   baseline: DonePrepareGeneratedMetadataBaseline;
   statusRows: string[];
+  expectedProcessEventBinding?: DonePrepareGeneratedProcessEventBinding;
 }): DonePrepareGeneratedMetadataManifest {
   const storyMetadataDirRel = storyMetadataDir(args.storyDirRel, args.storyId);
   const entries: DonePrepareGeneratedMetadataEntry[] = [];
@@ -380,12 +493,25 @@ export function buildDonePrepareGeneratedMetadataManifest(args: {
       });
       continue;
     }
+    const parsedEntryPaths = parsedPaths(parsed).map((path) => canonicalStatusPath(args.root, path));
+    const indexOnly = hasIndexChange(parsed.statusCode) && parsed.statusCode[1] === ' ';
+    if (
+      indexOnly
+      && parsedEntryPaths.length > 0
+      && parsedEntryPaths.every((path) => !isSameStoryPath(storyMetadataDirRel, path))
+    ) {
+      // The isolated closeout index never consumes unrelated real-index state.
+      // Preserve an index-only user change verbatim instead of treating it as
+      // part of the generated-metadata transaction.
+      continue;
+    }
     entries.push(classifyEntry({
       root: args.root,
       storyId: args.storyId,
       storyMetadataDirRel,
       baseline: args.baseline,
       parsed,
+      expectedProcessEventBinding: args.expectedProcessEventBinding,
     }));
   }
   const safePaths = sortedUnique(entries.filter((entry) => entry.safeToAutoStage).map((entry) => entry.path));
@@ -401,13 +527,6 @@ export function buildDonePrepareGeneratedMetadataManifest(args: {
   };
 }
 
-function stagedRows(rows: string[]): string[] {
-  return rows.filter((row) => {
-    const parsed = parseGitPorcelainRow(row);
-    return parsed ? hasIndexChange(parsed.statusCode) : true;
-  });
-}
-
 function filterIgnoredRows(root: string, rows: string[], ignoredPaths: readonly string[] = []): string[] {
   const ignored = new Set(ignoredPaths.map(normalizeRelPath));
   if (ignored.size === 0) return rows;
@@ -419,16 +538,254 @@ function filterIgnoredRows(root: string, rows: string[], ignoredPaths: readonly 
   });
 }
 
-function hasCachedChanges(gitCwd: string, paths: string[]): boolean {
+function isolatedGit(gitCwd: string, indexFile: string, args: string[]): string {
+  return childProcess.execFileSync('git', args, {
+    cwd: gitCwd,
+    env: { ...process.env, GIT_INDEX_FILE: indexFile },
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+}
+
+function isolatedChangedPaths(gitCwd: string, indexFile: string, parent: string): string[] {
+  const raw = isolatedGit(gitCwd, indexFile, ['diff', '--cached', '--name-only', '-z', parent]);
+  return sortedUnique(raw.split('\0').filter(Boolean));
+}
+
+function isolatedBlobHash(gitCwd: string, indexFile: string, path: string): string | null {
   try {
-    childProcess.execFileSync('git', ['diff', '--cached', '--quiet', '--', ...paths], {
+    const content = childProcess.execFileSync('git', ['show', `:${path}`], {
+      cwd: gitCwd,
+      env: { ...process.env, GIT_INDEX_FILE: indexFile },
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    return sha256(content);
+  } catch {
+    return null;
+  }
+}
+
+function treeChangedPaths(gitCwd: string, parentTree: string, tree: string): string[] {
+  const raw = gitRaw(gitCwd, ['diff-tree', '-r', '--name-only', '-z', parentTree, tree]);
+  return sortedUnique(raw.split('\0').filter(Boolean));
+}
+
+function treeBlobHash(gitCwd: string, tree: string, path: string): string | null {
+  try {
+    const content = childProcess.execFileSync('git', ['show', `${tree}:${path}`], {
       cwd: gitCwd,
       stdio: ['pipe', 'pipe', 'pipe'],
     });
-    return false;
+    return sha256(content);
+  } catch {
+    return null;
+  }
+}
+
+function runCommitHook(
+  gitCwd: string,
+  indexFile: string,
+  name: 'pre-commit' | 'prepare-commit-msg' | 'commit-msg' | 'post-commit',
+  hookArgs: string[] = [],
+): { ok: true } | { ok: false; error: string } {
+  const hookPathResult = gitMaybe(gitCwd, ['rev-parse', '--git-path', `hooks/${name}`]);
+  if (!hookPathResult.ok) return { ok: false, error: hookPathResult.error };
+  const hookPath = isAbsolute(hookPathResult.output)
+    ? hookPathResult.output
+    : join(gitCwd, hookPathResult.output);
+  if (!existsSync(hookPath) || (statSync(hookPath).mode & 0o111) === 0) return { ok: true };
+  try {
+    childProcess.execFileSync(hookPath, hookArgs, {
+      cwd: gitCwd,
+      env: { ...process.env, GIT_INDEX_FILE: indexFile },
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    return { ok: true };
   } catch (err: any) {
-    if (err?.status === 1) return true;
+    return { ok: false, error: String(err?.stderr || err?.stdout || err?.message || err).trim() };
+  }
+}
+
+function optionalGitConfig(gitCwd: string, args: string[]): string | undefined {
+  try {
+    return childProcess.execFileSync('git', ['config', '--get', ...args], {
+      cwd: gitCwd,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim() || undefined;
+  } catch (err: any) {
+    if (err?.status === 1) return undefined;
     throw err;
+  }
+}
+
+function updateRealIndexFromTree(gitCwd: string, tree: string, paths: string[]): void {
+  for (const path of paths) {
+    const row = gitRaw(gitCwd, ['ls-tree', tree, '--', path]).trim();
+    const match = row.match(/^(\d+)\s+blob\s+([a-f0-9]+)\t/);
+    if (!match) throw new Error(`committed tree entry unavailable for ${path}`);
+    childProcess.execFileSync('git', ['update-index', '--add', '--cacheinfo', match[1], match[2], path], {
+      cwd: gitCwd,
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+  }
+}
+
+export interface ImmutableMetadataCommitTestHooks {
+  beforeAdd?: (temporaryIndexFile: string) => void;
+  afterAddBeforeCommit?: (temporaryIndexFile: string) => void;
+  afterTreeVerificationBeforeCommit?: (temporaryIndexFile: string) => void;
+  beforeCommitTree?: (commitTreeArgs: string[], signing: {
+    enabled: boolean;
+    key?: string;
+    format?: string;
+  }) => void;
+  beforeCasUpdate?: (oldHead: string, targetRef: string) => void;
+}
+
+export interface ImmutableMetadataCommitResult {
+  ok: boolean;
+  commitSha?: string;
+  files: string[];
+  reason?: string;
+}
+
+/**
+ * Shared immutable metadata commit primitive. It freezes an exact verified tree
+ * in a temporary index, runs the normal hook/message/signing policy, and only
+ * installs the commit through an old-HEAD CAS.
+ */
+export function commitImmutableMetadataTree(args: {
+  root: string;
+  gitCwd: string;
+  paths: string[];
+  verifiedHashes: Map<string, string>;
+  message: string;
+  testHooks?: ImmutableMetadataCommitTestHooks;
+}): ImmutableMetadataCommitResult {
+  const paths = sortedUnique(args.paths);
+  const ident = gitMaybe(args.gitCwd, ['var', 'GIT_AUTHOR_IDENT']);
+  if (!ident.ok) return { ok: false, files: paths, reason: `git author identity is unavailable: ${ident.error}` };
+  const oldHeadResult = gitMaybe(args.gitCwd, ['rev-parse', 'HEAD']);
+  const oldTreeResult = gitMaybe(args.gitCwd, ['rev-parse', 'HEAD^{tree}']);
+  const targetRefResult = gitMaybe(args.gitCwd, ['symbolic-ref', '-q', 'HEAD']);
+  if (!oldHeadResult.ok || !oldTreeResult.ok || !targetRefResult.ok) {
+    return { ok: false, files: paths, reason: 'cannot capture the current branch HEAD/tree for isolated metadata commit' };
+  }
+  const oldHead = oldHeadResult.output;
+  const oldTree = oldTreeResult.output;
+  const targetRef = targetRefResult.output;
+  const tempDir = mkdtempSync(join(tmpdir(), 'lattice-immutable-metadata-index-'));
+  const temporaryIndexFile = join(tempDir, 'index');
+  const messageFile = join(tempDir, 'COMMIT_EDITMSG');
+  try {
+    writeFileSync(messageFile, `${args.message}\n`, 'utf8');
+    isolatedGit(args.gitCwd, temporaryIndexFile, ['read-tree', oldHead]);
+    args.testHooks?.beforeAdd?.(temporaryIndexFile);
+    isolatedGit(args.gitCwd, temporaryIndexFile, ['add', '--', ...paths]);
+    args.testHooks?.afterAddBeforeCommit?.(temporaryIndexFile);
+
+    for (const [name, hookArgs] of [
+      ['pre-commit', []],
+      ['prepare-commit-msg', [messageFile, 'message']],
+      ['commit-msg', [messageFile]],
+    ] as const) {
+      const hook = runCommitHook(args.gitCwd, temporaryIndexFile, name, [...hookArgs]);
+      if (!hook.ok) return { ok: false, files: paths, reason: `git ${name} hook failed: ${hook.error}` };
+    }
+
+    const isolatedPaths = isolatedChangedPaths(args.gitCwd, temporaryIndexFile, oldHead);
+    const isolatedUnexpected = isolatedPaths.filter((path) => !paths.includes(path));
+    const isolatedMissing = paths.filter((path) => !isolatedPaths.includes(path));
+    if (isolatedUnexpected.length > 0 || isolatedMissing.length > 0) {
+      return {
+        ok: false,
+        files: sortedUnique([...isolatedUnexpected, ...isolatedMissing]),
+        reason: 'isolated index paths do not exactly match the verified metadata manifest',
+      };
+    }
+    const isolatedDigestMismatch = paths.filter(
+      (path) => isolatedBlobHash(args.gitCwd, temporaryIndexFile, path) !== args.verifiedHashes.get(path),
+    );
+    const worktreeDigestMismatch = paths.filter(
+      (path) => hashFile(args.root, path) !== args.verifiedHashes.get(path),
+    );
+    if (isolatedDigestMismatch.length > 0 || worktreeDigestMismatch.length > 0) {
+      return {
+        ok: false,
+        files: sortedUnique([...isolatedDigestMismatch, ...worktreeDigestMismatch]),
+        reason: 'verified metadata changed after manifest verification',
+      };
+    }
+
+    const tree = isolatedGit(args.gitCwd, temporaryIndexFile, ['write-tree']).trim();
+    const treePaths = treeChangedPaths(args.gitCwd, oldTree, tree);
+    const treeUnexpected = treePaths.filter((path) => !paths.includes(path));
+    const treeMissing = paths.filter((path) => !treePaths.includes(path));
+    const treeDigestMismatch = paths.filter(
+      (path) => treeBlobHash(args.gitCwd, tree, path) !== args.verifiedHashes.get(path),
+    );
+    if (treeUnexpected.length > 0 || treeMissing.length > 0 || treeDigestMismatch.length > 0) {
+      return {
+        ok: false,
+        files: sortedUnique([...treeUnexpected, ...treeMissing, ...treeDigestMismatch]),
+        reason: 'isolated tree does not exactly match the verified metadata manifest',
+      };
+    }
+    args.testHooks?.afterTreeVerificationBeforeCommit?.(temporaryIndexFile);
+
+    const signingEnabled = optionalGitConfig(args.gitCwd, ['--bool', 'commit.gpgSign']) === 'true';
+    const signingKey = optionalGitConfig(args.gitCwd, ['user.signingKey']);
+    const signingFormat = optionalGitConfig(args.gitCwd, ['gpg.format']);
+    const commitTreeArgs = [
+      'commit-tree',
+      tree,
+      '-p',
+      oldHead,
+      '-F',
+      messageFile,
+      ...(signingEnabled ? [signingKey ? `-S${signingKey}` : '-S'] : []),
+    ];
+    args.testHooks?.beforeCommitTree?.(commitTreeArgs, {
+      enabled: signingEnabled,
+      ...(signingKey ? { key: signingKey } : {}),
+      ...(signingFormat ? { format: signingFormat } : {}),
+    });
+    const commitSha = isolatedGit(args.gitCwd, temporaryIndexFile, commitTreeArgs).trim();
+    args.testHooks?.beforeCasUpdate?.(oldHead, targetRef);
+    const cas = gitMaybe(args.gitCwd, ['update-ref', targetRef, commitSha, oldHead]);
+    if (!cas.ok) {
+      return {
+        ok: false,
+        files: paths,
+        reason: `HEAD changed before isolated metadata commit CAS: ${cas.error}`,
+      };
+    }
+    const realIndexBefore = indexEntriesForPaths(args.gitCwd, paths);
+    try {
+      updateRealIndexFromTree(args.gitCwd, tree, paths);
+    } catch (err: any) {
+      for (const path of paths) {
+        restoreIndexEntries(args.gitCwd, path, realIndexBefore.filter((entry) => entry.path === path));
+      }
+      const rollbackRef = gitMaybe(args.gitCwd, ['update-ref', targetRef, oldHead, commitSha]);
+      return {
+        ok: false,
+        files: paths,
+        reason: `real index refresh after isolated commit failed: ${String(err?.stderr || err?.stdout || err?.message || err).trim()}`
+          + (rollbackRef.ok ? '' : `; HEAD rollback CAS failed: ${rollbackRef.error}`),
+      };
+    }
+    runCommitHook(args.gitCwd, temporaryIndexFile, 'post-commit');
+    return { ok: true, commitSha, files: paths };
+  } catch (err: any) {
+    return {
+      ok: false,
+      files: paths,
+      reason: `isolated metadata commit failed: ${String(err?.stderr || err?.stdout || err?.message || err).trim()}`,
+    };
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
   }
 }
 
@@ -442,7 +799,20 @@ export function commitDonePrepareGeneratedMetadata(args: {
   storyId: string;
   storyDirRel: string;
   baseline: DonePrepareGeneratedMetadataBaseline;
+  expectedProcessEventBinding?: DonePrepareGeneratedProcessEventBinding;
   ignoredPaths?: readonly string[];
+  /** Hermetic TOCTOU seams. Production callers must omit these hooks. */
+  testHooks?: {
+    beforeAdd?: (temporaryIndexFile: string) => void;
+    afterAddBeforeCommit?: (temporaryIndexFile: string) => void;
+    afterTreeVerificationBeforeCommit?: (temporaryIndexFile: string) => void;
+    beforeCommitTree?: (commitTreeArgs: string[], signing: {
+      enabled: boolean;
+      key?: string;
+      format?: string;
+    }) => void;
+    beforeCasUpdate?: (oldHead: string, targetRef: string) => void;
+  };
 }): DonePrepareGeneratedMetadataCommitResult {
   const rows = filterIgnoredRows(args.root, gitStatusRowsForDonePrepareGeneratedMetadata(args.gitCwd), args.ignoredPaths);
   const manifest = buildDonePrepareGeneratedMetadataManifest({
@@ -451,6 +821,7 @@ export function commitDonePrepareGeneratedMetadata(args: {
     storyDirRel: args.storyDirRel,
     baseline: args.baseline,
     statusRows: rows,
+    expectedProcessEventBinding: args.expectedProcessEventBinding,
   });
   const message = commitMessage(args.storyId);
 
@@ -473,79 +844,20 @@ export function commitDonePrepareGeneratedMetadata(args: {
     };
   }
 
-  const stagedBefore = stagedRows(rows);
-  const stagedOutsideManifest = stagedBefore
-    .map((row) => parseGitPorcelainRow(row))
-    .filter((row): row is DirtyWorktreeParsedRow => Boolean(row))
-    .flatMap(parsedPaths)
-    .map((path) => canonicalStatusPath(args.root, path))
-    .filter((path) => !manifest.safePaths.includes(path));
-  if (stagedOutsideManifest.length > 0) {
-    return {
-      ok: false,
-      files: sortedUnique(stagedOutsideManifest),
-      message,
-      reason: 'staged changes outside the safe generated metadata manifest are present',
-      manifest,
-    };
-  }
-
-  const ident = gitMaybe(args.gitCwd, ['var', 'GIT_AUTHOR_IDENT']);
-  if (!ident.ok) {
-    return {
-      ok: false,
-      files: manifest.safePaths,
-      message,
-      reason: `git author identity is unavailable: ${ident.error}`,
-      manifest,
-    };
-  }
-
-  childProcess.execFileSync('git', ['add', '--', ...manifest.safePaths], {
-    cwd: args.gitCwd,
-    stdio: ['pipe', 'pipe', 'pipe'],
+  const verifiedHashes = new Map(manifest.entries
+    .filter((entry) => entry.safeToAutoStage && entry.afterHash)
+    .map((entry) => [entry.path, entry.afterHash!]));
+  const committed = commitImmutableMetadataTree({
+    root: args.root,
+    gitCwd: args.gitCwd,
+    paths: manifest.safePaths,
+    verifiedHashes,
+    message,
+    testHooks: args.testHooks,
   });
-
-  const rowsAfterAdd = gitStatusRowsForDonePrepareGeneratedMetadata(args.gitCwd);
-  const stagedAfterAdd = stagedRows(rowsAfterAdd)
-    .map((row) => parseGitPorcelainRow(row))
-    .filter((row): row is DirtyWorktreeParsedRow => Boolean(row));
-  const stagedPaths = sortedUnique(stagedAfterAdd.flatMap(parsedPaths).map((path) => canonicalStatusPath(args.root, path)));
-  const stagedUnexpected = stagedPaths.filter((path) => !manifest.safePaths.includes(path));
-  if (stagedUnexpected.length > 0) {
-    return {
-      ok: false,
-      files: stagedUnexpected,
-      message,
-      reason: 'git add would stage paths outside the safe generated metadata manifest',
-      manifest,
-    };
-  }
-  if (!hasCachedChanges(args.gitCwd, manifest.safePaths)) {
-    return {
-      ok: false,
-      files: manifest.safePaths,
-      message,
-      reason: 'safe generated metadata has no staged content to commit',
-      manifest,
-    };
-  }
-
-  const commit = gitMaybe(args.gitCwd, ['commit', '-m', message, '--', ...manifest.safePaths]);
-  if (!commit.ok) {
-    return {
-      ok: false,
-      files: manifest.safePaths,
-      message,
-      reason: `git commit failed: ${commit.error}`,
-      manifest,
-    };
-  }
-  const commitSha = git(args.gitCwd, ['rev-parse', 'HEAD']);
   return {
-    ok: true,
-    commitSha,
-    files: manifest.safePaths,
+    ...committed,
+    ...(!committed.ok ? { reason: `isolated generated metadata commit failed: ${committed.reason}` } : {}),
     message,
     manifest,
   };

@@ -23,7 +23,11 @@ import { StoryStore } from '../core/store.js';
 import {
   buildDonePrepareGeneratedMetadataManifest,
   captureDonePrepareGeneratedMetadataBaseline,
+  captureDonePrepareGeneratedMetadataTransaction,
+  commitDonePrepareGeneratedMetadata,
   gitStatusRowsForDonePrepareGeneratedMetadata,
+  rollbackDonePrepareGeneratedMetadataTransaction,
+  type DonePrepareGeneratedProcessEventBinding,
 } from '../core/done-prepare-generated-metadata.js';
 import type {
   ChecklistData,
@@ -260,6 +264,16 @@ function setupFixture(options: FixtureOptions = {}): Fixture {
       endTime: NOW,
     }],
   } as ChecklistData);
+  const attemptMaterialHash = currentMaterialHash(root, 'HEAD', root)!;
+  const attemptStoryFilesHash = currentStoryFilesHash(root, 'HEAD', root)!;
+  store.appendProcessEvent(STORY_ID, {
+    type: 'phase_transition', storyId: STORY_ID, attemptId: NOW, fromPhase: 'DEV', toPhase: 'REVIEW',
+    materialHash: attemptMaterialHash, storyFilesHash: attemptStoryFilesHash, reviewRound: NOW,
+  });
+  store.appendProcessEvent(STORY_ID, {
+    type: 'phase_transition', storyId: STORY_ID, attemptId: NOW, fromPhase: 'REVIEW', toPhase: 'TEST',
+    materialHash: attemptMaterialHash, storyFilesHash: attemptStoryFilesHash, reviewRound: NOW,
+  });
   seedDoneGateEvidence(root, STORY_ID);
   commitAll(root, 'seed done_prepare auto-closeout story metadata');
   assert.equal(git(root, ['status', '--porcelain']), '', 'fixture must start clean');
@@ -274,6 +288,22 @@ async function withEnv<T>(patch: Record<string, string>, fn: () => Promise<T>): 
   }
   try {
     return await fn();
+  } finally {
+    for (const [key, value] of previous) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  }
+}
+
+function withEnvSync<T>(patch: Record<string, string>, fn: () => T): T {
+  const previous = new Map<string, string | undefined>();
+  for (const [key, value] of Object.entries(patch)) {
+    previous.set(key, process.env[key]);
+    process.env[key] = value;
+  }
+  try {
+    return fn();
   } finally {
     for (const [key, value] of previous) {
       if (value === undefined) delete process.env[key];
@@ -322,6 +352,7 @@ async function assertManifestOnlyAutoCloseout(): Promise<void> {
   try {
     process.chdir(root);
     const deliveryBefore = readFileSync(join(root, '.lattice', 'story', 'actives', storyId, 'delivery-check.json'), 'utf8');
+    const beforeHead = git(root, ['rev-parse', 'HEAD']);
     const logs: string[] = [];
     const transcript = await withEnv(gitIdentityEnv(), async () => String(await createDonePrepareHandlers(mkCtx(root, (msg) => logs.push(msg))).done_prepare({
       storyId,
@@ -333,38 +364,118 @@ async function assertManifestOnlyAutoCloseout(): Promise<void> {
     })));
 
     assert.match(transcript, /^DONE prepare: PASS/, transcript);
-    assert.match(transcript, /^autoCloseGeneratedMetadata: PASS$/m);
-    assert.match(transcript, /^validationReused: true$/m);
-    assert.match(transcript, /^validationReuseRecord: done-required-evidence\.json$/m);
+    assert.match(transcript, /^convergence: metadataRollbacks=0 reviewerReattestations=0 humanConfirmations=0 unchangedSuiteExecutions=0 successfulCloseout=1$/m);
+    assert.doesNotMatch(transcript, /^autoCloseGeneratedMetadata:/m, 'canonical validation writers converge without nested auto-closeout recursion');
     assert.match(transcript, /lattice story_advance '\{"storyId":"B-done-prepare-auto-closeout","phase":"DONE"\}'/);
-    assert.ok(logs.some((line) => line.includes('done_prepare auto-closeout: committed generated metadata')), 'auto-closeout commit is logged to side channel');
+    assert.ok(logs.some((line) => line.includes('done_prepare convergence: retained review across trusted validation metadata advance')), 'trusted metadata advance is logged to the side channel');
     assert.equal(git(root, ['status', '--porcelain']), '', 'auto-closeout leaves the worktree clean');
-    assert.equal(git(root, ['log', '-1', '--pretty=%s']), AUTO_CLOSE_MESSAGE);
-    const committedFiles = git(root, ['show', '--pretty=', '--name-only', 'HEAD'])
+    assert.notEqual(git(root, ['log', '-1', '--pretty=%s']), AUTO_CLOSE_MESSAGE, 'one-pass closeout must not create the legacy synthetic auto-close commit');
+    const committedFiles = git(root, ['diff', '--name-only', `${beforeHead}..HEAD`])
       .split('\n')
       .map((line) => line.trim())
       .filter(Boolean)
       .sort();
     assert.deepEqual(committedFiles, [
+      `.lattice/story/actives/${storyId}/closeout-write-receipts.jsonl`,
       `.lattice/story/actives/${storyId}/done-required-evidence.json`,
+      `.lattice/story/actives/${storyId}/process-events.jsonl`,
       `.lattice/story/actives/${storyId}/test-evidence.json`,
     ]);
-    const evidence = new StoryStore(root).readDoneRequiredEvidence(storyId) as any;
-    assert.equal(evidence.donePrepareValidationReuse?.status, 'reused');
-    assert.equal(evidence.donePrepareValidationReuse?.commandsRerunAfterAutoCloseout, false);
-    assert.match(evidence.donePrepareValidationReuse?.statement ?? '', /not rerun/);
-    assert.equal(evidence.donePrepareValidationReuse?.priorEvidenceRefs?.testEvidence?.command, `lattice validate --story=${storyId} --json`);
-    assert.equal(evidence.donePrepareValidationReuse?.priorEvidenceRefs?.doneRequiredEvidence?.receipts?.[0]?.label, 'smoke DONE-required validation');
-    assert.match(evidence.donePrepareValidationReuse?.priorEvidenceRefs?.doneRequiredEvidence?.receipts?.[0]?.outputDigest ?? '', /^[a-f0-9]{64}$/);
+    const evidenceStore = new StoryStore(root);
+    const evidence = evidenceStore.readDoneRequiredEvidence(storyId) as any;
+    assert.equal(evidence.donePrepareValidationReuse, undefined, 'direct one-pass closeout needs no recursive validation-reuse record');
+    assert.equal(evidenceStore.readTestEvidence(storyId)?.commandExecution?.commandCount, 1, 'routine validation suite executes exactly once');
+    assert.equal(evidence.receipts?.length, 1, 'DONE-required suite executes exactly once');
     assert.equal(
       readFileSync(join(root, '.lattice', 'story', 'actives', storyId, 'delivery-check.json'), 'utf8'),
       deliveryBefore,
       'done_prepare must not self-sign or rewrite delivery-check evidence',
     );
-    assert.ok(observed.some((line) => line.includes('git add --')), `spy must observe explicit git add pathspecs:\n${observed.join('\n')}`);
-    assert.ok(observed.some((line) => line.includes('git commit -m')), `spy must observe git commit:\n${observed.join('\n')}`);
+
+    const reuseHeadBefore = git(root, ['rev-parse', 'HEAD']);
+    const reuseEventCountBefore = evidenceStore.readProcessEvents(storyId)
+      .filter((event) => event.type === 'validation_terminal').length;
+    const reuseLogs: string[] = [];
+    const reuseTranscript = await withEnv(gitIdentityEnv(), async () => String(await createDonePrepareHandlers(
+      mkCtx(root, (msg) => reuseLogs.push(msg)),
+    ).done_prepare({
+      storyId,
+      mergeMain: false,
+      refreshStale: false,
+      validate: true,
+      autoCloseGeneratedMetadata: true,
+      reuseFreshValidation: true,
+      reuseFreshDoneRequired: true,
+    })));
+    assert.match(reuseTranscript, /^DONE prepare: PASS/, reuseTranscript);
+    assert.ok(
+      reuseLogs.some((line) => line.includes('routine validation reused; commandExecutions=0')),
+      'same-run reused validation is observable before the canonical transaction closes it',
+    );
+    assert.ok(
+      !reuseLogs.some((line) => line.includes('done_prepare auto-closeout: committed generated metadata')),
+      'canonical validation transaction leaves no duplicate generated metadata for done_prepare to close',
+    );
+    assert.equal(git(root, ['status', '--porcelain']), '', 'reused-validation canonical transaction leaves the worktree clean');
+    assert.equal(git(root, ['log', '-1', '--pretty=%s']), `lattice: record ${storyId} validate metadata`);
+    assert.deepEqual(
+      git(root, ['diff', '--name-only', `${reuseHeadBefore}..HEAD`]).split('\n').filter(Boolean).sort(),
+      [
+        `.lattice/story/actives/${storyId}/closeout-write-receipts.jsonl`,
+        `.lattice/story/actives/${storyId}/process-events.jsonl`,
+        `.lattice/story/actives/${storyId}/test-evidence.json`,
+      ],
+      'reused validation atomically closes only its canonical PASS, terminal, and receipt',
+    );
+    const reuseTerminals = evidenceStore.readProcessEvents(storyId)
+      .filter((event) => event.type === 'validation_terminal');
+    assert.equal(reuseTerminals.length, reuseEventCountBefore + 1);
+    assert.equal(reuseTerminals.at(-1)?.disposition, 'reused');
+    assert.equal(reuseTerminals.at(-1)?.commandExecutions, 0);
   } finally {
     restoreSpy();
+    process.chdir(oldCwd);
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertPreexistingProcessEventsRemainFailClosed(): Promise<void> {
+  const { root, storyId } = setupFixture();
+  const oldCwd = process.cwd();
+  try {
+    process.chdir(root);
+    const first = await withEnv(gitIdentityEnv(), async () => String(await createDonePrepareHandlers(mkCtx(root)).done_prepare({
+      storyId,
+      mergeMain: false,
+      refreshStale: false,
+      validate: true,
+      autoCloseGeneratedMetadata: true,
+      reuseFreshValidation: true,
+    })));
+    assert.match(first, /^DONE prepare: PASS/, first);
+
+    new StoryStore(root).appendProcessEvent(storyId, {
+      type: 'human_confirmation',
+      storyId,
+      reason: 'pre-existing dirty process event must not be adopted by done_prepare',
+    });
+    assert.match(git(root, ['status', '--porcelain']), /process-events\.jsonl/);
+
+    const retry = await withEnv(gitIdentityEnv(), async () => String(await createDonePrepareHandlers(mkCtx(root)).done_prepare({
+      storyId,
+      mergeMain: false,
+      refreshStale: false,
+      validate: true,
+      autoCloseGeneratedMetadata: true,
+      reuseFreshValidation: true,
+      reuseFreshDoneRequired: true,
+    })));
+    assert.match(retry, /^DONE prepare: BLOCKED/, retry);
+    assert.match(retry, /^blockedAt: validate$/m);
+    assert.match(retry, /process-events\.jsonl/);
+    assert.match(retry, /canonical metadata was already dirty/);
+    assert.match(git(root, ['status', '--porcelain']), /process-events\.jsonl/);
+  } finally {
     process.chdir(oldCwd);
     rmSync(root, { recursive: true, force: true });
   }
@@ -397,7 +508,7 @@ async function assertUnsafePathRefusesBeforeReuseRecord(): Promise<void> {
   }
 }
 
-async function assertCommitHookFailureRollsBackReuseAndIndex(): Promise<void> {
+async function assertCommitHookFailureRemainsFailClosed(): Promise<void> {
   const { root, storyId } = setupFixture();
   const oldCwd = process.cwd();
   const observed: string[] = [];
@@ -410,6 +521,7 @@ async function assertCommitHookFailureRollsBackReuseAndIndex(): Promise<void> {
 
     const headBefore = git(root, ['rev-parse', 'HEAD']);
     const safePaths = [
+      `.lattice/story/actives/${storyId}/closeout-write-receipts.jsonl`,
       `.lattice/story/actives/${storyId}/done-required-evidence.json`,
       `.lattice/story/actives/${storyId}/test-evidence.json`,
     ];
@@ -424,10 +536,15 @@ async function assertCommitHookFailureRollsBackReuseAndIndex(): Promise<void> {
 
     assert.match(transcript, /^DONE prepare: BLOCKED/, transcript);
     assert.match(transcript, /^blockedAt: cleanTree$/m);
-    assert.match(transcript, /git commit failed/);
-    assert.match(transcript, /failing pre-commit/);
-    assert.equal(git(root, ['rev-parse', 'HEAD']), headBefore, 'failed auto-closeout must not advance HEAD');
-    assert.equal(git(root, ['diff', '--cached', '--name-only', '--', ...safePaths]), '', 'rollback must leave generated metadata unstaged');
+    assert.match(transcript, /git status contains path\(s\) outside the safe generated metadata manifest/);
+    assert.match(transcript, /closeout-write-receipts\.jsonl/);
+    assert.equal(git(root, ['rev-parse', 'HEAD']), headBefore, 'failed canonical writer commits must not advance HEAD');
+    const stagedSafePaths = git(root, ['diff', '--cached', '--name-only', '--', ...safePaths])
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .sort();
+    assert.deepEqual(stagedSafePaths, safePaths.slice().sort(), 'failed writer commit leaves only its bounded generated metadata staged');
     const unstagedSafePaths = git(root, ['diff', '--name-only', '--', ...safePaths])
       .split('\n')
       .map((line) => line.trim())
@@ -436,15 +553,10 @@ async function assertCommitHookFailureRollsBackReuseAndIndex(): Promise<void> {
       .split('\n')
       .map((line) => line.trim())
       .filter(Boolean);
-    assert.deepEqual(
-      [...unstagedSafePaths, ...untrackedSafePaths].sort(),
-      safePaths.sort(),
-      'rollback must leave original generated metadata dirty only in the worktree',
-    );
+    assert.deepEqual([...unstagedSafePaths, ...untrackedSafePaths], [], 'no extra unstaged or untracked generated metadata remains');
     const evidence = new StoryStore(root).readDoneRequiredEvidence(storyId) as any;
-    assert.equal(evidence.donePrepareValidationReuse, undefined, 'failed commit rollback must remove the validation reuse claim');
-    assert.ok(observed.some((line) => line.includes('git update-index --force-remove --')), `rollback must restore index entries explicitly:\n${observed.join('\n')}`);
-    assert.ok(observed.some((line) => line.includes('git update-index --index-info')), `rollback must restore captured index state:\n${observed.join('\n')}`);
+    assert.equal(evidence.donePrepareValidationReuse, undefined, 'failed writer commits must not mint a validation reuse claim');
+    assert.equal(observed.some((line) => line.includes('git update-index')), false, 'no auto-close transaction starts for an unsafe receipt-ledger dirty set');
   } finally {
     restoreSpy();
     process.chdir(oldCwd);
@@ -479,6 +591,466 @@ function assertPreexistingLifecycleMetadataIsUnsafe(): void {
     assert.equal(entry.safeToAutoStage, false);
     assert.deepEqual(manifest.safePaths, []);
     assert.deepEqual(manifest.unsafePaths, [testEvidencePath]);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertProcessEventBindingIsExactAndFailClosed(): void {
+  const { root, storyId } = setupFixture();
+  try {
+    const processEventsPath = `.lattice/story/actives/${storyId}/process-events.jsonl`;
+    const baseline = captureDonePrepareGeneratedMetadataBaseline({
+      root,
+      storyDirRel: '.lattice/story/actives',
+      storyId,
+      initialDirtyRows: [],
+    });
+    const before = baseline.initialContents[processEventsPath];
+    assert.ok(before?.endsWith('\n'));
+    const expected: DonePrepareGeneratedProcessEventBinding = {
+      storyId,
+      attemptId: NOW,
+      reviewRound: NOW,
+      commandSetHash: 'a'.repeat(64),
+      materialHash: 'b'.repeat(64),
+      storyFilesHash: 'c'.repeat(64),
+      phase: 'TEST',
+      disposition: 'reused',
+      result: 'pass',
+      commandExecutions: 0,
+      notBefore: '2026-07-09T00:00:01.000Z',
+      notAfter: '2026-07-09T00:00:03.000Z',
+    };
+    const validEvent = {
+      type: 'validation_terminal',
+      storyId,
+      attemptId: NOW,
+      phase: 'TEST',
+      reviewRound: NOW,
+      commandSetHash: expected.commandSetHash,
+      disposition: 'reused',
+      commandExecutions: 0,
+      result: 'pass',
+      materialHash: expected.materialHash,
+      storyFilesHash: expected.storyFilesHash,
+      timestamp: '2026-07-09T00:00:02.000Z',
+    };
+    const classify = (content: string) => {
+      write(root, processEventsPath, content);
+      return buildDonePrepareGeneratedMetadataManifest({
+        root,
+        storyId,
+        storyDirRel: '.lattice/story/actives',
+        baseline,
+        statusRows: gitStatusRowsForDonePrepareGeneratedMetadata(root),
+        expectedProcessEventBinding: expected,
+      });
+    };
+    const line = (event: unknown): string => `${before}${JSON.stringify(event)}\n`;
+    const valid = classify(line(validEvent));
+    assert.deepEqual(valid.safePaths, [processEventsPath], 'exact current-invocation binding is eligible');
+    assert.deepEqual(valid.unsafePaths, []);
+
+    const invalidCases: Array<[string, string]> = [
+      ['different story', line({ ...validEvent, storyId: 'B-forged' })],
+      ['different attempt', line({ ...validEvent, attemptId: 'forged-attempt' })],
+      ['different review round', line({ ...validEvent, reviewRound: 'forged-round' })],
+      ['different command set', line({ ...validEvent, commandSetHash: 'd'.repeat(64) })],
+      ['different material', line({ ...validEvent, materialHash: 'd'.repeat(64) })],
+      ['different story files', line({ ...validEvent, storyFilesHash: 'd'.repeat(64) })],
+      ['extra field', line({ ...validEvent, forged: true })],
+      ['wrong phase', line({ ...validEvent, phase: 'REVIEW' })],
+      ['wrong disposition', line({ ...validEvent, disposition: 'executed' })],
+      ['wrong result', line({ ...validEvent, result: 'fail' })],
+      ['nonzero executions', line({ ...validEvent, commandExecutions: 1 })],
+      ['bad hash', line({ ...validEvent, commandSetHash: 'not-a-hash' })],
+      ['outside run boundary', line({ ...validEvent, timestamp: '2026-07-09T00:00:04.000Z' })],
+      ['bad timestamp', line({ ...validEvent, timestamp: 'not-a-timestamp' })],
+      ['malformed json', `${before}{not-json}\n`],
+      ['missing final newline', `${before}${JSON.stringify(validEvent)}`],
+      ['prefix rewrite', `rewritten-prefix\n${JSON.stringify(validEvent)}\n`],
+      ['prefix truncation', `${before.slice(0, -2)}${JSON.stringify(validEvent)}\n`],
+      ['mixed valid and invalid', `${line(validEvent)}${JSON.stringify({ ...validEvent, storyId: 'B-forged' })}\n`],
+    ];
+    for (const [name, content] of invalidCases) {
+      const manifest = classify(content);
+      const entry = manifest.entries.find((candidate) => candidate.path === processEventsPath);
+      assert.equal(entry?.safety, 'unsafe_untrusted_process_events_delta', name);
+      assert.equal(entry?.currentRunGenerated, false, name);
+      assert.equal(entry?.safeToAutoStage, false, name);
+      assert.deepEqual(manifest.safePaths, [], name);
+      assert.deepEqual(manifest.unsafePaths, [processEventsPath], name);
+    }
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertIndexValidationClosesMutationWindows(): void {
+  for (const seam of ['beforeAdd', 'afterAddBeforeCommit'] as const) {
+    const { root, storyId } = setupFixture();
+    try {
+      const processEventsPath = `.lattice/story/actives/${storyId}/process-events.jsonl`;
+      const baseline = captureDonePrepareGeneratedMetadataBaseline({
+        root,
+        storyDirRel: '.lattice/story/actives',
+        storyId,
+        initialDirtyRows: [],
+      });
+      const expected: DonePrepareGeneratedProcessEventBinding = {
+        storyId,
+        attemptId: NOW,
+        reviewRound: NOW,
+        commandSetHash: 'a'.repeat(64),
+        materialHash: 'b'.repeat(64),
+        storyFilesHash: 'c'.repeat(64),
+        phase: 'TEST',
+        disposition: 'reused',
+        result: 'pass',
+        commandExecutions: 0,
+        notBefore: '2026-07-09T00:00:01.000Z',
+        notAfter: '2026-07-09T00:00:03.000Z',
+      };
+      const validEvent = {
+        type: 'validation_terminal',
+        storyId,
+        attemptId: NOW,
+        phase: 'TEST',
+        reviewRound: NOW,
+        commandSetHash: expected.commandSetHash,
+        disposition: 'reused',
+        commandExecutions: 0,
+        result: 'pass',
+        materialHash: expected.materialHash,
+        storyFilesHash: expected.storyFilesHash,
+        timestamp: '2026-07-09T00:00:02.000Z',
+      };
+      const before = baseline.initialContents[processEventsPath]!;
+      const validContent = `${before}${JSON.stringify(validEvent)}\n`;
+      const forgedContent = `${before}${JSON.stringify({ ...validEvent, storyId: 'B-forged' })}\n`;
+      write(root, processEventsPath, validContent);
+      const transaction = captureDonePrepareGeneratedMetadataTransaction({
+        root,
+        gitCwd: root,
+        paths: [processEventsPath],
+      });
+      const headBefore = git(root, ['rev-parse', 'HEAD']);
+      const mutate = () => write(root, processEventsPath, forgedContent);
+      const result = commitDonePrepareGeneratedMetadata({
+        root,
+        gitCwd: root,
+        storyId,
+        storyDirRel: '.lattice/story/actives',
+        baseline,
+        expectedProcessEventBinding: expected,
+        testHooks: { [seam]: mutate },
+      });
+      assert.equal(result.ok, false, `${seam} mutation must refuse commit`);
+      assert.match(result.reason ?? '', /changed after manifest verification/, seam);
+      assert.equal(git(root, ['rev-parse', 'HEAD']), headBefore, `${seam} mutation must not create a commit`);
+      assert.equal(readFileSync(join(root, processEventsPath), 'utf8'), forgedContent, `${seam} reproducer reached the mutation window`);
+
+      const rollback = rollbackDonePrepareGeneratedMetadataTransaction({ root, gitCwd: root, transaction });
+      assert.equal(rollback.ok, true, `${seam} rollback succeeds`);
+      assert.equal(readFileSync(join(root, processEventsPath), 'utf8'), validContent, `${seam} rollback restores verified worktree bytes`);
+      assert.equal(git(root, ['diff', '--cached', '--name-only']), '', `${seam} rollback restores the original index`);
+      assert.match(git(root, ['status', '--porcelain']), /process-events\.jsonl/, `${seam} leaves the original safe unstaged delta`);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+}
+
+function isolatedCommitCandidate(): Fixture & {
+  processEventsPath: string;
+  baseline: ReturnType<typeof captureDonePrepareGeneratedMetadataBaseline>;
+  expected: DonePrepareGeneratedProcessEventBinding;
+  validContent: string;
+} {
+  const fixture = setupFixture();
+  const processEventsPath = `.lattice/story/actives/${fixture.storyId}/process-events.jsonl`;
+  const baseline = captureDonePrepareGeneratedMetadataBaseline({
+    root: fixture.root,
+    storyDirRel: '.lattice/story/actives',
+    storyId: fixture.storyId,
+    initialDirtyRows: [],
+  });
+  const expected: DonePrepareGeneratedProcessEventBinding = {
+    storyId: fixture.storyId,
+    attemptId: NOW,
+    reviewRound: NOW,
+    commandSetHash: 'a'.repeat(64),
+    materialHash: 'b'.repeat(64),
+    storyFilesHash: 'c'.repeat(64),
+    phase: 'TEST',
+    disposition: 'reused',
+    result: 'pass',
+    commandExecutions: 0,
+    notBefore: '2026-07-09T00:00:01.000Z',
+    notAfter: '2026-07-09T00:00:03.000Z',
+  };
+  const event = {
+    type: 'validation_terminal',
+    storyId: fixture.storyId,
+    attemptId: NOW,
+    phase: 'TEST',
+    reviewRound: NOW,
+    commandSetHash: expected.commandSetHash,
+    disposition: 'reused',
+    commandExecutions: 0,
+    result: 'pass',
+    materialHash: expected.materialHash,
+    storyFilesHash: expected.storyFilesHash,
+    timestamp: '2026-07-09T00:00:02.000Z',
+  };
+  const validContent = `${baseline.initialContents[processEventsPath]}${JSON.stringify(event)}\n`;
+  write(fixture.root, processEventsPath, validContent);
+  return { ...fixture, processEventsPath, baseline, expected, validContent };
+}
+
+function temporaryIndexGit(root: string, indexFile: string, args: string[]): string {
+  return execFileSync('git', args, {
+    cwd: root,
+    env: { ...process.env, ...gitIdentityEnv(), GIT_INDEX_FILE: indexFile },
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+}
+
+function installHook(root: string, name: string, body: string): void {
+  const path = join(root, '.git', 'hooks', name);
+  writeFileSync(path, `#!/bin/sh\nset -eu\n${body}\n`, 'utf8');
+  chmodSync(path, 0o755);
+}
+
+function assertIsolatedTreeExcludesSharedIndexRaces(): void {
+  const candidate = isolatedCommitCandidate();
+  const { root, storyId, processEventsPath, baseline, expected } = candidate;
+  try {
+    write(root, 'README.md', '# unrelated pre-staged user change\n');
+    git(root, ['add', 'README.md']);
+    const readmeBlob = git(root, ['rev-parse', ':README.md']);
+    const parent = git(root, ['rev-parse', 'HEAD']);
+    let temporaryIndexFile = '';
+    const result = withEnvSync(gitIdentityEnv(), () => commitDonePrepareGeneratedMetadata({
+      root,
+      gitCwd: root,
+      storyId,
+      storyDirRel: '.lattice/story/actives',
+      baseline,
+      expectedProcessEventBinding: expected,
+      testHooks: {
+        afterTreeVerificationBeforeCommit: (indexFile) => {
+          temporaryIndexFile = indexFile;
+          write(root, 'late-unrelated.txt', 'late shared-index mutation\n');
+          git(root, ['add', 'late-unrelated.txt']);
+        },
+      },
+    }));
+    assert.equal(result.ok, true, result.reason);
+    assert.equal(existsSync(temporaryIndexFile), false, 'successful isolated commit removes its temporary index');
+    assert.equal(git(root, ['rev-parse', 'HEAD^']), parent, 'isolated commit retains the captured parent');
+    assert.equal(git(root, ['log', '-1', '--pretty=%s']), AUTO_CLOSE_MESSAGE, 'default commit message is unchanged');
+    assert.equal(git(root, ['log', '-1', '--pretty=%an <%ae>|%cn <%ce>']),
+      'done-prepare-auto-closeout-smoke <done-prepare-auto-closeout-smoke@example.test>|done-prepare-auto-closeout-smoke <done-prepare-auto-closeout-smoke@example.test>',
+      'commit-tree retains configured author and committer identities');
+    assert.deepEqual(
+      git(root, ['diff', '--name-only', `${parent}..HEAD`]).split('\n').filter(Boolean),
+      [processEventsPath],
+      'immutable closeout tree excludes late real-index staging',
+    );
+    assert.equal(git(root, ['rev-parse', ':README.md']), readmeBlob, 'pre-staged blob survives successful CAS byte-for-byte');
+    assert.equal(git(root, ['rev-parse', ':late-unrelated.txt']).length, 40, 'late unrelated blob remains staged for the user');
+    assert.equal(readFileSync(join(root, 'README.md'), 'utf8'), '# unrelated pre-staged user change\n');
+    assert.equal(readFileSync(join(root, 'late-unrelated.txt'), 'utf8'), 'late shared-index mutation\n');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertConcurrentHeadCasRefusesAndPreservesIndex(): void {
+  const candidate = isolatedCommitCandidate();
+  const { root, storyId, baseline, expected, validContent, processEventsPath } = candidate;
+  try {
+    const postCommitMarker = join(root, 'post-commit-ran');
+    installHook(root, 'post-commit', `printf 'ran\\n' > '${postCommitMarker}'`);
+    write(root, 'README.md', '# unrelated staged before CAS failure\n');
+    git(root, ['add', 'README.md']);
+    const readmeBlob = git(root, ['rev-parse', ':README.md']);
+    const parent = git(root, ['rev-parse', 'HEAD']);
+    let temporaryIndexFile = '';
+    const transaction = captureDonePrepareGeneratedMetadataTransaction({
+      root,
+      gitCwd: root,
+      paths: [processEventsPath],
+    });
+    const result = commitDonePrepareGeneratedMetadata({
+      root,
+      gitCwd: root,
+      storyId,
+      storyDirRel: '.lattice/story/actives',
+      baseline,
+      expectedProcessEventBinding: expected,
+      testHooks: {
+        afterTreeVerificationBeforeCommit: (indexFile) => {
+          temporaryIndexFile = indexFile;
+        },
+        beforeCasUpdate: (oldHead, targetRef) => {
+          const tree = git(root, ['rev-parse', `${oldHead}^{tree}`]);
+          const concurrent = git(root, ['commit-tree', tree, '-p', oldHead, '-m', 'concurrent head advance']);
+          git(root, ['update-ref', targetRef, concurrent, oldHead]);
+        },
+      },
+    });
+    assert.equal(result.ok, false);
+    assert.equal(existsSync(postCommitMarker), false, 'post-commit does not run when CAS fails');
+    assert.equal(existsSync(temporaryIndexFile), false, 'CAS refusal removes its temporary index');
+    assert.match(result.reason ?? '', /HEAD changed.*CAS/);
+    assert.equal(git(root, ['log', '-1', '--pretty=%s']), 'concurrent head advance');
+    assert.deepEqual(git(root, ['diff', '--name-only', `${parent}..HEAD`]), '', 'CAS failure installs no closeout tree');
+    assert.equal(git(root, ['rev-parse', ':README.md']), readmeBlob, 'pre-staged blob survives CAS failure byte-for-byte');
+    const rollback = rollbackDonePrepareGeneratedMetadataTransaction({ root, gitCwd: root, transaction });
+    assert.equal(rollback.ok, true);
+    assert.equal(readFileSync(join(root, processEventsPath), 'utf8'), validContent);
+    assert.equal(git(root, ['rev-parse', ':README.md']), readmeBlob, 'rollback does not disturb unrelated staged state');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertIsolatedIndexPathSetIsExact(): void {
+  for (const mode of ['missing', 'extra'] as const) {
+    const candidate = isolatedCommitCandidate();
+    const { root, storyId, processEventsPath, baseline, expected } = candidate;
+    try {
+      const parent = git(root, ['rev-parse', 'HEAD']);
+      const result = commitDonePrepareGeneratedMetadata({
+        root,
+        gitCwd: root,
+        storyId,
+        storyDirRel: '.lattice/story/actives',
+        baseline,
+        expectedProcessEventBinding: expected,
+        testHooks: {
+          afterAddBeforeCommit: (indexFile) => {
+            if (mode === 'missing') {
+              temporaryIndexGit(root, indexFile, ['read-tree', parent]);
+            } else {
+              write(root, 'README.md', '# injected only into isolated index\n');
+              temporaryIndexGit(root, indexFile, ['add', '--', 'README.md']);
+            }
+          },
+        },
+      });
+      assert.equal(result.ok, false, mode);
+      assert.match(result.reason ?? '', /isolated index paths do not exactly match/, mode);
+      assert.equal(git(root, ['rev-parse', 'HEAD']), parent, `${mode} path-set mutation does not advance HEAD`);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+}
+
+function assertCommitMessageHooksAndPostCommitSemantics(): void {
+  const candidate = isolatedCommitCandidate();
+  const { root, storyId, baseline, expected } = candidate;
+  try {
+    const marker = join(root, 'post-commit-ran');
+    installHook(root, 'prepare-commit-msg', [
+      'test "$2" = "message"',
+      'test -f "$GIT_INDEX_FILE"',
+      'printf "hook-edited closeout message\\n" > "$1"',
+    ].join('\n'));
+    installHook(root, 'commit-msg', 'grep -q "^hook-edited closeout message$" "$1"');
+    installHook(root, 'post-commit', [
+      'test -f "$GIT_INDEX_FILE"',
+      `printf 'ran\\n' > '${marker}'`,
+    ].join('\n'));
+    const parent = git(root, ['rev-parse', 'HEAD']);
+    const result = commitDonePrepareGeneratedMetadata({
+      root,
+      gitCwd: root,
+      storyId,
+      storyDirRel: '.lattice/story/actives',
+      baseline,
+      expectedProcessEventBinding: expected,
+    });
+    assert.equal(result.ok, true, result.reason);
+    assert.equal(git(root, ['rev-parse', 'HEAD^']), parent);
+    assert.equal(git(root, ['log', '-1', '--pretty=%s']), 'hook-edited closeout message');
+    assert.equal(readFileSync(marker, 'utf8'), 'ran\n', 'post-commit runs only after successful CAS');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertCommitMsgRejectionIsFailClosed(): void {
+  const candidate = isolatedCommitCandidate();
+  const { root, storyId, baseline, expected, validContent, processEventsPath } = candidate;
+  try {
+    installHook(root, 'commit-msg', 'echo rejected commit message >&2\nexit 1');
+    const parent = git(root, ['rev-parse', 'HEAD']);
+    let temporaryIndexFile = '';
+    const result = commitDonePrepareGeneratedMetadata({
+      root,
+      gitCwd: root,
+      storyId,
+      storyDirRel: '.lattice/story/actives',
+      baseline,
+      expectedProcessEventBinding: expected,
+      testHooks: {
+        afterAddBeforeCommit: (indexFile) => {
+          temporaryIndexFile = indexFile;
+        },
+      },
+    });
+    assert.equal(result.ok, false);
+    assert.match(result.reason ?? '', /commit-msg hook failed.*rejected commit message/);
+    assert.equal(git(root, ['rev-parse', 'HEAD']), parent);
+    assert.equal(readFileSync(join(root, processEventsPath), 'utf8'), validContent);
+    assert.equal(git(root, ['diff', '--cached', '--name-only']), '', 'commit-msg rejection leaves real index unchanged');
+    assert.equal(existsSync(temporaryIndexFile), false, 'commit-msg rejection cleans temporary assets');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertSigningConfigPropagatesAndFailsClosed(): void {
+  const candidate = isolatedCommitCandidate();
+  const { root, storyId, baseline, expected, validContent, processEventsPath } = candidate;
+  try {
+    git(root, ['config', 'commit.gpgSign', 'true']);
+    git(root, ['config', 'gpg.format', 'ssh']);
+    git(root, ['config', 'user.signingKey', join(root, 'missing-signing-key')]);
+    const parent = git(root, ['rev-parse', 'HEAD']);
+    let observedArgs: string[] = [];
+    let observedSigning: { enabled: boolean; key?: string; format?: string } | undefined;
+    const result = commitDonePrepareGeneratedMetadata({
+      root,
+      gitCwd: root,
+      storyId,
+      storyDirRel: '.lattice/story/actives',
+      baseline,
+      expectedProcessEventBinding: expected,
+      testHooks: {
+        beforeCommitTree: (args, signing) => {
+          observedArgs = [...args];
+          observedSigning = signing;
+        },
+      },
+    });
+    assert.equal(result.ok, false, 'required signing with a missing key must fail closed');
+    assert.match(result.reason ?? '', /isolated generated metadata commit failed/);
+    assert.deepEqual(observedSigning, {
+      enabled: true,
+      key: join(root, 'missing-signing-key'),
+      format: 'ssh',
+    });
+    assert.ok(observedArgs.includes(`-S${join(root, 'missing-signing-key')}`), 'commit-tree receives configured signing key');
+    assert.equal(git(root, ['rev-parse', 'HEAD']), parent);
+    assert.equal(readFileSync(join(root, processEventsPath), 'utf8'), validContent);
+    assert.equal(git(root, ['diff', '--cached', '--name-only']), '', 'signing failure leaves real index unchanged');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -637,7 +1209,7 @@ function assertJsonStdoutClean(): void {
     assert.equal(parsed.storyId, storyId);
     assert.equal(parsed.status, 'pass', `JSON done_prepare should pass:\nstderr:\n${result.stderr}\nstdout:\n${result.stdout}`);
     assert.match(parsed.transcript ?? '', /^DONE prepare: PASS/);
-    assert.match(parsed.transcript ?? '', /^autoCloseGeneratedMetadata: PASS$/m);
+    assert.match(parsed.transcript ?? '', /^convergence: metadataRollbacks=0 reviewerReattestations=0 humanConfirmations=0 unchangedSuiteExecutions=0 successfulCloseout=1$/m);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -646,9 +1218,18 @@ function assertJsonStdoutClean(): void {
 void (async () => {
   try {
     await assertManifestOnlyAutoCloseout();
+    await assertPreexistingProcessEventsRemainFailClosed();
     await assertUnsafePathRefusesBeforeReuseRecord();
-    await assertCommitHookFailureRollsBackReuseAndIndex();
+    await assertCommitHookFailureRemainsFailClosed();
     assertPreexistingLifecycleMetadataIsUnsafe();
+    assertProcessEventBindingIsExactAndFailClosed();
+    assertIndexValidationClosesMutationWindows();
+    assertIsolatedTreeExcludesSharedIndexRaces();
+    assertConcurrentHeadCasRefusesAndPreservesIndex();
+    assertIsolatedIndexPathSetIsExact();
+    assertCommitMessageHooksAndPostCommitSemantics();
+    assertCommitMsgRejectionIsFailClosed();
+    assertSigningConfigPropagatesAndFailsClosed();
     assertDeletesAndRenamesAreUnsafe();
     assertMissingHashesRefuseReuse();
     await assertReuseRefusesConfigAndMaterialDrift();

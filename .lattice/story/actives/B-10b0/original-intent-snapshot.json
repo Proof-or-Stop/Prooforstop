@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-10b0",
+  "sourceText": "先解决 closeout artifact 写入顺序反复使 reviewer receipts stale 的问题，确保不再造成多轮纯 metadata 复审，再继续后续工作。",
+  "normalizedOutcome": "正常 REVIEW→TEST→DONE closeout 在代码物料未变时一次收敛，不发生 metadata-only 回退、额外复审、人工确认或未变验证套件重跑。",
+  "acceptanceClaim": "一条确定性生命周期回归证明四项计数均为 0 且 DONE prepare PASS，同时真实漂移和篡改仍 fail-closed。",
+  "keyRequirementIds": [
+    "REQ-001",
+    "REQ-002",
+    "REQ-003"
+  ],
+  "requestHash": "sha256:5ecb9f6b0d129fd0f2e067073030604631e46dea4b17ff2ca55aa3bcb7297f47",
+  "createdAt": "2026-07-17T12:15:09.521Z",
+  "updatedAt": "2026-07-17T12:15:09.521Z"
+}

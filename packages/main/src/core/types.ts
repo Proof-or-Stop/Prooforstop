@@ -895,8 +895,8 @@ export interface TestEvidenceData {
   routineValidationIdentity?: RoutineValidationIdentity;
   /** Project command truth, intentionally independent from overall verification coverage. */
   commandExecution?: RoutineValidationCommandExecution;
-  /** The evidence-writing call always executes commands; reuse never rewrites this artifact. */
-  disposition?: 'executed';
+  /** Whether this canonical receipt came from command execution or a validated zero-command reuse. */
+  disposition?: 'executed' | 'reused';
 }
 
 export interface VerificationCoverageEntry {
@@ -1185,7 +1185,10 @@ export type ProcessEventType =
   | 'auxiliary_worktree_cleanup'
   // B-6bfd CHK-004: Proofbound-managed guard session projection lifecycle events.
   | 'guard_session_start'
-  | 'guard_session_check';
+  | 'guard_session_check'
+  | 'phase_transition'
+  | 'human_confirmation'
+  | 'validation_terminal';
 
 export type ProcessEvent = {
   type: ProcessEventType;

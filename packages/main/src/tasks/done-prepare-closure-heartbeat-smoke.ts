@@ -300,6 +300,16 @@ function setupFixture(options: FixtureOptions = {}): Fixture {
       endTime: NOW,
     }],
   } as ChecklistData);
+  const attemptMaterialHash = currentMaterialHash(root, 'HEAD', root)!;
+  const attemptStoryFilesHash = currentStoryFilesHash(root, 'HEAD', root)!;
+  store.appendProcessEvent(STORY_ID, {
+    type: 'phase_transition', storyId: STORY_ID, attemptId: NOW, fromPhase: 'DEV', toPhase: 'REVIEW',
+    materialHash: attemptMaterialHash, storyFilesHash: attemptStoryFilesHash, reviewRound: NOW,
+  });
+  store.appendProcessEvent(STORY_ID, {
+    type: 'phase_transition', storyId: STORY_ID, attemptId: NOW, fromPhase: 'REVIEW', toPhase: 'TEST',
+    materialHash: attemptMaterialHash, storyFilesHash: attemptStoryFilesHash, reviewRound: NOW,
+  });
   seedDoneGateEvidence(root, STORY_ID);
   commitAll(root, 'seed done_prepare heartbeat story metadata');
   assert.equal(git(root, ['status', '--porcelain']), '', 'fixture must start clean');
@@ -383,7 +393,7 @@ function assertActualReuseSwitchAndValidateFalseBasis(): void {
       '--reuseFreshDoneRequired=false',
     ]);
     const disabledJson = JSON.parse(disabled.stdout);
-    assert.equal(disabledJson.disposition, 'executed');
+    assert.equal(disabledJson.disposition, 'reused', 'top-level disposition reports routine validation reuse while DONE-required execution is proven by progress output below');
     assert.equal(disabledJson.result, 'pass');
     assert.equal(disabledJson.timeoutLayer, null);
     assert.match(disabled.stderr, /done_prepare progress: running DONE-required validation/, 'disabled reuse must execute DONE-required commands');
@@ -630,7 +640,7 @@ function assertRealValidateDoneRequiredProgressJsonSafe(): void {
       LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS: '3000',
       LATTICE_VALIDATE_HEARTBEAT_MS: '20',
     });
-    assert.equal(result.status, 1, `blocked real-validate done_prepare should return JSON and exit nonzero:\n${result.stderr}\n${result.stdout}`);
+    assert.equal(result.status, 0, `converged real-validate done_prepare should return PASS JSON:\n${result.stderr}\n${result.stdout}`);
     assertProgressLabels(result.stderr, REQUIRED_REAL_VALIDATE_PROGRESS_LABELS);
     assert.ok(
       result.stderr.includes('done_prepare heartbeat: running DONE-required validation elapsedMs='),
@@ -651,11 +661,31 @@ function assertRealValidateDoneRequiredProgressJsonSafe(): void {
       storyId?: string;
       status?: string;
       transcript?: string;
+      disposition?: string;
+      result?: string;
+      existingEvidenceBasis?: string;
+      convergence?: {
+        metadataRollbacks?: number;
+        reviewerReattestations?: number;
+        humanConfirmations?: number;
+        unchangedSuiteExecutions?: number;
+        successfulCloseout?: number;
+      };
     };
     assert.equal(parsed.schemaVersion, 'lattice.done_prepare.v1');
     assert.equal(parsed.storyId, storyId);
-    assert.equal(parsed.status, 'blocked');
-    assert.match(parsed.transcript ?? '', /^blockedAt: cleanTree$/m);
+    assert.equal(parsed.status, 'pass');
+    assert.equal(parsed.disposition, 'executed');
+    assert.equal(parsed.result, 'pass');
+    assert.equal(parsed.existingEvidenceBasis, 'missing');
+    assert.deepEqual(parsed.convergence, {
+      metadataRollbacks: 0,
+      reviewerReattestations: 0,
+      humanConfirmations: 0,
+      unchangedSuiteExecutions: 0,
+      successfulCloseout: 1,
+    });
+    assert.match(parsed.transcript ?? '', /^DONE prepare: PASS$/m);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
