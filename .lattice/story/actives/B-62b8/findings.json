@@ -29,6 +29,21 @@
       "_hash": "72253f0b6494887b27d208d66203e6f0c989baefaaa43d99795b28cf963ca3b9",
       "signatureTag": "adversarial|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-62b8:F-003",
+      "desc": "packages/main/src/core/owner-session-adapters.ts:26-31,63-68 and 130-138 never consume the real Codex task signal CODEX_THREAD_ID and there is no direct Codex wrapper/adapter injection path for LATTICE_OWNER_SESSION_ADAPTER_TASK plus AGENT. In this live Codex task, the environment has CODEX_THREAD_ID but none of CODEX_SESSION_ID/OPENAI_SESSION_ID/TERM_SESSION_ID/LATTICE_AGENT; `env -u LATTICE_SESSION_ID node bin/lattice.js session_brief` therefore reports `[derived-ppid]`. WHY: the shipped path still requires the same manual LATTICE_SESSION_ID workaround and does not solve cross-shell self-lock for the ordinary Codex owner task, despite CHK-001/002 claiming supported adapter stability. Add a validated direct-host bridge that maps the actual durable Codex task signal plus a policy-distinct main/agent role into the canonical composite, with child-shell propagation and a real CLI regression proving two PPIDs keep one id while another task/role differs.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-17T23:30:49.144Z",
+      "reviewRound": "2026-07-17T23:28:37.387Z",
+      "reviewRunId": "B-62b8:RR-001",
+      "_hash": "c2e469810830cb398a196cded8c2ede05006912976be2df0ff51c47d21effd3c",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
