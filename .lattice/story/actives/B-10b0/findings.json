@@ -122,7 +122,7 @@
       "desc": "packages/main/src/handlers/validate-concept.ts:120-155 — HIGH: scanDeletedSymbols keys removed/added declarations only by kind+name across the entire multi-file diff. A retained declaration edit in one file therefore cancels a true deletion of the same-named export in another file, causing the concept preflight to miss the deletion and potentially skip lattice-review-concept. Repro after build: feed a diff that deletes export function shared from src/a.ts while changing export function shared in src/b.ts; scanDeletedSymbols returns [] instead of [shared]. Track current diff file (and Python declaration scope where applicable) in the declaration identity, while keeping same-file signature/body edits paired; add the cross-file duplicate-name regression.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-17T14:56:51.092Z",
@@ -134,7 +134,11 @@
         "packages/main/src/tasks/concept-gate-scope-smoke.ts"
       ],
       "signatureTag": "concept-deletion-cross-file-alias",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by f9948df787 file/scope/signature/multiplicity identity; cross-file same-name deletion regression passes.",
+      "resolvedAt": "2026-07-17T16:40:18.740Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-10b0:F-007",
