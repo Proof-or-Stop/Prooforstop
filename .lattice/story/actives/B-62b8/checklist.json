@@ -108,8 +108,40 @@
         ]
       },
       "verificationIntent": {
-        "happy": [],
-        "edge": [],
+        "happy": [
+          {
+            "id": "CHK-002:happy:supported-adapter-propagation",
+            "desc": "For Codex CLI, Claude Code CLI, and Antigravity/agy, start a task with a valid task identity and agent/role identity, enter a child shell, and run host-neutral session_brief; parent and child must resolve the same stable owner identifier, sessionSource=host-adapter, and the correct provider without displaying raw host tokens. WHY: the supported adapter path must deliver stable identity and safe diagnostics in normal use.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:happy:explicit-override-propagation",
+            "desc": "Set a deliberate LATTICE_SESSION_ID override, launch supported-provider child shells, and run an owner-gated command plus session_brief; every child must retain the exact deterministic owner identity and report sessionSource=explicit-env while preserving normal foreign-owner enforcement. WHY: the highest-priority documented override must remain reliable across adapter boundaries.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:edge:agy-provider-alias",
+            "desc": "Run equivalent Antigravity launches using provider labels antigravity and agy; each launch must propagate task plus role identity into child shells, report the provider spelling actually selected (or its documented canonical normalization), and never fall through to derived-ppid merely because the alias was used. WHY: agy is a supported alias, not a degraded or legacy-only path.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:edge:generated-token-fallback",
+            "desc": "With no explicit override and no valid host-adapter identity, force the bounded generated-token fallback, cross a child-shell boundary, and rerun session_brief; identity must remain stable only within the defined task/agent lifetime, report sessionSource=generated-token, use registered storage/cleanup semantics, and expose no stored raw token. WHY: temporary fallback must be usable without becoming repository-global or silently permanent.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:edge:process-parent-churn",
+            "desc": "Keep valid adapter task and role inputs fixed while replacing the parent process and changing PPID between sequential shells; the resolved identity and host-adapter source/provider must remain unchanged and no degraded warning may appear. WHY: PPID churn is the observed boundary condition that must not override a valid stable adapter identity.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
         "adversarial": [
           {
             "id": "CHK-002:adversarial:host-child-propagation",
