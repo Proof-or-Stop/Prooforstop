@@ -18,6 +18,25 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-10b0:F-002",
+      "desc": "packages/main/src/handlers/done-prepare.ts:1442-1468 — The new convergence counters do not measure the closeout history they claim to prove. metadataRollbacks and humanConfirmations only regex the current invocation step text; reviewerReattestations counts current blocking runbook rows (which is necessarily zero on PASS), not new reviewer runs/passes; successfulCloseout is only the final snapshot. A story that already rolled back, received a human story_resume, or re-attested reviewers before this invocation still renders all zero. The smoke test constructs the same final snapshot, so it cannot catch this. Capture a closeout baseline and derive counts from persisted signed process events/review-run/pass identities and validation receipts over that interval, including initial/final phase/round/receipt identity, then assert those measured counts before PASS.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-17T14:55:00.708Z",
+      "reviewRound": "2026-07-17T14:39:47.580Z",
+      "reviewRunId": "B-10b0:RR-002",
+      "_hash": "be514a58c5be51b0a2f15466e377080cd68b1f49f6b13a8d81cd10ad3f6f9118",
+      "files": [
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
