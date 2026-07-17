@@ -255,7 +255,7 @@
         "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
         "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-17T14:01:49.434Z",
       "endTime": "2026-07-17T14:33:51.633Z",
       "verificationIntent": {
@@ -761,6 +761,15 @@
       "from": "in_progress",
       "to": "pending",
       "reason": "F-001 confirmed: safe no-re-review outcome requires isolated authority plus consumer migration beyond current scope; preserve open while independent findings are fixed."
+    },
+    {
+      "timestamp": "2026-07-17T15:00:59.838Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Fix F-002/F-005/F-007 using durable bounded event and receipt deltas."
     }
   ]
 }
