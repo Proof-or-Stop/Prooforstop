@@ -1,0 +1,27 @@
+{
+  "passes": [
+    {
+      "id": "B-3aec:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Targeted third-round docs review of commit 2075608ac0: F-012 mode mismatch claims now match renderer, story-level and item-scoped dispatch, and read-binding diagnostics; shadow records, warn advises, enforce blocks. No blocker found in the scoped delta.",
+      "createdAt": "2026-07-17T10:05:48.395Z",
+      "reviewRound": "2026-07-17T10:04:28.478Z",
+      "reviewRunId": "B-3aec:RR-010",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b99b4af72fca5d29c7bf3a69aa0ff7109dfeff1864dafdc21c429a35cc331983"
+    }
+  ]
+}
