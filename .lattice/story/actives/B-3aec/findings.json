@@ -281,6 +281,21 @@
       "_hash": "e70fede431c021d5f66a816f54362fc9f461ad30c9832ce852aa67b654d72dd4",
       "signatureTag": "missing|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3aec:F-016",
+      "desc": "packages/main/src/tasks/candidate-spec-routing-smoke.ts:160-172 now explicitly asserts that ordinary structured typed risks such as Security/Credentials:auth and Production/Emergency:production produce no typed-risk protected candidate. packages/main/src/handlers/candidate-spec-routing.ts:240-252 only creates typed-risk candidates when matched text already looks like a path. That codifies rather than closes F-009 and contradicts CHK-002 happy:1/adversarial:1, which require typed risk-signal sources among protected direct candidates. The reviewer-evidence checks also test currentReviewerFullyReadPaths with handcrafted valid/invalid arrays, not real signed/current versus stale collector integration through currentStoryRoutingInput. Either revise the accepted intent explicitly or provide authoritative risk-to-source mapping and handler-level signed evidence tests.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-17T09:41:51.112Z",
+      "reviewRound": "2026-07-17T09:39:13.057Z",
+      "reviewRunId": "B-3aec:RR-005",
+      "_hash": "baea413b3c563ec57882635010cd4bc569b37846c8bd5dc76cd5d8c5fe8f5782",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
