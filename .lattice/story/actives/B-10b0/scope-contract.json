@@ -102,8 +102,24 @@
       "phase": "DEV",
       "headHash": "9392d5aa4ed5b8ec4db968085990c981c06d0e94",
       "materialHash": "0f91d4304ca1f9840b3ad871a6076fdbbc110db9ee28d2f7b85c597589b7dd2d"
+    },
+    {
+      "actor": "lattice-implementer",
+      "reason": "The canonical validation reuse behavior requires its focused integration regression in the existing validation reuse smoke.",
+      "timestamp": "2026-07-17T21:36:36.640Z",
+      "paths": [
+        "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "85656f434d705c756bef0df7adce5531375a298a",
+      "materialHash": "71a4d2e53b778547b98e30bf8c79573e39f92fde3722d00e74970cf91fff88aa"
     }
   ],
   "createdAt": "2026-07-17T13:21:14.674Z",
-  "updatedAt": "2026-07-17T20:39:15.769Z"
+  "updatedAt": "2026-07-17T21:36:36.640Z"
 }
