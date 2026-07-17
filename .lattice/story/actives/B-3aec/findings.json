@@ -24,7 +24,7 @@
       "desc": "packages/main/src/handlers/candidate-spec-routing.ts:183-192 [MEDIUM] Post-probe readiness drift is not classified as promised. If a previously ready launcher reaches the real run and then prints auth/interactive failure to stderr and exits nonzero, defaultHostRunRunner retains no stderr and productionExecutor returns only generic host unavailable exit 1; only silent startup timeout gets a distinct reason. CHK-001 edge:2 explicitly requires a distinct stale-readiness/auth/interactive/no-output diagnostic. Preserve bounded failure diagnostics or map host-run failure evidence, and test injected post-admission auth/interactive exits without real hosts.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-17T09:19:59.444Z",
@@ -32,7 +32,11 @@
       "reviewRunId": "B-3aec:RR-001",
       "_hash": "b7815228632c7939df00cff2125ea1610b5e3d68cb817f7948edba06f2069a38",
       "signatureTag": "edge|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Post-readiness failures now retain bounded stderr and emit stable auth, interactive, no-output, or spawn diagnostics; host-run smoke passes.",
+      "resolvedAt": "2026-07-17T09:39:27.832Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3aec:F-003",
