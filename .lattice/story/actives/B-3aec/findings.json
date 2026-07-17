@@ -221,6 +221,21 @@
       "resolvedAt": "2026-07-17T09:39:40.137Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3aec:F-012",
+      "desc": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md:276-279 — HIGH: the revised implemented-contract still overstates mode consistency. It says renderer, reviewer dispatch, and read-binding consumers detect mode disagreement while only enforce hard-rejects, but packages/main/src/handlers/candidate-spec-routing.ts:104 throws on every configured/artifact mode mismatch including shadow and warn; packages/main/src/handlers/story-dispatch.ts:549-555 retains an unconditional STOP for item-scoped reviewer dispatch whenever escalation is unresolved, without consulting routing mode; and packages/main/src/core/candidate-spec-routing.ts:792-801 returns immediately for shadow/warn, so the read-binding consumer does not detect disagreement there at all. This leaves the documented shadow-records/warn-advises behavior false and can still stop bounded review outside enforce. Route item dispatch through the shared mode-aware guidance and make mismatch disposition match the documented contract (or narrow the document truthfully), with focused tests for all three modes.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-17T09:41:03.090Z",
+      "reviewRound": "2026-07-17T09:39:13.057Z",
+      "reviewRunId": "B-3aec:RR-006",
+      "_hash": "1d45ece6e069fb669e08bcc771fa8fa79d89ad101eb1a9f7f2d97bd137a4684e",
+      "signatureTag": "adversarial|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
