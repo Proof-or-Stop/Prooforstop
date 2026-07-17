@@ -51,6 +51,28 @@
         "scanEscalationReason": null
       },
       "_hash": "92a41c9d718fc8b9c2935eb8aecae78e11cd19e0639d55c8a17948f5bc383a1f"
+    },
+    {
+      "id": "B-3aec:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Targeted third-round concept review of commit 2075608ac0 found F-012/F-013/F-016/F-017 closed: DF filtering precedes group budget, ambiguity/cutoff uses ordinary candidates, signed mode disposition is consistent across renderer and story/item dispatch, and structured risk plus collector-valid reviewer evidence preserve authority without promoting stale or triage-only paths. Focused candidate routing smoke passed; no new distinct blocker found.",
+      "createdAt": "2026-07-17T10:06:51.400Z",
+      "reviewRound": "2026-07-17T10:04:28.478Z",
+      "reviewRunId": "B-3aec:RR-011",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "11665e03f58bb84ae5235058f0b0934c34c5c8883a5ee80368dd829b5a850bda"
     }
   ]
 }
