@@ -315,6 +315,21 @@
       "resolvedAt": "2026-07-17T20:48:42.885Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-10b0:F-014",
+      "desc": "packages/main/src/core/done-prepare-generated-metadata.ts:619-649 [HIGH] F-013 exact binding now rejects the forged-valid event at manifest classification, but the commit path has a TOCTOU gap: it rebuilds the manifest before git add, then validates only staged path names and commits with a pathspec, never revalidating the staged/committed bytes. A clean temporary-repo probe intercepted the git add call, appended a mismatched-story validation_terminal after the commit-entry manifest recheck, and commitDonePrepareGeneratedMetadata returned ok:true with forgedCommitted:true. The 19 classifier negatives and official smoke pass because none mutates content between recheck and staging. Stage the validated bytes, re-read each index blob and rerun the exact append/binding predicate (or compare to captured validated digests), ensure the index contains only safe paths, then commit the verified index without a pathspec so later worktree mutations cannot replace verified bytes; add mutation seams both immediately before add and after add/before commit.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-17T20:51:47.422Z",
+      "reviewRound": "2026-07-17T20:47:46.221Z",
+      "reviewRunId": "B-10b0:RR-026",
+      "_hash": "c662ab3a97656f4c80d5aa15c31411c4936ee0febd80ef7e84254cff50d8b20e",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
