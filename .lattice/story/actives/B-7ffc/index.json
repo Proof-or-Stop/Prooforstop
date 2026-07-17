@@ -4,7 +4,7 @@
   "title": "Promote the reviewed role prompt modularization plan into the canonical decisions corpus",
   "description": "Move the reviewed execution plan from temporary storage into the repository decision source of truth, preserve its evidence-calibrated content, and make it discoverable from requirements navigation before implementation milestones begin.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "medium",
   "source": "User request on 2026-07-18",
   "keywords": [
@@ -15,7 +15,7 @@
   ],
   "createdAt": "2026-07-17T23:07:45.050Z",
   "startedAt": "2026-07-17T23:07:45.050Z",
-  "endedAt": null,
+  "endedAt": "2026-07-17T23:40:05.787Z",
   "events": [
     {
       "phase": "INIT",
@@ -34,11 +34,52 @@
       "user": "Harmonygo",
       "sessionId": "sess-61f03d29ed66512b",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-17T23:09:58.619Z",
+      "branch": "story/B-7ffc",
+      "user": "Harmonygo",
+      "sessionId": "sess-2a40d3cb626970d2",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-17T23:17:53.244Z",
+      "branch": "story/B-7ffc",
+      "user": "Harmonygo",
+      "sessionId": "sess-2a40d3cb626970d2",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-17T23:21:14.128Z",
+      "branch": "story/B-7ffc",
+      "user": "Harmonygo",
+      "sessionId": "sess-2a40d3cb626970d2",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-17T23:30:16.366Z",
+      "branch": "story/B-7ffc",
+      "user": "Harmonygo",
+      "sessionId": "sess-2a40d3cb626970d2",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-17T23:40:05.787Z",
+      "branch": "story/B-7ffc",
+      "user": "Harmonygo",
+      "sessionId": "sess-2a40d3cb626970d2",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-7ffc",
-    "branch": "story/B-7ffc",
-    "createdAt": "2026-07-17T23:09:03.312Z"
-  }
+  "currentReviewRound": "2026-07-17T23:21:14.128Z"
 }
