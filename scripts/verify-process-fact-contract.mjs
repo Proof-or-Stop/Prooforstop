@@ -5364,6 +5364,8 @@ const inventory = [
         patterns: [
           'persistStoryValidationEvidence',
           'ctx.store.writeTestEvidence',
+          "disposition: 'reused'",
+          'canonical-pass-persistence-failed',
           "autoCommitStoryMetadata(ctx.root, storyId, 'validate'",
           "closeoutArtifactPaths: ['test-evidence.json']",
         ],
@@ -5685,6 +5687,8 @@ const inventory = [
         patterns: [
           'persistStoryValidationEvidence',
           'ctx.store.writeTestEvidence',
+          "disposition: 'reused'",
+          'canonical-pass-persistence-failed',
           "autoCommitStoryMetadata(ctx.root, storyId, 'validate'",
           "closeoutArtifactPaths: ['test-evidence.json']",
         ],

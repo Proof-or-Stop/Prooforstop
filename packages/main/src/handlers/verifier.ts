@@ -26,7 +26,7 @@
 
 import { execSync, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { HandlerContext } from './context.js';
@@ -660,7 +660,65 @@ function reusedStoryValidationResult(args: {
       identityDigest: args.identity.digest,
     },
   };
+  const priorEvidence = args.ctx.store.readTestEvidence(args.storyId);
+  const priorCommandExecution = priorEvidence?.commandExecution;
+  if (!priorCommandExecution) {
+    return externalResult({
+      provider: 'lattice-verifier-reuse-persistence',
+      status: 'fail',
+      failureKind: 'infra_failure',
+      summary: 'Validation reuse refused because canonical command evidence disappeared before persistence',
+      details: ['canonical-pass-persistence-failed: prior commandExecution is missing'],
+      warnings: [],
+      commands: [],
+    });
+  }
+  const headHash = currentHead(args.gitCwd);
+  const materialHash = currentMaterialHash(args.gitCwd, 'HEAD', args.ctx.root);
+  const storyFilesHash = currentStoryFilesHash(args.gitCwd, 'HEAD', args.ctx.root);
+  const rollbackFiles = [
+    'test-evidence.json',
+    'process-events.jsonl',
+    'closeout-write-receipts.jsonl',
+  ].map((name) => {
+    const path = args.ctx.store.storyFilePath(args.storyId, name);
+    return { path, bytes: existsSync(path) ? readFileSync(path) : null };
+  });
   recordValidationTerminal(args.ctx, args.storyId, args.gitCwd, reused, args.identity);
+  args.ctx.store.writeTestEvidence(args.storyId, {
+    command: `lattice validate --story=${args.storyId} --json`,
+    output: JSON.stringify(reused),
+    result: 'PASS',
+    timestamp: new Date().toISOString(),
+    ...(headHash ? { headHash } : {}),
+    ...(materialHash ? { materialHash } : {}),
+    ...(storyFilesHash ? { storyFilesHash } : {}),
+    verificationCoverage: args.snapshot.coverage,
+    commandExecution: priorCommandExecution,
+    disposition: 'reused',
+    routineValidationIdentity: args.identity,
+  });
+  const commitResult = autoCommitStoryMetadata(args.ctx.root, args.storyId, 'validate', {
+    closeoutArtifactPaths: ['test-evidence.json'],
+  });
+  if (!commitResult.includes('✓ lattice metadata auto-committed:')) {
+    for (const prior of rollbackFiles) {
+      if (prior.bytes === null) rmSync(prior.path, { force: true });
+      else writeFileSync(prior.path, prior.bytes);
+    }
+    return externalResult({
+      provider: 'lattice-verifier-reuse-persistence',
+      status: 'fail',
+      failureKind: 'infra_failure',
+      summary: 'Validation reuse could not persist its canonical PASS receipt',
+      details: [
+        'canonical-pass-persistence-failed',
+        commitResult.trim() || 'metadata writer did not create a commit',
+      ],
+      warnings: [],
+      commands: [],
+    });
+  }
   return reused;
 }
 

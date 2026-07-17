@@ -895,8 +895,8 @@ export interface TestEvidenceData {
   routineValidationIdentity?: RoutineValidationIdentity;
   /** Project command truth, intentionally independent from overall verification coverage. */
   commandExecution?: RoutineValidationCommandExecution;
-  /** The evidence-writing call always executes commands; reuse never rewrites this artifact. */
-  disposition?: 'executed';
+  /** Whether this canonical receipt came from command execution or a validated zero-command reuse. */
+  disposition?: 'executed' | 'reused';
 }
 
 export interface VerificationCoverageEntry {

@@ -2,7 +2,7 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -43,6 +43,8 @@ function assertHandlerExecutedThenReused(
   sourceKind: 'configured' | 'fallback' | 'validate-file',
   commandCount = 1,
   semanticResult?: Record<string, unknown>,
+  coverageOnlyRecovery = false,
+  rejectPersistence = false,
 ): void {
   const root = mkdtempSync(join(tmpdir(), `lattice-validation-reuse-${sourceKind}-`));
   const counterPath = join(tmpdir(), `lattice-validation-reuse-counter-${process.pid}-${Date.now()}.log`);
@@ -182,11 +184,40 @@ function assertHandlerExecutedThenReused(
       assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, commandCount * 2, 'semantic validator non-PASS must never reuse');
       return;
     }
+    if (coverageOnlyRecovery) {
+      parsedEvidence.result = 'FAIL';
+      parsedEvidence.verificationCoverage = {
+        total: 1,
+        required: 1,
+        covered: 0,
+        missingRequired: 1,
+        entries: [],
+      };
+      store.writeTestEvidence(storyId, parsedEvidence);
+      git(root, ['add', '.lattice']);
+      git(root, ['commit', '-m', 'record coverage-only validation failure before evidence refresh']);
+    }
     const headBefore = git(root, ['rev-parse', 'HEAD']);
     const statusBefore = git(root, ['status', '--porcelain=v1', '--untracked-files=all']);
+    if (rejectPersistence) {
+      const hook = join(root, '.git', 'hooks', 'pre-commit');
+      writeFileSync(hook, '#!/bin/sh\nexit 1\n', 'utf8');
+      chmodSync(hook, 0o755);
+    }
 
     const second = runWith(wrapperTransport);
     assert.equal(second.status, 0, `${second.stdout}\n${second.stderr}`);
+    if (rejectPersistence) {
+      assert.match(`${second.stdout}\n${second.stderr}`, /"status":"fail"/);
+      assert.match(`${second.stdout}\n${second.stderr}`, /canonical-pass-persistence-failed/);
+      assert.doesNotMatch(`${second.stdout}\n${second.stderr}`, /"disposition":"reused"/);
+      assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, commandCount, 'persistence failure must not rerun project commands');
+      assert.equal(git(root, ['rev-parse', 'HEAD']), headBefore, 'failed canonical writer must not move HEAD');
+      const committedEvidence = JSON.parse(git(root, ['show', `HEAD:.lattice/story/actives/${storyId}/test-evidence.json`])) as TestEvidenceData;
+      assert.equal(committedEvidence.result, coverageOnlyRecovery ? 'FAIL' : 'PASS', 'failed writer must not publish a new canonical PASS commit');
+      assert.equal(store.readTestEvidence(storyId)?.result, coverageOnlyRecovery ? 'FAIL' : 'PASS', 'failed writer must restore the prior canonical working-tree evidence');
+      return;
+    }
     assert.match(`${second.stdout}\n${second.stderr}`, /"disposition":"reused"/);
     assert.match(`${second.stdout}\n${second.stderr}`, /"commandExecutions":0/);
     assert.match(`${second.stdout}\n${second.stderr}`, /trusted-story-metadata-descendant/);
@@ -209,8 +240,13 @@ function assertHandlerExecutedThenReused(
       'successful reuse must not emit refusal diagnostics',
     );
     assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, commandCount, 'reuse must invoke zero project commands');
-    assert.equal(readFileSync(evidencePath, 'utf8'), evidenceBefore, 'real reused handler path must not rewrite evidence');
-    assert.equal(git(root, ['rev-parse', 'HEAD']), headBefore, 'real reused handler path must not auto-commit or move HEAD');
+    const reusedEvidence = JSON.parse(readFileSync(evidencePath, 'utf8')) as TestEvidenceData;
+    assert.equal(reusedEvidence.result, 'PASS', 'real reused handler path must persist canonical PASS evidence');
+    assert.equal(reusedEvidence.disposition, 'reused', 'canonical PASS must identify zero-command reuse');
+    assert.equal(reusedEvidence.verificationCoverage?.missingRequired, 0, 'canonical PASS must bind refreshed complete coverage');
+    assert.equal(reusedEvidence.commandExecution?.status, 'PASS', 'canonical PASS must retain prior command execution proof');
+    assert.notEqual(readFileSync(evidencePath, 'utf8'), evidenceBefore, 'real reused handler path must refresh canonical evidence');
+    assert.notEqual(git(root, ['rev-parse', 'HEAD']), headBefore, 'real reused handler path must commit canonical PASS');
     const statusAfter = git(root, ['status', '--porcelain=v1', '--untracked-files=all']);
     assert.deepEqual(
       statusAfter.split('\n').filter(Boolean).filter((line) => !line.includes('/owner-lease.json')),
@@ -727,9 +763,10 @@ function main(): void {
       { provider: 'validate-file-smoke', status: 'pass', allPass: false },
       { provider: 'validate-file-smoke', status: 'pass', allPass: true, allPassed: false },
     ]) assertHandlerExecutedThenReused('validate-file', 1, semanticResult);
-    assertHandlerExecutedThenReused('configured', 45);
+    assertHandlerExecutedThenReused('configured', 45, undefined, true);
+    assertHandlerExecutedThenReused('configured', 1, undefined, true, true);
 
-    console.log('validation-evidence-reuse-smoke PASS (real executed→metadata reuse, 3 sources, B-19ca 45-command reuse, fail-closed matrix, lineage, no-write, secret absence)');
+    console.log('validation-evidence-reuse-smoke PASS (real executed→canonical metadata reuse, coverage-only recovery, writer failure fail-closed, 3 sources, B-19ca 45-command reuse, lineage, secret absence)');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
