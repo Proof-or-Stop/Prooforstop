@@ -9,7 +9,7 @@
         "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "in_progress",
       "startTime": "2026-07-17T13:21:15.635Z",
       "endTime": "2026-07-17T14:01:32.077Z",
       "verificationIntent": {
@@ -786,6 +786,16 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Fix F-003/F-004/F-006 with declaration identity including file/scope/signature/multiplicity."
+    },
+    {
+      "timestamp": "2026-07-17T15:58:21.525Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "User approved direct expansion; implement the audited local-assurance boundary, remove misleading pseudo-authority helpers, and mechanically preserve independent artifact-specific gate validation.",
+      "agent": "lattice-implementer"
     }
   ]
 }
