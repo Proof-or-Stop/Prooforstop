@@ -123,7 +123,7 @@
       "desc": "packages/main/src/core/candidate-spec-routing.ts:552-555,665-670 — HIGH: the new typed protected-source contract is not actually fail-closed. Any explicit path/registry/reviewer source absent from the requirements-only corpus is silently skipped, and every remaining protected source is mixed into ordinary ranking then truncated by ranked.slice(0, candidateBudget). Thus a changed source path such as packages/main/src/core/process-fact-registry.ts is discarded outright, while nine configured relatedDocs or protected sources silently lose at least one despite the acceptance promise that exact paths and all relatedDocs remain candidates. Protected authorities need explicit existence/normalization handling plus a deterministic overflow/escalation rule, and tests must exceed the budget and include a non-requirements exact/registry path.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-17T09:20:17.480Z",
@@ -136,7 +136,11 @@
         "packages/main/src/tasks/candidate-spec-routing-smoke.ts"
       ],
       "signatureTag": "protected-candidate-silent-drop",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Existing repo-relative mandatory sources outside the requirements corpus are hashed and retained; missing or unsafe sources produce typed diagnostics; protected candidates are not ordinary-budget sliced.",
+      "resolvedAt": "2026-07-17T09:39:34.521Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3aec:F-008",
