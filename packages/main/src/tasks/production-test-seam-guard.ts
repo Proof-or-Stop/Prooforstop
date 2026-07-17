@@ -161,51 +161,99 @@ function collectSanitizerFunctions(sourceFile: ts.SourceFile): Map<string, reado
   return sanitizers;
 }
 
-function functionParameters(sourceFile: ts.SourceFile): Map<string, readonly ts.ParameterDeclaration[]> {
-  const functions = new Map<string, readonly ts.ParameterDeclaration[]>();
-  const record = (name: string | undefined, parameters: ts.NodeArray<ts.ParameterDeclaration>): void => {
-    if (!name) return;
-    functions.set(name, [...parameters]);
-  };
-  const visit = (node: ts.Node): void => {
-    if (ts.isFunctionDeclaration(node)) record(node.name?.text, node.parameters);
-    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)
-      && node.initializer && (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer))) {
-      record(node.name.text, node.initializer.parameters);
-    }
-    if (ts.isMethodDeclaration(node)) record(staticPropertyName(node.name), node.parameters);
-    ts.forEachChild(node, visit);
-  };
-  visit(sourceFile);
-  return functions;
+interface CallableCandidate {
+  node: ts.FunctionLikeDeclaration;
+  parameters: readonly ts.ParameterDeclaration[];
+  returns: readonly ts.Expression[];
 }
 
-function functionReturns(sourceFile: ts.SourceFile): Map<string, ts.Expression[]> {
-  const functions = new Map<string, ts.Expression[]>();
-  const record = (name: string | undefined, body: ts.ConciseBody | undefined): void => {
-    if (!name || !body) return;
-    const values: ts.Expression[] = [];
-    if (!ts.isBlock(body)) values.push(body);
-    else {
-      const visit = (node: ts.Node): void => {
-        if (ts.isFunctionLike(node) && node !== body.parent) return;
-        if (ts.isReturnStatement(node) && node.expression) values.push(node.expression);
-        ts.forEachChild(node, visit);
-      };
-      ts.forEachChild(body, visit);
+interface CallableIndex {
+  byName: Map<string, CallableCandidate[]>;
+  byQualifiedName: Map<string, CallableCandidate[]>;
+  constructors: Map<string, CallableCandidate[]>;
+  aliases: Map<string, ts.Expression>;
+}
+
+function callableReturns(body: ts.ConciseBody | undefined): ts.Expression[] {
+  if (!body) return [];
+  if (!ts.isBlock(body)) return [body];
+  const values: ts.Expression[] = [];
+  const visit = (node: ts.Node): void => {
+    if (ts.isFunctionLike(node)) return;
+    if (ts.isReturnStatement(node) && node.expression) values.push(node.expression);
+    ts.forEachChild(node, visit);
+  };
+  ts.forEachChild(body, visit);
+  return values;
+}
+
+function callableCandidate(node: ts.FunctionLikeDeclaration): CallableCandidate {
+  const body = 'body' in node ? node.body as ts.ConciseBody | undefined : undefined;
+  return { node, parameters: [...node.parameters], returns: callableReturns(body) };
+}
+
+function collectCallableIndex(sourceFile: ts.SourceFile): CallableIndex {
+  const byName = new Map<string, CallableCandidate[]>();
+  const byQualifiedName = new Map<string, CallableCandidate[]>();
+  const constructors = new Map<string, CallableCandidate[]>();
+  const aliases = new Map<string, ts.Expression>();
+  const seen = new Set<ts.Node>();
+  const append = (map: Map<string, CallableCandidate[]>, key: string | undefined, candidate: CallableCandidate): void => {
+    if (!key) return;
+    const values = map.get(key) ?? [];
+    if (!values.some(value => value.node === candidate.node)) values.push(candidate);
+    map.set(key, values);
+  };
+  const objectReceiver = (node: ts.Node): string | undefined => {
+    const object = ts.isMethodDeclaration(node)
+      ? node.parent
+      : ts.isPropertyAssignment(node) ? node.parent : undefined;
+    if (!object || !ts.isObjectLiteralExpression(object)) return undefined;
+    const declaration = object.parent;
+    return ts.isVariableDeclaration(declaration) && declaration.initializer === object && ts.isIdentifier(declaration.name)
+      ? declaration.name.text
+      : undefined;
+  };
+  const className = (node: ts.Node): string | undefined => {
+    const parent = node.parent;
+    if (!ts.isClassDeclaration(parent) && !ts.isClassExpression(parent)) return undefined;
+    const declaration = parent.parent;
+    if (ts.isVariableDeclaration(declaration) && declaration.initializer === parent && ts.isIdentifier(declaration.name)) {
+      return declaration.name.text;
     }
-    functions.set(name, values);
+    return parent.name?.text;
+  };
+  const recordCallable = (node: ts.FunctionLikeDeclaration, name?: string, receiver?: string): CallableCandidate => {
+    const candidate = callableCandidate(node);
+    if (!seen.has(node)) seen.add(node);
+    append(byName, name, candidate);
+    append(byQualifiedName, receiver && name ? `${receiver}.${name}` : undefined, candidate);
+    return candidate;
   };
   const visit = (node: ts.Node): void => {
-    if (ts.isFunctionDeclaration(node)) record(node.name?.text, node.body);
-    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)
-      && node.initializer && (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer))) {
-      record(node.name.text, node.initializer.body);
+    if (ts.isFunctionDeclaration(node)) recordCallable(node, node.name?.text);
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer) {
+      if (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer)) {
+        recordCallable(node.initializer, node.name.text);
+      } else if (!ts.isClassExpression(node.initializer)) {
+        aliases.set(node.name.text, node.initializer);
+      }
+    }
+    if (ts.isMethodDeclaration(node)) {
+      const name = staticPropertyName(node.name);
+      recordCallable(node, name, objectReceiver(node) ?? className(node));
+    }
+    if (ts.isPropertyAssignment(node) && (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer))) {
+      const name = staticPropertyName(node.name);
+      recordCallable(node.initializer, name, objectReceiver(node));
+    }
+    if (ts.isConstructorDeclaration(node)) {
+      append(constructors, className(node), callableCandidate(node));
     }
     ts.forEachChild(node, visit);
   };
   visit(sourceFile);
-  return functions;
+  return { byName, byQualifiedName, constructors, aliases };
 }
 
 function collectSinkAliases(sourceFile: ts.SourceFile): Map<string, string> {
@@ -234,10 +282,84 @@ export function analyzeProductionTestSeams(sourceText: string, file = 'inline.ts
   const taint = new Map<string, Sources>();
   const envObjects = new Set<string>();
   const processObjects = new Set<string>(['process']);
+  const activeReturnCandidates = new Set<ts.Node>();
   const sanitizers = collectSanitizerFunctions(sourceFile);
-  const functions = functionParameters(sourceFile);
-  const returns = functionReturns(sourceFile);
+  const callables = collectCallableIndex(sourceFile);
+  const inlineCandidates = new WeakMap<ts.FunctionLikeDeclaration, CallableCandidate>();
   const sinkAliases = collectSinkAliases(sourceFile);
+
+  const candidateFor = (node: ts.FunctionLikeDeclaration): CallableCandidate => {
+    const existing = inlineCandidates.get(node);
+    if (existing) return existing;
+    const candidate = callableCandidate(node);
+    inlineCandidates.set(node, candidate);
+    return candidate;
+  };
+  const unwrapCallable = (expression: ts.Expression): ts.Expression => {
+    let current = expression;
+    while (ts.isParenthesizedExpression(current) || ts.isAsExpression(current)
+      || ts.isTypeAssertionExpression(current) || ts.isNonNullExpression(current)) current = current.expression;
+    return current;
+  };
+  const unionCandidates = (...groups: readonly CallableCandidate[][]): CallableCandidate[] => {
+    const seen = new Set<ts.Node>();
+    return groups.flat().filter(candidate => {
+      if (seen.has(candidate.node)) return false;
+      seen.add(candidate.node);
+      return true;
+    });
+  };
+  const receiverName = (expression: ts.Expression, seen = new Set<string>()): string | undefined => {
+    const value = unwrapCallable(expression);
+    if (!ts.isIdentifier(value)) return undefined;
+    if (seen.has(value.text)) return value.text;
+    seen.add(value.text);
+    const alias = callables.aliases.get(value.text);
+    return alias && ts.isIdentifier(unwrapCallable(alias)) ? receiverName(alias, seen) ?? value.text : value.text;
+  };
+  const resolveCallableCandidates = (expression: ts.Expression, seen = new Set<string>()): CallableCandidate[] => {
+    const value = unwrapCallable(expression);
+    if (ts.isArrowFunction(value) || ts.isFunctionExpression(value)) return [candidateFor(value)];
+    if (ts.isIdentifier(value)) {
+      if (seen.has(value.text)) return callables.byName.get(value.text) ?? [];
+      seen.add(value.text);
+      const alias = callables.aliases.get(value.text);
+      return unionCandidates(
+        callables.byName.get(value.text) ?? [],
+        alias ? resolveCallableCandidates(alias, seen) : [],
+      );
+    }
+    if (ts.isPropertyAccessExpression(value) || ts.isElementAccessExpression(value)) {
+      const name = propertyName(value);
+      if (!name) return [];
+      const receiver = receiverName(value.expression);
+      const exact = receiver ? callables.byQualifiedName.get(`${receiver}.${name}`) ?? [] : [];
+      return exact.length > 0 ? exact : callables.byName.get(name) ?? [];
+    }
+    return [];
+  };
+  const resolveConstructorCandidates = (expression: ts.Expression): CallableCandidate[] => {
+    const value = unwrapCallable(expression);
+    if (ts.isIdentifier(value)) return callables.constructors.get(value.text) ?? [];
+    if (ts.isClassExpression(value)) {
+      return value.members.filter(ts.isConstructorDeclaration).map(candidateFor);
+    }
+    return [];
+  };
+  const invocation = (node: ts.CallExpression): { candidates: CallableCandidate[]; args: readonly ts.Expression[] } => {
+    const expression = unwrapCallable(node.expression);
+    if ((ts.isPropertyAccessExpression(expression) || ts.isElementAccessExpression(expression)) && propertyName(expression) === 'call') {
+      return { candidates: resolveCallableCandidates(expression.expression), args: node.arguments.slice(1) };
+    }
+    if ((ts.isPropertyAccessExpression(expression) || ts.isElementAccessExpression(expression)) && propertyName(expression) === 'apply') {
+      const applied = node.arguments[1];
+      return {
+        candidates: resolveCallableCandidates(expression.expression),
+        args: applied && ts.isArrayLiteralExpression(applied) ? applied.elements.filter(ts.isExpression) : [],
+      };
+    }
+    return { candidates: resolveCallableCandidates(expression), args: node.arguments };
+  };
 
   const add = (name: string, sources: Sources): boolean => {
     if (sources.size === 0) return false;
@@ -293,9 +415,27 @@ export function analyzeProductionTestSeams(sourceText: string, file = 'inline.ts
       if (callee && sanitizers.has(callee)) {
         return union(...(sanitizers.get(callee) ?? []).map(index => expressionSources(expression.arguments[index])));
       }
+      const resolved = invocation(expression);
+      const returnSources: Sources[] = [];
+      for (const candidate of resolved.candidates) {
+        if (activeReturnCandidates.has(candidate.node)) continue;
+        activeReturnCandidates.add(candidate.node);
+        try {
+          returnSources.push(...candidate.returns.map(value => expressionSources(value)));
+        } finally {
+          activeReturnCandidates.delete(candidate.node);
+        }
+      }
       return union(
-        ...expression.arguments.map(argument => expressionSources(argument)),
-        ...(callee ? (returns.get(callee) ?? []).map(value => expressionSources(value)) : []),
+        ...resolved.args.map(argument => expressionSources(argument)),
+        ...returnSources,
+      );
+    }
+    if (ts.isNewExpression(expression)) {
+      const candidates = resolveConstructorCandidates(expression.expression);
+      return union(
+        ...(expression.arguments ?? []).map(argument => expressionSources(argument)),
+        ...candidates.flatMap(candidate => candidate.returns.map(value => expressionSources(value))),
       );
     }
     if (ts.isPropertyAccessExpression(expression) || ts.isElementAccessExpression(expression)) {
@@ -416,11 +556,19 @@ export function analyzeProductionTestSeams(sourceText: string, file = 'inline.ts
         changed ||= bindTarget(node.left, classifyBindingSource(node.right));
       }
       if (ts.isCallExpression(node)) {
-        const callee = ts.isIdentifier(node.expression) ? node.expression.text : propertyName(node.expression);
-        const params = callee ? functions.get(callee) : undefined;
-        if (params) {
-          params.forEach((parameter, index) => {
-            let source = classifyBindingSource(node.arguments[index]);
+        const resolved = invocation(node);
+        for (const candidate of resolved.candidates) {
+          candidate.parameters.forEach((parameter, index) => {
+            let source = classifyBindingSource(resolved.args[index]);
+            if (parameter.initializer) source = mergeBindingSources(source, classifyBindingSource(parameter.initializer));
+            changed ||= bindTarget(parameter.name, source);
+          });
+        }
+      }
+      if (ts.isNewExpression(node)) {
+        for (const candidate of resolveConstructorCandidates(node.expression)) {
+          candidate.parameters.forEach((parameter, index) => {
+            let source = classifyBindingSource(node.arguments?.[index]);
             if (parameter.initializer) source = mergeBindingSources(source, classifyBindingSource(parameter.initializer));
             changed ||= bindTarget(parameter.name, source);
           });
@@ -530,10 +678,32 @@ function selfTest(): void {
     assert.equal(issues[0]?.reason, PRODUCTION_TEST_SEAM_REASON);
   }
 
+  const callableContextCases: Array<[string, string]> = [
+    ['same-name receiver keeps unsafe candidate', `const unsafe = { run(target: string) { writeFileSync(target, 'x') } }; const safe = { run({ env }: typeof process) { return env.PATH } }; unsafe.run(process.env.TEST_FILE)`],
+    ['unknown receiver unions same-name candidates', `const unsafe = { run(target: string) { exec(target) } }; const safe = { run() { return '/fixed' } }; const receiver = Math.random() ? unsafe : safe; receiver.run(process.env.TEST_COMMAND)`],
+    ['arrow IIFE parameter', `(({ env }: typeof process) => exec(env.TEST_COMMAND))(process)`],
+    ['function IIFE parameter', `(function({ env }: typeof process) { writeFileSync(env.TEST_FILE, 'x') })(process)`],
+    ['named class constructor', `class Runner { constructor({ env }: typeof process) { exec(env.TEST_COMMAND) } } new Runner(process)`],
+    ['anonymous class constructor', `new (class { constructor({ env }: typeof process) { writeFileSync(env.TEST_FILE, 'x') } })(process)`],
+    ['named class expression constructor alias', `const Runner = class InternalRunner { constructor({ env }: typeof process) { exec(env.TEST_COMMAND) } }; new Runner(process)`],
+    ['method alias invocation', `const unsafe = { run(target: string) { exec(target) } }; const execute = unsafe.run; execute(process.env.TEST_COMMAND)`],
+    ['method Function.call invocation', `const unsafe = { run(target: string) { writeFileSync(target, 'x') } }; unsafe.run.call(null, process.env.TEST_FILE)`],
+    ['method Function.apply invocation', `const unsafe = { run(target: string) { exec(target) } }; unsafe.run.apply(null, [process.env.TEST_COMMAND])`],
+    ['receiver-qualified return taint', `const unsafe = { pick(value: string) { return value } }; const safe = { pick() { return '/fixed' } }; writeFileSync(unsafe.pick(process.env.TEST_FILE), 'x')`],
+  ];
+  for (const [name, source] of callableContextCases) {
+    const issues = analyzeProductionTestSeams(source, `${name}.ts`);
+    assert.ok(issues.length > 0, `${name} must preserve TEST/SMOKE source through all callable candidates`);
+    assert.equal(issues[0]?.reason, PRODUCTION_TEST_SEAM_REASON);
+  }
+
   const safeBindingControls: Array<[string, string]> = [
     ['non-process declaration source', `const input = { env: { TEST_FILE: '/fixed' } }; const { env } = input; writeFileSync(env.TEST_FILE, 'x')`],
     ['non-process function argument', `function run({ env }: { env: { TEST_COMMAND: string } }) { exec(env.TEST_COMMAND) } run({ env: { TEST_COMMAND: '/fixed' } })`],
     ['non-test process property', `const { argv: values } = process; writeFileSync('/fixed', String(values.length))`],
+    ['same-name known safe receiver', `const unsafe = { run(target: string) { writeFileSync(target, 'x') } }; const safe = { run(target: string) { writeFileSync('/fixed', target) } }; safe.run('fixed payload')`],
+    ['safe arrow IIFE input', `((target: string) => writeFileSync('/fixed', target))('fixed payload')`],
+    ['safe constructor input', `class Runner { constructor(target: string) { writeFileSync('/fixed', target) } } new Runner('fixed payload')`],
   ];
   for (const [name, source] of safeBindingControls) {
     assert.deepEqual(analyzeProductionTestSeams(source, `${name}.ts`), [], `${name} must remain outside TEST/SMOKE taint`);
