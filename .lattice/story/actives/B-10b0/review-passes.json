@@ -529,6 +529,31 @@
         "scanEscalationReason": null
       },
       "_hash": "abc581d8ad6f8154bc5d1b21744e931d70e857caab571ee0fc68b64f81c4c9de"
+    },
+    {
+      "id": "B-10b0:RP-023",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted final coverage review of 5ccc15d47e found no blocker. Combined focused tests exercise both done_prepare and canonical validation-reuse consumers of the shared immutable-tree/CAS primitive: successful exact commits and canonical PASS persistence, pre-existing managed-dirt refusal, pre-commit isolated-index expansion rejection, concurrent HEAD CAS refusal without rewind, exact managed worktree/index rollback, unrelated staged-blob preservation, temporary-index cleanup, hook order/arguments/environment, signing and message/identity/parent invariants, and post-commit only after successful CAS. Package build, done-prepare auto-closeout smoke, validation-evidence-reuse smoke, merge-rerun smoke, and process-fact contract all passed.",
+      "createdAt": "2026-07-17T22:06:52.426Z",
+      "reviewRound": "2026-07-17T22:03:21.496Z",
+      "reviewRunId": "B-10b0:RR-044",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3e4d126d2f946047d10e5e97863db4ddf01d64cb3c762649f6b13e9c7aa6fbb7"
     }
   ]
 }
