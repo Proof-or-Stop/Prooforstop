@@ -387,7 +387,7 @@
       "desc": "packages/main/src/core/host-run.ts:1129,1236-1280 — MEDIUM: the incremental diagnostic classifier uses one shared classificationTail for both stdout and stderr. Fragments from different streams are therefore concatenated into text the child never emitted on either stream: a deterministic injected child emitting stdout `auth` then stderr `entication required` returns failureKind=auth even though neither stream contains an auth diagnostic. Keep a separate bounded boundary tail per stream (while preserving one sticky typed result and precedence) and add cross-stream non-stitching tests.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-17T10:09:35.184Z",
@@ -399,7 +399,11 @@
         "packages/main/src/tasks/host-run-usage-smoke.ts"
       ],
       "signatureTag": "cross-stream-diagnostic-fragment-stitching",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Stdout and stderr now keep independent bounded incremental classifier tails; only typed outcomes merge by precedence, preventing cross-stream fragment synthesis while preserving same-stream split diagnostics.",
+      "resolvedAt": "2026-07-17T10:14:11.800Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
