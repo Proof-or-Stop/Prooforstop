@@ -1,0 +1,24 @@
+{
+  "passes": [
+    {
+      "id": "B-271e:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Targeted round-2 concept review of 969ffd1d98: explicit met/verified now require non-empty verifiedBy plus evidence; waived/unverified reject verification claims; the 640-row cross-product agrees across normalizer, CLI schema, handler pre-write rejection, and DONE predicate; sanitizer recognition structurally constrains return forms and preserves tainted fallback arguments, while raw-return numeric and enum decoys are rejected. Both focused task entrypoints passed; no conceptual blocker remains for F-001/F-005.",
+      "createdAt": "2026-07-17T00:21:16.603Z",
+      "reviewRound": "2026-07-17T00:18:09.305Z",
+      "reviewRunId": "B-271e:RR-006",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/delivery-promise-outcome.ts",
+          "packages/main/src/tasks/production-test-seam-guard.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "cd4e96a5ac04e53ea6823935446db4c0a1ccd1e67a425fc3d3fff2ed6e75de25"
+    }
+  ]
+}

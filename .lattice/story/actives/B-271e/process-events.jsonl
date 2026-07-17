@@ -27,3 +27,7 @@
 {"type":"plan_reviewed","round":3,"blockerCount":0,"issueCount":2,"timestamp":"2026-07-17T00:10:41.163Z"}
 {"type":"subagent_result","checklistId":"CHK-001","success":true,"timestamp":"2026-07-17T00:17:54.538Z"}
 {"type":"subagent_result","checklistId":"CHK-002","success":true,"timestamp":"2026-07-17T00:17:55.842Z"}
+{"type":"dispatch","storyId":"B-271e","phase":"REVIEW","source":"lattice dispatch","targetKind":"story-review","agentType":"lattice-review-concept","timestamp":"2026-07-17T00:19:18.183Z"}
+{"type":"dispatch","storyId":"B-271e","phase":"REVIEW","source":"lattice dispatch","targetKind":"story-review","agentType":"lattice-review-quality","timestamp":"2026-07-17T00:19:19.818Z"}
+{"type":"dispatch","storyId":"B-271e","phase":"REVIEW","source":"lattice dispatch","targetKind":"story-review","agentType":"lattice-review-test-coverage","timestamp":"2026-07-17T00:19:26.212Z"}
+{"type":"review_pass","storyId":"B-271e","command":"review_pass_set","role":"reviewer","agent":"lattice-review-concept","result":"pass","reviewPassId":"B-271e:RP-001","readManifest":{"filesReadFully":["packages/main/src/core/delivery-promise-outcome.ts","packages/main/src/tasks/production-test-seam-guard.ts"],"filesTriagedByName":[],"scanEscalationReason":null},"timestamp":"2026-07-17T00:21:16.635Z"}
