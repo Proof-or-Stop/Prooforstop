@@ -24,7 +24,7 @@
       "desc": "packages/main/src/tasks/production-test-seam-guard.ts:66-84,178-181 — HIGH: sanitizer recognition is text-presence based, not return/data-flow based. Any function whose body merely contains Number(...), Number.isFinite(...), >0, and Math.floor(...) is globally trusted; expressionSources then erases all argument taint for calls to it. Repro on the built analyzer: function fakePositiveInt(raw){ const n=Number(raw); Number.isFinite(n); if(n>0)Math.floor(n); return raw; } writeFileSync(fakePositiveInt(process.env.TEST_TARGET), owned) returns [] issues. This lets an env-derived arbitrary filesystem/process value bypass the new production guard without a file allowlist, so CHK-002 edge:0/adversarial coverage does not close the F-011 class. Require structural proof that every returned value is the bounded parsed/fallback or finite fixed enum, and add this deceptive-sanitizer negative fixture.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-17T00:03:14.532Z",
@@ -32,7 +32,11 @@
       "reviewRunId": "B-271e:RR-003",
       "_hash": "171b47ef815446010174b58b1c52ef62f148b5148891e748473ac62899479dd5",
       "signatureTag": "adversarial|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Sanitizer admission now structurally inspects AST return paths and bound Number/isFinite/positive/floor operations; text decoys returning raw input are rejected. Evidence: node packages/main/dist/tasks/production-test-seam-guard.js.",
+      "resolvedAt": "2026-07-17T00:18:24.675Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-271e:F-003",
