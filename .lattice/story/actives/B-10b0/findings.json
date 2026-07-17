@@ -210,6 +210,25 @@
       ],
       "signatureTag": "adversarial|ts|disproven-audit-10b0",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-10b0:F-011",
+      "desc": "packages/main/src/handlers/validate-concept.ts:231-260,410-432 — HIGH: the new Python declaration parser silently treats unsupported multi-line declarations as absent instead of emitting the fail-closed diagnostic required by CHK-003:adversarial:3. Verified against the current built runtime with a true deletion of `def removed(\n    value: str,\n) -> str:`: analyzeDeletedSymbols returned `{symbols:[],diagnostics:[]}` and checkConcept returned PASS/no deleted exports. This is a false negative that can skip lattice-review-concept despite a true declaration deletion. Either parse Python declarations with a syntax-aware parser/bounded multi-line state machine, or detect unconsumed `def`/`class` starts and return a typed ambiguity diagnostic; add a multi-line deletion regression. F-006 cross-file identity and F-007 durable convergence fixes otherwise passed focused review.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-17T16:14:12.017Z",
+      "reviewRound": "2026-07-17T16:07:26.297Z",
+      "reviewRunId": "B-10b0:RR-005",
+      "_hash": "35428d971fee2567f055353d5bad06bd0e1d4b1f64edbbf6ba8597974edde20a",
+      "files": [
+        "packages/main/src/handlers/validate-concept.ts",
+        "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+      ],
+      "signatureTag": "concept-python-multiline-fail-open",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
