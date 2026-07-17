@@ -66,7 +66,13 @@ export function normalizeDeliveryPromiseOutcome(input: DocsPromise | Record<stri
         reason: `status=${status.value} cannot include waiverReason`,
       };
     }
-    normalized.verifiedBy = verifiedBy.value ?? `status:${status.value}`;
+    if (!verifiedBy.value || !evidence.value) {
+      return {
+        ok: false,
+        code: DELIVERY_PROMISE_OUTCOME_CONTRADICTION,
+        reason: `status=${status.value} requires non-empty verifiedBy and evidence`,
+      };
+    }
     return { ok: true, outcome: 'verified', normalized, legacy: false };
   }
 
@@ -76,6 +82,13 @@ export function normalizeDeliveryPromiseOutcome(input: DocsPromise | Record<stri
         ok: false,
         code: DELIVERY_PROMISE_OUTCOME_CONTRADICTION,
         reason: 'status=waived cannot include verifiedBy',
+      };
+    }
+    if (evidence.value) {
+      return {
+        ok: false,
+        code: DELIVERY_PROMISE_OUTCOME_CONTRADICTION,
+        reason: 'status=waived cannot include evidence',
       };
     }
     if (!waiverReason.value || waiverReason.value.length < 30) {
@@ -94,6 +107,13 @@ export function normalizeDeliveryPromiseOutcome(input: DocsPromise | Record<stri
         ok: false,
         code: DELIVERY_PROMISE_OUTCOME_CONTRADICTION,
         reason: 'status=unverified cannot include verifiedBy',
+      };
+    }
+    if (evidence.value) {
+      return {
+        ok: false,
+        code: DELIVERY_PROMISE_OUTCOME_CONTRADICTION,
+        reason: 'status=unverified cannot include evidence',
       };
     }
     if (waiverReason.value) {

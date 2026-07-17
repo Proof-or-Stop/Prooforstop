@@ -47,6 +47,7 @@ import {
 } from '../core/validation-execution-lock.js';
 import { MKDIR_LOCK_HOLDER_FILE } from '../core/mkdir-lock.js';
 import { MAIN_TOOLS } from '../cli-engine.js';
+import { createVerifierHandlers } from '../handlers/verifier.js';
 
 const DEFAULT_STORY_ID = 'B-validate-lock';
 const NOW = '2026-06-24T00:00:00.000Z';
@@ -310,50 +311,40 @@ async function assertSameStoryMutualExclusion(): Promise<void> {
 
 async function assertPostCommandPersistenceHoldsLock(): Promise<void> {
   const { root, storyId } = setupFixture({ storyId: 'B-validate-evidence-race' });
+  const originalCwd = process.cwd();
   try {
-    // Capability-limited test harness: the closure and its fixed StoryStore
-    // target exist only in this task process. No CLI flag, handler argument, or
-    // environment value can select a path, command, argv, cwd, or shell option.
-    let signalPostCommand!: () => void;
-    const postCommandReached = new Promise<void>((resolveReached) => { signalPostCommand = resolveReached; });
-    let allowPersistence!: () => void;
-    const persistenceRelease = new Promise<void>((resolveRelease) => { allowPersistence = resolveRelease; });
-    const older = withValidationExecutionLock({
-      root,
-      storyId,
-      workspaceRoot: root,
-      command: 'validate-lock-capability-test',
-    }, async () => {
-      signalPostCommand();
-      await persistenceRelease;
-      new StoryStore(root).writeTestEvidence(storyId, {
-        command: 'validate-lock-capability-test',
-        output: 'capability-limited post-command evidence persistence passed',
-        result: 'PASS',
-        timestamp: NOW,
-      });
+    // Exercise the real verifier handler and instrument only its fixed StoryStore
+    // capability. The callback cannot select a path, command, argv, cwd, or shell.
+    writeFileSync(join(root, 'release'), 'allow configured command to finish\n', 'utf8');
+    const targetStore = new StoryStore(root);
+    let persistenceObserved = false;
+    const instrumentedStore = new Proxy(targetStore, {
+      get(target, property) {
+        if (property === 'writeTestEvidence') {
+          return (...args: Parameters<StoryStore['writeTestEvidence']>) => {
+            assert.equal(enteredCount(root), 1, 'real configured command must finish before evidence persistence');
+            assert.equal(existsSync(validationExecutionLockPath(root, storyId)), true,
+              'real verifier evidence persistence must remain inside the story validation lock');
+            persistenceObserved = true;
+            return target.writeTestEvidence(...args);
+          };
+        }
+        const value = Reflect.get(target, property, target);
+        return typeof value === 'function' ? value.bind(target) : value;
+      },
     });
-    await postCommandReached;
-
-    const newer = spawnValidate(root, storyId, 'newer-post-command');
-    const newerResult = await waitChild(newer, 5000);
-
-    assert.notEqual(newerResult.code, 0, 'newer validate must be blocked until older evidence persistence finishes');
-    assert.match(newerResult.output, /validation execution|already running|is blocked/);
-    assert.equal(
-      enteredCount(root),
-      0,
-      'newer validate must not enter the validation command while older validate is between command exit and evidence persistence',
-    );
-
-    allowPersistence();
-    await older;
-
-    const evidence = new StoryStore(root).readTestEvidence(storyId);
-    assert.ok(evidence, 'older validate must persist test evidence after the post-command hold releases');
-    assert.match(evidence.output, /capability-limited post-command evidence persistence passed/);
-    assert.doesNotMatch(evidence.output, /probe newer-post-command passed/);
+    process.chdir(root);
+    const handlers = createVerifierHandlers({ root, scanRoot: join(root, 'packages/main'), store: instrumentedStore });
+    const raw = await handlers.validate({ story: storyId, json: true, noSync: true });
+    const result = JSON.parse(raw) as { status?: string; commandExecutions?: number };
+    assert.equal(result.status, 'pass');
+    assert.equal(result.commandExecutions, 1);
+    assert.equal(persistenceObserved, true, 'real verifier must call the instrumented evidence writer');
+    assert.equal(existsSync(validationExecutionLockPath(root, storyId)), false,
+      'validation lock releases only after the real handler returns');
+    assert.ok(targetStore.readTestEvidence(storyId), 'real verifier persists story evidence');
   } finally {
+    process.chdir(originalCwd);
     rmSync(root, { recursive: true, force: true });
   }
 }

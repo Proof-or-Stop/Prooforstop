@@ -83,6 +83,7 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
 
       // 4) Set waiverReason
       delete promise.verifiedBy;
+      delete promise.evidence;
       promise.waiverReason = args.waiverReason.trim();
       promise.status = 'waived';
       const normalizedPromise = normalizeDeliveryPromiseOutcome(promise);

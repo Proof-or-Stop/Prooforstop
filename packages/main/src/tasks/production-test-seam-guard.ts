@@ -56,38 +56,96 @@ function propertyName(expression: ts.Expression): string | undefined {
   return undefined;
 }
 
-function isProcessEnv(expression: ts.Expression): boolean {
-  return ts.isPropertyAccessExpression(expression)
-    && ts.isIdentifier(expression.expression)
-    && expression.expression.text === 'process'
-    && expression.name.text === 'env';
+function isProcessEnv(expression: ts.Expression, processObjects: ReadonlySet<string>): boolean {
+  if (!ts.isPropertyAccessExpression(expression) && !ts.isElementAccessExpression(expression)) return false;
+  const base = expression.expression;
+  return ts.isIdentifier(base) && processObjects.has(base.text) && propertyName(expression) === 'env';
 }
 
-function collectSanitizerFunctions(sourceFile: ts.SourceFile): Set<string> {
-  const sanitizers = new Set<string>();
-  const inspect = (name: string | undefined, body: ts.ConciseBody | undefined): void => {
+function collectSanitizerFunctions(sourceFile: ts.SourceFile): Map<string, readonly number[]> {
+  // Value = parameter indexes whose values may survive sanitization (for the
+  // positive-integer fallback branch). Enum sanitizers expose no input value.
+  const sanitizers = new Map<string, readonly number[]>();
+  const unwrap = (expression: ts.Expression): ts.Expression => {
+    let current = expression;
+    while (ts.isParenthesizedExpression(current) || ts.isAsExpression(current)
+      || ts.isTypeAssertionExpression(current) || ts.isNonNullExpression(current)) current = current.expression;
+    return current;
+  };
+  const isLiteral = (expression: ts.Expression): boolean => {
+    const value = unwrap(expression);
+    return ts.isStringLiteralLike(value) || ts.isNumericLiteral(value)
+      || value.kind === ts.SyntaxKind.FalseKeyword || value.kind === ts.SyntaxKind.TrueKeyword;
+  };
+  const inspect = (name: string | undefined, parameters: ts.NodeArray<ts.ParameterDeclaration>, body: ts.ConciseBody | undefined): void => {
     if (!name || !body) return;
-    const text = body.getText(sourceFile);
-    const positiveInt = /Number\s*\(/.test(text)
-      && /Number\.isFinite\s*\(/.test(text)
-      && />\s*0/.test(text)
-      && /Math\.floor\s*\(/.test(text);
     const returns: ts.Expression[] = [];
     const visitReturn = (node: ts.Node): void => {
       if (ts.isReturnStatement(node) && node.expression) returns.push(node.expression);
       ts.forEachChild(node, visitReturn);
     };
-    visitReturn(body);
-    const finiteEnum = returns.length >= 2 && returns.every(value =>
-      ts.isStringLiteralLike(value) || ts.isNumericLiteral(value) || value.kind === ts.SyntaxKind.FalseKeyword || value.kind === ts.SyntaxKind.TrueKeyword,
-    );
-    if (positiveInt || finiteEnum) sanitizers.add(name);
+    if (ts.isBlock(body)) visitReturn(body);
+    else returns.push(body);
+
+    const parameterNames = new Set(parameters.flatMap(parameter => ts.isIdentifier(parameter.name) ? [parameter.name.text] : []));
+    const parsedNames = new Set<string>();
+    const collectParsed = (node: ts.Node): void => {
+      if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer
+        && ts.isCallExpression(node.initializer) && propertyName(node.initializer.expression) === undefined
+        && ts.isIdentifier(node.initializer.expression) && node.initializer.expression.text === 'Number'
+        && node.initializer.arguments[0] && ts.isIdentifier(node.initializer.arguments[0])
+        && parameterNames.has(node.initializer.arguments[0].text)) parsedNames.add(node.name.text);
+      ts.forEachChild(node, collectParsed);
+    };
+    collectParsed(body);
+    const contains = (root: ts.Node, predicate: (node: ts.Node) => boolean): boolean => {
+      let found = false;
+      const visit = (node: ts.Node): void => {
+        if (predicate(node)) { found = true; return; }
+        if (!found) ts.forEachChild(node, visit);
+      };
+      visit(root);
+      return found;
+    };
+    const fallbackIndexes = new Set<number>();
+    const positiveInt = returns.length > 0 && parsedNames.size > 0 && returns.every(expression => {
+      const value = unwrap(expression);
+      if (!ts.isConditionalExpression(value)) return false;
+      const trueValue = unwrap(value.whenTrue);
+      const falseValue = unwrap(value.whenFalse);
+      const parsed = [...parsedNames].find(candidate =>
+        contains(value.condition, node => ts.isCallExpression(node)
+          && propertyName(node.expression) === 'isFinite'
+          && ts.isPropertyAccessExpression(node.expression)
+          && ts.isIdentifier(node.expression.expression) && node.expression.expression.text === 'Number'
+          && ts.isIdentifier(node.arguments[0]) && node.arguments[0].text === candidate)
+        && contains(value.condition, node => ts.isBinaryExpression(node)
+          && ((node.operatorToken.kind === ts.SyntaxKind.GreaterThanToken
+            && ts.isIdentifier(node.left) && node.left.text === candidate
+            && ts.isNumericLiteral(node.right) && Number(node.right.text) === 0)
+          || (node.operatorToken.kind === ts.SyntaxKind.LessThanToken
+            && ts.isNumericLiteral(node.left) && Number(node.left.text) === 0
+            && ts.isIdentifier(node.right) && node.right.text === candidate))));
+      const fallbackIndex = ts.isIdentifier(falseValue)
+        ? parameters.findIndex(parameter => ts.isIdentifier(parameter.name) && parameter.name.text === falseValue.text)
+        : -1;
+      if (fallbackIndex >= 0) fallbackIndexes.add(fallbackIndex);
+      return Boolean(parsed)
+        && ts.isCallExpression(trueValue)
+        && propertyName(trueValue.expression) === 'floor'
+        && trueValue.expression.getText(sourceFile).startsWith('Math.')
+        && ts.isIdentifier(trueValue.arguments[0]) && trueValue.arguments[0].text === parsed
+        && (isLiteral(falseValue) || fallbackIndex > 0);
+    });
+    const finiteEnum = returns.length >= 2 && returns.every(isLiteral);
+    if (positiveInt) sanitizers.set(name, [...fallbackIndexes]);
+    else if (finiteEnum) sanitizers.set(name, []);
   };
   const visit = (node: ts.Node): void => {
-    if (ts.isFunctionDeclaration(node)) inspect(node.name?.text, node.body);
+    if (ts.isFunctionDeclaration(node)) inspect(node.name?.text, node.parameters, node.body);
     if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)
       && node.initializer && (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer))) {
-      inspect(node.name.text, node.initializer.body);
+      inspect(node.name.text, node.initializer.parameters, node.initializer.body);
     }
     ts.forEachChild(node, visit);
   };
@@ -106,6 +164,34 @@ function functionParameters(sourceFile: ts.SourceFile): Map<string, string[]> {
     if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)
       && node.initializer && (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer))) {
       record(node.name.text, node.initializer.parameters);
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return functions;
+}
+
+function functionReturns(sourceFile: ts.SourceFile): Map<string, ts.Expression[]> {
+  const functions = new Map<string, ts.Expression[]>();
+  const record = (name: string | undefined, body: ts.ConciseBody | undefined): void => {
+    if (!name || !body) return;
+    const values: ts.Expression[] = [];
+    if (!ts.isBlock(body)) values.push(body);
+    else {
+      const visit = (node: ts.Node): void => {
+        if (ts.isFunctionLike(node) && node !== body.parent) return;
+        if (ts.isReturnStatement(node) && node.expression) values.push(node.expression);
+        ts.forEachChild(node, visit);
+      };
+      ts.forEachChild(body, visit);
+    }
+    functions.set(name, values);
+  };
+  const visit = (node: ts.Node): void => {
+    if (ts.isFunctionDeclaration(node)) record(node.name?.text, node.body);
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)
+      && node.initializer && (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer))) {
+      record(node.name.text, node.initializer.body);
     }
     ts.forEachChild(node, visit);
   };
@@ -138,8 +224,10 @@ export function analyzeProductionTestSeams(sourceText: string, file = 'inline.ts
   const sourceFile = ts.createSourceFile(file, sourceText, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
   const taint = new Map<string, Sources>();
   const envObjects = new Set<string>();
+  const processObjects = new Set<string>(['process']);
   const sanitizers = collectSanitizerFunctions(sourceFile);
   const functions = functionParameters(sourceFile);
+  const returns = functionReturns(sourceFile);
   const sinkAliases = collectSinkAliases(sourceFile);
 
   const add = (name: string, sources: Sources): boolean => {
@@ -151,11 +239,21 @@ export function analyzeProductionTestSeams(sourceText: string, file = 'inline.ts
     return existing.size !== before;
   };
 
+  const expressionKey = (expression: ts.Expression): string | undefined => {
+    if (ts.isIdentifier(expression)) return expression.text;
+    if (ts.isPropertyAccessExpression(expression) || ts.isElementAccessExpression(expression)) {
+      const base = expressionKey(expression.expression);
+      const property = propertyName(expression);
+      return base && property ? `${base}.${property}` : undefined;
+    }
+    return undefined;
+  };
+
   const sourceFromEnvironment = (expression: ts.Expression): Sources => {
     if (ts.isPropertyAccessExpression(expression) || ts.isElementAccessExpression(expression)) {
       const key = propertyName(expression);
       const base = expression.expression;
-      const envBase = isProcessEnv(base) || (ts.isIdentifier(base) && envObjects.has(base.text));
+      const envBase = isProcessEnv(base, processObjects) || (ts.isIdentifier(base) && envObjects.has(base.text));
       if (envBase && key && isTestControlKey(key)) return new Set([key]);
     }
     return new Set();
@@ -165,7 +263,13 @@ export function analyzeProductionTestSeams(sourceText: string, file = 'inline.ts
     if (!expression) return new Set();
     const direct = sourceFromEnvironment(expression);
     if (direct.size > 0) return direct;
-    if (ts.isIdentifier(expression)) return new Set(taint.get(expression.text) ?? []);
+    if (ts.isIdentifier(expression)) {
+      const prefix = `${expression.text}.`;
+      return union(
+        new Set(taint.get(expression.text) ?? []),
+        ...[...taint.entries()].filter(([key]) => key.startsWith(prefix)).map(([, sources]) => sources),
+      );
+    }
     if (ts.isParenthesizedExpression(expression) || ts.isAsExpression(expression) || ts.isTypeAssertionExpression(expression)
       || ts.isNonNullExpression(expression) || ts.isAwaitExpression(expression)) {
       return expressionSources(expression.expression);
@@ -177,11 +281,17 @@ export function analyzeProductionTestSeams(sourceText: string, file = 'inline.ts
     }
     if (ts.isCallExpression(expression)) {
       const callee = ts.isIdentifier(expression.expression) ? expression.expression.text : undefined;
-      if (callee && sanitizers.has(callee)) return new Set();
-      return union(...expression.arguments.map(argument => expressionSources(argument)));
+      if (callee && sanitizers.has(callee)) {
+        return union(...(sanitizers.get(callee) ?? []).map(index => expressionSources(expression.arguments[index])));
+      }
+      return union(
+        ...expression.arguments.map(argument => expressionSources(argument)),
+        ...(callee ? (returns.get(callee) ?? []).map(value => expressionSources(value)) : []),
+      );
     }
     if (ts.isPropertyAccessExpression(expression) || ts.isElementAccessExpression(expression)) {
       return union(
+        new Set(taint.get(expressionKey(expression) ?? '') ?? []),
         expressionSources(expression.expression),
         ts.isElementAccessExpression(expression) ? expressionSources(expression.argumentExpression) : new Set(),
       );
@@ -206,7 +316,7 @@ export function analyzeProductionTestSeams(sourceText: string, file = 'inline.ts
     const visit = (node: ts.Node): void => {
       if (ts.isVariableDeclaration(node) && node.initializer) {
         if (ts.isIdentifier(node.name)) {
-          if (isProcessEnv(node.initializer)) {
+          if (isProcessEnv(node.initializer, processObjects)) {
             const before = envObjects.size;
             envObjects.add(node.name.text);
             changed ||= envObjects.size !== before;
@@ -215,8 +325,13 @@ export function analyzeProductionTestSeams(sourceText: string, file = 'inline.ts
             envObjects.add(node.name.text);
             changed ||= envObjects.size !== before;
           }
+          if (ts.isIdentifier(node.initializer) && processObjects.has(node.initializer.text)) {
+            const before = processObjects.size;
+            processObjects.add(node.name.text);
+            changed ||= processObjects.size !== before;
+          }
           changed ||= add(node.name.text, expressionSources(node.initializer));
-        } else if (ts.isObjectBindingPattern(node.name) && (isProcessEnv(node.initializer)
+        } else if (ts.isObjectBindingPattern(node.name) && (isProcessEnv(node.initializer, processObjects)
           || (ts.isIdentifier(node.initializer) && envObjects.has(node.initializer.text)))) {
           for (const element of node.name.elements) {
             if (!ts.isIdentifier(element.name)) continue;
@@ -227,6 +342,11 @@ export function analyzeProductionTestSeams(sourceText: string, file = 'inline.ts
       }
       if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken && ts.isIdentifier(node.left)) {
         changed ||= add(node.left.text, expressionSources(node.right));
+      }
+      if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken
+        && (ts.isPropertyAccessExpression(node.left) || ts.isElementAccessExpression(node.left))) {
+        const key = expressionKey(node.left);
+        if (key) changed ||= add(key, expressionSources(node.right));
       }
       if (ts.isCallExpression(node) && ts.isIdentifier(node.expression)) {
         const params = functions.get(node.expression.text);
@@ -308,6 +428,10 @@ function selfTest(): void {
     ['spawn executable', `const selected = process.env.TEST_EXECUTABLE; spawn(selected, [])`],
     ['spawn cwd', `const cwd = process.env.SMOKE_CWD; spawn('/fixed/bin', [], { cwd })`],
     ['spawn shell', `const shell = process.env.TEST_SHELL; spawn('/fixed/bin', [], { shell })`],
+    ['helper-return source', `function selected() { return process.env.TEST_COMMAND } exec(selected())`],
+    ['object property assignment', `const options = {}; options.cwd = process.env.SMOKE_CWD; spawn('/fixed/bin', [], options)`],
+    ['element process env', `const selected = process['env']['TEST_EXECUTABLE']; spawn(selected, [])`],
+    ['aliased process env', `const proc = process; const selected = proc.env.SMOKE_EXECUTABLE; spawn(selected, [])`],
   ];
   for (const [name, source] of [...filesystemCases, ...processCases]) {
     const issues = analyzeProductionTestSeams(source, `${name}.ts`);
@@ -335,6 +459,14 @@ function selfTest(): void {
     spawn('/fixed/bin', ['--limit', String(limit)], { cwd: '/fixed', env: { PATH: pathValue } });
   `;
   assert.deepEqual(analyzeProductionTestSeams(positive, 'positive.ts'), [], 'bounded numeric/enum sanitizers and PATH reads stay allowed');
+
+  const sanitizerDecoys: Array<[string, string]> = [
+    ['numeric tokens plus raw return', `function fake(raw: unknown) { Number(raw); Number.isFinite(Number(raw)); Math.floor(Number(raw)); if (Number(raw) > 0) return raw; return raw; } writeFileSync(fake(process.env.TEST_FILE), 'x')`],
+    ['enum literals plus raw return', `function fake(raw: unknown) { if (raw === 'a') return '/fixed/a'; if (raw === 'b') return '/fixed/b'; return raw; } writeFileSync(fake(process.env.SMOKE_FILE), 'x')`],
+  ];
+  for (const [name, source] of sanitizerDecoys) {
+    assert.ok(analyzeProductionTestSeams(source, `${name}.ts`).length > 0, `${name} must not be trusted as a sanitizer`);
+  }
 }
 
 function main(): void {
