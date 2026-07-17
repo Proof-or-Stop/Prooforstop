@@ -78,8 +78,8 @@
         "create": [],
         "test": []
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-17T23:19:34.762Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
@@ -130,6 +130,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Canonical decision doc has been saved; recording implementation state before committing and attaching evidence."
+    },
+    {
+      "timestamp": "2026-07-17T23:19:34.762Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Requirements navigation has been updated; recording implementation state before committing and attaching evidence."
     }
   ]
 }
