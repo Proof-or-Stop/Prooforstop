@@ -121,6 +121,29 @@
         "scanEscalationReason": null
       },
       "_hash": "ec4d1e81177a23dee38b7c65154d0bc54102ba7bb11bd9d78647359485a71e58"
+    },
+    {
+      "id": "B-3aec:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Freshness review of commit 62abc146dc found no deleted-symbol migration or public-contract break: buildQueryGroups, candidateReadBindingErrors, and defaultHostRunRunner retain their exported names and consumer-compatible signatures; preflight residual references are semantic-anchor false positives from internal body edits. F-019 now excludes zero-hit and empty-intersection groups before budget while preserving signed audit reasons, and F-020 keeps separate stdout/stderr classifier tails with shared typed precedence. Candidate routing smoke and host-run usage 83/83 passed.",
+      "createdAt": "2026-07-17T10:17:34.422Z",
+      "reviewRound": "2026-07-17T10:14:00.168Z",
+      "reviewRunId": "B-3aec:RR-015",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "packages/main/src/tasks/host-run-usage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f24b484a258b41dd30ebd0df900c6348fa5d7a5790d71ce6ff08bc22e28940e9"
     }
   ]
 }
