@@ -57,22 +57,45 @@ and lifecycle code should consume.
 Contract:
 
 - The value is an opaque, trimmed, non-empty string.
-- It identifies one local agent session for accidental write-coordination only.
+- It identifies one validated local task-and-agent/role boundary for accidental
+  write-coordination only.
 - It must remain stable across multiple `lattice` invocations made by the same
-  host session.
-- It should differ for two independent host sessions working in the same
-  worktree.
+  task and agent/role, including across shell and parent-process changes.
+- It must differ when either the task identity or the agent/role identity
+  differs, even when both invocations share a repository, worktree, thread, or
+  host provider.
 - It is scoped to local coordination. A process can forge it by setting an env
   var, so it must never be treated as authentication.
 - It may be displayed in `session_brief`, owner-lease errors, doctor output, and
   local process events.
-- It must not be written into arbitrary story prose or used as a substitute for
-  Authority runner session ids.
+- It must be an opaque derived canonical id in diagnostics. Raw host task,
+  thread, run, agent, or role tokens must not be written to logs, arbitrary
+  story prose, or used as a substitute for Authority runner session ids.
 
 Diagnostic metadata may include a source such as `explicit-env`,
 `host-adapter`, `generated-token`, or `derived-ppid`, plus a host provider string
 such as `codex`, `claude-code`, `antigravity`, or `agy`. Gates must continue to
 key ownership on the resolved session id, not on a self-reported provider label.
+
+### Independent identity dimensions
+
+The adapter boundary must validate two independent dimensions before deriving
+the canonical id:
+
+- `taskIdentity`: the durable host task/run/conversation boundary whose commands
+  are expected to refresh one story owner lease;
+- `agentOrRoleIdentity`: the durable agent or role operating within that task.
+
+Repository root, worktree path, provider name, thread id, or any single shared
+dimension is insufficient by itself. In particular, collapsing all agents in a
+task onto a repo-, worktree-, or thread-only id would hide real concurrent
+writers and is rejected.
+
+Host adapters own extraction and validation of both dimensions. Generic core
+code receives only the opaque canonical result and diagnostic source/provider;
+it does not interpret raw host tokens. A future host must prove the same
+two-dimensional boundary through the fake-host adapter contract before it can
+participate without a core exception.
 
 ## Resolution Priority
 
@@ -81,13 +104,21 @@ The target resolver order is:
 1. **Explicit canonical env**: a user, wrapper, runner, or host adapter sets
    `LATTICE_SESSION_ID`.
 2. **Host adapter bridge**: a Proofbound-owned adapter maps a host-native stable
-   signal into `LATTICE_SESSION_ID` before core owner-lease code runs.
-3. **Generated-token fallback**: when a host has a session boundary but no
-   native stable env, the adapter creates and reuses a local opaque token for
-   that host session.
+   task identity plus agent/role identity into `LATTICE_SESSION_ID` before core
+   owner-lease code runs.
+3. **Generated-token fallback**: when a host exposes a durable task boundary and
+   a durable agent/role boundary but no canonical native id, the adapter creates
+   and reuses a local opaque token for that validated pair.
 4. **ppid degraded fallback**: when no canonical env, host adapter, or generated
-   token is available, derive a degraded id from hostname, project/worktree root,
-   and parent process id.
+   token is safely available, derive a degraded id from hostname,
+   project/worktree root, and parent process id and emit a warning before
+   mutating commands.
+
+An explicit `LATTICE_SESSION_ID` is an assertion that the caller has already
+derived the intended task-and-agent/role boundary; it remains first for
+compatibility and operator control. When that assertion is absent, the adapter
+must validate both dimensions rather than substituting a repo-, worktree-, or
+thread-only surrogate.
 
 The important migration is not the literal call stack. The important invariant is
 that core owner-lease and lifecycle logic no longer contain host-specific env
@@ -133,8 +164,15 @@ Recommended adapter output:
 sessionId: canonical LATTICE_SESSION_ID value
 sessionSource: explicit-env | host-adapter | generated-token | derived-ppid
 hostProvider: codex | claude-code | antigravity | agy | <future-host>
-nativeSessionRef: optional redacted/native reference for debugging only
+taskIdentityValidated: boolean
+agentOrRoleIdentityValidated: boolean
+nativeSessionRef: optional opaque/redacted reference for debugging only
 ```
+
+Adapters may consume raw host task and agent/role tokens only long enough to
+validate the dimensions and derive the canonical id. Raw values must not cross
+the adapter boundary or appear in lifecycle events, DEV-claim diagnostics,
+owner-lease errors, or other logs.
 
 ### Claude Code
 
@@ -179,9 +217,11 @@ core owner-lease rules.
 Minimum onboarding checklist:
 
 - name the provider string;
-- declare whether the host has a native stable session signal;
-- if yes, map it to `LATTICE_SESSION_ID` in the adapter;
-- if no, use generated-token fallback from approved runtime storage;
+- declare and validate its durable task identity and durable agent/role identity;
+- if both exist, derive and map an opaque `LATTICE_SESSION_ID` in the adapter;
+- if both boundaries exist but no native canonical value exists, use
+  generated-token fallback from approved runtime storage;
+- if either boundary cannot be validated, use the warned degraded-ppid path;
 - add host-specific tests at the adapter boundary;
 - prove core owner-lease tests still pass without adding a new core exception.
 
@@ -192,23 +232,27 @@ those hosts, the adapter may generate a local token.
 
 Rules:
 
-- Generate an opaque token once for the host session, then reuse it for all
-  `lattice` invocations made by that session.
+- Generate an opaque token once for the validated task-and-agent/role pair, then
+  reuse it for all `lattice` invocations made by that pair.
 - Persist the token only in approved runtime/session storage or keep it in the
   adapter process if the adapter process is durable enough.
-- Scope persisted tokens by at least project root, host provider, and adapter
-  session boundary so two sessions in the same worktree do not collide.
+- Scope the lookup key and persisted value by project root, host provider,
+  validated task identity, validated agent/role identity, and adapter boundary,
+  so two roles or tasks in the same worktree never collide.
+- Define storage ownership and cleanup at that same boundary. A token owned by
+  one adapter task-and-role pair must not be reused or deleted by another pair.
 - Register any persisted token path as a runtime artifact, ignored by git and
   excluded from material evidence.
-- Do not write generated tokens into story prose, requirements docs, or review
-  findings.
+- Do not write generated tokens or their raw lookup dimensions into story prose,
+  requirements docs, review findings, or logs.
 - Label generated-token sessions clearly in `session_brief` and doctor output.
 - Treat generated tokens as local coordination tokens, not cryptographic
   identity, even if they are produced by a cryptographic random generator.
 
 Generated-token fallback is preferable to ppid fallback when the host adapter
-can define and preserve a session boundary. If the runtime cannot identify a
-session boundary at all, use the degraded ppid fallback and label it honestly.
+can define and preserve both durable identity dimensions. If the runtime cannot
+validate either the task or agent/role boundary, generation is unsafe: use the
+degraded ppid fallback and label it honestly.
 
 ## ppid Degraded Fallback
 
@@ -244,7 +288,8 @@ owner-lease and lifecycle paths in slices:
 4. Route Codex and Antigravity/agy launch/dispatch paths through the adapter so
    they set or preserve `LATTICE_SESSION_ID`.
 5. Replace lifecycle event collection and DEV-claim warnings that read ad hoc
-   session env vars with the shared canonical resolver.
+   session env vars with the same shared canonical resolver consumed by owner
+   leases.
 6. Add generated-token fallback and runtime-artifact registration for any
    persisted token storage.
 7. Update tests and docs so direct references to host-native env vars appear
@@ -267,7 +312,10 @@ Future implementation must cover at least these cases:
 | Codex bridge | Codex wrapper passes canonical env or adapter-generated id | owner lease refresh recognizes the same session |
 | Antigravity/agy bridge | dispatch/pre-apply flow starts provider `antigravity` or `agy` | provider is diagnostic; canonical id drives ownership |
 | Future host onboarding | fake host adapter implements the contract | no core resolver change required |
-| Generated token | host has no native stable env but has adapter session boundary | generated id is stable for that host session and runtime path is ignored |
+| Task isolation | same provider/worktree/agent role; distinct validated task identities | canonical ids differ |
+| Role isolation | same provider/worktree/task; distinct validated agent/role identities | canonical ids differ |
+| Shared-boundary rejection | only repository, worktree, provider, or thread identity is available | generated-token path is rejected; warned degraded fallback is used |
+| Generated token | host has no native canonical id but has durable task and agent/role boundaries | generated id is stable for that pair; storage is pair-scoped and ignored |
 | ppid fallback | no env, no adapter, no generated token | derived id is produced with degraded source label |
 | ppid degradation | same worktree but different ppid | derived ids differ and docs/doctor warn about degradation |
 | Story owner gate | owner acquires lease, non-owner mutates | non-owner is rejected with owner id, cwd, heartbeat, stale flag, and next action |
@@ -316,9 +364,13 @@ lease before/after summary, and pass/fail result.
 
 ## Rollout Slices
 
-### R0. Documentation and review plan
+### R0. Documentation, review, and transcript gate
 
-Deliver this plan and doc pointers. No runtime code changes.
+Commit this canonical contract before any runtime code change. Bind two fresh,
+independent real-host reviews to that document commit, then record the two
+continuity transcripts and one degraded transcript from the Manual Transcript
+Evidence section. Runtime implementation may begin only after all five
+pre-implementation records pass.
 
 ### R1. Resolver facade
 
@@ -344,10 +396,12 @@ keeps host-native session env names out of generic core paths.
 
 ### R5. Multi-host verification
 
-Run the verification matrix on at least two hosts. One host must exercise a
-native or canonical env path, and the other must exercise either another native
-path or generated-token fallback. Include one degraded ppid-only run as a
-negative/degraded proof.
+After runtime implementation, run the verification matrix again on at least two
+real hosts. One host must exercise a native or canonical env path, and the other
+must exercise either another native path or generated-token fallback. Include
+one degraded ppid-only run as a negative/degraded proof. Pre-implementation
+document reviews and transcripts do not satisfy this post-implementation R5
+requirement.
 
 ### R6. Compatibility removal
 
@@ -358,7 +412,8 @@ lease reading tolerant of older `sessionSource` values.
 ## Two-Host Review Evidence Before Implementation
 
 Before any future story implements runtime code from this plan, it must first
-record two-host review evidence over the current version of this document.
+commit this document, record two-host review evidence over that exact commit,
+and record the two continuity plus one degraded transcript required above.
 
 Minimum requirement:
 
@@ -368,8 +423,9 @@ Minimum requirement:
   hash where available, story id, git HEAD, material hash or document hash, and
   timestamp;
 - each review explicitly checks the local/non-cryptographic boundary, generated
-  token fallback, ppid degradation, and migration away from core host-specific
-  exceptions;
+  token scoping/ownership/cleanup, independent task and agent/role dimensions,
+  ppid degradation, unchanged lease/takeover semantics, and migration away from
+  core host-specific exceptions;
 - both reviews must return PASS before implementation begins, or the
   implementation story must remain blocked until a human changes this plan;
 - two reviews from the same host provider or the same local session do not count
@@ -378,7 +434,9 @@ Minimum requirement:
   claim `authorityDone`, `fullAuthorityDone`, or production completion.
 
 The implementation reviewer should reject code work that cites this plan without
-fresh two-host review evidence bound to the document version it implements.
+fresh two-host review evidence and all three transcripts bound to the document
+commit it implements. Runtime implementation must preserve existing owner-lease,
+stale-takeover, and local/non-Authority semantics.
 
 ## Acceptance Criteria
 
@@ -387,11 +445,18 @@ The target implementation is complete only when:
 1. `LATTICE_SESSION_ID` is documented and implemented as the single canonical
    owner-session id consumed by generic core code.
 2. Claude Code, Codex, Antigravity/agy, and a fake future host all reach the
-   canonical contract through adapters.
-3. Hosts without native stable env can use generated-token fallback without
-   dirtying material diffs.
+   canonical contract through adapters that validate independent task and
+   agent/role dimensions.
+3. Hosts without native stable env can use generated-token fallback only when
+   durable task and agent/role boundaries exist, with pair-scoped
+   storage/ownership/cleanup and without dirtying material diffs.
 4. ppid fallback remains available but visibly degraded.
 5. Generic owner-lease/lifecycle code no longer contains host-specific session
-   env exceptions.
+   env exceptions, and lifecycle events plus DEV-claim diagnostics consume the
+   shared resolver.
 6. The verification matrix passes.
-7. Implementation evidence includes the required two-host review over this plan.
+7. Implementation evidence includes the ordered document commit, fresh
+   pre-implementation two-host reviews, two continuity transcripts, one degraded
+   transcript, and the post-implementation real multi-host R5 verification.
+8. Existing lease rejection, explicit stale takeover, and local
+   non-authentication/non-Authority boundaries remain unchanged.
