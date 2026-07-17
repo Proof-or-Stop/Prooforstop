@@ -208,8 +208,8 @@
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#92-required-identity-model",
         "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-17T23:28:01.929Z",
       "endTime": null,
       "userSees": "User sees \"session identity degraded: derived-ppid\" with an actionable LATTICE_SESSION_ID/adapter hint before the first owner-gated mutation; supported adapters report their provider and source without raw tokens.",
       "files": {
@@ -985,6 +985,15 @@
       "to": "done",
       "reason": "Committed stable task-plus-agent resolver and bounded generated fallback in a175883c; independent build and focused owner-session/guardrail verification PASS.",
       "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-17T23:28:01.929Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Accept committed adapter/dispatch/diagnostic propagation slice from lattice-implementer for evidence binding."
     }
   ]
 }
