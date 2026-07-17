@@ -36,6 +36,30 @@
         "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
       },
       "_hash": "6b197b198a62578486967e744e7fc87d364584e13e0537406e92584626d3308f"
+    },
+    {
+      "id": "B-10b0:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Targeted concept re-review of commit 1c694f1c8e found no blocker. F-008 now counts only completed same-round/material/story REVIEW re-attestations beyond each lane baseline, including those before TEST, while ignoring historical rounds. F-011 now parses multiline Python def/class headers and fails closed with diagnostics on incomplete or malformed headers. concept-gate-scope and flow-stability focused regressions passed; the prior local-assurance concept pass remains valid.",
+      "createdAt": "2026-07-17T16:38:22.993Z",
+      "reviewRound": "2026-07-17T16:35:51.324Z",
+      "reviewRunId": "B-10b0:RR-007",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "b6017ae2c98b88c93d66d68524f3ed90c16b27174ad42cfc5f58b1f6c190ffe6"
     }
   ]
 }
