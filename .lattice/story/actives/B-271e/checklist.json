@@ -180,7 +180,7 @@
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
         "AGENTS.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-16T23:45:36.627Z",
       "endTime": "2026-07-16T23:56:28.255Z",
       "userSees": "The guard prints `Production test seam guard: PASS — no unsafe SMOKE/TEST control reaches a filesystem or process sink.` A negative fixture using env-derived readyFile to writeFileSync is rejected, while ordinary PATH/runtime reads and sanitized bounded numeric/enum controls remain accepted.",
@@ -385,6 +385,16 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Fix REVIEW findings F-001/F-006: exact authority table, generated matrix, and no-write contradictions.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-17T00:06:54.143Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Fix REVIEW findings F-002/F-003/F-004/F-005: structural sanitizers, missing data flows, and real verifier ordering contract.",
       "agent": "lattice-implementer"
     }
   ]
