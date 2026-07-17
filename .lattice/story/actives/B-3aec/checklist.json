@@ -11,7 +11,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-17T09:16:25.331Z",
+      "endTime": "2026-07-17T09:38:43.831Z",
       "verificationIntent": {
         "happy": [
           {
@@ -100,112 +100,110 @@
           "kind": "integration_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Current implementation commit e74d3d39ed: readiness zero-spawn matrix, stderr-first productive child, silent startup timeout, early-output total timeout, abort/close settlement, cap=1 immediate reacquisition, timeoutKind/terminalReason/firstOutputMs/durationMs, and existing host-run race/slot checks all passed without real external hosts.",
-          "headHash": "e74d3d39ed4b471c1a953db1b3cbbfadf5c3162e",
-          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
-          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
-          "timestamp": "2026-07-17T09:16:25.544Z"
+          "note": "Independent owner rerun at commit d842757356 passed build, host-run usage 81/81, readiness 10/10, candidate routing smoke, and process-fact contract. Deterministic local children cover positive admission, every canonical refusal, stdout/stderr first byte, startup versus total deadline, abort/error/close settlement, ENOENT spawn_error, bounded post-readiness diagnostics, reaping, and immediate slot reacquisition; no real host was launched.",
+          "headHash": "d842757356f5fd1f3a4a313cce9316d9336ad331",
+          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
+          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
+          "timestamp": "2026-07-17T09:38:44.050Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
           "kind": "logic_test",
-          "verdict": "success",
-          "file": "packages/main/src/tasks/host-run-usage-smoke.ts",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/host-run-usage-smoke.js",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Deterministic local-child logic proves stderr first byte clears startup watchdog, productive runtime may exceed startup budget, total timeout remains independent, and cleanup releases cap=1 for immediate reacquisition.",
-          "headHash": "6b8ef60f92f87f5d3e2470be78025302c221cddf",
-          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
-          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
-          "timestamp": "2026-07-17T09:16:49.427Z"
+          "note": "Independent owner rerun at commit d842757356 passed build, host-run usage 81/81, readiness 10/10, candidate routing smoke, and process-fact contract. Deterministic local children cover positive admission, every canonical refusal, stdout/stderr first byte, startup versus total deadline, abort/error/close settlement, ENOENT spawn_error, bounded post-readiness diagnostics, reaping, and immediate slot reacquisition; no real host was launched.",
+          "headHash": "d842757356f5fd1f3a4a313cce9316d9336ad331",
+          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
+          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
+          "timestamp": "2026-07-17T09:38:44.248Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Current implementation commit e74d3d39ed: readiness zero-spawn matrix, stderr-first productive child, silent startup timeout, early-output total timeout, abort/close settlement, cap=1 immediate reacquisition, timeoutKind/terminalReason/firstOutputMs/durationMs, and existing host-run race/slot checks all passed without real external hosts.",
-          "headHash": "e74d3d39ed4b471c1a953db1b3cbbfadf5c3162e",
-          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
-          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
-          "timestamp": "2026-07-17T09:16:25.862Z"
+          "note": "Independent owner rerun at commit d842757356 passed build, host-run usage 81/81, readiness 10/10, candidate routing smoke, and process-fact contract. Deterministic local children cover positive admission, every canonical refusal, stdout/stderr first byte, startup versus total deadline, abort/error/close settlement, ENOENT spawn_error, bounded post-readiness diagnostics, reaping, and immediate slot reacquisition; no real host was launched.",
+          "headHash": "d842757356f5fd1f3a4a313cce9316d9336ad331",
+          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
+          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
+          "timestamp": "2026-07-17T09:38:44.441Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Current implementation commit e74d3d39ed: readiness zero-spawn matrix, stderr-first productive child, silent startup timeout, early-output total timeout, abort/close settlement, cap=1 immediate reacquisition, timeoutKind/terminalReason/firstOutputMs/durationMs, and existing host-run race/slot checks all passed without real external hosts.",
-          "headHash": "e74d3d39ed4b471c1a953db1b3cbbfadf5c3162e",
-          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
-          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
-          "timestamp": "2026-07-17T09:16:26.061Z"
+          "note": "Independent owner rerun at commit d842757356 passed build, host-run usage 81/81, readiness 10/10, candidate routing smoke, and process-fact contract. Deterministic local children cover positive admission, every canonical refusal, stdout/stderr first byte, startup versus total deadline, abort/error/close settlement, ENOENT spawn_error, bounded post-readiness diagnostics, reaping, and immediate slot reacquisition; no real host was launched.",
+          "headHash": "d842757356f5fd1f3a4a313cce9316d9336ad331",
+          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
+          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
+          "timestamp": "2026-07-17T09:38:44.697Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
           "kind": "integration_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Current implementation commit e74d3d39ed: readiness zero-spawn matrix, stderr-first productive child, silent startup timeout, early-output total timeout, abort/close settlement, cap=1 immediate reacquisition, timeoutKind/terminalReason/firstOutputMs/durationMs, and existing host-run race/slot checks all passed without real external hosts.",
-          "headHash": "e74d3d39ed4b471c1a953db1b3cbbfadf5c3162e",
-          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
-          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
-          "timestamp": "2026-07-17T09:16:26.262Z"
+          "note": "Independent owner rerun at commit d842757356 passed build, host-run usage 81/81, readiness 10/10, candidate routing smoke, and process-fact contract. Deterministic local children cover positive admission, every canonical refusal, stdout/stderr first byte, startup versus total deadline, abort/error/close settlement, ENOENT spawn_error, bounded post-readiness diagnostics, reaping, and immediate slot reacquisition; no real host was launched.",
+          "headHash": "d842757356f5fd1f3a4a313cce9316d9336ad331",
+          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
+          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
+          "timestamp": "2026-07-17T09:38:45.060Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "integration_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Current implementation commit e74d3d39ed: readiness zero-spawn matrix, stderr-first productive child, silent startup timeout, early-output total timeout, abort/close settlement, cap=1 immediate reacquisition, timeoutKind/terminalReason/firstOutputMs/durationMs, and existing host-run race/slot checks all passed without real external hosts.",
-          "headHash": "e74d3d39ed4b471c1a953db1b3cbbfadf5c3162e",
-          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
-          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
-          "timestamp": "2026-07-17T09:16:26.453Z"
+          "note": "Independent owner rerun at commit d842757356 passed build, host-run usage 81/81, readiness 10/10, candidate routing smoke, and process-fact contract. Deterministic local children cover positive admission, every canonical refusal, stdout/stderr first byte, startup versus total deadline, abort/error/close settlement, ENOENT spawn_error, bounded post-readiness diagnostics, reaping, and immediate slot reacquisition; no real host was launched.",
+          "headHash": "d842757356f5fd1f3a4a313cce9316d9336ad331",
+          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
+          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
+          "timestamp": "2026-07-17T09:38:45.300Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Current implementation commit e74d3d39ed: readiness zero-spawn matrix, stderr-first productive child, silent startup timeout, early-output total timeout, abort/close settlement, cap=1 immediate reacquisition, timeoutKind/terminalReason/firstOutputMs/durationMs, and existing host-run race/slot checks all passed without real external hosts.",
-          "headHash": "e74d3d39ed4b471c1a953db1b3cbbfadf5c3162e",
-          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
-          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
-          "timestamp": "2026-07-17T09:16:26.649Z"
+          "note": "Independent owner rerun at commit d842757356 passed build, host-run usage 81/81, readiness 10/10, candidate routing smoke, and process-fact contract. Deterministic local children cover positive admission, every canonical refusal, stdout/stderr first byte, startup versus total deadline, abort/error/close settlement, ENOENT spawn_error, bounded post-readiness diagnostics, reaping, and immediate slot reacquisition; no real host was launched.",
+          "headHash": "d842757356f5fd1f3a4a313cce9316d9336ad331",
+          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
+          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
+          "timestamp": "2026-07-17T09:38:45.492Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Current implementation commit e74d3d39ed: readiness zero-spawn matrix, stderr-first productive child, silent startup timeout, early-output total timeout, abort/close settlement, cap=1 immediate reacquisition, timeoutKind/terminalReason/firstOutputMs/durationMs, and existing host-run race/slot checks all passed without real external hosts.",
-          "headHash": "e74d3d39ed4b471c1a953db1b3cbbfadf5c3162e",
-          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
-          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
-          "timestamp": "2026-07-17T09:16:26.834Z"
+          "note": "Independent owner rerun at commit d842757356 passed build, host-run usage 81/81, readiness 10/10, candidate routing smoke, and process-fact contract. Deterministic local children cover positive admission, every canonical refusal, stdout/stderr first byte, startup versus total deadline, abort/error/close settlement, ENOENT spawn_error, bounded post-readiness diagnostics, reaping, and immediate slot reacquisition; no real host was launched.",
+          "headHash": "d842757356f5fd1f3a4a313cce9316d9336ad331",
+          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
+          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
+          "timestamp": "2026-07-17T09:38:45.667Z"
         },
         {
           "intentRef": "CHK-001:adversarial:3",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Current implementation commit e74d3d39ed: readiness zero-spawn matrix, stderr-first productive child, silent startup timeout, early-output total timeout, abort/close settlement, cap=1 immediate reacquisition, timeoutKind/terminalReason/firstOutputMs/durationMs, and existing host-run race/slot checks all passed without real external hosts.",
-          "headHash": "e74d3d39ed4b471c1a953db1b3cbbfadf5c3162e",
-          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
-          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
-          "timestamp": "2026-07-17T09:16:27.006Z"
+          "note": "Independent owner rerun at commit d842757356 passed build, host-run usage 81/81, readiness 10/10, candidate routing smoke, and process-fact contract. Deterministic local children cover positive admission, every canonical refusal, stdout/stderr first byte, startup versus total deadline, abort/error/close settlement, ENOENT spawn_error, bounded post-readiness diagnostics, reaping, and immediate slot reacquisition; no real host was launched.",
+          "headHash": "d842757356f5fd1f3a4a313cce9316d9336ad331",
+          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
+          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
+          "timestamp": "2026-07-17T09:38:45.851Z"
         },
         {
           "intentRef": "CHK-001:adversarial:4",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Current implementation commit e74d3d39ed: readiness zero-spawn matrix, stderr-first productive child, silent startup timeout, early-output total timeout, abort/close settlement, cap=1 immediate reacquisition, timeoutKind/terminalReason/firstOutputMs/durationMs, and existing host-run race/slot checks all passed without real external hosts.",
-          "headHash": "e74d3d39ed4b471c1a953db1b3cbbfadf5c3162e",
-          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
-          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
-          "timestamp": "2026-07-17T09:16:27.205Z"
+          "note": "Independent owner rerun at commit d842757356 passed build, host-run usage 81/81, readiness 10/10, candidate routing smoke, and process-fact contract. Deterministic local children cover positive admission, every canonical refusal, stdout/stderr first byte, startup versus total deadline, abort/error/close settlement, ENOENT spawn_error, bounded post-readiness diagnostics, reaping, and immediate slot reacquisition; no real host was launched.",
+          "headHash": "d842757356f5fd1f3a4a313cce9316d9336ad331",
+          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
+          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
+          "timestamp": "2026-07-17T09:38:46.024Z"
         }
       ]
     },
