@@ -192,7 +192,7 @@
       "desc": "CHK-001 acceptance/evidence is internally inconsistent after the approved local-assurance scope decision. CHK-001:happy:0 still requires each writer to record a signed canonical writer identity, while the implementation and process-fact contract deliberately define closeout-write-receipts as unsigned cooperative lineage and the hostile same-UID regression proves a registered writer label can be forged yet still retain review. That hostile case is an acceptable explicit non-goal only if the must intent is updated to the approved cooperative local-runtime boundary; current evidence must not claim the signed identity requirement passed. Reconcile the verificationIntent/user-visible contract (or implement isolated signing authority) and keep the existing independent consumer-gate tests.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-17T16:12:17.123Z",
@@ -206,7 +206,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "missing|ts|acceptance-evidence-internally",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved in PLAN: CHK-001 now explicitly specifies cooperative local-runtime lineage, independent artifact gates, and hostile same-UID as a non-goal; scope re-review passed.",
+      "resolvedAt": "2026-07-17T16:40:23.089Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-10b0:F-010",
