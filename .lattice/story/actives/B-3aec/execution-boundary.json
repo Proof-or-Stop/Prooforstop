@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-3aec",
+  "allowedCommands": [
+    "git diff *",
+    "git log *",
+    "git status *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/candidate-spec-routing-smoke.js",
+    "node packages/main/dist/tasks/cross-host-review-smoke.js",
+    "node packages/main/dist/tasks/review-host-execution-readiness-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm run test:process-fact-contract"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "independent reviewer agents",
+    "Lattice local CLI"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+    "lattice.config.json",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/candidate-spec-routing.ts",
+    "packages/main/src/core/codex-review-leaf.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/host-execution-readiness.ts",
+    "packages/main/src/core/host-run.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/candidate-spec-routing.ts",
+    "packages/main/src/handlers/cross-host-review.ts",
+    "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+    "packages/main/src/tasks/cross-host-review-smoke.ts",
+    "packages/main/src/tasks/review-host-execution-readiness-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excludedCommands": [
+    "agy *",
+    "claude *",
+    "codex *",
+    "curl *",
+    "git push *",
+    "npm test",
+    "wget *"
+  ],
+  "excludedTools": [
+    "global lattice runtime",
+    "live external host launchers",
+    "network access"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "Proof-or-Stop-editable-high-fidelity.docx",
+    "Proof-or-Stop-editable.docx",
+    "Proof-or-Stop-latest.pdf",
+    "Proof-or-Stop-layout-exact.docx",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "codex-wa-final",
+  "confirmationNote": "Use only deterministic local fake child processes and synthetic corpora. Do not execute real host launchers or a root full test before the normal final validation stage.",
+  "createdAt": "2026-07-17T08:47:01.646Z",
+  "updatedAt": "2026-07-17T08:47:01.646Z",
+  "_hash": "70a9b4649dd629ccf9dba89c4e5ccd99b7c7743bc5b4db8bfb0c6e71fa0a377c"
+}

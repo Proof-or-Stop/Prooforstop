@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-3aec",
+  "checkedAt": "2026-07-17T08:47:14.130Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "68ebaad400e8919bf9e90e8ecc078cb0789b2ee7a2ade6153a721c7702af3085",
+  "executionBoundaryHash": "70a9b4649dd629ccf9dba89c4e5ccd99b7c7743bc5b4db8bfb0c6e71fa0a377c",
+  "freshnessHash": "10146ccd72720415a838d49809615d4780860ef3033f1f825e76635cdf172837",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "Changing cross-host quorum or independent-host assurance policy",
+    "Changing owner session identity or scope semantic anchors",
+    "customerKeyRef",
+    "Layer4",
+    "repair UX",
+    "Repository-wide generic process runner refactor",
+    "Spawning real codex, claude, or agy hosts during development or verification",
+    "Touching unrelated active stories or user document artifacts",
+    "Using host=fake as production evidence"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Changing cross-host quorum or independent-host assurance policy",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing cross-host quorum or independent-host assurance policy",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing owner session identity or scope semantic anchors",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing owner session identity or scope semantic anchors",
+      "excluded": true
+    },
+    {
+      "keyword": "Repository-wide generic process runner refactor",
+      "source": "scopeBoundary.excluded",
+      "text": "Repository-wide generic process runner refactor",
+      "excluded": true
+    },
+    {
+      "keyword": "Spawning real codex, claude, or agy hosts during development or verification",
+      "source": "scopeBoundary.excluded",
+      "text": "Spawning real codex, claude, or agy hosts during development or verification",
+      "excluded": true
+    },
+    {
+      "keyword": "Touching unrelated active stories or user document artifacts",
+      "source": "scopeBoundary.excluded",
+      "text": "Touching unrelated active stories or user document artifacts",
+      "excluded": true
+    },
+    {
+      "keyword": "Using host=fake as production evidence",
+      "source": "scopeBoundary.excluded",
+      "text": "Using host=fake as production evidence",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "1c757d54ad4a59e2306447b332e6cb7ecbe03b4be00b6527a0aac49da7168674"
+}
