@@ -20,6 +20,17 @@ import {
   BYTES_CHARS_ESTIMATOR_VERSION,
   bytesCharsEstimator,
 } from '../core/usage-ledger/estimate.js';
+import {
+  AGENT_DISPATCH_REGISTRY,
+  resolveAgentDispatchType,
+} from '../core/agent-dispatch-registry.js';
+import {
+  PROMPT_ROLE_CONTRACTS,
+  buildPromptRoleContracts,
+  validatePromptRoleContracts,
+  validatePromptRolePolicyDefinition,
+} from '../core/prompt-role-contract-registry.js';
+import { readPromptRegistry } from '../core/prompt-registry.js';
 
 function rejects(fn: () => unknown, pattern: RegExp): void {
   assert.throws(fn, pattern);
@@ -184,4 +195,72 @@ rejects(() => validateDispatchUsageObservation({
   providerProcessedInputTokens: 0,
 }), /unavailable provider usage/);
 
-console.log('prompt-contract-measurement-smoke CHK-001 PASS');
+const packageRoleIds = readPromptRegistry().agents.map(entry => entry.agentId).sort();
+assert.equal(PROMPT_ROLE_CONTRACTS.length, 16);
+assert.deepEqual(PROMPT_ROLE_CONTRACTS.map(contract => contract.roleId).sort(), packageRoleIds);
+assert.equal(new Set(PROMPT_ROLE_CONTRACTS.map(contract => contract.roleId)).size, 16);
+assert.equal(PROMPT_ROLE_CONTRACTS.filter(contract => contract.status === 'active').length, 12);
+assert.deepEqual(
+  PROMPT_ROLE_CONTRACTS.filter(contract => contract.status === 'compatibility').map(contract => contract.roleId).sort(),
+  ['implementation-reviewer', 'test-case-reviewer', 'test-intent'],
+);
+assert.deepEqual(
+  PROMPT_ROLE_CONTRACTS.filter(contract => contract.status === 'retired').map(contract => contract.roleId),
+  ['lattice-review-channel'],
+);
+for (const contract of PROMPT_ROLE_CONTRACTS.filter(contract => contract.status !== 'active')) {
+  assert.equal(contract.defaultDispatch, false);
+}
+const roleById = new Map(PROMPT_ROLE_CONTRACTS.map(contract => [contract.roleId, contract]));
+assert.equal(roleById.get('product-reviewer')?.status, 'active');
+assert.equal(roleById.get('implementation-reviewer')?.replacementAgentType, 'lattice-review-quality');
+assert.match(roleById.get('implementation-reviewer')?.migrationHint ?? '', /lattice-review-behavior/);
+assert.equal(roleById.get('test-intent')?.replacementAgentType, 'verification-intent');
+assert.equal(roleById.get('test-case-reviewer')?.replacementAgentType, 'verification-intent');
+
+const dispatchBefore = canonicalJsonStringify(AGENT_DISPATCH_REGISTRY);
+buildPromptRoleContracts();
+assert.equal(canonicalJsonStringify(AGENT_DISPATCH_REGISTRY), dispatchBefore);
+assert.equal(resolveAgentDispatchType('test-intent').canonicalType, 'verification-intent');
+assert.equal(resolveAgentDispatchType('test-case-reviewer').canonicalType, 'verification-intent');
+assert.equal(resolveAgentDispatchType('product-reviewer').entry.allowedPhases[0], 'INIT');
+assert.equal(resolveAgentDispatchType('lattice-review-channel').entry.allowedPhases[0], 'REVIEW');
+assert.equal(AGENT_DISPATCH_REGISTRY.some(entry => String(entry.canonicalName) === 'implementation-reviewer'), false);
+
+rejects(
+  () => validatePromptRolePolicyDefinition({ synthetic: {} }, packageRoleIds),
+  /unknown/,
+);
+rejects(
+  () => validatePromptRolePolicyDefinition({}, packageRoleIds),
+  /missing/,
+);
+rejects(
+  () => validatePromptRolePolicyDefinition(Object.fromEntries(packageRoleIds.slice(1).map(id => [id, {}])), packageRoleIds),
+  /missing/,
+);
+rejects(
+  () => validatePromptRoleContracts([...PROMPT_ROLE_CONTRACTS, PROMPT_ROLE_CONTRACTS[0]], packageRoleIds),
+  /duplicate/,
+);
+rejects(
+  () => validatePromptRoleContracts(PROMPT_ROLE_CONTRACTS.slice(1), packageRoleIds),
+  /membership/,
+);
+rejects(
+  () => validatePromptRoleContracts([
+    ...PROMPT_ROLE_CONTRACTS.slice(0, -1),
+    { ...PROMPT_ROLE_CONTRACTS.at(-1)!, roleId: 'synthetic-role' },
+  ], packageRoleIds),
+  /membership/,
+);
+rejects(
+  () => validatePromptRoleContracts(PROMPT_ROLE_CONTRACTS.map(contract =>
+    contract.roleId === 'lattice-review-channel'
+      ? { ...contract, defaultDispatch: true }
+      : contract
+  ), packageRoleIds),
+  /retired/,
+);
+
+console.log('prompt-contract-measurement-smoke CHK-001/CHK-002 PASS');
