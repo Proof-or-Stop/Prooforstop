@@ -307,9 +307,9 @@
       "excludes": [
         "No runtime owner-session implementation begins before the decision and independent-host review evidence are accepted."
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-17T23:06:34.377Z",
-      "endTime": null,
+      "endTime": "2026-07-17T23:11:37.559Z",
       "verificationEvidence": [
         {
           "intentRef": "CHK-004:decision-contract",
@@ -520,6 +520,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Begin the pre-runtime ratification slice: canonical document update first; runtime source remains locked until fresh two-host reviews and three manual transcripts are rebound."
+    },
+    {
+      "timestamp": "2026-07-17T23:11:37.559Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Canonical contract committed first; final exact-hash Codex and Antigravity reviews PASS; two continuity invocation shapes and one degraded comparison are bound; runtime implementation may now begin.",
+      "agent": "lattice-implementer"
     }
   ]
 }
