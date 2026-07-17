@@ -259,93 +259,79 @@
         {
           "intentRef": "CHK-002:happy:0",
           "kind": "integration_test",
-          "verdict": "success",
-          "file": "packages/main/src/tasks/production-test-seam-guard.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "F-018 final material passed: static method-name mutations through nested/deep/computed receivers and Object mutation APIs globally disable exact resolution for that name; dynamic keys disable all exact method resolution; append-only candidate union catches fs/process sinks while immutable/unrelated/array-mutation controls stay green.",
-          "headHash": "b902aadc7be93f0d2f8ee13587077d430b92b359",
-          "materialHash": "fb4dfa643c293ed65a49e1e85699a265d7b963791aa81e9185827c3fe8a4dfe2",
-          "storyFilesHash": "315bc29e9da0bd7b400e4ea1b5bdbe0f870234198aac38fb8f1ea8f550fec288",
-          "timestamp": "2026-07-17T01:09:43.784Z"
+          "note": "F-019 verifies Object.assign scans every source, unions static keys including known const spreads, fails closed on unknown sources/spreads/dynamic keys, preserves target mutation propagation, and keeps static non-method controls safe.",
+          "headHash": "955b5c5065fa636ed3c65370bc111579967df18f",
+          "materialHash": "d4bd8d4e90f60f299903c1bd216d1bf31e90b529ce76f288044f6510856196aa",
+          "storyFilesHash": "ef95f281e5d0608b499724d4174e5cda25a2d1b0bf67a0c4eabc4d14469bfdab",
+          "timestamp": "2026-07-17T01:17:29.995Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
           "kind": "integration_test",
-          "verdict": "success",
-          "file": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "F-018 final material passed: static method-name mutations through nested/deep/computed receivers and Object mutation APIs globally disable exact resolution for that name; dynamic keys disable all exact method resolution; append-only candidate union catches fs/process sinks while immutable/unrelated/array-mutation controls stay green.",
-          "headHash": "b902aadc7be93f0d2f8ee13587077d430b92b359",
-          "materialHash": "fb4dfa643c293ed65a49e1e85699a265d7b963791aa81e9185827c3fe8a4dfe2",
-          "storyFilesHash": "315bc29e9da0bd7b400e4ea1b5bdbe0f870234198aac38fb8f1ea8f550fec288",
-          "timestamp": "2026-07-17T01:09:43.784Z"
+          "note": "F-019 verifies Object.assign scans every source, unions static keys including known const spreads, fails closed on unknown sources/spreads/dynamic keys, preserves target mutation propagation, and keeps static non-method controls safe.",
+          "headHash": "955b5c5065fa636ed3c65370bc111579967df18f",
+          "materialHash": "d4bd8d4e90f60f299903c1bd216d1bf31e90b529ce76f288044f6510856196aa",
+          "storyFilesHash": "ef95f281e5d0608b499724d4174e5cda25a2d1b0bf67a0c4eabc4d14469bfdab",
+          "timestamp": "2026-07-17T01:17:29.995Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "integration_test",
-          "verdict": "success",
-          "file": "packages/main/src/tasks/production-test-seam-guard.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "F-018 final material passed: static method-name mutations through nested/deep/computed receivers and Object mutation APIs globally disable exact resolution for that name; dynamic keys disable all exact method resolution; append-only candidate union catches fs/process sinks while immutable/unrelated/array-mutation controls stay green.",
-          "headHash": "b902aadc7be93f0d2f8ee13587077d430b92b359",
-          "materialHash": "fb4dfa643c293ed65a49e1e85699a265d7b963791aa81e9185827c3fe8a4dfe2",
-          "storyFilesHash": "315bc29e9da0bd7b400e4ea1b5bdbe0f870234198aac38fb8f1ea8f550fec288",
-          "timestamp": "2026-07-17T01:09:43.784Z"
+          "note": "F-019 verifies Object.assign scans every source, unions static keys including known const spreads, fails closed on unknown sources/spreads/dynamic keys, preserves target mutation propagation, and keeps static non-method controls safe.",
+          "headHash": "955b5c5065fa636ed3c65370bc111579967df18f",
+          "materialHash": "d4bd8d4e90f60f299903c1bd216d1bf31e90b529ce76f288044f6510856196aa",
+          "storyFilesHash": "ef95f281e5d0608b499724d4174e5cda25a2d1b0bf67a0c4eabc4d14469bfdab",
+          "timestamp": "2026-07-17T01:17:29.995Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
           "kind": "integration_test",
-          "verdict": "success",
-          "file": "packages/main/src/tasks/production-test-seam-guard.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "F-018 final material passed: static method-name mutations through nested/deep/computed receivers and Object mutation APIs globally disable exact resolution for that name; dynamic keys disable all exact method resolution; append-only candidate union catches fs/process sinks while immutable/unrelated/array-mutation controls stay green.",
-          "headHash": "b902aadc7be93f0d2f8ee13587077d430b92b359",
-          "materialHash": "fb4dfa643c293ed65a49e1e85699a265d7b963791aa81e9185827c3fe8a4dfe2",
-          "storyFilesHash": "315bc29e9da0bd7b400e4ea1b5bdbe0f870234198aac38fb8f1ea8f550fec288",
-          "timestamp": "2026-07-17T01:09:43.784Z"
+          "note": "F-019 verifies Object.assign scans every source, unions static keys including known const spreads, fails closed on unknown sources/spreads/dynamic keys, preserves target mutation propagation, and keeps static non-method controls safe.",
+          "headHash": "955b5c5065fa636ed3c65370bc111579967df18f",
+          "materialHash": "d4bd8d4e90f60f299903c1bd216d1bf31e90b529ce76f288044f6510856196aa",
+          "storyFilesHash": "ef95f281e5d0608b499724d4174e5cda25a2d1b0bf67a0c4eabc4d14469bfdab",
+          "timestamp": "2026-07-17T01:17:29.995Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "integration_test",
-          "verdict": "success",
-          "file": "packages/main/src/tasks/production-test-seam-guard.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "F-018 final material passed: static method-name mutations through nested/deep/computed receivers and Object mutation APIs globally disable exact resolution for that name; dynamic keys disable all exact method resolution; append-only candidate union catches fs/process sinks while immutable/unrelated/array-mutation controls stay green.",
-          "headHash": "b902aadc7be93f0d2f8ee13587077d430b92b359",
-          "materialHash": "fb4dfa643c293ed65a49e1e85699a265d7b963791aa81e9185827c3fe8a4dfe2",
-          "storyFilesHash": "315bc29e9da0bd7b400e4ea1b5bdbe0f870234198aac38fb8f1ea8f550fec288",
-          "timestamp": "2026-07-17T01:09:43.784Z"
+          "note": "F-019 verifies Object.assign scans every source, unions static keys including known const spreads, fails closed on unknown sources/spreads/dynamic keys, preserves target mutation propagation, and keeps static non-method controls safe.",
+          "headHash": "955b5c5065fa636ed3c65370bc111579967df18f",
+          "materialHash": "d4bd8d4e90f60f299903c1bd216d1bf31e90b529ce76f288044f6510856196aa",
+          "storyFilesHash": "ef95f281e5d0608b499724d4174e5cda25a2d1b0bf67a0c4eabc4d14469bfdab",
+          "timestamp": "2026-07-17T01:17:29.995Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
           "kind": "integration_test",
-          "verdict": "success",
-          "file": "packages/main/src/tasks/production-test-seam-guard.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "F-018 final material passed: static method-name mutations through nested/deep/computed receivers and Object mutation APIs globally disable exact resolution for that name; dynamic keys disable all exact method resolution; append-only candidate union catches fs/process sinks while immutable/unrelated/array-mutation controls stay green.",
-          "headHash": "b902aadc7be93f0d2f8ee13587077d430b92b359",
-          "materialHash": "fb4dfa643c293ed65a49e1e85699a265d7b963791aa81e9185827c3fe8a4dfe2",
-          "storyFilesHash": "315bc29e9da0bd7b400e4ea1b5bdbe0f870234198aac38fb8f1ea8f550fec288",
-          "timestamp": "2026-07-17T01:09:43.784Z"
+          "note": "F-019 verifies Object.assign scans every source, unions static keys including known const spreads, fails closed on unknown sources/spreads/dynamic keys, preserves target mutation propagation, and keeps static non-method controls safe.",
+          "headHash": "955b5c5065fa636ed3c65370bc111579967df18f",
+          "materialHash": "d4bd8d4e90f60f299903c1bd216d1bf31e90b529ce76f288044f6510856196aa",
+          "storyFilesHash": "ef95f281e5d0608b499724d4174e5cda25a2d1b0bf67a0c4eabc4d14469bfdab",
+          "timestamp": "2026-07-17T01:17:29.995Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
           "kind": "integration_test",
-          "verdict": "success",
-          "file": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "F-018 final material passed: static method-name mutations through nested/deep/computed receivers and Object mutation APIs globally disable exact resolution for that name; dynamic keys disable all exact method resolution; append-only candidate union catches fs/process sinks while immutable/unrelated/array-mutation controls stay green.",
-          "headHash": "b902aadc7be93f0d2f8ee13587077d430b92b359",
-          "materialHash": "fb4dfa643c293ed65a49e1e85699a265d7b963791aa81e9185827c3fe8a4dfe2",
-          "storyFilesHash": "315bc29e9da0bd7b400e4ea1b5bdbe0f870234198aac38fb8f1ea8f550fec288",
-          "timestamp": "2026-07-17T01:09:43.784Z"
+          "note": "F-019 verifies Object.assign scans every source, unions static keys including known const spreads, fails closed on unknown sources/spreads/dynamic keys, preserves target mutation propagation, and keeps static non-method controls safe.",
+          "headHash": "955b5c5065fa636ed3c65370bc111579967df18f",
+          "materialHash": "d4bd8d4e90f60f299903c1bd216d1bf31e90b529ce76f288044f6510856196aa",
+          "storyFilesHash": "ef95f281e5d0608b499724d4174e5cda25a2d1b0bf67a0c4eabc4d14469bfdab",
+          "timestamp": "2026-07-17T01:17:29.995Z"
         }
       ]
     }
