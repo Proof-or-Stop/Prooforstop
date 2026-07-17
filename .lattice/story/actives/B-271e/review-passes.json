@@ -19,6 +19,29 @@
         "scanEscalationReason": null
       },
       "_hash": "cd4e96a5ac04e53ea6823935446db4c0a1ccd1e67a425fc3d3fff2ed6e75de25"
+    },
+    {
+      "id": "B-271e:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted round-2 coverage re-review found F-002, F-006, and corrected F-007 closed: the 640-case four-field cross-product passed normalizer/schema/direct-handler/no-write/DONE assertions; raw-return sanitizer decoys were detected; and CHK-001 happy:0, role registry, executable evidence, and smoke actor all use lattice-review-delivery. Quality-lane F-008 remains independently open and is not waived by this lane pass.",
+      "createdAt": "2026-07-17T00:22:06.429Z",
+      "reviewRound": "2026-07-17T00:18:09.305Z",
+      "reviewRunId": "B-271e:RR-008",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/delivery-promise-outcome.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+          "packages/main/src/tasks/production-test-seam-guard.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a690f163361638058594f208076e57623e007c20083799c23c4d573411ad8a3c"
     }
   ]
 }
