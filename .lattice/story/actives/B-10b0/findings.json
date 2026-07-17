@@ -134,6 +134,26 @@
       ],
       "signatureTag": "cosmetic-convergence-counters",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-10b0:F-008",
+      "desc": "F-005 is only partially fixed: collectDonePrepareConvergenceFacts counts reviewer runs/passes strictly after the successful TEST entry (`startedAt > testEntry.timestamp` / `createdAt > testEntry.timestamp`). The costly failure this story targets can re-run review while the story is still in REVIEW—e.g. transition-time validation writes metadata, REVIEW→TEST remains blocked, and reviewers re-attest before the eventual successful TEST transition. Those extra identities occur between the REVIEW anchor and TEST entry, so current telemetry reports reviewerReattestations=0 and DONE prepare may claim zero-cost convergence. The existing negative test injects reviewerIdentityIds directly and never exercises this collector window. Bind the initial complete-review receipt identities at the REVIEW anchor (or otherwise establish a baseline), count additional valid run/pass identities from that baseline through closeout including the pre-TEST interval, and add a real-store fixture with an extra pre-TEST reviewer run/pass that makes the PASS convergence invariant fail.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-17T16:12:01.435Z",
+      "reviewRound": "2026-07-17T16:07:26.297Z",
+      "reviewRunId": "B-10b0:RR-006",
+      "_hash": "638f81e207d8d44932ad8ec5e714ce3cc807ec800bb31741a9e4455c8222d2b5",
+      "files": [
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts",
+        "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|partially-fixed-collectdoneprepareconvergencefacts",
+      "signatureTagSource": "auto"
     }
   ]
 }
