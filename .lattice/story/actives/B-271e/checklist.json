@@ -263,11 +263,11 @@
           "file": "packages/main/src/tasks/production-test-seam-guard.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "Final review-fix material passed: structural sanitizer return proof with raw-return decoys, helper/object/process alias taint propagation, production-unreachable retired seam checks, and real verifier handler command-to-persistence lock ordering.",
-          "headHash": "969ffd1d98969076b3dcf5c00904e16bf2a0809e",
-          "materialHash": "922ba8fc29b4f0b42ea39cffd1849bab8f39ecd9355751be76c194c252163525",
-          "storyFilesHash": "311bd5ff0c1efa297172f25eee1ece214aba370834ee42990c104520d05ce3e1",
-          "timestamp": "2026-07-17T00:17:45.999Z"
+          "note": "F-008 final material passed: process/env alias and nested destructuring propagate TEST/SMOKE taint; positive-int exemptions require separate top-level conjunction terms; OR, negated, alternate-OR, Infinity/raw sink decoys remain blocked; real verifier lock ordering remains green.",
+          "headHash": "d5e05e2300ee2d01513497b7d61dcba903375fab",
+          "materialHash": "31a106717bf7b6d9a582f30ecc3f0631ecce9e8e63f9f88c82db56bd9b028d09",
+          "storyFilesHash": "e251e76834f25a763f1eb654ab7689d9d1841a599b52f7163552c86fb9f094f2",
+          "timestamp": "2026-07-17T00:24:49.922Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -276,11 +276,11 @@
           "file": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "Final review-fix material passed: structural sanitizer return proof with raw-return decoys, helper/object/process alias taint propagation, production-unreachable retired seam checks, and real verifier handler command-to-persistence lock ordering.",
-          "headHash": "969ffd1d98969076b3dcf5c00904e16bf2a0809e",
-          "materialHash": "922ba8fc29b4f0b42ea39cffd1849bab8f39ecd9355751be76c194c252163525",
-          "storyFilesHash": "311bd5ff0c1efa297172f25eee1ece214aba370834ee42990c104520d05ce3e1",
-          "timestamp": "2026-07-17T00:17:45.999Z"
+          "note": "F-008 final material passed: process/env alias and nested destructuring propagate TEST/SMOKE taint; positive-int exemptions require separate top-level conjunction terms; OR, negated, alternate-OR, Infinity/raw sink decoys remain blocked; real verifier lock ordering remains green.",
+          "headHash": "d5e05e2300ee2d01513497b7d61dcba903375fab",
+          "materialHash": "31a106717bf7b6d9a582f30ecc3f0631ecce9e8e63f9f88c82db56bd9b028d09",
+          "storyFilesHash": "e251e76834f25a763f1eb654ab7689d9d1841a599b52f7163552c86fb9f094f2",
+          "timestamp": "2026-07-17T00:24:49.922Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -289,11 +289,11 @@
           "file": "packages/main/src/tasks/production-test-seam-guard.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "Final review-fix material passed: structural sanitizer return proof with raw-return decoys, helper/object/process alias taint propagation, production-unreachable retired seam checks, and real verifier handler command-to-persistence lock ordering.",
-          "headHash": "969ffd1d98969076b3dcf5c00904e16bf2a0809e",
-          "materialHash": "922ba8fc29b4f0b42ea39cffd1849bab8f39ecd9355751be76c194c252163525",
-          "storyFilesHash": "311bd5ff0c1efa297172f25eee1ece214aba370834ee42990c104520d05ce3e1",
-          "timestamp": "2026-07-17T00:17:45.999Z"
+          "note": "F-008 final material passed: process/env alias and nested destructuring propagate TEST/SMOKE taint; positive-int exemptions require separate top-level conjunction terms; OR, negated, alternate-OR, Infinity/raw sink decoys remain blocked; real verifier lock ordering remains green.",
+          "headHash": "d5e05e2300ee2d01513497b7d61dcba903375fab",
+          "materialHash": "31a106717bf7b6d9a582f30ecc3f0631ecce9e8e63f9f88c82db56bd9b028d09",
+          "storyFilesHash": "e251e76834f25a763f1eb654ab7689d9d1841a599b52f7163552c86fb9f094f2",
+          "timestamp": "2026-07-17T00:24:49.922Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -302,11 +302,11 @@
           "file": "packages/main/src/tasks/production-test-seam-guard.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "Final review-fix material passed: structural sanitizer return proof with raw-return decoys, helper/object/process alias taint propagation, production-unreachable retired seam checks, and real verifier handler command-to-persistence lock ordering.",
-          "headHash": "969ffd1d98969076b3dcf5c00904e16bf2a0809e",
-          "materialHash": "922ba8fc29b4f0b42ea39cffd1849bab8f39ecd9355751be76c194c252163525",
-          "storyFilesHash": "311bd5ff0c1efa297172f25eee1ece214aba370834ee42990c104520d05ce3e1",
-          "timestamp": "2026-07-17T00:17:45.999Z"
+          "note": "F-008 final material passed: process/env alias and nested destructuring propagate TEST/SMOKE taint; positive-int exemptions require separate top-level conjunction terms; OR, negated, alternate-OR, Infinity/raw sink decoys remain blocked; real verifier lock ordering remains green.",
+          "headHash": "d5e05e2300ee2d01513497b7d61dcba903375fab",
+          "materialHash": "31a106717bf7b6d9a582f30ecc3f0631ecce9e8e63f9f88c82db56bd9b028d09",
+          "storyFilesHash": "e251e76834f25a763f1eb654ab7689d9d1841a599b52f7163552c86fb9f094f2",
+          "timestamp": "2026-07-17T00:24:49.922Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -315,11 +315,11 @@
           "file": "packages/main/src/tasks/production-test-seam-guard.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "Final review-fix material passed: structural sanitizer return proof with raw-return decoys, helper/object/process alias taint propagation, production-unreachable retired seam checks, and real verifier handler command-to-persistence lock ordering.",
-          "headHash": "969ffd1d98969076b3dcf5c00904e16bf2a0809e",
-          "materialHash": "922ba8fc29b4f0b42ea39cffd1849bab8f39ecd9355751be76c194c252163525",
-          "storyFilesHash": "311bd5ff0c1efa297172f25eee1ece214aba370834ee42990c104520d05ce3e1",
-          "timestamp": "2026-07-17T00:17:45.999Z"
+          "note": "F-008 final material passed: process/env alias and nested destructuring propagate TEST/SMOKE taint; positive-int exemptions require separate top-level conjunction terms; OR, negated, alternate-OR, Infinity/raw sink decoys remain blocked; real verifier lock ordering remains green.",
+          "headHash": "d5e05e2300ee2d01513497b7d61dcba903375fab",
+          "materialHash": "31a106717bf7b6d9a582f30ecc3f0631ecce9e8e63f9f88c82db56bd9b028d09",
+          "storyFilesHash": "e251e76834f25a763f1eb654ab7689d9d1841a599b52f7163552c86fb9f094f2",
+          "timestamp": "2026-07-17T00:24:49.922Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -328,11 +328,11 @@
           "file": "packages/main/src/tasks/production-test-seam-guard.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "Final review-fix material passed: structural sanitizer return proof with raw-return decoys, helper/object/process alias taint propagation, production-unreachable retired seam checks, and real verifier handler command-to-persistence lock ordering.",
-          "headHash": "969ffd1d98969076b3dcf5c00904e16bf2a0809e",
-          "materialHash": "922ba8fc29b4f0b42ea39cffd1849bab8f39ecd9355751be76c194c252163525",
-          "storyFilesHash": "311bd5ff0c1efa297172f25eee1ece214aba370834ee42990c104520d05ce3e1",
-          "timestamp": "2026-07-17T00:17:45.999Z"
+          "note": "F-008 final material passed: process/env alias and nested destructuring propagate TEST/SMOKE taint; positive-int exemptions require separate top-level conjunction terms; OR, negated, alternate-OR, Infinity/raw sink decoys remain blocked; real verifier lock ordering remains green.",
+          "headHash": "d5e05e2300ee2d01513497b7d61dcba903375fab",
+          "materialHash": "31a106717bf7b6d9a582f30ecc3f0631ecce9e8e63f9f88c82db56bd9b028d09",
+          "storyFilesHash": "e251e76834f25a763f1eb654ab7689d9d1841a599b52f7163552c86fb9f094f2",
+          "timestamp": "2026-07-17T00:24:49.922Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
@@ -341,11 +341,11 @@
           "file": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "Final review-fix material passed: structural sanitizer return proof with raw-return decoys, helper/object/process alias taint propagation, production-unreachable retired seam checks, and real verifier handler command-to-persistence lock ordering.",
-          "headHash": "969ffd1d98969076b3dcf5c00904e16bf2a0809e",
-          "materialHash": "922ba8fc29b4f0b42ea39cffd1849bab8f39ecd9355751be76c194c252163525",
-          "storyFilesHash": "311bd5ff0c1efa297172f25eee1ece214aba370834ee42990c104520d05ce3e1",
-          "timestamp": "2026-07-17T00:17:45.999Z"
+          "note": "F-008 final material passed: process/env alias and nested destructuring propagate TEST/SMOKE taint; positive-int exemptions require separate top-level conjunction terms; OR, negated, alternate-OR, Infinity/raw sink decoys remain blocked; real verifier lock ordering remains green.",
+          "headHash": "d5e05e2300ee2d01513497b7d61dcba903375fab",
+          "materialHash": "31a106717bf7b6d9a582f30ecc3f0631ecce9e8e63f9f88c82db56bd9b028d09",
+          "storyFilesHash": "e251e76834f25a763f1eb654ab7689d9d1841a599b52f7163552c86fb9f094f2",
+          "timestamp": "2026-07-17T00:24:49.922Z"
         }
       ]
     }
