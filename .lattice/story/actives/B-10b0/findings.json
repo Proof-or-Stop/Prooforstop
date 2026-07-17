@@ -279,7 +279,7 @@
       "desc": "The positive reused-validation closeout, pre-existing dirty rejection, and current-run human_confirmation rejection pass, but the newly trusted process-events.jsonl auto-stage path lacks the required strict append-only/schema negative matrix. Current tests never exercise a current-run `validation_terminal` lookalike with an extra key, wrong story/phase/disposition/result, nonzero commandExecutions, malformed hashes/timestamp, malformed JSON, missing terminal newline, or replacement/truncation of baseline bytes. The single human_confirmation case only proves type rejection and would not catch a future weakening of the exact-key/value checks or prefix invariant. Add a table-driven manifest test for these malformed same-type events plus at least one non-append baseline mutation; every row must classify unsafe_untrusted_process_events_delta with no safe path/staging. Keep the passing real second done_prepare assertion unchanged.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-17T20:41:46.375Z",
@@ -291,7 +291,11 @@
         "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|positive-reused-validation",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: the prior focused corpus rejected only human_confirmation and did not exercise same-type malformed validation_terminal rows. Root cause: missing strict negative matrix around the newly trusted process-events path. Fixed by 779c187d79 with an exact-valid control plus 19 fail-closed cases covering binding drift, extra fields, wrong terminal semantics, malformed hashes/time/JSON, missing newline, prefix rewrite/truncation, and mixed valid+invalid rows. Verification: npm --prefix packages/main run build; node packages/main/dist/tasks/done-prepare-auto-closeout-smoke.js; node packages/main/dist/tasks/done-prepare-merge-rerun-smoke.js all PASS.",
+      "resolvedAt": "2026-07-17T20:48:42.033Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-10b0:F-013",
