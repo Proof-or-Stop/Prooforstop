@@ -340,7 +340,7 @@
       "desc": "packages/main/src/core/done-prepare-generated-metadata.ts:648-690 [HIGH] F-014 remains partially open: the new exact staged-path/blob/worktree checks close the beforeAdd and afterAddBeforeCommit worktree seams, and an unrelated pre-staged path is correctly refused, but the live index can still change after the final checks and before git commit. A clean temporary-repo probe intercepted the git commit invocation, staged late-unrelated.txt after lines 648-685 had passed, then allowed the no-pathspec commit; commitDonePrepareGeneratedMetadata returned ok:true and HEAD contained both process-events.jsonl and late-unrelated.txt. Because success prevents handler rollback, the unrelated file remains committed. Freeze an immutable verified tree instead of later committing the mutable shared index: e.g. build an isolated temporary index, write-tree, verify the resulting tree/blob IDs and exact diff against the expected parent, create commit from that tree, and CAS update HEAD against the captured parent; restore/refresh the real index and worktree transaction on any failure. Add a seam immediately after final index verification/before commit, plus assertions for HEAD/index/worktree rollback.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-17T20:58:14.813Z",
@@ -348,7 +348,11 @@
       "reviewRunId": "B-10b0:RR-028",
       "_hash": "16105f47a2e696dbb2a5e4aeccb6cf0184dc74cb47e81d9ca42ba92412ac6afd",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: late unrelated staging into the shared real index after final verification entered the prior no-pathspec git commit. Root cause: the commit input remained the mutable shared index. Fixed by f3f6f78b60: closeout now seeds an isolated temporary index from the exact old HEAD, stages only manifest paths, verifies exact temp-index path/blob digests, freezes and re-verifies an immutable tree, creates the commit with commit-tree, and CAS-updates the branch from the captured old HEAD. A final-check seam stages an unrelated real-index blob but the committed tree contains only process-events; concurrent HEAD advancement makes CAS refuse; temporary index artifacts are removed on success/failure. Verification: build, auto-closeout smoke, merge-rerun smoke PASS.",
+      "resolvedAt": "2026-07-17T21:07:21.456Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-10b0:F-016",
