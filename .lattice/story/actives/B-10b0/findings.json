@@ -75,6 +75,27 @@
       ],
       "signatureTag": "missing|ts|coverage-materially-incomplete",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-10b0:F-005",
+      "desc": "CHK-002 one-pass acceptance counters are not measured from lifecycle history, so DONE prepare can report zero-cost convergence without proving it. deriveDonePreparePassConvergence infers metadataRollbacks/humanConfirmations by regexing only current step text and reviewerReattestations from current blocking runbook rows; it does not bind initial/final phase, review round/receipt identity, actual artifact writer sequence, or prior re-attestation/ack/backstep events. closeoutWriteSequence is a constant string. The positive smoke mostly asserts the resulting literal zeros, so a past metadata-only rollback or reviewer re-attestation is invisible. Emit counters from durable process events/review receipt identity and artifact receipts over the closeout window, and add a negative fixture containing a prior backstep/re-attestation/human ack that must make PASS convergence fail.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-17T14:55:15.753Z",
+      "reviewRound": "2026-07-17T14:39:47.580Z",
+      "reviewRunId": "B-10b0:RR-001",
+      "_hash": "7c4c7453961e761da124a4c5fc8e0c7e41e78207531186d99c9acf9466e82dc5",
+      "files": [
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts",
+        "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+        "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|pass-acceptance-counters",
+      "signatureTagSource": "auto"
     }
   ]
 }
