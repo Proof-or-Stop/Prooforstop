@@ -414,6 +414,27 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-10b0:F-019",
+      "desc": "packages/main/src/handlers/verifier.ts:679-721 and packages/main/src/tasks/validation-evidence-reuse-smoke.ts:200-219 [HIGH] The new persistence-failure test proves HEAD and test-evidence working-tree bytes are restored, but it does not prove the promised canonical-writer transaction rollback. autoCommitStoryMetadata stages the entire story directory before git commit; when the injected pre-commit hook rejects, verifier restores only three worktree files and never restores the git index, leaving the attempted PASS/validation_terminal/receipt staged. The test also never snapshots/asserts process-events.jsonl or closeout-write-receipts.jsonl bytes/index state. Separately, autoCommitStoryMetadata catches closeout-receipt issuance failures and can still return the success prefix plus a warning, while verifier treats any result containing that prefix as success; no writer/receipt rejection case covers this. Make reuse persistence transactional across worktree and index for test-evidence, terminal, and receipt, treat receipt issuance failure as infra_failure, and assert exact pre/post bytes plus cached status for all three artifacts.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-17T21:39:32.664Z",
+      "reviewRound": "2026-07-17T21:36:41.052Z",
+      "reviewRunId": "B-10b0:RR-038",
+      "_hash": "0c578d5adb1e69fe6e93d0a4bca1b9a457aeae324d7bf4112231c198823c5f9e",
+      "files": [
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+        "packages/main/src/core/process-fact-registry.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "validation-reuse|writer-rollback|index-state",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
