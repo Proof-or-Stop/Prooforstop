@@ -9,9 +9,9 @@
         "docs/requirements/decisions/owner-session-contract-execution-plan.md",
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-17T23:11:49.266Z",
-      "endTime": null,
+      "endTime": "2026-07-17T23:28:00.561Z",
       "userSees": "User sees \"owner session: <stable-id> [host-adapter]\" remain unchanged across same-task shell boundaries; a different task or role sees the existing foreign-owner rejection.",
       "files": {
         "modify": [
@@ -975,6 +975,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Pre-runtime ratification is complete; begin the bounded red-to-green stable task-plus-agent resolver implementation."
+    },
+    {
+      "timestamp": "2026-07-17T23:28:00.561Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Committed stable task-plus-agent resolver and bounded generated fallback in a175883c; independent build and focused owner-session/guardrail verification PASS.",
+      "agent": "lattice-implementer"
     }
   ]
 }
