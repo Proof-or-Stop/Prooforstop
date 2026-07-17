@@ -284,11 +284,13 @@
       "q": "CHK-001 lists process-fact-registry/process-fact-levels as modify targets. Confirm those files are changed only for CHK-002 gate-consumed candidate artifact/mode semantics, while host availability, launcher readiness, startup timing, and execution diagnostics remain runtime facts and are not promoted into process-fact evidence.",
       "evidence": "AGENTS.md separates runtime/environment facts from the process registry; host readiness and executable behavior are runtime facts. CHK-001 and CHK-002 currently share the registry files in their modify lists.",
       "sourcePointers": [
-        "AGENTS.md#流程事实双层契约",
-        ".lattice/story/actives/B-3aec/checklist.json#CHK-001.files",
-        ".lattice/story/actives/B-3aec/checklist.json#CHK-002.files",
-        "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md#15-process-fact-and-runtime-boundaries"
-      ]
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#7.2",
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#7.4",
+        "CHK-001",
+        "CHK-002"
+      ],
+      "resolution": "Per Workstream B sections 7.2 and 7.4, CHK-001 launcher readiness, first-output timing, total timeout, kill/reap, and capacity release remain runtime/execution facts and do not become new process gate evidence. CHK-002 may update process-fact registry and its verifier only when the signed candidate artifact or rollout-mode fields consumed by scope/review gates change.",
+      "resolvedAt": "2026-07-17T08:58:30.428Z"
     }
   ]
 }
