@@ -426,6 +426,26 @@
         "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
       },
       "_hash": "a79489ffa5d0caeb21c54071940bc3ca06f0333900d05b05ffb6382315438c4a"
+    },
+    {
+      "id": "B-10b0:RP-018",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted coverage review of f3f6f78b60 found no blocker. The focused smoke proves isolated-index exclusion of late real-index staging; byte-for-byte preservation of unrelated pre-staged blobs on both success and CAS refusal; concurrent HEAD CAS refusal without installing the closeout tree; exact missing/extra temporary-index path-set rejection; forged-byte index/worktree digest refusal; exact committed-tree path outcome; temporary-index cleanup on success and CAS failure; managed rollback without disturbing unrelated index state; and existing positive done_prepare closeout plus merge/rerun convergence. npm build, done-prepare-auto-closeout smoke, and done-prepare-merge-rerun smoke all passed.",
+      "createdAt": "2026-07-17T21:09:41.210Z",
+      "reviewRound": "2026-07-17T21:07:07.937Z",
+      "reviewRunId": "B-10b0:RR-032",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cda29e941fcde846da2a3defdc27fb9557b5e3d77bf676446a191888be044db9"
     }
   ]
 }
