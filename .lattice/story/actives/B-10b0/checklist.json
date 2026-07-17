@@ -282,7 +282,7 @@
           }
         ]
       },
-      "userSees": "Concept validation accepts body-only edits without deleted-symbol warnings and still blocks true deletions with residual references.",
+      "userSees": "User sees \"no deleted exports\" for declaration/body edits, while a true deletion with residual references remains WARN or FAIL.",
       "files": {
         "modify": [
           "packages/main/src/handlers/validate-concept.ts"
