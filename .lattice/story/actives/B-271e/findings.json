@@ -398,7 +398,7 @@
       "desc": "packages/main/src/tasks/production-test-seam-guard.ts:270-288 handles Object.assign as if it had only one source object: it derives mutated method names solely from node.arguments[1]. Object.assign is variadic, so a later source can replace a method without invalidating that method name when the first source contains a known unrelated key. Confirmed nested-alias repro: const unsafe={run(path){writeFileSync(path,0)}}; const safe={run(payload){return payload}}; const holder={ref:safe}; Object.assign(holder.ref,{other:1},{run:unsafe.run}); safe.run(process.env.TEST_FILE). analyzeProductionTestSeams returns [] because only other is globally invalidated; safe.run still exact-replays the original payload candidate and misses the replacement path sink. Inspect every Object.assign source argument and union all statically known property names; if any source is non-object/dynamic or has an unknown key, set allMethodNamesMutated. Add a nested target multi-source assign regression with distinct parameters.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-17T01:12:37.374Z",
@@ -409,7 +409,11 @@
         "packages/main/src/tasks/production-test-seam-guard.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Object.assign mutation collector now traverses every source, unions all static keys including known const-object spreads, and invalidates all exact callable resolution on unknown source/spread/dynamic key. Multi-source nested regressions pass.",
+      "resolvedAt": "2026-07-17T01:18:21.077Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
