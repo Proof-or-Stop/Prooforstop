@@ -218,7 +218,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-17T09:16:28.729Z",
+      "endTime": "2026-07-17T09:38:47.484Z",
       "verificationIntent": {
         "happy": [
           {
@@ -315,137 +315,135 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-002:happy:0",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Current implementation commit e74d3d39ed: generic DF filtering, five protected typed exact-source classes, safe-below-cutoff versus ranking-affecting evidence, malformed relevance fail-closed, structured-risk-only handling, proposal permutation, and shadow/warn/enforce renderer separation all passed.",
-          "headHash": "6cbe6ec2f57a6fe59cf38d5089987aa01e67359a",
-          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
-          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
-          "timestamp": "2026-07-17T09:16:28.941Z"
+          "note": "Independent owner rerun at commit d842757356 passed build, candidate routing smoke, host-run 81/81, readiness 10/10, and process-fact contract. Tests cover protected-before-budget retention including safe external paths and typed missing diagnostics, current signed full-read reviewer evidence only, generic-only bounded behavior, exact DF boundary, honest truncation evidence, structured risks, independent digest checks, and end-to-end shadow/warn/enforce disposition.",
+          "headHash": "696e713fba7409e54ef5593aa5909141f09a5f79",
+          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
+          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
+          "timestamp": "2026-07-17T09:38:47.659Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
           "kind": "logic_test",
-          "verdict": "success",
-          "file": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Synthetic-corpus logic proves protected exact sources survive frequency filtering and safe-below-cutoff truncation does not escalate while ranking-affecting omissions do.",
-          "headHash": "516d793ec3140aae0fb914e0d5d1c8e6755de624",
-          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
-          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
-          "timestamp": "2026-07-17T09:16:50.883Z"
+          "note": "Independent owner rerun at commit d842757356 passed build, candidate routing smoke, host-run 81/81, readiness 10/10, and process-fact contract. Tests cover protected-before-budget retention including safe external paths and typed missing diagnostics, current signed full-read reviewer evidence only, generic-only bounded behavior, exact DF boundary, honest truncation evidence, structured risks, independent digest checks, and end-to-end shadow/warn/enforce disposition.",
+          "headHash": "696e713fba7409e54ef5593aa5909141f09a5f79",
+          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
+          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
+          "timestamp": "2026-07-17T09:38:47.903Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Current implementation commit e74d3d39ed: generic DF filtering, five protected typed exact-source classes, safe-below-cutoff versus ranking-affecting evidence, malformed relevance fail-closed, structured-risk-only handling, proposal permutation, and shadow/warn/enforce renderer separation all passed.",
-          "headHash": "6cbe6ec2f57a6fe59cf38d5089987aa01e67359a",
-          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
-          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
-          "timestamp": "2026-07-17T09:16:29.282Z"
+          "note": "Independent owner rerun at commit d842757356 passed build, candidate routing smoke, host-run 81/81, readiness 10/10, and process-fact contract. Tests cover protected-before-budget retention including safe external paths and typed missing diagnostics, current signed full-read reviewer evidence only, generic-only bounded behavior, exact DF boundary, honest truncation evidence, structured risks, independent digest checks, and end-to-end shadow/warn/enforce disposition.",
+          "headHash": "696e713fba7409e54ef5593aa5909141f09a5f79",
+          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
+          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
+          "timestamp": "2026-07-17T09:38:48.105Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Current implementation commit e74d3d39ed: generic DF filtering, five protected typed exact-source classes, safe-below-cutoff versus ranking-affecting evidence, malformed relevance fail-closed, structured-risk-only handling, proposal permutation, and shadow/warn/enforce renderer separation all passed.",
-          "headHash": "6cbe6ec2f57a6fe59cf38d5089987aa01e67359a",
-          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
-          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
-          "timestamp": "2026-07-17T09:16:29.443Z"
+          "note": "Independent owner rerun at commit d842757356 passed build, candidate routing smoke, host-run 81/81, readiness 10/10, and process-fact contract. Tests cover protected-before-budget retention including safe external paths and typed missing diagnostics, current signed full-read reviewer evidence only, generic-only bounded behavior, exact DF boundary, honest truncation evidence, structured risks, independent digest checks, and end-to-end shadow/warn/enforce disposition.",
+          "headHash": "696e713fba7409e54ef5593aa5909141f09a5f79",
+          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
+          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
+          "timestamp": "2026-07-17T09:38:48.287Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Current implementation commit e74d3d39ed: generic DF filtering, five protected typed exact-source classes, safe-below-cutoff versus ranking-affecting evidence, malformed relevance fail-closed, structured-risk-only handling, proposal permutation, and shadow/warn/enforce renderer separation all passed.",
-          "headHash": "6cbe6ec2f57a6fe59cf38d5089987aa01e67359a",
-          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
-          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
-          "timestamp": "2026-07-17T09:16:29.613Z"
+          "note": "Independent owner rerun at commit d842757356 passed build, candidate routing smoke, host-run 81/81, readiness 10/10, and process-fact contract. Tests cover protected-before-budget retention including safe external paths and typed missing diagnostics, current signed full-read reviewer evidence only, generic-only bounded behavior, exact DF boundary, honest truncation evidence, structured risks, independent digest checks, and end-to-end shadow/warn/enforce disposition.",
+          "headHash": "696e713fba7409e54ef5593aa5909141f09a5f79",
+          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
+          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
+          "timestamp": "2026-07-17T09:38:48.552Z"
         },
         {
           "intentRef": "CHK-002:edge:3",
           "kind": "integration_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Current implementation commit e74d3d39ed: generic DF filtering, five protected typed exact-source classes, safe-below-cutoff versus ranking-affecting evidence, malformed relevance fail-closed, structured-risk-only handling, proposal permutation, and shadow/warn/enforce renderer separation all passed.",
-          "headHash": "6cbe6ec2f57a6fe59cf38d5089987aa01e67359a",
-          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
-          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
-          "timestamp": "2026-07-17T09:16:29.831Z"
+          "note": "Independent owner rerun at commit d842757356 passed build, candidate routing smoke, host-run 81/81, readiness 10/10, and process-fact contract. Tests cover protected-before-budget retention including safe external paths and typed missing diagnostics, current signed full-read reviewer evidence only, generic-only bounded behavior, exact DF boundary, honest truncation evidence, structured risks, independent digest checks, and end-to-end shadow/warn/enforce disposition.",
+          "headHash": "696e713fba7409e54ef5593aa5909141f09a5f79",
+          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
+          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
+          "timestamp": "2026-07-17T09:38:48.748Z"
         },
         {
           "intentRef": "CHK-002:edge:4",
           "kind": "integration_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Current implementation commit e74d3d39ed: generic DF filtering, five protected typed exact-source classes, safe-below-cutoff versus ranking-affecting evidence, malformed relevance fail-closed, structured-risk-only handling, proposal permutation, and shadow/warn/enforce renderer separation all passed.",
-          "headHash": "6cbe6ec2f57a6fe59cf38d5089987aa01e67359a",
-          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
-          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
-          "timestamp": "2026-07-17T09:16:30.046Z"
+          "note": "Independent owner rerun at commit d842757356 passed build, candidate routing smoke, host-run 81/81, readiness 10/10, and process-fact contract. Tests cover protected-before-budget retention including safe external paths and typed missing diagnostics, current signed full-read reviewer evidence only, generic-only bounded behavior, exact DF boundary, honest truncation evidence, structured risks, independent digest checks, and end-to-end shadow/warn/enforce disposition.",
+          "headHash": "696e713fba7409e54ef5593aa5909141f09a5f79",
+          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
+          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
+          "timestamp": "2026-07-17T09:38:49.320Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Current implementation commit e74d3d39ed: generic DF filtering, five protected typed exact-source classes, safe-below-cutoff versus ranking-affecting evidence, malformed relevance fail-closed, structured-risk-only handling, proposal permutation, and shadow/warn/enforce renderer separation all passed.",
-          "headHash": "6cbe6ec2f57a6fe59cf38d5089987aa01e67359a",
-          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
-          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
-          "timestamp": "2026-07-17T09:16:30.254Z"
+          "note": "Independent owner rerun at commit d842757356 passed build, candidate routing smoke, host-run 81/81, readiness 10/10, and process-fact contract. Tests cover protected-before-budget retention including safe external paths and typed missing diagnostics, current signed full-read reviewer evidence only, generic-only bounded behavior, exact DF boundary, honest truncation evidence, structured risks, independent digest checks, and end-to-end shadow/warn/enforce disposition.",
+          "headHash": "696e713fba7409e54ef5593aa5909141f09a5f79",
+          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
+          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
+          "timestamp": "2026-07-17T09:38:49.614Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Current implementation commit e74d3d39ed: generic DF filtering, five protected typed exact-source classes, safe-below-cutoff versus ranking-affecting evidence, malformed relevance fail-closed, structured-risk-only handling, proposal permutation, and shadow/warn/enforce renderer separation all passed.",
-          "headHash": "6cbe6ec2f57a6fe59cf38d5089987aa01e67359a",
-          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
-          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
-          "timestamp": "2026-07-17T09:16:30.433Z"
+          "note": "Independent owner rerun at commit d842757356 passed build, candidate routing smoke, host-run 81/81, readiness 10/10, and process-fact contract. Tests cover protected-before-budget retention including safe external paths and typed missing diagnostics, current signed full-read reviewer evidence only, generic-only bounded behavior, exact DF boundary, honest truncation evidence, structured risks, independent digest checks, and end-to-end shadow/warn/enforce disposition.",
+          "headHash": "696e713fba7409e54ef5593aa5909141f09a5f79",
+          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
+          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
+          "timestamp": "2026-07-17T09:38:49.847Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Current implementation commit e74d3d39ed: generic DF filtering, five protected typed exact-source classes, safe-below-cutoff versus ranking-affecting evidence, malformed relevance fail-closed, structured-risk-only handling, proposal permutation, and shadow/warn/enforce renderer separation all passed.",
-          "headHash": "6cbe6ec2f57a6fe59cf38d5089987aa01e67359a",
-          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
-          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
-          "timestamp": "2026-07-17T09:16:30.618Z"
+          "note": "Independent owner rerun at commit d842757356 passed build, candidate routing smoke, host-run 81/81, readiness 10/10, and process-fact contract. Tests cover protected-before-budget retention including safe external paths and typed missing diagnostics, current signed full-read reviewer evidence only, generic-only bounded behavior, exact DF boundary, honest truncation evidence, structured risks, independent digest checks, and end-to-end shadow/warn/enforce disposition.",
+          "headHash": "696e713fba7409e54ef5593aa5909141f09a5f79",
+          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
+          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
+          "timestamp": "2026-07-17T09:38:50.102Z"
         },
         {
           "intentRef": "CHK-002:adversarial:3",
           "kind": "integration_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Current implementation commit e74d3d39ed: generic DF filtering, five protected typed exact-source classes, safe-below-cutoff versus ranking-affecting evidence, malformed relevance fail-closed, structured-risk-only handling, proposal permutation, and shadow/warn/enforce renderer separation all passed.",
-          "headHash": "6cbe6ec2f57a6fe59cf38d5089987aa01e67359a",
-          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
-          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
-          "timestamp": "2026-07-17T09:16:30.776Z"
+          "note": "Independent owner rerun at commit d842757356 passed build, candidate routing smoke, host-run 81/81, readiness 10/10, and process-fact contract. Tests cover protected-before-budget retention including safe external paths and typed missing diagnostics, current signed full-read reviewer evidence only, generic-only bounded behavior, exact DF boundary, honest truncation evidence, structured risks, independent digest checks, and end-to-end shadow/warn/enforce disposition.",
+          "headHash": "696e713fba7409e54ef5593aa5909141f09a5f79",
+          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
+          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
+          "timestamp": "2026-07-17T09:38:50.431Z"
         },
         {
           "intentRef": "CHK-002:adversarial:4",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Current implementation commit e74d3d39ed: generic DF filtering, five protected typed exact-source classes, safe-below-cutoff versus ranking-affecting evidence, malformed relevance fail-closed, structured-risk-only handling, proposal permutation, and shadow/warn/enforce renderer separation all passed.",
-          "headHash": "6cbe6ec2f57a6fe59cf38d5089987aa01e67359a",
-          "materialHash": "92d24c79785ee470e389bb08cd36ba29cd189da6fc30c56b1781dd8b207b1be1",
-          "storyFilesHash": "9e4e33b7accb64824b92fc3be16f9b13f7b4bad3dee191ded436fc775d64f754",
-          "timestamp": "2026-07-17T09:16:30.936Z"
+          "note": "Independent owner rerun at commit d842757356 passed build, candidate routing smoke, host-run 81/81, readiness 10/10, and process-fact contract. Tests cover protected-before-budget retention including safe external paths and typed missing diagnostics, current signed full-read reviewer evidence only, generic-only bounded behavior, exact DF boundary, honest truncation evidence, structured risks, independent digest checks, and end-to-end shadow/warn/enforce disposition.",
+          "headHash": "696e713fba7409e54ef5593aa5909141f09a5f79",
+          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
+          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
+          "timestamp": "2026-07-17T09:38:50.616Z"
         }
       ]
     }
