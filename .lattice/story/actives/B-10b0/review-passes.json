@@ -490,6 +490,26 @@
         "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
       },
       "_hash": "148c5bcce710967c0b339f32cd06b3d217d5008fca18882174165f4185e4ee1b"
+    },
+    {
+      "id": "B-10b0:RP-021",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted coverage review of 2183cf10ad found no blocker. Focused tests exercise the pre-commit/prepare-commit-msg/commit-msg pipeline under the isolated GIT_INDEX_FILE, prove prepare-commit-msg receives message source and edits the COMMIT_EDITMSG consumed by commit-tree, prove commit-msg rejection is fail-closed, and show post-commit runs after successful CAS but not after CAS refusal. Signing configuration and -S key propagation are observed and a missing SSH key fails closed. Success and failure cases verify temporary cleanup, unchanged real index/worktree on refusal, unrelated staged-state preservation through CAS behavior, and exact parent, author, committer, and default/hook-edited message invariants. Package build plus auto-closeout and merge-rerun focused smokes passed.",
+      "createdAt": "2026-07-17T21:18:21.012Z",
+      "reviewRound": "2026-07-17T21:15:27.401Z",
+      "reviewRunId": "B-10b0:RR-035",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f3230c26111f834e411098085136e5f8634b20120eba19794e0e396db471b17f"
     }
   ]
 }
