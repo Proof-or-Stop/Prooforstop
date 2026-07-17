@@ -223,12 +223,15 @@
           "packages/main/src/handlers/session.ts",
           "packages/main/src/handlers/doctor.ts",
           "packages/main/src/handlers/context.ts",
-          "packages/main/src/handlers/transition-orchestrator.ts"
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "bin/lattice-codex.js",
+          ".lattice-codex/lattice.json"
         ],
         "create": [],
         "test": [
           "packages/main/src/tasks/owner-session-guardrail.ts",
-          "packages/main/src/tasks/cli-surface-smoke.ts"
+          "packages/main/src/tasks/cli-surface-smoke.ts",
+          "scripts/verify-entrypoints.mjs"
         ]
       },
       "verificationIntent": {
