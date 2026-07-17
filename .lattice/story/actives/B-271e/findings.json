@@ -172,6 +172,24 @@
       "resolvedAt": "2026-07-17T00:25:53.395Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-271e:F-009",
+      "desc": "d5e05e2300 closes the exact F-008 declaration-destructure and unsafe-OR repros, but adjacent ordinary destructuring flows remain fail-open. The built analyzer returns [] for `let env; ({ env } = process); writeFileSync(env.TEST_FILE, \"x\")` and for `function run({env}) { exec(env.TEST_COMMAND) } run(process)`. The first is assignment destructuring; the second is the checklist-promised combination of destructuring plus argument forwarding. A computed declaration alias (`const { [\"env\"]: runtimeEnv } = process`) also returns []. The implementation only handles ObjectBindingPattern under VariableDeclaration and functionParameters drops non-Identifier parameter bindings, so these flows never enter envObjects/taint. Extend process/env destructuring handling to assignment patterns and bound function parameters (or explicitly reject unsupported binding patterns conservatively), and add these exact filesystem/process negatives. The strict top-level conjunction sanitizer change itself behaves correctly for exact `isFinite && >0`, parenthesized AND, top-level OR, and nested OR cases.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-17T00:27:10.878Z",
+      "reviewRound": "2026-07-17T00:25:38.059Z",
+      "reviewRunId": "B-271e:RR-010",
+      "_hash": "316fbf6ca3482074b8358d07f374eed43f01c3a0b8601c2f915915b8d5f1f6e1",
+      "files": [
+        "packages/main/src/tasks/production-test-seam-guard.ts"
+      ],
+      "signatureTag": "production-test-seam-taint-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
