@@ -95,7 +95,85 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Starting with one current complete REVIEW round, the standard unattended REVIEW→TEST→DONE path produces routine validation evidence, delivery check, summary, live-smoke transcript, DONE-required evidence, and a PASS done_prepare report, then reaches DONE with zero metadata-only DEV/REVIEW backsteps, zero extra reviewer re-attestations, zero human confirmations, and zero re-execution of an unchanged validation command set.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Machine-readable closeout telemetry proves one-pass convergence by reporting the initial/final phase, review round and receipt identity, artifact write sequence, validation disposition/commandExecutions, re-attestation count, human-ack count, and rollback reasons; the successful fixture asserts rollback=0, reAttestation=0, humanAck=0, unchangedSuiteExecutions=0.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Delivery reviewer dispatch and delivery_check_set have the same mechanically enforced legal phase/cardinality; dispatching and writing in that phase succeeds, while the prompt never instructs an action the handler rejects.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A fresh unchanged routine validation or DONE-required receipt is reused through the canonical evaluator and records disposition=reused with commandExecutions=0; an explicit validate:false remains a distinct skipped/not-run state and cannot masquerade as reuse or PASS.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Each trusted closeout write performed after review preserves the current reviewer receipt through canonical lineage, including multiple metadata commits and an immediate idempotent done_prepare retry.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A closeout retry after a classified infrastructure interruption resumes from durable fresh artifacts without duplicating reviewer work, human acknowledgement, or unchanged commands.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "The ordered closeout transaction remains deterministic when optional live-smoke or DONE-required policy is disabled: omitted phases are explicitly not-applicable and budgets/counts include only enabled phases.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Delivery dispatch outside its declared legal phase and delivery_check_set outside that same phase are both rejected before mutation with aligned diagnostics; no REVIEW-capable writer/TEST-only dispatcher mismatch remains.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A true source, story-owned, config, policy, or command-set drift during closeout refuses reuse and requires the appropriate validation/review action; one-pass optimization never carries stale assurance across real material change.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A validation command that genuinely fails remains a validation failure and follows the documented lifecycle response; metadata-loop prevention cannot convert it to infra failure, advisory, reuse, or PASS.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Unknown writer, manual tamper, malformed/unsigned lineage, or concurrent HEAD change stops closeout fail-closed without fabricating reviewer re-attestation or silently asking a human to acknowledge convergence.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "The closeout orchestrator cannot invoke validation twice through nested REVIEW→TEST advance plus done_prepare; a command spy asserts each changed suite executes at most once and an unchanged suite executes zero times.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Writing summary, transcript, delivery, validation, or DONE-required artifacts in any permutation not admitted by the canonical ordering cannot invalidate receipts and then silently bounce to DEV/REVIEW; it must either be normalized by the shared writer or rejected with a bounded next action.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "No convergence breaker/human-ack path is entered solely because trusted closeout metadata advanced HEAD; a test fails if any human:true resume/ack command is requested in the positive closeout transcript.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
