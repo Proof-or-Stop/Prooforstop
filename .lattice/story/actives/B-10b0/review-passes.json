@@ -206,6 +206,28 @@
         "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
       },
       "_hash": "63d3126468f4cfd7e24d3acfdf01a68ddf3920e6aa0b363411474c1e2bd966c8"
+    },
+    {
+      "id": "B-10b0:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Incremental concept re-review of 19b630265c found no blocker. The verifier now invokes the canonical project bootstrap at ROOT/bin/lattice.js while retaining the built prompt registry as its comparison source. The matching baseline command snapshot is updated without changing any role output hashes or policy data. Running the verifier on the current worktree passed all 16 role output checks, baseline drift probes, and the explicit unknown-role rejection probe.",
+      "createdAt": "2026-07-17T19:57:43.719Z",
+      "reviewRound": "2026-07-17T19:56:56.495Z",
+      "reviewRunId": "B-10b0:RR-013",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "44b49f0b00e8e5eade1da0f4bd78aa1ffaacfdc9f10c89a1a28387d5779a3a56"
     }
   ]
 }
