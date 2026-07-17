@@ -29,6 +29,21 @@
       "_hash": "b7815228632c7939df00cff2125ea1610b5e3d68cb817f7948edba06f2069a38",
       "signatureTag": "edge|unknown|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3aec:F-003",
+      "desc": "packages/main/src/tasks/candidate-spec-routing-smoke.ts:476 CHK-001 mandatory matrix is not covered: the test exercises only unverified/unsupported/auth/timeout, while the intent requires every non-ready state to prove zero spawn (missing row, wrong_launcher, launcherOk=false, progressMode=none/unobservable, silent output/other canonical failures). packages/main/src/tasks/host-run-usage-smoke.ts:2760 tests startup and total timeout directly, but only abort goes through runHostRun and proves cap=1 reacquisition; there is no deterministic first-byte boundary table or output/timeout/close/error/abort ordering matrix. Most importantly packages/main/src/handlers/candidate-spec-routing.ts:270 snapshots readiness once before proposal execution, and no test simulates readiness becoming stale between probe and spawn or verifies the promised distinct stale-readiness/auth/interactive diagnostic. The broad PASS evidence therefore does not substantiate multiple must intents.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-17T09:20:00.918Z",
+      "reviewRound": "2026-07-17T09:17:08.260Z",
+      "reviewRunId": "B-3aec:RR-003",
+      "_hash": "bc14c0f78b10d8c41b3f43d971948890f2287bc4aa034a80fb1bde474c267934",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
