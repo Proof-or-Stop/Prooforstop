@@ -518,7 +518,7 @@
       "desc": "packages/main/src/core/auto-commit-metadata.ts:189-214 [HIGH] The new verifier-only transaction verifies the isolated index path set before invoking porcelain `git commit`, but `git commit` then runs repository pre-commit hooks with that same GIT_INDEX_FILE. A hook can successfully `git add` an unrelated worktree path (or alter/remove a managed path) after the line 189-195 check; Git freezes and commits the hook-mutated index, and the function performs no committed-tree/path/blob verification before returning ok:true. This violates the advertised exact three-file transaction and can silently include source or unrelated metadata in a canonical validation-reuse commit. The focused test at validation-evidence-reuse-smoke.ts:223-247 exercises only a hook that exits 1, while the success assertion at 279-283 uses no index-mutating hook. Run the required hook pipeline explicitly before the final immutable-tree verification, then commit the verified tree via commit-tree/CAS (or revalidate the actual commit tree and fail/rollback safely); add a successful pre-commit hook that stages an unrelated tracked file and require refusal with exact HEAD/index/worktree restoration.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-17T21:52:28.556Z",
@@ -530,7 +530,11 @@
         "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
       ],
       "signatureTag": "isolated-transaction-hook-tree-expansion",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Same root cause fixed by 5ccc15d47e: verifier and done_prepare now share commitImmutableMetadataTree, which runs hook/message/signing policy, revalidates exact post-hook index/tree paths and blobs, creates an immutable commit-tree, CAS-installs against oldHead, and runs post-commit only after CAS success. Concurrent HEAD and hook-added-unrelated regressions prove infra FAIL, concurrent HEAD preservation, managed worktree/index rollback, unrelated staged preservation, and no post-commit on CAS refusal. Build, validation reuse, both done_prepare smokes, and process-fact contract PASS.",
+      "resolvedAt": "2026-07-17T22:03:35.514Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
