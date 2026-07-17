@@ -74,7 +74,7 @@
       "desc": "CHK-003 must coverage is materially incomplete and the recorded evidence overclaims it. scanDeletedSymbols is still regex-based and collapses declarations to kind:name, so deleting one overload while another same-name overload remains is hidden; it also ignores non-exported TypeScript functions, class methods, and constructors even though CHK-003:edge:2 explicitly requires those supported forms and deterministic same-name/scope handling. The smoke test instead asserts those forms are outside the deletion surface, and its overload case removes the only same-name declaration, so it cannot prove CHK-003:adversarial:2. Replace name-only pairing with declaration identity/multiplicity (scope/kind/signature or an explicit bounded supported surface), then add a retained-same-name overload negative and the required non-exported/method/constructor cases before claiming all must intents covered.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-17T14:55:13.342Z",
@@ -86,7 +86,11 @@
         "packages/main/src/tasks/concept-gate-scope-smoke.ts"
       ],
       "signatureTag": "missing|ts|coverage-materially-incomplete",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Coverage gap fixed by f9948df787 and expanded concept regression corpus for overloads, methods, constructors, and cross-file identities.",
+      "resolvedAt": "2026-07-17T16:40:15.738Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-10b0:F-005",
