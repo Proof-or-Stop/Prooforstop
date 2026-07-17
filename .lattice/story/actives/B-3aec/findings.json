@@ -266,6 +266,21 @@
       "_hash": "ac6ddf7fc1206cbea4493060c08de0b20e19082354c2fe3588500d44bc6c125f",
       "signatureTag": "edge|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3aec:F-015",
+      "desc": "packages/main/src/tasks/host-run-usage-smoke.ts:2760-2890 still has no deterministic ordering matrix for first-output/timeout/close/error/abort. The new cases separately cover ENOENT, stderr classification, two timeouts, and abort, but do not force or assert every race ordering, kill-once, listener/timer cleanup, or release-once as required by CHK-001 adversarial:3; existing unrelated slot reclaim races do not exercise the new runner settlement state. F-003 is therefore only partially closed. Add an injected fake child/timer seam or equivalent deterministic scheduler that enumerates the terminal event orderings and counts settle/kill/release.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-17T09:41:49.455Z",
+      "reviewRound": "2026-07-17T09:39:13.057Z",
+      "reviewRunId": "B-3aec:RR-005",
+      "_hash": "e70fede431c021d5f66a816f54362fc9f461ad30c9832ce852aa67b654d72dd4",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
