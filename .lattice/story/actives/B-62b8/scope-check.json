@@ -1,0 +1,269 @@
+{
+  "storyId": "B-62b8",
+  "checkedAt": "2026-07-17T23:02:23.276Z",
+  "features": [
+    {
+      "feature": "Same task plus same agent/role retains one owner identity across shells and parent-PID changes",
+      "covered_by": "CHK-001, CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "workflow convergence §9.3; owner-session Verification Matrix"
+    },
+    {
+      "feature": "Independent tasks in one repository/worktree do not share owner identity",
+      "covered_by": "CHK-001, CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "workflow convergence §9.2-9.3"
+    },
+    {
+      "feature": "Implementer, verification-intent, reviewer, and delivery identities remain distinct",
+      "covered_by": "CHK-001, CHK-003, decision.json",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "workflow convergence §5 and §9"
+    },
+    {
+      "feature": "Explicit LATTICE_SESSION_ID remains highest-priority deterministic override",
+      "covered_by": "CHK-001, CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "owner-session Resolution Priority"
+    },
+    {
+      "feature": "Validated host adapters supply independent task and agent/role dimensions",
+      "covered_by": "CHK-001, CHK-002, CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "workflow convergence §9.2"
+    },
+    {
+      "feature": "Generated fallback is scoped to project, provider, task boundary, and role with bounded ownership/cleanup",
+      "covered_by": "CHK-001, CHK-002, CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "owner-session Generated-Token Fallback; Workstream D"
+    },
+    {
+      "feature": "Persisted generated-token paths are runtime artifacts, gitignored, and excluded from material hashes",
+      "covered_by": "CHK-002, understanding.json, decision.json",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "owner-session Generated-Token Fallback"
+    },
+    {
+      "feature": "Derived-ppid remains last-resort degraded fallback and warns before first story mutation",
+      "covered_by": "CHK-001, CHK-002, CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "workflow convergence §9.2-9.3"
+    },
+    {
+      "feature": "Diagnostics expose id source/provider but never raw native tokens",
+      "covered_by": "CHK-002, CHK-003, decision.json",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "owner-session Canonical Contract and Host Adapter Bridge"
+    },
+    {
+      "feature": "Generic owner-lease core consumes one host-neutral result without provider-specific env branches",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "owner-session Migration Away From Core Host Exceptions"
+    },
+    {
+      "feature": "Codex, Claude Code, and Antigravity/agy adapters are implemented and tested",
+      "covered_by": "CHK-002, CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "workflow convergence §9.3"
+    },
+    {
+      "feature": "A fake future-host adapter proves onboarding needs no generic core change",
+      "covered_by": "none",
+      "status": "gap",
+      "excluded_by": "",
+      "source": "owner-session Verification Matrix and Acceptance #2"
+    },
+    {
+      "feature": "Lifecycle event collection and DEV-claim warnings use the shared canonical resolver",
+      "covered_by": "none",
+      "status": "gap",
+      "excluded_by": "",
+      "source": "owner-session Migration steps 5 and 7"
+    },
+    {
+      "feature": "Whitespace-only LATTICE_SESSION_ID is ignored in favor of valid adapter identity",
+      "covered_by": "none",
+      "status": "gap",
+      "excluded_by": "",
+      "source": "owner-session Verification Matrix"
+    },
+    {
+      "feature": "Lease equality, foreign blocking, stale takeover, and active force/human takeover remain unchanged",
+      "covered_by": "CHK-003, decision.json",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "session ownership Story Owner Lease Rules; Workstream D"
+    },
+    {
+      "feature": "Legacy lease sessionSource values remain readable and normalized",
+      "covered_by": "plan.md CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "session ownership current implementation; owner-session R6"
+    },
+    {
+      "feature": "session_brief and owner errors retain owner/cwd/heartbeat/stale/next-action guidance",
+      "covered_by": "CHK-002, CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "session ownership Error UX and session_brief"
+    },
+    {
+      "feature": "Canonical task-and-agent identity contract is ratified before runtime implementation",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "CHK-004 excludes runtime work before acceptance",
+      "source": "workflow convergence §9.1-9.2"
+    },
+    {
+      "feature": "Two real-host reviews are fresh and bound to the canonical document version implemented",
+      "covered_by": "CHK-004 Codex + agy evidence",
+      "status": "drift",
+      "excluded_by": "",
+      "source": "owner-session Two-Host Review; evidence binds current hash while CHK-004 requires document update"
+    },
+    {
+      "feature": "Pre-runtime parent-PID manual transcripts include two continuity shapes and degraded comparison",
+      "covered_by": "none",
+      "status": "gap",
+      "excluded_by": "",
+      "source": "owner-session Manual Transcript Evidence"
+    },
+    {
+      "feature": "Post-implementation R5 multi-host verification covers native/canonical, generated/native, and degraded paths",
+      "covered_by": "CHK-003 deterministic regressions",
+      "status": "drift",
+      "excluded_by": "",
+      "source": "owner-session R5 requires multi-host; plan says live-host calls supplemental"
+    },
+    {
+      "feature": "Host-neutral workflow commands remain outside a Codex namespace",
+      "covered_by": "CHK-002 adapter-boundary design",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Codex command boundary rule"
+    },
+    {
+      "feature": "Codex-specific commands remain limited to adapter doctor/verification",
+      "covered_by": "CHK-002 adapter diagnostics boundary",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Codex Adapter Commands"
+    },
+    {
+      "feature": "Local owner identity is not authentication, Authority evidence, reviewer attestation, or production proof",
+      "covered_by": "understanding.json, decision.json",
+      "status": "excluded",
+      "excluded_by": "owner-session Non-Goals and Local Boundary",
+      "source": "owner-session Non-Goals"
+    },
+    {
+      "feature": "Cryptographic/unforgeable identity and malicious-local-user resistance",
+      "covered_by": "none",
+      "status": "excluded",
+      "excluded_by": "session ownership Out of Scope; owner-session Non-Goals",
+      "source": "session ownership Out of Scope"
+    },
+    {
+      "feature": "Cross-clone distributed locking or replacement of git as truth source",
+      "covered_by": "none",
+      "status": "excluded",
+      "excluded_by": "session ownership Out of Scope",
+      "source": "session ownership Out of Scope"
+    },
+    {
+      "feature": "Repository-global, worktree-global, or thread-only owner identity",
+      "covered_by": "none",
+      "status": "excluded",
+      "excluded_by": "workflow convergence §9.2 and §16",
+      "source": "workflow convergence §9.2"
+    },
+    {
+      "feature": "Understanding names handlers/session-brief.ts while CHK-002 file map names handlers/session.ts",
+      "covered_by": "CHK-002 and understanding.json",
+      "status": "orphan-suspect",
+      "excluded_by": "",
+      "source": "understanding touchpoints versus CHK-002 files.modify"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+      "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+      "docs/requirements/decisions/session-ownership-and-write-leases.md",
+      "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 28,
+    "covered": 18,
+    "excluded": 4,
+    "gaps": 4,
+    "orphanSuspect": 1,
+    "drift": 2
+  },
+  "reviewRound": "",
+  "_hash": "e4bc664d256a5cec0230c0d18fccdd57b69246af9414d0c6ba8f704453f6712c",
+  "openQuestions": [
+    {
+      "id": "OQ-B62B8-001",
+      "q": "Must the canonical owner-session document be updated first and then both Codex and agy reviews rerun against the new hash before runtime code begins?",
+      "evidence": "CHK-004 requires updating/confirming the canonical contract, but both PASS reviews bind current documentHash 04f744fa; the owner document requires reviews over the version implemented.",
+      "sourcePointers": [
+        "owner-session-contract-execution-plan.md#two-host-review-evidence-before-implementation",
+        "CHK-004"
+      ]
+    },
+    {
+      "id": "OQ-B62B8-002",
+      "q": "Will the required three parent-PID manual transcripts be completed before runtime implementation, or will the canonical contract be amended?",
+      "evidence": "The canonical document requires two continuity transcripts plus one degraded comparison before runtime implementation; checklist and plan do not schedule them before code.",
+      "sourcePointers": [
+        "owner-session-contract-execution-plan.md#manual-transcript-evidence",
+        "plan.md CHK-003"
+      ]
+    },
+    {
+      "id": "OQ-B62B8-003",
+      "q": "Is post-implementation real multi-host R5 verification required, or should deterministic adapter seams be made sufficient canonically?",
+      "evidence": "R5 requires multi-host verification, while plan CHK-003 says live-host calls are supplemental.",
+      "sourcePointers": [
+        "owner-session-contract-execution-plan.md#r5-multi-host-verification",
+        "plan.md CHK-003"
+      ]
+    },
+    {
+      "id": "OQ-B62B8-004",
+      "q": "Which scoped diagnostics consumer is correct: handlers/session.ts, handlers/session-brief.ts, or both?",
+      "evidence": "Checklist file map and understanding touchpoints disagree.",
+      "sourcePointers": [
+        "CHK-002 files.modify",
+        "understanding.json touchpoints"
+      ]
+    },
+    {
+      "id": "OQ-B62B8-005",
+      "q": "What validated stable boundary supplies taskIdentity when a host lacks both a native stable signal and a durable adapter process?",
+      "evidence": "Generated fallback must be scoped to a task boundary without collapsing concurrent tasks to repository/worktree identity, but the mechanical source and validation of that boundary is unsettled.",
+      "sourcePointers": [
+        "decision.json rationale",
+        "workflow-convergence-failure-remediation-execution-plan.md#92-required-identity-model"
+      ]
+    }
+  ]
+}
