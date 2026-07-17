@@ -9,9 +9,9 @@
         "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-17T13:21:15.635Z",
-      "endTime": "2026-07-17T16:57:30.037Z",
+      "endTime": "2026-07-17T20:17:30.838Z",
       "verificationIntent": {
         "happy": [
           {
@@ -865,6 +865,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "DONE-required worktree harness now uses canonical bin/lattice.js; the prompt baseline and unknown-role probe pass on current material.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-17T20:17:30.838Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Independent process-fact fingerprint contract now matches the reviewed closeout guard pins; both contract and guard pass.",
       "agent": "lattice-implementer"
     }
   ]
