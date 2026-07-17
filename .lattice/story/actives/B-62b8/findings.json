@@ -59,6 +59,21 @@
       "_hash": "55811d1d43549f1d17008a929f69f42dc801e7f29a05c392f45c4c3b1f76ef82",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-62b8:F-005",
+      "desc": "packages/main/src/tasks/story-owner-lease-smoke.ts:102-440 — HIGH coverage gap: CHK-002 binds every must intent to a same-process resolver/env-builder smoke, but the required cross-process contract is not exercised. The test directly calls resolveSessionIdentity/buildCanonicalHostRuntimeEnv and intercepts console.warn; it never spawns the required nested child shells, never invokes session_brief or doctor through the CLI, and never scans child stdout/stderr/activity/evidence for provider sentinels. packages/main/src/tasks/cli-surface-smoke.ts contains no owner-session assertions and is unchanged in this story despite being cited by the evidence. packages/main/src/core/owner-session-token-store.ts:120-130 also adds wx/EEXIST race recovery without a concurrent-writer regression. WHY: the shipped failure occurs across shell/process boundaries, so same-process helper PASS can miss lost child env, cache/reset, CLI rendering, warning-before-write, disclosure, and two-writer token divergence. Add bounded focused regressions that (1) spawn nested provider child processes for Codex/Claude/agy/fake identities and assert stable task/role isolation plus exact session_brief/doctor/pre-mutation diagnostics and redaction, (2) exercise blank explicit override and deliberate allowlisted override through the spawned boundary, (3) race two generated-token creators for one scope and prove one stable token with scoped separation, and (4) retain existing takeover/lifecycle consumer checks. Rebind only the intents actually asserted.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-17T23:31:13.361Z",
+      "reviewRound": "2026-07-17T23:28:37.387Z",
+      "reviewRunId": "B-62b8:RR-003",
+      "_hash": "759b903375921c8392d2e92b7f7b42c2ee476df03dd25138d381cc5692a705cc",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
