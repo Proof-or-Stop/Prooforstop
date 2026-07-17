@@ -191,13 +191,15 @@
           }
         ]
       },
-      "userSees": "A normal closeout reaches DONE prepare PASS in one pass with zero metadata rollback, re-attestation, human confirmation, or unchanged validation execution.",
+      "userSees": "User sees \"DONE prepare: PASS\" with metadataRollbacks=0, reviewerReattestations=0, humanConfirmations=0, unchangedSuiteExecutions=0.",
       "files": {
         "modify": [
           "packages/main/src/core/config.ts",
           "packages/main/src/core/agent-dispatch-registry.ts",
           "packages/main/src/core/phase-gates.ts",
-          "packages/main/src/handlers/done-prepare.ts"
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/story-advance.ts",
+          "packages/main/src/handlers/verifier.ts"
         ],
         "create": [],
         "test": [
