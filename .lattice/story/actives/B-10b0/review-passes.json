@@ -164,6 +164,27 @@
         "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
       },
       "_hash": "8d50472da3a7bbbcaf806eb1c3eb695438bb2a0633811be6de379ff3aa9391a9"
+    },
+    {
+      "id": "B-10b0:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Targeted round-4 incremental review of f32537b95a passed. The commit changes exactly two canonical AST fingerprint pins in retired-authority-vocabulary-guard-smoke.ts; independently recomputed hashes match 458d8aea... and d6ca0a50..., no whitelist/call-shape/occurrence/graph data changed, and the retired authority vocabulary guard passes.",
+      "createdAt": "2026-07-17T17:00:42.457Z",
+      "reviewRound": "2026-07-17T16:57:40.721Z",
+      "reviewRunId": "B-10b0:RR-011",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "ae1f8517b91469cb66aaeeee3cba0baf49e366f7ef6224f2f3a6c6351bb90fd6"
     }
   ]
 }
