@@ -13,9 +13,9 @@
         "full or incremental Task Context assembly",
         "review-pass gate binding"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-17T23:52:06.866Z",
-      "endTime": null,
+      "endTime": "2026-07-17T23:57:33.035Z",
       "files": {
         "modify": [],
         "create": [
@@ -102,7 +102,119 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "prompt-contract-schemas-versioned",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Typed v1 contracts and DispatchUsageObservation validate in the focused smoke at commit bac0da352b.",
+          "headHash": "bac0da352bdc38e2056a58bad8c882bc71cf132c",
+          "materialHash": "96449e4094b9f24a4cbc9797ee4cf9528b440ed7d993fa01904dafa65cb1c308",
+          "storyFilesHash": "664075393629eeab25aac48db4377b2be591796c9ab307c7e0fdd078c2222b55",
+          "timestamp": "2026-07-17T23:57:33.201Z"
+        },
+        {
+          "intentRef": "prompt-contract-deterministic-algorithms",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Repeated serialization, digest, metric, and repetition fixtures are deterministic.",
+          "headHash": "bac0da352bdc38e2056a58bad8c882bc71cf132c",
+          "materialHash": "96449e4094b9f24a4cbc9797ee4cf9528b440ed7d993fa01904dafa65cb1c308",
+          "storyFilesHash": "664075393629eeab25aac48db4377b2be591796c9ab307c7e0fdd078c2222b55",
+          "timestamp": "2026-07-17T23:57:33.350Z"
+        },
+        {
+          "intentRef": "prompt-contract-reuses-estimator",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Empty, ASCII, CJK, and emoji estimates equal usage-ledger bytesCharsEstimator v1.",
+          "headHash": "bac0da352bdc38e2056a58bad8c882bc71cf132c",
+          "materialHash": "96449e4094b9f24a4cbc9797ee4cf9528b440ed7d993fa01904dafa65cb1c308",
+          "storyFilesHash": "664075393629eeab25aac48db4377b2be591796c9ab307c7e0fdd078c2222b55",
+          "timestamp": "2026-07-17T23:57:33.502Z"
+        },
+        {
+          "intentRef": "prompt-contract-canonical-order-unicode",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Recursive code-point key order is insertion independent and Unicode sequences remain distinct.",
+          "headHash": "bac0da352bdc38e2056a58bad8c882bc71cf132c",
+          "materialHash": "96449e4094b9f24a4cbc9797ee4cf9528b440ed7d993fa01904dafa65cb1c308",
+          "storyFilesHash": "664075393629eeab25aac48db4377b2be591796c9ab307c7e0fdd078c2222b55",
+          "timestamp": "2026-07-17T23:57:33.649Z"
+        },
+        {
+          "intentRef": "prompt-contract-lf-byte-boundary",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Empty, trailing LF, multiple LF, CRLF, ASCII, CJK, and emoji boundaries pass.",
+          "headHash": "bac0da352bdc38e2056a58bad8c882bc71cf132c",
+          "materialHash": "96449e4094b9f24a4cbc9797ee4cf9528b440ed7d993fa01904dafa65cb1c308",
+          "storyFilesHash": "664075393629eeab25aac48db4377b2be591796c9ab307c7e0fdd078c2222b55",
+          "timestamp": "2026-07-17T23:57:33.835Z"
+        },
+        {
+          "intentRef": "prompt-contract-digest-domains",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Domain and version mutation produce distinct SHA-256 digests.",
+          "headHash": "bac0da352bdc38e2056a58bad8c882bc71cf132c",
+          "materialHash": "96449e4094b9f24a4cbc9797ee4cf9528b440ed7d993fa01904dafa65cb1c308",
+          "storyFilesHash": "664075393629eeab25aac48db4377b2be591796c9ab307c7e0fdd078c2222b55",
+          "timestamp": "2026-07-17T23:57:34.030Z"
+        },
+        {
+          "intentRef": "prompt-contract-repetition-versioned",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Five-token shingle algorithm metadata, no-repeat, repeat, bounds, and deterministic fixtures pass.",
+          "headHash": "bac0da352bdc38e2056a58bad8c882bc71cf132c",
+          "materialHash": "96449e4094b9f24a4cbc9797ee4cf9528b440ed7d993fa01904dafa65cb1c308",
+          "storyFilesHash": "664075393629eeab25aac48db4377b2be591796c9ab307c7e0fdd078c2222b55",
+          "timestamp": "2026-07-17T23:57:34.184Z"
+        },
+        {
+          "intentRef": "prompt-contract-canonical-fail-closed",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Undefined, nonfinite, unsupported, sparse, cyclic, and non-plain values are rejected.",
+          "headHash": "bac0da352bdc38e2056a58bad8c882bc71cf132c",
+          "materialHash": "96449e4094b9f24a4cbc9797ee4cf9528b440ed7d993fa01904dafa65cb1c308",
+          "storyFilesHash": "664075393629eeab25aac48db4377b2be591796c9ab307c7e0fdd078c2222b55",
+          "timestamp": "2026-07-17T23:57:34.334Z"
+        },
+        {
+          "intentRef": "prompt-contract-schema-fail-closed",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Unknown schema/status, malformed digest, negative/nonfinite metrics, and inconsistent bindings reject.",
+          "headHash": "bac0da352bdc38e2056a58bad8c882bc71cf132c",
+          "materialHash": "96449e4094b9f24a4cbc9797ee4cf9528b440ed7d993fa01904dafa65cb1c308",
+          "storyFilesHash": "664075393629eeab25aac48db4377b2be591796c9ab307c7e0fdd078c2222b55",
+          "timestamp": "2026-07-17T23:57:34.496Z"
+        },
+        {
+          "intentRef": "prompt-contract-story1-no-envelope",
+          "kind": "logic_test",
+          "command": "rg -n \"PromptEnvelope\" packages/main/src --glob \"!core/prompt-contracts.ts\" --glob \"!tasks/prompt-contract-measurement-smoke.ts\"",
+          "result": "pass",
+          "note": "Story 1 exposes only the type/validator and test fixtures; there is no builder, writer, report instance, persistence, or gate integration.",
+          "headHash": "bac0da352bdc38e2056a58bad8c882bc71cf132c",
+          "materialHash": "96449e4094b9f24a4cbc9797ee4cf9528b440ed7d993fa01904dafa65cb1c308",
+          "storyFilesHash": "664075393629eeab25aac48db4377b2be591796c9ab307c7e0fdd078c2222b55",
+          "timestamp": "2026-07-17T23:57:34.724Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
