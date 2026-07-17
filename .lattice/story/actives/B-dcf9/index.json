@@ -1,0 +1,41 @@
+{
+  "storyId": "B-dcf9",
+  "name": "bounded-document-context-execution-plan",
+  "title": "Define a scalable bounded document-context architecture for 1000+ project documents",
+  "description": "Create an auditable execution plan that replaces broad Markdown ingestion with thin entrypoints, live structured facts, bounded dev-memory and active playbook retrieval, task-scoped canonical document escalation, provenance/read manifests, recall-risk controls, and measurable token/quality gates. The plan must preserve authoritative decision and mechanical gate semantics while scaling to 1000+ documents.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "document-context",
+    "bounded-retrieval",
+    "dev-memory",
+    "playbook",
+    "read-manifest",
+    "1000-documents"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    },
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    }
+  ],
+  "createdAt": "2026-07-16T23:47:09.838Z",
+  "startedAt": "2026-07-16T23:47:09.838Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-16T23:47:10.770Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-07bc482a401d5422",
+      "agent": "main"
+    }
+  ]
+}
