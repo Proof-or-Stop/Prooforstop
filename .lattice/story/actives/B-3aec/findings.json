@@ -128,6 +128,21 @@
       "_hash": "8b99cee20cff78851c17588caee6960a6b52de79258ab81a045e09bfa92f442e",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3aec:F-009",
+      "desc": "packages/main/src/tasks/candidate-spec-routing-smoke.ts:261-279 proves five protected kinds only by manually injecting synthetic protectedSources into the core router; it never exercises currentStoryRoutingInput. In the real handler, packages/main/src/handlers/candidate-spec-routing.ts:221-233 converts Story riskSignals to category:matched and promotes typed-risk only when matched looks like a path. Normal typed risk records such as this Story Security/Credentials:auth and Production/Emergency:production therefore produce no typed-risk protected candidate at all. There is likewise no handler-level test proving signed/current reviewer evidence is admitted while stale/unbound evidence is excluded. The claimed five-class end-to-end contract is not covered and the typed-risk class is unreachable for ordinary detector output.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-17T09:20:29.484Z",
+      "reviewRound": "2026-07-17T09:17:08.260Z",
+      "reviewRunId": "B-3aec:RR-003",
+      "_hash": "3d15149ac7b649afbcc1313bd990e5d0b5580d2283936fed08f113887a7fac25",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
