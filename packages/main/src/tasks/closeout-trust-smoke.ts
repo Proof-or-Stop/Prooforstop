@@ -11,12 +11,14 @@ import {
   assertCanonicalCloseoutWrite,
   appendCloseoutWriteReceipt,
   buildCloseoutWriteReceipt,
+  classifyCurrentCloseoutArtifactForReviewRetention,
   computeCompositeScopeDigest,
   evaluateMetadataOnlyReviewRetention,
   latestCausallyValidCloseoutReceipt,
   latestValidCloseoutReceipt,
   readCloseoutWriteReceipts,
   validatePersistedDeliveryContextPack,
+  validateCurrentCloseoutArtifact,
   validateTrustedMilestoneLedger,
   validateTrustedParentLedgerRollup,
   validateTrustedSlicePlan,
@@ -230,6 +232,8 @@ console.log('PASS trusted closeout artifacts: schema and embedded hashes verifie
 
 const retained = evaluateMetadataOnlyReviewRetention({
   materialUnchanged: true,
+  storyFilesUnchanged: true,
+  stableEvaluationHead: true,
   storedCompositeScopeDigest: digest,
   currentCompositeScopeDigest: digest,
   changedArtifacts: [{ path: 'parent-ledger-rollup.json', writer: 'parent_ledger_rollup_set', valid: true }],
@@ -239,6 +243,8 @@ const retained = evaluateMetadataOnlyReviewRetention({
 assert.equal(retained.ok, true);
 assert.equal(evaluateMetadataOnlyReviewRetention({
   materialUnchanged: false,
+  storyFilesUnchanged: true,
+  stableEvaluationHead: true,
   storedCompositeScopeDigest: digest,
   currentCompositeScopeDigest: digest,
   changedArtifacts: [{ path: 'parent-ledger-rollup.json', writer: 'parent_ledger_rollup_set', valid: true }],
@@ -247,13 +253,35 @@ assert.equal(evaluateMetadataOnlyReviewRetention({
 }).ok, false);
 assert.equal(evaluateMetadataOnlyReviewRetention({
   materialUnchanged: true,
+  storyFilesUnchanged: true,
+  stableEvaluationHead: true,
   storedCompositeScopeDigest: digest,
   currentCompositeScopeDigest: `${digest}-changed`,
   changedArtifacts: [{ path: 'parent-ledger-rollup.json', writer: 'parent_ledger_rollup_set', valid: true }],
   storedReviewRound: 'round-1',
   currentReviewRound: 'round-1',
 }).ok, false);
-console.log('PASS local closeout requires fresh review before TEST retention');
+assert.equal(evaluateMetadataOnlyReviewRetention({
+  materialUnchanged: true,
+  storyFilesUnchanged: false,
+  stableEvaluationHead: true,
+  storedCompositeScopeDigest: digest,
+  currentCompositeScopeDigest: digest,
+  changedArtifacts: [],
+  storedReviewRound: 'round-1',
+  currentReviewRound: 'round-1',
+}).ok, false, 'story-owned drift must invalidate review retention');
+assert.equal(evaluateMetadataOnlyReviewRetention({
+  materialUnchanged: true,
+  storyFilesUnchanged: true,
+  stableEvaluationHead: false,
+  storedCompositeScopeDigest: digest,
+  currentCompositeScopeDigest: digest,
+  changedArtifacts: [],
+  storedReviewRound: 'round-1',
+  currentReviewRound: 'round-1',
+}).ok, false, 'concurrent HEAD movement must invalidate review retention');
+console.log('PASS closeout review retention binds material, story files, scope, round, and stable HEAD');
 
 function git(root: string, args: string[]): string {
   return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
@@ -491,8 +519,8 @@ try {
   await createVerifierHandlers(handlerCtx).validate({ storyId: runtimeStoryId, json: true });
   assertWriterReceipt('test-evidence.json', 'validate');
   // Make every independent DONE prerequisite current, then exercise the real
-  // XState FINISH transition.  The pre-closeout review must still be the sole
-  // blocker and the renderer must expose the same decision.
+  // XState FINISH transition. The pre-closeout quality review remains fresh;
+  // the independently enforced reviewer-lane quorum is the next blocker.
   deliveryHandlers.delivery_check_set({
     storyId: runtimeStoryId,
     docsPromises: [],
@@ -502,8 +530,10 @@ try {
   const staleActor = createStoryActor(runtimeStoryId, store, 'TEST', repo, repo);
   staleActor.start();
   staleActor.send({ type: 'FINISH' });
-  assert.equal(getStateName(staleActor), 'TEST', 'post-REVIEW closeout must block the actual TEST→DONE transition');
-  assert.match(getGuardFailureReason(runtimeStoryId, store, 'DONE', repo, repo) ?? '', /\[stale_closeout_review\]/);
+  assert.equal(getStateName(staleActor), 'TEST', 'missing required reviewer lanes must block the actual TEST→DONE transition');
+  const retainedGuardReason = getGuardFailureReason(runtimeStoryId, store, 'DONE', repo, repo) ?? '';
+  assert.match(retainedGuardReason, /\[review_lane_missing\]/);
+  assert.doesNotMatch(retainedGuardReason, /\[stale_closeout_review\]/);
   staleActor.stop();
 
   const assertDoneBlocked = (message: string, reasonCode: string) => {
@@ -664,8 +694,16 @@ try {
   git(repo, ['commit', '-m', 'record fresh review protocol metadata']);
   const currentStory = store.readStory(runtimeStoryId);
   const retainedAfterHandlers = evaluateReviewRunMetadataRetention(store, currentStory, run, repo, currentScopeContextForStory(store, runtimeStoryId, repo));
-  assert.equal(retainedAfterHandlers.ok, false, 'local causal receipts must not retain the pre-closeout review');
-  assert(retainedAfterHandlers.reasons.some(reason => reason.includes('invalid closeout artifact')));
+  assert.equal(retainedAfterHandlers.ok, true, retainedAfterHandlers.reasons.join('; '));
+  const retainedSummary = classifyCurrentCloseoutArtifactForReviewRetention(
+    store, runtimeStoryId, 'summary.json', repo, repo,
+  );
+  assert.equal(retainedSummary.retainsReview, true, retainedSummary.reason);
+  assert.equal(
+    validateCurrentCloseoutArtifact(store, runtimeStoryId, 'summary.json', repo, repo).valid,
+    false,
+    'review retention must not promote local causal lineage into artifact admissibility',
+  );
 
   git(repo, ['checkout', '-b', 'source-drift', baselineHead]);
   writeFileSync(join(repo, 'src/app.ts'), 'export const stable = false;\n', 'utf8');
@@ -765,8 +803,8 @@ try {
 }
 
 // Wrapper-root containment + real retention consumer + same-UID manual
-// co-commit regression. Local receipts remain useful causal telemetry but are
-// deliberately inadmissible as canonical-writer authority.
+// co-commit regression. Local receipts may classify a nonmaterial metadata
+// descendant for review freshness, but remain inadmissible as artifact authority.
 const wrapper = mkdtempSync(join(tmpdir(), 'closeout-wrapper-root-'));
 const wrapperRepo = join(wrapper, 'repo');
 try {
@@ -825,7 +863,12 @@ try {
     wrapperStore, wrapperStore.readStory(wrapperStoryId), preCloseoutRun, wrapperRepo,
     currentScopeContextForStory(wrapperStore, wrapperStoryId, wrapperRepo),
   );
-  assert.equal(canonicalRetention.ok, false, 'even a canonical local command requires a fresh post-closeout review');
+  assert.equal(canonicalRetention.ok, true, canonicalRetention.reasons.join('; '));
+  assert.equal(
+    validateCurrentCloseoutArtifact(wrapperStore, wrapperStoryId, 'summary.json', wrapperRepo, wrapper).valid,
+    false,
+    'retained code review must not authorize the summary artifact',
+  );
 
   const postCloseoutRun = makeWrapperRun('RR-002');
   const retainedAfterFreshReview = evaluateReviewRunMetadataRetention(
@@ -876,7 +919,12 @@ try {
     wrapperStore, wrapperStore.readStory(wrapperStoryId), preForgeRun, wrapperRepo,
     currentScopeContextForStory(wrapperStore, wrapperStoryId, wrapperRepo),
   );
-  assert.equal(forgedRetention.ok, false, 'same-UID forged causal receipt must not retain review');
+  assert.equal(forgedRetention.ok, true, forgedRetention.reasons.join('; '));
+  assert.equal(
+    validateCurrentCloseoutArtifact(wrapperStore, wrapperStoryId, 'summary.json', wrapperRepo, wrapper).valid,
+    false,
+    'same-UID causal telemetry remains inadmissible at the artifact authority boundary',
+  );
 } finally {
   resetConfigCache();
   rmSync(wrapper, { recursive: true, force: true });
@@ -905,4 +953,4 @@ assert.equal(evaluateMetadataOnlyReviewRetention({
   currentReviewRound: 'round-2',
 }).ok, false, 'new review round must never inherit the old pass');
 assert(!(COMMAND_POLICIES.scope_contract_acknowledge.allowedPhases as readonly string[]).includes('TEST'));
-console.log('PASS metadata-only review retention is fail-closed');
+console.log('PASS closeout review retention is separate from artifact admissibility');

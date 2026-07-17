@@ -23,11 +23,9 @@ import {
   type ScopeBindingComparison,
 } from './review-scope-binding.js';
 import {
-  closeoutArtifactPolicyFor,
+  classifyCurrentCloseoutArtifactForReviewRetention,
   evaluateMetadataOnlyReviewRetention,
-  latestValidCloseoutReceipt,
   readTrustedProofStoryScopeArtifacts,
-  validateCurrentCloseoutArtifact,
 } from './closeout-trust.js';
 import { AGENT_DISPATCH_REGISTRY, resolveRegisteredAgentActor } from './agent-dispatch-registry.js';
 
@@ -774,13 +772,12 @@ export function evaluateReviewRunMetadataRetention(
   if (!run.scopeBinding?.compositeScopeDigest && !scopeContext?.compositeScopeDigest) {
     return { ok: true, reasons: [] };
   }
-  const freshness = checkEvidenceFreshnessForGit(
-    projectRoot,
-    run.headHash,
-    run.materialHash,
-    run.workspaceBinding?.metadataRoot ?? projectRoot,
-    run.storyFilesHash ?? run.workspaceBinding?.storyFilesHash,
-  );
+  const metadataRoot = run.workspaceBinding?.metadataRoot ?? projectRoot;
+  const evaluationHead = currentGitHead(projectRoot);
+  const materialUnchanged = currentMaterialHash(projectRoot, 'HEAD', metadataRoot) === run.materialHash;
+  const storedStoryFilesHash = run.storyFilesHash ?? run.workspaceBinding?.storyFilesHash;
+  const storyFilesUnchanged = Boolean(storedStoryFilesHash)
+    && currentStoryFilesHash(projectRoot, 'HEAD', metadataRoot) === storedStoryFilesHash;
   let changedFiles: string[];
   let storyPrefix: string;
   try {
@@ -809,25 +806,24 @@ export function evaluateReviewRunMetadataRetention(
     (path) => path !== 'index.json' || !indexTransition?.ok,
   );
   const changedArtifacts = effectiveMetadataPaths.map((artifactPath) => {
-    const policy = closeoutArtifactPolicyFor(artifactPath);
-    const metadataRoot = run.workspaceBinding?.metadataRoot ?? projectRoot;
-    const validation = validateCurrentCloseoutArtifact(store, story.storyId, artifactPath, projectRoot, metadataRoot);
-    const receipt = policy?.artifactClass === 'closeout-evidence'
-      ? latestValidCloseoutReceipt(
-        store.storyDirPath(story.storyId),
-        story.storyId,
-        artifactPath,
-        { projectRoot, metadataRoot },
-      )
-      : null;
+    const classification = classifyCurrentCloseoutArtifactForReviewRetention(
+      store,
+      story.storyId,
+      artifactPath,
+      projectRoot,
+      metadataRoot,
+    );
     return {
       path: artifactPath,
-      writer: receipt?.writerCommand ?? '',
-      valid: validation.valid,
+      writer: classification.writer,
+      valid: classification.retainsReview,
     };
   });
+  const finalHead = currentGitHead(projectRoot);
   return evaluateMetadataOnlyReviewRetention({
-    materialUnchanged: freshness.materialFiles.length === 0,
+    materialUnchanged,
+    storyFilesUnchanged,
+    stableEvaluationHead: Boolean(evaluationHead) && evaluationHead === finalHead,
     storedCompositeScopeDigest: run.scopeBinding?.compositeScopeDigest,
     currentCompositeScopeDigest: scopeContext?.compositeScopeDigest,
     changedArtifacts,

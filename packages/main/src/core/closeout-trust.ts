@@ -377,6 +377,8 @@ export function computeCompositeScopeDigest(args: {
 
 export interface MetadataOnlyReviewRetentionInput {
   materialUnchanged: boolean;
+  storyFilesUnchanged?: boolean;
+  stableEvaluationHead?: boolean;
   storedCompositeScopeDigest?: string;
   currentCompositeScopeDigest?: string;
   changedArtifacts: Array<{ path: string; writer: string; valid: boolean }>;
@@ -387,6 +389,8 @@ export interface MetadataOnlyReviewRetentionInput {
 export function evaluateMetadataOnlyReviewRetention(input: MetadataOnlyReviewRetentionInput): { ok: boolean; reasons: string[] } {
   const reasons: string[] = [];
   if (!input.materialUnchanged) reasons.push('product/material diff changed');
+  if (input.storyFilesUnchanged === false) reasons.push('story-owned file state changed');
+  if (input.stableEvaluationHead === false) reasons.push('HEAD changed during closeout lineage evaluation');
   if (!input.storedCompositeScopeDigest || !input.currentCompositeScopeDigest) reasons.push('composite scope digest missing');
   else if (input.storedCompositeScopeDigest !== input.currentCompositeScopeDigest) reasons.push('composite scope digest changed');
   if (input.storedReviewRound !== input.currentReviewRound) reasons.push('review round changed');
@@ -581,6 +585,71 @@ export function latestValidCloseoutReceipt(
   return null;
 }
 
+function validateCloseoutArtifactShape(
+  store: StoryStore,
+  storyId: string,
+  artifactPath: string,
+  absolute: string,
+): void {
+  if (artifactPath === 'parent-ledger-rollup.json') readTrustedProofStoryScopeArtifacts(store, storyId);
+  else if (artifactPath === 'evidence/delivery-context-pack.json') validatePersistedDeliveryContextPack(JSON.parse(readFileSync(absolute, 'utf8')), storyId);
+  else if (artifactPath.endsWith('.json')) object(JSON.parse(readFileSync(absolute, 'utf8')), artifactPath);
+  else if (!readFileSync(absolute).length) throw new Error(`${artifactPath}: empty artifact`);
+}
+
+export interface CloseoutReviewRetentionResult {
+  retainsReview: boolean;
+  writer: string;
+  reason?: string;
+}
+
+/**
+ * Classify a changed closeout artifact for code-review freshness only.
+ *
+ * A causal receipt establishes that registered artifact bytes and their
+ * metadata commit move together. It does not authenticate the writer under the
+ * local same-UID threat model, so this result must never be consumed as
+ * closeout-artifact admissibility. Artifact gates continue to call
+ * `validateCurrentCloseoutArtifact`, which remains fail-closed.
+ */
+export function classifyCurrentCloseoutArtifactForReviewRetention(
+  store: StoryStore,
+  storyId: string,
+  artifactPath: string,
+  projectRoot: string,
+  metadataRoot: string,
+): CloseoutReviewRetentionResult {
+  const policy = closeoutArtifactPolicyFor(artifactPath);
+  if (!policy) return { retainsReview: false, writer: '', reason: `untrusted closeout artifact path: ${artifactPath}` };
+  if (policy.artifactClass !== 'closeout-evidence') {
+    return { retainsReview: false, writer: '', reason: `scope-defining artifact changed: ${artifactPath}` };
+  }
+  const storyDir = store.storyDirPath(storyId);
+  const absolute = join(storyDir, artifactPath);
+  if (!existsSync(absolute)) {
+    return { retainsReview: false, writer: '', reason: `closeout artifact missing: ${artifactPath}` };
+  }
+  try {
+    validateCloseoutArtifactShape(store, storyId, artifactPath, absolute);
+    const receipt = latestCausallyValidCloseoutReceipt(
+      storyDir,
+      storyId,
+      artifactPath,
+      { projectRoot, metadataRoot },
+    );
+    if (!receipt) {
+      return {
+        retainsReview: false,
+        writer: '',
+        reason: `closeout artifact lacks coherent registered metadata lineage: ${artifactPath}`,
+      };
+    }
+    return { retainsReview: true, writer: receipt.writerCommand };
+  } catch (error) {
+    return { retainsReview: false, writer: '', reason: String((error as Error).message) };
+  }
+}
+
 export function validateCurrentCloseoutArtifact(
   store: StoryStore,
   storyId: string,
@@ -594,10 +663,7 @@ export function validateCurrentCloseoutArtifact(
   const absolute = join(storyDir, artifactPath);
   if (!existsSync(absolute)) return { valid: false, reason: `closeout artifact missing: ${artifactPath}` };
   try {
-    if (artifactPath === 'parent-ledger-rollup.json') readTrustedProofStoryScopeArtifacts(store, storyId);
-    else if (artifactPath === 'evidence/delivery-context-pack.json') validatePersistedDeliveryContextPack(JSON.parse(readFileSync(absolute, 'utf8')), storyId);
-    else if (artifactPath.endsWith('.json')) object(JSON.parse(readFileSync(absolute, 'utf8')), artifactPath);
-    else if (!readFileSync(absolute).length) throw new Error(`${artifactPath}: empty artifact`);
+    validateCloseoutArtifactShape(store, storyId, artifactPath, absolute);
     const receipt = latestValidCloseoutReceipt(
       storyDir,
       storyId,
