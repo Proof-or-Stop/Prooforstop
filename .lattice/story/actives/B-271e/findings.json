@@ -178,7 +178,7 @@
       "desc": "d5e05e2300 closes the exact F-008 declaration-destructure and unsafe-OR repros, but adjacent ordinary destructuring flows remain fail-open. The built analyzer returns [] for `let env; ({ env } = process); writeFileSync(env.TEST_FILE, \"x\")` and for `function run({env}) { exec(env.TEST_COMMAND) } run(process)`. The first is assignment destructuring; the second is the checklist-promised combination of destructuring plus argument forwarding. A computed declaration alias (`const { [\"env\"]: runtimeEnv } = process`) also returns []. The implementation only handles ObjectBindingPattern under VariableDeclaration and functionParameters drops non-Identifier parameter bindings, so these flows never enter envObjects/taint. Extend process/env destructuring handling to assignment patterns and bound function parameters (or explicitly reject unsupported binding patterns conservatively), and add these exact filesystem/process negatives. The strict top-level conjunction sanitizer change itself behaves correctly for exact `isFinite && >0`, parenthesized AND, top-level OR, and nested OR cases.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-17T00:27:10.878Z",
@@ -189,7 +189,11 @@
         "packages/main/src/tasks/production-test-seam-guard.ts"
       ],
       "signatureTag": "production-test-seam-taint-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Shared recursive binding/static-property walker now covers declaration, assignment, function/arrow/method parameters, nested object/array alias/default/rest/computed patterns and multi-hop process forwarding; table-driven fs/process sink matrix and safe controls pass. Evidence: npm --prefix packages/main run build; npm run test:production-test-seam-guard; node packages/main/dist/tasks/validate-execution-lock-smoke.js.",
+      "resolvedAt": "2026-07-17T00:33:06.206Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
