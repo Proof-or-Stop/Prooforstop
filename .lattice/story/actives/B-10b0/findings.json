@@ -466,6 +466,25 @@
       "resolvedAt": "2026-07-17T21:49:15.622Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-10b0:F-021",
+      "desc": "packages/main/src/core/auto-commit-metadata.ts:166-228 [HIGH] The verifier-only transaction isolates the index but does not CAS the branch. It captures oldHead, then runs ordinary `git commit` with GIT_INDEX_FILE. If HEAD advances concurrently after read-tree, git commit creates/installs a commit on the newer parent. The subsequent parent mismatch throws only after HEAD moved and post-commit already ran; the catch then executes `update-ref HEAD oldHead newHead`, rewinding past the concurrent commit and silently discarding that advancement. This violates success atomicity and the no-destructive-git contract. Freeze the isolated tree, create a commit object with parent=oldHead, and install it via `update-ref <symbolic-ref> <commit> <oldHead>` CAS (as the existing done_prepare isolated writer does); on CAS failure leave the concurrent HEAD untouched and roll back only the managed worktree/index transaction. Add a deterministic before-CAS concurrent-HEAD seam asserting the concurrent commit remains HEAD, post-commit does not run, managed bytes/index restore, and unrelated staged entries remain byte-identical.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-17T21:50:35.308Z",
+      "reviewRound": "2026-07-17T21:48:57.432Z",
+      "reviewRunId": "B-10b0:RR-040",
+      "_hash": "aeec8e5fefe50f3104f3e5b96f77501869b746f25f9096e257e152a8a6c9ab2d",
+      "files": [
+        "packages/main/src/core/auto-commit-metadata.ts",
+        "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
