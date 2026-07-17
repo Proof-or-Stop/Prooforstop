@@ -1,0 +1,34 @@
+{
+  "findings": [
+    {
+      "id": "B-3aec:F-001",
+      "desc": "packages/main/src/core/candidate-spec-routing.ts:665-670 [HIGH] Protected direct candidates are still sliced by candidateBudget. routeCandidateSpecs assigns related-doc/exact-path/registry-ref/typed-risk/reviewer-evidence score 100, then ranked.slice(0, candidateBudget) drops every protected source beyond the first N. CHK-002 promises that each protected source remains selected even above the frequency threshold; a story with more than eight explicit sources can silently omit required documents. Preserve all protected candidates (or fail/escalate when they exceed the budget) and add an over-budget protected-source test.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-17T09:19:59.442Z",
+      "reviewRound": "2026-07-17T09:17:08.260Z",
+      "reviewRunId": "B-3aec:RR-001",
+      "_hash": "9d7988b1d224fca5a534ad6ae233d8256b931a76197170a3bd683d79241e086e",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3aec:F-002",
+      "desc": "packages/main/src/handlers/candidate-spec-routing.ts:183-192 [MEDIUM] Post-probe readiness drift is not classified as promised. If a previously ready launcher reaches the real run and then prints auth/interactive failure to stderr and exits nonzero, defaultHostRunRunner retains no stderr and productionExecutor returns only generic host unavailable exit 1; only silent startup timeout gets a distinct reason. CHK-001 edge:2 explicitly requires a distinct stale-readiness/auth/interactive/no-output diagnostic. Preserve bounded failure diagnostics or map host-run failure evidence, and test injected post-admission auth/interactive exits without real hosts.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-17T09:19:59.444Z",
+      "reviewRound": "2026-07-17T09:17:08.260Z",
+      "reviewRunId": "B-3aec:RR-001",
+      "_hash": "b7815228632c7939df00cff2125ea1610b5e3d68cb817f7948edba06f2069a38",
+      "signatureTag": "edge|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
