@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-10b0:F-001",
+      "desc": "packages/main/src/core/closeout-trust.ts:606-675 — The promised separation between review retention and artifact authority is not mechanically enforced. classifyCurrentCloseoutArtifactForReviewRetention accepts a same-UID-forgeable causal receipt and keeps the signed review current, while validateCurrentCloseoutArtifact always returns invalid because latestValidCloseoutReceipt is deliberately null. rg shows validateCurrentCloseoutArtifact has no production gate consumer (only closeout-trust-smoke); production artifact readers consume test/summary/delivery/live-smoke evidence through their separate readers without canonical writer provenance. Therefore a local actor can replace an artifact and co-commit a forged causal receipt, preserve the review, and reach the ordinary artifact consumer without the re-review that previously supplied the only writer-authority boundary. Either add an actual independently authoritative admissibility check to every registered artifact consumer (isolated signature/capability or equivalent), or keep such post-review writes review-invalidating; comments/tests that an unused helper remains fail-closed are insufficient.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-17T14:54:58.556Z",
+      "reviewRound": "2026-07-17T14:39:47.580Z",
+      "reviewRunId": "B-10b0:RR-002",
+      "_hash": "709d0fbf82453ffc513e7a325cf0ce2eae2085997b33fe112eb8712ff195c063",
+      "files": [
+        "packages/main/src/core/closeout-trust.ts",
+        "packages/main/src/core/review-run.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
