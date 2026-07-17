@@ -11,7 +11,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-17T09:38:43.831Z",
+      "endTime": "2026-07-17T10:04:16.331Z",
       "verificationIntent": {
         "happy": [
           {
@@ -100,110 +100,110 @@
           "kind": "integration_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit d842757356 passed build, host-run usage 81/81, readiness 10/10, candidate routing smoke, and process-fact contract. Deterministic local children cover positive admission, every canonical refusal, stdout/stderr first byte, startup versus total deadline, abort/error/close settlement, ENOENT spawn_error, bounded post-readiness diagnostics, reaping, and immediate slot reacquisition; no real host was launched.",
-          "headHash": "d842757356f5fd1f3a4a313cce9316d9336ad331",
-          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
-          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
-          "timestamp": "2026-07-17T09:38:44.050Z"
+          "note": "Independent owner rerun at commit 2075608ac0 passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. It proves dual-stream sticky bounded diagnostics, stdout-only and early auth/interactive with large tails, deterministic output/startup timeout/close/error/abort schedules, settle-once, kill-at-most-once, listener/timer cleanup, and immediate slot reacquisition without real hosts.",
+          "headHash": "2075608ac0728a3c0d5b39dae204acea2dec8ffd",
+          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
+          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
+          "timestamp": "2026-07-17T10:04:16.692Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit d842757356 passed build, host-run usage 81/81, readiness 10/10, candidate routing smoke, and process-fact contract. Deterministic local children cover positive admission, every canonical refusal, stdout/stderr first byte, startup versus total deadline, abort/error/close settlement, ENOENT spawn_error, bounded post-readiness diagnostics, reaping, and immediate slot reacquisition; no real host was launched.",
-          "headHash": "d842757356f5fd1f3a4a313cce9316d9336ad331",
-          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
-          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
-          "timestamp": "2026-07-17T09:38:44.248Z"
+          "note": "Independent owner rerun at commit 2075608ac0 passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. It proves dual-stream sticky bounded diagnostics, stdout-only and early auth/interactive with large tails, deterministic output/startup timeout/close/error/abort schedules, settle-once, kill-at-most-once, listener/timer cleanup, and immediate slot reacquisition without real hosts.",
+          "headHash": "2075608ac0728a3c0d5b39dae204acea2dec8ffd",
+          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
+          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
+          "timestamp": "2026-07-17T10:04:17.014Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit d842757356 passed build, host-run usage 81/81, readiness 10/10, candidate routing smoke, and process-fact contract. Deterministic local children cover positive admission, every canonical refusal, stdout/stderr first byte, startup versus total deadline, abort/error/close settlement, ENOENT spawn_error, bounded post-readiness diagnostics, reaping, and immediate slot reacquisition; no real host was launched.",
-          "headHash": "d842757356f5fd1f3a4a313cce9316d9336ad331",
-          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
-          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
-          "timestamp": "2026-07-17T09:38:44.441Z"
+          "note": "Independent owner rerun at commit 2075608ac0 passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. It proves dual-stream sticky bounded diagnostics, stdout-only and early auth/interactive with large tails, deterministic output/startup timeout/close/error/abort schedules, settle-once, kill-at-most-once, listener/timer cleanup, and immediate slot reacquisition without real hosts.",
+          "headHash": "2075608ac0728a3c0d5b39dae204acea2dec8ffd",
+          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
+          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
+          "timestamp": "2026-07-17T10:04:17.214Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit d842757356 passed build, host-run usage 81/81, readiness 10/10, candidate routing smoke, and process-fact contract. Deterministic local children cover positive admission, every canonical refusal, stdout/stderr first byte, startup versus total deadline, abort/error/close settlement, ENOENT spawn_error, bounded post-readiness diagnostics, reaping, and immediate slot reacquisition; no real host was launched.",
-          "headHash": "d842757356f5fd1f3a4a313cce9316d9336ad331",
-          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
-          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
-          "timestamp": "2026-07-17T09:38:44.697Z"
+          "note": "Independent owner rerun at commit 2075608ac0 passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. It proves dual-stream sticky bounded diagnostics, stdout-only and early auth/interactive with large tails, deterministic output/startup timeout/close/error/abort schedules, settle-once, kill-at-most-once, listener/timer cleanup, and immediate slot reacquisition without real hosts.",
+          "headHash": "2075608ac0728a3c0d5b39dae204acea2dec8ffd",
+          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
+          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
+          "timestamp": "2026-07-17T10:04:17.531Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
           "kind": "integration_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit d842757356 passed build, host-run usage 81/81, readiness 10/10, candidate routing smoke, and process-fact contract. Deterministic local children cover positive admission, every canonical refusal, stdout/stderr first byte, startup versus total deadline, abort/error/close settlement, ENOENT spawn_error, bounded post-readiness diagnostics, reaping, and immediate slot reacquisition; no real host was launched.",
-          "headHash": "d842757356f5fd1f3a4a313cce9316d9336ad331",
-          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
-          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
-          "timestamp": "2026-07-17T09:38:45.060Z"
+          "note": "Independent owner rerun at commit 2075608ac0 passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. It proves dual-stream sticky bounded diagnostics, stdout-only and early auth/interactive with large tails, deterministic output/startup timeout/close/error/abort schedules, settle-once, kill-at-most-once, listener/timer cleanup, and immediate slot reacquisition without real hosts.",
+          "headHash": "2075608ac0728a3c0d5b39dae204acea2dec8ffd",
+          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
+          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
+          "timestamp": "2026-07-17T10:04:17.711Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "integration_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit d842757356 passed build, host-run usage 81/81, readiness 10/10, candidate routing smoke, and process-fact contract. Deterministic local children cover positive admission, every canonical refusal, stdout/stderr first byte, startup versus total deadline, abort/error/close settlement, ENOENT spawn_error, bounded post-readiness diagnostics, reaping, and immediate slot reacquisition; no real host was launched.",
-          "headHash": "d842757356f5fd1f3a4a313cce9316d9336ad331",
-          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
-          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
-          "timestamp": "2026-07-17T09:38:45.300Z"
+          "note": "Independent owner rerun at commit 2075608ac0 passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. It proves dual-stream sticky bounded diagnostics, stdout-only and early auth/interactive with large tails, deterministic output/startup timeout/close/error/abort schedules, settle-once, kill-at-most-once, listener/timer cleanup, and immediate slot reacquisition without real hosts.",
+          "headHash": "2075608ac0728a3c0d5b39dae204acea2dec8ffd",
+          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
+          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
+          "timestamp": "2026-07-17T10:04:17.908Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit d842757356 passed build, host-run usage 81/81, readiness 10/10, candidate routing smoke, and process-fact contract. Deterministic local children cover positive admission, every canonical refusal, stdout/stderr first byte, startup versus total deadline, abort/error/close settlement, ENOENT spawn_error, bounded post-readiness diagnostics, reaping, and immediate slot reacquisition; no real host was launched.",
-          "headHash": "d842757356f5fd1f3a4a313cce9316d9336ad331",
-          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
-          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
-          "timestamp": "2026-07-17T09:38:45.492Z"
+          "note": "Independent owner rerun at commit 2075608ac0 passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. It proves dual-stream sticky bounded diagnostics, stdout-only and early auth/interactive with large tails, deterministic output/startup timeout/close/error/abort schedules, settle-once, kill-at-most-once, listener/timer cleanup, and immediate slot reacquisition without real hosts.",
+          "headHash": "2075608ac0728a3c0d5b39dae204acea2dec8ffd",
+          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
+          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
+          "timestamp": "2026-07-17T10:04:18.105Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit d842757356 passed build, host-run usage 81/81, readiness 10/10, candidate routing smoke, and process-fact contract. Deterministic local children cover positive admission, every canonical refusal, stdout/stderr first byte, startup versus total deadline, abort/error/close settlement, ENOENT spawn_error, bounded post-readiness diagnostics, reaping, and immediate slot reacquisition; no real host was launched.",
-          "headHash": "d842757356f5fd1f3a4a313cce9316d9336ad331",
-          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
-          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
-          "timestamp": "2026-07-17T09:38:45.667Z"
+          "note": "Independent owner rerun at commit 2075608ac0 passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. It proves dual-stream sticky bounded diagnostics, stdout-only and early auth/interactive with large tails, deterministic output/startup timeout/close/error/abort schedules, settle-once, kill-at-most-once, listener/timer cleanup, and immediate slot reacquisition without real hosts.",
+          "headHash": "2075608ac0728a3c0d5b39dae204acea2dec8ffd",
+          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
+          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
+          "timestamp": "2026-07-17T10:04:18.304Z"
         },
         {
           "intentRef": "CHK-001:adversarial:3",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit d842757356 passed build, host-run usage 81/81, readiness 10/10, candidate routing smoke, and process-fact contract. Deterministic local children cover positive admission, every canonical refusal, stdout/stderr first byte, startup versus total deadline, abort/error/close settlement, ENOENT spawn_error, bounded post-readiness diagnostics, reaping, and immediate slot reacquisition; no real host was launched.",
-          "headHash": "d842757356f5fd1f3a4a313cce9316d9336ad331",
-          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
-          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
-          "timestamp": "2026-07-17T09:38:45.851Z"
+          "note": "Independent owner rerun at commit 2075608ac0 passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. It proves dual-stream sticky bounded diagnostics, stdout-only and early auth/interactive with large tails, deterministic output/startup timeout/close/error/abort schedules, settle-once, kill-at-most-once, listener/timer cleanup, and immediate slot reacquisition without real hosts.",
+          "headHash": "2075608ac0728a3c0d5b39dae204acea2dec8ffd",
+          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
+          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
+          "timestamp": "2026-07-17T10:04:18.508Z"
         },
         {
           "intentRef": "CHK-001:adversarial:4",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/candidate-spec-routing-smoke.js && node packages/main/dist/tasks/host-run-usage-smoke.js && node packages/main/dist/tasks/review-host-execution-readiness-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Independent owner rerun at commit d842757356 passed build, host-run usage 81/81, readiness 10/10, candidate routing smoke, and process-fact contract. Deterministic local children cover positive admission, every canonical refusal, stdout/stderr first byte, startup versus total deadline, abort/error/close settlement, ENOENT spawn_error, bounded post-readiness diagnostics, reaping, and immediate slot reacquisition; no real host was launched.",
-          "headHash": "d842757356f5fd1f3a4a313cce9316d9336ad331",
-          "materialHash": "dc432f4abf112ddb699fc288d8a269dc8a71c902405277855957bece2c60a3e9",
-          "storyFilesHash": "640658c0385296fb4c0498c17ff3bfee80a3947254d962deae437f0497d5625c",
-          "timestamp": "2026-07-17T09:38:46.024Z"
+          "note": "Independent owner rerun at commit 2075608ac0 passed build, host-run 83/83, readiness 10/10, candidate routing, and process-fact contract. It proves dual-stream sticky bounded diagnostics, stdout-only and early auth/interactive with large tails, deterministic output/startup timeout/close/error/abort schedules, settle-once, kill-at-most-once, listener/timer cleanup, and immediate slot reacquisition without real hosts.",
+          "headHash": "2075608ac0728a3c0d5b39dae204acea2dec8ffd",
+          "materialHash": "5259d6a770128f1f1d7bedcc91ad537d38002f382b8730e2236018690884119d",
+          "storyFilesHash": "ab7b422a69b6cddccead7074068f9403d6df128674e68a8cc45b5a9d5b844f60",
+          "timestamp": "2026-07-17T10:04:18.702Z"
         }
       ]
     },
