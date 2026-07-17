@@ -211,6 +211,44 @@ function collectCallableIndex(sourceFile: ts.SourceFile): CallableIndex {
   const aliasEdges = new Map<string, Set<string>>();
   const rawPropertyMutations: Array<{ base: string; property?: string; invalidatesMethods: boolean }> = [];
   const arrayMutators = new Set(['push', 'pop', 'shift', 'unshift', 'splice', 'sort', 'reverse', 'copyWithin', 'fill']);
+  const constObjectInitializers = new Map<string, ts.Expression>();
+  const collectConstObjects = (node: ts.Node): void => {
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer
+      && ts.isVariableDeclarationList(node.parent)
+      && (node.parent.flags & ts.NodeFlags.Const) !== 0) {
+      constObjectInitializers.set(node.name.text, node.initializer);
+    }
+    ts.forEachChild(node, collectConstObjects);
+  };
+  collectConstObjects(sourceFile);
+  const staticEnumerableKeys = (expression: ts.Expression, seen = new Set<string>()): { keys: Set<string>; unknown: boolean } => {
+    let value = expression;
+    while (ts.isParenthesizedExpression(value) || ts.isAsExpression(value)
+      || ts.isTypeAssertionExpression(value) || ts.isNonNullExpression(value)) value = value.expression;
+    if (ts.isIdentifier(value)) {
+      if (seen.has(value.text)) return { keys: new Set(), unknown: true };
+      const initializer = constObjectInitializers.get(value.text);
+      if (!initializer) return { keys: new Set(), unknown: true };
+      const nextSeen = new Set(seen);
+      nextSeen.add(value.text);
+      return staticEnumerableKeys(initializer, nextSeen);
+    }
+    if (!ts.isObjectLiteralExpression(value)) return { keys: new Set(), unknown: true };
+    const keys = new Set<string>();
+    let unknown = false;
+    for (const property of value.properties) {
+      if (ts.isSpreadAssignment(property)) {
+        const spread = staticEnumerableKeys(property.expression, seen);
+        for (const key of spread.keys) keys.add(key);
+        unknown ||= spread.unknown;
+        continue;
+      }
+      const key = 'name' in property && property.name ? staticPropertyName(property.name) : undefined;
+      if (key) keys.add(key);
+      else unknown = true;
+    }
+    return { keys, unknown };
+  };
   const rootIdentifier = (expression: ts.Expression): string | undefined => {
     let value = expression;
     while (ts.isParenthesizedExpression(value) || ts.isAsExpression(value)
@@ -273,6 +311,20 @@ function collectCallableIndex(sourceFile: ts.SourceFile): CallableIndex {
           if (method === 'defineProperty') {
             const key = node.arguments[1] && ts.isStringLiteralLike(node.arguments[1]) ? node.arguments[1].text : undefined;
             rawPropertyMutations.push({ base, ...(key ? { property: key } : {}), invalidatesMethods: true });
+          } else if (method === 'assign') {
+            let unknown = false;
+            const names = new Set<string>();
+            for (const source of node.arguments.slice(1)) {
+              if (ts.isSpreadElement(source)) {
+                unknown = true;
+                continue;
+              }
+              const collected = staticEnumerableKeys(source);
+              for (const name of collected.keys) names.add(name);
+              unknown ||= collected.unknown;
+            }
+            for (const property of names) rawPropertyMutations.push({ base, property, invalidatesMethods: true });
+            if (unknown) rawPropertyMutations.push({ base, invalidatesMethods: true });
           } else {
             const descriptor = node.arguments[1];
             const names = descriptor && ts.isObjectLiteralExpression(descriptor)
@@ -938,6 +990,13 @@ function selfTest(): void {
     ['nested computed static method replacement', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const safe = { run(payload: string) { return payload } }; const holder = { ref: safe }; holder.ref['run'] = unsafe.run; safe.run(process.env.TEST_FILE)`],
     ['nested dynamic method replacement disables all exact names', `const unsafe = { run(command: string) { exec(command) } }; const safe = { run(payload: string) { return payload } }; const holder = { ref: safe }; const key = 'run'; holder.ref[key] = unsafe.run; safe.run(process.env.TEST_COMMAND)`],
     ['nested Object.assign method replacement', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const safe = { run(payload: string) { return payload } }; const holder = { ref: safe }; Object.assign(holder.ref, { run: unsafe.run }); safe.run(process.env.TEST_FILE)`],
+    ['Object.assign later source mutates method', `const unsafe = { run({ env }: typeof process) { exec(env.TEST_COMMAND) } }; const safe = { run(payload: unknown) { return payload } }; Object.assign(safe, { label: 'safe' }, { run: unsafe.run }); safe.run(process)`],
+    ['Object.assign multiple static keys union', `const unsafe = { execute({ env }: typeof process) { writeFileSync(env.TEST_FILE, 'x') } }; const safe = { execute(payload: unknown) { return payload } }; Object.assign(safe, { label: 'safe', count: 1 }, { execute: unsafe.execute, enabled: true }); safe.execute(process)`],
+    ['Object.assign unknown source before static source', `const unsafe = { run(command: string) { exec(command) } }; const safe = { run(payload: string) { return payload } }; declare const unknown: object; Object.assign(safe, unknown, { run: unsafe.run }); safe.run(process.env.TEST_COMMAND)`],
+    ['Object.assign unknown source after static source', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const safe = { run(payload: string) { return payload } }; declare const unknown: object; Object.assign(safe, { run: unsafe.run }, unknown); safe.run(process.env.TEST_FILE)`],
+    ['Object.assign known const spread source', `const unsafe = { run({ env }: typeof process) { exec(env.TEST_COMMAND) } }; const safe = { run(payload: unknown) { return payload } }; const replacement = { run: unsafe.run }; Object.assign(safe, { label: 'safe', ...replacement }); safe.run(process)`],
+    ['Object.assign dynamic computed source invalidates all', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const safe = { run(payload: string) { return payload } }; declare const key: string; Object.assign(safe, { [key]: unsafe.run }); safe.run(process.env.TEST_FILE)`],
+    ['nested Object.assign later source mutates method', `const unsafe = { run({ env }: typeof process) { exec(env.TEST_COMMAND) } }; const safe = { run(payload: unknown) { return payload } }; const holder = { ref: safe }; Object.assign(holder.ref, { label: 'safe' }, { ['run']: unsafe.run }); safe.run(process)`],
     ['nested Object.defineProperty method replacement', `const unsafe = { run(command: string) { exec(command) } }; const safe = { run(payload: string) { return payload } }; const holder = { ref: safe }; Object.defineProperty(holder.ref, 'run', { value: unsafe.run }); safe.run(process.env.TEST_COMMAND)`],
     ['nested Object.defineProperties method replacement', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const safe = { run(payload: string) { return payload } }; const holder = { ref: safe }; Object.defineProperties(holder.ref, { run: { value: unsafe.run } }); safe.run(process.env.TEST_FILE)`],
   ];
@@ -994,6 +1053,8 @@ function selfTest(): void {
     ['safe nested immutable holder', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const safe = { run(payload: string) { writeFileSync('/fixed', payload) } }; const holder = { ref: safe }; safe.run(process.env.TEST_FILE); void holder.ref`],
     ['safe unrelated static method mutation', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const safe = { run(payload: string) { writeFileSync('/fixed', payload) } }; const holder = { other() {} }; holder.other = () => {}; safe.run(process.env.TEST_FILE)`],
     ['safe array mutation does not disable method exactness', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const safe = { run(payload: string) { writeFileSync('/fixed', payload) } }; const args = ['/fixed']; args.push('payload'); safe.run(process.env.TEST_FILE)`],
+    ['safe Object.assign static non-method sources', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const safe = { run(payload: string) { writeFileSync('/fixed', payload) } }; const holder = {}; Object.assign(holder, { label: 'safe' }, { count: 1, ['enabled']: true }); safe.run(process.env.TEST_FILE)`],
+    ['safe Object.assign known const non-method spread', `const unsafe = { run(command: string) { exec(command) } }; const safe = { run(payload: string) { exec('/fixed') } }; const metadata = { label: 'safe' }; const holder = {}; Object.assign(holder, { ...metadata }, { count: 1 }); safe.run(process.env.TEST_COMMAND)`],
   ];
   for (const [name, source] of safeBindingControls) {
     assert.deepEqual(analyzeProductionTestSeams(source, `${name}.ts`), [], `${name} must remain outside TEST/SMOKE taint`);
