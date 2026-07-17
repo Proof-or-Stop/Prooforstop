@@ -255,9 +255,9 @@
         "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
         "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-17T14:01:49.434Z",
-      "endTime": "2026-07-17T15:21:16.880Z",
+      "endTime": "2026-07-17T16:34:53.532Z",
       "verificationIntent": {
         "happy": [
           {
@@ -369,156 +369,156 @@
         {
           "intentRef": "CHK-002:happy:0",
           "kind": "integration_test",
-          "command": "node packages/main/dist/tasks/done-prepare-auto-closeout-smoke.js",
+          "command": "npm run test:flow-stability-smoke && npm --prefix packages/main run test:done-prepare-auto-closeout-smoke",
           "result": "pass",
-          "note": "Durable REVIEW-to-TEST window reports exact 0/0/0/0/1 and receipt-derived writer sequence in one-pass closeout.",
-          "headHash": "d952808c92946e2613ef068c75615bc1f97e8868",
-          "materialHash": "a32d2e8ab71b9acc5ff69858d8d347827c593ecbe6e9c2ff240aa8ad78201355",
-          "storyFilesHash": "1ef9a2b66178fce1db7af10b46829791d007de1dd49f1246f2680b8a764a1bc6",
-          "timestamp": "2026-07-17T15:21:17.314Z"
+          "note": "One-pass closeout and durable convergence telemetry pass with zero-cost claims derived from actual event history.",
+          "headHash": "1c694f1c8eb924271aee04f874ce98db94d64ceb",
+          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
+          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
+          "timestamp": "2026-07-17T16:34:53.974Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
           "kind": "integration_test",
-          "command": "node packages/main/dist/tasks/done-prepare-merge-rerun-smoke.js",
+          "command": "npm run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Merge/rerun closeout reaches PASS without hiding prior attempt facts.",
-          "headHash": "d952808c92946e2613ef068c75615bc1f97e8868",
-          "materialHash": "a32d2e8ab71b9acc5ff69858d8d347827c593ecbe6e9c2ff240aa8ad78201355",
-          "storyFilesHash": "1ef9a2b66178fce1db7af10b46829791d007de1dd49f1246f2680b8a764a1bc6",
-          "timestamp": "2026-07-17T15:21:17.731Z"
+          "note": "Machine-readable counters derive phase, validation, review, and human facts; pre-TEST re-attestation is now non-zero.",
+          "headHash": "1c694f1c8eb924271aee04f874ce98db94d64ceb",
+          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
+          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
+          "timestamp": "2026-07-17T16:34:54.274Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
-          "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
-          "note": "Earliest same-material REVIEW anchor and exact positive window are mechanically derived.",
-          "headHash": "d952808c92946e2613ef068c75615bc1f97e8868",
-          "materialHash": "a32d2e8ab71b9acc5ff69858d8d347827c593ecbe6e9c2ff240aa8ad78201355",
-          "storyFilesHash": "1ef9a2b66178fce1db7af10b46829791d007de1dd49f1246f2680b8a764a1bc6",
-          "timestamp": "2026-07-17T15:21:18.118Z"
+          "note": "Delivery reviewer dispatch/writer phase contract remains aligned.",
+          "headHash": "1c694f1c8eb924271aee04f874ce98db94d64ceb",
+          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
+          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
+          "timestamp": "2026-07-17T16:34:54.595Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
           "kind": "integration_test",
-          "command": "node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
           "result": "pass",
-          "note": "Validation terminal persists command-set identity, disposition, executions, result and material bindings.",
-          "headHash": "d952808c92946e2613ef068c75615bc1f97e8868",
-          "materialHash": "a32d2e8ab71b9acc5ff69858d8d347827c593ecbe6e9c2ff240aa8ad78201355",
-          "storyFilesHash": "1ef9a2b66178fce1db7af10b46829791d007de1dd49f1246f2680b8a764a1bc6",
-          "timestamp": "2026-07-17T15:21:18.566Z"
+          "note": "Fresh validation/DONE-required reuse remains bounded and zero-execution semantics are preserved.",
+          "headHash": "1c694f1c8eb924271aee04f874ce98db94d64ceb",
+          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
+          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
+          "timestamp": "2026-07-17T16:34:54.898Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
-          "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
+          "kind": "integration_test",
+          "command": "npm run test:closeout-trust",
           "result": "pass",
-          "note": "Successful story_resume persists an explicit typed human confirmation.",
-          "headHash": "d952808c92946e2613ef068c75615bc1f97e8868",
-          "materialHash": "a32d2e8ab71b9acc5ff69858d8d347827c593ecbe6e9c2ff240aa8ad78201355",
-          "storyFilesHash": "1ef9a2b66178fce1db7af10b46829791d007de1dd49f1246f2680b8a764a1bc6",
-          "timestamp": "2026-07-17T15:21:18.894Z"
+          "note": "Trusted closeout metadata lineage preserves review freshness across multiple writes.",
+          "headHash": "1c694f1c8eb924271aee04f874ce98db94d64ceb",
+          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
+          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
+          "timestamp": "2026-07-17T16:34:55.211Z"
         },
         {
           "intentRef": "CHK-002:edge:3",
           "kind": "integration_test",
-          "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
+          "command": "npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke",
           "result": "pass",
-          "note": "Closure progress remains JSON-safe and direct PASS retains measured convergence.",
-          "headHash": "d952808c92946e2613ef068c75615bc1f97e8868",
-          "materialHash": "a32d2e8ab71b9acc5ff69858d8d347827c593ecbe6e9c2ff240aa8ad78201355",
-          "storyFilesHash": "1ef9a2b66178fce1db7af10b46829791d007de1dd49f1246f2680b8a764a1bc6",
-          "timestamp": "2026-07-17T15:21:19.218Z"
+          "note": "Interrupted closeout recovery remains bounded and does not duplicate reviewer work.",
+          "headHash": "1c694f1c8eb924271aee04f874ce98db94d64ceb",
+          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
+          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
+          "timestamp": "2026-07-17T16:34:55.563Z"
         },
         {
           "intentRef": "CHK-002:edge:4",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
+          "command": "npm run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Legacy or incomplete attempt telemetry returns null and emits no cosmetic zero claim.",
-          "headHash": "d952808c92946e2613ef068c75615bc1f97e8868",
-          "materialHash": "a32d2e8ab71b9acc5ff69858d8d347827c593ecbe6e9c2ff240aa8ad78201355",
-          "storyFilesHash": "1ef9a2b66178fce1db7af10b46829791d007de1dd49f1246f2680b8a764a1bc6",
-          "timestamp": "2026-07-17T15:21:19.693Z"
+          "note": "Missing or incomplete convergence facts omit the cosmetic zero claim.",
+          "headHash": "1c694f1c8eb924271aee04f874ce98db94d64ceb",
+          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
+          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
+          "timestamp": "2026-07-17T16:34:55.879Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
           "command": "npm run test:process-fact-contract",
           "result": "pass",
-          "note": "All three durable closeout telemetry facts are registered as L4 gate-consumed process facts.",
-          "headHash": "d952808c92946e2613ef068c75615bc1f97e8868",
-          "materialHash": "a32d2e8ab71b9acc5ff69858d8d347827c593ecbe6e9c2ff240aa8ad78201355",
-          "storyFilesHash": "1ef9a2b66178fce1db7af10b46829791d007de1dd49f1246f2680b8a764a1bc6",
-          "timestamp": "2026-07-17T15:21:20.538Z"
+          "note": "Durable closeout telemetry remains registered as gate-consumed process facts.",
+          "headHash": "1c694f1c8eb924271aee04f874ce98db94d64ceb",
+          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
+          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
+          "timestamp": "2026-07-17T16:34:56.211Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
           "kind": "integration_test",
-          "command": "node packages/main/dist/tasks/done-prepare-merge-rerun-smoke.js",
+          "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke",
           "result": "pass",
           "note": "Real material and unsafe-path drift remain fail-closed.",
-          "headHash": "d952808c92946e2613ef068c75615bc1f97e8868",
-          "materialHash": "a32d2e8ab71b9acc5ff69858d8d347827c593ecbe6e9c2ff240aa8ad78201355",
-          "storyFilesHash": "1ef9a2b66178fce1db7af10b46829791d007de1dd49f1246f2680b8a764a1bc6",
-          "timestamp": "2026-07-17T15:21:21.081Z"
+          "headHash": "1c694f1c8eb924271aee04f874ce98db94d64ceb",
+          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
+          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
+          "timestamp": "2026-07-17T16:34:56.517Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
           "kind": "integration_test",
-          "command": "node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js",
+          "command": "npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke",
           "result": "pass",
-          "note": "Validation failure and timeout remain blocking terminals.",
-          "headHash": "d952808c92946e2613ef068c75615bc1f97e8868",
-          "materialHash": "a32d2e8ab71b9acc5ff69858d8d347827c593ecbe6e9c2ff240aa8ad78201355",
-          "storyFilesHash": "1ef9a2b66178fce1db7af10b46829791d007de1dd49f1246f2680b8a764a1bc6",
-          "timestamp": "2026-07-17T15:21:21.704Z"
+          "note": "True validation failure and timeout remain blocking terminals.",
+          "headHash": "1c694f1c8eb924271aee04f874ce98db94d64ceb",
+          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
+          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
+          "timestamp": "2026-07-17T16:34:56.841Z"
         },
         {
           "intentRef": "CHK-002:adversarial:3",
           "kind": "integration_test",
-          "command": "node packages/main/dist/tasks/done-prepare-auto-closeout-smoke.js",
+          "command": "npm --prefix packages/main run test:done-prepare-auto-closeout-smoke",
           "result": "pass",
-          "note": "Current-run telemetry is included in the bounded metadata manifest and clean closeout.",
-          "headHash": "d952808c92946e2613ef068c75615bc1f97e8868",
-          "materialHash": "a32d2e8ab71b9acc5ff69858d8d347827c593ecbe6e9c2ff240aa8ad78201355",
-          "storyFilesHash": "1ef9a2b66178fce1db7af10b46829791d007de1dd49f1246f2680b8a764a1bc6",
-          "timestamp": "2026-07-17T15:21:22.098Z"
+          "note": "Current-run telemetry stays inside the bounded metadata manifest.",
+          "headHash": "1c694f1c8eb924271aee04f874ce98db94d64ceb",
+          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
+          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
+          "timestamp": "2026-07-17T16:34:57.156Z"
         },
         {
           "intentRef": "CHK-002:adversarial:4",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
+          "command": "npm run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Duplicate unchanged execution and reused-with-execution both violate the convergence invariant.",
-          "headHash": "d952808c92946e2613ef068c75615bc1f97e8868",
-          "materialHash": "a32d2e8ab71b9acc5ff69858d8d347827c593ecbe6e9c2ff240aa8ad78201355",
-          "storyFilesHash": "1ef9a2b66178fce1db7af10b46829791d007de1dd49f1246f2680b8a764a1bc6",
-          "timestamp": "2026-07-17T15:21:22.466Z"
+          "note": "Duplicate unchanged execution and reused-with-execution violate convergence.",
+          "headHash": "1c694f1c8eb924271aee04f874ce98db94d64ceb",
+          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
+          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
+          "timestamp": "2026-07-17T16:34:57.464Z"
         },
         {
           "intentRef": "CHK-002:adversarial:5",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
+          "command": "npm run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Prior metadata rollback, verified re-attestation and human ack each independently prevent a zero-cost PASS claim.",
-          "headHash": "d952808c92946e2613ef068c75615bc1f97e8868",
-          "materialHash": "a32d2e8ab71b9acc5ff69858d8d347827c593ecbe6e9c2ff240aa8ad78201355",
-          "storyFilesHash": "1ef9a2b66178fce1db7af10b46829791d007de1dd49f1246f2680b8a764a1bc6",
-          "timestamp": "2026-07-17T15:21:22.802Z"
+          "note": "Collector regression proves REVIEW-anchor re-attestation before TEST is counted while old rounds are excluded.",
+          "headHash": "1c694f1c8eb924271aee04f874ce98db94d64ceb",
+          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
+          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
+          "timestamp": "2026-07-17T16:34:57.765Z"
         },
         {
           "intentRef": "CHK-002:adversarial:6",
           "kind": "integration_test",
-          "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "command": "npm run test:convergence-breaker && node packages/main/dist/tasks/validation-protocol-smoke.js",
           "result": "pass",
-          "note": "Human acknowledgement and validation execution are durable typed facts rather than transcript regex guesses.",
-          "headHash": "d952808c92946e2613ef068c75615bc1f97e8868",
-          "materialHash": "a32d2e8ab71b9acc5ff69858d8d347827c593ecbe6e9c2ff240aa8ad78201355",
-          "storyFilesHash": "1ef9a2b66178fce1db7af10b46829791d007de1dd49f1246f2680b8a764a1bc6",
-          "timestamp": "2026-07-17T15:21:23.718Z"
+          "note": "Human acknowledgement and validation terminals remain durable typed facts.",
+          "headHash": "1c694f1c8eb924271aee04f874ce98db94d64ceb",
+          "materialHash": "7df4c5d354c6048bbc76e6846010394536a1f46eaad1b016d53af0cb0d182cc1",
+          "storyFilesHash": "1ccc1e3b819de271616f9e94b4ba9061b27f59ca9f9deeeb7fd783262f371f85",
+          "timestamp": "2026-07-17T16:34:58.133Z"
         }
       ]
     },
@@ -825,6 +825,16 @@
       "from": "done",
       "to": "in_progress",
       "reason": "F-011: fail closed on multiline Python def/class declarations and add regression coverage.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-17T16:34:53.532Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Commit 1c694f1c8e fixes F-008 by counting same-binding same-lane re-attestations from the REVIEW anchor, including those completed before TEST; focused closeout suite passed.",
       "agent": "lattice-implementer"
     }
   ]
