@@ -351,11 +351,11 @@ const approvedLegacyDeliveryCompatUsages = new Map<string, {
 
 const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   [LEGACY_DELIVERY_COMPAT_MODULE, 'b2c006a5becbd456a5728bb7615cf999cb514137383bc935b128073240899d98'],
-  ['packages/main/src/core/closeout-trust.ts', 'ccd079414da1e7aabbbc9afcd96a25ef37ae72d50d6817c340b37f152f711b06'],
+  ['packages/main/src/core/closeout-trust.ts', '458d8aeaf36286e2ca0cafe968c2e9559d46e57e6920ca9581ea58ee38b77887'],
   // B-f458: repinned after an internal transcript-path constant rename; the
   // legacy compatibility symbols, approved call shapes, and occurrence counts above are unchanged.
   ['packages/main/src/handlers/delivery-context-pack.ts', '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844'],
-  ['packages/main/src/tasks/closeout-trust-smoke.ts', '0a10f408fa80e342b4bf2426fdd618cc3aa6f003e3f5da16a0856684f84d57a1'],
+  ['packages/main/src/tasks/closeout-trust-smoke.ts', 'd6ca0a50fd24368b13817065278e2ca4d59d38983dc21a79322f9997de497e9e'],
   ['packages/main/src/cli-engine.ts', 'f3cbdee85850ad38eecf32073f2651309813e2ef6f68c4f843ec4a2d5c1356c1'],
   ['packages/main/src/verifier/serve.ts', '20149fa438b1ec78fc9c9713eb3cc4a890bc58a1d82e7a5fa0d588e9c4e7ee91'],
   ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '518890b58fd8e369488721d66d954f9589a049a42066635f42c057227788ae45'],
