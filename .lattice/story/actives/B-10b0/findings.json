@@ -495,7 +495,7 @@
       "desc": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts:199-286 [MEDIUM] The consolidated transaction matrix now fully covers successful three-file commit, hook/receipt failure rollback, and unrelated staged preservation, but it has no deterministic concurrent-HEAD case for the new commitValidationReuseMetadataTransaction. This leaves the open F-021 regression unguarded: ordinary git commit can install on a newer parent after oldHead capture, and the subsequent rollback can rewind the concurrent advancement. Add a before-CAS/HEAD-advance seam that proves the concurrent commit remains HEAD, no canonical PASS is visible to StoryStore/HEAD, all three managed worktree/index states restore exactly, unrelated staged blob remains byte-identical, and no post-commit success signal is emitted.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-17T21:52:16.224Z",
@@ -507,7 +507,11 @@
         "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
       ],
       "signatureTag": "validation-reuse|cas|coverage",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Same root cause fixed by 5ccc15d47e: verifier and done_prepare now share commitImmutableMetadataTree, which runs hook/message/signing policy, revalidates exact post-hook index/tree paths and blobs, creates an immutable commit-tree, CAS-installs against oldHead, and runs post-commit only after CAS success. Concurrent HEAD and hook-added-unrelated regressions prove infra FAIL, concurrent HEAD preservation, managed worktree/index rollback, unrelated staged preservation, and no post-commit on CAS refusal. Build, validation reuse, both done_prepare smokes, and process-fact contract PASS.",
+      "resolvedAt": "2026-07-17T22:03:34.281Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-10b0:F-023",
