@@ -118,8 +118,24 @@
       "phase": "DEV",
       "headHash": "85656f434d705c756bef0df7adce5531375a298a",
       "materialHash": "71a4d2e53b778547b98e30bf8c79573e39f92fde3722d00e74970cf91fff88aa"
+    },
+    {
+      "actor": "lattice-implementer",
+      "reason": "The verified canonical validation reuse findings require an opt-in isolated metadata transaction alongside the existing canonical metadata writer.",
+      "timestamp": "2026-07-17T21:48:51.743Z",
+      "paths": [
+        "packages/main/src/core/auto-commit-metadata.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/auto-commit-metadata.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "a74f57732a8d08c6831a8b7553fde64dfa1fbc15",
+      "materialHash": "8389bca2af0f7db3911756b236ed225a5e7d7bb142d7a0a02710997fec9ad614"
     }
   ],
   "createdAt": "2026-07-17T13:21:14.674Z",
-  "updatedAt": "2026-07-17T21:36:36.640Z"
+  "updatedAt": "2026-07-17T21:48:51.743Z"
 }
