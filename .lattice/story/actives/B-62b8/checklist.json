@@ -208,9 +208,9 @@
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#92-required-identity-model",
         "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-17T23:28:01.929Z",
-      "endTime": null,
+      "endTime": "2026-07-17T23:28:03.292Z",
       "userSees": "User sees \"session identity degraded: derived-ppid\" with an actionable LATTICE_SESSION_ID/adapter hint before the first owner-gated mutation; supported adapters report their provider and source without raw tokens.",
       "files": {
         "modify": [
@@ -994,6 +994,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Accept committed adapter/dispatch/diagnostic propagation slice from lattice-implementer for evidence binding."
+    },
+    {
+      "timestamp": "2026-07-17T23:28:03.292Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Codex/Claude/agy/fake child identity propagation, redaction, session_brief/doctor and degraded mutation guidance committed in a175883c; focused tests PASS.",
+      "agent": "lattice-implementer"
     }
   ]
 }
