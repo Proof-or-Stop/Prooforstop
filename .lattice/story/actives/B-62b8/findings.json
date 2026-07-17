@@ -104,6 +104,60 @@
       "_hash": "5bf56ac73ef6cd8b4464277aea2372394727a05e0a92e747ee901303fb6395a9",
       "signatureTag": "missing|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-62b8:F-008",
+      "desc": "docs/requirements/decisions/owner-session-contract-execution-plan.md:54-73,290-298,445-456 promise that lifecycle events consume the opaque shared canonical resolver and never persist raw host task/session tokens, but packages/main/src/cli-engine.ts:1132-1135 and 1191-1195 still write process.env.LATTICE_ACTIVITY_SESSION directly into both the activity log and story process-events; packages/main/src/init-assets.ts:360-365 populates that variable from raw CODEX_SESSION_ID/OPENAI_SESSION_ID/TERM_SESSION_ID. HIGH: an ordinary Codex launch can therefore leak a raw host token into logs/story metadata and retains a second session source of truth outside the resolver, while the guardrail does not match LATTICE_ACTIVITY_SESSION. Route both event writers through getSessionIdentity()/the opaque canonical id, preserve source/provider only as diagnostics, and add a sentinel regression proving raw native values never reach either artifact.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-17T23:31:35.350Z",
+      "reviewRound": "2026-07-17T23:28:37.387Z",
+      "reviewRunId": "B-62b8:RR-004",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/owner-session-token-store.ts",
+          "packages/main/src/core/owner-session.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/tasks/owner-session-guardrail.ts",
+          "packages/main/src/tasks/story-owner-lease-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "ca7bd5fa3fa8b0a1e61da208ae526aacb3f1e9902f2a7c738aa871623910c96d"
+      },
+      "readDiagnostics": [],
+      "_hash": "1e3d6e7b7c0a45478cb48a3b7f5a561285600fa9c885109c4e1533b049823b31",
+      "files": [
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/init-assets.ts",
+        "packages/main/src/core/owner-session.ts",
+        "packages/main/src/tasks/owner-session-guardrail.ts"
+      ],
+      "signatureTag": "doc-code-drift|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
