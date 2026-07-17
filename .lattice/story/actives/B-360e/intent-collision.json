@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-360e",
+  "id": "IC-20260717234829",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "B-360e implements only the accepted plan’s Story 1 baseline: additive schemas, exact lifecycle registry, deterministic measurement sidecar/report, and no-output-drift proof. It intentionally defines but does not instantiate PromptEnvelope and leaves Story 2–7 behavior to their ordered Stories, so the broader all-milestones instruction is preserved without collapsing scopes.",
+  "acceptedInterpretationHash": "sha256:5eb15476f9da8983ea673ad86951668ccb5259bbe857d6efe85696c973f27a89",
+  "notes": "The bounded slice is necessary to attribute later Prompt behavior changes against a frozen baseline.",
+  "ledgerHashBeforeDecision": "sha256:f3086be95ed7a37aabb343899bf770156f01af77a901dd252c87398fa6e154e9",
+  "confirmedLedgerHash": "sha256:f3086be95ed7a37aabb343899bf770156f01af77a901dd252c87398fa6e154e9",
+  "createdAt": "2026-07-17T23:48:29.823Z",
+  "updatedAt": "2026-07-17T23:48:29.823Z"
+}

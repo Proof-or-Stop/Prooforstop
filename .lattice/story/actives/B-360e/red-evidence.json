@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-360e",
+  "records": [
+    {
+      "id": "RED-S1-MEASUREMENT-COMMAND",
+      "trigger": "Story 1 requires a user-visible read-only prompt_measurement_report command and deterministic baseline report.",
+      "acceptanceTargetRef": "AB-S1",
+      "baselineHeadHash": "dd15a0e3ac21ed2493c6e6057abbe50ca4d2d205",
+      "baselineMaterialHash": "950fe1c05aed993997061ef960f86d86168148d16871adb88a2c3af72504bda1",
+      "observedFailure": "Before implementation, node bin/lattice.js prompt_measurement_report --format=json exits 1 with Unknown command: prompt_measurement_report.",
+      "failingCommand": "node bin/lattice.js prompt_measurement_report --format=json",
+      "expectedGreenCommand": "node bin/lattice.js prompt_measurement_report --format=json",
+      "greenRelation": {
+        "targetRef": "AB-S1",
+        "relation": "same_acceptance",
+        "command": "node bin/lattice.js prompt_measurement_report --format=json"
+      },
+      "note": "This is a true missing-capability red state, not a prompt-output regression; existing 16 agent_prompt outputs already pass and must remain unchanged.",
+      "createdAt": "2026-07-17T23:49:06.996Z"
+    }
+  ],
+  "createdAt": "2026-07-17T23:49:06.996Z",
+  "updatedAt": "2026-07-17T23:49:06.996Z"
+}

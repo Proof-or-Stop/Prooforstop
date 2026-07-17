@@ -1,0 +1,40 @@
+{
+  "storyId": "B-360e",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/cli/activity-policy.ts",
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/prompt-contracts.ts",
+    "packages/main/src/core/prompt-role-contract-registry.ts",
+    "packages/main/src/core/prompt-measurement.ts",
+    "packages/main/src/handlers/prompt-measurement.ts",
+    "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+    "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+  ],
+  "protectedFiles": [
+    "packages/main/templates/agents",
+    ".claude/agents",
+    ".lattice-codex/agents",
+    "docs/requirements/baselines/proof-or-stop-prompt-baseline.json"
+  ],
+  "explicitExcludes": [
+    "packages/main/templates/agents",
+    ".claude/agents",
+    ".lattice-codex/agents"
+  ],
+  "scopeChangeReason": "Story 1 is additive contract/measurement infrastructure; current Prompt bodies, mirrors, approved output baseline, dispatch behavior, and gates are protected from change.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-17T23:49:12.563Z",
+  "updatedAt": "2026-07-17T23:49:12.563Z"
+}
