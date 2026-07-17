@@ -404,6 +404,28 @@
         "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
       },
       "_hash": "31fbc0142d14de24c4c8bba44e73ed3c89e7233c302fa257d752a7e1d7f9f707"
+    },
+    {
+      "id": "B-10b0:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Targeted concept review of F-014 fix 7c8923f674 found no blocker. After bounded safe-path classification and git add, the writer now requires the complete staged index path set to exactly equal the manifest, compares every staged blob and current worktree blob to the manifest-verified digest, and commits the already-verified index without a pathspec. The done_prepare caller retains the pre-write transaction and rolls back both original index entries and worktree bytes on refusal. The mutation hooks are explicit in-process hermetic test seams, not CLI/env inputs, and production callers omit them; they do not widen local proof into Authority. No forbidden reset/clean/checkout/push or no-verify behavior was added. Both auto-closeout and merge-rerun focused smokes pass.",
+      "createdAt": "2026-07-17T20:58:30.530Z",
+      "reviewRound": "2026-07-17T20:55:18.822Z",
+      "reviewRunId": "B-10b0:RR-027",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "a79489ffa5d0caeb21c54071940bc3ca06f0333900d05b05ffb6382315438c4a"
     }
   ]
 }
