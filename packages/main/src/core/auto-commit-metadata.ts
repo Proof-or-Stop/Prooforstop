@@ -29,7 +29,8 @@
  */
 
 import { execFileSync } from 'child_process';
-import { existsSync, readFileSync, realpathSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, realpathSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { isAbsolute, join, relative, resolve } from 'node:path';
 import { reportHealthIssue } from './health.js';
 import {
@@ -52,6 +53,10 @@ import {
   rawArtifactDigest,
   readCloseoutWriteReceipts,
 } from './closeout-trust.js';
+import {
+  rollbackDonePrepareGeneratedMetadataTransaction,
+  type DonePrepareGeneratedMetadataTransaction,
+} from './done-prepare-generated-metadata.js';
 
 /**
  * Literal byte-equal user-visible prefix. Pinned for vocabulary consistency
@@ -110,6 +115,119 @@ function appendLocalCausalReceiptsBeforeCommit(args: {
       previousIntegrityHash: previous?.integrityHash ?? null,
     });
     appendCloseoutWriteReceipt(storyDir, receipt);
+  }
+}
+
+export interface ValidationReuseMetadataTransactionCommitResult {
+  ok: boolean;
+  commitSha?: string;
+  reason?: string;
+}
+
+/**
+ * Commit the already-mutated canonical validation-reuse evidence, terminal,
+ * and receipt through an isolated index. The caller captures `transaction`
+ * before the first mutation. Every failure restores both managed worktree bytes
+ * and their real-index entries; unrelated staged entries never enter the
+ * isolated index and remain untouched.
+ */
+export function commitValidationReuseMetadataTransaction(args: {
+  projectRoot: string;
+  gitCwd: string;
+  storyId: string;
+  storyRel: string;
+  reason: string;
+  transaction: DonePrepareGeneratedMetadataTransaction;
+  closeoutArtifactPaths: readonly string[];
+}): ValidationReuseMetadataTransactionCommitResult {
+  const managedPaths = [...args.transaction.paths].sort((a, b) => a.localeCompare(b));
+  const rollback = (reason: string): ValidationReuseMetadataTransactionCommitResult => {
+    const result = rollbackDonePrepareGeneratedMetadataTransaction({
+      root: args.gitCwd,
+      gitCwd: args.gitCwd,
+      transaction: args.transaction,
+    });
+    return {
+      ok: false,
+      reason: result.ok ? reason : `${reason}; rollback failed: ${result.errors.join(' | ')}`,
+    };
+  };
+  const expectedPrefix = `${normalizeRelPath(args.storyRel)}/`;
+  const expectedPaths = [
+    `${expectedPrefix}closeout-write-receipts.jsonl`,
+    `${expectedPrefix}process-events.jsonl`,
+    `${expectedPrefix}test-evidence.json`,
+  ];
+  if (
+    managedPaths.length !== expectedPaths.length
+    || managedPaths.some((path, index) => normalizeRelPath(path) !== expectedPaths[index])
+  ) return rollback('validation reuse transaction must manage exactly evidence, terminal, and receipt');
+
+  let oldHead = '';
+  let newHead = '';
+  const tempDir = mkdtempSync(join(tmpdir(), 'lattice-story-metadata-index-'));
+  const indexFile = join(tempDir, 'index');
+  const isolatedEnv = { ...process.env, GIT_INDEX_FILE: indexFile };
+  try {
+    appendLocalCausalReceiptsBeforeCommit({
+      projectRoot: args.projectRoot,
+      gitCwd: args.gitCwd,
+      storyId: args.storyId,
+      storyRel: args.storyRel,
+      reason: args.reason,
+      artifactPaths: args.closeoutArtifactPaths,
+    });
+    oldHead = execFileSync('git', ['rev-parse', 'HEAD'], {
+      cwd: args.gitCwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    execFileSync('git', ['read-tree', oldHead], {
+      cwd: args.gitCwd, env: isolatedEnv, stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    execFileSync('git', ['add', '--', ...managedPaths], {
+      cwd: args.gitCwd, env: isolatedEnv, stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    const isolatedPaths = execFileSync('git', ['diff', '--cached', '--name-only', '-z', oldHead], {
+      cwd: args.gitCwd, env: isolatedEnv, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
+    }).split('\0').filter(Boolean).sort((a, b) => a.localeCompare(b));
+    if (
+      isolatedPaths.length !== managedPaths.length
+      || isolatedPaths.some((path, index) => path !== managedPaths[index])
+    ) return rollback('isolated metadata index does not exactly match the managed path set');
+
+    const subject = `lattice: record ${args.storyId} ${args.reason} metadata`;
+    execFileSync('git', ['commit', '-m', subject], {
+      cwd: args.gitCwd,
+      env: isolatedEnv,
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    newHead = execFileSync('git', ['rev-parse', 'HEAD'], {
+      cwd: args.gitCwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    const parent = execFileSync('git', ['rev-parse', `${newHead}^`], {
+      cwd: args.gitCwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    if (parent !== oldHead) throw new Error('isolated metadata commit parent changed unexpectedly');
+    execFileSync('git', ['reset', '-q', 'HEAD', '--', ...managedPaths], {
+      cwd: args.gitCwd,
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    return { ok: true, commitSha: newHead };
+  } catch (error: any) {
+    if (newHead && oldHead) {
+      try {
+        execFileSync('git', ['update-ref', 'HEAD', oldHead, newHead], {
+          cwd: args.gitCwd,
+          stdio: ['pipe', 'pipe', 'pipe'],
+        });
+      } catch (rollbackError: any) {
+        return rollback(
+          `metadata commit failed and HEAD rollback failed: ${String(rollbackError?.stderr || rollbackError?.message || rollbackError).trim()}`,
+        );
+      }
+    }
+    return rollback(`metadata transaction failed: ${String(error?.stderr || error?.stdout || error?.message || error).trim()}`);
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
   }
 }
 

@@ -2,7 +2,7 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -45,6 +45,7 @@ function assertHandlerExecutedThenReused(
   semanticResult?: Record<string, unknown>,
   coverageOnlyRecovery = false,
   rejectPersistence = false,
+  rejectReceipt = false,
 ): void {
   const root = mkdtempSync(join(tmpdir(), `lattice-validation-reuse-${sourceKind}-`));
   const counterPath = join(tmpdir(), `lattice-validation-reuse-counter-${process.pid}-${Date.now()}.log`);
@@ -198,6 +199,26 @@ function assertHandlerExecutedThenReused(
       git(root, ['commit', '-m', 'record coverage-only validation failure before evidence refresh']);
     }
     const headBefore = git(root, ['rev-parse', 'HEAD']);
+    const unrelatedPath = '.lattice/story/actives/B-unrelated/index.json';
+    mkdirSync(dirname(join(root, unrelatedPath)), { recursive: true });
+    writeFileSync(join(root, unrelatedPath), '{"unrelated":"pre-staged"}\n', 'utf8');
+    git(root, ['add', '--', unrelatedPath]);
+    const unrelatedIndexBefore = git(root, ['ls-files', '--stage', '--', unrelatedPath]);
+    const managedPaths = [
+      `.lattice/story/actives/${storyId}/closeout-write-receipts.jsonl`,
+      `.lattice/story/actives/${storyId}/process-events.jsonl`,
+      `.lattice/story/actives/${storyId}/test-evidence.json`,
+    ];
+    if (rejectReceipt) {
+      writeFileSync(join(root, managedPaths[0]), 'malformed receipt ledger\n', 'utf8');
+      git(root, ['add', '--', managedPaths[0]]);
+    }
+    const managedIndexBefore = git(root, ['ls-files', '--stage', '--', ...managedPaths]);
+    const managedWorktreeBefore = managedPaths.map((path) => ({
+      path,
+      exists: existsSync(join(root, path)),
+      bytes: existsSync(join(root, path)) ? readFileSync(join(root, path)) : null,
+    }));
     const statusBefore = git(root, ['status', '--porcelain=v1', '--untracked-files=all']);
     if (rejectPersistence) {
       const hook = join(root, '.git', 'hooks', 'pre-commit');
@@ -207,15 +228,22 @@ function assertHandlerExecutedThenReused(
 
     const second = runWith(wrapperTransport);
     assert.equal(second.status, 0, `${second.stdout}\n${second.stderr}`);
-    if (rejectPersistence) {
+    if (rejectPersistence || rejectReceipt) {
       assert.match(`${second.stdout}\n${second.stderr}`, /"status":"fail"/);
       assert.match(`${second.stdout}\n${second.stderr}`, /canonical-pass-persistence-failed/);
+      if (rejectReceipt) assert.match(`${second.stdout}\n${second.stderr}`, /closeout-write-receipts\.jsonl: malformed line 1/);
       assert.doesNotMatch(`${second.stdout}\n${second.stderr}`, /"disposition":"reused"/);
       assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, commandCount, 'persistence failure must not rerun project commands');
       assert.equal(git(root, ['rev-parse', 'HEAD']), headBefore, 'failed canonical writer must not move HEAD');
       const committedEvidence = JSON.parse(git(root, ['show', `HEAD:.lattice/story/actives/${storyId}/test-evidence.json`])) as TestEvidenceData;
       assert.equal(committedEvidence.result, coverageOnlyRecovery ? 'FAIL' : 'PASS', 'failed writer must not publish a new canonical PASS commit');
       assert.equal(store.readTestEvidence(storyId)?.result, coverageOnlyRecovery ? 'FAIL' : 'PASS', 'failed writer must restore the prior canonical working-tree evidence');
+      assert.equal(git(root, ['ls-files', '--stage', '--', ...managedPaths]), managedIndexBefore, 'failed writer must restore every managed index entry exactly');
+      assert.equal(git(root, ['ls-files', '--stage', '--', unrelatedPath]), unrelatedIndexBefore, 'failed writer must preserve unrelated pre-staged index entries');
+      for (const prior of managedWorktreeBefore) {
+        assert.equal(existsSync(join(root, prior.path)), prior.exists, `${prior.path} existence must roll back exactly`);
+        if (prior.bytes) assert.deepEqual(readFileSync(join(root, prior.path)), prior.bytes, `${prior.path} bytes must roll back exactly`);
+      }
       return;
     }
     assert.match(`${second.stdout}\n${second.stderr}`, /"disposition":"reused"/);
@@ -246,7 +274,15 @@ function assertHandlerExecutedThenReused(
     assert.equal(reusedEvidence.verificationCoverage?.missingRequired, 0, 'canonical PASS must bind refreshed complete coverage');
     assert.equal(reusedEvidence.commandExecution?.status, 'PASS', 'canonical PASS must retain prior command execution proof');
     assert.notEqual(readFileSync(evidencePath, 'utf8'), evidenceBefore, 'real reused handler path must refresh canonical evidence');
-    assert.notEqual(git(root, ['rev-parse', 'HEAD']), headBefore, 'real reused handler path must commit canonical PASS');
+    const headAfter = git(root, ['rev-parse', 'HEAD']);
+    assert.notEqual(headAfter, headBefore, 'real reused handler path must commit canonical PASS');
+    assert.deepEqual(
+      git(root, ['diff-tree', '--no-commit-id', '--name-only', '-r', headAfter]).split('\n').filter(Boolean).sort(),
+      managedPaths,
+      'successful canonical reuse must commit exactly evidence, terminal, and closeout receipt',
+    );
+    assert.equal(git(root, ['status', '--porcelain=v1', '--', ...managedPaths]), '', 'successful canonical reuse must leave no managed worktree/index dirt');
+    assert.equal(git(root, ['ls-files', '--stage', '--', unrelatedPath]), unrelatedIndexBefore, 'successful canonical reuse must preserve unrelated pre-staged index entries');
     const statusAfter = git(root, ['status', '--porcelain=v1', '--untracked-files=all']);
     assert.deepEqual(
       statusAfter.split('\n').filter(Boolean).filter((line) => !line.includes('/owner-lease.json')),
@@ -765,8 +801,9 @@ function main(): void {
     ]) assertHandlerExecutedThenReused('validate-file', 1, semanticResult);
     assertHandlerExecutedThenReused('configured', 45, undefined, true);
     assertHandlerExecutedThenReused('configured', 1, undefined, true, true);
+    assertHandlerExecutedThenReused('configured', 1, undefined, true, false, true);
 
-    console.log('validation-evidence-reuse-smoke PASS (real executed→canonical metadata reuse, coverage-only recovery, writer failure fail-closed, 3 sources, B-19ca 45-command reuse, lineage, secret absence)');
+    console.log('validation-evidence-reuse-smoke PASS (canonical 3-file isolated transaction, index/worktree rollback, receipt+hook failure fail-closed, coverage-only recovery, 3 sources, B-19ca 45-command reuse)');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

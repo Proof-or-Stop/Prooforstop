@@ -26,12 +26,12 @@
 
 import { execSync, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
-import { join, dirname } from 'node:path';
+import { existsSync, readFileSync, readdirSync, realpathSync } from 'node:fs';
+import { join, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
-import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
+import { autoCommitStoryMetadata, commitValidationReuseMetadataTransaction } from '../core/auto-commit-metadata.js';
 import { loadConfig } from '../core/config.js';
 import type { ValidationCommand, ValidationProgressReporter } from '../core/validation-types.js';
 import type { RoutineValidationIdentity, RoutineValidationSourceKind, ValidationCommandResult } from '../core/validation-types.js';
@@ -62,6 +62,8 @@ import {
   summarizeRoutineCommandExecution,
   type RoutineValidationReuseEvaluation,
 } from '../core/validation-evidence-reuse.js';
+import { captureDonePrepareGeneratedMetadataTransaction } from '../core/done-prepare-generated-metadata.js';
+import { normalizeRelPath } from '../core/lattice-paths.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
 const SHELL_META_RE = /[;&|<>$()`]/;
@@ -676,13 +678,19 @@ function reusedStoryValidationResult(args: {
   const headHash = currentHead(args.gitCwd);
   const materialHash = currentMaterialHash(args.gitCwd, 'HEAD', args.ctx.root);
   const storyFilesHash = currentStoryFilesHash(args.gitCwd, 'HEAD', args.ctx.root);
-  const rollbackFiles = [
+  const storyRel = normalizeRelPath(relative(
+    realpathSync(args.gitCwd),
+    realpathSync(args.ctx.store.storyDirPath(args.storyId)),
+  ));
+  const managedPaths = [
     'test-evidence.json',
     'process-events.jsonl',
     'closeout-write-receipts.jsonl',
-  ].map((name) => {
-    const path = args.ctx.store.storyFilePath(args.storyId, name);
-    return { path, bytes: existsSync(path) ? readFileSync(path) : null };
+  ].map((name) => `${storyRel}/${name}`);
+  const transaction = captureDonePrepareGeneratedMetadataTransaction({
+    root: args.gitCwd,
+    gitCwd: args.gitCwd,
+    paths: managedPaths,
   });
   recordValidationTerminal(args.ctx, args.storyId, args.gitCwd, reused, args.identity);
   args.ctx.store.writeTestEvidence(args.storyId, {
@@ -698,14 +706,16 @@ function reusedStoryValidationResult(args: {
     disposition: 'reused',
     routineValidationIdentity: args.identity,
   });
-  const commitResult = autoCommitStoryMetadata(args.ctx.root, args.storyId, 'validate', {
+  const commitResult = commitValidationReuseMetadataTransaction({
+    projectRoot: args.ctx.root,
+    gitCwd: args.gitCwd,
+    storyId: args.storyId,
+    storyRel,
+    reason: 'validate',
+    transaction,
     closeoutArtifactPaths: ['test-evidence.json'],
   });
-  if (!commitResult.includes('✓ lattice metadata auto-committed:')) {
-    for (const prior of rollbackFiles) {
-      if (prior.bytes === null) rmSync(prior.path, { force: true });
-      else writeFileSync(prior.path, prior.bytes);
-    }
+  if (!commitResult.ok) {
     return externalResult({
       provider: 'lattice-verifier-reuse-persistence',
       status: 'fail',
@@ -713,7 +723,7 @@ function reusedStoryValidationResult(args: {
       summary: 'Validation reuse could not persist its canonical PASS receipt',
       details: [
         'canonical-pass-persistence-failed',
-        commitResult.trim() || 'metadata writer did not create a commit',
+        commitResult.reason || 'metadata writer did not create a commit',
       ],
       warnings: [],
       commands: [],
