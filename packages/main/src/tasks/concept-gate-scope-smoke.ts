@@ -1,96 +1,181 @@
 #!/usr/bin/env node
 
 import { strict as assert } from 'node:assert';
-import { checkConcept, renderConceptResult, scanDeletedSymbols } from '../handlers/validate-concept.js';
+import { analyzeDeletedSymbols, checkConcept, renderConceptResult, scanDeletedSymbols } from '../handlers/validate-concept.js';
 
-const diff = [
-  'diff --git a/src/old.ts b/src/old.ts',
-  '--- a/src/old.ts',
-  '+++ b/src/old.ts',
-  '-export function audit_resources() { return true; }',
-].join('\n');
+function fileDiff(path: string, oldSource: string, newSource: string): string {
+  return [
+    `diff --git a/${path} b/${path}`,
+    `--- a/${path}`,
+    `+++ b/${path}`,
+    ...oldSource.split('\n').map((line) => `-${line}`),
+    ...newSource.split('\n').map((line) => `+${line}`),
+  ].join('\n');
+}
 
+const deletedExport = fileDiff(
+  'src/old.ts',
+  'export function audit_resources() { return true; }',
+  '',
+);
 const grepOutput = [
   './.lattice/activity.jsonl:1:{"tool":"finding_add","args":{"desc":"audit_resources"}}',
   './docs/story/actives/B-smoke/findings.json:2:"audit_resources residual"',
   './packages/main/tests/fixtures/concept.json:3:"audit_resources fixture mention"',
   './src/live.ts:4:export const stillThere = audit_resources();',
 ].join('\n');
-
 const result = checkConcept({
   projectRoot: '/tmp/unused',
-  gitDiffReader: () => diff,
+  gitDiffReader: () => deletedExport,
   grepReader: () => grepOutput,
 });
-
-assert.equal(result.deletedSymbols.length, 1);
+assert.deepEqual(result.deletedSymbols, ['audit_resources']);
 assert.equal(result.residuals.length, 1);
-assert.equal(result.residuals[0].file, 'src/live.ts');
+assert.equal(result.residuals[0]?.file, 'src/live.ts');
+assert.match(renderConceptResult({ ...result, status: 'fail', recommendation: 'dispatch lattice-review-concept' }), /standalone validate --concept only reports raw residuals/);
 
-const rendered = renderConceptResult({
-  ...result,
-  status: 'fail',
-  recommendation: 'dispatch lattice-review-concept',
-});
-assert.match(rendered, /standalone validate --concept only reports raw residuals/);
+const observedBodyOnly = fileDiff(
+  'src/observed.ts',
+  [
+    'export function buildQueryGroups(input: string) { return [input]; }',
+    'export const candidateReadBindingErrors = (input: string) => [input];',
+    'export async function defaultHostRunRunner() { return true; }',
+  ].join('\n'),
+  [
+    'export function buildQueryGroups(input: string) { return input ? [input] : []; }',
+    'export const candidateReadBindingErrors = (input: string) => input ? [input] : [];',
+    'export async function defaultHostRunRunner() { await Promise.resolve(); return true; }',
+  ].join('\n'),
+);
+assert.deepEqual(scanDeletedSymbols(observedBodyOnly), [], 'the three observed body-only edits retain declaration identity');
 
-const changedDeclarations = [
-  '-export function buildQueryGroups(input: string) { return input; }',
-  '+export function buildQueryGroups(input: string, limit = 1) { return input.slice(0, limit); }',
-  '-export const candidateReadBindingErrors = () => [];',
-  '+export const candidateReadBindingErrors = async () => [];',
-  '-export async function defaultHostRunRunner() { return true; }',
-  '+export async function defaultHostRunRunner(timeoutMs = 10) { return timeoutMs > 0; }',
-  '-export function* streamedResults() { yield 1; }',
-  '+export function* streamedResults(limit = 1) { yield limit; }',
-  '-export class Runner { run() { return 1; } }',
-  '+export class Runner { run() { return 2; } }',
-  '-def python_runner(value):',
-  '+def python_runner(value, limit=1):',
+const supportedBodyOnly = fileDiff(
+  'src/supported.ts',
+  [
+    'function localFn(value: string): string { return value; }',
+    'async function localAsync(): Promise<boolean> { return true; }',
+    'function* localGenerator(): Generator<number> { yield 1; }',
+    'const localArrow = (value: number): number => value;',
+    'export class Runner {',
+    '  constructor(value: number) { this.value = value; }',
+    '  value: number;',
+    '  run(value: string): string { return value; }',
+    '}',
+  ].join('\n'),
+  [
+    'function localFn(value: string): string { return value.trim(); }',
+    'async function localAsync(): Promise<boolean> { await Promise.resolve(); return true; }',
+    'function* localGenerator(): Generator<number> { yield 2; }',
+    'const localArrow = (value: number): number => value + 1;',
+    'export class Runner {',
+    '  constructor(value: number) { this.value = value + 1; }',
+    '  value: number;',
+    '  run(value: string): string { return value.trim(); }',
+    '}',
+  ].join('\n'),
+);
+assert.deepEqual(scanDeletedSymbols(supportedBodyOnly), [], 'body-only changes pair across all supported TypeScript declaration forms');
+
+const signatureReplacement = fileDiff(
+  'src/signatures.ts',
+  [
+    'export function changed(value: string): string { return value; }',
+    'class Example {',
+    '  method(value: string): string { return value; }',
+    '  constructor(value: string) {}',
+    '}',
+  ].join('\n'),
+  [
+    'export function changed(value: number): number { return value; }',
+    'class Example {',
+    '  method(value: number): number { return value; }',
+    '  constructor(value: number) {}',
+    '}',
+  ].join('\n'),
+);
+assert.deepEqual(scanDeletedSymbols(signatureReplacement), ['changed', 'constructor', 'method'], 'true signature replacement remains a deletion signal');
+
+const overloadRemoval = fileDiff(
+  'src/overload.ts',
+  [
+    'export function overload(value: string): string;',
+    'export function overload(value: number): number;',
+    'export function overload(value: string | number): string | number { return value; }',
+  ].join('\n'),
+  [
+    'export function overload(value: number): number;',
+    'export function overload(value: string | number): string | number { return value; }',
+  ].join('\n'),
+);
+assert.deepEqual(scanDeletedSymbols(overloadRemoval), ['overload'], 'one removed overload cannot be hidden by a same-name survivor');
+
+const crossFile = [
+  fileDiff('src/a.ts', 'export function shared(value: string): string { return value; }', ''),
+  fileDiff(
+    'src/b.ts',
+    'export function shared(value: string): string { return value; }',
+    'export function shared(value: string): string { return value.trim(); }',
+  ),
 ].join('\n');
-assert.deepEqual(
-  scanDeletedSymbols(changedDeclarations),
-  [],
-  'retained declarations with changed signatures or bodies are modifications, not deletions',
-);
+assert.deepEqual(scanDeletedSymbols(crossFile), ['shared'], 'a same-name declaration in another file cannot cancel a true deletion');
 
+const renameAndExportRemoval = fileDiff(
+  'src/rename.ts',
+  [
+    'export function removedExport() { return true; }',
+    'export const noLongerExported = () => true;',
+    'const text = "export function removedExport() {}";',
+    '// export const noLongerExported = () => false;',
+  ].join('\n'),
+  [
+    'export function renamedExport() { return true; }',
+    'const noLongerExported = () => true;',
+    'const text = "export function removedExport() { return false; }";',
+    '// export function removedExport() {}',
+  ].join('\n'),
+);
 assert.deepEqual(
-  scanDeletedSymbols([
-    '-export function removedExport() { return true; }',
-    '+export function renamedExport() { return true; }',
-    '-export const noLongerExported = () => true;',
-    '+const noLongerExported = () => true;',
-    '-// export function removedExport() {}',
-    '+// export function noLongerExported() {}',
-  ].join('\n')),
+  scanDeletedSymbols(renameAndExportRemoval),
   ['noLongerExported', 'removedExport'],
-  'rename and export removal remain true deletions; comments cannot suppress them',
+  'rename and export removal remain deletions; comments and strings cannot forge declaration survivors',
 );
 
-assert.deepEqual(
-  scanDeletedSymbols('-export function overload(value: string): string;'),
-  ['overload'],
-  'removing an overload declaration without a matching added declaration remains a deletion',
+const pythonScope = fileDiff(
+  'src/scoped.py',
+  [
+    'class A:',
+    '    def shared(self, value):',
+    '        return value',
+    'class B:',
+    '    def shared(self, value):',
+    '        return value',
+  ].join('\n'),
+  [
+    'class A:',
+    '    pass',
+    'class B:',
+    '    def shared(self, value):',
+    '        return value + 1',
+  ].join('\n'),
 );
+assert.deepEqual(scanDeletedSymbols(pythonScope), ['shared'], 'Python file/scope identity prevents same-name cancellation');
 
-assert.deepEqual(
-  scanDeletedSymbols([
-    '-function internalHelper() { return 1; }',
-    '+function internalHelper() { return 2; }',
-    '-  constructor() { this.value = 1; }',
-    '+  constructor() { this.value = 2; }',
-    '-  method() { return "export function fake()"; }',
-    '+  method() { return "export function fake() changed"; }',
-  ].join('\n')),
-  [],
-  'non-exported declarations, methods, constructors, and strings remain outside the exported-symbol deletion surface',
-);
+const malformed = fileDiff('src/malformed.ts', 'export function broken( {', 'export function broken( {');
+const malformedAnalysis = analyzeDeletedSymbols(malformed);
+assert.ok(malformedAnalysis.diagnostics.length > 0);
+const malformedResult = checkConcept({
+  projectRoot: '/tmp/unused',
+  gitDiffReader: () => malformed,
+});
+assert.equal(malformedResult.status, 'fail');
+assert.match(malformedResult.summary, /parse failed closed/);
+assert.ok((malformedResult.diagnostics?.length ?? 0) > 0);
 
 const diffFailure = checkConcept({
   projectRoot: '/tmp/unused',
-  gitDiffReader: () => { throw new Error('malformed diff'); },
+  gitDiffReader: () => { throw new Error('git reader failed'); },
 });
 assert.equal(diffFailure.status, 'warn');
-assert.match(diffFailure.summary, /git diff failed.*malformed diff/);
+assert.match(diffFailure.summary, /git diff failed.*git reader failed/);
 
 console.log('concept gate scope smoke passed');

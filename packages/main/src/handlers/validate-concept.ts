@@ -1,7 +1,7 @@
 /**
  * validate-concept — CLI gate: deleted-symbol residual check
  *
- * Extract deleted exported symbols (TS / Python) from `git diff main...HEAD`, then for each symbol
+ * Extract deleted declarations (TS / Python) from `git diff main...HEAD`, then for each symbol
  * grep the entire repo, listing residual references that have not yet been cleaned up. Threshold 5:
  *
  * - residuals.length == 0     → status=pass, recommendation="skip concept LLM reviewer"
@@ -22,6 +22,7 @@
  */
 
 import { execSync } from 'node:child_process';
+import ts from 'typescript';
 import { DEFAULT_BASE } from './validate-shared.js';
 
 export interface ConceptResidual {
@@ -39,6 +40,7 @@ export interface ConceptCheckResult {
   summary: string;
   deletedSymbols: string[];
   residuals: ConceptResidual[];
+  diagnostics?: string[];
   recommendation: 'skip concept LLM reviewer' | 'dispatch lattice-review-concept';
 }
 
@@ -78,7 +80,9 @@ function isIgnoredResidualFile(file: string): boolean {
 // passes the strengthened gitroot-cwd-contract bare-cwd rule). The public
 // GitDiffReader/GrepReader field name stays `projectRoot` (no external ripple).
 const defaultGitDiffReader: GitDiffReader = ({ base, projectRoot: gitCwd }) => {
-  return execSync(`git diff ${base}...HEAD`, {
+  // Declaration identity includes lexical scope. Full context ensures a method
+  // hunk still contains its enclosing class/function when reconstructed below.
+  return execSync(`git diff --unified=1000000 ${base}...HEAD`, {
     cwd: gitCwd,
     encoding: 'utf-8',
     maxBuffer: 50 * 1024 * 1024,
@@ -105,54 +109,205 @@ const defaultGrepReader: GrepReader = ({ symbol, projectRoot: gitCwd }) => {
 // ── symbol extraction from diff ──
 
 /**
- * Extract deleted exported symbols (TS / Python) from the raw `git diff` text.
+ * Extract deleted declarations (TS / Python) from the raw `git diff` text.
  *
  * Rule: collect declarations from removed and added diff lines, then report only
  * removed declaration identities that have no matching added declaration. This
  * prevents a changed declaration line from looking like a deletion while still
  * treating renames, export removal, and true declaration removal as deletions.
  *
- * TS:     `-export (async )?function NAME`, `-export class NAME`, `-export const NAME`
- * Python: `-def NAME`, `-class NAME`
+ * TypeScript is parsed with the compiler API; Python uses indentation-aware
+ * declaration parsing. Identity includes file, lexical scope, declaration kind,
+ * name, export state where applicable, and normalized signature.
  *
  * Returns a deduplicated and sorted symbol list.
  */
-export function scanDeletedSymbols(diff: string): string[] {
-  const removed = new Map<string, string>();
-  const added = new Set<string>();
-  const lines = diff.split('\n');
+interface DiffFileSources {
+  file: string;
+  oldSource: string;
+  newSource: string;
+}
 
-  const declarationPatterns: Array<{ kind: string; re: RegExp }> = [
-    { kind: 'ts-function', re: /^\s*export\s+(?:async\s+)?function\s*\*?\s*(\w+)/ },
-    { kind: 'ts-class', re: /^\s*export\s+class\s+(\w+)/ },
-    { kind: 'ts-const', re: /^\s*export\s+const\s+(\w+)/ },
-    { kind: 'py-def', re: /^\s*def\s+(\w+)/ },
-    { kind: 'py-class', re: /^\s*class\s+(\w+)/ },
-  ];
+interface DeclarationIdentity {
+  key: string;
+  name: string;
+}
 
-  const declaration = (line: string): { key: string; name: string } | null => {
-    const content = line.slice(1);
-    if (/^\s*(?:\/\/|#)/.test(content)) return null;
-    for (const pattern of declarationPatterns) {
-      const match = pattern.re.exec(content);
-      if (match) return { key: `${pattern.kind}:${match[1]}`, name: match[1] };
-    }
-    return null;
+interface DeletedSymbolAnalysis {
+  symbols: string[];
+  diagnostics: string[];
+}
+
+function diffFileSources(diff: string): DiffFileSources[] {
+  const files: DiffFileSources[] = [];
+  let current: { file: string; oldLines: string[]; newLines: string[] } | null = null;
+  const flush = () => {
+    if (!current) return;
+    files.push({
+      file: current.file,
+      oldSource: current.oldLines.join('\n'),
+      newSource: current.newLines.join('\n'),
+    });
   };
-
-  for (const line of lines) {
-    if (line.startsWith('---') || line.startsWith('+++')) continue;
-    if (!line.startsWith('-') && !line.startsWith('+')) continue;
-    const found = declaration(line);
-    if (!found) continue;
-    if (line.startsWith('-')) removed.set(found.key, found.name);
-    else added.add(found.key);
+  for (const line of diff.split('\n')) {
+    const header = /^diff --git a\/(.+?) b\/(.+)$/.exec(line);
+    if (header) {
+      flush();
+      current = { file: header[2]!, oldLines: [], newLines: [] };
+      continue;
+    }
+    if (!current) current = { file: '__fragment__.ts', oldLines: [], newLines: [] };
+    if (line.startsWith('@@')) {
+      current.oldLines.push('');
+      current.newLines.push('');
+    } else if (line.startsWith('---') || line.startsWith('+++') || line.startsWith('\\ No newline')) {
+      continue;
+    } else if (line.startsWith('-')) {
+      current.oldLines.push(line.slice(1));
+    } else if (line.startsWith('+')) {
+      current.newLines.push(line.slice(1));
+    } else if (line.startsWith(' ')) {
+      current.oldLines.push(line.slice(1));
+      current.newLines.push(line.slice(1));
+    }
   }
+  flush();
+  return files;
+}
 
-  return Array.from(removed.entries())
-    .filter(([key]) => !added.has(key))
-    .map(([, name]) => name)
-    .sort();
+function normalizedTsSignature(node: ts.SignatureDeclarationBase, source: ts.SourceFile): string {
+  const typeParameters = node.typeParameters?.map((parameter) => parameter.getText(source).replace(/\s+/g, ' ')).join(',') ?? '';
+  const parameters = node.parameters.map((parameter) => parameter.getText(source).replace(/\s+/g, ' ')).join(',');
+  const returnType = node.type?.getText(source).replace(/\s+/g, ' ') ?? '';
+  const asyncFlag = ts.canHaveModifiers(node)
+    && ts.getModifiers(node)?.some((modifier) => modifier.kind === ts.SyntaxKind.AsyncKeyword) ? 'async' : '';
+  const generatorFlag = 'asteriskToken' in node && node.asteriskToken ? 'generator' : '';
+  return `${asyncFlag}|${generatorFlag}|<${typeParameters}>|(${parameters})|${returnType}`;
+}
+
+function hasTsModifier(node: ts.Node, kind: ts.SyntaxKind): boolean {
+  let target = node;
+  if (ts.isVariableDeclaration(node) && node.parent?.parent && ts.isVariableStatement(node.parent.parent)) {
+    target = node.parent.parent;
+  }
+  return ts.canHaveModifiers(target) && Boolean(ts.getModifiers(target)?.some((modifier) => modifier.kind === kind));
+}
+
+function declarationName(node: ts.NamedDeclaration, source: ts.SourceFile): string | null {
+  if (!node.name) return null;
+  if (ts.isIdentifier(node.name) || ts.isPrivateIdentifier(node.name)) return node.name.text;
+  if (ts.isStringLiteral(node.name) || ts.isNumericLiteral(node.name)) return node.name.text;
+  const text = node.name.getText(source).trim();
+  return text || null;
+}
+
+function collectTsDeclarations(file: string, sourceText: string): { declarations: DeclarationIdentity[]; diagnostics: string[] } {
+  const kind = /\.tsx$/i.test(file) ? ts.ScriptKind.TSX : /\.jsx$/i.test(file) ? ts.ScriptKind.JSX : ts.ScriptKind.TS;
+  const source = ts.createSourceFile(file, sourceText, ts.ScriptTarget.Latest, true, kind);
+  const parseDiagnostics = (source as ts.SourceFile & { parseDiagnostics?: readonly ts.Diagnostic[] }).parseDiagnostics ?? [];
+  const diagnostics = parseDiagnostics.map((diagnostic: ts.Diagnostic) => {
+    const at = diagnostic.start === undefined ? '' : ` at ${source.getLineAndCharacterOfPosition(diagnostic.start).line + 1}`;
+    return `${file}${at}: ${ts.flattenDiagnosticMessageText(diagnostic.messageText, ' ')}`;
+  });
+  const declarations: DeclarationIdentity[] = [];
+  const visit = (node: ts.Node, scope: string[]) => {
+    let childScope = scope;
+    const exported = hasTsModifier(node, ts.SyntaxKind.ExportKeyword) ? 'export' : 'local';
+    if (ts.isFunctionDeclaration(node) && node.name) {
+      declarations.push({
+        name: node.name.text,
+        key: `${file}|${scope.join('.') || '<module>'}|function|${node.name.text}|${exported}|${normalizedTsSignature(node, source)}`,
+      });
+      childScope = [...scope, node.name.text];
+    } else if (ts.isClassDeclaration(node) && node.name) {
+      declarations.push({
+        name: node.name.text,
+        key: `${file}|${scope.join('.') || '<module>'}|class|${node.name.text}|${exported}`,
+      });
+      childScope = [...scope, node.name.text];
+    } else if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)
+      && node.initializer && (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer))) {
+      declarations.push({
+        name: node.name.text,
+        key: `${file}|${scope.join('.') || '<module>'}|const-arrow|${node.name.text}|${exported}|${normalizedTsSignature(node.initializer, source)}`,
+      });
+      childScope = [...scope, node.name.text];
+    } else if (ts.isMethodDeclaration(node) || ts.isMethodSignature(node)) {
+      const name = declarationName(node, source);
+      if (name) declarations.push({
+        name,
+        key: `${file}|${scope.join('.') || '<module>'}|method|${name}|${normalizedTsSignature(node, source)}`,
+      });
+      if (name) childScope = [...scope, name];
+    } else if (ts.isConstructorDeclaration(node)) {
+      declarations.push({
+        name: 'constructor',
+        key: `${file}|${scope.join('.') || '<module>'}|constructor|constructor|${normalizedTsSignature(node, source)}`,
+      });
+      childScope = [...scope, 'constructor'];
+    }
+    ts.forEachChild(node, (child) => visit(child, childScope));
+  };
+  visit(source, []);
+  return { declarations, diagnostics };
+}
+
+function collectPythonDeclarations(file: string, sourceText: string): { declarations: DeclarationIdentity[]; diagnostics: string[] } {
+  const declarations: DeclarationIdentity[] = [];
+  const scopes: Array<{ indent: number; name: string }> = [];
+  const diagnostics: string[] = [];
+  for (const [index, line] of sourceText.split('\n').entries()) {
+    if (!line.trim() || line.trimStart().startsWith('#')) continue;
+    const indentText = line.match(/^[ \t]*/)?.[0] ?? '';
+    if (indentText.includes('\t')) {
+      diagnostics.push(`${file} at ${index + 1}: tab-indented Python declaration scope is ambiguous`);
+      continue;
+    }
+    const indent = indentText.length;
+    while (scopes.length && scopes.at(-1)!.indent >= indent) scopes.pop();
+    const match = /^\s*(?:(async)\s+)?(def|class)\s+([A-Za-z_]\w*)\s*(\([^:]*\))?\s*:/.exec(line);
+    if (!match) continue;
+    const [, asyncFlag, kind, name, signature = ''] = match;
+    const scope = scopes.map((entry) => entry.name).join('.') || '<module>';
+    declarations.push({
+      name: name!,
+      key: `${file}|${scope}|py-${kind}|${name}|${asyncFlag ? 'async' : ''}|${signature.replace(/\s+/g, ' ')}`,
+    });
+    scopes.push({ indent, name: name! });
+  }
+  return { declarations, diagnostics };
+}
+
+export function analyzeDeletedSymbols(diff: string): DeletedSymbolAnalysis {
+  const removed = new Map<string, DeclarationIdentity[]>();
+  const added = new Map<string, number>();
+  const diagnostics: string[] = [];
+  for (const file of diffFileSources(diff)) {
+    const python = /\.py$/i.test(file.file);
+    const oldSide = python
+      ? collectPythonDeclarations(file.file, file.oldSource)
+      : collectTsDeclarations(file.file, file.oldSource);
+    const newSide = python
+      ? collectPythonDeclarations(file.file, file.newSource)
+      : collectTsDeclarations(file.file, file.newSource);
+    diagnostics.push(...oldSide.diagnostics, ...newSide.diagnostics);
+    for (const declaration of oldSide.declarations) {
+      removed.set(declaration.key, [...(removed.get(declaration.key) ?? []), declaration]);
+    }
+    for (const declaration of newSide.declarations) {
+      added.set(declaration.key, (added.get(declaration.key) ?? 0) + 1);
+    }
+  }
+  const symbols: string[] = [];
+  for (const [key, declarations] of removed) {
+    const survivorCount = added.get(key) ?? 0;
+    for (const declaration of declarations.slice(survivorCount)) symbols.push(declaration.name);
+  }
+  return { symbols: [...new Set(symbols)].sort(), diagnostics: [...new Set(diagnostics)].sort() };
+}
+
+export function scanDeletedSymbols(diff: string): string[] {
+  return analyzeDeletedSymbols(diff).symbols;
 }
 
 // ── residual grep ──
@@ -270,7 +425,19 @@ export function checkConcept(deps: CheckConceptDeps): ConceptCheckResult {
     };
   }
 
-  const symbols = scanDeletedSymbols(diff);
+  const analysis = analyzeDeletedSymbols(diff);
+  if (analysis.diagnostics.length > 0) {
+    return {
+      provider: 'lattice-concept',
+      status: 'fail',
+      summary: `declaration diff parse failed closed: ${analysis.diagnostics[0]}`,
+      deletedSymbols: analysis.symbols,
+      residuals: [],
+      diagnostics: analysis.diagnostics,
+      recommendation: 'dispatch lattice-review-concept',
+    };
+  }
+  const symbols = analysis.symbols;
   if (symbols.length === 0) {
     return {
       provider: 'lattice-concept',
@@ -364,6 +531,7 @@ export function renderConceptResult(r: ConceptCheckResult): string {
       lines.push(`    ... (${r.residuals.length - 20} more)`);
     }
   }
+  for (const diagnostic of r.diagnostics ?? []) lines.push(`  diagnostic: ${diagnostic}`);
   lines.push(`  recommendation: ${r.recommendation}`);
   if (r.status === 'fail') {
     lines.push('  note: standalone validate --concept only reports raw residuals; REVIEW→TEST preflight may accept them after lattice-review-concept records a finding or review_pass_set in the current review round.');
