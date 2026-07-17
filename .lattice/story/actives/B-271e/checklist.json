@@ -263,11 +263,11 @@
           "file": "packages/main/src/tasks/production-test-seam-guard.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "F-009 final material passed: one recursive static binding walker covers declarations, destructuring assignments, function/arrow/method parameters, nested aliases, computed string keys, defaults/rest, and process aliases through multi-hop call forwarding; table-driven filesystem/process negatives and safe non-process controls pass.",
-          "headHash": "b05cb889ac60c8aaafa004b9c3c4edb7f8c18035",
-          "materialHash": "baa9995701abae6efd6a94875cc6e3e76c3106b0a4b97c79ab65b15fb0e53e5e",
-          "storyFilesHash": "ff168d5ae1682e72120371441a7acab28d19ad39cc715a14dda4d7ca3cb4f5fe",
-          "timestamp": "2026-07-17T00:32:36.359Z"
+          "note": "F-010/F-011 final material passed: callable resolution uses append-only candidate sets with receiver qualification and conservative same-name fallback; declaration/variable functions, methods, aliases, call/apply, arrow/function IIFEs, named/anonymous constructors, return flows, filesystem/process sinks, and safe controls are covered.",
+          "headHash": "2bcc76fbddc827a815f7f62bbd716c0cbc1aa077",
+          "materialHash": "12e6dbeed7e568aa469e126adb151cdd3395a9c1133eb1275d6bd4191de72b73",
+          "storyFilesHash": "18667858d9e2aa475579b64042ff62af8d4c8f0d944e54868ce9aafd81611976",
+          "timestamp": "2026-07-17T00:41:11.917Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -276,11 +276,11 @@
           "file": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "F-009 final material passed: one recursive static binding walker covers declarations, destructuring assignments, function/arrow/method parameters, nested aliases, computed string keys, defaults/rest, and process aliases through multi-hop call forwarding; table-driven filesystem/process negatives and safe non-process controls pass.",
-          "headHash": "b05cb889ac60c8aaafa004b9c3c4edb7f8c18035",
-          "materialHash": "baa9995701abae6efd6a94875cc6e3e76c3106b0a4b97c79ab65b15fb0e53e5e",
-          "storyFilesHash": "ff168d5ae1682e72120371441a7acab28d19ad39cc715a14dda4d7ca3cb4f5fe",
-          "timestamp": "2026-07-17T00:32:36.359Z"
+          "note": "F-010/F-011 final material passed: callable resolution uses append-only candidate sets with receiver qualification and conservative same-name fallback; declaration/variable functions, methods, aliases, call/apply, arrow/function IIFEs, named/anonymous constructors, return flows, filesystem/process sinks, and safe controls are covered.",
+          "headHash": "2bcc76fbddc827a815f7f62bbd716c0cbc1aa077",
+          "materialHash": "12e6dbeed7e568aa469e126adb151cdd3395a9c1133eb1275d6bd4191de72b73",
+          "storyFilesHash": "18667858d9e2aa475579b64042ff62af8d4c8f0d944e54868ce9aafd81611976",
+          "timestamp": "2026-07-17T00:41:11.917Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -289,11 +289,11 @@
           "file": "packages/main/src/tasks/production-test-seam-guard.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "F-009 final material passed: one recursive static binding walker covers declarations, destructuring assignments, function/arrow/method parameters, nested aliases, computed string keys, defaults/rest, and process aliases through multi-hop call forwarding; table-driven filesystem/process negatives and safe non-process controls pass.",
-          "headHash": "b05cb889ac60c8aaafa004b9c3c4edb7f8c18035",
-          "materialHash": "baa9995701abae6efd6a94875cc6e3e76c3106b0a4b97c79ab65b15fb0e53e5e",
-          "storyFilesHash": "ff168d5ae1682e72120371441a7acab28d19ad39cc715a14dda4d7ca3cb4f5fe",
-          "timestamp": "2026-07-17T00:32:36.359Z"
+          "note": "F-010/F-011 final material passed: callable resolution uses append-only candidate sets with receiver qualification and conservative same-name fallback; declaration/variable functions, methods, aliases, call/apply, arrow/function IIFEs, named/anonymous constructors, return flows, filesystem/process sinks, and safe controls are covered.",
+          "headHash": "2bcc76fbddc827a815f7f62bbd716c0cbc1aa077",
+          "materialHash": "12e6dbeed7e568aa469e126adb151cdd3395a9c1133eb1275d6bd4191de72b73",
+          "storyFilesHash": "18667858d9e2aa475579b64042ff62af8d4c8f0d944e54868ce9aafd81611976",
+          "timestamp": "2026-07-17T00:41:11.917Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -302,11 +302,11 @@
           "file": "packages/main/src/tasks/production-test-seam-guard.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "F-009 final material passed: one recursive static binding walker covers declarations, destructuring assignments, function/arrow/method parameters, nested aliases, computed string keys, defaults/rest, and process aliases through multi-hop call forwarding; table-driven filesystem/process negatives and safe non-process controls pass.",
-          "headHash": "b05cb889ac60c8aaafa004b9c3c4edb7f8c18035",
-          "materialHash": "baa9995701abae6efd6a94875cc6e3e76c3106b0a4b97c79ab65b15fb0e53e5e",
-          "storyFilesHash": "ff168d5ae1682e72120371441a7acab28d19ad39cc715a14dda4d7ca3cb4f5fe",
-          "timestamp": "2026-07-17T00:32:36.359Z"
+          "note": "F-010/F-011 final material passed: callable resolution uses append-only candidate sets with receiver qualification and conservative same-name fallback; declaration/variable functions, methods, aliases, call/apply, arrow/function IIFEs, named/anonymous constructors, return flows, filesystem/process sinks, and safe controls are covered.",
+          "headHash": "2bcc76fbddc827a815f7f62bbd716c0cbc1aa077",
+          "materialHash": "12e6dbeed7e568aa469e126adb151cdd3395a9c1133eb1275d6bd4191de72b73",
+          "storyFilesHash": "18667858d9e2aa475579b64042ff62af8d4c8f0d944e54868ce9aafd81611976",
+          "timestamp": "2026-07-17T00:41:11.917Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -315,11 +315,11 @@
           "file": "packages/main/src/tasks/production-test-seam-guard.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "F-009 final material passed: one recursive static binding walker covers declarations, destructuring assignments, function/arrow/method parameters, nested aliases, computed string keys, defaults/rest, and process aliases through multi-hop call forwarding; table-driven filesystem/process negatives and safe non-process controls pass.",
-          "headHash": "b05cb889ac60c8aaafa004b9c3c4edb7f8c18035",
-          "materialHash": "baa9995701abae6efd6a94875cc6e3e76c3106b0a4b97c79ab65b15fb0e53e5e",
-          "storyFilesHash": "ff168d5ae1682e72120371441a7acab28d19ad39cc715a14dda4d7ca3cb4f5fe",
-          "timestamp": "2026-07-17T00:32:36.359Z"
+          "note": "F-010/F-011 final material passed: callable resolution uses append-only candidate sets with receiver qualification and conservative same-name fallback; declaration/variable functions, methods, aliases, call/apply, arrow/function IIFEs, named/anonymous constructors, return flows, filesystem/process sinks, and safe controls are covered.",
+          "headHash": "2bcc76fbddc827a815f7f62bbd716c0cbc1aa077",
+          "materialHash": "12e6dbeed7e568aa469e126adb151cdd3395a9c1133eb1275d6bd4191de72b73",
+          "storyFilesHash": "18667858d9e2aa475579b64042ff62af8d4c8f0d944e54868ce9aafd81611976",
+          "timestamp": "2026-07-17T00:41:11.917Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -328,11 +328,11 @@
           "file": "packages/main/src/tasks/production-test-seam-guard.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "F-009 final material passed: one recursive static binding walker covers declarations, destructuring assignments, function/arrow/method parameters, nested aliases, computed string keys, defaults/rest, and process aliases through multi-hop call forwarding; table-driven filesystem/process negatives and safe non-process controls pass.",
-          "headHash": "b05cb889ac60c8aaafa004b9c3c4edb7f8c18035",
-          "materialHash": "baa9995701abae6efd6a94875cc6e3e76c3106b0a4b97c79ab65b15fb0e53e5e",
-          "storyFilesHash": "ff168d5ae1682e72120371441a7acab28d19ad39cc715a14dda4d7ca3cb4f5fe",
-          "timestamp": "2026-07-17T00:32:36.359Z"
+          "note": "F-010/F-011 final material passed: callable resolution uses append-only candidate sets with receiver qualification and conservative same-name fallback; declaration/variable functions, methods, aliases, call/apply, arrow/function IIFEs, named/anonymous constructors, return flows, filesystem/process sinks, and safe controls are covered.",
+          "headHash": "2bcc76fbddc827a815f7f62bbd716c0cbc1aa077",
+          "materialHash": "12e6dbeed7e568aa469e126adb151cdd3395a9c1133eb1275d6bd4191de72b73",
+          "storyFilesHash": "18667858d9e2aa475579b64042ff62af8d4c8f0d944e54868ce9aafd81611976",
+          "timestamp": "2026-07-17T00:41:11.917Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
@@ -341,11 +341,11 @@
           "file": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/production-test-seam-guard.js && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "F-009 final material passed: one recursive static binding walker covers declarations, destructuring assignments, function/arrow/method parameters, nested aliases, computed string keys, defaults/rest, and process aliases through multi-hop call forwarding; table-driven filesystem/process negatives and safe non-process controls pass.",
-          "headHash": "b05cb889ac60c8aaafa004b9c3c4edb7f8c18035",
-          "materialHash": "baa9995701abae6efd6a94875cc6e3e76c3106b0a4b97c79ab65b15fb0e53e5e",
-          "storyFilesHash": "ff168d5ae1682e72120371441a7acab28d19ad39cc715a14dda4d7ca3cb4f5fe",
-          "timestamp": "2026-07-17T00:32:36.359Z"
+          "note": "F-010/F-011 final material passed: callable resolution uses append-only candidate sets with receiver qualification and conservative same-name fallback; declaration/variable functions, methods, aliases, call/apply, arrow/function IIFEs, named/anonymous constructors, return flows, filesystem/process sinks, and safe controls are covered.",
+          "headHash": "2bcc76fbddc827a815f7f62bbd716c0cbc1aa077",
+          "materialHash": "12e6dbeed7e568aa469e126adb151cdd3395a9c1133eb1275d6bd4191de72b73",
+          "storyFilesHash": "18667858d9e2aa475579b64042ff62af8d4c8f0d944e54868ce9aafd81611976",
+          "timestamp": "2026-07-17T00:41:11.917Z"
         }
       ]
     }
