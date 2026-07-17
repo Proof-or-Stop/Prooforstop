@@ -1,6 +1,6 @@
 {
   "storyId": "B-10b0",
-  "checkedAt": "2026-07-17T13:19:01.388Z",
+  "checkedAt": "2026-07-17T16:17:31.023Z",
   "features": [
     {
       "feature": "Preserve a current code-review receipt across registered nonmaterial closeout metadata writes when materialHash, storyFilesHash, scope, policy, command set, and review round are unchanged.",
@@ -10,28 +10,42 @@
       "source": "checklist/plan"
     },
     {
+      "feature": "Treat closeout writer identity as a cooperative local-runtime registered label used only for review freshness; it is not same-UID authentication.",
+      "covered_by": "CHK-001 happy/adversarial intents; decision option A",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-001 verificationIntent; decision.json"
+    },
+    {
       "feature": "Keep review-retention classification separate from closeout-artifact admissibility; retention never authorizes an artifact.",
       "covered_by": "CHK-001; plan Outcome/CHK-001",
       "status": "covered",
       "excluded_by": "",
-      "source": "plan"
+      "source": "plan; decision.json"
     },
     {
-      "feature": "Independently validate each closeout artifact's structure, signature, writer provenance, and freshness at its consuming gate.",
-      "covered_by": "CHK-001",
+      "feature": "Independently validate each closeout artifact's structure, digest/signature where applicable, writer provenance, policy/command-set binding, and freshness at its consuming gate.",
+      "covered_by": "CHK-001 edge:3 and consumer matrix contract",
       "status": "covered",
       "excluded_by": "",
-      "source": "plan CHK-001"
+      "source": "CHK-001 verificationIntent; plan CHK-001"
     },
     {
-      "feature": "Fail closed for source/story-owned/config/policy/command-set/scope/round drift, unknown writer/path, manual tamper, malformed or unsigned lineage, and HEAD races.",
+      "feature": "Fail closed for source/story-owned/config/policy/command-set/scope/round drift, unknown writer/path, manual mutation without coherent lineage, malformed lineage, and HEAD races.",
       "covered_by": "CHK-001; CHK-002",
       "status": "covered",
       "excluded_by": "",
       "source": "verificationIntent and plan"
     },
     {
-      "feature": "Register any new gate-consumed closeout/review semantic in the process-fact registry and contract verifier.",
+      "feature": "Explicitly test that a hostile same-UID process can forge coherent local lineage and therefore lies outside the cooperative local-runtime assurance boundary.",
+      "covered_by": "CHK-001 adversarial:3",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-001 verificationIntent; closeout-trust smoke"
+    },
+    {
+      "feature": "Register every gate-consumed closeout/review semantic in the process-fact registry and contract verifier.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": "",
@@ -59,7 +73,7 @@
       "source": "CHK-002 verificationIntent; routine-validation-fresh-pass-reuse.md"
     },
     {
-      "feature": "Use deterministic closeout telemetry/counters to prove one successful closeout and no nested duplicate validation.",
+      "feature": "Use durable deterministic closeout telemetry/counters to prove one successful closeout and no nested duplicate validation.",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": "",
@@ -101,18 +115,18 @@
       "source": "plan exclusion"
     },
     {
-      "feature": "No weakening of review quorum/assurance, no automatic reviewer/host/delivery/Authority signatures, and no production-DONE claim.",
+      "feature": "No weakening of review quorum/assurance, no automatic reviewer/host/delivery signatures, and no production-DONE claim.",
       "covered_by": "",
       "status": "excluded",
-      "excluded_by": "CHK-001 separation boundary; generated-metadata auto-closeout non-goals",
+      "excluded_by": "CHK-001 separation boundary; proof-admissibility boundary",
       "source": "bounded related spec"
     },
     {
-      "feature": "No Authority Server receipt implementation; lifecycle receipt doc supplies only the independent gate-consumption principle.",
+      "feature": "No Authority Server or isolated signing-capability implementation; hostile same-UID authentication is explicitly outside this local cooperative boundary.",
       "covered_by": "",
       "status": "excluded",
-      "excluded_by": "lifecycle-gate-receipt-consumption.md retired legacy note",
-      "source": "bounded related spec"
+      "excluded_by": "decision option B rejected; lifecycle-gate-receipt-consumption.md retired legacy note; proof-admissibility local CLI boundary",
+      "source": "decision.json; related specs"
     },
     {
       "feature": "No full requirements-corpus scan; deterministic candidates and explicit related docs are sufficient for this narrow remediation.",
@@ -124,14 +138,22 @@
   ],
   "readManifest": {
     "filesReadFully": [
-      "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
       "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
-      "docs/requirements/decisions/review-run-binding-race.md",
-      "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "docs/requirements/decisions/review-run-binding-race.md"
     ],
     "filesTriagedByName": [
+      "docs/requirements/decisions/cc-learnings.md",
+      "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+      "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
       "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
-      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+      "docs/requirements/decisions/lattice-authority-live-integration.md",
+      "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+      "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
       "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
       "packages/main/src/core/agent-dispatch-registry.ts",
       "packages/main/src/core/closeout-trust.ts",
@@ -150,14 +172,14 @@
     "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
   },
   "summary": {
-    "total": 17,
-    "covered": 13,
+    "total": 19,
+    "covered": 15,
     "excluded": 4,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "",
-  "_hash": "d35ca9f74677029dbf3de9e8feacd61d30ecb89e3d068ca9a146d522a09df3f8",
+  "reviewRound": "2026-07-17T16:07:26.297Z",
+  "_hash": "ec488f779ea405f107bea905b3473ec4deb5a7b091787de33c44e14d857e976a",
   "openQuestions": []
 }

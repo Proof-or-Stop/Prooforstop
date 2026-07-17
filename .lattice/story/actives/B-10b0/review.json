@@ -144,6 +144,24 @@
         }
       ],
       "_hash": "9449d17bfacc966ff3a68df9e8858c37e063930bee57559ddbcf2037a5cb4c41"
+    },
+    {
+      "timestamp": "2026-07-17T16:15:15.748Z",
+      "issueCount": 2,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Retain valid review receipts across trusted closeout metadata writes + Make REVIEW to TEST to DONE closeout ordering converge in one pass are performed simultaneously?)"
+        },
+        {
+          "type": "scope_check_stale",
+          "severity": "blocker",
+          "message": "scope-check.json reviewRound (none) does not match the current review round (2026-07-17T16:07:26.297Z); please rerun the scope agent"
+        }
+      ],
+      "_hash": "16e9c15e8d06a7e5df169948c1ed29a2fc534a12d7cb779c5aced0db4f5b1b08"
     }
   ]
 }
