@@ -98,14 +98,12 @@ function collectSanitizerFunctions(sourceFile: ts.SourceFile): Map<string, reado
       ts.forEachChild(node, collectParsed);
     };
     collectParsed(body);
-    const contains = (root: ts.Node, predicate: (node: ts.Node) => boolean): boolean => {
-      let found = false;
-      const visit = (node: ts.Node): void => {
-        if (predicate(node)) { found = true; return; }
-        if (!found) ts.forEachChild(node, visit);
-      };
-      visit(root);
-      return found;
+    const conjunctionTerms = (expression: ts.Expression): ts.Expression[] => {
+      const value = unwrap(expression);
+      if (ts.isBinaryExpression(value) && value.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken) {
+        return [...conjunctionTerms(value.left), ...conjunctionTerms(value.right)];
+      }
+      return [value];
     };
     const fallbackIndexes = new Set<number>();
     const positiveInt = returns.length > 0 && parsedNames.size > 0 && returns.every(expression => {
@@ -113,19 +111,23 @@ function collectSanitizerFunctions(sourceFile: ts.SourceFile): Map<string, reado
       if (!ts.isConditionalExpression(value)) return false;
       const trueValue = unwrap(value.whenTrue);
       const falseValue = unwrap(value.whenFalse);
-      const parsed = [...parsedNames].find(candidate =>
-        contains(value.condition, node => ts.isCallExpression(node)
-          && propertyName(node.expression) === 'isFinite'
-          && ts.isPropertyAccessExpression(node.expression)
-          && ts.isIdentifier(node.expression.expression) && node.expression.expression.text === 'Number'
-          && ts.isIdentifier(node.arguments[0]) && node.arguments[0].text === candidate)
-        && contains(value.condition, node => ts.isBinaryExpression(node)
-          && ((node.operatorToken.kind === ts.SyntaxKind.GreaterThanToken
-            && ts.isIdentifier(node.left) && node.left.text === candidate
-            && ts.isNumericLiteral(node.right) && Number(node.right.text) === 0)
-          || (node.operatorToken.kind === ts.SyntaxKind.LessThanToken
-            && ts.isNumericLiteral(node.left) && Number(node.left.text) === 0
-            && ts.isIdentifier(node.right) && node.right.text === candidate))));
+      const terms = conjunctionTerms(value.condition);
+      const parsed = [...parsedNames].find(candidate => {
+        const finiteRequired = terms.some(term => ts.isCallExpression(term)
+          && propertyName(term.expression) === 'isFinite'
+          && ts.isPropertyAccessExpression(term.expression)
+          && ts.isIdentifier(term.expression.expression) && term.expression.expression.text === 'Number'
+          && term.arguments.length === 1
+          && ts.isIdentifier(term.arguments[0]) && term.arguments[0].text === candidate);
+        const positiveRequired = terms.some(term => ts.isBinaryExpression(term)
+          && ((term.operatorToken.kind === ts.SyntaxKind.GreaterThanToken
+            && ts.isIdentifier(term.left) && term.left.text === candidate
+            && ts.isNumericLiteral(term.right) && Number(term.right.text) === 0)
+          || (term.operatorToken.kind === ts.SyntaxKind.LessThanToken
+            && ts.isNumericLiteral(term.left) && Number(term.left.text) === 0
+            && ts.isIdentifier(term.right) && term.right.text === candidate)));
+        return finiteRequired && positiveRequired;
+      });
       const fallbackIndex = ts.isIdentifier(falseValue)
         ? parameters.findIndex(parameter => ts.isIdentifier(parameter.name) && parameter.name.text === falseValue.text)
         : -1;
@@ -331,12 +333,32 @@ export function analyzeProductionTestSeams(sourceText: string, file = 'inline.ts
             changed ||= processObjects.size !== before;
           }
           changed ||= add(node.name.text, expressionSources(node.initializer));
-        } else if (ts.isObjectBindingPattern(node.name) && (isProcessEnv(node.initializer, processObjects)
-          || (ts.isIdentifier(node.initializer) && envObjects.has(node.initializer.text)))) {
+        } else if (ts.isObjectBindingPattern(node.name)) {
+          const fromProcess = ts.isIdentifier(node.initializer) && processObjects.has(node.initializer.text);
+          const fromEnv = isProcessEnv(node.initializer, processObjects)
+            || (ts.isIdentifier(node.initializer) && envObjects.has(node.initializer.text));
           for (const element of node.name.elements) {
-            if (!ts.isIdentifier(element.name)) continue;
-            const key = element.propertyName && ts.isIdentifier(element.propertyName) ? element.propertyName.text : element.name.text;
-            if (isTestControlKey(key)) changed ||= add(element.name.text, new Set([key]));
+            const key = element.propertyName && (ts.isIdentifier(element.propertyName) || ts.isStringLiteralLike(element.propertyName))
+              ? element.propertyName.text
+              : ts.isIdentifier(element.name) ? element.name.text : undefined;
+            if (!key) continue;
+            if (fromProcess && key === 'env') {
+              if (ts.isIdentifier(element.name)) {
+                const before = envObjects.size;
+                envObjects.add(element.name.text);
+                changed ||= envObjects.size !== before;
+              } else if (ts.isObjectBindingPattern(element.name)) {
+                for (const nested of element.name.elements) {
+                  if (!ts.isIdentifier(nested.name)) continue;
+                  const nestedKey = nested.propertyName && (ts.isIdentifier(nested.propertyName) || ts.isStringLiteralLike(nested.propertyName))
+                    ? nested.propertyName.text
+                    : nested.name.text;
+                  if (isTestControlKey(nestedKey)) changed ||= add(nested.name.text, new Set([nestedKey]));
+                }
+              }
+            } else if (fromEnv && ts.isIdentifier(element.name) && isTestControlKey(key)) {
+              changed ||= add(element.name.text, new Set([key]));
+            }
           }
         }
       }
@@ -421,6 +443,8 @@ function selfTest(): void {
     ['renameSync', `const from = process.env.SMOKE_FROM; const to = process.env.SMOKE_TO; renameSync(from, to)`],
     ['writeFile forwarded', `function persist(target: string) { writeFile(target, 'x', () => {}) } const selected = process.env.TEST_FILE; persist(selected)`],
     ['aliased write sink', `import { writeFileSync as persist } from 'node:fs'; const selected = process.env.TEST_FILE; persist(selected, 'x')`],
+    ['destructured process env', `const { env } = process; const selected = env.TEST_FILE; writeFileSync(selected, 'x')`],
+    ['nested destructured process env', `const { env: { TEST_FILE: selected } } = process; writeFileSync(selected, 'x')`],
   ];
   const processCases: Array<[string, string]> = [
     ['exec command', `exec(process.env.TEST_COMMAND)`],
@@ -432,6 +456,7 @@ function selfTest(): void {
     ['object property assignment', `const options = {}; options.cwd = process.env.SMOKE_CWD; spawn('/fixed/bin', [], options)`],
     ['element process env', `const selected = process['env']['TEST_EXECUTABLE']; spawn(selected, [])`],
     ['aliased process env', `const proc = process; const selected = proc.env.SMOKE_EXECUTABLE; spawn(selected, [])`],
+    ['aliased destructured process env', `const proc = process; const { env: runtimeEnv } = proc; exec(runtimeEnv.SMOKE_COMMAND)`],
   ];
   for (const [name, source] of [...filesystemCases, ...processCases]) {
     const issues = analyzeProductionTestSeams(source, `${name}.ts`);
@@ -463,6 +488,9 @@ function selfTest(): void {
   const sanitizerDecoys: Array<[string, string]> = [
     ['numeric tokens plus raw return', `function fake(raw: unknown) { Number(raw); Number.isFinite(Number(raw)); Math.floor(Number(raw)); if (Number(raw) > 0) return raw; return raw; } writeFileSync(fake(process.env.TEST_FILE), 'x')`],
     ['enum literals plus raw return', `function fake(raw: unknown) { if (raw === 'a') return '/fixed/a'; if (raw === 'b') return '/fixed/b'; return raw; } writeFileSync(fake(process.env.SMOKE_FILE), 'x')`],
+    ['OR permits Infinity and raw sink value', `function fake(raw: unknown, fallback: string) { const parsed = Number(raw); return Number.isFinite(parsed) || parsed > 0 ? Math.floor(parsed) : fallback; } writeFileSync(String(fake(process.env.TEST_FILE, '/fixed')), 'x')`],
+    ['negated finite check is not a safe bound', `function fake(raw: unknown, fallback: string) { const parsed = Number(raw); return !Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : fallback; } exec(String(fake(process.env.TEST_COMMAND, '/fixed')))`],
+    ['positive check hidden under alternate OR', `function fake(raw: unknown, fallback: string) { const parsed = Number(raw); return Number.isFinite(parsed) && (parsed > 0 || raw === 'force') ? Math.floor(parsed) : fallback; } spawn(String(fake(process.env.SMOKE_EXECUTABLE, '/fixed')), [])`],
   ];
   for (const [name, source] of sanitizerDecoys) {
     assert.ok(analyzeProductionTestSeams(source, `${name}.ts`).length > 0, `${name} must not be trusted as a sanitizer`);
