@@ -359,6 +359,29 @@
         "scanEscalationReason": null
       },
       "_hash": "39dedb0d5ee996112791832736c17855c7c3edb79f77f16a74f6984f20c9040b"
+    },
+    {
+      "id": "B-3aec:RP-018",
+      "agent": "lattice-review-docs",
+      "note": "Post-delivery final docs pass: delivery-check signed in the current review round and lifecycle_check reports 3 docs promises passed, bound to unchanged material/story files. Summary and fresh transcript preserve explicit hosts=false, fake/injected-child, degraded-single-host, and non-production limitations; localReady=true while authorityDone/fullAuthorityDone/productionDone remain false. No business/docs change since 62abc146dc.",
+      "createdAt": "2026-07-17T10:48:23.511Z",
+      "reviewRound": "2026-07-17T10:45:40.047Z",
+      "reviewRunId": "B-3aec:RR-027",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "delivery-check:B-3aec",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "lifecycle_check:DONE",
+          "live_smoke_transcript:B-3aec",
+          "summary_get:B-3aec"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ad14aa42f37220a40f6c5a6e520fe9b92a4e240e62e3fc1c402baad616e1a07b"
     }
   ]
 }
