@@ -1,0 +1,55 @@
+{
+  "storyId": "B-10b0",
+  "changes": "Closeout metadata writers now preserve valid reviewer freshness through bounded cooperative lineage, routine validation reuses unchanged PASS evidence, convergence telemetry records real backsteps, and concept deletion detection is syntax-aware.",
+  "usage": "Run the normal REVIEW to TEST to DONE flow; canonical summary, delivery, live-smoke, validation, and DONE-required metadata writes no longer require metadata-only re-review.",
+  "expectedOutcome": "Review evidence remains fresh when only trusted closeout metadata changes, artifact gates remain independently enforced, and unchanged validation reports reused with commandExecutions=0.",
+  "actualTranscript": "Formal validation passed all 46 configured commands; two subsequent routine validate calls reported trusted-story-metadata-descendant reuse with commandExecutions=0, and delivery review verified all 3 promises.",
+  "outcomeDiff": "No product-level difference from the expected outcome: trusted metadata retained review freshness, real material drift forced validation, and the only initial guard failure was fixed and revalidated.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Cooperative local-runtime lineage is not same-UID authentication; hostile same-UID forgery remains explicitly outside this local assurance boundary, while specialized artifact gates remain independent.",
+  "pitfalls": "Structural fingerprint pins must be reviewed and refreshed whenever approved compatibility importers change; never whitelist downstream modules to hide fingerprint drift.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 171588
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 47320
+    },
+    "PLAN": {
+      "count": 2,
+      "durationMs": 7507432
+    },
+    "DEV": {
+      "count": 5,
+      "durationMs": 10380799
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 3148125
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 351937
+    }
+  },
+  "totalDurationMs": 21608027,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-17T17:15:48.092Z",
+  "updatedAt": "2026-07-17T17:15:48.092Z"
+}
