@@ -248,9 +248,11 @@
       "q": "Is post-implementation real multi-host R5 verification required, or should deterministic adapter seams be made sufficient canonically?",
       "evidence": "R5 requires multi-host verification, while plan CHK-003 says live-host calls are supplemental.",
       "sourcePointers": [
-        "owner-session-contract-execution-plan.md#r5-multi-host-verification",
-        "plan.md CHK-003"
-      ]
+        "CHK-003",
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md#R5-Multi-host-verification"
+      ],
+      "resolution": "Post-implementation real multi-host R5 verification is required. Deterministic adapter seams provide reproducible regression coverage but do not waive the canonical Codex plus Claude/agy live verification matrix; live evidence remains local assurance only.",
+      "resolvedAt": "2026-07-17T23:04:07.473Z"
     },
     {
       "id": "OQ-B62B8-004",
