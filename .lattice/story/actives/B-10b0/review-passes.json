@@ -293,6 +293,27 @@
         "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
       },
       "_hash": "3a59c7ed5fe69a359b65c905bcda146613c69024252a498c9af168825078d70b"
+    },
+    {
+      "id": "B-10b0:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Incremental concept re-review of 2974a70406 found no blocker. The only changes replace two stale expected fingerprint literals in the process-fact contract with the exact closeout-trust.ts and closeout-trust-smoke.ts pins already reviewed in the vocabulary guard. No assertion list, boundary rule, quarantine, or exemption changed. Both the process-fact contract and retired-authority vocabulary guard pass on the current worktree.",
+      "createdAt": "2026-07-17T20:19:21.177Z",
+      "reviewRound": "2026-07-17T20:17:32.463Z",
+      "reviewRunId": "B-10b0:RR-016",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "b61f04efd91ffcab051585ab3925df8e47af82c6384c2c204de3a449549fad5d"
     }
   ]
 }
