@@ -280,6 +280,28 @@
         "scanEscalationReason": null
       },
       "_hash": "5bfca5b5dd654175ee1be562d7a898e285cdad19bbbec6b9b747cd862dedb295"
+    },
+    {
+      "id": "B-3aec:RP-014",
+      "agent": "lattice-review-docs",
+      "note": "Final closeout-aware re-attestation: docs remain unchanged since reviewed material 62abc146dc; summary, fresh live-smoke status, canonical validation/DONE-required evidence, and explicit limitations align. Summary truthfully separates hosts=false live routing from deterministic injected-child checks, disclaims production authority and real host execution, records degraded-single-host 3x1 assurance, and preserves legitimate typed/cutoff escalation limits.",
+      "createdAt": "2026-07-17T10:42:08.421Z",
+      "reviewRound": "2026-07-17T10:39:37.375Z",
+      "reviewRunId": "B-3aec:RR-023",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "lifecycle_check:DONE",
+          "live_smoke_transcript:B-3aec",
+          "summary_get:B-3aec"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2df019eb03e6eb08c877b6cba9e2a0ca6b046b5d87b7315a01d41f35bac0b6ea"
     }
   ]
 }
