@@ -5,7 +5,7 @@
       "desc": "packages/main/src/core/closeout-trust.ts:606-675 — The promised separation between review retention and artifact authority is not mechanically enforced. classifyCurrentCloseoutArtifactForReviewRetention accepts a same-UID-forgeable causal receipt and keeps the signed review current, while validateCurrentCloseoutArtifact always returns invalid because latestValidCloseoutReceipt is deliberately null. rg shows validateCurrentCloseoutArtifact has no production gate consumer (only closeout-trust-smoke); production artifact readers consume test/summary/delivery/live-smoke evidence through their separate readers without canonical writer provenance. Therefore a local actor can replace an artifact and co-commit a forged causal receipt, preserve the review, and reach the ordinary artifact consumer without the re-review that previously supplied the only writer-authority boundary. Either add an actual independently authoritative admissibility check to every registered artifact consumer (isolated signature/capability or equivalent), or keep such post-review writes review-invalidating; comments/tests that an unused helper remains fail-closed are insufficient.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-17T14:54:58.556Z",
@@ -17,14 +17,18 @@
         "packages/main/src/core/review-run.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "dismissReason": "False positive disproven by active retired-Authority truth sources, F-010 strong counter-evidence, removal of pseudo-authority helpers, and independent specialized gate consumer tests.",
+      "dismissedAt": "2026-07-17T16:40:11.523Z",
+      "dismissReasonType": "false_positive",
+      "dismissEvidenceStrength": "strong"
     },
     {
       "id": "B-10b0:F-002",
       "desc": "packages/main/src/handlers/done-prepare.ts:1442-1468 — The new convergence counters do not measure the closeout history they claim to prove. metadataRollbacks and humanConfirmations only regex the current invocation step text; reviewerReattestations counts current blocking runbook rows (which is necessarily zero on PASS), not new reviewer runs/passes; successfulCloseout is only the final snapshot. A story that already rolled back, received a human story_resume, or re-attested reviewers before this invocation still renders all zero. The smoke test constructs the same final snapshot, so it cannot catch this. Capture a closeout baseline and derive counts from persisted signed process events/review-run/pass identities and validation receipts over that interval, including initial/final phase/round/receipt identity, then assert those measured counts before PASS.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-17T14:55:00.708Z",
@@ -36,7 +40,11 @@
         "packages/main/src/tasks/flow-stability-smoke.ts"
       ],
       "signatureTag": "missing|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by d952808c92 durable phase/human/validation/reviewer fact collection; current focused flow and convergence tests pass.",
+      "resolvedAt": "2026-07-17T16:40:12.475Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-10b0:F-003",
