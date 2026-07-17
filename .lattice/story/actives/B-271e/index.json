@@ -4,7 +4,7 @@
   "title": "Reject contradictory evidence envelopes and production test-side-effect seams",
   "description": "Prevent two recurring review-repair classes observed in B-914f and B-ebe4: partial PASS-envelope checks that allow contradictory fields to be accepted, including delivery status=unverified plus verifiedBy producing PASS; and production smoke/test environment seams reaching file or process side-effect sinks. Add mechanical totality/contradiction matrices and a production-source guard so these classes fail before review.",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "riskSignals": [
     {
@@ -177,6 +177,15 @@
       "user": "Harmonygo",
       "sessionId": "codex-wa-final",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-17T00:58:18.088Z",
+      "branch": "story/B-271e",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -184,5 +193,5 @@
     "branch": "story/B-271e",
     "createdAt": "2026-07-16T23:16:23.714Z"
   },
-  "currentReviewRound": "2026-07-17T00:50:33.918Z"
+  "currentReviewRound": "2026-07-17T00:58:18.088Z"
 }
