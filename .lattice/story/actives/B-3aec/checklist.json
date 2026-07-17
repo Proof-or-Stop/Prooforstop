@@ -177,6 +177,31 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "Candidate routing reports `filtered generic terms: lattice, proofbound, core, handlers`, preserves exact relatedDocs and exact paths, returns the bounded candidate set with `fullScan=false`, and names the precise query/cutoff reason only when omitted hits can affect ranking.",
+      "excludes": [
+        "Replacing the existing document-frequency implementation",
+        "Full repository document scanning",
+        "Treating model proposals as gate evidence",
+        "Changing scope paths or semantic anchors"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
       }
     }
   ]
