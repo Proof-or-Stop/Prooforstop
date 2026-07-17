@@ -76,6 +76,72 @@
           "packages/main/src/tasks/owner-session-guardrail.ts",
           "packages/main/src/tasks/flow-stability-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [],
+        "edge": [],
+        "adversarial": [
+          {
+            "id": "CHK-003:adversarial:cross-ppid-same-composite",
+            "desc": "With deterministic resolver inputs holding project/worktree, taskIdentity, agentOrRoleIdentity, and adapter session boundary constant while shell and ppid values change, every invocation resolves the same opaque owner id and refreshes the existing lease without a foreign-owner rejection; the test must fail if ppid leaks into a validated task-plus-agent identity.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:adversarial:task-isolation",
+            "desc": "With the same repository, worktree, provider, and agent identity but two independent task identities, deterministic adapter/generated-token seams resolve different owner ids; each task can own its own story, and neither task can inherit or refresh the other task owner lease through a repository-global or thread-only token.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:adversarial:role-isolation",
+            "desc": "Within one task/thread, implementer, verification-intent, reviewer, and delivery agent/role inputs resolve distinct identities unless an explicit canonical shared-ownership policy fixture says otherwise; reviewer or intent identity cannot refresh, seize, or count as the implementer owner merely because provider, task, thread, worktree, or parent process matches.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:adversarial:explicit-override-priority",
+            "desc": "A trimmed non-empty explicit LATTICE_SESSION_ID deterministically wins conflicting adapter, generated-token, and ppid inputs across parent changes, while a blank/whitespace override is ignored; diagnostics identify explicit-env without exposing raw native host tokens or promoting the override to authentication/reviewer/Authority proof.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:adversarial:genuine-foreign-block",
+            "desc": "For an active lease owned by a genuinely different resolved task-plus-agent session, every ordinary story-scoped mutation fails closed and preserves the established error facts: story, owner id/cwd/heartbeat, ACTIVE verdict, current session, and read-only/wait/--forceTakeover guidance; same-worktree proximity must not bypass the block.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:adversarial:takeover-boundaries",
+            "desc": "Identity stabilization does not change takeover semantics: a stale foreign lease transfers only with explicit --takeover and an auditable event; an active foreign lease rejects ordinary mutation and --takeover, transferring only through deliberate --forceTakeover or the canonical human-approved path, with ownership and heartbeat updated atomically.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:adversarial:degraded-ppid-warning",
+            "desc": "When explicit env, validated adapter identity, and generated-token seams are all absent, deterministic hostname/root/ppid inputs use derived-ppid only: changing ppid changes the id, session_brief/doctor label the source degraded, and an actionable export-LATTICE_SESSION_ID/use-supported-adapter warning appears before the first owner-gated mutation rather than falsely treating shell changes as one session.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:adversarial:supported-adapter-matrix",
+            "desc": "Table-driven deterministic seams for Codex CLI, Claude Code CLI, Antigravity, and agy prove that each adapter maps stable task plus agent/role inputs to the canonical resolver across ppid changes, separates changed task/role/session-boundary inputs, preserves provider as diagnostics only, redacts raw host tokens, and requires no live-host call or provider-specific branch in generic lease logic.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:adversarial:generated-token-scope",
+            "desc": "For a supported adapter without a native stable signal, generated-token fixtures reuse one opaque id only within the same project, provider, task, agent/role, and adapter session boundary; changing any isolation dimension does not collide, persisted state follows registered runtime-artifact cleanup/material-hygiene rules, and raw tokens never enter story evidence or logs.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:adversarial:legacy-lease-compatibility",
+            "desc": "Legacy readable lease source labels are normalized through the canonical resolver without changing the stored owner identity, granting role/task privilege, or bypassing foreign-owner checks; active/stale classification and takeover guidance remain identical for a legacy lease fixture and its canonical equivalent.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
