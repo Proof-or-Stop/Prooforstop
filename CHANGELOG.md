@@ -2,6 +2,38 @@
 
 ## Unreleased
 
+## Proofbound 0.3.212 - 2026-07-18
+
+Rolls up CLI versions 0.3.197 through 0.3.212 — fifteen stories landed since v0.3.196.
+The theme is **evidence integrity and workflow convergence**: reviewer receipts and
+evidence envelopes are harder to invalidate or forge, runaway stories get a circuit
+breaker, and DONE-required validation converges instead of looping.
+
+**Highlights**
+
+- **Review & evidence integrity.** Closeout metadata can no longer invalidate reviewer
+  receipts (B-10b0); contradictory evidence envelopes and production test-side-effect
+  seams are rejected (B-271e); degraded single-host review verdicts get canonical
+  bindings (B-83cf); `review_pass_set` validates writer provenance and coverage gates
+  emit an actionable milestone-ledger desync hint (B-3b05); closeout scope trust
+  boundary and evidence ordering are enforced (B-f458).
+- **Lifecycle & runtime safety.** Runaway stories are frozen by a convergence +
+  takeover circuit breaker with graduated human ack (B-bbaf); a worktree invoking a
+  stale global runtime now fails fast (B-ebe4); unattended host execution is bounded
+  and candidate routing made fully specific (B-3aec); agent dispatch goes through a
+  typed registry with fail-closed prompt routing (B-19ca).
+- **Validation convergence.** DONE-required validation converges with bounded proof
+  reuse (B-c163), and fresh routine validation PASS evidence is reused on unchanged
+  material instead of being re-run (B-914f).
+- **Fixes.** Doctor's global-core-realpath check no longer falsely warns in linked
+  worktrees, which was blowing the brief byte budget and blocking every worktree DONE
+  (B-fa65); the misleading `priorState` parameter was removed from
+  `resumeBreakerState` (B-7776).
+- **Plans & documentation.** Host-neutral thin-entrypoint contract migration plan
+  (B-c1f1); execution plan covering six workflow convergence failures (B-9f8a); new
+  unapproved audit draft for bounded document-context scaling to 1000+ project
+  documents (grants no implementation authority).
+
 ## Proofbound 0.3.196 - 2026-07-13
 
 This release cuts the accumulated `Unreleased` backlog into the first tagged Proofbound
