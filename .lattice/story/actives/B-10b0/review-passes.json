@@ -510,6 +510,25 @@
         "scanEscalationReason": null
       },
       "_hash": "f3230c26111f834e411098085136e5f8634b20120eba19794e0e396db471b17f"
+    },
+    {
+      "id": "B-10b0:RP-022",
+      "agent": "lattice-review-quality",
+      "note": "Incremental review of 2183cf10ad and its complete two-file patch PASS. F-017 is correctly fixed: isolated closeout now runs pre-commit, prepare-commit-msg with source=message, commit-msg, and notification-only post-commit at the correct CAS boundary; hook-edited COMMIT_EDITMSG feeds commit-tree; commit.gpgSign and user.signingKey propagate to -S and signing failures fail closed while immutable tree, parent, identity, real-index preservation, and temp cleanup remain intact. Focused build, auto-closeout smoke, and merge-rerun smoke all PASS.",
+      "createdAt": "2026-07-17T21:20:49.079Z",
+      "reviewRound": "2026-07-17T21:15:27.401Z",
+      "reviewRunId": "B-10b0:RR-036",
+      "writerSessionId": "sess-46474be4cabf4c77",
+      "sessionSource": "derived-ppid",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "abc581d8ad6f8154bc5d1b21744e931d70e857caab571ee0fc68b64f81c4c9de"
     }
   ]
 }
