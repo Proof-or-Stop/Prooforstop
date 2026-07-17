@@ -354,7 +354,7 @@
       "desc": "5e79f26940 closes the exact F-014/F-015 identifier/property/element/delete/update/Object API/direct-mutator/numeric-key and alias cases, but mutator argument taint is still dropped for a simple-local spread. The built analyzer returns [] for `const unsafe={run(_fixed,command){exec(command)}}; const args=[\"/fixed\"]; args.push(...[process.env.TEST_COMMAND]); unsafe.run.apply(null,args)` and likewise for `const extra=[process.env.TEST_COMMAND]; args.push(...extra)`. The whole-source mutation barrier correctly marks args mutable, but the mutator propagation calls expressionSources on each CallExpression argument; SpreadElement has no expressionSources branch, so no TEST source is added to args. Later conservative apply propagation sees a mutated operand with an empty taint set and the exec sink stays green. Recurse through SpreadElement in expressionSources (and keep the receiver mutation barrier), then add literal-spread and local-alias-spread mutator negatives. This is within the declared simple-local array mutation boundary, not an interprocedural edge.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-17T01:00:06.773Z",
@@ -365,7 +365,11 @@
         "packages/main/src/tasks/production-test-seam-guard.ts"
       ],
       "signatureTag": "production-test-seam-mutator-spread-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Central source wrapper normalization unwraps spread/parentheses/assertions/non-null/await and recursively unions array/object children, preserving taint through mutator and call/apply/New flows. Spread regressions pass.",
+      "resolvedAt": "2026-07-17T01:03:55.939Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
