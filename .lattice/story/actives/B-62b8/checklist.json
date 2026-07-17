@@ -74,6 +74,54 @@
           "packages/main/src/tasks/owner-session-guardrail.ts",
           "packages/main/src/tasks/cli-surface-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [],
+        "edge": [],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:host-child-propagation",
+            "desc": "For each supported provider path (Codex CLI, Claude Code CLI, and Antigravity/agy), launch two nested child shells and alter the process-parent chain while keeping the same task and agent/role; every shell must resolve the same stable derived owner identity and must retain the truthful provider and non-degraded adapter source. WHY: a host bridge that only survives its launch process recreates the shipped derived-ppid self-conflict.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:adversarial:task-isolation",
+            "desc": "Launch two concurrent tasks in the same repository/worktree with the same provider and same agent/role label; their resolved owner identities must differ and neither may inherit or overwrite the other task adapter state. WHY: repository-global or worktree-global identity would let an unrelated task impersonate the active owner.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:adversarial:role-isolation",
+            "desc": "Within one task, resolve identities for implementer, verification-intent, reviewer, and delivery roles through child shells; each policy-distinct role must remain isolated and must not collapse to the task/thread identity or a shared privileged owner unless the canonical policy explicitly authorizes sharing. WHY: task-only identity defeats reviewer and delivery separation.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:adversarial:raw-token-redaction",
+            "desc": "Inject unique sentinel raw host task/session/agent tokens for Codex, Claude Code, and agy, then exercise child-shell propagation, session_brief, doctor/adapter diagnostics, mutation warnings, activity output, and persisted runtime artifacts; only the stable derived identifier plus allowed source/provider metadata may appear, and no sentinel token may occur in stdout, stderr, logs, evidence, or artifacts. WHY: diagnostics must not turn host credentials or opaque host identifiers into disclosure channels.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:adversarial:diagnostic-source-truth",
+            "desc": "Exercise deliberate LATTICE_SESSION_ID override, validated host-adapter identity, bounded generated-token fallback, and derived-ppid fallback (including antigravity and agy provider spellings); session_brief must report the actual session source and provider without upgrading a fallback to host-adapter, inventing a provider, or printing raw input tokens. WHY: operators must be able to distinguish authoritative propagation from degraded identity.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:adversarial:derived-ppid-pre-mutation-warning",
+            "desc": "Remove all higher-priority identity inputs so resolution reaches derived-ppid, then attempt the first owner-gated story mutation; before any state write, the user must see session identity degraded: derived-ppid (or an exact equivalent) with an actionable LATTICE_SESSION_ID/host-adapter remedy, and the warning must not itself bypass foreign-session blocking or change takeover semantics. WHY: degraded identity must be visible before it can mutate protected state.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:adversarial:host-neutral-command-boundary",
+            "desc": "Request session_brief and the first mutation warning through the host-neutral lattice or project-local node bin/lattice.js workflow surface for all providers; lattice codex session_brief and Codex-prefixed mutation families must remain rejected with the host-neutral replacement, while only Codex doctor/verify adapter commands remain accepted. WHY: identity diagnostics must not create a Codex-specific lifecycle namespace or host-dependent workflow semantics.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
