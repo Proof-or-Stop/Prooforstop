@@ -314,6 +314,28 @@
         "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
       },
       "_hash": "b61f04efd91ffcab051585ab3925df8e47af82c6384c2c204de3a449549fad5d"
+    },
+    {
+      "id": "B-10b0:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted incremental review of 2974a70406 found no blocker. The only change synchronizes the two process-fact contract fingerprint literals with the already reviewed canonical AST pins in retired-authority-vocabulary-guard-smoke. Literal parity is exact, diff check is clean, and both `npm run test:process-fact-contract` and the vocabulary guard pass.",
+      "createdAt": "2026-07-17T20:19:49.968Z",
+      "reviewRound": "2026-07-17T20:17:32.463Z",
+      "reviewRunId": "B-10b0:RR-018",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "4e0b43e150ded06ccddfbd551a67edecc2f1cc2cfd987354841f86523312bed1"
     }
   ]
 }
