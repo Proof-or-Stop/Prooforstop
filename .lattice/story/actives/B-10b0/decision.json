@@ -1,78 +1,77 @@
 {
   "principles": [
-    "Metadata provenance and structural identity decide retention, never filename alone.",
-    "Canonical closeout writes may move HEAD but cannot weaken review of unchanged material.",
-    "Any uncertain or material drift executes or re-reviews rather than inheriting PASS."
+    "Review freshness and closeout artifact admissibility are separate decisions; retaining review never authenticates an artifact.",
+    "Canonical or registered closeout metadata may move HEAD but cannot weaken review of unchanged materialHash, storyFilesHash, scope, policy, command set, or review round.",
+    "Scope-defining metadata, unknown writers, malformed lineage, manual tampering, and any real material drift remain fail-closed."
   ],
   "drivers": [
     "Eliminate repeated metadata-only review rounds in unattended workflows.",
-    "Preserve fail-closed security and assurance semantics.",
-    "Keep writer, phase, prompt, handler, gate, and process registry mechanically aligned."
+    "Preserve fail-closed artifact and assurance semantics.",
+    "Keep phase admission, dispatch, gate consumers, and process facts mechanically aligned."
   ],
   "options": [
     {
-      "name": "A: shared closeout lineage contract plus convergent ordering",
+      "name": "A: separate review retention from artifact admissibility, then align closeout ordering",
       "pros": [
-        "One source of truth for artifact writer and lineage",
-        "Covers all existing and future registered closeout artifacts",
-        "Allows end-to-end one-pass regression"
+        "Preserves code-review freshness without granting metadata PASS authority",
+        "Keeps each closeout artifact independently checked at its consuming gate",
+        "Supports a measurable one-pass lifecycle regression"
       ],
       "cons": [
-        "Touches several gate consumers",
-        "Requires careful legacy compatibility"
+        "Touches review freshness and several lifecycle consumers",
+        "Needs explicit negative matrices to prevent accidental trust expansion"
       ]
     },
     {
-      "name": "B: reorder commands only",
+      "name": "B: authenticate same-UID closeout receipts and reuse them as authority",
       "pros": [
-        "Smaller immediate diff",
-        "Reduces one observed loop"
+        "Could reuse current receipt structures"
       ],
       "cons": [
-        "Leaves blank-writer retention bug",
-        "Delivery or future artifact writes can recreate the loop",
-        "Does not solve concept false positives"
+        "Same local UID cannot prove canonical writer authority",
+        "Would weaken the existing security boundary",
+        "Conflates causal audit evidence with artifact admissibility"
       ]
     },
     {
-      "name": "C: whitelist artifacts at each gate",
+      "name": "C: reorder commands or whitelist paths at each gate",
       "pros": [
-        "Fast local patches"
+        "Smaller immediate diff"
       ],
       "cons": [
-        "Duplicates trust policy",
-        "Easy to miss a consumer",
-        "Risks filename-only trust bypasses"
+        "Does not remove the class of metadata invalidation",
+        "Duplicates policy and can miss future writers",
+        "Filename-only trust risks bypass"
       ]
     }
   ],
-  "chosen": "A: shared closeout lineage contract plus convergent ordering",
-  "rationale": "Choose A because the failure spans writer receipts, review-run validation, lifecycle readiness, dispatch phases, and transition ordering. A registry-driven contract removes the class while keeping non-canonical and material drift fail-closed.",
+  "chosen": "A: separate review retention from artifact admissibility, then align closeout ordering",
+  "rationale": "Choose A because the observed loop is a freshness-coupling defect, not proof that local closeout receipts are authoritative. Review receipts may remain fresh only when reviewed material, story-owned files, scope, policy, command set, and review round are unchanged and every intervening path is registered nonmaterial closeout metadata. This retention result must never mark the changed artifact admissible; test evidence, DONE-required evidence, delivery checks, summaries, and transcripts remain independently fail-closed at their own gates.",
   "preMortem": [
     {
-      "scenario": "A forged closeout file preserves stale review",
-      "trigger": "Retention trusts path without canonical writer receipt or signature",
-      "consequence": "Source-affecting changes can bypass re-review",
-      "mitigation": "Require registry membership, canonical writer, receipt integrity, structural hashes, and trusted metadata-only lineage; add tamper and unknown-writer negatives."
+      "scenario": "A forged or manually edited closeout file inherits authority",
+      "trigger": "A review-retention result is reused as artifact admissibility",
+      "consequence": "Untrusted closeout evidence can satisfy TEST or DONE",
+      "mitigation": "Expose separate retention and admissibility results; assert retention cannot satisfy artifact gates and add malformed, unsigned, unknown-writer, and tamper negatives."
     },
     {
-      "scenario": "One-pass test passes only because gates were weakened",
-      "trigger": "Review freshness ignores storyFilesHash, policy, or command-set drift",
-      "consequence": "Real changes inherit old PASS",
-      "mitigation": "Add explicit source, config, policy, command-set, and story-owned drift matrix asserting blocking."
+      "scenario": "Real drift preserves stale review",
+      "trigger": "Retention ignores materialHash, storyFilesHash, scope, policy, command set, config, or review round",
+      "consequence": "Changed behavior inherits old review PASS",
+      "mitigation": "Fail closed on every identity mismatch and cover the full source/story-owned/config/policy/command-set matrix."
     },
     {
       "scenario": "Delivery remains phase-circular",
-      "trigger": "Dispatch and mutation policies continue to allow different phases",
-      "consequence": "Delivery must be signed in an order that invalidates reviewer passes",
-      "mitigation": "Derive both dispatch and writer phase admission from one lane policy and exercise full REVIEW to DONE transcript."
+      "trigger": "Dispatch and mutation policies admit different phases or closeout writes happen after the last binding point",
+      "consequence": "Normal closeout requires another review round",
+      "mitigation": "Align delivery dispatch/write phases and prove a complete REVIEW to TEST to DONE transcript with zero metadata rollback, re-attestation, human confirmation, and unchanged-suite execution."
     },
     {
       "scenario": "Concept gate stops detecting true deletions",
-      "trigger": "Body-edit false-positive fix filters too broadly",
+      "trigger": "Body-edit false-positive filtering is broader than declaration-aware deletion detection",
       "consequence": "Removed declarations with residual references pass",
-      "mitigation": "Test unchanged declaration body edit, signature edit, true deletion, rename, overload, and residual reference cases separately."
+      "mitigation": "Test body edit, signature edit, overload, rename, true deletion, and residual-reference cases separately."
     }
   ],
-  "timestamp": "2026-07-17T11:20:10.209Z"
+  "timestamp": "2026-07-17T12:13:17.745Z"
 }
