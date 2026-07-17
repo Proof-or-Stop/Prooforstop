@@ -214,6 +214,62 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-004:decision-contract",
+            "desc": "Read decision_get for B-62b8 and the current canonical owner-session document: the structured decision selects taskIdentity + agentOrRoleIdentity, contains at least three concrete trigger/consequence/mitigation pre-mortems, and the document explicitly settles canonical LATTICE_SESSION_ID consumption, role separation, resolution priority (explicit override -> validated host-adapter composite -> bounded generated token -> warned derived-ppid), generated-token scope/storage/ownership/cleanup, runtime-artifact/material-hash exclusion, source/provider observability without raw tokens, unchanged stale/active takeover semantics, and non-goals forbidding authentication, Authority/reviewer/production proof, repository-global tokens, and provider branches in generic core. WHY: implementation may begin only from a complete, ratified contract rather than an implicit runtime choice.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:two-host:codex",
+            "desc": "A fresh independent real Codex CLI review of the final current owner-session document returns PASS on every contract dimension and records hostProvider=codex, a non-empty reviewer/session id, storyId=B-62b8, command or transcript identifier/hash, timestamp, exact current git HEAD, exact current material hash, and exact SHA-256 of the reviewed document; it explicitly labels the result localAssuranceOnly=true and disclaims Authority, authorityDone, fullAuthorityDone, release, and production-completion claims. WHY: Workstream D requires independent real-host ratification bound to exactly the artifact implemented.",
+            "type": "manual",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:two-host:antigravity",
+            "desc": "A fresh independent real Antigravity/agy CLI review of the same final current owner-session document returns PASS on every contract dimension and records hostProvider=antigravity or agy, a non-empty reviewer/session id distinct from the Codex reviewer/session, storyId=B-62b8, command or transcript identifier/hash, timestamp, the same exact current git HEAD, material hash, and document SHA-256 as the Codex review; it explicitly labels the result localAssuranceOnly=true and disclaims Authority, authorityDone, fullAuthorityDone, release, and production-completion claims. WHY: two different real host providers and sessions are required; two invocations of one host do not establish host independence.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-004:contract-boundaries",
+            "desc": "Review the boundary cases in the decision and document: blank/unvalidated adapter inputs do not collapse tasks or roles, generated tokens are bounded by project+provider+task+agent-or-role and have explicit ownership/cleanup/doctor/session_brief behavior, derived-ppid remains last-resort and visibly warned before mutation, and legacy foreign/stale/active lease takeover rules remain unchanged and audited. WHY: apparent shell stability must not create a repository-wide privilege or alter established recovery behavior.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:review-freshness",
+            "desc": "Recompute git HEAD, the repository material hash via the canonical Lattice mechanism, and SHA-256 of docs/requirements/decisions/owner-session-contract-execution-plan.md after the final document commit; accept both host PASS records only when all three bindings exactly match those recomputed values and both timestamps/reviews postdate that final version. WHY: a PASS over an earlier document or material state cannot authorize implementation of the current contract.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-004:reject-mismatched-evidence",
+            "desc": "Attempt to qualify evidence with any stale or mismatched HEAD/material/document hash, missing binding, FAIL/non-PASS verdict, synthetic/non-real host, same provider twice, same reviewer/session twice, or review of a different story/document; the acceptance result excludes it and CHK-004 remains unratified. WHY: loosely related transcripts must never satisfy the two-host prerequisite.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:reject-assurance-escalation",
+            "desc": "Inspect both transcripts and all resulting summaries for claims that local host review proves authentication, reviewer attestation, Authority evidence, authorityDone/fullAuthorityDone, release readiness, or production completion; any such claim fails acceptance even when both reviewers say PASS. WHY: two-host local review is explicitly local assurance only.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:no-premature-runtime",
+            "desc": "Before the structured decision, final document binding, and both qualifying independent-host PASS records are accepted, git diff/history for this story shows no runtime/code/test implementation attributed to CHK-001 through CHK-003; if prerequisites are absent or invalid, implementation remains blocked rather than waived. WHY: Workstream D requires contract ratification before runtime implementation begins.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
       }
     }
   ]
