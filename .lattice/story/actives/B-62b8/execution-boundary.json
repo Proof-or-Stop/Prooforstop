@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-62b8",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff*",
+    "git log*",
+    "git status*",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:*"
+  ],
+  "allowedTools": [
+    "Codex subagents",
+    "Lattice CLI",
+    "local agy adapter probes",
+    "local Claude CLI reviewer host",
+    "local Codex CLI reviewer host",
+    "local shell"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+    "docs/requirements/decisions/session-ownership-and-write-leases.md",
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+    "packages/main/src/core/owner-session-adapters.ts",
+    "packages/main/src/core/owner-session-token-store.ts",
+    "packages/main/src/core/owner-session.ts",
+    "packages/main/src/core/story-owner-lease-doctor.ts",
+    "packages/main/src/core/story-owner-lease.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/providers/claude-cli.ts",
+    "packages/main/src/providers/codex-cli.ts",
+    "packages/main/src/tasks/owner-session-guardrail.ts",
+    "packages/main/src/tasks/story-owner-lease-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git checkout --*",
+    "git clean*",
+    "git push*",
+    "git reset --hard*",
+    "lattice release_approve_push*"
+  ],
+  "excludedTools": [
+    "credential export",
+    "remote publishing",
+    "unbounded network scanning"
+  ],
+  "excludedPaths": [
+    ".git",
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Use project-local bin/lattice.js. Runtime implementation is blocked until CHK-004 decision, >=3 pre-mortems, and two independent real-host reviews are accepted. Preserve unrelated dirty main files.",
+  "createdAt": "2026-07-17T22:42:53.870Z",
+  "updatedAt": "2026-07-17T22:42:53.870Z",
+  "_hash": "f5da16aef6a28b7f2b8673d84f6918d8deeb1bd16493b3074e161a77f6a6b2e2"
+}

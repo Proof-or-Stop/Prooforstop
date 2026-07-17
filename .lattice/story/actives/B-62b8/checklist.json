@@ -36,6 +36,23 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Ratify the canonical task-and-agent identity contract before runtime implementation",
+      "context": "Before any runtime code change, record understanding and a structured decision with at least three adversarial pre-mortem scenarios, explicitly update or confirm the canonical owner-session identity contract, and obtain fresh review evidence from at least two independent real hosts as required by Workstream D. This decision must settle task identity, role separation, resolution priority, fallback storage/cleanup, observability, and non-goals.",
+      "relatedDocs": [
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#9-workstream-d--stable-per-task-per-agent-owner-identity",
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "userSees": "PLAN diagnostics show a ratified identity decision, at least three pre-mortems, and fresh independent-host review evidence before DEV is allowed.",
+      "excludes": [
+        "No runtime owner-session implementation begins before the decision and independent-host review evidence are accepted."
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
     }
   ]
 }
