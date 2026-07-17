@@ -50,7 +50,8 @@ function isTestControlKey(key: string): boolean {
 
 function propertyName(expression: ts.Expression): string | undefined {
   if (ts.isPropertyAccessExpression(expression)) return expression.name.text;
-  if (ts.isElementAccessExpression(expression) && expression.argumentExpression && ts.isStringLiteralLike(expression.argumentExpression)) {
+  if (ts.isElementAccessExpression(expression) && expression.argumentExpression
+    && (ts.isStringLiteralLike(expression.argumentExpression) || ts.isNumericLiteral(expression.argumentExpression))) {
     return expression.argumentExpression.text;
   }
   return undefined;
@@ -172,6 +173,9 @@ interface CallableIndex {
   byQualifiedName: Map<string, CallableCandidate[]>;
   constructors: Map<string, CallableCandidate[]>;
   aliases: Map<string, { initializer: ts.Expression; immutable: boolean }>;
+  mutatedBases: Set<string>;
+  mutatedQualifiedNames: Set<string>;
+  dynamicMutationBases: Set<string>;
 }
 
 function callableReturns(body: ts.ConciseBody | undefined): ts.Expression[] {
@@ -197,18 +201,86 @@ function collectCallableIndex(sourceFile: ts.SourceFile): CallableIndex {
   const byQualifiedName = new Map<string, CallableCandidate[]>();
   const constructors = new Map<string, CallableCandidate[]>();
   const aliases = new Map<string, { initializer: ts.Expression; immutable: boolean }>();
-  const mutatedNames = new Set<string>();
+  const mutatedBases = new Set<string>();
+  const mutatedQualifiedNames = new Set<string>();
+  const dynamicMutationBases = new Set<string>();
+  const aliasEdges = new Map<string, Set<string>>();
+  const rawPropertyMutations: Array<{ base: string; property?: string }> = [];
+  const arrayMutators = new Set(['push', 'pop', 'shift', 'unshift', 'splice', 'sort', 'reverse', 'copyWithin', 'fill']);
+  const rootIdentifier = (expression: ts.Expression): string | undefined => {
+    let value = expression;
+    while (ts.isParenthesizedExpression(value) || ts.isAsExpression(value)
+      || ts.isTypeAssertionExpression(value) || ts.isNonNullExpression(value)) value = value.expression;
+    while (ts.isPropertyAccessExpression(value) || ts.isElementAccessExpression(value)) value = value.expression;
+    return ts.isIdentifier(value) ? value.text : undefined;
+  };
+  const recordPropertyMutation = (expression: ts.Expression): void => {
+    if (!ts.isPropertyAccessExpression(expression) && !ts.isElementAccessExpression(expression)) return;
+    const base = rootIdentifier(expression);
+    if (!base) return;
+    const property = propertyName(expression);
+    rawPropertyMutations.push({ base, ...(property ? { property } : {}) });
+  };
   const collectMutations = (node: ts.Node): void => {
-    if (ts.isBinaryExpression(node) && ts.isIdentifier(node.left)
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer && ts.isIdentifier(node.initializer)) {
+      const left = aliasEdges.get(node.name.text) ?? new Set<string>();
+      const right = aliasEdges.get(node.initializer.text) ?? new Set<string>();
+      left.add(node.initializer.text);
+      right.add(node.name.text);
+      aliasEdges.set(node.name.text, left);
+      aliasEdges.set(node.initializer.text, right);
+    }
+    if (ts.isBinaryExpression(node)
       && node.operatorToken.kind >= ts.SyntaxKind.FirstAssignment
-      && node.operatorToken.kind <= ts.SyntaxKind.LastAssignment) mutatedNames.add(node.left.text);
-    if ((ts.isPrefixUnaryExpression(node) || ts.isPostfixUnaryExpression(node)) && ts.isIdentifier(node.operand)
+      && node.operatorToken.kind <= ts.SyntaxKind.LastAssignment) {
+      if (ts.isIdentifier(node.left)) mutatedBases.add(node.left.text);
+      else recordPropertyMutation(node.left);
+    }
+    if ((ts.isPrefixUnaryExpression(node) || ts.isPostfixUnaryExpression(node))
       && (node.operator === ts.SyntaxKind.PlusPlusToken || node.operator === ts.SyntaxKind.MinusMinusToken)) {
-      mutatedNames.add(node.operand.text);
+      if (ts.isIdentifier(node.operand)) mutatedBases.add(node.operand.text);
+      else recordPropertyMutation(node.operand);
+    }
+    if (ts.isDeleteExpression(node)) recordPropertyMutation(node.expression);
+    if (ts.isCallExpression(node) && (ts.isPropertyAccessExpression(node.expression) || ts.isElementAccessExpression(node.expression))) {
+      const method = propertyName(node.expression);
+      const receiver = node.expression.expression;
+      if (ts.isIdentifier(receiver) && receiver.text === 'Object'
+        && (method === 'assign' || method === 'defineProperty' || method === 'defineProperties')) {
+        const target = node.arguments[0];
+        const base = target ? rootIdentifier(target) : undefined;
+        if (base) {
+          const key = method === 'defineProperty' && node.arguments[1] && ts.isStringLiteralLike(node.arguments[1])
+            ? node.arguments[1].text
+            : undefined;
+          rawPropertyMutations.push({ base, ...(key ? { property: key } : {}) });
+        }
+      } else if (method && arrayMutators.has(method)) {
+        const base = rootIdentifier(receiver);
+        if (base) rawPropertyMutations.push({ base });
+      }
     }
     ts.forEachChild(node, collectMutations);
   };
   collectMutations(sourceFile);
+  const aliasesOf = (name: string): Set<string> => {
+    const found = new Set<string>([name]);
+    const queue = [name];
+    while (queue.length > 0) {
+      for (const alias of aliasEdges.get(queue.shift()!) ?? []) {
+        if (!found.has(alias)) { found.add(alias); queue.push(alias); }
+      }
+    }
+    return found;
+  };
+  for (const name of [...mutatedBases]) for (const alias of aliasesOf(name)) mutatedBases.add(alias);
+  for (const mutation of rawPropertyMutations) {
+    for (const alias of aliasesOf(mutation.base)) {
+      mutatedBases.add(alias);
+      if (mutation.property) mutatedQualifiedNames.add(`${alias}.${mutation.property}`);
+      else dynamicMutationBases.add(alias);
+    }
+  }
   const seen = new Set<ts.Node>();
   const append = (map: Map<string, CallableCandidate[]>, key: string | undefined, candidate: CallableCandidate): void => {
     if (!key) return;
@@ -253,7 +325,7 @@ function collectCallableIndex(sourceFile: ts.SourceFile): CallableIndex {
           && (declarationList.flags & ts.NodeFlags.Const) !== 0;
         aliases.set(node.name.text, {
           initializer: node.initializer,
-          immutable: isConst && !mutatedNames.has(node.name.text),
+          immutable: isConst && !mutatedBases.has(node.name.text),
         });
       }
     }
@@ -271,7 +343,7 @@ function collectCallableIndex(sourceFile: ts.SourceFile): CallableIndex {
     ts.forEachChild(node, visit);
   };
   visit(sourceFile);
-  return { byName, byQualifiedName, constructors, aliases };
+  return { byName, byQualifiedName, constructors, aliases, mutatedBases, mutatedQualifiedNames, dynamicMutationBases };
 }
 
 function collectSinkAliases(sourceFile: ts.SourceFile): Map<string, string> {
@@ -330,6 +402,7 @@ export function analyzeProductionTestSeams(sourceText: string, file = 'inline.ts
   const receiverName = (expression: ts.Expression, seen = new Set<string>()): string | undefined => {
     const value = unwrapCallable(expression);
     if (!ts.isIdentifier(value)) return undefined;
+    if (callables.mutatedBases.has(value.text)) return undefined;
     if (seen.has(value.text)) return value.text;
     seen.add(value.text);
     const alias = callables.aliases.get(value.text);
@@ -344,6 +417,7 @@ export function analyzeProductionTestSeams(sourceText: string, file = 'inline.ts
     const value = unwrapCallable(expression);
     if (ts.isArrowFunction(value) || ts.isFunctionExpression(value)) return [candidateFor(value)];
     if (ts.isIdentifier(value)) {
+      if (callables.mutatedBases.has(value.text)) return allCallableCandidates();
       if (seen.has(value.text)) return callables.byName.get(value.text) ?? [];
       seen.add(value.text);
       const alias = callables.aliases.get(value.text);
@@ -357,7 +431,11 @@ export function analyzeProductionTestSeams(sourceText: string, file = 'inline.ts
       const name = propertyName(value);
       if (!name) return [];
       const receiver = receiverName(value.expression);
-      const exact = receiver ? callables.byQualifiedName.get(`${receiver}.${name}`) ?? [] : [];
+      const qualified = receiver ? `${receiver}.${name}` : undefined;
+      const exact = qualified && !callables.mutatedQualifiedNames.has(qualified)
+        && !callables.dynamicMutationBases.has(receiver!)
+        ? callables.byQualifiedName.get(qualified) ?? []
+        : [];
       return exact.length > 0 ? exact : callables.byName.get(name) ?? [];
     }
     return [];
@@ -365,6 +443,7 @@ export function analyzeProductionTestSeams(sourceText: string, file = 'inline.ts
   const resolveConstructorCandidates = (expression: ts.Expression, seen = new Set<string>()): CallableCandidate[] => {
     const value = unwrapCallable(expression);
     if (ts.isIdentifier(value)) {
+      if (callables.mutatedBases.has(value.text)) return allConstructorCandidates();
       if (seen.has(value.text)) return callables.constructors.get(value.text) ?? [];
       seen.add(value.text);
       const direct = callables.constructors.get(value.text) ?? [];
@@ -639,6 +718,19 @@ export function analyzeProductionTestSeams(sourceText: string, file = 'inline.ts
             changed ||= bindTarget(parameter.name, source);
           });
         }
+        const expression = unwrapCallable(node.expression);
+        if (ts.isPropertyAccessExpression(expression) || ts.isElementAccessExpression(expression)) {
+          const method = propertyName(expression);
+          const receiverKey = expressionKey(expression.expression)?.split('.')[0];
+          if (receiverKey && method && ['push', 'pop', 'shift', 'unshift', 'splice', 'sort', 'reverse', 'copyWithin', 'fill'].includes(method)) {
+            changed ||= add(receiverKey, union(...node.arguments.map(argument => expressionSources(argument))));
+          }
+          if (ts.isIdentifier(expression.expression) && expression.expression.text === 'Object'
+            && (method === 'assign' || method === 'defineProperty' || method === 'defineProperties')) {
+            const targetKey = node.arguments[0] ? expressionKey(node.arguments[0])?.split('.')[0] : undefined;
+            if (targetKey) changed ||= add(targetKey, union(...node.arguments.slice(1).map(argument => expressionSources(argument))));
+          }
+        }
       }
       if (ts.isNewExpression(node)) {
         const expanded = expandArguments(node.arguments ?? []);
@@ -780,11 +872,40 @@ function selfTest(): void {
     ['call spread alias', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const args = [process.env.TEST_FILE]; unsafe.run.call(null, ...args)`],
     ['direct call spread alias', `const unsafe = { run(command: string) { exec(command) } }; const args = [process.env.TEST_COMMAND]; unsafe.run(...args)`],
     ['unknown apply operand taints every parameter', `const unsafe = { run(_fixed: string, command: string) { exec(command) } }; function invoke(args: string[]) { unsafe.run.apply(null, args) } invoke(['/fixed', process.env.TEST_COMMAND])`],
+    ['direct method replacement invalidates exact receiver', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const safe = { run(payload: string) { return payload } }; safe.run = unsafe.run; safe.run(process.env.TEST_FILE)`],
+    ['computed method replacement invalidates exact receiver', `const unsafe = { run(command: string) { exec(command) } }; const safe = { run(payload: string) { return payload } }; safe['run'] = unsafe.run; safe.run(process.env.TEST_COMMAND)`],
+    ['dynamic method replacement invalidates receiver', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const safe = { run(payload: string) { return payload } }; const key = 'run'; safe[key] = unsafe.run; safe.run(process.env.TEST_FILE)`],
+    ['Object.assign replacement invalidates receiver', `const unsafe = { run(command: string) { exec(command) } }; const safe = { run(payload: string) { return payload } }; Object.assign(safe, { run: unsafe.run }); safe.run(process.env.TEST_COMMAND)`],
+    ['Object.defineProperty replacement invalidates receiver', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const safe = { run(payload: string) { return payload } }; Object.defineProperty(safe, 'run', { value: unsafe.run }); safe.run(process.env.TEST_FILE)`],
+    ['Object.defineProperties replacement invalidates receiver', `const unsafe = { run(command: string) { exec(command) } }; const safe = { run(payload: string) { return payload } }; Object.defineProperties(safe, { run: { value: unsafe.run } }); safe.run(process.env.TEST_COMMAND)`],
   ];
   for (const [name, source] of callableContextCases) {
     const issues = analyzeProductionTestSeams(source, `${name}.ts`);
     assert.ok(issues.length > 0, `${name} must preserve TEST/SMOKE source through all callable candidates`);
     assert.equal(issues[0]?.reason, PRODUCTION_TEST_SEAM_REASON);
+  }
+
+  const arrayMutationCases: Array<[string, string]> = [
+    ['static index assignment', `const args = ['/fixed']; args[0] = process.env.TEST_COMMAND; unsafe.run.apply(null, args)`],
+    ['alias to mutated base', `const args = ['/fixed']; const alias = args; args[0] = process.env.TEST_COMMAND; unsafe.run.apply(null, alias)`],
+    ['delete element barrier', `const args = [process.env.TEST_COMMAND]; delete args[0]; unsafe.run.apply(null, args)`],
+    ['element update barrier', `const args = [process.env.TEST_COMMAND as any]; args[0]++; unsafe.run.apply(null, args)`],
+    ['push mutator', `const args = ['/fixed']; args.push(process.env.TEST_COMMAND); unsafe.run.apply(null, args)`],
+    ['pop mutator', `const args = [process.env.TEST_COMMAND]; args.pop(); unsafe.run.apply(null, args)`],
+    ['shift mutator', `const args = [process.env.TEST_COMMAND]; args.shift(); unsafe.run.apply(null, args)`],
+    ['unshift mutator', `const args = ['/fixed']; args.unshift(process.env.TEST_COMMAND); unsafe.run.apply(null, args)`],
+    ['splice mutator', `const args = ['/fixed']; args.splice(0, 1, process.env.TEST_COMMAND); unsafe.run.apply(null, args)`],
+    ['sort mutator', `const args = [process.env.TEST_COMMAND, '/fixed']; args.sort(); unsafe.run.apply(null, args)`],
+    ['reverse mutator', `const args = ['/fixed', process.env.TEST_COMMAND]; args.reverse(); unsafe.run.apply(null, args)`],
+    ['copyWithin mutator', `const args = ['/fixed', process.env.TEST_COMMAND]; args.copyWithin(0, 1); unsafe.run.apply(null, args)`],
+    ['fill mutator', `const args = ['/fixed']; args.fill(process.env.TEST_COMMAND); unsafe.run.apply(null, args)`],
+  ];
+  for (const [name, body] of arrayMutationCases) {
+    const sink = name.length % 2 === 0
+      ? `const unsafe = { run(command: string) { exec(command) } }; ${body}`
+      : `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; ${body.replaceAll('TEST_COMMAND', 'TEST_FILE')}`;
+    const issues = analyzeProductionTestSeams(sink, `${name}.ts`);
+    assert.ok(issues.length > 0, `${name} must invalidate stale array replay and preserve mutation taint`);
   }
 
   const safeBindingControls: Array<[string, string]> = [
@@ -798,6 +919,8 @@ function selfTest(): void {
     ['safe const constructor alias input', `class Runner { constructor(payload: string) { writeFileSync('/fixed', payload) } } const Alias = Runner; new Alias('fixed payload')`],
     ['safe apply local array input', `const safe = { run(payload: string) { writeFileSync('/fixed', payload) } }; const args = ['fixed payload']; safe.run.apply(null, args)`],
     ['safe call spread input', `const safe = { run(payload: string) { writeFileSync('/fixed', payload) } }; const args = ['fixed payload']; safe.run.call(null, ...args)`],
+    ['safe immutable method receiver', `const safe = { run(payload: string) { writeFileSync('/fixed', payload) } }; safe.run('fixed payload')`],
+    ['safe immutable apply array', `const safe = { run(payload: string) { writeFileSync('/fixed', payload) } }; const args = ['fixed payload'] as const; safe.run.apply(null, args)`],
   ];
   for (const [name, source] of safeBindingControls) {
     assert.deepEqual(analyzeProductionTestSeams(source, `${name}.ts`), [], `${name} must remain outside TEST/SMOKE taint`);
