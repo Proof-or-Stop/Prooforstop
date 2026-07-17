@@ -141,6 +141,29 @@
         "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
       },
       "_hash": "2a0205e965d77d3535530def4e2fa5720fd27b17b68f5958a35be2366976b1c9"
+    },
+    {
+      "id": "B-10b0:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted incremental review of f32537b95a found no blocker. The only change updates the two canonical AST fingerprints for closeout-trust.ts and closeout-trust-smoke.ts. The formal guard command `node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js` now passes and its unconditional fingerprint validation confirms both pins match the reviewed current sources; git diff --check is clean.",
+      "createdAt": "2026-07-17T17:00:31.695Z",
+      "reviewRound": "2026-07-17T16:57:40.721Z",
+      "reviewRunId": "B-10b0:RR-012",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8ecedbd0d6f18a6cbe425666e56f873358c736681e6b4a1a2cf42441f0e3fe08",
+        "corpusDigest": "bea9b725b00c2d711c351dde76d1e90bd5c11ad8884cc4b979aee48d534088f1"
+      },
+      "_hash": "8d50472da3a7bbbcaf806eb1c3eb695438bb2a0633811be6de379ff3aa9391a9"
     }
   ]
 }
