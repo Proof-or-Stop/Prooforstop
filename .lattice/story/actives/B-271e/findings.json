@@ -376,7 +376,7 @@
       "desc": "packages/main/src/tasks/production-test-seam-guard.ts:201-305 connects identifier aliases but does not model a statically initialized object property as an alias to its referenced object. recordPropertyMutation reduces a nested write such as holder.ref.run to root base holder plus final property run, so it never invalidates safe.run even when holder.ref is statically safe. Confirmed repro: const unsafe={run(path){writeFileSync(path,0)}}; const safe={run(payload){return payload}}; const holder={ref:safe}; holder.ref.run=unsafe.run; safe.run(process.env.TEST_FILE). analyzeProductionTestSeams returns [] while the direct assignment-created alias and unknown-RHS cases now correctly report. Track simple static property aliases/path-qualified receiver identity, or fail closed by invalidating exact resolution for the mutated method name when a nested receiver path cannot be proven disjoint. Add a holder.ref alias mutation regression with distinct parameters.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-17T01:05:29.712Z",
@@ -387,7 +387,11 @@
         "packages/main/src/tasks/production-test-seam-guard.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Any static method-name write now globally disables exact qualified resolution for that name and falls back to append-only byName union; dynamic property mutation invalidates all exact method resolution. Nested/deeper/computed/Object API regressions pass.",
+      "resolvedAt": "2026-07-17T01:11:09.971Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
