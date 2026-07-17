@@ -24,7 +24,7 @@
  * lattice serve      → spawn `npx tsx serve.ts` or start falcon serve in project root
  */
 
-import { execSync, spawn } from 'node:child_process';
+import { execFileSync, execSync, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync, realpathSync } from 'node:fs';
 import { join, dirname, relative } from 'node:path';
@@ -687,6 +687,22 @@ function reusedStoryValidationResult(args: {
     'process-events.jsonl',
     'closeout-write-receipts.jsonl',
   ].map((name) => `${storyRel}/${name}`);
+  const preexistingManagedDirty = execFileSync('git', ['status', '--porcelain', '--', ...managedPaths], {
+    cwd: args.gitCwd,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+  if (preexistingManagedDirty) {
+    return externalResult({
+      provider: 'lattice-verifier-reuse-persistence',
+      status: 'fail',
+      failureKind: 'infra_failure',
+      summary: 'Validation reuse refused because canonical metadata was already dirty',
+      details: ['canonical-pass-persistence-failed', preexistingManagedDirty],
+      warnings: [],
+      commands: [],
+    });
+  }
   const transaction = captureDonePrepareGeneratedMetadataTransaction({
     root: args.gitCwd,
     gitCwd: args.gitCwd,

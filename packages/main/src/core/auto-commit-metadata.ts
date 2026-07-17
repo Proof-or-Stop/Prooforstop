@@ -29,8 +29,7 @@
  */
 
 import { execFileSync } from 'child_process';
-import { existsSync, mkdtempSync, readFileSync, realpathSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { existsSync, readFileSync, realpathSync } from 'node:fs';
 import { isAbsolute, join, relative, resolve } from 'node:path';
 import { reportHealthIssue } from './health.js';
 import {
@@ -54,6 +53,7 @@ import {
   readCloseoutWriteReceipts,
 } from './closeout-trust.js';
 import {
+  commitImmutableMetadataTree,
   rollbackDonePrepareGeneratedMetadataTransaction,
   type DonePrepareGeneratedMetadataTransaction,
 } from './done-prepare-generated-metadata.js';
@@ -163,11 +163,6 @@ export function commitValidationReuseMetadataTransaction(args: {
     || managedPaths.some((path, index) => normalizeRelPath(path) !== expectedPaths[index])
   ) return rollback('validation reuse transaction must manage exactly evidence, terminal, and receipt');
 
-  let oldHead = '';
-  let newHead = '';
-  const tempDir = mkdtempSync(join(tmpdir(), 'lattice-story-metadata-index-'));
-  const indexFile = join(tempDir, 'index');
-  const isolatedEnv = { ...process.env, GIT_INDEX_FILE: indexFile };
   try {
     appendLocalCausalReceiptsBeforeCommit({
       projectRoot: args.projectRoot,
@@ -177,57 +172,21 @@ export function commitValidationReuseMetadataTransaction(args: {
       reason: args.reason,
       artifactPaths: args.closeoutArtifactPaths,
     });
-    oldHead = execFileSync('git', ['rev-parse', 'HEAD'], {
-      cwd: args.gitCwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
-    execFileSync('git', ['read-tree', oldHead], {
-      cwd: args.gitCwd, env: isolatedEnv, stdio: ['pipe', 'pipe', 'pipe'],
-    });
-    execFileSync('git', ['add', '--', ...managedPaths], {
-      cwd: args.gitCwd, env: isolatedEnv, stdio: ['pipe', 'pipe', 'pipe'],
-    });
-    const isolatedPaths = execFileSync('git', ['diff', '--cached', '--name-only', '-z', oldHead], {
-      cwd: args.gitCwd, env: isolatedEnv, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
-    }).split('\0').filter(Boolean).sort((a, b) => a.localeCompare(b));
-    if (
-      isolatedPaths.length !== managedPaths.length
-      || isolatedPaths.some((path, index) => path !== managedPaths[index])
-    ) return rollback('isolated metadata index does not exactly match the managed path set');
-
     const subject = `lattice: record ${args.storyId} ${args.reason} metadata`;
-    execFileSync('git', ['commit', '-m', subject], {
-      cwd: args.gitCwd,
-      env: isolatedEnv,
-      stdio: ['pipe', 'pipe', 'pipe'],
+    const committed = commitImmutableMetadataTree({
+      root: args.gitCwd,
+      gitCwd: args.gitCwd,
+      paths: managedPaths,
+      verifiedHashes: new Map(managedPaths.map((path) => [
+        path,
+        rawArtifactDigest(readFileSync(join(args.gitCwd, path))),
+      ])),
+      message: subject,
     });
-    newHead = execFileSync('git', ['rev-parse', 'HEAD'], {
-      cwd: args.gitCwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
-    const parent = execFileSync('git', ['rev-parse', `${newHead}^`], {
-      cwd: args.gitCwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
-    if (parent !== oldHead) throw new Error('isolated metadata commit parent changed unexpectedly');
-    execFileSync('git', ['reset', '-q', 'HEAD', '--', ...managedPaths], {
-      cwd: args.gitCwd,
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-    return { ok: true, commitSha: newHead };
+    if (!committed.ok) return rollback(committed.reason || 'immutable metadata commit failed');
+    return { ok: true, commitSha: committed.commitSha };
   } catch (error: any) {
-    if (newHead && oldHead) {
-      try {
-        execFileSync('git', ['update-ref', 'HEAD', oldHead, newHead], {
-          cwd: args.gitCwd,
-          stdio: ['pipe', 'pipe', 'pipe'],
-        });
-      } catch (rollbackError: any) {
-        return rollback(
-          `metadata commit failed and HEAD rollback failed: ${String(rollbackError?.stderr || rollbackError?.message || rollbackError).trim()}`,
-        );
-      }
-    }
     return rollback(`metadata transaction failed: ${String(error?.stderr || error?.stdout || error?.message || error).trim()}`);
-  } finally {
-    rmSync(tempDir, { recursive: true, force: true });
   }
 }
 

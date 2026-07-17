@@ -409,18 +409,23 @@ async function assertManifestOnlyAutoCloseout(): Promise<void> {
     })));
     assert.match(reuseTranscript, /^DONE prepare: PASS/, reuseTranscript);
     assert.ok(
-      reuseLogs.some((line) => line.includes('done_prepare auto-closeout: committed generated metadata')),
-      'same-run reused validation terminal is closed by the bounded generated-metadata writer',
+      reuseLogs.some((line) => line.includes('routine validation reused; commandExecutions=0')),
+      'same-run reused validation is observable before the canonical transaction closes it',
     );
-    assert.equal(git(root, ['status', '--porcelain']), '', 'reused-validation auto-closeout leaves the worktree clean');
-    assert.equal(git(root, ['log', '-1', '--pretty=%s']), AUTO_CLOSE_MESSAGE);
+    assert.ok(
+      !reuseLogs.some((line) => line.includes('done_prepare auto-closeout: committed generated metadata')),
+      'canonical validation transaction leaves no duplicate generated metadata for done_prepare to close',
+    );
+    assert.equal(git(root, ['status', '--porcelain']), '', 'reused-validation canonical transaction leaves the worktree clean');
+    assert.equal(git(root, ['log', '-1', '--pretty=%s']), `lattice: record ${storyId} validate metadata`);
     assert.deepEqual(
       git(root, ['diff', '--name-only', `${reuseHeadBefore}..HEAD`]).split('\n').filter(Boolean).sort(),
       [
-        `.lattice/story/actives/${storyId}/done-required-evidence.json`,
+        `.lattice/story/actives/${storyId}/closeout-write-receipts.jsonl`,
         `.lattice/story/actives/${storyId}/process-events.jsonl`,
+        `.lattice/story/actives/${storyId}/test-evidence.json`,
       ],
-      'reused validation closes only its trusted terminal and reuse record',
+      'reused validation atomically closes only its canonical PASS, terminal, and receipt',
     );
     const reuseTerminals = evidenceStore.readProcessEvents(storyId)
       .filter((event) => event.type === 'validation_terminal');
@@ -466,9 +471,9 @@ async function assertPreexistingProcessEventsRemainFailClosed(): Promise<void> {
       reuseFreshDoneRequired: true,
     })));
     assert.match(retry, /^DONE prepare: BLOCKED/, retry);
-    assert.match(retry, /^blockedAt: cleanTree$/m);
+    assert.match(retry, /^blockedAt: validate$/m);
     assert.match(retry, /process-events\.jsonl/);
-    assert.match(retry, /path was dirty before this done_prepare run/);
+    assert.match(retry, /canonical metadata was already dirty/);
     assert.match(git(root, ['status', '--porcelain']), /process-events\.jsonl/);
   } finally {
     process.chdir(oldCwd);

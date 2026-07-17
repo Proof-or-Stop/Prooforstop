@@ -46,6 +46,8 @@ function assertHandlerExecutedThenReused(
   coverageOnlyRecovery = false,
   rejectPersistence = false,
   rejectReceipt = false,
+  concurrentHead = false,
+  hookAddsUnrelated = false,
 ): void {
   const root = mkdtempSync(join(tmpdir(), `lattice-validation-reuse-${sourceKind}-`));
   const counterPath = join(tmpdir(), `lattice-validation-reuse-counter-${process.pid}-${Date.now()}.log`);
@@ -54,6 +56,7 @@ function assertHandlerExecutedThenReused(
     writeFileSync(join(root, '.gitignore'), '.lattice/activity.jsonl\n.lattice/locks/\n', 'utf8');
     writeFileSync(join(root, 'probe.mjs'), `import { appendFileSync } from 'node:fs'; appendFileSync(process.env.VALIDATION_REUSE_SMOKE_COUNTER, 'run\\n'); console.log('handler probe PASS');\n`, 'utf8');
     writeFileSync(join(root, 'source.ts'), 'export const handlerReuse = true;\n', 'utf8');
+    writeFileSync(join(root, 'hook-unrelated.txt'), 'base\n', 'utf8');
     const configuredCommands = Array.from({ length: commandCount }, (_, index) => ({
       label: `handler probe ${index + 1}`,
       command: process.execPath,
@@ -198,12 +201,6 @@ function assertHandlerExecutedThenReused(
       git(root, ['add', '.lattice']);
       git(root, ['commit', '-m', 'record coverage-only validation failure before evidence refresh']);
     }
-    const headBefore = git(root, ['rev-parse', 'HEAD']);
-    const unrelatedPath = '.lattice/story/actives/B-unrelated/index.json';
-    mkdirSync(dirname(join(root, unrelatedPath)), { recursive: true });
-    writeFileSync(join(root, unrelatedPath), '{"unrelated":"pre-staged"}\n', 'utf8');
-    git(root, ['add', '--', unrelatedPath]);
-    const unrelatedIndexBefore = git(root, ['ls-files', '--stage', '--', unrelatedPath]);
     const managedPaths = [
       `.lattice/story/actives/${storyId}/closeout-write-receipts.jsonl`,
       `.lattice/story/actives/${storyId}/process-events.jsonl`,
@@ -212,7 +209,14 @@ function assertHandlerExecutedThenReused(
     if (rejectReceipt) {
       writeFileSync(join(root, managedPaths[0]), 'malformed receipt ledger\n', 'utf8');
       git(root, ['add', '--', managedPaths[0]]);
+      git(root, ['commit', '-m', 'commit malformed receipt ledger for strict writer rejection']);
     }
+    const headBefore = git(root, ['rev-parse', 'HEAD']);
+    const unrelatedPath = '.lattice/story/actives/B-unrelated/index.json';
+    mkdirSync(dirname(join(root, unrelatedPath)), { recursive: true });
+    writeFileSync(join(root, unrelatedPath), '{"unrelated":"pre-staged"}\n', 'utf8');
+    git(root, ['add', '--', unrelatedPath]);
+    const unrelatedIndexBefore = git(root, ['ls-files', '--stage', '--', unrelatedPath]);
     const managedIndexBefore = git(root, ['ls-files', '--stage', '--', ...managedPaths]);
     const managedWorktreeBefore = managedPaths.map((path) => ({
       path,
@@ -225,17 +229,46 @@ function assertHandlerExecutedThenReused(
       writeFileSync(hook, '#!/bin/sh\nexit 1\n', 'utf8');
       chmodSync(hook, 0o755);
     }
+    if (concurrentHead) {
+      const hook = join(root, '.git', 'hooks', 'pre-commit');
+      writeFileSync(hook, [
+        '#!/bin/sh',
+        'old=$(git rev-parse HEAD)',
+        'tree=$(git rev-parse HEAD^{tree})',
+        'commit=$(printf "concurrent advancement\\n" | git commit-tree "$tree" -p "$old")',
+        'git update-ref "$(git symbolic-ref HEAD)" "$commit" "$old"',
+        '',
+      ].join('\n'), 'utf8');
+      chmodSync(hook, 0o755);
+      const postHook = join(root, '.git', 'hooks', 'post-commit');
+      writeFileSync(postHook, '#!/bin/sh\nprintf "ran\\n" >> post-commit-marker\n', 'utf8');
+      chmodSync(postHook, 0o755);
+    }
+    if (hookAddsUnrelated) {
+      const hook = join(root, '.git', 'hooks', 'pre-commit');
+      writeFileSync(hook, '#!/bin/sh\nprintf "hook mutation\\n" > hook-unrelated.txt\ngit add -- hook-unrelated.txt\n', 'utf8');
+      chmodSync(hook, 0o755);
+    }
 
     const second = runWith(wrapperTransport);
     assert.equal(second.status, 0, `${second.stdout}\n${second.stderr}`);
-    if (rejectPersistence || rejectReceipt) {
+    if (rejectPersistence || rejectReceipt || concurrentHead || hookAddsUnrelated) {
       assert.match(`${second.stdout}\n${second.stderr}`, /"status":"fail"/);
       assert.match(`${second.stdout}\n${second.stderr}`, /canonical-pass-persistence-failed/);
       if (rejectReceipt) assert.match(`${second.stdout}\n${second.stderr}`, /closeout-write-receipts\.jsonl: malformed line 1/);
+      if (concurrentHead) assert.match(`${second.stdout}\n${second.stderr}`, /HEAD changed before isolated metadata commit CAS/);
+      if (hookAddsUnrelated) assert.match(`${second.stdout}\n${second.stderr}`, /isolated index paths do not exactly match/);
       assert.doesNotMatch(`${second.stdout}\n${second.stderr}`, /"disposition":"reused"/);
       assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, commandCount, 'persistence failure must not rerun project commands');
-      assert.equal(git(root, ['rev-parse', 'HEAD']), headBefore, 'failed canonical writer must not move HEAD');
-      const committedEvidence = JSON.parse(git(root, ['show', `HEAD:.lattice/story/actives/${storyId}/test-evidence.json`])) as TestEvidenceData;
+      const failureHead = git(root, ['rev-parse', 'HEAD']);
+      if (concurrentHead) {
+        assert.notEqual(failureHead, headBefore, 'CAS refusal must preserve the concurrent HEAD advancement');
+        assert.equal(git(root, ['show', '-s', '--format=%s', 'HEAD']), 'concurrent advancement');
+        assert.equal(existsSync(join(root, 'post-commit-marker')), false, 'post-commit must not run when CAS fails');
+      } else {
+        assert.equal(failureHead, headBefore, 'failed canonical writer must not move HEAD');
+      }
+      const committedEvidence = JSON.parse(git(root, ['show', `${headBefore}:.lattice/story/actives/${storyId}/test-evidence.json`])) as TestEvidenceData;
       assert.equal(committedEvidence.result, coverageOnlyRecovery ? 'FAIL' : 'PASS', 'failed writer must not publish a new canonical PASS commit');
       assert.equal(store.readTestEvidence(storyId)?.result, coverageOnlyRecovery ? 'FAIL' : 'PASS', 'failed writer must restore the prior canonical working-tree evidence');
       assert.equal(git(root, ['ls-files', '--stage', '--', ...managedPaths]), managedIndexBefore, 'failed writer must restore every managed index entry exactly');
@@ -802,6 +835,8 @@ function main(): void {
     assertHandlerExecutedThenReused('configured', 45, undefined, true);
     assertHandlerExecutedThenReused('configured', 1, undefined, true, true);
     assertHandlerExecutedThenReused('configured', 1, undefined, true, false, true);
+    assertHandlerExecutedThenReused('configured', 1, undefined, true, false, false, true);
+    assertHandlerExecutedThenReused('configured', 1, undefined, true, false, false, false, true);
 
     console.log('validation-evidence-reuse-smoke PASS (canonical 3-file isolated transaction, index/worktree rollback, receipt+hook failure fail-closed, coverage-only recovery, 3 sources, B-19ca 45-command reuse)');
   } finally {

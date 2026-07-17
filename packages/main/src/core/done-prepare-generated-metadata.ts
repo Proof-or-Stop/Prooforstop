@@ -631,6 +631,164 @@ function updateRealIndexFromTree(gitCwd: string, tree: string, paths: string[]):
   }
 }
 
+export interface ImmutableMetadataCommitTestHooks {
+  beforeAdd?: (temporaryIndexFile: string) => void;
+  afterAddBeforeCommit?: (temporaryIndexFile: string) => void;
+  afterTreeVerificationBeforeCommit?: (temporaryIndexFile: string) => void;
+  beforeCommitTree?: (commitTreeArgs: string[], signing: {
+    enabled: boolean;
+    key?: string;
+    format?: string;
+  }) => void;
+  beforeCasUpdate?: (oldHead: string, targetRef: string) => void;
+}
+
+export interface ImmutableMetadataCommitResult {
+  ok: boolean;
+  commitSha?: string;
+  files: string[];
+  reason?: string;
+}
+
+/**
+ * Shared immutable metadata commit primitive. It freezes an exact verified tree
+ * in a temporary index, runs the normal hook/message/signing policy, and only
+ * installs the commit through an old-HEAD CAS.
+ */
+export function commitImmutableMetadataTree(args: {
+  root: string;
+  gitCwd: string;
+  paths: string[];
+  verifiedHashes: Map<string, string>;
+  message: string;
+  testHooks?: ImmutableMetadataCommitTestHooks;
+}): ImmutableMetadataCommitResult {
+  const paths = sortedUnique(args.paths);
+  const ident = gitMaybe(args.gitCwd, ['var', 'GIT_AUTHOR_IDENT']);
+  if (!ident.ok) return { ok: false, files: paths, reason: `git author identity is unavailable: ${ident.error}` };
+  const oldHeadResult = gitMaybe(args.gitCwd, ['rev-parse', 'HEAD']);
+  const oldTreeResult = gitMaybe(args.gitCwd, ['rev-parse', 'HEAD^{tree}']);
+  const targetRefResult = gitMaybe(args.gitCwd, ['symbolic-ref', '-q', 'HEAD']);
+  if (!oldHeadResult.ok || !oldTreeResult.ok || !targetRefResult.ok) {
+    return { ok: false, files: paths, reason: 'cannot capture the current branch HEAD/tree for isolated metadata commit' };
+  }
+  const oldHead = oldHeadResult.output;
+  const oldTree = oldTreeResult.output;
+  const targetRef = targetRefResult.output;
+  const tempDir = mkdtempSync(join(tmpdir(), 'lattice-immutable-metadata-index-'));
+  const temporaryIndexFile = join(tempDir, 'index');
+  const messageFile = join(tempDir, 'COMMIT_EDITMSG');
+  try {
+    writeFileSync(messageFile, `${args.message}\n`, 'utf8');
+    isolatedGit(args.gitCwd, temporaryIndexFile, ['read-tree', oldHead]);
+    args.testHooks?.beforeAdd?.(temporaryIndexFile);
+    isolatedGit(args.gitCwd, temporaryIndexFile, ['add', '--', ...paths]);
+    args.testHooks?.afterAddBeforeCommit?.(temporaryIndexFile);
+
+    for (const [name, hookArgs] of [
+      ['pre-commit', []],
+      ['prepare-commit-msg', [messageFile, 'message']],
+      ['commit-msg', [messageFile]],
+    ] as const) {
+      const hook = runCommitHook(args.gitCwd, temporaryIndexFile, name, [...hookArgs]);
+      if (!hook.ok) return { ok: false, files: paths, reason: `git ${name} hook failed: ${hook.error}` };
+    }
+
+    const isolatedPaths = isolatedChangedPaths(args.gitCwd, temporaryIndexFile, oldHead);
+    const isolatedUnexpected = isolatedPaths.filter((path) => !paths.includes(path));
+    const isolatedMissing = paths.filter((path) => !isolatedPaths.includes(path));
+    if (isolatedUnexpected.length > 0 || isolatedMissing.length > 0) {
+      return {
+        ok: false,
+        files: sortedUnique([...isolatedUnexpected, ...isolatedMissing]),
+        reason: 'isolated index paths do not exactly match the verified metadata manifest',
+      };
+    }
+    const isolatedDigestMismatch = paths.filter(
+      (path) => isolatedBlobHash(args.gitCwd, temporaryIndexFile, path) !== args.verifiedHashes.get(path),
+    );
+    const worktreeDigestMismatch = paths.filter(
+      (path) => hashFile(args.root, path) !== args.verifiedHashes.get(path),
+    );
+    if (isolatedDigestMismatch.length > 0 || worktreeDigestMismatch.length > 0) {
+      return {
+        ok: false,
+        files: sortedUnique([...isolatedDigestMismatch, ...worktreeDigestMismatch]),
+        reason: 'verified metadata changed after manifest verification',
+      };
+    }
+
+    const tree = isolatedGit(args.gitCwd, temporaryIndexFile, ['write-tree']).trim();
+    const treePaths = treeChangedPaths(args.gitCwd, oldTree, tree);
+    const treeUnexpected = treePaths.filter((path) => !paths.includes(path));
+    const treeMissing = paths.filter((path) => !treePaths.includes(path));
+    const treeDigestMismatch = paths.filter(
+      (path) => treeBlobHash(args.gitCwd, tree, path) !== args.verifiedHashes.get(path),
+    );
+    if (treeUnexpected.length > 0 || treeMissing.length > 0 || treeDigestMismatch.length > 0) {
+      return {
+        ok: false,
+        files: sortedUnique([...treeUnexpected, ...treeMissing, ...treeDigestMismatch]),
+        reason: 'isolated tree does not exactly match the verified metadata manifest',
+      };
+    }
+    args.testHooks?.afterTreeVerificationBeforeCommit?.(temporaryIndexFile);
+
+    const signingEnabled = optionalGitConfig(args.gitCwd, ['--bool', 'commit.gpgSign']) === 'true';
+    const signingKey = optionalGitConfig(args.gitCwd, ['user.signingKey']);
+    const signingFormat = optionalGitConfig(args.gitCwd, ['gpg.format']);
+    const commitTreeArgs = [
+      'commit-tree',
+      tree,
+      '-p',
+      oldHead,
+      '-F',
+      messageFile,
+      ...(signingEnabled ? [signingKey ? `-S${signingKey}` : '-S'] : []),
+    ];
+    args.testHooks?.beforeCommitTree?.(commitTreeArgs, {
+      enabled: signingEnabled,
+      ...(signingKey ? { key: signingKey } : {}),
+      ...(signingFormat ? { format: signingFormat } : {}),
+    });
+    const commitSha = isolatedGit(args.gitCwd, temporaryIndexFile, commitTreeArgs).trim();
+    args.testHooks?.beforeCasUpdate?.(oldHead, targetRef);
+    const cas = gitMaybe(args.gitCwd, ['update-ref', targetRef, commitSha, oldHead]);
+    if (!cas.ok) {
+      return {
+        ok: false,
+        files: paths,
+        reason: `HEAD changed before isolated metadata commit CAS: ${cas.error}`,
+      };
+    }
+    const realIndexBefore = indexEntriesForPaths(args.gitCwd, paths);
+    try {
+      updateRealIndexFromTree(args.gitCwd, tree, paths);
+    } catch (err: any) {
+      for (const path of paths) {
+        restoreIndexEntries(args.gitCwd, path, realIndexBefore.filter((entry) => entry.path === path));
+      }
+      const rollbackRef = gitMaybe(args.gitCwd, ['update-ref', targetRef, oldHead, commitSha]);
+      return {
+        ok: false,
+        files: paths,
+        reason: `real index refresh after isolated commit failed: ${String(err?.stderr || err?.stdout || err?.message || err).trim()}`
+          + (rollbackRef.ok ? '' : `; HEAD rollback CAS failed: ${rollbackRef.error}`),
+      };
+    }
+    runCommitHook(args.gitCwd, temporaryIndexFile, 'post-commit');
+    return { ok: true, commitSha, files: paths };
+  } catch (err: any) {
+    return {
+      ok: false,
+      files: paths,
+      reason: `isolated metadata commit failed: ${String(err?.stderr || err?.stdout || err?.message || err).trim()}`,
+    };
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
 function commitMessage(storyId: string): string {
   return `lattice: auto-close ${storyId} generated DONE metadata`;
 }
@@ -686,177 +844,21 @@ export function commitDonePrepareGeneratedMetadata(args: {
     };
   }
 
-  const ident = gitMaybe(args.gitCwd, ['var', 'GIT_AUTHOR_IDENT']);
-  if (!ident.ok) {
-    return {
-      ok: false,
-      files: manifest.safePaths,
-      message,
-      reason: `git author identity is unavailable: ${ident.error}`,
-      manifest,
-    };
-  }
-
   const verifiedHashes = new Map(manifest.entries
     .filter((entry) => entry.safeToAutoStage && entry.afterHash)
     .map((entry) => [entry.path, entry.afterHash!]));
-  const oldHeadResult = gitMaybe(args.gitCwd, ['rev-parse', 'HEAD']);
-  const oldTreeResult = gitMaybe(args.gitCwd, ['rev-parse', 'HEAD^{tree}']);
-  const targetRefResult = gitMaybe(args.gitCwd, ['symbolic-ref', '-q', 'HEAD']);
-  if (!oldHeadResult.ok || !oldTreeResult.ok || !targetRefResult.ok) {
-    return {
-      ok: false,
-      files: manifest.safePaths,
-      message,
-      reason: 'cannot capture the current branch HEAD/tree for isolated closeout commit',
-      manifest,
-    };
-  }
-  const oldHead = oldHeadResult.output;
-  const oldTree = oldTreeResult.output;
-  const targetRef = targetRefResult.output;
-  const tempDir = mkdtempSync(join(tmpdir(), 'lattice-done-prepare-index-'));
-  const temporaryIndexFile = join(tempDir, 'index');
-  const messageFile = join(tempDir, 'COMMIT_EDITMSG');
-  try {
-    writeFileSync(messageFile, `${message}\n`, 'utf8');
-    isolatedGit(args.gitCwd, temporaryIndexFile, ['read-tree', oldHead]);
-    args.testHooks?.beforeAdd?.(temporaryIndexFile);
-    isolatedGit(args.gitCwd, temporaryIndexFile, ['add', '--', ...manifest.safePaths]);
-    args.testHooks?.afterAddBeforeCommit?.(temporaryIndexFile);
-
-    for (const [name, hookArgs] of [
-      ['pre-commit', []],
-      ['prepare-commit-msg', [messageFile, 'message']],
-      ['commit-msg', [messageFile]],
-    ] as const) {
-      const hook = runCommitHook(args.gitCwd, temporaryIndexFile, name, [...hookArgs]);
-      if (!hook.ok) {
-        return {
-          ok: false,
-          files: manifest.safePaths,
-          message,
-          reason: `git ${name} hook failed: ${hook.error}`,
-          manifest,
-        };
-      }
-    }
-
-    const isolatedPaths = isolatedChangedPaths(args.gitCwd, temporaryIndexFile, oldHead);
-    const isolatedUnexpected = isolatedPaths.filter((path) => !manifest.safePaths.includes(path));
-    const isolatedMissing = manifest.safePaths.filter((path) => !isolatedPaths.includes(path));
-    if (isolatedUnexpected.length > 0 || isolatedMissing.length > 0) {
-      return {
-        ok: false,
-        files: sortedUnique([...isolatedUnexpected, ...isolatedMissing]),
-        message,
-        reason: 'isolated index paths do not exactly match the safe generated metadata manifest',
-        manifest,
-      };
-    }
-    const isolatedDigestMismatch = manifest.safePaths.filter(
-      (path) => isolatedBlobHash(args.gitCwd, temporaryIndexFile, path) !== verifiedHashes.get(path),
-    );
-    const worktreeDigestMismatch = manifest.safePaths.filter(
-      (path) => hashFile(args.root, path) !== verifiedHashes.get(path),
-    );
-    if (isolatedDigestMismatch.length > 0 || worktreeDigestMismatch.length > 0) {
-      return {
-        ok: false,
-        files: sortedUnique([...isolatedDigestMismatch, ...worktreeDigestMismatch]),
-        message,
-        reason: 'safe generated metadata changed after manifest verification',
-        manifest,
-      };
-    }
-
-    const tree = isolatedGit(args.gitCwd, temporaryIndexFile, ['write-tree']).trim();
-    const treePaths = treeChangedPaths(args.gitCwd, oldTree, tree);
-    const treeUnexpected = treePaths.filter((path) => !manifest.safePaths.includes(path));
-    const treeMissing = manifest.safePaths.filter((path) => !treePaths.includes(path));
-    const treeDigestMismatch = manifest.safePaths.filter(
-      (path) => treeBlobHash(args.gitCwd, tree, path) !== verifiedHashes.get(path),
-    );
-    if (treeUnexpected.length > 0 || treeMissing.length > 0 || treeDigestMismatch.length > 0) {
-      return {
-        ok: false,
-        files: sortedUnique([...treeUnexpected, ...treeMissing, ...treeDigestMismatch]),
-        message,
-        reason: 'isolated tree does not exactly match the safe generated metadata manifest',
-        manifest,
-      };
-    }
-    args.testHooks?.afterTreeVerificationBeforeCommit?.(temporaryIndexFile);
-
-    const signingEnabled = optionalGitConfig(args.gitCwd, ['--bool', 'commit.gpgSign']) === 'true';
-    const signingKey = optionalGitConfig(args.gitCwd, ['user.signingKey']);
-    const signingFormat = optionalGitConfig(args.gitCwd, ['gpg.format']);
-    const commitTreeArgs = [
-      'commit-tree',
-      tree,
-      '-p',
-      oldHead,
-      '-F',
-      messageFile,
-      ...(signingEnabled ? [signingKey ? `-S${signingKey}` : '-S'] : []),
-    ];
-    args.testHooks?.beforeCommitTree?.(commitTreeArgs, {
-      enabled: signingEnabled,
-      ...(signingKey ? { key: signingKey } : {}),
-      ...(signingFormat ? { format: signingFormat } : {}),
-    });
-    const commitSha = isolatedGit(args.gitCwd, temporaryIndexFile, commitTreeArgs).trim();
-    args.testHooks?.beforeCasUpdate?.(oldHead, targetRef);
-    const cas = gitMaybe(args.gitCwd, ['update-ref', targetRef, commitSha, oldHead]);
-    if (!cas.ok) {
-      return {
-        ok: false,
-        files: manifest.safePaths,
-        message,
-        reason: `HEAD changed before isolated closeout commit CAS: ${cas.error}`,
-        manifest,
-      };
-    }
-    const realIndexBefore = indexEntriesForPaths(args.gitCwd, manifest.safePaths);
-    try {
-      updateRealIndexFromTree(args.gitCwd, tree, manifest.safePaths);
-    } catch (err: any) {
-      for (const path of manifest.safePaths) {
-        restoreIndexEntries(
-          args.gitCwd,
-          path,
-          realIndexBefore.filter((entry) => entry.path === path),
-        );
-      }
-      const rollbackRef = gitMaybe(args.gitCwd, ['update-ref', targetRef, oldHead, commitSha]);
-      return {
-        ok: false,
-        files: manifest.safePaths,
-        message,
-        reason: `real index refresh after isolated commit failed: ${String(err?.stderr || err?.stdout || err?.message || err).trim()}`
-          + (rollbackRef.ok ? '' : `; HEAD rollback CAS failed: ${rollbackRef.error}`),
-        manifest,
-      };
-    }
-    // Like git commit, post-commit is notification-only: it runs after the
-    // successful ref update and cannot roll the commit back.
-    runCommitHook(args.gitCwd, temporaryIndexFile, 'post-commit');
-    return {
-      ok: true,
-      commitSha,
-      files: manifest.safePaths,
-      message,
-      manifest,
-    };
-  } catch (err: any) {
-    return {
-      ok: false,
-      files: manifest.safePaths,
-      message,
-      reason: `isolated generated metadata commit failed: ${String(err?.stderr || err?.stdout || err?.message || err).trim()}`,
-      manifest,
-    };
-  } finally {
-    rmSync(tempDir, { recursive: true, force: true });
-  }
+  const committed = commitImmutableMetadataTree({
+    root: args.root,
+    gitCwd: args.gitCwd,
+    paths: manifest.safePaths,
+    verifiedHashes,
+    message,
+    testHooks: args.testHooks,
+  });
+  return {
+    ...committed,
+    ...(!committed.ok ? { reason: `isolated generated metadata commit failed: ${committed.reason}` } : {}),
+    message,
+    manifest,
+  };
 }

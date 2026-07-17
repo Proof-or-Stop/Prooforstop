@@ -1173,7 +1173,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/verifier',
     consumerGate: 'storyMachine.canFinish DONE gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.validate,
-    rationale: 'Validation status artifact is required before DONE; zero-command reuse must transactionally commit canonical PASS, terminal, and receipt with refreshed coverage and retained command-execution proof before returning PASS.',
+    rationale: 'Validation status artifact is required before DONE; zero-command reuse must use the shared immutable-tree/CAS metadata primitive to commit canonical PASS, terminal, and receipt before returning PASS.',
   },
   {
     name: 'artifact:done-required-evidence.json',

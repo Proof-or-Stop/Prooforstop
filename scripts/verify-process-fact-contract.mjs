@@ -3298,6 +3298,16 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
     new RegExp(`['"]${doneRequiredArtifact.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"]`).test(lifecycleArtifactsInitializer),
     `${lifecycleRegistryPath}: LIFECYCLE_ARTIFACTS must include '${doneRequiredArtifact}'`,
   );
+  const generatedMetadataText = read('packages/main/src/core/done-prepare-generated-metadata.ts');
+  for (const token of ['commitImmutableMetadataTree', "'commit-tree'", "'update-ref'", 'beforeCasUpdate', "'post-commit'"]) {
+    assert(generatedMetadataText.includes(token), `shared immutable metadata commit contract missing ${token}`);
+  }
+  const autoCommitText = read('packages/main/src/core/auto-commit-metadata.ts');
+  assert(
+    autoCommitText.includes('commitValidationReuseMetadataTransaction')
+      && autoCommitText.includes('commitImmutableMetadataTree'),
+    'canonical validation reuse must consume the shared immutable metadata commit primitive',
+  );
 
   const phaseArtifactsInitializer = extractConstInitializer(lifecycleRegistryText, 'LIFECYCLE_PHASE_ARTIFACTS', lifecycleRegistryPath);
   const testPhaseArtifacts = extractObjectPropertyBlock(phaseArtifactsInitializer, 'TEST', `${lifecycleRegistryPath} LIFECYCLE_PHASE_ARTIFACTS`);
