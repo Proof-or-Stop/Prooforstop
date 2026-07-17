@@ -272,9 +272,13 @@
       "q": "What validated stable boundary supplies taskIdentity when a host lacks both a native stable signal and a durable adapter process?",
       "evidence": "Generated fallback must be scoped to a task boundary without collapsing concurrent tasks to repository/worktree identity, but the mechanical source and validation of that boundary is unsettled.",
       "sourcePointers": [
-        "decision.json rationale",
-        "workflow-convergence-failure-remediation-execution-plan.md#92-required-identity-model"
-      ]
+        "CHK-001",
+        "CHK-002",
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#92-required-identity-model",
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md#Generated-Token-Fallback"
+      ],
+      "resolution": "A validated adapter identity requires two non-empty adapter-owned dimensions: a provider task boundary that is stable only for the host task, and the dispatch agent/role identity. The adapter derives an opaque composite. If a native stable session is absent, generated fallback is permitted only when the adapter still supplies a durable task boundary and role, and its store key includes project, provider, task, role, and adapter boundary. If either isolation dimension is unavailable, resolution must fall to warned derived-ppid rather than invent a repo/worktree/thread-global boundary.",
+      "resolvedAt": "2026-07-17T23:04:09.839Z"
     }
   ]
 }
