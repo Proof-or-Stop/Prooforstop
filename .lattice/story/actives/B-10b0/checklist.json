@@ -255,7 +255,7 @@
         "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
         "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-17T14:01:49.434Z",
       "endTime": "2026-07-17T15:21:16.880Z",
       "verificationIntent": {
@@ -805,6 +805,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Commit 7050b07a24 removes unused pseudo-authority helpers, states the cooperative local-runtime review-freshness boundary honestly, and mechanically verifies independent specialized artifact consumers. F-001 hostile same-UID durable authority premise is outside the retired-Authority local-assurance contract.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-17T16:18:27.572Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "F-008: convergence facts must include reviewer re-attestation before successful TEST entry.",
       "agent": "lattice-implementer"
     }
   ]
