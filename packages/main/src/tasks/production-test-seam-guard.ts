@@ -176,6 +176,8 @@ interface CallableIndex {
   mutatedBases: Set<string>;
   mutatedQualifiedNames: Set<string>;
   dynamicMutationBases: Set<string>;
+  mutatedMethodNames: Set<string>;
+  allMethodNamesMutated: boolean;
 }
 
 function callableReturns(body: ts.ConciseBody | undefined): ts.Expression[] {
@@ -204,8 +206,10 @@ function collectCallableIndex(sourceFile: ts.SourceFile): CallableIndex {
   const mutatedBases = new Set<string>();
   const mutatedQualifiedNames = new Set<string>();
   const dynamicMutationBases = new Set<string>();
+  const mutatedMethodNames = new Set<string>();
+  let allMethodNamesMutated = false;
   const aliasEdges = new Map<string, Set<string>>();
-  const rawPropertyMutations: Array<{ base: string; property?: string }> = [];
+  const rawPropertyMutations: Array<{ base: string; property?: string; invalidatesMethods: boolean }> = [];
   const arrayMutators = new Set(['push', 'pop', 'shift', 'unshift', 'splice', 'sort', 'reverse', 'copyWithin', 'fill']);
   const rootIdentifier = (expression: ts.Expression): string | undefined => {
     let value = expression;
@@ -236,7 +240,7 @@ function collectCallableIndex(sourceFile: ts.SourceFile): CallableIndex {
     const base = rootIdentifier(expression);
     if (!base) return;
     const property = propertyName(expression);
-    rawPropertyMutations.push({ base, ...(property ? { property } : {}) });
+    rawPropertyMutations.push({ base, ...(property ? { property } : {}), invalidatesMethods: true });
   };
   const collectMutations = (node: ts.Node): void => {
     if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer && ts.isIdentifier(node.initializer)) {
@@ -266,14 +270,24 @@ function collectCallableIndex(sourceFile: ts.SourceFile): CallableIndex {
         const target = node.arguments[0];
         const base = target ? rootIdentifier(target) : undefined;
         if (base) {
-          const key = method === 'defineProperty' && node.arguments[1] && ts.isStringLiteralLike(node.arguments[1])
-            ? node.arguments[1].text
-            : undefined;
-          rawPropertyMutations.push({ base, ...(key ? { property: key } : {}) });
+          if (method === 'defineProperty') {
+            const key = node.arguments[1] && ts.isStringLiteralLike(node.arguments[1]) ? node.arguments[1].text : undefined;
+            rawPropertyMutations.push({ base, ...(key ? { property: key } : {}), invalidatesMethods: true });
+          } else {
+            const descriptor = node.arguments[1];
+            const names = descriptor && ts.isObjectLiteralExpression(descriptor)
+              ? descriptor.properties
+                .map(property => 'name' in property && property.name ? staticPropertyName(property.name) : undefined)
+                .filter((name): name is string => Boolean(name))
+              : [];
+            if (names.length > 0) {
+              for (const property of names) rawPropertyMutations.push({ base, property, invalidatesMethods: true });
+            } else rawPropertyMutations.push({ base, invalidatesMethods: true });
+          }
         }
       } else if (method && arrayMutators.has(method)) {
         const base = rootIdentifier(receiver);
-        if (base) rawPropertyMutations.push({ base });
+        if (base) rawPropertyMutations.push({ base, invalidatesMethods: false });
       }
     }
     ts.forEachChild(node, collectMutations);
@@ -290,6 +304,10 @@ function collectCallableIndex(sourceFile: ts.SourceFile): CallableIndex {
     return found;
   };
   for (const mutation of rawPropertyMutations) {
+    if (mutation.invalidatesMethods) {
+      if (mutation.property) mutatedMethodNames.add(mutation.property);
+      else allMethodNamesMutated = true;
+    }
     for (const alias of aliasesOf(mutation.base)) {
       mutatedBases.add(alias);
       if (mutation.property) mutatedQualifiedNames.add(`${alias}.${mutation.property}`);
@@ -358,7 +376,17 @@ function collectCallableIndex(sourceFile: ts.SourceFile): CallableIndex {
     ts.forEachChild(node, visit);
   };
   visit(sourceFile);
-  return { byName, byQualifiedName, constructors, aliases, mutatedBases, mutatedQualifiedNames, dynamicMutationBases };
+  return {
+    byName,
+    byQualifiedName,
+    constructors,
+    aliases,
+    mutatedBases,
+    mutatedQualifiedNames,
+    dynamicMutationBases,
+    mutatedMethodNames,
+    allMethodNamesMutated,
+  };
 }
 
 function collectSinkAliases(sourceFile: ts.SourceFile): Map<string, string> {
@@ -449,6 +477,8 @@ export function analyzeProductionTestSeams(sourceText: string, file = 'inline.ts
       const qualified = receiver ? `${receiver}.${name}` : undefined;
       const exact = qualified && !callables.mutatedQualifiedNames.has(qualified)
         && !callables.dynamicMutationBases.has(receiver!)
+        && !callables.mutatedMethodNames.has(name)
+        && !callables.allMethodNamesMutated
         ? callables.byQualifiedName.get(qualified) ?? []
         : [];
       return exact.length > 0 ? exact : callables.byName.get(name) ?? [];
@@ -903,6 +933,13 @@ function selfTest(): void {
     ['assignment-created alias mutation', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const safe = { run(payload: string) { return payload } }; let alias; alias = safe; alias.run = unsafe.run; safe.run(process.env.TEST_FILE)`],
     ['parenthesized assignment alias mutation', `const unsafe = { run(command: string) { exec(command) } }; const safe = { run(payload: string) { return payload } }; let alias; alias = (safe); alias['run'] = unsafe.run; safe.run(process.env.TEST_COMMAND)`],
     ['chained assignment alias mutation', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const safe = { run(payload: string) { return payload } }; let first, second; first = (second = safe); second.run = unsafe.run; safe.run(process.env.TEST_FILE)`],
+    ['nested holder method replacement', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const safe = { run(payload: string) { return payload } }; const holder = { ref: safe }; holder.ref.run = unsafe.run; safe.run(process.env.TEST_FILE)`],
+    ['deeper holder method replacement', `const unsafe = { run(command: string) { exec(command) } }; const safe = { run(payload: string) { return payload } }; const holder = { layer: { ref: safe } }; holder.layer.ref.run = unsafe.run; safe.run(process.env.TEST_COMMAND)`],
+    ['nested computed static method replacement', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const safe = { run(payload: string) { return payload } }; const holder = { ref: safe }; holder.ref['run'] = unsafe.run; safe.run(process.env.TEST_FILE)`],
+    ['nested dynamic method replacement disables all exact names', `const unsafe = { run(command: string) { exec(command) } }; const safe = { run(payload: string) { return payload } }; const holder = { ref: safe }; const key = 'run'; holder.ref[key] = unsafe.run; safe.run(process.env.TEST_COMMAND)`],
+    ['nested Object.assign method replacement', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const safe = { run(payload: string) { return payload } }; const holder = { ref: safe }; Object.assign(holder.ref, { run: unsafe.run }); safe.run(process.env.TEST_FILE)`],
+    ['nested Object.defineProperty method replacement', `const unsafe = { run(command: string) { exec(command) } }; const safe = { run(payload: string) { return payload } }; const holder = { ref: safe }; Object.defineProperty(holder.ref, 'run', { value: unsafe.run }); safe.run(process.env.TEST_COMMAND)`],
+    ['nested Object.defineProperties method replacement', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const safe = { run(payload: string) { return payload } }; const holder = { ref: safe }; Object.defineProperties(holder.ref, { run: { value: unsafe.run } }); safe.run(process.env.TEST_FILE)`],
   ];
   for (const [name, source] of callableContextCases) {
     const issues = analyzeProductionTestSeams(source, `${name}.ts`);
@@ -954,6 +991,9 @@ function selfTest(): void {
     ['safe immutable apply array', `const safe = { run(payload: string) { writeFileSync('/fixed', payload) } }; const args = ['fixed payload'] as const; safe.run.apply(null, args)`],
     ['safe assignment alias without object mutation', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const safe = { run(payload: string) { writeFileSync('/fixed', payload) } }; let alias; alias = safe; safe.run(process.env.TEST_FILE)`],
     ['safe mutator fixed spread', `const safe = { run(payload: string) { writeFileSync('/fixed', payload) } }; const args = ['fixed']; const extra = ['payload']; args.push(...extra); safe.run.apply(null, args)`],
+    ['safe nested immutable holder', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const safe = { run(payload: string) { writeFileSync('/fixed', payload) } }; const holder = { ref: safe }; safe.run(process.env.TEST_FILE); void holder.ref`],
+    ['safe unrelated static method mutation', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const safe = { run(payload: string) { writeFileSync('/fixed', payload) } }; const holder = { other() {} }; holder.other = () => {}; safe.run(process.env.TEST_FILE)`],
+    ['safe array mutation does not disable method exactness', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const safe = { run(payload: string) { writeFileSync('/fixed', payload) } }; const args = ['/fixed']; args.push('payload'); safe.run(process.env.TEST_FILE)`],
   ];
   for (const [name, source] of safeBindingControls) {
     assert.deepEqual(analyzeProductionTestSeams(source, `${name}.ts`), [], `${name} must remain outside TEST/SMOKE taint`);
