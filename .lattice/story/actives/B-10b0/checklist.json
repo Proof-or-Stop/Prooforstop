@@ -529,7 +529,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-17T14:34:08.777Z",
       "endTime": "2026-07-17T15:28:55.945Z",
       "verificationIntent": {
@@ -815,6 +815,16 @@
       "from": "done",
       "to": "in_progress",
       "reason": "F-008: convergence facts must include reviewer re-attestation before successful TEST entry.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-17T16:18:28.992Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "F-011: fail closed on multiline Python def/class declarations and add regression coverage.",
       "agent": "lattice-implementer"
     }
   ]
