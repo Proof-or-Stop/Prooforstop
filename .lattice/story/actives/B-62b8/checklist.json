@@ -25,6 +25,28 @@
           "packages/main/src/tasks/owner-session-guardrail.ts",
           "packages/main/src/tasks/story-owner-lease-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [],
+        "edge": [],
+        "adversarial": [
+          {
+            "desc": "Precedence and validation attack: with a deliberate non-empty LATTICE_SESSION_ID plus conflicting host-native task/agent values, resolution must use the explicit override; without the override, an adapter candidate is accepted only when both taskIdentity and agentOrRoleIdentity are validated. Missing, empty, malformed, provider-mismatched, or one-dimensional host input must not be promoted to host-adapter identity and must fall through in order without a host-specific core exception.",
+            "type": "logic"
+          },
+          {
+            "desc": "Collision and privilege attack: for identical project/worktree, provider, taskIdentity, and agentOrRoleIdentity, changing PPID/process ancestry must leave the resolved host-adapter identity unchanged; changing only taskIdentity or only agentOrRoleIdentity must produce a different identity. A repository-global token, worktree-only token, thread-only token, or role-collapsed identity fails; implementer, verification-intent, reviewer, and delivery identities must not inherit each others owner privilege unless canonical policy explicitly allows shared ownership.",
+            "type": "logic"
+          },
+          {
+            "desc": "Fallback-boundary attack: when validated adapter identity is unavailable, generated fallback must be opaque and bounded by project, provider, task, agent/role, and adapter session boundary so separate tasks, roles, or sessions cannot collide; derived-ppid may occur only after explicit, validated-adapter, and generated paths are unavailable, must remain PPID-sensitive, and must be reported as degraded with a warning before the first story-scoped mutation.",
+            "type": "cli"
+          },
+          {
+            "desc": "Disclosure and enforcement attack: raw host task/session/agent tokens and generated token material must not appear in the derived session id, session_brief/doctor output, owner errors, process events, story metadata, requirements prose, or other material artifacts; diagnostics may expose only stable opaque/redacted identity plus source/provider metadata. A genuinely different task-or-role identity attempting an owner-gated mutation must still fail closed with established active/stale takeover guidance, while read-only and reviewerWrite boundaries remain unchanged.",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
