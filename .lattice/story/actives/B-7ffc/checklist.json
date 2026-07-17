@@ -15,9 +15,9 @@
         ],
         "test": []
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-17T23:19:29.689Z",
-      "endTime": null,
+      "endTime": "2026-07-17T23:20:41.131Z",
       "verificationIntent": {
         "happy": [
           {
@@ -61,7 +61,87 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "command": "node -e 'const fs=require(\"fs\"),c=require(\"crypto\"); const src=fs.readFileSync(\"/tmp/role-prompt-modularization-and-budget-execution-plan.md\",\"utf8\"); const dst=fs.readFileSync(\"docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md\",\"utf8\"); const sha=s=>c.createHash(\"sha256\").update(s).digest(\"hex\"); let fenced=false; const lines=src.split(\"\\\\n\"); lines.shift(); const transformed=lines.map(line=>{if(/^\\\\x60{3}/.test(line)){fenced=!fenced; return line;} return fenced?line:line.replace(/^(#{2,6})(\\\\s+)/,\"#$1$2\");}).join(\"\\\\n\"); if(sha(src)!==\"3a7e9beaf60b692753de91ee50eeacccdadfd57586fb28b6d07189d953b60610\"||!dst.includes(transformed)||sha(dst)!==\"ef7c3bd67422dc1fff071008c13af98224a3af56e9dfd5eac8d9ee2cacf5ba0b\"||(dst.match(/^\\\\x60{3}/gm)||[]).length!==18||![1,2,3,4,5,6,7].every(n=>dst.includes(\"#### Story \"+n+\"：\"))||!dst.includes(\"#### 条件性后续：预算 enforce\")) process.exit(1);'",
+          "result": "pass",
+          "note": "decision_doc_save created the accepted B-7ffc/DDP-001 canonical document; its returned renderedDocDigest equals the saved SHA-256 ef7c3bd67422dc1fff071008c13af98224a3af56e9dfd5eac8d9ee2cacf5ba0b.",
+          "headHash": "f4a24aa0235914aa98662a02a524026c88326a22",
+          "materialHash": "4fc068d1d379a7381854b3a9789eab4f0aa6d00f9428d7cd7a532a59dd7c5bf4",
+          "storyFilesHash": "90722a3e8941271bfe34f2fe0beb826258190c479cce2c7bbe1699d695dbe7c5",
+          "timestamp": "2026-07-17T23:20:41.552Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "command": "node -e 'const fs=require(\"fs\"),c=require(\"crypto\"); const src=fs.readFileSync(\"/tmp/role-prompt-modularization-and-budget-execution-plan.md\",\"utf8\"); const dst=fs.readFileSync(\"docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md\",\"utf8\"); const sha=s=>c.createHash(\"sha256\").update(s).digest(\"hex\"); let fenced=false; const lines=src.split(\"\\\\n\"); lines.shift(); const transformed=lines.map(line=>{if(/^\\\\x60{3}/.test(line)){fenced=!fenced; return line;} return fenced?line:line.replace(/^(#{2,6})(\\\\s+)/,\"#$1$2\");}).join(\"\\\\n\"); if(sha(src)!==\"3a7e9beaf60b692753de91ee50eeacccdadfd57586fb28b6d07189d953b60610\"||!dst.includes(transformed)||sha(dst)!==\"ef7c3bd67422dc1fff071008c13af98224a3af56e9dfd5eac8d9ee2cacf5ba0b\"||(dst.match(/^\\\\x60{3}/gm)||[]).length!==18||![1,2,3,4,5,6,7].every(n=>dst.includes(\"#### Story \"+n+\"：\"))||!dst.includes(\"#### 条件性后续：预算 enforce\")) process.exit(1);'",
+          "result": "pass",
+          "note": "Deterministic fence-aware transformation of source SHA-256 3a7e9b…0610 is embedded exactly; all seven ordered Stories and the conditional follow-up remain present.",
+          "headHash": "f4a24aa0235914aa98662a02a524026c88326a22",
+          "materialHash": "4fc068d1d379a7381854b3a9789eab4f0aa6d00f9428d7cd7a532a59dd7c5bf4",
+          "storyFilesHash": "90722a3e8941271bfe34f2fe0beb826258190c479cce2c7bbe1699d695dbe7c5",
+          "timestamp": "2026-07-17T23:20:41.912Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "command": "node -e 'const fs=require(\"fs\"),c=require(\"crypto\"); const src=fs.readFileSync(\"/tmp/role-prompt-modularization-and-budget-execution-plan.md\",\"utf8\"); const dst=fs.readFileSync(\"docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md\",\"utf8\"); const sha=s=>c.createHash(\"sha256\").update(s).digest(\"hex\"); let fenced=false; const lines=src.split(\"\\\\n\"); lines.shift(); const transformed=lines.map(line=>{if(/^\\\\x60{3}/.test(line)){fenced=!fenced; return line;} return fenced?line:line.replace(/^(#{2,6})(\\\\s+)/,\"#$1$2\");}).join(\"\\\\n\"); if(sha(src)!==\"3a7e9beaf60b692753de91ee50eeacccdadfd57586fb28b6d07189d953b60610\"||!dst.includes(transformed)||sha(dst)!==\"ef7c3bd67422dc1fff071008c13af98224a3af56e9dfd5eac8d9ee2cacf5ba0b\"||(dst.match(/^\\\\x60{3}/gm)||[]).length!==18||![1,2,3,4,5,6,7].every(n=>dst.includes(\"#### Story \"+n+\"：\"))||!dst.includes(\"#### 条件性后续：预算 enforce\")) process.exit(1);'",
+          "result": "pass",
+          "note": "The transformation toggles on all 18 fence delimiters and changes headings only outside fenced blocks; the transformed source is an exact substring of the saved document.",
+          "headHash": "f4a24aa0235914aa98662a02a524026c88326a22",
+          "materialHash": "4fc068d1d379a7381854b3a9789eab4f0aa6d00f9428d7cd7a532a59dd7c5bf4",
+          "storyFilesHash": "90722a3e8941271bfe34f2fe0beb826258190c479cce2c7bbe1699d695dbe7c5",
+          "timestamp": "2026-07-17T23:20:42.326Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "command": "node -e 'const fs=require(\"fs\"),c=require(\"crypto\"); const src=fs.readFileSync(\"/tmp/role-prompt-modularization-and-budget-execution-plan.md\",\"utf8\"); const dst=fs.readFileSync(\"docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md\",\"utf8\"); const sha=s=>c.createHash(\"sha256\").update(s).digest(\"hex\"); let fenced=false; const lines=src.split(\"\\\\n\"); lines.shift(); const transformed=lines.map(line=>{if(/^\\\\x60{3}/.test(line)){fenced=!fenced; return line;} return fenced?line:line.replace(/^(#{2,6})(\\\\s+)/,\"#$1$2\");}).join(\"\\\\n\"); if(sha(src)!==\"3a7e9beaf60b692753de91ee50eeacccdadfd57586fb28b6d07189d953b60610\"||!dst.includes(transformed)||sha(dst)!==\"ef7c3bd67422dc1fff071008c13af98224a3af56e9dfd5eac8d9ee2cacf5ba0b\"||(dst.match(/^\\\\x60{3}/gm)||[]).length!==18||![1,2,3,4,5,6,7].every(n=>dst.includes(\"#### Story \"+n+\"：\"))||!dst.includes(\"#### 条件性后续：预算 enforce\")) process.exit(1);'",
+          "result": "pass",
+          "note": "decision_doc_save returned renderedDocDigest ef7c3bd…ba0b and shasum of the persisted target returned the same digest after save.",
+          "headHash": "f4a24aa0235914aa98662a02a524026c88326a22",
+          "materialHash": "4fc068d1d379a7381854b3a9789eab4f0aa6d00f9428d7cd7a532a59dd7c5bf4",
+          "storyFilesHash": "90722a3e8941271bfe34f2fe0beb826258190c479cce2c7bbe1699d695dbe7c5",
+          "timestamp": "2026-07-17T23:20:42.699Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "command": "node -e 'const fs=require(\"fs\"),c=require(\"crypto\"); const src=fs.readFileSync(\"/tmp/role-prompt-modularization-and-budget-execution-plan.md\",\"utf8\"); const dst=fs.readFileSync(\"docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md\",\"utf8\"); const sha=s=>c.createHash(\"sha256\").update(s).digest(\"hex\"); let fenced=false; const lines=src.split(\"\\\\n\"); lines.shift(); const transformed=lines.map(line=>{if(/^\\\\x60{3}/.test(line)){fenced=!fenced; return line;} return fenced?line:line.replace(/^(#{2,6})(\\\\s+)/,\"#$1$2\");}).join(\"\\\\n\"); if(sha(src)!==\"3a7e9beaf60b692753de91ee50eeacccdadfd57586fb28b6d07189d953b60610\"||!dst.includes(transformed)||sha(dst)!==\"ef7c3bd67422dc1fff071008c13af98224a3af56e9dfd5eac8d9ee2cacf5ba0b\"||(dst.match(/^\\\\x60{3}/gm)||[]).length!==18||![1,2,3,4,5,6,7].every(n=>dst.includes(\"#### Story \"+n+\"：\"))||!dst.includes(\"#### 条件性后续：预算 enforce\")) process.exit(1);'",
+          "result": "pass",
+          "note": "Recomputing the permitted wrapper/H1/fence-aware heading transformation yields exact embedded content, rejecting paraphrase, omission, reordering, table drift, or fenced-code mutation.",
+          "headHash": "f4a24aa0235914aa98662a02a524026c88326a22",
+          "materialHash": "4fc068d1d379a7381854b3a9789eab4f0aa6d00f9428d7cd7a532a59dd7c5bf4",
+          "storyFilesHash": "90722a3e8941271bfe34f2fe0beb826258190c479cce2c7bbe1699d695dbe7c5",
+          "timestamp": "2026-07-17T23:20:43.015Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "command": "node -e 'const fs=require(\"fs\"),c=require(\"crypto\"); const src=fs.readFileSync(\"/tmp/role-prompt-modularization-and-budget-execution-plan.md\",\"utf8\"); const dst=fs.readFileSync(\"docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md\",\"utf8\"); const sha=s=>c.createHash(\"sha256\").update(s).digest(\"hex\"); let fenced=false; const lines=src.split(\"\\\\n\"); lines.shift(); const transformed=lines.map(line=>{if(/^\\\\x60{3}/.test(line)){fenced=!fenced; return line;} return fenced?line:line.replace(/^(#{2,6})(\\\\s+)/,\"#$1$2\");}).join(\"\\\\n\"); if(sha(src)!==\"3a7e9beaf60b692753de91ee50eeacccdadfd57586fb28b6d07189d953b60610\"||!dst.includes(transformed)||sha(dst)!==\"ef7c3bd67422dc1fff071008c13af98224a3af56e9dfd5eac8d9ee2cacf5ba0b\"||(dst.match(/^\\\\x60{3}/gm)||[]).length!==18||![1,2,3,4,5,6,7].every(n=>dst.includes(\"#### Story \"+n+\"：\"))||!dst.includes(\"#### 条件性后续：预算 enforce\")) process.exit(1);'",
+          "result": "pass",
+          "note": "git diff outside .lattice contains only the canonical decision document and NAV; no runtime, Prompt, registry, handler, gate, configuration, package, or test files changed.",
+          "headHash": "f4a24aa0235914aa98662a02a524026c88326a22",
+          "materialHash": "4fc068d1d379a7381854b3a9789eab4f0aa6d00f9428d7cd7a532a59dd7c5bf4",
+          "storyFilesHash": "90722a3e8941271bfe34f2fe0beb826258190c479cce2c7bbe1699d695dbe7c5",
+          "timestamp": "2026-07-17T23:20:43.319Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -139,6 +219,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Requirements navigation has been updated; recording implementation state before committing and attaching evidence."
+    },
+    {
+      "timestamp": "2026-07-17T23:20:41.131Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Canonical decision doc committed and deterministic content, digest, structure, and docs-only scope checks passed."
     }
   ]
 }
