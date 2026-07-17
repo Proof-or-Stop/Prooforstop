@@ -9,7 +9,7 @@
         "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "pending",
       "startTime": "2026-07-17T13:21:15.635Z",
       "endTime": "2026-07-17T14:01:32.077Z",
       "verificationIntent": {
@@ -752,6 +752,15 @@
       "from": "done",
       "to": "in_progress",
       "reason": "REVIEW F-001 requires a production-consumer audit; resolve or disprove before re-review."
+    },
+    {
+      "timestamp": "2026-07-17T15:00:58.098Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "pending",
+      "reason": "F-001 confirmed: safe no-re-review outcome requires isolated authority plus consumer migration beyond current scope; preserve open while independent findings are fixed."
     }
   ]
 }
