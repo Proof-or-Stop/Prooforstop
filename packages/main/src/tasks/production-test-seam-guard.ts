@@ -171,7 +171,7 @@ interface CallableIndex {
   byName: Map<string, CallableCandidate[]>;
   byQualifiedName: Map<string, CallableCandidate[]>;
   constructors: Map<string, CallableCandidate[]>;
-  aliases: Map<string, ts.Expression>;
+  aliases: Map<string, { initializer: ts.Expression; immutable: boolean }>;
 }
 
 function callableReturns(body: ts.ConciseBody | undefined): ts.Expression[] {
@@ -196,7 +196,19 @@ function collectCallableIndex(sourceFile: ts.SourceFile): CallableIndex {
   const byName = new Map<string, CallableCandidate[]>();
   const byQualifiedName = new Map<string, CallableCandidate[]>();
   const constructors = new Map<string, CallableCandidate[]>();
-  const aliases = new Map<string, ts.Expression>();
+  const aliases = new Map<string, { initializer: ts.Expression; immutable: boolean }>();
+  const mutatedNames = new Set<string>();
+  const collectMutations = (node: ts.Node): void => {
+    if (ts.isBinaryExpression(node) && ts.isIdentifier(node.left)
+      && node.operatorToken.kind >= ts.SyntaxKind.FirstAssignment
+      && node.operatorToken.kind <= ts.SyntaxKind.LastAssignment) mutatedNames.add(node.left.text);
+    if ((ts.isPrefixUnaryExpression(node) || ts.isPostfixUnaryExpression(node)) && ts.isIdentifier(node.operand)
+      && (node.operator === ts.SyntaxKind.PlusPlusToken || node.operator === ts.SyntaxKind.MinusMinusToken)) {
+      mutatedNames.add(node.operand.text);
+    }
+    ts.forEachChild(node, collectMutations);
+  };
+  collectMutations(sourceFile);
   const seen = new Set<ts.Node>();
   const append = (map: Map<string, CallableCandidate[]>, key: string | undefined, candidate: CallableCandidate): void => {
     if (!key) return;
@@ -236,7 +248,13 @@ function collectCallableIndex(sourceFile: ts.SourceFile): CallableIndex {
       if (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer)) {
         recordCallable(node.initializer, node.name.text);
       } else if (!ts.isClassExpression(node.initializer)) {
-        aliases.set(node.name.text, node.initializer);
+        const declarationList = node.parent;
+        const isConst = ts.isVariableDeclarationList(declarationList)
+          && (declarationList.flags & ts.NodeFlags.Const) !== 0;
+        aliases.set(node.name.text, {
+          initializer: node.initializer,
+          immutable: isConst && !mutatedNames.has(node.name.text),
+        });
       }
     }
     if (ts.isMethodDeclaration(node)) {
@@ -315,8 +333,13 @@ export function analyzeProductionTestSeams(sourceText: string, file = 'inline.ts
     if (seen.has(value.text)) return value.text;
     seen.add(value.text);
     const alias = callables.aliases.get(value.text);
-    return alias && ts.isIdentifier(unwrapCallable(alias)) ? receiverName(alias, seen) ?? value.text : value.text;
+    if (alias && !alias.immutable) return undefined;
+    return alias && ts.isIdentifier(unwrapCallable(alias.initializer))
+      ? receiverName(alias.initializer, seen) ?? value.text
+      : value.text;
   };
+  const allCallableCandidates = (): CallableCandidate[] => unionCandidates(...[...callables.byName.values()]);
+  const allConstructorCandidates = (): CallableCandidate[] => unionCandidates(...[...callables.constructors.values()]);
   const resolveCallableCandidates = (expression: ts.Expression, seen = new Set<string>()): CallableCandidate[] => {
     const value = unwrapCallable(expression);
     if (ts.isArrowFunction(value) || ts.isFunctionExpression(value)) return [candidateFor(value)];
@@ -324,9 +347,10 @@ export function analyzeProductionTestSeams(sourceText: string, file = 'inline.ts
       if (seen.has(value.text)) return callables.byName.get(value.text) ?? [];
       seen.add(value.text);
       const alias = callables.aliases.get(value.text);
+      if (alias && !alias.immutable) return unionCandidates(callables.byName.get(value.text) ?? [], allCallableCandidates());
       return unionCandidates(
         callables.byName.get(value.text) ?? [],
-        alias ? resolveCallableCandidates(alias, seen) : [],
+        alias ? resolveCallableCandidates(alias.initializer, seen) : [],
       );
     }
     if (ts.isPropertyAccessExpression(value) || ts.isElementAccessExpression(value)) {
@@ -338,27 +362,72 @@ export function analyzeProductionTestSeams(sourceText: string, file = 'inline.ts
     }
     return [];
   };
-  const resolveConstructorCandidates = (expression: ts.Expression): CallableCandidate[] => {
+  const resolveConstructorCandidates = (expression: ts.Expression, seen = new Set<string>()): CallableCandidate[] => {
     const value = unwrapCallable(expression);
-    if (ts.isIdentifier(value)) return callables.constructors.get(value.text) ?? [];
+    if (ts.isIdentifier(value)) {
+      if (seen.has(value.text)) return callables.constructors.get(value.text) ?? [];
+      seen.add(value.text);
+      const direct = callables.constructors.get(value.text) ?? [];
+      const alias = callables.aliases.get(value.text);
+      if (alias && !alias.immutable) return unionCandidates(direct, allConstructorCandidates());
+      return unionCandidates(direct, alias ? resolveConstructorCandidates(alias.initializer, seen) : []);
+    }
     if (ts.isClassExpression(value)) {
       return value.members.filter(ts.isConstructorDeclaration).map(candidateFor);
     }
     return [];
   };
-  const invocation = (node: ts.CallExpression): { candidates: CallableCandidate[]; args: readonly ts.Expression[] } => {
+  type ArgumentExpansion = { args: Array<ts.Expression | undefined>; unknownOperands: ts.Expression[] };
+  const resolveArrayElements = (expression: ts.Expression, seen = new Set<string>()): Array<ts.Expression | undefined> | null => {
+    const value = unwrapCallable(expression);
+    if (ts.isArrayLiteralExpression(value)) {
+      const values: Array<ts.Expression | undefined> = [];
+      for (const element of value.elements) {
+        if (ts.isOmittedExpression(element)) values.push(undefined);
+        else if (ts.isSpreadElement(element)) {
+          const nested = resolveArrayElements(element.expression, seen);
+          if (!nested) return null;
+          values.push(...nested);
+        } else values.push(element);
+      }
+      return values;
+    }
+    if (ts.isIdentifier(value)) {
+      if (seen.has(value.text)) return null;
+      seen.add(value.text);
+      const alias = callables.aliases.get(value.text);
+      return alias?.immutable ? resolveArrayElements(alias.initializer, seen) : null;
+    }
+    return null;
+  };
+  const expandArguments = (values: readonly ts.Expression[]): ArgumentExpansion => {
+    const args: Array<ts.Expression | undefined> = [];
+    const unknownOperands: ts.Expression[] = [];
+    for (const value of values) {
+      if (!ts.isSpreadElement(value)) args.push(value);
+      else {
+        const expanded = resolveArrayElements(value.expression);
+        if (expanded) args.push(...expanded);
+        else unknownOperands.push(value.expression);
+      }
+    }
+    return { args, unknownOperands };
+  };
+  const invocation = (node: ts.CallExpression): { candidates: CallableCandidate[] } & ArgumentExpansion => {
     const expression = unwrapCallable(node.expression);
     if ((ts.isPropertyAccessExpression(expression) || ts.isElementAccessExpression(expression)) && propertyName(expression) === 'call') {
-      return { candidates: resolveCallableCandidates(expression.expression), args: node.arguments.slice(1) };
+      return { candidates: resolveCallableCandidates(expression.expression), ...expandArguments(node.arguments.slice(1)) };
     }
     if ((ts.isPropertyAccessExpression(expression) || ts.isElementAccessExpression(expression)) && propertyName(expression) === 'apply') {
       const applied = node.arguments[1];
+      const expanded = applied ? resolveArrayElements(applied) : [];
       return {
         candidates: resolveCallableCandidates(expression.expression),
-        args: applied && ts.isArrayLiteralExpression(applied) ? applied.elements.filter(ts.isExpression) : [],
+        args: expanded ?? [],
+        unknownOperands: applied && !expanded ? [applied] : [],
       };
     }
-    return { candidates: resolveCallableCandidates(expression), args: node.arguments };
+    return { candidates: resolveCallableCandidates(expression), ...expandArguments(node.arguments) };
   };
 
   const add = (name: string, sources: Sources): boolean => {
@@ -428,13 +497,16 @@ export function analyzeProductionTestSeams(sourceText: string, file = 'inline.ts
       }
       return union(
         ...resolved.args.map(argument => expressionSources(argument)),
+        ...resolved.unknownOperands.map(argument => expressionSources(argument)),
         ...returnSources,
       );
     }
     if (ts.isNewExpression(expression)) {
       const candidates = resolveConstructorCandidates(expression.expression);
+      const expanded = expandArguments(expression.arguments ?? []);
       return union(
-        ...(expression.arguments ?? []).map(argument => expressionSources(argument)),
+        ...expanded.args.map(argument => expressionSources(argument)),
+        ...expanded.unknownOperands.map(argument => expressionSources(argument)),
         ...candidates.flatMap(candidate => candidate.returns.map(value => expressionSources(value))),
       );
     }
@@ -560,15 +632,22 @@ export function analyzeProductionTestSeams(sourceText: string, file = 'inline.ts
         for (const candidate of resolved.candidates) {
           candidate.parameters.forEach((parameter, index) => {
             let source = classifyBindingSource(resolved.args[index]);
+            for (const operand of resolved.unknownOperands) {
+              source = mergeBindingSources(source, classifyBindingSource(operand));
+            }
             if (parameter.initializer) source = mergeBindingSources(source, classifyBindingSource(parameter.initializer));
             changed ||= bindTarget(parameter.name, source);
           });
         }
       }
       if (ts.isNewExpression(node)) {
+        const expanded = expandArguments(node.arguments ?? []);
         for (const candidate of resolveConstructorCandidates(node.expression)) {
           candidate.parameters.forEach((parameter, index) => {
-            let source = classifyBindingSource(node.arguments?.[index]);
+            let source = classifyBindingSource(expanded.args[index]);
+            for (const operand of expanded.unknownOperands) {
+              source = mergeBindingSources(source, classifyBindingSource(operand));
+            }
             if (parameter.initializer) source = mergeBindingSources(source, classifyBindingSource(parameter.initializer));
             changed ||= bindTarget(parameter.name, source);
           });
@@ -690,6 +769,17 @@ function selfTest(): void {
     ['method Function.call invocation', `const unsafe = { run(target: string) { writeFileSync(target, 'x') } }; unsafe.run.call(null, process.env.TEST_FILE)`],
     ['method Function.apply invocation', `const unsafe = { run(target: string) { exec(target) } }; unsafe.run.apply(null, [process.env.TEST_COMMAND])`],
     ['receiver-qualified return taint', `const unsafe = { pick(value: string) { return value } }; const safe = { pick() { return '/fixed' } }; writeFileSync(unsafe.pick(process.env.TEST_FILE), 'x')`],
+    ['mutable receiver reassignment unions candidates', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const safe = { run(payload: string) { return payload } }; let receiver = safe; receiver = unsafe; receiver.run(process.env.TEST_FILE)`],
+    ['mutable receiver process sink distinct shape', `const unsafe = { run(command: string) { exec(command) } }; const safe = { run({ env }: typeof process) { return env.PATH } }; let receiver = safe; receiver = unsafe; receiver.run(process.env.TEST_COMMAND)`],
+    ['const constructor alias', `class Runner { constructor({ env }: typeof process) { exec(env.TEST_COMMAND) } } const Alias = Runner; new Alias(process)`],
+    ['mutable constructor alias reassignment', `class Safe { constructor(payload: unknown) {} } class Unsafe { constructor({ env }: typeof process) { writeFileSync(env.TEST_FILE, 'x') } } let Alias = Safe; Alias = Unsafe; new Alias(process)`],
+    ['apply local array', `const unsafe = { run(command: string) { exec(command) } }; const args = [process.env.TEST_COMMAND]; unsafe.run.apply(null, args)`],
+    ['apply local array alias', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const args = [process.env.TEST_FILE]; const alias = args; unsafe.run.apply(null, alias)`],
+    ['apply readonly tuple alias', `const unsafe = { run(command: string) { exec(command) } }; const tuple = [process.env.TEST_COMMAND] as const; const alias = tuple; unsafe.run.apply(null, alias)`],
+    ['apply array spread alias', `const unsafe = { run(command: string) { exec(command) } }; const args = [process.env.TEST_COMMAND]; unsafe.run.apply(null, [...args])`],
+    ['call spread alias', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const args = [process.env.TEST_FILE]; unsafe.run.call(null, ...args)`],
+    ['direct call spread alias', `const unsafe = { run(command: string) { exec(command) } }; const args = [process.env.TEST_COMMAND]; unsafe.run(...args)`],
+    ['unknown apply operand taints every parameter', `const unsafe = { run(_fixed: string, command: string) { exec(command) } }; function invoke(args: string[]) { unsafe.run.apply(null, args) } invoke(['/fixed', process.env.TEST_COMMAND])`],
   ];
   for (const [name, source] of callableContextCases) {
     const issues = analyzeProductionTestSeams(source, `${name}.ts`);
@@ -704,6 +794,10 @@ function selfTest(): void {
     ['same-name known safe receiver', `const unsafe = { run(target: string) { writeFileSync(target, 'x') } }; const safe = { run(target: string) { writeFileSync('/fixed', target) } }; safe.run('fixed payload')`],
     ['safe arrow IIFE input', `((target: string) => writeFileSync('/fixed', target))('fixed payload')`],
     ['safe constructor input', `class Runner { constructor(target: string) { writeFileSync('/fixed', target) } } new Runner('fixed payload')`],
+    ['safe mutable receiver fixed input', `const unsafe = { run(path: string) { writeFileSync(path, 'x') } }; const safe = { run(payload: string) { return payload } }; let receiver = safe; receiver = unsafe; receiver.run('/fixed')`],
+    ['safe const constructor alias input', `class Runner { constructor(payload: string) { writeFileSync('/fixed', payload) } } const Alias = Runner; new Alias('fixed payload')`],
+    ['safe apply local array input', `const safe = { run(payload: string) { writeFileSync('/fixed', payload) } }; const args = ['fixed payload']; safe.run.apply(null, args)`],
+    ['safe call spread input', `const safe = { run(payload: string) { writeFileSync('/fixed', payload) } }; const args = ['fixed payload']; safe.run.call(null, ...args)`],
   ];
   for (const [name, source] of safeBindingControls) {
     assert.deepEqual(analyzeProductionTestSeams(source, `${name}.ts`), [], `${name} must remain outside TEST/SMOKE taint`);
