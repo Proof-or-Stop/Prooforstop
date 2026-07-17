@@ -476,9 +476,9 @@
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#93-acceptance",
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-17T23:28:04.502Z",
-      "endTime": null,
+      "endTime": "2026-07-17T23:28:06.634Z",
       "userSees": "User sees the same established stale/active takeover guidance for a genuine foreign lease, while same-task shell changes proceed without \"foreign owner\".",
       "files": {
         "modify": [
@@ -1013,6 +1013,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Accept committed isolation, compatibility and takeover regression slice from lattice-implementer for evidence binding."
+    },
+    {
+      "timestamp": "2026-07-17T23:28:06.634Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Task/role isolation, cross-ppid continuity, explicit override, foreign/stale/active takeover, generated scope, adapters and legacy lease regressions committed in a175883c; focused tests PASS.",
+      "agent": "lattice-implementer"
     }
   ]
 }
