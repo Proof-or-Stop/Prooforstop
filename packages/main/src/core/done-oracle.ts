@@ -40,6 +40,7 @@ import {
   type EvidenceHashSnapshot,
 } from './evidence-freshness.js';
 import { evaluateDeliveryCheckFreshness } from './delivery-check-hash.js';
+import { deliveryPromiseBlocksDone } from './delivery-promise-outcome.js';
 import { evaluateOptionalLiveSmokeTranscript } from './live-smoke-transcript-evidence.js';
 import {
   summarizeCodexEvidence,
@@ -644,9 +645,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         source: 'delivery-check.json.materialHash',
       }));
     } else {
-      const unverified = deliveryCheck.docsPromises.filter(
-        p => !p.verifiedBy && !p.waiverReason && !['met', 'verified', 'waived'].includes(p.status || ''),
-      );
+      const unverified = deliveryCheck.docsPromises.filter(deliveryPromiseBlocksDone);
       if (unverified.length > 0) {
         rows.push(doneCheckRow({
           id: 'delivery-check',

@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Gate-consumed facts require one normalized semantic owner across writers and readers.",
+    "Fail closed before persistence, but preserve explicit valid and legacy-compatible control cases.",
+    "Testability must not create production capabilities broader than the behavior being tested."
+  ],
+  "drivers": [
+    "A live B-ebe4 contradictory delivery payload produced a false PASS artifact.",
+    "B-914f showed field-by-field repair and production env seams create avoidable extra DEV/review rounds.",
+    "The follow-up must remain small enough that its assurance cost is proportional to the two verified classes."
+  ],
+  "options": [
+    {
+      "name": "A: Targeted delivery predicate plus bounded seam guard",
+      "pros": [
+        "Fixes the reproduced delivery contradiction at schema, writer, and both gate consumers",
+        "Reuses existing mutation-matrix and AST guard patterns",
+        "Can migrate the one arbitrary-path verifier seam without redesigning done_prepare"
+      ],
+      "cons": [
+        "Adds a small shared core module and process-fact updates",
+        "Static flow analysis must define explicit sanitizers and fixtures"
+      ]
+    },
+    {
+      "name": "B: Generic evidence envelope framework and repository-wide taint engine",
+      "pros": [
+        "Could cover future schemas and sink classes broadly",
+        "Centralizes many unrelated checks"
+      ],
+      "cons": [
+        "Large framework refactor with high false-positive and assurance cost",
+        "Would pull unrelated done_prepare and hundreds of env reads into scope"
+      ]
+    },
+    {
+      "name": "C: Patch delivery handler and delete only the known seam",
+      "pros": [
+        "Smallest immediate diff",
+        "Fast focused tests"
+      ],
+      "cons": [
+        "Schema and DONE readers could drift again",
+        "No mechanical prevention for the recurring class"
+      ]
+    }
+  ],
+  "chosen": "A: Targeted delivery predicate plus bounded seam guard",
+  "rationale": "Option A closes the two proven classes across their actual trust boundaries without reopening the already-correct validation reuse path or attempting an unbounded taint system. The delivery predicate becomes the total semantic owner; the seam guard recognizes only arbitrary env-derived filesystem/command data as forbidden and permits explicit sanitizers for fixed bounded behavior.",
+  "preMortem": [
+    {
+      "scenario": "The new delivery predicate rejects legitimate waived or legacy promises.",
+      "trigger": "Status/verifiedBy/waiverReason combinations are normalized without positive controls for each accepted state.",
+      "consequence": "Valid delivery reviewers cannot close stories or old signed artifacts become unreadable.",
+      "mitigation": "Generate a full accepted/rejected table, preserve legacy missing-status+verifiedBy semantics only if explicitly documented, and run gate integration against verified, met, waived, unverified, and legacy rows."
+    },
+    {
+      "scenario": "The seam guard flags normal runtime environment handling or done_prepare bounded smoke controls.",
+      "trigger": "A text regex treats any process.env near a sink as tainted and lacks sanitizer/control-flow semantics.",
+      "consequence": "Large noisy allowlists or unrelated refactors expand the story.",
+      "mitigation": "Use a bounded TypeScript AST data-flow check for direct/simple local propagation, model approved numeric/enum sanitizers, include positive fixtures for PATH/runtime reads and fixed-command controls, and keep production scan roots to core/handlers."
+    },
+    {
+      "scenario": "A test-only capability remains reachable through CLI payloads after the verifier seam migration.",
+      "trigger": "The replacement callback/path token is exposed in the command schema or accepts caller-controlled paths.",
+      "consequence": "An attacker or accidental invocation can still write or execute outside the intended test capability.",
+      "mitigation": "Keep hooks constructor-injected or compute paths under a fixed runtime temp directory from a validated opaque token; add E2E assertions that CLI args/env cannot select arbitrary paths."
+    },
+    {
+      "scenario": "CLI, handler, machine, and done-oracle disagree despite the helper.",
+      "trigger": "One consumer retains the old verifiedBy shortcut or schema permits a combination the handler rejects with a different reason.",
+      "consequence": "False PASS or inconsistent user diagnostics recur.",
+      "mitigation": "Register the semantic owner as an L4 process fact, make the process-fact contract assert every consumer import/call, and run pairwise contradiction fixtures through both direct handler and DONE readiness paths."
+    }
+  ],
+  "timestamp": "2026-07-16T23:22:02.850Z"
+}

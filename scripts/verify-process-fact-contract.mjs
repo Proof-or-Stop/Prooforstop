@@ -3684,6 +3684,41 @@ function assertDeliveryCheckStoryFilesHashContract(registry, levelRegistry) {
   }
 }
 
+function assertDeliveryPromiseOutcomeContract(registry, levelRegistry) {
+  const runtimeName = 'runtime:delivery_promise_outcome_done_gate';
+  const levelEntry = levelRegistry.get(runtimeName);
+  assert(levelEntry, `${processFactLevelRegistryPath}: required delivery-promise outcome runtime fact missing`);
+  if (levelEntry) {
+    assert(levelEntry.level === 'L4', `${processFactLevelRegistryPath}: ${runtimeName} must stay L4`);
+    assert(levelEntry.owner === 'core/delivery-promise-outcome', `${processFactLevelRegistryPath}: ${runtimeName} owner drifted`);
+    for (const token of ['total shared normalizer', 'delivery_promise_outcome_contradiction', 'before persistence', 'missing-status legacy']) {
+      assert(new RegExp(token, 'i').test(levelEntry.rationale), `${processFactLevelRegistryPath}: ${runtimeName} rationale must name ${token}`);
+    }
+  }
+
+  const registryEntry = registry.get(runtimeName);
+  assert(registryEntry, `${processFactRegistryPath}: required process fact missing: ${runtimeName}`);
+  if (registryEntry) {
+    assert(registryEntry.level === 'L4', `${processFactRegistryPath}: ${runtimeName} must stay L4`);
+    for (const semantic of ['runtime-behavior', 'schema-contract', 'normalization-policy', 'gate-evidence']) {
+      assert(registryEntry.semantics.includes(semantic), `${processFactRegistryPath}: ${runtimeName} missing semantic ${semantic}`);
+    }
+  }
+
+  const normalizer = read('packages/main/src/core/delivery-promise-outcome.ts');
+  for (const token of ['normalizeDeliveryPromiseOutcome', 'verified', 'waived', 'unresolved', 'delivery_promise_outcome_contradiction']) {
+    assert(normalizer.includes(token), `delivery-promise-outcome.ts: required totality token missing: ${token}`);
+  }
+  for (const [path, token] of [
+    ['packages/main/src/handlers/delivery-check.ts', 'normalizeDeliveryPromiseOutcome'],
+    ['packages/main/src/core/machine.ts', 'deliveryPromiseBlocksDone'],
+    ['packages/main/src/core/done-oracle.ts', 'deliveryPromiseBlocksDone'],
+    ['packages/main/src/cli/command-catalog.ts', 'normalizeDeliveryPromiseOutcome'],
+  ]) {
+    assert(read(path).includes(token), `${path}: must consume shared delivery-promise outcome contract (${token})`);
+  }
+}
+
 function assertReviewRunStoryFilesHashContract(registry, levelRegistry) {
   const runtimeName = 'runtime:review_run_story_files_hash_gate';
   const levelEntry = levelRegistry.get(runtimeName);
@@ -5094,6 +5129,7 @@ function assertProcessFactCommandInventory() {
   assertReviewRunStoryFilesHashContract(registry, levelRegistry);
   assertReviewAssuranceFloorContract(registry, levelRegistry);
   assertDeliveryCheckStoryFilesHashContract(registry, levelRegistry);
+  assertDeliveryPromiseOutcomeContract(registry, levelRegistry);
 
   for (const expected of requiredControlledMutationEntries) {
     const actual = levelRegistry.get(expected.name);

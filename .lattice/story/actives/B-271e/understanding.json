@@ -1,0 +1,39 @@
+{
+  "task": "Prevent contradictory delivery PASS envelopes and production test-only control data from reaching unsafe side-effect sinks.",
+  "outcome": "User sees `Blocked [delivery_promise_outcome_contradiction]: status=unverified cannot include verifiedBy; delivery-check was not written.` for contradictory delivery input, while valid verified/met/waived and documented legacy inputs still save. The independent production seam guard reports PASS and rejects env-derived arbitrary filesystem/process targets without flagging ordinary env reads or sanitized bounded controls.",
+  "facts": [
+    "B-914f routine validation reuse is already fully fixed; its complete mutation matrix is a regression reference only.",
+    "B-ebe4 reproduced a false delivery PASS from status=unverified plus verifiedBy across schema, handler, machine, and done-oracle.",
+    "verifier.ts has a separate lock-smoke seam whose env-provided readyFile reaches mkdirSync/writeFileSync.",
+    "done-prepare.ts has bounded smoke controls that select fixed behavior through numeric/enum parsing and must be accepted mechanically, not by file allowlist.",
+    "No general production seam guard exists; a new fast independent task is cleaner than mixing runtime safety into process-fact verification."
+  ],
+  "constraints": [
+    "Do not change routine validation reuse semantics or migrate unrelated evidence schemas.",
+    "Delivery contradictions must fail before persistence; schema, handler, machine, and done-oracle semantics stay aligned.",
+    "Scan roots are only production core/handlers; tasks are fixtures, not production inputs.",
+    "Legitimate env reads and explicit bounded numeric/enum-to-fixed-behavior controls remain accepted.",
+    "Replace verifier arbitrary-path env seam with a capability-limited non-CLI mechanism.",
+    "Wire the independent seam guard into routine validate and root npm test; keep delivery L4 registry/contract changes in process-fact verification."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/delivery-promise-outcome.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/delivery-check.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+    "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/production-test-seam-guard.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "package.json",
+    "lattice.config.json"
+  ],
+  "timestamp": "2026-07-16T23:29:44.497Z"
+}

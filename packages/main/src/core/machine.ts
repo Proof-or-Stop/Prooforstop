@@ -12,6 +12,7 @@ import { TERMINAL_PHASES } from './parallel-policy.js';
 import { REQUIRED_INIT_CHECK_AGENTS, blockingInitCheckIssues, missingRequiredInitCheckAgents, recomputeInitCheckHash } from './init-check-gate.js';
 import { deriveLatestLoopRecord, listActiveLoops } from './review-loop.js';
 import { evaluateDeliveryCheckFreshness } from './delivery-check-hash.js';
+import { deliveryPromiseBlocksDone } from './delivery-promise-outcome.js';
 import { evaluateOptionalLiveSmokeTranscript } from './live-smoke-transcript-evidence.js';
 import { getBlockingVerificationEvidenceIssues } from './verification.js';
 import { normalizeLegacyPhase } from './phase-flow.js';
@@ -776,9 +777,7 @@ export function canFinishGuard(context: StoryMachineContext): boolean {
   if (!evaluateOptionalLiveSmokeTranscript(context.store, context.storyId).ok) return false;
 
   // every docsPromise must be verified or waived
-  const unverified = deliveryCheck.docsPromises.filter(
-    p => !p.verifiedBy && !p.waiverReason && !['met', 'verified', 'waived'].includes(p.status || ''),
-  );
+  const unverified = deliveryCheck.docsPromises.filter(deliveryPromiseBlocksDone);
   if (unverified.length > 0) {
     return false;
   }
@@ -1205,9 +1204,7 @@ export function getGuardFailureReason(
     }
 
     // every docsPromise must be verified or waived
-    const unverifiedPromises = deliveryCheck.docsPromises.filter(
-      p => !p.verifiedBy && !p.waiverReason && !['met', 'verified', 'waived'].includes(p.status || ''),
-    );
+    const unverifiedPromises = deliveryCheck.docsPromises.filter(deliveryPromiseBlocksDone);
     if (unverifiedPromises.length > 0) {
       const names = unverifiedPromises.map(p => p.docPath).join(', ');
       return `Cannot enter DONE: ${unverifiedPromises.length} docsPromise entries unverified and not waived: ${names}. [unverified_promise] → Use delivery_waiver_add to write a waiver or re-run reviewer → Run story_advance DEV to rework and fill in`;

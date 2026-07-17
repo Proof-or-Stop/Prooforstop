@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-271e",
+  "sourceText": "用户要求核验 B-914f 的 F-010/F-011 是否造成可避免返工，并在 B-ebe4 完成后开一个小 story 系统性预防；B-ebe4 又现场复现 status=unverified 加 verifiedBy 被误签 PASS。继续无人值守执行，不要为两个点各付一整套 story 成本。",
+  "normalizedOutcome": "矛盾的 delivery PASS 信封在写入前以稳定 reason 被拒绝，合法 verified/met/waived/兼容输入仍正常；production core/handlers 中 SMOKE/TEST 控制数据不能选择任意文件或进程副作用目标，而普通环境读取和有界控制不被误杀。",
+  "acceptanceClaim": "一组机械 mutation/contradiction 与 AST sink 测试同时证明 false PASS 和任意副作用 seam 被阻断、合法控制组继续通过。",
+  "keyRequirementIds": [
+    "REQ-ENVELOPE-TOTALITY",
+    "REQ-TEST-SEAM-CAPABILITY"
+  ],
+  "requestHash": "sha256:b751be2d7c63301956f94e44b0df81f5838af5b8442c2ab29cc4fba87ecbac58",
+  "createdAt": "2026-07-16T23:28:03.727Z",
+  "updatedAt": "2026-07-16T23:28:03.727Z"
+}

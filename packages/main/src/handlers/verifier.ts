@@ -25,7 +25,7 @@
  */
 
 import { execSync, spawn } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { HandlerContext } from './context.js';
@@ -771,25 +771,6 @@ function validateFileDefaultTimeoutMs(): number | undefined {
   return Number.isFinite(raw) && raw > 0 ? Math.floor(raw) : undefined;
 }
 
-async function maybeHoldValidationLockSmokeHook(projectRoot: string, storyId: string | undefined): Promise<void> {
-  // Internal smoke seam: verifies the lock stays held after a command exits and before evidence persists.
-  const holdFile = process.env.LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_HOLD_FILE;
-  if (!storyId || !holdFile) return;
-  const readyFile = process.env.LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_READY_FILE;
-  if (readyFile) {
-    mkdirSync(dirname(readyFile), { recursive: true });
-    writeFileSync(readyFile, `${process.pid}\n`, 'utf8');
-  }
-  const timeoutMs = Number(process.env.LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_TIMEOUT_MS ?? 8000);
-  const deadline = Date.now() + (Number.isFinite(timeoutMs) && timeoutMs > 0 ? timeoutMs : 8000);
-  while (existsSync(holdFile)) {
-    if (Date.now() > deadline) {
-      throw new Error(`validate lock smoke hook timed out waiting for ${holdFile} in ${projectRoot}`);
-    }
-    await new Promise((resolveHold) => setTimeout(resolveHold, 25));
-  }
-}
-
 function decorateAndMaybePersistStoryValidation(
   ctx: HandlerContext,
   storyId: string | undefined,
@@ -1050,7 +1031,6 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             deadlineAt: args.deadlineAt,
             deadlineError: args.deadlineError,
           });
-          await maybeHoldValidationLockSmokeHook(projectRoot, args.story);
           const summary = usingConfigured
             ? base.summary
             : `${base.summary}; ${fallbackDiscoveryDetail}`;
@@ -1170,7 +1150,6 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           return args.json ? JSON.stringify(reused) : renderExternalResult(reused);
         }
         const commandResult = await runValidateFile();
-        await maybeHoldValidationLockSmokeHook(projectRoot, args.story);
         const { code, output } = commandResult;
         // Task B-6326 + B-4b22: verifier surfaces categorized dirty ownership
         // details AND respects dirty-gate-policy. When every polluted path

@@ -1,0 +1,275 @@
+{
+  "passes": [
+    {
+      "id": "B-271e:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Targeted round-2 concept review of 969ffd1d98: explicit met/verified now require non-empty verifiedBy plus evidence; waived/unverified reject verification claims; the 640-row cross-product agrees across normalizer, CLI schema, handler pre-write rejection, and DONE predicate; sanitizer recognition structurally constrains return forms and preserves tainted fallback arguments, while raw-return numeric and enum decoys are rejected. Both focused task entrypoints passed; no conceptual blocker remains for F-001/F-005.",
+      "createdAt": "2026-07-17T00:21:16.603Z",
+      "reviewRound": "2026-07-17T00:18:09.305Z",
+      "reviewRunId": "B-271e:RR-006",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/delivery-promise-outcome.ts",
+          "packages/main/src/tasks/production-test-seam-guard.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "cd4e96a5ac04e53ea6823935446db4c0a1ccd1e67a425fc3d3fff2ed6e75de25"
+    },
+    {
+      "id": "B-271e:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted round-2 coverage re-review found F-002, F-006, and corrected F-007 closed: the 640-case four-field cross-product passed normalizer/schema/direct-handler/no-write/DONE assertions; raw-return sanitizer decoys were detected; and CHK-001 happy:0, role registry, executable evidence, and smoke actor all use lattice-review-delivery. Quality-lane F-008 remains independently open and is not waived by this lane pass.",
+      "createdAt": "2026-07-17T00:22:06.429Z",
+      "reviewRound": "2026-07-17T00:18:09.305Z",
+      "reviewRunId": "B-271e:RR-008",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/delivery-promise-outcome.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+          "packages/main/src/tasks/production-test-seam-guard.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a690f163361638058594f208076e57623e007c20083799c23c4d573411ad8a3c"
+    },
+    {
+      "id": "B-271e:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Incremental concept review of d5e05e2300 only: sanitizer recognition is strictly narrowed from arbitrary subtree token presence to explicit top-level conjunction terms requiring Number.isFinite(parsed) and parsed > 0 (or 0 < parsed), so OR, negated, and alternate-branch decoys remain tainted. Existing safe positive-integer and finite-enum semantics are preserved, including propagation of tainted fallback parameters. Added process/env destructuring support only introduces additional taint sources and does not clear or weaken prior sink behavior. No product or sanitizer-semantics blocker found.",
+      "createdAt": "2026-07-17T00:26:39.310Z",
+      "reviewRound": "2026-07-17T00:25:38.059Z",
+      "reviewRunId": "B-271e:RR-009",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/production-test-seam-guard.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "f2e2185cb302f3af29ef9cd3e5c98d53374ae0d440e7a0d81ead29ad73fd033f"
+    },
+    {
+      "id": "B-271e:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-3 incremental review of d5e05e2300 found no coverage blocker. The single-file diff adds process env destructuring, nested and aliased process/env fixtures plus OR, negated finite, alternate-OR, Infinity/raw-return sanitizer decoys; the focused production seam guard exits 0. All CHK-002 must evidence is refreshed to d5e05e2300 with matching current storyFilesHash.",
+      "createdAt": "2026-07-17T00:26:54.983Z",
+      "reviewRound": "2026-07-17T00:25:38.059Z",
+      "reviewRunId": "B-271e:RR-011",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/production-test-seam-guard.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d0e71d8357a26bdad0ec6e44dd845dab792f480298f8fe2fa7d4935a98d0f63a"
+    },
+    {
+      "id": "B-271e:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-4 incremental review of b05cb889ac found no coverage blocker. The table-driven binding-context matrix covers declarations and assignment destructuring, function/arrow/method parameters, nested and computed aliases, defaults/rest, and multi-hop forwarding across both filesystem and process sinks, with three non-process safe controls. Focused seam guard passed and all CHK-002 must evidence is fresh at b05cb889ac with matching storyFilesHash.",
+      "createdAt": "2026-07-17T00:34:09.064Z",
+      "reviewRound": "2026-07-17T00:33:03.384Z",
+      "reviewRunId": "B-271e:RR-014",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/production-test-seam-guard.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "66ec6d9bf81d53363180641c07cc5144d38019182a49de99fabc244684158b53"
+    },
+    {
+      "id": "B-271e:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-5 incremental review of 2bcc76fbdd found no coverage blocker. The callable matrix directly closes F-010/F-011 with receiver-qualified and conservative same-name resolution, inline arrow/function IIFEs, named/anonymous/class-expression constructors, aliases, call/apply, return taint, filesystem and process sinks, plus safe callable controls. Focused seam guard passed and all CHK-002 must evidence is fresh at 2bcc76fbdd with matching storyFilesHash.",
+      "createdAt": "2026-07-17T00:43:12.399Z",
+      "reviewRound": "2026-07-17T00:41:51.899Z",
+      "reviewRunId": "B-271e:RR-016",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/production-test-seam-guard.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "469af455925869acc455d074573530c892446ca4a59c53410a5a97743c08d562"
+    },
+    {
+      "id": "B-271e:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-6 incremental review of 67a0644063 found no coverage blocker. The callable table covers mutable receiver aliases with filesystem and process sinks, const and mutable constructor aliases, apply local/aliased/readonly/spread arrays, call/direct spread, unknown apply operand propagation, and matching safe controls. Focused seam guard passed and all CHK-002 must evidence is fresh at 67a0644063 with matching storyFilesHash.",
+      "createdAt": "2026-07-17T00:51:40.719Z",
+      "reviewRound": "2026-07-17T00:50:33.918Z",
+      "reviewRunId": "B-271e:RR-020",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/production-test-seam-guard.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9480d60d6b91e3e3b4403a5f0221fadef47fdad651e58b261767537ad32d6b06"
+    },
+    {
+      "id": "B-271e:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-7 incremental review of 5e79f26940 found no coverage blocker. The mutation-barrier table directly covers F-014 callable property replacement through direct, computed, dynamic, Object.assign and defineProperty APIs, and F-015 array mutation through static writes, aliases, delete/update and common mutators across filesystem/process sinks, while immutable controls remain covered. Focused seam guard passed and all CHK-002 must evidence is fresh with matching storyFilesHash.",
+      "createdAt": "2026-07-17T00:59:23.953Z",
+      "reviewRound": "2026-07-17T00:58:18.088Z",
+      "reviewRunId": "B-271e:RR-022",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/production-test-seam-guard.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "40c28df27ee1cebb9c439fc5abc5bd5a45c590e5b72e4dac614abfb321b8de33"
+    },
+    {
+      "id": "B-271e:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-8 incremental review of 04663304a7 found no coverage blocker. Assignment-created aliases are tested through direct, parenthesized and chained mutations; spread wrapper propagation is tested for push, unshift and splice with inline and local aliases across filesystem/process sinks, with matching safe controls. Focused seam guard passed and all CHK-002 must evidence is fresh at 04663304a7 with matching storyFilesHash.",
+      "createdAt": "2026-07-17T01:05:20.146Z",
+      "reviewRound": "2026-07-17T01:03:52.363Z",
+      "reviewRunId": "B-271e:RR-026",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/production-test-seam-guard.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8dff5024efc7b8cc3cf7a4866193337ee12b1bdf630912c92befb3517686b21e"
+    },
+    {
+      "id": "B-271e:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-9 final incremental review of b902aadc7b found no coverage blocker. The F-018 matrix covers nested, deeper, static-computed and dynamic method writes plus nested Object.assign/defineProperty/defineProperties across filesystem/process sinks, with immutable-holder, unrelated-method and array-mutation controls. Focused seam guard passed and all CHK-002 must evidence is fresh at b902aadc7b with matching storyFilesHash.",
+      "createdAt": "2026-07-17T01:12:13.302Z",
+      "reviewRound": "2026-07-17T01:11:07.688Z",
+      "reviewRunId": "B-271e:RR-029",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/production-test-seam-guard.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e1ba7fb1fd95126d63c62cf94e33ecc729964222f038f20b6b63f845fd456872"
+    },
+    {
+      "id": "B-271e:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Final incremental quality review of b902aadc7b found no blocker. Exact and deeper F-018 nested/static/dynamic/Object API mutations invalidate receiver resolution as intended; F-016 alias and F-017 spread regressions remain caught; unrelated-method and array-mutator safe controls remain clean; focused production seam guard passed.",
+      "createdAt": "2026-07-17T01:12:14.385Z",
+      "reviewRound": "2026-07-17T01:11:07.688Z",
+      "reviewRunId": "B-271e:RR-028",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/production-test-seam-guard.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "cef77ebbcb3138ce449a972b3e36810446362f0bd06d8805cfb0dcad9a71731e"
+    },
+    {
+      "id": "B-271e:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Final one-file concept review of 955b5c5065: Object.assign mutation analysis now traverses every source argument, unions statically enumerable keys through object literals and immutable const spreads, and sets global method invalidation whenever a source, spread, or computed key is unknown. The exact F-019 nested multi-source repro and an unknown-source variant both report production_test_seam_side_effect_flow, while an unrelated all-static metadata assignment preserves safe exact receiver behavior. No unsafe exact replay or conceptual blocker remains.",
+      "createdAt": "2026-07-17T01:19:25.534Z",
+      "reviewRound": "2026-07-17T01:18:15.388Z",
+      "reviewRunId": "B-271e:RR-030",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/production-test-seam-guard.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "8543a3df9ffee0bc978482f16f264ebbec285f85a53ea1673de55f2d6431b5bd"
+    },
+    {
+      "id": "B-271e:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Final one-file incremental quality review of 955b5c5065 found no blocker. Object.assign now inspects all sources, unions static keys through const/spread objects, fails closed on unknown or dynamic-computed sources, handles nested targets, and preserves clean static non-method controls; focused production seam guard passed.",
+      "createdAt": "2026-07-17T01:19:40.996Z",
+      "reviewRound": "2026-07-17T01:18:15.388Z",
+      "reviewRunId": "B-271e:RR-031",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/production-test-seam-guard.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "1b28d2bf317c0459eb6904d6b42fd968814318190deae814aaa1c475768edd36"
+    },
+    {
+      "id": "B-271e:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-10 final incremental review of 955b5c5065 found no coverage blocker. The Object.assign table covers later and multiple static sources, unknown source before/after, known const spread, dynamic computed keys and nested targets across filesystem/process sinks, with static non-method safe controls. Focused seam guard passed and all CHK-002 must evidence is fresh at 955b5c5065 with matching storyFilesHash.",
+      "createdAt": "2026-07-17T01:19:49.173Z",
+      "reviewRound": "2026-07-17T01:18:15.388Z",
+      "reviewRunId": "B-271e:RR-032",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/production-test-seam-guard.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2787c3c15fe3609177d2cf87d2029c047b8cff7448b906e03e98edd035dda62d"
+    }
+  ]
+}

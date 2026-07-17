@@ -48,6 +48,7 @@ import {
   verificationIntentTypeSchema,
 } from './command-schemas.js';
 import { AGENT_DISPATCH_ACCEPTED_TYPES } from '../core/agent-dispatch-registry.js';
+import { normalizeDeliveryPromiseOutcome } from '../core/delivery-promise-outcome.js';
 
 const HIDDEN_LOCAL_ASSURANCE_REFUSAL = '@help-hidden local-assurance refusal sentinel';
 
@@ -204,6 +205,25 @@ export function matchesMemoryRetrievalFamily(commandName: string): boolean {
 }
 
 /** CLI tool definitions bundled with main. */
+const deliveryPromiseSchema = z.object({
+  docPath: z.string().describe('Document path.'),
+  promise: z.string().describe('Promise described in the document.'),
+  // Runtime classification owns the stable contradiction reason, including
+  // unknown strings; do not let a narrower enum mask it at the CLI boundary.
+  status: z.any().optional().describe('Optional status: met, verified, waived, or unverified; runtime normalizer rejects non-strings.'),
+  verifiedBy: z.any().optional().describe('Verification method; runtime normalizer rejects non-strings.'),
+  evidence: z.any().optional().describe('Verification evidence; runtime normalizer rejects non-strings.'),
+  waiverReason: z.any().optional().describe('Documentation promise waiver reason; runtime normalizer rejects non-strings and short waivers.'),
+}).superRefine((promise, ctx) => {
+  const result = normalizeDeliveryPromiseOutcome(promise);
+  if (!result.ok) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `${result.code}: ${result.reason}`,
+    });
+  }
+});
+
 export const MAIN_TOOLS: ToolDef[] = [
   // Story
   { name: 'story_create', description: 'Create a Story entry', longHelp: STORY_CREATE_LONG, schema: {
@@ -2316,14 +2336,7 @@ Behavior:
   // TEST to DONE hard-gate artifact. Signature domain: storyId + docsPromises + realMachineTests + closingSelfCheck + reviewRound.
   { name: 'delivery_check_set', description: 'Save delivery check results (called by lattice-review-delivery reviewer)', schema: {
     storyId: z.string().describe('Story ID'),
-    docsPromises: z.array(z.object({
-      docPath: z.string().describe('Document path.'),
-      promise: z.string().describe('Promise described in the document.'),
-      status: z.enum(['met', 'verified', 'waived', 'unverified']).optional().describe('Optional status; met/verified are treated as verified, waived requires waiverReason.'),
-      verifiedBy: z.string().optional().describe('Verification method, such as grep/test/manual.'),
-      evidence: z.string().optional().describe('Verification evidence.'),
-      waiverReason: z.string().optional().describe('Documentation promise waiver reason (at least 30 characters when status=waived).'),
-    })).describe('Documentation promise list.'),
+    docsPromises: z.array(deliveryPromiseSchema).describe('Documentation promise list.'),
     realMachineTests: z.array(z.object({
       featureId: z.string().describe('Feature ID, for example CHK-xxx.'),
       transcript: z.string().describe('Real-machine test transcript or summary.'),

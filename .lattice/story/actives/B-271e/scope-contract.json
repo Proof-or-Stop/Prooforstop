@@ -1,0 +1,38 @@
+{
+  "storyId": "B-271e",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/delivery-check.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+    "package.json",
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/delivery-promise-outcome.ts",
+    "packages/main/src/tasks/production-test-seam-guard.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+    "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+    "packages/main/src/tasks/production-test-seam-guard.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-16T23:35:16.882Z",
+  "updatedAt": "2026-07-16T23:35:16.882Z"
+}

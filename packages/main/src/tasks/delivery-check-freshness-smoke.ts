@@ -8,6 +8,11 @@ import { dirname, join } from 'node:path';
 import { resetConfigCache } from '../core/config.js';
 import { buildDoneChecklist } from '../core/done-oracle.js';
 import { evaluateDeliveryCheckFreshness, signDeliveryCheck } from '../core/delivery-check-hash.js';
+import {
+  DELIVERY_PROMISE_OUTCOME_CONTRADICTION,
+  deliveryPromiseBlocksDone,
+  normalizeDeliveryPromiseOutcome,
+} from '../core/delivery-promise-outcome.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash, EMPTY_STORY_FILES_HASH } from '../core/evidence-freshness.js';
 import { buildStoryReadinessReport } from '../core/lifecycle-readiness.js';
 import { canFinishGuard, getGuardFailureReason, type StoryMachineContext } from '../core/machine.js';
@@ -15,6 +20,8 @@ import { getProcessFactRegistryEntry, hasProcessFactSemantic } from '../core/pro
 import { StoryStore } from '../core/store.js';
 import type { ClosingSelfCheck, DeliveryCheckData, DocsPromise, RealMachineTest, StoryInfo } from '../core/types.js';
 import { createDeliveryCheckHandlers } from '../handlers/delivery-check.js';
+import { MAIN_TOOLS } from '../cli-engine.js';
+import { z } from 'zod';
 
 const STORY_ID = 'B-delivery-fresh';
 const NOW = '2026-06-23T12:00:00.000Z';
@@ -284,6 +291,178 @@ function check(name: string, fn: () => void): void {
   fn();
   console.log(`  pass: ${name}`);
 }
+
+const MATRIX_LONG_WAIVER = 'This delivery promise is explicitly waived with a durable auditable justification.';
+type MatrixExpectation = { ok: true; outcome: 'verified' | 'waived' | 'unresolved' } | { ok: false };
+type MatrixCase = { id: string; fields: Record<string, unknown>; expected: MatrixExpectation };
+
+function matrixOptional(value: unknown): { ok: true; value?: string } | { ok: false } {
+  if (value === undefined || value === null || value === '') return { ok: true };
+  if (typeof value !== 'string') return { ok: false };
+  const trimmed = value.trim();
+  return trimmed ? { ok: true, value: trimmed } : { ok: true };
+}
+
+function expectedMatrixOutcome(fields: Record<string, unknown>): MatrixExpectation {
+  const status = matrixOptional(fields.status);
+  const verifiedBy = matrixOptional(fields.verifiedBy);
+  const evidence = matrixOptional(fields.evidence);
+  const waiverReason = matrixOptional(fields.waiverReason);
+  if (!status.ok || !verifiedBy.ok || !evidence.ok || !waiverReason.ok) return { ok: false };
+  if (status.value && !['met', 'verified', 'waived', 'unverified'].includes(status.value)) return { ok: false };
+  if (status.value === 'met' || status.value === 'verified') {
+    return verifiedBy.value && evidence.value && !waiverReason.value ? { ok: true, outcome: 'verified' } : { ok: false };
+  }
+  if (status.value === 'waived') {
+    return !verifiedBy.value && !evidence.value && waiverReason.value && waiverReason.value.length >= 30
+      ? { ok: true, outcome: 'waived' }
+      : { ok: false };
+  }
+  if (status.value === 'unverified') {
+    return !verifiedBy.value && !evidence.value && !waiverReason.value
+      ? { ok: true, outcome: 'unresolved' }
+      : { ok: false };
+  }
+  // Exact legacy compatibility branch: evidence is non-authoritative context;
+  // only verifiedBy and waiverReason select a positive legacy outcome.
+  if (verifiedBy.value && waiverReason.value) return { ok: false };
+  if (waiverReason.value) return waiverReason.value.length >= 30 ? { ok: true, outcome: 'waived' } : { ok: false };
+  if (verifiedBy.value) return { ok: true, outcome: 'verified' };
+  return { ok: true, outcome: 'unresolved' };
+}
+
+function generatedDeliveryPromiseMatrix(): MatrixCase[] {
+  const values = {
+    status: [undefined, '', 'met', 'verified', 'waived', 'unverified', 'passed', 1],
+    verifiedBy: [undefined, '', 'focused verifier', 1],
+    evidence: [undefined, '', 'focused evidence', 1],
+    waiverReason: [undefined, '', MATRIX_LONG_WAIVER, 'too short', 1],
+  } as const;
+  const cases: MatrixCase[] = [];
+  let index = 0;
+  for (const status of values.status) {
+    for (const verifiedBy of values.verifiedBy) {
+      for (const evidence of values.evidence) {
+        for (const waiverReason of values.waiverReason) {
+          const fields = { status, verifiedBy, evidence, waiverReason };
+          cases.push({ id: `matrix-${index++}`, fields, expected: expectedMatrixOutcome(fields) });
+        }
+      }
+    }
+  }
+  return cases;
+}
+
+check('generated cross-product covers single-field and pairwise delivery-promise mutations with pre-write rejection', () => {
+  const matrix = generatedDeliveryPromiseMatrix();
+  assert.equal(matrix.length, 640, 'four-field cross-product stays complete');
+  const nonEmptyCount = (fields: Record<string, unknown>) => Object.values(fields).filter(value => value !== undefined && value !== '').length;
+  assert.ok(matrix.some(row => nonEmptyCount(row.fields) === 1), 'matrix contains single-field mutations');
+  assert.ok(matrix.some(row => nonEmptyCount(row.fields) === 2), 'matrix contains pairwise mutations');
+
+  const schemaShape = MAIN_TOOLS.find(tool => tool.name === 'delivery_check_set')?.schema;
+  assert.ok(schemaShape, 'delivery_check_set public schema exists');
+  const schema = z.object(schemaShape);
+  const base = { storyId: STORY_ID, realMachineTests: realMachineTests(), closingSelfCheck: closingSelfCheck() };
+  const { root, store } = createFixture();
+  try {
+    const handlers = createDeliveryCheckHandlers({ store, root, scanRoot: join(root, 'packages/main') });
+    const beforeStatus = git(root, ['status', '--porcelain']);
+    assert.equal(store.readDeliveryCheck(STORY_ID), null);
+    for (const row of matrix) {
+      const promise = { docPath: `docs/${row.id}.md`, promise: row.id, ...row.fields };
+      const result = normalizeDeliveryPromiseOutcome(promise);
+      assert.equal(result.ok, row.expected.ok, `${row.id} normalizer classification`);
+      if (result.ok && row.expected.ok) assert.equal(result.outcome, row.expected.outcome, `${row.id} outcome`);
+      if (!result.ok) assert.equal(result.code, DELIVERY_PROMISE_OUTCOME_CONTRADICTION);
+
+      const parsed = schema.safeParse({ ...base, docsPromises: [promise] });
+      assert.equal(parsed.success, row.expected.ok, `${row.id} CLI classification`);
+      if (!parsed.success) assert.match(parsed.error.message, /delivery_promise_outcome_contradiction/);
+
+      if (!row.expected.ok) {
+        assert.throws(() => handlers.delivery_check_set({
+          ...base,
+          docsPromises: [promise] as unknown as DocsPromise[],
+          agentId: 'lattice-review-delivery',
+        }), /Blocked \[delivery_promise_outcome_contradiction\].*delivery-check was not written/);
+        assert.equal(store.readDeliveryCheck(STORY_ID), null, `${row.id} must not write delivery-check.json`);
+        assert.equal(git(root, ['status', '--porcelain']), beforeStatus, `${row.id} must not mutate story/process metadata`);
+      }
+      assert.equal(deliveryPromiseBlocksDone(promise), !row.expected.ok || (row.expected.ok && row.expected.outcome === 'unresolved'), `${row.id} shared DONE predicate`);
+    }
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+check('handler, machine readiness, and DONE oracle agree on every normalized outcome', () => {
+  const longWaiver = 'This delivery promise is explicitly waived with a durable auditable justification.';
+  const { root, store } = createFixture();
+  try {
+    const passing: DocsPromise[] = [
+      { docPath: 'docs/met.md', promise: 'met', status: 'met', verifiedBy: 'smoke', evidence: 'focused smoke passed' },
+      { docPath: 'docs/verified.md', promise: 'verified', status: 'verified', verifiedBy: 'smoke', evidence: 'focused smoke passed' },
+      { docPath: 'docs/waived.md', promise: 'waived', status: 'waived', waiverReason: longWaiver },
+      { docPath: 'docs/legacy-verified.md', promise: 'legacy verified', verifiedBy: 'legacy smoke' },
+      { docPath: 'docs/legacy-waived.md', promise: 'legacy waived', waiverReason: longWaiver },
+    ];
+    for (const promise of passing) {
+      deliveryCheckSet(root, store, [promise]);
+      assert.equal(doneRow(store, root).status, 'pass', `${promise.docPath} passes DONE oracle`);
+      assert.equal(lifecycleDeliveryRow(store, root).row.code, 'delivery_check_passed', `${promise.docPath} passes readiness`);
+    }
+
+    deliveryCheckSet(root, store, [{
+      docPath: 'docs/unverified.md',
+      promise: 'Explicitly unresolved.',
+      status: 'unverified',
+    }]);
+    assert.equal(doneRow(store, root).status, 'fail');
+    assert.equal(lifecycleDeliveryRow(store, root).row.code, 'docs_promise_unresolved');
+    assert.match(getGuardFailureReason(STORY_ID, store, 'DONE', root, root) ?? '', /\[unverified_promise\]/);
+
+    const invalidRows = [
+      { status: 'passed' },
+      { status: 'unverified', verifiedBy: 'false certification' },
+      { status: 'unverified', waiverReason: longWaiver },
+      { status: 'waived', verifiedBy: 'grep', waiverReason: longWaiver },
+      { status: 'waived' },
+      { status: 'met', waiverReason: longWaiver },
+      { status: 'verified', waiverReason: longWaiver },
+      { verifiedBy: 'legacy grep', waiverReason: longWaiver },
+    ];
+    for (const [index, fields] of invalidRows.entries()) {
+      const docsPromises = [{
+        docPath: `docs/forged-${index}.md`,
+        promise: 'Hand-written contradictory row.',
+        ...fields,
+      }] as unknown as DocsPromise[];
+      const materialHash = currentMaterialHash(root, 'HEAD', root);
+      const headHash = currentGitHead(root);
+      const storyFilesHash = currentStoryFilesHash(root, 'HEAD', root);
+      assert.ok(materialHash && headHash && storyFilesHash);
+      store.writeDeliveryCheck(STORY_ID, {
+        storyId: STORY_ID,
+        checkedAt: NOW,
+        headHash,
+        materialHash,
+        storyFilesHash,
+        reviewRound: 'round-1',
+        agentId: 'lattice-review-delivery',
+        docsPromises,
+        realMachineTests: realMachineTests(),
+        closingSelfCheck: closingSelfCheck(),
+        _hash: signDeliveryCheck(STORY_ID, docsPromises, realMachineTests(), closingSelfCheck(), 'round-1', materialHash, storyFilesHash),
+      });
+      assert.equal(doneRow(store, root).status, 'fail', `forged invalid row ${index} blocks DONE oracle`);
+      assert.equal(canFinishGuard(machineContext(store, root)), false, `forged invalid row ${index} blocks machine`);
+      assert.match(getGuardFailureReason(STORY_ID, store, 'DONE', root, root) ?? '', /\[unverified_promise\]/);
+    }
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
 
 check('delivery_check_set records materialHash as binding and headHash as audit metadata', () => {
   const { root, store } = createFixture();
