@@ -84,6 +84,25 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-271e:F-006",
+      "desc": "CHK-001 contradiction envelope remains open. normalizeDeliveryPromiseOutcome accepts status waived plus a valid waiverReason plus evidence describing executable verification as ok true and outcome waived, although the must intent requires waived outcomes to carry no verification claims. Repro with the built normalizer returned {ok:true,outcome:waived}. The smoke claim of total single-field and pairwise mutation coverage is implemented only as two hand-written accepted and rejected arrays at delivery-check-freshness-smoke.ts:294-347, with no generated field mutation or cross-product; this combination is absent, so the F-010/F-012 optional-field wash-through class remains reproducible.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-17T00:04:42.292Z",
+      "reviewRound": "2026-07-17T00:01:11.144Z",
+      "reviewRunId": "B-271e:RR-004",
+      "_hash": "5fa3d04458b4d1374d90b374c3f557ca2fcca0e63a8c3f9df4a61c8c8e6f282a",
+      "files": [
+        "packages/main/src/core/delivery-promise-outcome.ts",
+        "packages/main/src/tasks/delivery-check-freshness-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|contradiction-envelope-remains",
+      "signatureTagSource": "auto"
     }
   ]
 }
