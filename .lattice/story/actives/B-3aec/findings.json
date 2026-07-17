@@ -251,6 +251,21 @@
       "_hash": "2b4a702c8ba2edb7a167c5817011950f2c0676a7521540f66d9c4ddffda6c0aa",
       "signatureTag": "edge|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3aec:F-014",
+      "desc": "packages/main/src/core/host-run.ts:1209-1230 retains bounded stderr for post-readiness classification, but stdout is represented only by UsageLineScanner.retainedText(). A child that emits `authentication required: please login` on stdout produces firstOutputMs, exit_nonzero, failureKind=unknown, stdout= and therefore loses the required distinct auth diagnostic. Current tests at packages/main/src/tasks/host-run-usage-smoke.ts:2844 exercise auth/interactive only on stderr, so CHK-001 happy:0/edge:2 are not closed for the promised stdout-or-stderr behavior. Retain bounded diagnostic stdout separately and test both streams.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-17T09:41:47.035Z",
+      "reviewRound": "2026-07-17T09:39:13.057Z",
+      "reviewRunId": "B-3aec:RR-005",
+      "_hash": "ac6ddf7fc1206cbea4493060c08de0b20e19082354c2fe3588500d44bc6c125f",
+      "signatureTag": "edge|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
