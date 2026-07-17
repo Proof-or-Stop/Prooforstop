@@ -27,8 +27,40 @@
         ]
       },
       "verificationIntent": {
-        "happy": [],
-        "edge": [],
+        "happy": [
+          {
+            "id": "CHK-001:happy:explicit-override",
+            "desc": "Given a trimmed non-empty LATTICE_SESSION_ID, repeated resolution across different shells and parent process ids returns that exact canonical owner-session id with source explicit-env; conflicting adapter, generated-token, and derived-ppid inputs do not alter the result.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:happy:validated-composite",
+            "desc": "Given validated host-adapter taskIdentity and agentOrRoleIdentity for one project/worktree and provider, repeated resolution across parent-process changes returns one stable opaque owner-session id with source host-adapter and truthful provider metadata; a normal owner-gated mutation refreshes the existing lease without a foreign-owner rejection.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:invalid-higher-priority-inputs",
+            "desc": "A blank or whitespace explicit override is ignored, and a host-adapter candidate missing either validated taskIdentity or validated agentOrRoleIdentity is not accepted as host-adapter identity; resolution advances to the next available fallback without collapsing to repository, worktree, thread, or provider identity.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:edge:generated-fallback-scope",
+            "desc": "When explicit and validated host-adapter identity are unavailable but the adapter exposes a durable session boundary, generated fallback reuses one opaque id only for the same project, provider, task, agent/role, and adapter session boundary; changing any one isolation dimension yields a different id, and persisted state follows approved runtime-artifact ownership, cleanup, gitignore, and material-hash exclusion rules.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:edge:ppid-last-resort",
+            "desc": "When explicit override, validated composite identity, and a bounded generated-token session boundary are all unavailable, resolution alone uses hostname, canonical project/worktree root, and PPID to produce source derived-ppid; changing PPID changes the id, and diagnostics plus the first story-scoped mutation visibly warn that identity is degraded and recommend LATTICE_SESSION_ID or a supported adapter.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
         "adversarial": [
           {
             "desc": "Precedence and validation attack: with a deliberate non-empty LATTICE_SESSION_ID plus conflicting host-native task/agent values, resolution must use the explicit override; without the override, an adapter candidate is accepted only when both taskIdentity and agentOrRoleIdentity are validated. Missing, empty, malformed, provider-mismatched, or one-dimensional host input must not be promoted to host-adapter identity and must fall through in order without a host-specific core exception.",
