@@ -14,6 +14,8 @@
     "packages/main/src/handlers/doctor.ts",
     "packages/main/src/handlers/context.ts",
     "packages/main/src/handlers/transition-orchestrator.ts",
+    "bin/lattice-codex.js",
+    ".lattice-codex/lattice.json",
     "packages/main/src/core/story-owner-lease.ts"
   ],
   "allowedCreate": [],
@@ -21,6 +23,7 @@
     "packages/main/src/tasks/owner-session-guardrail.ts",
     "packages/main/src/tasks/story-owner-lease-smoke.ts",
     "packages/main/src/tasks/cli-surface-smoke.ts",
+    "scripts/verify-entrypoints.mjs",
     "packages/main/src/tasks/flow-stability-smoke.ts"
   ],
   "protectedFiles": [],
@@ -45,5 +48,5 @@
     }
   ],
   "createdAt": "2026-07-17T23:11:48.723Z",
-  "updatedAt": "2026-07-17T23:32:26.288Z"
+  "updatedAt": "2026-07-17T23:42:01.458Z"
 }
