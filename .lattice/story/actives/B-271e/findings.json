@@ -29,6 +29,24 @@
       "_hash": "171b47ef815446010174b58b1c52ef62f148b5148891e748473ac62899479dd5",
       "signatureTag": "adversarial|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-271e:F-003",
+      "desc": "The new production test-seam guard is bypassable through ordinary local data flow, so it does not enforce the advertised no environment-controlled side-effect invariant. analyzeProductionTestSeams only propagates taint into function parameters and simple identifier assignments; CallExpression returns only union(argument sources), and property assignments are ignored. A minimal executable repro against the built analyzer reports [] for both `function target(){ return process.env.TEST_FILE; } writeFileSync(target(), \"x\")` and `const x={}; x.path=process.env.TEST_FILE; writeFileSync(x.path, \"x\")`, while the direct form is detected. Production core/handler code can therefore reintroduce an arbitrary TEST/SMOKE-selected filesystem/process target and keep this guard green. Track return-value/property data flow (or use a conservative AST rule that rejects any TEST/SMOKE env source in production side-effect code), and add these bypasses plus process-sink equivalents as self-tests.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-17T00:03:50.679Z",
+      "reviewRound": "2026-07-17T00:01:11.144Z",
+      "reviewRunId": "B-271e:RR-002",
+      "_hash": "d002c2844ba14f3991b5c12bb8e7636ba2f2c99b7bdf89f2cc51ade89d6454a6",
+      "files": [
+        "packages/main/src/tasks/production-test-seam-guard.ts"
+      ],
+      "signatureTag": "production-test-seam-taint-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
