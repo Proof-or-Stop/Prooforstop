@@ -17,7 +17,51 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "Canonical decision file exists at docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md and is byte-for-byte identical to the reviewed /tmp source: SHA-256 3a7e9beaf60b692753de91ee50eeacccdadfd57586fb28b6d07189d953b60610, 50,347 bytes, and 1,256 lines; while the source remains available, cmp -s must also pass.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:happy:1",
+            "desc": "The promoted document remains a complete readable Markdown execution plan with the original H1, all numbered sections, seven ordered Story milestones, and the separate conditional budget-enforcement follow-up; its 18 fenced-code delimiters remain balanced.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "Verification does not depend solely on the temporary file continuing to exist: if /tmp is later unavailable, the committed destination must still match the recorded SHA-256, byte count, and line count rather than being reconstructed or silently truncated.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:edge:1",
+            "desc": "The Unicode Chinese/English content, code blocks, tables, inline identifiers, paths, and relative references survive promotion without encoding corruption, newline-induced content drift, or broken Markdown fence structure.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "Promotion introduces no optimization, paraphrase, omitted caveat, changed role status, altered budget threshold, or reordered milestone: any content delta from the reviewed source fails this item even if the resulting document appears editorially improved.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:adversarial:1",
+            "desc": "This documentation-only item changes no runtime source, prompt asset, registry, configuration, handler, gate, generated artifact, package version, or test behavior; repository diff attributable to CHK-001 is limited to creation of the canonical decision document, with navigation handled separately by CHK-002.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
