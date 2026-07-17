@@ -244,7 +244,7 @@
       "desc": "packages/main/src/tasks/production-test-seam-guard.ts:205-214 records every non-callable variable initializer as a permanent alias, while receiverName at lines 314-323 trusts that declaration-time alias for exact receiver-qualified resolution and assignment handling never invalidates or updates it. A mutable receiver can therefore select the wrong exact candidate and bypass the intended conservative same-name union. Confirmed repro: const unsafe={run(path){writeFileSync(path,0)}}; const safe={run(payload){return payload}}; let receiver=safe; receiver=unsafe; receiver.run(process.env.TEST_FILE). analyzeProductionTestSeams returns [] because receiver remains resolved as safe, TEST_FILE taints payload, and the real unsafe path parameter reaching writeFileSync stays untainted. Restrict exact alias resolution to provably immutable const aliases, or track writes and mark reassigned/ambiguous receivers so resolution unions all same-name candidates. Add a mutable receiver reassignment regression with distinct parameter names.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-17T00:43:04.293Z",
@@ -255,7 +255,11 @@
         "packages/main/src/tasks/production-test-seam-guard.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Alias resolution is now state-aware: exact only for unmodified const, while let/var/assigned/updated receivers become ambiguous and conservatively union same-name candidates. Mutable distinct-shape receiver regressions pass.",
+      "resolvedAt": "2026-07-17T00:50:36.166Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-271e:F-013",
