@@ -62,7 +62,7 @@
       "desc": "packages/main/src/tasks/candidate-spec-routing-smoke.ts:261 does not test the CHK-002 adversarial generic-only flood: it injects five 100-point protectedSources, so the route never faces only lattice/proofbound/core/handlers. With only those over-frequency terms, they are all filtered, ranked is empty, and packages/main/src/core/candidate-spec-routing.ts:634-653 emits zero_candidates escalation, contradicting the mandatory intent that generic-only flood cannot cause ambiguity escalation. Add an actual generic-only corpus/proposal case and align the intended zero-candidate disposition before claiming this intent PASS.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-17T09:20:02.258Z",
@@ -70,7 +70,11 @@
       "reviewRunId": "B-3aec:RR-003",
       "_hash": "05b9f1789ff771a684a350b8ea711859b7ff4d7fe05d005b47a16b271c61b4ce",
       "signatureTag": "adversarial|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Generic-only filtered vocabulary no longer synthesizes zero_candidates or full-scan escalation without an independent reason; focused routing smoke passes.",
+      "resolvedAt": "2026-07-17T09:39:30.747Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3aec:F-005",
