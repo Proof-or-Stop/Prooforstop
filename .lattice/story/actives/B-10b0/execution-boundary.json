@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-10b0",
+  "allowedCommands": [
+    "git diff *",
+    "git log *",
+    "git show *",
+    "git status *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/closeout-trust-smoke.js",
+    "node packages/main/dist/tasks/concept-gate-scope-smoke.js",
+    "node packages/main/dist/tasks/flow-stability-smoke.js",
+    "node packages/main/dist/tasks/lifecycle-check-smoke.js",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "git-readonly",
+    "local-lattice-cli",
+    "node",
+    "npm-focused"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+    "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/core/closeout-trust.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/lifecycle-readiness.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/handlers/delivery-check.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/validate-concept.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+    "packages/main/src/tasks/closeout-trust-smoke.ts",
+    "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/lifecycle-check-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excludedCommands": [
+    "agy *",
+    "claude *",
+    "codex *",
+    "git checkout *",
+    "git clean *",
+    "git push *",
+    "git reset *",
+    "npm test"
+  ],
+  "excludedTools": [
+    "global-lattice",
+    "network",
+    "omx",
+    "real-host-cli"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Use current worktree local runtime only. Preserve main dirty artifacts. Fail closed for all non-canonical writers and material drift. No root full suite or real hosts during DEV.",
+  "createdAt": "2026-07-17T11:18:14.303Z",
+  "updatedAt": "2026-07-17T11:18:14.303Z",
+  "_hash": "3307b13a232ec836ab3459b3ee90f9016795a5aba0fa36e4d4761014963c32a8"
+}

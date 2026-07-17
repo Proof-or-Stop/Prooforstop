@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-10b0",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Canonical closeout writer receipts and trusted metadata lineage for review retention",
+    "Concept declaration deletion detection for body-only edits",
+    "Delivery reviewer dispatch and delivery_check_set phase-policy alignment",
+    "Focused deterministic lifecycle, closeout-trust, delivery-dispatch, and concept-gate regression tests",
+    "Process-fact registry and workflow remediation documentation synchronization",
+    "REVIEW to TEST validation ordering and DONE closeout convergence without metadata-only phase rollback"
+  ],
+  "excluded": [
+    "Changing candidate routing or host execution behavior",
+    "Changing reviewer quorum or assurance strength",
+    "Editing user-owned main working-tree artifacts",
+    "Fixing owner session identity or semantic scope anchors beyond concept deletion detection",
+    "Launching real codex, claude, or agy hosts",
+    "Treating source, configuration, policy, command-set, or story-owned drift as trusted metadata"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User explicitly requested this flow defect be fixed first so closeout cannot cause repeated metadata-only review rounds.",
+  "createdAt": "2026-07-17T11:18:13.392Z",
+  "updatedAt": "2026-07-17T11:18:13.392Z",
+  "_hash": "bbe2fd83ffbe41e23b57fe20a15216ce7f540b9e0da66baed3d06f113d5676b1"
+}

@@ -1,0 +1,29 @@
+{
+  "storyId": "B-10b0",
+  "checkedAt": "2026-07-17T11:17:02.556Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-17T11:16:44.756Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-002 should make the user-visible convergence criterion mechanically measurable: starting from one current review round, the normal unattended closeout path must write validation/test evidence, delivery check, summary, live-smoke transcript, DONE-required evidence and done_prepare output with zero metadata-only DEV/REVIEW backsteps, zero extra reviewer re-attestations, zero human acknowledgements, and zero re-execution of an unchanged validation command set."
+        },
+        {
+          "severity": "medium",
+          "desc": "CHK-001 should explicitly require a fail-closed negative matrix, not only the positive trusted-lineage case: source/story-owned/config/policy/command-set changes, unknown or non-canonical writers, direct/manual artifact mutation, and malformed/unsigned lineage must invalidate or refuse receipt retention. This makes it observable that eliminating metadata-only loops did not weaken real drift protection."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-17T11:17:02.556Z",
+      "issues": []
+    }
+  ],
+  "_hash": "1493fefcb048ea65ab15a78ed912009b5c4d4756dd4348f0bd6288146e590317"
+}
