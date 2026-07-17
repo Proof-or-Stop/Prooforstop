@@ -554,6 +554,30 @@
         "scanEscalationReason": null
       },
       "_hash": "3e4d126d2f946047d10e5e97863db4ddf01d64cb3c762649f6b13e9c7aa6fbb7"
+    },
+    {
+      "id": "B-10b0:RP-024",
+      "agent": "lattice-review-quality",
+      "note": "Incremental quality review of 5ccc15d47e and its complete seven-file patch PASS. The shared immutable metadata primitive runs commit hooks before exact post-hook path/blob/tree verification, preserves message/signing policy, commits the frozen tree through old-HEAD CAS, preserves concurrent advancement and unrelated real-index entries, refreshes only managed entries, and provides verifier rollback to the captured evidence/terminal/receipt worktree and index state. Evidence PASS: TypeScript build; validation-evidence-reuse smoke; done-prepare-auto-closeout smoke; done-prepare-merge-rerun smoke; process-fact contract.",
+      "createdAt": "2026-07-17T22:07:12.141Z",
+      "reviewRound": "2026-07-17T22:03:21.496Z",
+      "reviewRunId": "B-10b0:RR-045",
+      "writerSessionId": "sess-46474be4cabf4c77",
+      "sessionSource": "derived-ppid",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "160a0d651894e3b20d3abee677b802cd37ac95574fc987be76127f64ea43f3c6"
     }
   ]
 }
