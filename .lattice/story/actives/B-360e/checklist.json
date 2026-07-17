@@ -132,56 +132,92 @@
       "verificationIntent": {
         "happy": [
           {
+            "id": "role-registry-exact-membership",
             "desc": "The lifecycle registry enumerates exactly the 16 package prompt-registry role IDs with no additions or omissions: implementation-reviewer, lattice-evaluator, lattice-evaluator-cli, lattice-implementer, lattice-review-behavior, lattice-review-channel, lattice-review-concept, lattice-review-delivery, lattice-review-docs, lattice-review-quality, lattice-review-scope-plan, lattice-review-story-init, lattice-review-test-coverage, product-reviewer, test-case-reviewer, and test-intent; each row has an explicit valid lifecycle status and defaultDispatch boolean.",
-            "type": "logic"
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
           },
           {
+            "id": "role-registry-exact-status-partition",
             "desc": "The exact lifecycle partition is 12 active roles (all exact members other than the three compatibility roles and retired channel), compatibility={implementation-reviewer,test-case-reviewer,test-intent}, retired={lattice-review-channel}; channel is retired with defaultDispatch=false and is excluded from the active count.",
-            "type": "logic"
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
           },
           {
+            "id": "role-registry-authority-and-replacements",
             "desc": "product-reviewer remains active and its existing INIT-only independent init_check_set authority is unchanged; implementation-reviewer remains compatibility/non-default with migration guidance to the existing quality+behavior combination and does not acquire a new REVIEW lane; test-intent and test-case-reviewer are compatibility/non-default and each declares canonical replacementAgentType=verification-intent.",
-            "type": "cli"
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
           }
         ],
         "edge": [
           {
+            "id": "role-registry-order-independent-totality",
             "desc": "Membership comparison is order-independent but exact: sorting the lifecycle registry IDs equals sorting readPromptRegistry().agents IDs, and active+compatibility+retired counts sum to 16 with mutually exclusive membership.",
-            "type": "logic"
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
           },
           {
+            "id": "role-registry-nonactive-reporting",
             "desc": "Compatibility and retired rows are present in reporting rather than silently dropped; their defaultDispatch values are false, and active-role reporting does not count them.",
-            "type": "logic"
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
           },
           {
+            "id": "role-registry-alias-routing-unchanged",
             "desc": "Existing dispatch resolution is behaviorally unchanged across canonical types and aliases: test-intent and test-case-reviewer still normalize to verification-intent with the same PLAN/item target, permissions, and prompt builder; product-reviewer retains INIT/story-only authority; no lifecycle metadata creates implementation-reviewer dispatch authority.",
-            "type": "cli"
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
           },
           {
+            "id": "role-registry-retired-channel-routing-unchanged",
             "desc": "The existing lattice-review-channel dispatch route remains byte/behavior compatible in Story 1 even though lifecycle metadata reports it retired; retirement is descriptive in this baseline Story and does not prematurely implement the later dispatch rejection milestone.",
-            "type": "cli"
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
           }
         ],
         "adversarial": [
           {
+            "id": "role-registry-duplicate-fails-closed",
             "desc": "A lifecycle registry definition containing a duplicate role ID fails closed with a typed/explicit validation error rather than deduplicating or choosing one row.",
-            "type": "logic"
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
           },
           {
+            "id": "role-registry-missing-fails-closed",
             "desc": "A lifecycle registry definition missing any one of the 16 package prompt roles fails closed, including compatibility or retired roles; it cannot report a partial registry as valid.",
-            "type": "logic"
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
           },
           {
+            "id": "role-registry-unknown-fails-closed",
             "desc": "A lifecycle registry definition containing an unknown seventeenth role fails closed; prefix similarity, case folding, or an unregistered alias cannot manufacture lifecycle authority.",
-            "type": "logic"
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
           },
           {
+            "id": "role-registry-invalid-metadata-fails-closed",
             "desc": "Invalid lifecycle status, missing defaultDispatch, compatibility rows without required replacement/migration metadata, or retired channel with defaultDispatch=true fail closed rather than being normalized into a permissive state.",
-            "type": "logic"
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
           },
           {
+            "id": "role-registry-dispatch-snapshot-unchanged",
             "desc": "A before/after snapshot of AGENT_DISPATCH_REGISTRY accepted names, aliases, allowed phases, target cardinality, prompt builders, mutation permissions, reviewer lanes, and default lattice-implementer routing is identical; lifecycle registry introduction cannot alter current dispatch routing or evidence authority.",
-            "type": "cli"
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
           }
         ]
       }
