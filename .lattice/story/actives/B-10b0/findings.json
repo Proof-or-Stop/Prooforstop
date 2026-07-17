@@ -359,7 +359,7 @@
       "desc": "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts:669-742 [MEDIUM] The new deterministic beforeAdd/afterAddBeforeCommit cases prove forged-byte rejection, no HEAD advance, and rollback for a clean index, but they never seed an unrelated pre-staged path. Consequently the exact staged-path-set guard introduced at done-prepare-generated-metadata.ts:648-657 (unexpected and missing paths) and the transaction contract that rollback restores only managed paths while preserving unrelated index state are unexercised. Add a case that pre-stages an unrelated tracked file, triggers each mutation seam, asserts refusal/no HEAD movement, asserts the unrelated staged blob is byte-for-byte unchanged after rollback, and separately exercises missing/extra safe-path-set rejection.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-17T20:58:26.530Z",
@@ -371,7 +371,11 @@
         "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
       ],
       "signatureTag": "coverage|rollback|staged-path-set",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Repro: prior mutation tests used a clean real index and did not prove unrelated staged-state retention or missing/extra isolated path rejection. Root cause: focused coverage omitted shared-index preservation and exact tree construction cases. Fixed by f3f6f78b60: tests seed unrelated staged blobs and prove identical blob IDs on successful isolated-tree commit and CAS-failure/rollback; late staged state remains outside the closeout commit; missing and extra temporary-index path sets both refuse without HEAD advance; worktree contents are preserved. Verification: build, auto-closeout smoke, merge-rerun smoke PASS.",
+      "resolvedAt": "2026-07-17T21:07:22.213Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
