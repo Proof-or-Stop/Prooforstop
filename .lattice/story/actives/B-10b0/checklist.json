@@ -10,7 +10,80 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After a current signed reviewer pass, each canonical closeout artifact writer (routine test evidence, DONE-required evidence, live-smoke transcript, summary, delivery check, and done_prepare report) records a signed canonical writer identity plus lineage; when only trusted story metadata intervenes, the existing reviewer receipt remains mechanically valid without re-attestation.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A normal sequence containing several different trusted closeout writers preserves the same review round and reviewer receipt across every intermediate HEAD, and the freshness result exposes an auditable trusted-metadata-descendant reason rather than silently weakening hash checks.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Repeated idempotent writes of the same canonical artifact and a trusted modify-then-revert metadata history remain retainable only when every intervening commit/path is classified by the shared canonical lineage evaluator.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Concurrent HEAD movement between lineage evaluation and artifact persistence is detected with a before/after HEAD check and refuses retention; a stable retry can then succeed without corrupting the prior receipt.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Legacy closeout evidence lacking the new writer envelope is handled by an explicit compatibility/refusal disposition and never implicitly promoted to trusted lineage.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The shared writer contract is consumed by every listed closeout artifact producer, with a contract test that fails if any producer bypasses it or emits a blank/non-canonical writer.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Any source-code or story-owned material drift invalidates reviewer receipt retention even when surrounded by trusted metadata commits.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Configuration, validation policy, or validation command-set/order drift invalidates retention and reports the exact changed binding.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "An unknown, misspelled, or non-canonical writer identity is rejected fail-closed and cannot be laundered through a trusted metadata path.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Direct/manual artifact mutation or tampering outside the shared writer invalidates retention even if content resembles a canonical artifact.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Malformed, unsigned, unverifiable, non-ancestor, or cyclic lineage data is rejected fail-closed with no reviewer-pass carry-forward.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "A trusted writer may not whitelist arbitrary dirty paths: user files, source, config, command entrypoints, and unregistered metadata remain untrusted.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Changing only headHash is insufficient for retention unless exact-head or fully verified trusted-metadata-descendant lineage plus unchanged material/storyFiles/policy/command-set bindings is proven.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

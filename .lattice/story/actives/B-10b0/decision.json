@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Metadata provenance and structural identity decide retention, never filename alone.",
+    "Canonical closeout writes may move HEAD but cannot weaken review of unchanged material.",
+    "Any uncertain or material drift executes or re-reviews rather than inheriting PASS."
+  ],
+  "drivers": [
+    "Eliminate repeated metadata-only review rounds in unattended workflows.",
+    "Preserve fail-closed security and assurance semantics.",
+    "Keep writer, phase, prompt, handler, gate, and process registry mechanically aligned."
+  ],
+  "options": [
+    {
+      "name": "A: shared closeout lineage contract plus convergent ordering",
+      "pros": [
+        "One source of truth for artifact writer and lineage",
+        "Covers all existing and future registered closeout artifacts",
+        "Allows end-to-end one-pass regression"
+      ],
+      "cons": [
+        "Touches several gate consumers",
+        "Requires careful legacy compatibility"
+      ]
+    },
+    {
+      "name": "B: reorder commands only",
+      "pros": [
+        "Smaller immediate diff",
+        "Reduces one observed loop"
+      ],
+      "cons": [
+        "Leaves blank-writer retention bug",
+        "Delivery or future artifact writes can recreate the loop",
+        "Does not solve concept false positives"
+      ]
+    },
+    {
+      "name": "C: whitelist artifacts at each gate",
+      "pros": [
+        "Fast local patches"
+      ],
+      "cons": [
+        "Duplicates trust policy",
+        "Easy to miss a consumer",
+        "Risks filename-only trust bypasses"
+      ]
+    }
+  ],
+  "chosen": "A: shared closeout lineage contract plus convergent ordering",
+  "rationale": "Choose A because the failure spans writer receipts, review-run validation, lifecycle readiness, dispatch phases, and transition ordering. A registry-driven contract removes the class while keeping non-canonical and material drift fail-closed.",
+  "preMortem": [
+    {
+      "scenario": "A forged closeout file preserves stale review",
+      "trigger": "Retention trusts path without canonical writer receipt or signature",
+      "consequence": "Source-affecting changes can bypass re-review",
+      "mitigation": "Require registry membership, canonical writer, receipt integrity, structural hashes, and trusted metadata-only lineage; add tamper and unknown-writer negatives."
+    },
+    {
+      "scenario": "One-pass test passes only because gates were weakened",
+      "trigger": "Review freshness ignores storyFilesHash, policy, or command-set drift",
+      "consequence": "Real changes inherit old PASS",
+      "mitigation": "Add explicit source, config, policy, command-set, and story-owned drift matrix asserting blocking."
+    },
+    {
+      "scenario": "Delivery remains phase-circular",
+      "trigger": "Dispatch and mutation policies continue to allow different phases",
+      "consequence": "Delivery must be signed in an order that invalidates reviewer passes",
+      "mitigation": "Derive both dispatch and writer phase admission from one lane policy and exercise full REVIEW to DONE transcript."
+    },
+    {
+      "scenario": "Concept gate stops detecting true deletions",
+      "trigger": "Body-edit false-positive fix filters too broadly",
+      "consequence": "Removed declarations with residual references pass",
+      "mitigation": "Test unchanged declaration body edit, signature edit, true deletion, rename, overload, and residual reference cases separately."
+    }
+  ],
+  "timestamp": "2026-07-17T11:20:10.209Z"
+}

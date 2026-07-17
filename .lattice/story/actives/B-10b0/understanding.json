@@ -1,0 +1,33 @@
+{
+  "task": "Make trusted closeout metadata preserve current reviewer receipts and make the normal REVIEW to TEST to DONE path converge without metadata-only phase loops.",
+  "outcome": "The terminal shows `Story B-xxxx advanced to TEST` after one REVIEW round, `routine validation reused; commandExecutions=0` for unchanged evidence, then `DONE prepare: PASS`; no DEV rollback, reviewer re-attestation prompt, or human confirmation appears solely because canonical closeout metadata was written.",
+  "facts": [
+    "B-3aec required repeated metadata-only DEV to REVIEW rounds after test-evidence, DONE-required evidence, live transcript, summary, and delivery-check writes.",
+    "review-run retention consumes latestValidCloseoutReceipt from core/closeout-trust.ts.",
+    "delivery_check_set is configured for REVIEW and TEST, while lattice-review-delivery dispatch was observed rejected in REVIEW.",
+    "validate-concept reported three exported functions as deleted even though declarations and consumers remained.",
+    "Routine validate fresh-PASS reuse already works and must remain intact."
+  ],
+  "constraints": [
+    "Source, configuration, policy, command-set, story-owned material, unknown-writer, tampered, malformed, or unsigned drift remains fail-closed.",
+    "No change to review quorum or assurance strength.",
+    "No real codex, claude, or agy execution and no network.",
+    "One shared registry-driven closeout contract; no per-artifact ad hoc bypasses.",
+    "No root full suite during DEV; focused deterministic smokes only."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/closeout-trust.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/lifecycle-readiness.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/handlers/validate-concept.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/tasks/closeout-trust-smoke.ts",
+    "packages/main/src/tasks/lifecycle-check-smoke.ts",
+    "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+  ],
+  "timestamp": "2026-07-17T11:20:08.767Z"
+}
