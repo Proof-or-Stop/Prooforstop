@@ -208,7 +208,7 @@
       "desc": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md:252-274 — MEDIUM: the new B-3aec implementation contract presents unresolved acceptance behavior as delivered. In current code, protected/direct sources can be silently skipped or truncated by candidateBudget (already captured by F-001/F-007), generic-only filtered terms can still yield zero_candidates escalation (F-004), and shadow/warn dispatch and candidateReadBindingErrors still apply enforce-style STOP/blocking (F-008). Therefore lines 266-274 falsely promise authoritative direct candidates and mode-only presentation/blocking, while lines 237-242 state acceptance already contradicted by the implementation. Either fix those underlying behaviors so the contract becomes true, or mark the section as intended/pending and explicitly list the limitations; do not retain an unqualified implemented-contract claim.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-17T09:23:02.498Z",
@@ -216,7 +216,11 @@
       "reviewRunId": "B-3aec:RR-004",
       "_hash": "c1dd04f2edef7db54ff7fb659214d2cf2149bc2da419ecbfcf144b6fae4e880b",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Execution-plan section 7.7 now describes only the bounded implemented contract and its explicit limits, aligned with focused evidence.",
+      "resolvedAt": "2026-07-17T09:39:40.137Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
