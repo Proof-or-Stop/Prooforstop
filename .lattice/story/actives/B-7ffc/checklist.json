@@ -158,9 +158,9 @@
         "create": [],
         "test": []
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-17T23:19:34.762Z",
-      "endTime": null,
+      "endTime": "2026-07-17T23:20:58.723Z",
       "verificationIntent": {
         "happy": [
           {
@@ -198,7 +198,87 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/NAV.md",
+          "command": "node -e 'const fs=require(\"fs\"); const nav=fs.readFileSync(\"docs/requirements/NAV.md\",\"utf8\"); const target=\"decisions/role-prompt-modularization-and-budget-execution-plan.md\"; const count=nav.split(target).length-1; const direct=fs.readdirSync(\"docs/requirements/decisions\").filter(x=>x.endsWith(\".md\")).length; if(direct!==119||!nav.includes(\"Inventory count: 119 Markdown files\")||count!==1||!fs.existsSync(\"docs/requirements/\"+target)||/(\\\\/tmp\\\\/|\\\\/private\\\\/tmp\\\\/|\\\\/Users\\\\/)/.test(nav)||!nav.includes(\"implementation proceeds through separate ordered Stories\")) process.exit(1);'",
+          "result": "pass",
+          "note": "NAV contains exactly one exact relative link to the canonical decision file and resolution from docs/requirements/NAV.md succeeds.",
+          "headHash": "f4a24aa0235914aa98662a02a524026c88326a22",
+          "materialHash": "4fc068d1d379a7381854b3a9789eab4f0aa6d00f9428d7cd7a532a59dd7c5bf4",
+          "storyFilesHash": "90722a3e8941271bfe34f2fe0beb826258190c479cce2c7bbe1699d695dbe7c5",
+          "timestamp": "2026-07-17T23:20:59.186Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/NAV.md",
+          "command": "node -e 'const fs=require(\"fs\"); const nav=fs.readFileSync(\"docs/requirements/NAV.md\",\"utf8\"); const target=\"decisions/role-prompt-modularization-and-budget-execution-plan.md\"; const count=nav.split(target).length-1; const direct=fs.readdirSync(\"docs/requirements/decisions\").filter(x=>x.endsWith(\".md\")).length; if(direct!==119||!nav.includes(\"Inventory count: 119 Markdown files\")||count!==1||!fs.existsSync(\"docs/requirements/\"+target)||/(\\\\/tmp\\\\/|\\\\/private\\\\/tmp\\\\/|\\\\/Users\\\\/)/.test(nav)||!nav.includes(\"implementation proceeds through separate ordered Stories\")) process.exit(1);'",
+          "result": "pass",
+          "note": "Direct decisions inventory is mechanically counted as 119 and NAV records 119; the canonical target occurs exactly once.",
+          "headHash": "f4a24aa0235914aa98662a02a524026c88326a22",
+          "materialHash": "4fc068d1d379a7381854b3a9789eab4f0aa6d00f9428d7cd7a532a59dd7c5bf4",
+          "storyFilesHash": "90722a3e8941271bfe34f2fe0beb826258190c479cce2c7bbe1699d695dbe7c5",
+          "timestamp": "2026-07-17T23:20:59.551Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/NAV.md",
+          "command": "node -e 'const fs=require(\"fs\"); const nav=fs.readFileSync(\"docs/requirements/NAV.md\",\"utf8\"); const target=\"decisions/role-prompt-modularization-and-budget-execution-plan.md\"; const count=nav.split(target).length-1; const direct=fs.readdirSync(\"docs/requirements/decisions\").filter(x=>x.endsWith(\".md\")).length; if(direct!==119||!nav.includes(\"Inventory count: 119 Markdown files\")||count!==1||!fs.existsSync(\"docs/requirements/\"+target)||/(\\\\/tmp\\\\/|\\\\/private\\\\/tmp\\\\/|\\\\/Users\\\\/)/.test(nav)||!nav.includes(\"implementation proceeds through separate ordered Stories\")) process.exit(1);'",
+          "result": "pass",
+          "note": "Exact case-sensitive target, .md suffix, and curated Markdown list form resolve on the checked filesystem.",
+          "headHash": "f4a24aa0235914aa98662a02a524026c88326a22",
+          "materialHash": "4fc068d1d379a7381854b3a9789eab4f0aa6d00f9428d7cd7a532a59dd7c5bf4",
+          "storyFilesHash": "90722a3e8941271bfe34f2fe0beb826258190c479cce2c7bbe1699d695dbe7c5",
+          "timestamp": "2026-07-17T23:20:59.913Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/NAV.md",
+          "command": "node -e 'const fs=require(\"fs\"); const nav=fs.readFileSync(\"docs/requirements/NAV.md\",\"utf8\"); const target=\"decisions/role-prompt-modularization-and-budget-execution-plan.md\"; const count=nav.split(target).length-1; const direct=fs.readdirSync(\"docs/requirements/decisions\").filter(x=>x.endsWith(\".md\")).length; if(direct!==119||!nav.includes(\"Inventory count: 119 Markdown files\")||count!==1||!fs.existsSync(\"docs/requirements/\"+target)||/(\\\\/tmp\\\\/|\\\\/private\\\\/tmp\\\\/|\\\\/Users\\\\/)/.test(nav)||!nav.includes(\"implementation proceeds through separate ordered Stories\")) process.exit(1);'",
+          "result": "pass",
+          "note": "NAV contains no /tmp, /private/tmp, /Users absolute path, attachment path, or staging-copy target.",
+          "headHash": "f4a24aa0235914aa98662a02a524026c88326a22",
+          "materialHash": "4fc068d1d379a7381854b3a9789eab4f0aa6d00f9428d7cd7a532a59dd7c5bf4",
+          "storyFilesHash": "90722a3e8941271bfe34f2fe0beb826258190c479cce2c7bbe1699d695dbe7c5",
+          "timestamp": "2026-07-17T23:21:00.249Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/NAV.md",
+          "command": "node -e 'const fs=require(\"fs\"); const nav=fs.readFileSync(\"docs/requirements/NAV.md\",\"utf8\"); const target=\"decisions/role-prompt-modularization-and-budget-execution-plan.md\"; const count=nav.split(target).length-1; const direct=fs.readdirSync(\"docs/requirements/decisions\").filter(x=>x.endsWith(\".md\")).length; if(direct!==119||!nav.includes(\"Inventory count: 119 Markdown files\")||count!==1||!fs.existsSync(\"docs/requirements/\"+target)||/(\\\\/tmp\\\\/|\\\\/private\\\\/tmp\\\\/|\\\\/Users\\\\/)/.test(nav)||!nav.includes(\"implementation proceeds through separate ordered Stories\")) process.exit(1);'",
+          "result": "pass",
+          "note": "Acceptance checks target existence at docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md, not link text alone.",
+          "headHash": "f4a24aa0235914aa98662a02a524026c88326a22",
+          "materialHash": "4fc068d1d379a7381854b3a9789eab4f0aa6d00f9428d7cd7a532a59dd7c5bf4",
+          "storyFilesHash": "90722a3e8941271bfe34f2fe0beb826258190c479cce2c7bbe1699d695dbe7c5",
+          "timestamp": "2026-07-17T23:21:00.619Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/NAV.md",
+          "command": "node -e 'const fs=require(\"fs\"); const nav=fs.readFileSync(\"docs/requirements/NAV.md\",\"utf8\"); const target=\"decisions/role-prompt-modularization-and-budget-execution-plan.md\"; const count=nav.split(target).length-1; const direct=fs.readdirSync(\"docs/requirements/decisions\").filter(x=>x.endsWith(\".md\")).length; if(direct!==119||!nav.includes(\"Inventory count: 119 Markdown files\")||count!==1||!fs.existsSync(\"docs/requirements/\"+target)||/(\\\\/tmp\\\\/|\\\\/private\\\\/tmp\\\\/|\\\\/Users\\\\/)/.test(nav)||!nav.includes(\"implementation proceeds through separate ordered Stories\")) process.exit(1);'",
+          "result": "pass",
+          "note": "The entry explicitly says implementation proceeds through separate ordered Stories and does not claim runtime completion or budget enforcement.",
+          "headHash": "f4a24aa0235914aa98662a02a524026c88326a22",
+          "materialHash": "4fc068d1d379a7381854b3a9789eab4f0aa6d00f9428d7cd7a532a59dd7c5bf4",
+          "storyFilesHash": "90722a3e8941271bfe34f2fe0beb826258190c479cce2c7bbe1699d695dbe7c5",
+          "timestamp": "2026-07-17T23:21:01.002Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -228,6 +308,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Canonical decision doc committed and deterministic content, digest, structure, and docs-only scope checks passed."
+    },
+    {
+      "timestamp": "2026-07-17T23:20:58.723Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Canonical NAV link, direct inventory, exact resolution, temp-path rejection, and plan-only wording checks passed."
     }
   ]
 }
