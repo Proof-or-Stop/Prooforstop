@@ -292,6 +292,21 @@
       ],
       "signatureTag": "adversarial|ts|positive-reused-validation",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-10b0:F-013",
+      "desc": "packages/main/src/core/done-prepare-generated-metadata.ts:110-143 [HIGH] The new process-events allowlist validates only shape/format after the baseline prefix; it does not bind attemptId/reviewRound/timestamp/commandSetHash/materialHash/storyFilesHash to the current done_prepare validation attempt or current evidence. A clean-repo probe appended a forged validation_terminal after baseline with arbitrary strings and a/b/c SHA-256 values, and buildDonePrepareGeneratedMetadataManifest classified it safe_lifecycle_metadata/currentRunGenerated=true. Thus any concurrent/injected same-shape terminal can be auto-staged and committed as trusted closeout evidence despite not being the current-run exact reused terminal. Carry the expected terminal binding in the baseline/run context and require exact equality (including current attempt/review round and canonical hashes), then add adversarial smoke cases for forged-but-well-shaped terminal, extra fields, prefix rewrite, and mixed appended lines.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-17T20:41:47.521Z",
+      "reviewRound": "2026-07-17T20:39:28.295Z",
+      "reviewRunId": "B-10b0:RR-020",
+      "_hash": "d2c3296a25d40598bff1bb110df45bbfd052f7ada3ecd2ead062c1b0a1db18e1",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
