@@ -15,12 +15,12 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "After a current signed reviewer pass, each canonical closeout artifact writer (routine test evidence, DONE-required evidence, live-smoke transcript, summary, delivery check, and done_prepare report) records a signed canonical writer identity plus lineage; when only trusted story metadata intervenes, the existing reviewer receipt remains mechanically valid without re-attestation.",
+            "desc": "After a current signed reviewer pass, each registered closeout artifact writer records integrity-chained cooperative local-runtime lineage with a registered writer label; when only bounded story metadata intervenes, the existing reviewer receipt remains mechanically fresh, while specialized artifact gates independently validate schema, digest, reviewer, policy, command-set, and freshness facts. Hostile same-UID repository/runtime modification is an explicit non-goal unless a future isolated trust domain is configured.",
             "type": "cli",
             "priority": "must"
           },
           {
-            "desc": "A normal sequence containing several different trusted closeout writers preserves the same review round and reviewer receipt across every intermediate HEAD, and the freshness result exposes an auditable trusted-metadata-descendant reason rather than silently weakening hash checks.",
+            "desc": "A normal sequence containing several different registered closeout writers preserves the same review round and reviewer receipt across every intermediate HEAD, and the freshness result exposes an auditable trusted-metadata-descendant reason rather than silently weakening hash checks.",
             "type": "cli",
             "priority": "must"
           }
@@ -42,7 +42,7 @@
             "priority": "must"
           },
           {
-            "desc": "The shared writer contract is consumed by every listed closeout artifact producer, with a contract test that fails if any producer bypasses it or emits a blank/non-canonical writer.",
+            "desc": "The shared writer contract is consumed by every listed closeout artifact producer, and a consumer matrix proves every production gate uses its specialized validator rather than treating review-retention lineage as artifact approval.",
             "type": "logic",
             "priority": "must"
           }
@@ -59,22 +59,22 @@
             "priority": "must"
           },
           {
-            "desc": "An unknown, misspelled, or non-canonical writer identity is rejected fail-closed and cannot be laundered through a trusted metadata path.",
+            "desc": "An unknown, misspelled, or non-registered writer label is rejected fail-closed inside the cooperative local-runtime boundary and cannot be laundered through a trusted metadata path.",
             "type": "logic",
             "priority": "must"
           },
           {
-            "desc": "Direct/manual artifact mutation or tampering outside the shared writer invalidates retention even if content resembles a canonical artifact.",
+            "desc": "Direct/manual artifact mutation without current coherent lineage invalidates retention even if content resembles a registered artifact; coherent hostile same-UID forgery remains an explicitly tested non-goal, not a claim of durable authority.",
             "type": "cli",
             "priority": "must"
           },
           {
-            "desc": "Malformed, unsigned, unverifiable, non-ancestor, or cyclic lineage data is rejected fail-closed with no reviewer-pass carry-forward.",
+            "desc": "Malformed, unverifiable, non-ancestor, cyclic, or incoherent lineage data is rejected fail-closed with no reviewer-pass carry-forward.",
             "type": "logic",
             "priority": "must"
           },
           {
-            "desc": "A trusted writer may not whitelist arbitrary dirty paths: user files, source, config, command entrypoints, and unregistered metadata remain untrusted.",
+            "desc": "A registered writer may not whitelist arbitrary dirty paths: user files, source, config, command entrypoints, and unregistered metadata remain untrusted.",
             "type": "logic",
             "priority": "must"
           },
@@ -85,7 +85,7 @@
           }
         ]
       },
-      "userSees": "User sees \"review evidence retained: unchanged reviewed material; closeout artifact authority checked separately\".",
+      "userSees": "User sees \"review evidence retained: unchanged reviewed material; artifact gate validation remains independent\".",
       "files": {
         "modify": [
           "packages/main/src/core/closeout-trust.ts",
