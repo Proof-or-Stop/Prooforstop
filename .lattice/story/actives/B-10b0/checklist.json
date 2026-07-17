@@ -9,9 +9,9 @@
         "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-17T13:21:15.635Z",
-      "endTime": "2026-07-17T16:35:38.765Z",
+      "endTime": "2026-07-17T16:57:30.037Z",
       "verificationIntent": {
         "happy": [
           {
@@ -845,6 +845,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Commit 1c694f1c8e fixes F-011 with bounded multiline Python header accumulation and fail-closed malformed/unterminated diagnostics; build and concept regression passed.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-17T16:57:30.037Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Formal TEST guard failure fixed by reviewed structural fingerprint refresh; guard and closeout integration smoke pass on current material.",
       "agent": "lattice-implementer"
     }
   ]
