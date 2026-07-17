@@ -1,53 +1,57 @@
 {
   "storyId": "B-10b0",
-  "checkedAt": "2026-07-17T17:14:54.421Z",
-  "headHash": "5c51010833184bbbb74ea568776ed3709d540f79",
-  "materialHash": "e228eb1ba72cbb5b5a85bd0d5825c3ae736abb8eaebc9d29e0a481246420b17a",
-  "storyFilesHash": "b674594f77a3965995437f9a271561687502eb3f15776b62ade3ec1345b6788d",
-  "reviewRound": "2026-07-17T16:57:40.721Z",
+  "checkedAt": "2026-07-17T20:06:39.274Z",
+  "headHash": "41ca1637bc746503767fb7083a43eb81f1471ab5",
+  "materialHash": "7d87c6e807c3dc6fd01841a5bb8b60b164541c51ebe2d559100dc7e2750574b9",
+  "storyFilesHash": "17423edf7ebba0649948742de4ed20e86c89035635973313980602ea41b4526a",
+  "reviewRound": "2026-07-17T19:56:56.495Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
       "docPath": ".lattice/story/actives/B-10b0/checklist.json#CHK-001.userSees",
       "promise": "User sees review evidence retained: unchanged reviewed material; artifact gate validation remains independent.",
       "status": "verified",
-      "verifiedBy": "lattice-review-delivery bounded live capture plus fresh routine validation",
-      "evidence": "2026-07-17T17:14:20.638Z live_smoke_transcript capture ran npm run test:closeout-trust with exitCode=0 and printed the exact promised line; canonical transcript status is present-fresh; routine validation PASS at 2026-07-17T17:09:53.200Z."
+      "verifiedBy": "lattice-review-delivery current-binding review",
+      "evidence": "Current formal validation PASS at 2026-07-17T20:04:36.331Z on materialHash 7d87c6e8... and storyFilesHash 17423edf...; current canonical live-smoke transcript is present-fresh and records successful exit. Commit 19b630265c only routes prompt-baseline verification through bin/lattice.js and does not change closeout lineage or artifact gates."
     },
     {
       "docPath": ".lattice/story/actives/B-10b0/checklist.json#CHK-002.userSees",
       "promise": "User sees DONE prepare: PASS with metadataRollbacks=0, reviewerReattestations=0, humanConfirmations=0, unchangedSuiteExecutions=0.",
       "status": "verified",
-      "verifiedBy": "lattice-review-delivery focused real-machine smoke plus fresh routine validation",
-      "evidence": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke exited 0 and the fixture asserts the exact DONE prepare PASS convergence line with all four counters zero; routine validation PASS at 2026-07-17T17:09:53.200Z."
+      "verifiedBy": "lattice-review-delivery current formal PASS and prior focused convergence transcript",
+      "evidence": "Current routine validation PASS reused unchanged evidence with commandExecutions=0 on materialHash 7d87c6e8...; summary records all 46 configured commands previously passed and two subsequent trusted-metadata-descendant reuses. The two-file 19b630265c change is limited to canonical prompt-baseline CLI routing and cannot alter DONE convergence counters."
     },
     {
       "docPath": ".lattice/story/actives/B-10b0/checklist.json#CHK-003.userSees",
       "promise": "User sees no deleted exports for declaration/body edits, while a true deletion with residual references remains WARN or FAIL.",
       "status": "verified",
-      "verifiedBy": "lattice-review-delivery focused compiled smoke plus fresh routine validation",
-      "evidence": "node packages/main/dist/tasks/concept-gate-scope-smoke.js exited 0; paired fixtures cover the three observed body-only edits, true deletion/residual references, overloads, scoped duplicates, malformed TypeScript, and malformed/unterminated multiline Python; routine validation PASS at 2026-07-17T17:09:53.200Z."
+      "verifiedBy": "lattice-review-delivery current formal PASS and bounded two-file diff review",
+      "evidence": "Current formal validation PASS at 2026-07-17T20:04:36.331Z retains concept-gate coverage. Commit 19b630265c changes only the prompt-baseline JSON command string and verifier CLI_PATH; it does not touch validate-concept or declaration fixtures."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "2026-07-17T17:14:20.638Z: live_smoke_transcript captured npm run test:closeout-trust, exitCode 0; output ended with review evidence retained: unchanged reviewed material; artifact gate validation remains independent."
+      "transcript": "Current canonical live-smoke transcript is present-fresh at the new material binding and readiness reports a successful command exit; formal validation PASS binds materialHash 7d87c6e8... and storyFilesHash 17423edf...."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "2026-07-17 delivery review: npm --prefix packages/main run test:done-prepare-merge-rerun-smoke exited 0 with done-prepare-merge-rerun smoke passed; fresh 46-command routine validation PASS is bound to current materialHash e228eb1b... and storyFilesHash b674594f...."
+      "transcript": "Current routine validation at 2026-07-17T20:04:36.331Z is PASS with trusted unchanged-evidence reuse and commandExecutions=0; prior formal 46-command suite and focused done-prepare convergence smoke remain applicable because the new delta is prompt-baseline-only."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "2026-07-17 delivery review: node packages/main/dist/tasks/concept-gate-scope-smoke.js exited 0 with concept gate scope smoke passed; fresh routine validation PASS is bound to the same current material/story-files identity."
+      "transcript": "Current formal validation is PASS. Bounded review of 19b630265c confirms no concept-classifier or fixture change, so the previously passed paired body-edit/true-deletion real-machine coverage remains applicable."
+    },
+    {
+      "featureId": "19b630265c",
+      "transcript": "node scripts/verify-proof-or-stop-prompt-baseline.mjs exited 0: all 16 role IDs/body hashes, registry snapshot, agent_prompt output hashes, 10 mechanical drift mutations, role matrix, vocabulary, and direct story-file findings passed through canonical bin/lattice.js."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "All three user-visible promises are verified by fresh formal PASS evidence and bounded real-machine transcripts; adversarial and edge cases are covered, with no changed-code TODO/FIXME/HACK markers or delivery waiver."
+    "summary": "The only new material is the reviewed two-file canonical prompt-baseline entrypoint correction. Its focused verifier and current formal validation pass, the live transcript is fresh, all three delivery promises remain satisfied, and no TODO/FIXME/HACK or waiver was introduced."
   },
-  "_hash": "1ce44f3607271355a6f5015ec0574936a7f01ac7b4782bf8dbb901abf58fd540"
+  "_hash": "9afdc2b75cbaf0435e3c34e1874f0065223cf807158f61a120ecc8e3e205b1c1"
 }
