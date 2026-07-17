@@ -1,10 +1,10 @@
 {
   "storyId": "B-10b0",
-  "checkedAt": "2026-07-17T20:27:23.584Z",
-  "headHash": "6a05ea419f305e7eba77e0a6275e930a9b690ee5",
-  "materialHash": "8b00697ef2cfdea590d53d8efcd3d834c8e024f2a394b10c3323eb50bfe15d99",
-  "storyFilesHash": "7756ffa2affc11fab0595d032cd1471c99db81d5a09d625bb9cf669f15e0be09",
-  "reviewRound": "2026-07-17T20:17:32.463Z",
+  "checkedAt": "2026-07-17T22:16:27.267Z",
+  "headHash": "35795407aad68e96bbbfb5a91003948919365ea3",
+  "materialHash": "b5e84ececafc897a8aad89d5c76d85f3a3ab7b220fbfd4c644bcfd8191e9ba85",
+  "storyFilesHash": "f0d10dd8bea8aee5663a60a17d36b6c2840e073fc42955734957c8c59a96786c",
+  "reviewRound": "2026-07-17T22:03:21.496Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
@@ -12,46 +12,50 @@
       "promise": "User sees review evidence retained: unchanged reviewed material; artifact gate validation remains independent.",
       "status": "verified",
       "verifiedBy": "lattice-review-delivery exact-binding review",
-      "evidence": "Final formal TEST is 46/46 PASS and subsequent routine validation reused with commandExecutions=0 on materialHash 8b00697e... / storyFilesHash 7756ffa2.... Current live-smoke transcript is present-fresh with successful command exit. Delta 2974a70406 changes only two independent expected fingerprint literals in process-fact contract verification."
+      "evidence": "Canonical test-evidence now persists PASS on material b5e84ece... / storyFiles f0d10dd8... after final 46/46 execution and a subsequent zero-command reuse. F-018..F-023 are resolved with strong evidence; shared immutable transaction preserves independent receipt/gate validation and fails closed on persistence, receipt, hook, tree, or CAS failure. Current live-smoke transcript is present-fresh."
     },
     {
       "docPath": ".lattice/story/actives/B-10b0/checklist.json#CHK-002.userSees",
       "promise": "User sees DONE prepare: PASS with metadataRollbacks=0, reviewerReattestations=0, humanConfirmations=0, unchangedSuiteExecutions=0.",
       "status": "verified",
-      "verifiedBy": "lattice-review-delivery final formal PASS and bounded delta review",
-      "evidence": "Final 46-command TEST PASS plus subsequent routine reuse commandExecutions=0 validates current closeout behavior. Commit 2974a70406 is an expected-pin synchronization in scripts/verify-process-fact-contract.mjs only and does not touch done_prepare or convergence telemetry."
+      "verifiedBy": "lattice-review-delivery current formal PASS and focused closeout smokes",
+      "evidence": "Final formal TEST executed 46/46 PASS; subsequent canonical validate persisted reused PASS with commandExecutions=0. Current done-prepare-auto-closeout and done-prepare-merge-rerun smokes both exit 0. Incremental remediation closes the actual reused terminal atomically and cannot self-block on its own canonical metadata."
     },
     {
       "docPath": ".lattice/story/actives/B-10b0/checklist.json#CHK-003.userSees",
       "promise": "User sees no deleted exports for declaration/body edits, while a true deletion with residual references remains WARN or FAIL.",
       "status": "verified",
-      "verifiedBy": "lattice-review-delivery final formal PASS and bounded delta review",
-      "evidence": "Final 46/46 TEST PASS retains concept-gate coverage. Commit 2974a70406 does not touch validate-concept or declaration fixtures; it only updates two expected fingerprints for already-reviewed vocabulary-guard source changes."
+      "verifiedBy": "lattice-review-delivery current formal TEST binding",
+      "evidence": "Final 46/46 TEST PASS retains the concept regression suite on the exact current binding. F-018..F-023 touch canonical validation metadata transactions and shared immutable commit mechanics, not validate-concept or declaration fixtures."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "Current live-smoke artifact is present-fresh and records successful command exit; final formal TEST 46/46 PASS binds exact material 8b00697ef2cfdea590d53d8efcd3d834c8e024f2a394b10c3323eb50bfe15d99 and storyFiles 7756ffa2affc11fab0595d032cd1471c99db81d5a09d625bb9cf669f15e0be09."
+      "transcript": "Current canonical live-smoke transcript is present-fresh with successful command exit; canonical test-evidence PASS is bound to material b5e84ececafc897a8aad89d5c76d85f3a3ab7b220fbfd4c644bcfd8191e9ba85 and storyFiles f0d10dd8bea8aee5663a60a17d36b6c2840e073fc42955734957c8c59a96786c."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "Final formal TEST passed all 46 configured commands; subsequent routine validate reused unchanged evidence with commandExecutions=0 on the exact current bindings."
+      "transcript": "Final formal TEST executed all 46 configured commands PASS; subsequent validate reused with commandExecutions=0 and persisted canonical PASS. Current done-prepare-auto-closeout-smoke and done-prepare-merge-rerun-smoke both passed."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "Final formal TEST 46/46 PASS includes the concept regression suite; the sole delta does not touch concept production or fixture code."
+      "transcript": "Final formal 46/46 TEST PASS includes the concept regression suite; incremental transaction changes do not touch the concept classifier or its fixtures."
     },
     {
-      "featureId": "2974a70406",
-      "transcript": "node scripts/verify-process-fact-contract.mjs exited 0 and ended Process fact contract verified after the two expected structural fingerprint pins were synchronized."
+      "featureId": "validation-reuse-transaction",
+      "transcript": "Current validation-evidence-reuse-smoke passed: canonical 3-file isolated transaction, exact index/worktree rollback, receipt and hook failures fail closed, coverage-only recovery, three sources, and 45-command reuse."
+    },
+    {
+      "featureId": "F-018-F-023",
+      "transcript": "All six findings are resolved with strong evidence. Reviewer passes RP-023/RP-024/RP-025 cover the shared immutable metadata transaction: exact post-hook path/blob revalidation, immutable tree, old-HEAD CAS, hook/message/signing policy, unrelated staged-state preservation, and no post-commit on CAS refusal."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Exact current bindings were checked against the one-file two-pin delta, final 46-command PASS, zero-execution routine reuse, fresh live transcript, and focused process-fact contract verification. All delivery promises remain satisfied with no waiver or unresolved delivery issue."
+    "summary": "Canonical PASS is now persisted on the exact current binding. The bounded incremental review and three current focused smokes verify safe reused-terminal auto-close, shared immutable tree/CAS behavior, rollback, hooks, signing, and unchanged delivery promises, with no waiver or unresolved delivery issue."
   },
-  "_hash": "82e8d0805a8674a82d8520ce3d9f0fcc0dc9f8c15714956bf800f47e8f1b32a7"
+  "_hash": "938585c17d6ba3665e541c395a9363345bf05c472971a6ed0f581c45c4b72cb6"
 }
