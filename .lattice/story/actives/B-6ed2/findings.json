@@ -75,6 +75,21 @@
       "resolvedAt": "2026-07-18T23:17:06.878Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6ed2:F-005",
+      "desc": "packages/main/src/handlers/quorum-submit.ts:500-530,588-595 [HIGH] The repaired exact-byte ownership is registered only after captureOwnedVerdictOutput returns. submitLocalVerdict has already written both the host_verdict event and ignored verdict JSON; if the capture itself fails (a concurrent mutation changes the just-appended row, the verdict JSON is deleted/replaced before read, or the row is malformed), ownedEventRows/ownedVerdictFiles never receive that verdict. The catch therefore cannot remove even an unchanged generated JSON and may report all emitted verdicts rolled back while leaving the last command-owned outputs behind. This violates the all-row rollback and failed-attempt isolation contract. Record a provisional output identity before any fallible capture/validation, then either promote exact frozen bytes or conservatively preserve/report only genuinely changed bytes while removing unchanged command-owned outputs. Add a focused capture-time failure regression that verifies no unchanged verdict JSON/event residue and no false all-rolled-back diagnostic. Also ensure Buffer span removal is boundary/position anchored rather than suffix.indexOf(row) matching an owned row byte sequence embedded inside arbitrary foreign binary bytes (lines 297-317).",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-18T23:20:21.260Z",
+      "reviewRound": "2026-07-18T23:16:21.943Z",
+      "reviewRunId": "B-6ed2:RR-008",
+      "_hash": "dbf794a3af37da2aa0fdb4083a4bc134fa56ada7861b3b1b8e335b738a6b7a2f",
+      "signatureTag": "adversarial|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
