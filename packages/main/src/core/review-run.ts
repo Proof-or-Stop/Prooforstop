@@ -38,7 +38,7 @@ import {
   reviewerDispatchPromptDigest,
 } from './prompt-contracts.js';
 import { BASELINE_RUNTIME_CONTRACT } from './prompt-measurement.js';
-import { readPromptRegistry, readPromptTemplate } from './prompt-registry.js';
+import { readPromptRegistry, readPromptTemplate, type PromptHost } from './prompt-registry.js';
 import { loadConfig } from './config.js';
 import {
   isPromptRoleEligibleForReviewEvidence,
@@ -514,6 +514,7 @@ export function verifyReviewRun(run: ReviewRun): boolean {
 export interface VerifiedReviewerDispatchBinding {
   dispatchPrompt: string;
   dispatchPromptDigest: string;
+  hostRenderHost: PromptHost;
   hostRenderIdentityDigest: string;
   dispatchBindingDigest: string;
 }
@@ -525,15 +526,6 @@ export function verifyCurrentReviewerDispatchBinding(args: {
   reviewRound: string;
   projectRoot: string;
 }): { ok: true; binding: VerifiedReviewerDispatchBinding } | { ok: false; reason: string } {
-  let hostIdentity;
-  try {
-    hostIdentity = reviewerHostRenderIdentity(args.projectRoot, args.lane);
-  } catch (error) {
-    return {
-      ok: false,
-      reason: error instanceof Error ? error.message : String(error),
-    };
-  }
   const event = [...args.store.readProcessEvents(args.storyId)].reverse().find(candidate =>
     candidate.type === 'dispatch'
     && candidate.targetKind === 'story-review'
@@ -541,6 +533,19 @@ export function verifyCurrentReviewerDispatchBinding(args: {
     && candidate.reviewRound === args.reviewRound);
   if (!event) {
     return { ok: false, reason: `no trusted story-review dispatch binding for ${args.lane} in the current REVIEW round` };
+  }
+  const hostRenderHost = event.hostRenderHost;
+  if (hostRenderHost !== 'claude' && hostRenderHost !== 'codex') {
+    return { ok: false, reason: 'story-review dispatch is missing a supported host render identity' };
+  }
+  let hostIdentity;
+  try {
+    hostIdentity = reviewerHostRenderIdentity(args.projectRoot, args.lane, hostRenderHost);
+  } catch (error) {
+    return {
+      ok: false,
+      reason: error instanceof Error ? error.message : String(error),
+    };
   }
   const dispatchPrompt = typeof event.dispatchPrompt === 'string' ? event.dispatchPrompt : '';
   const dispatchPromptDigest = typeof event.dispatchPromptDigest === 'string' ? event.dispatchPromptDigest : '';
@@ -569,6 +574,7 @@ export function verifyCurrentReviewerDispatchBinding(args: {
     binding: {
       dispatchPrompt,
       dispatchPromptDigest,
+      hostRenderHost,
       hostRenderIdentityDigest,
       dispatchBindingDigest,
     },

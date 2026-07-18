@@ -21,7 +21,7 @@ import { evaluateReviewAssuranceFloor } from '../core/review-assurance-floor.js'
 import { canPassReviewGuard, type StoryMachineContext } from '../core/machine.js';
 import { computePromptEnvelopeId } from '../core/prompt-envelope.js';
 import { PROMPT_ENVELOPE_ROLLOUT_VERSION } from '../core/prompt-role-contract-registry.js';
-import { readPromptRegistry, readPromptTemplate } from '../core/prompt-registry.js';
+import { readPromptRegistry, renderPromptEntryForHost } from '../core/prompt-registry.js';
 import { StoryStore } from '../core/store.js';
 import { listVerdicts, summarizeVerdicts } from '../core/verdicts.js';
 import { createMainRegistry } from '../registry.js';
@@ -111,13 +111,18 @@ function checklist(): ChecklistData {
   };
 }
 
-function makeFixture(): { root: string; store: StoryStore; ctx: HandlerContext; registry: ReturnType<typeof createMainRegistry> } {
+function makeFixture(
+  assetMode: 'global-thin' | 'full' = 'global-thin',
+): { root: string; store: StoryStore; ctx: HandlerContext; registry: ReturnType<typeof createMainRegistry> } {
   const root = mkdtempSync(join(tmpdir(), 'lattice-quorum-submit-'));
   writeConfig(root);
-  const promptRegistry = readPromptRegistry();
-  for (const lane of REVIEW_LANES) {
-    const entry = promptRegistry.agents.find(candidate => candidate.agentId === lane)!;
-    write(root, `.claude/agents/${entry.file}`, readPromptTemplate(entry));
+  write(root, '.lattice/lattice.json', `${JSON.stringify({ assetMode }, null, 2)}\n`);
+  if (assetMode === 'full') {
+    const promptRegistry = readPromptRegistry();
+    for (const lane of REVIEW_LANES) {
+      const entry = promptRegistry.agents.find(candidate => candidate.agentId === lane)!;
+      write(root, `.lattice-codex/agents/${entry.file}`, renderPromptEntryForHost(entry, 'codex'));
+    }
   }
   write(root, 'README.md', 'quorum submit smoke\n');
   write(root, 'packages/main/src/index.ts', 'export const seed = true;\n');
@@ -410,23 +415,15 @@ try {
       gitCwd: root,
     };
     assert.equal(canPassReviewGuard(machineContext), true, 'current canonical full-envelope evidence passes REVIEW');
-    const qualityAssetPath = '.claude/agents/lattice-review-quality.md';
-    const originalQualityAsset = readFileSync(join(root, qualityAssetPath), 'utf8');
-    write(root, qualityAssetPath, `${originalQualityAsset}\n<!-- host-asset-only drift -->\n`);
     const qualityRun = [...store.readReviewRuns(STORY_ID).runs]
       .reverse()
       .find(run => run.lane === 'lattice-review-quality');
-    assert.ok(qualityRun, 'quality reviewer run exists for host-asset drift verification');
-    const driftedHostVerification = verifyReviewRunPromptEnvelope(store, qualityRun);
-    assert.equal(driftedHostVerification.ok, false, 'host-asset-only drift invalidates the bound Prompt Envelope');
-    assert.match(
-      driftedHostVerification.reason ?? '',
-      /host render identity|Claude reviewer prompt asset/,
-      'host-asset-only drift is rejected by the render identity boundary',
+    assert.ok(qualityRun, 'quality reviewer run exists for thin host-render verification');
+    assert.equal(
+      verifyReviewRunPromptEnvelope(store, qualityRun).ok,
+      true,
+      'global-thin full-envelope dispatch and review-run verification need no project host prompt assets',
     );
-    assert.equal(canPassReviewGuard(machineContext), false, 'machine REVIEW rejects host-asset-only drift');
-    write(root, qualityAssetPath, originalQualityAsset);
-    assert.equal(canPassReviewGuard(machineContext), true, 'restoring exact host asset bytes restores REVIEW evidence');
     const data = store.readPromptEnvelopes(STORY_ID);
     const original = data.envelopes[0];
     assert.ok(original, 'full-envelope reviewer run persists an envelope');
@@ -442,6 +439,43 @@ try {
     assertQuorumRefuses(registry, store, root, 'quorum rejects the same replayed envelope');
     store.writePromptEnvelopes(STORY_ID, data);
     assert.equal(canPassReviewGuard(machineContext), true, 'restoring exact envelope bytes restores REVIEW evidence');
+  });
+
+  check('explicit full-asset mode rejects drift in the selected host without requiring the other host', () => {
+    const full = makeFixture('full');
+    const primaryCwd = process.cwd();
+    try {
+      process.chdir(full.root);
+      recordReviewerPasses(full.registry);
+      const machineContext: StoryMachineContext = {
+        storyId: STORY_ID,
+        store: full.store,
+        projectRoot: full.root,
+        gitCwd: full.root,
+      };
+      assert.equal(canPassReviewGuard(machineContext), true, 'Codex-only full-asset reviewer evidence passes');
+      const qualityRun = [...full.store.readReviewRuns(STORY_ID).runs]
+        .reverse()
+        .find(run => run.lane === 'lattice-review-quality');
+      assert.ok(qualityRun, 'quality reviewer run exists for full-asset drift verification');
+      const qualityAssetPath = '.lattice-codex/agents/lattice-review-quality.md';
+      const originalQualityAsset = readFileSync(join(full.root, qualityAssetPath), 'utf8');
+      write(full.root, qualityAssetPath, `${originalQualityAsset}\n<!-- selected-host drift -->\n`);
+      const driftedHostVerification = verifyReviewRunPromptEnvelope(full.store, qualityRun);
+      assert.equal(driftedHostVerification.ok, false, 'selected-host asset drift invalidates the bound Prompt Envelope');
+      assert.match(
+        driftedHostVerification.reason ?? '',
+        /host render identity|codex reviewer prompt asset drift/,
+        'full-asset drift is rejected by the selected host render boundary',
+      );
+      assert.equal(canPassReviewGuard(machineContext), false, 'machine REVIEW rejects selected-host asset drift');
+      write(full.root, qualityAssetPath, originalQualityAsset);
+      assert.equal(canPassReviewGuard(machineContext), true, 'restoring exact selected-host bytes restores REVIEW evidence');
+    } finally {
+      process.chdir(primaryCwd);
+      rmSync(full.root, { recursive: true, force: true });
+      resetConfigCache();
+    }
   });
 
   let result: any;

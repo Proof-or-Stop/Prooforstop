@@ -40,6 +40,8 @@ import {
   reviewerHostRenderIdentity,
   resolvePromptEnvelopeRolloutMode,
 } from '../core/prompt-role-contract-registry.js';
+import { getSessionIdentity } from '../core/owner-session.js';
+import type { PromptHost } from '../core/prompt-registry.js';
 
 // B-45ed CHK-008: agent-type → background injection strategy mapping table
 // Source: CLAUDE.md "background.md tiered injection (subagent)" subsection
@@ -55,6 +57,10 @@ const AGENT_BG_POLICY: Record<string, BackgroundPolicy> = {
 };
 
 const IMPLEMENTER_COMMIT_AUTHOR = 'lattice-implementer <lattice-implementer@noreply.local>';
+
+function currentReviewerPromptHost(): PromptHost {
+  return getSessionIdentity().hostProvider === 'claude-code' ? 'claude' : 'codex';
+}
 
 /** Resolve agentType → injection strategy; unknown agentType downgrades to required (safest). */
 function resolveBackgroundPolicy(agentType: string | undefined): BackgroundPolicy {
@@ -118,6 +124,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     clusterId?: string;
     dispatchPrompt?: string;
     dispatchPromptDigest?: string;
+    hostRenderHost?: PromptHost;
     hostRenderIdentityDigest?: string;
     dispatchBindingDigest?: string;
     reviewRound?: string;
@@ -137,6 +144,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         ...(args.clusterId ? { clusterId: args.clusterId } : {}),
         ...(args.dispatchPrompt !== undefined ? { dispatchPrompt: args.dispatchPrompt } : {}),
         ...(args.dispatchPromptDigest ? { dispatchPromptDigest: args.dispatchPromptDigest } : {}),
+        ...(args.hostRenderHost ? { hostRenderHost: args.hostRenderHost } : {}),
         ...(args.hostRenderIdentityDigest ? { hostRenderIdentityDigest: args.hostRenderIdentityDigest } : {}),
         ...(args.dispatchBindingDigest ? { dispatchBindingDigest: args.dispatchBindingDigest } : {}),
         ...(args.reviewRound ? { reviewRound: args.reviewRound } : {}),
@@ -739,7 +747,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           if (!story.currentReviewRound) {
             throw new Error(`review dispatch requires currentReviewRound for story ${args.storyId}`);
           }
-          const hostIdentity = reviewerHostRenderIdentity(root, canonicalType);
+          const hostRenderHost = currentReviewerPromptHost();
+          const hostIdentity = reviewerHostRenderIdentity(root, canonicalType, hostRenderHost);
           const dispatchPromptDigest = reviewerDispatchPromptDigest(result.prompt);
           const dispatchBindingDigest = reviewerDispatchBindingDigest({
             storyId: args.storyId,
@@ -754,6 +763,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
             targetKind: 'story-review',
             dispatchPrompt: result.prompt,
             dispatchPromptDigest,
+            hostRenderHost,
             hostRenderIdentityDigest: hostIdentity.identityDigest,
             dispatchBindingDigest,
             reviewRound: story.currentReviewRound,

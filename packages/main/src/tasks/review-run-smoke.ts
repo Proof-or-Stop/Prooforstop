@@ -105,6 +105,7 @@ const store = {
     reviewRound: 'round-1',
     dispatchPrompt,
     dispatchPromptDigest,
+    hostRenderHost: 'codex',
     hostRenderIdentityDigest: hostIdentity.identityDigest,
     dispatchBindingDigest,
   }],

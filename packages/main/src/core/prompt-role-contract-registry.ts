@@ -12,6 +12,7 @@ import {
   readPromptRegistry,
   readPromptTemplate,
   renderPromptEntryForHost,
+  type PromptHost,
   type PromptRegistrySnapshot,
 } from './prompt-registry.js';
 
@@ -22,41 +23,102 @@ export type PromptEnvelopeRolloutMode = 'legacy-full-context' | 'full-envelope';
 export interface ReviewerHostRenderIdentity {
   schemaVersion: 'proofbound.reviewer-host-render-identity.v1';
   roleId: string;
+  host: PromptHost;
+  source: 'full-asset' | 'package-registry';
   packageTemplateDigest: string;
-  claudeRenderDigest: string;
-  codexRenderDigest: string;
-  codexSource: 'full-asset' | 'package-registry';
+  hostRenderDigest: string;
   identityDigest: string;
 }
 
-function readCodexPromptMode(projectRoot: string): 'legacy-mirror' | 'registry' {
-  const path = join(projectRoot, '.lattice-codex', 'lattice.json');
-  if (!existsSync(path)) return 'registry';
+type ReviewerHostRenderSource = ReviewerHostRenderIdentity['source'];
+
+function readJsonRecord(path: string): Record<string, unknown> | null {
+  if (!existsSync(path)) return null;
   try {
-    const parsed = JSON.parse(readFileSync(path, 'utf8')) as { promptMode?: unknown };
-    return parsed.promptMode === 'registry' ? 'registry' : 'legacy-mirror';
+    const parsed = JSON.parse(readFileSync(path, 'utf8'));
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? parsed as Record<string, unknown>
+      : null;
   } catch {
-    throw new PromptRoleContractRegistryError('.lattice-codex/lattice.json is not valid JSON');
+    throw new PromptRoleContractRegistryError(`${path} is not valid JSON`);
   }
 }
 
-function assertExactHostAsset(path: string, expected: string, label: string): string {
-  if (!existsSync(path)) throw new PromptRoleContractRegistryError(`missing ${label} reviewer prompt asset: ${path}`);
+function normalizeHostRenderSource(value: unknown): ReviewerHostRenderSource | null {
+  if (typeof value !== 'string') return null;
+  const normalized = value.trim().toLowerCase().replace(/_/g, '-');
+  if (['runtime-owned', 'global-thin', 'thin', 'registry', 'pinned-runtime'].includes(normalized)) {
+    return 'package-registry';
+  }
+  if (['full-asset', 'full', 'legacy-mirror', 'local'].includes(normalized)) {
+    return 'full-asset';
+  }
+  return null;
+}
+
+function globalHostRenderSource(projectRoot: string): ReviewerHostRenderSource | null {
+  for (const relPath of ['.lattice/lattice.json', '.Lattice/lattice.json']) {
+    const manifest = readJsonRecord(join(projectRoot, relPath));
+    if (!manifest) continue;
+    const source = normalizeHostRenderSource(
+      manifest.agentAssetMode ?? manifest.assetMode ?? manifest.promptMode,
+    );
+    if (source) return source;
+  }
+  return null;
+}
+
+function reviewerHostRenderSource(
+  projectRoot: string,
+  host: PromptHost,
+  file: string,
+): ReviewerHostRenderSource {
+  const globalSource = globalHostRenderSource(projectRoot);
+  if (host === 'codex') {
+    const codexManifest = readJsonRecord(join(projectRoot, '.lattice-codex', 'lattice.json'));
+    const codexSource = normalizeHostRenderSource(
+      codexManifest?.agentAssetMode ?? codexManifest?.assetMode ?? codexManifest?.promptMode,
+    );
+    if (codexSource === 'package-registry') return codexSource;
+    if (globalSource === 'package-registry') return globalSource;
+    if (codexSource === 'full-asset') return codexSource;
+    if (
+      codexManifest?.adapterOwner === 'lattice'
+      && codexManifest.adapterKind === 'codex'
+      && codexManifest.promptMode === undefined
+    ) {
+      return 'full-asset';
+    }
+  } else if (globalSource) {
+    return globalSource;
+  }
+  if (globalSource) return globalSource;
+  const relDir = host === 'claude' ? '.claude/agents' : '.lattice-codex/agents';
+  return existsSync(join(projectRoot, relDir, file)) ? 'full-asset' : 'package-registry';
+}
+
+function assertExactHostAsset(path: string, expected: string, host: PromptHost): string {
+  if (!existsSync(path)) throw new PromptRoleContractRegistryError(`missing ${host} reviewer prompt asset: ${path}`);
   const actual = readFileSync(path, 'utf8');
   if (actual !== expected) {
     throw new PromptRoleContractRegistryError(
-      `${label} reviewer prompt asset drift: ${path} does not equal the canonical package render`,
+      `${host} reviewer prompt asset drift: ${path} does not equal the canonical package render`,
     );
   }
   return actual;
 }
 
 /**
- * Proves that every host-visible role prompt for a reviewer lane is the exact
- * deterministic render of the package registry entry. Full Codex projects bind
- * the materialized asset; thin projects bind the registry render identity.
+ * Proves that one host-visible role prompt is the exact deterministic render of
+ * the package registry entry. Runtime-owned/thin hosts bind the package render
+ * without requiring project assets. Explicit full-asset hosts bind only their
+ * own materialized mirror, never another host's files.
  */
-export function reviewerHostRenderIdentity(projectRoot: string, roleId: string): ReviewerHostRenderIdentity {
+export function reviewerHostRenderIdentity(
+  projectRoot: string,
+  roleId: string,
+  host: PromptHost = 'codex',
+): ReviewerHostRenderIdentity {
   const registry = readPromptRegistry();
   const entry = registry.agents.find(candidate => candidate.agentId === roleId);
   if (!entry) throw new PromptRoleContractRegistryError(`unknown reviewer prompt role "${roleId}"`);
@@ -64,28 +126,23 @@ export function reviewerHostRenderIdentity(projectRoot: string, roleId: string):
     throw new PromptRoleContractRegistryError(`role "${roleId}" is not eligible for reviewer host rendering`);
   }
   const packageTemplate = readPromptTemplate(entry);
-  const claudeAsset = assertExactHostAsset(
-    join(projectRoot, '.claude', 'agents', entry.file),
-    packageTemplate,
-    'Claude',
-  );
-  const codexExpected = renderPromptEntryForHost(entry, 'codex');
-  const codexSource: ReviewerHostRenderIdentity['codexSource'] =
-    readCodexPromptMode(projectRoot) === 'registry' ? 'package-registry' : 'full-asset';
-  const codexRender = codexSource === 'package-registry'
-    ? codexExpected
+  const expectedHostRender = renderPromptEntryForHost(entry, host);
+  const source = reviewerHostRenderSource(projectRoot, host, entry.file);
+  const relDir = host === 'claude' ? '.claude/agents' : '.lattice-codex/agents';
+  const hostRender = source === 'package-registry'
+    ? expectedHostRender
     : assertExactHostAsset(
-      join(projectRoot, '.lattice-codex', 'agents', entry.file),
-      codexExpected,
-      'Codex',
+      join(projectRoot, relDir, entry.file),
+      expectedHostRender,
+      host,
     );
   const semantic = {
     schemaVersion: 'proofbound.reviewer-host-render-identity.v1' as const,
     roleId,
+    host,
+    source,
     packageTemplateDigest: domainSeparatedDigest('reviewer-package-template.raw-utf8.v1', packageTemplate),
-    claudeRenderDigest: domainSeparatedDigest('reviewer-claude-render.raw-utf8.v1', claudeAsset),
-    codexRenderDigest: domainSeparatedDigest('reviewer-codex-render.raw-utf8.v1', codexRender),
-    codexSource,
+    hostRenderDigest: domainSeparatedDigest(`reviewer-${host}-render.raw-utf8.v1`, hostRender),
   };
   return {
     ...semantic,
