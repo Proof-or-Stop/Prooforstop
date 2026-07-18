@@ -20,7 +20,7 @@
  */
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type {
@@ -75,12 +75,15 @@ import {
   SCOPE_ANCHOR_PARSER_VERSION,
 } from '../core/scope-diff-pack.js';
 import { createScopeContractHandlers } from '../handlers/scope-contract.js';
+import { SCOPE_PATH_CANONICALIZER_VERSION } from '../core/scope-path-classifier.js';
+import { runPrewriteGuardCheck } from '../core/prewrite-guard.js';
 import type { HandlerContext } from '../handlers/context.js';
 
 function makeContract(overrides: Partial<ScopeContractData> & { mode: ScopeContractMode }): ScopeContractData {
   const now = new Date().toISOString();
   return {
-    storyId: 'B-semantic',
+    ...overrides,
+    storyId: overrides.storyId ?? 'B-semantic',
     mode: overrides.mode,
     allowedModify: overrides.allowedModify ?? [],
     allowedCreate: overrides.allowedCreate ?? [],
@@ -90,8 +93,6 @@ function makeContract(overrides: Partial<ScopeContractData> & { mode: ScopeContr
     acknowledgements: overrides.acknowledgements ?? [],
     createdAt: now,
     updatedAt: now,
-    ...(overrides.fileRules ? { fileRules: overrides.fileRules } : {}),
-    ...(overrides.protectedAnchors ? { protectedAnchors: overrides.protectedAnchors } : {}),
   };
 }
 
@@ -1201,6 +1202,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
       ['outer', 'method'],
       'unchanged context declarations are not misreported as changed anchors',
     );
+    assert.ok(separatedChanges.every((hunk) => hunk.changeKind === 'modify'), 'replacement spans are explicitly classified modify');
     const wholeFileReplacement = parseUnifiedDiff(root, [
       `diff --git a/${path} b/${path}`,
       `+++ b/${path}`,
@@ -1216,6 +1218,31 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
       makePack([wholeFileReplacement]),
     );
     assert.equal(multiProtected.status, 'fail', 'a later protected declaration cannot hide behind the first anchor');
+    assert.equal(multiProtected.violations[0]?.anchor, 'Shape', 'diagnostics report the actual violating anchor');
+    assert.equal(multiProtected.violations[0]?.anchorKind, 'interface');
+    assert.deepEqual(multiProtected.violations[0]?.anchorRange, { start: 15, end: 15 });
+    assert.equal(multiProtected.violations[0]?.anchorParserVersion, SCOPE_ANCHOR_PARSER_VERSION);
+    assert.equal(multiProtected.violations[0]?.anchorArtifactVersion, SCOPE_ANCHOR_ARTIFACT_VERSION);
+    assert.match(multiProtected.violations[0]?.detail ?? '', /protected_anchor.*Shape/);
+    assert.match(multiProtected.violations[0]?.nextAction ?? '', /Revert.*protected/);
+    const deniedLater = checkSemanticScope(
+      makeContract({
+        mode: 'enforce',
+        allowedModify: [path],
+        fileRules: [{ path, deniedAnchors: ['Alias'] }],
+      }),
+      makePack([wholeFileReplacement]),
+    );
+    assert.equal(deniedLater.violations[0]?.anchor, 'Alias', 'denied diagnostics report the matched later anchor');
+    const unmatchedLater = checkSemanticScope(
+      makeContract({
+        mode: 'enforce',
+        allowedModify: [path],
+        fileRules: [{ path, allowedAnchors: ['outer'] }],
+      }),
+      makePack([wholeFileReplacement]),
+    );
+    assert.notEqual(unmatchedLater.violations[0]?.anchor, 'outer', 'unmatched diagnostics report an actual non-allowlisted anchor');
     execFileSync('git', ['init', '-b', 'main'], { cwd: root, stdio: 'ignore' });
     execFileSync('git', ['config', 'user.email', 'ast@example.test'], { cwd: root });
     execFileSync('git', ['config', 'user.name', 'AST Smoke'], { cwd: root });
@@ -1231,9 +1258,377 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
     );
     assert.equal(protectedRename.status, 'fail', 'renaming a protected old declaration remains observable and blocked');
     writeFileSync(join(root, path), 'export function broken( {\n');
-    assert.equal(hunkAt(1).parseFallback, 'typescript_parse_error_fail_closed');
+    const brokenHunk = hunkAt(1);
+    assert.equal(brokenHunk.parseFallback, 'typescript_parse_error_fail_closed');
+    const brokenGate = checkSemanticScope(
+      makeContract({ mode: 'enforce', fileRules: [{ path, allowedAnchors: ['broken'] }] }),
+      makePack([brokenHunk]),
+    );
+    assert.equal(brokenGate.status, 'fail', 'parser failure is a blocking semantic diagnostic');
+    assert.equal(brokenGate.violations[0]?.rule, 'unmatched_anchor');
+    assert.match(brokenGate.violations[0]?.nextAction ?? '', /Re-attest/);
   } finally {
     rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// B-0784 F-014/F-019: every declaration/control-flow/change-kind noun is
+// exercised through parser-backed diff production, not representative aliases.
+{
+  const root = mkdtempSync(join(tmpdir(), 'lattice-ast-declaration-matrix-'));
+  try {
+    const path = 'src/matrix.ts';
+    mkdirSync(join(root, 'src'), { recursive: true });
+    const source = [
+      'function plain() { return 1; }',
+      'function overloaded(x: string): string;',
+      'function overloaded(x: number): number;',
+      'function overloaded(x: unknown) { return x; }',
+      'class PlainClass {',
+      '  constructor() {}',
+      '  method() {}',
+      '  [Symbol.iterator]() { return [][Symbol.iterator](); }',
+      '  @sealed',
+      '  decorated(',
+      '    value: string,',
+      '  ) { return value; }',
+      '}',
+      'interface Contract { value: string }',
+      'type AliasType = Contract;',
+      'namespace Space { export const value = 1; }',
+      'declare module "pkg" { export const value: number; }',
+      'enum Colour { Red, Blue }',
+      'export default function () { return 1; }',
+      'export default class { value = 1; }',
+      'const localArrow = () => 1;',
+      '',
+    ].join('\n');
+    writeFileSync(join(root, path), source);
+    const lineOf = (needle: string): number => {
+      const index = source.split('\n').findIndex((line) => line.includes(needle));
+      assert.notEqual(index, -1, `matrix source contains ${needle}`);
+      return index + 1;
+    };
+    const atLine = (line: number): ScopeDiffHunk => parseUnifiedDiff(root, [
+      `diff --git a/${path} b/${path}`,
+      `--- a/${path}`,
+      `+++ b/${path}`,
+      `@@ -${line},1 +${line},1 @@`,
+      '-old',
+      `+${source.split('\n')[line - 1]}`,
+    ].join('\n'))[0]!;
+    const declarationCases: Array<[string, string, string]> = [
+      ['plain()', 'plain', 'function'],
+      ['class PlainClass', 'PlainClass', 'class'],
+      ['constructor()', 'constructor', 'constructor'],
+      ['method()', 'method', 'method'],
+      ['[Symbol.iterator]', '[Symbol.iterator]', 'method'],
+      ['@sealed', 'decorated', 'method'],
+      ['value: string,', 'decorated', 'method'],
+      ['interface Contract', 'Contract', 'interface'],
+      ['type AliasType', 'AliasType', 'type'],
+      ['namespace Space', 'Space', 'module'],
+      ['declare module', 'pkg', 'module'],
+      ['enum Colour', 'Colour', 'enum'],
+      ['export default function', '<default>', 'function'],
+      ['export default class', '<default>', 'class'],
+      ['localArrow', 'localArrow', 'top-level-variable'],
+    ];
+    for (const [needle, expectedName, expectedKind] of declarationCases) {
+      const hunk = atLine(lineOf(needle));
+      assert.equal(hunk.anchor, expectedName, `${needle}: declaration name`);
+      assert.equal(hunk.anchorKind, expectedKind, `${needle}: declaration kind`);
+      assert.ok(hunk.anchorRange && hunk.anchorRange.start <= lineOf(needle) && hunk.anchorRange.end >= lineOf(needle));
+      assert.equal(hunk.anchorParserVersion, SCOPE_ANCHOR_PARSER_VERSION);
+      assert.equal(hunk.anchorArtifactVersion, SCOPE_ANCHOR_ARTIFACT_VERSION);
+    }
+    const overloadDiff = parseUnifiedDiff(root, [
+      `diff --git a/${path} b/${path}`,
+      `--- a/${path}`,
+      `+++ b/${path}`,
+      '@@ -2,3 +2,3 @@',
+      '-old1',
+      '-old2',
+      '-old3',
+      '+function overloaded(x: string): string;',
+      '+function overloaded(x: number): number;',
+      '+function overloaded(x: unknown) { return x; }',
+    ].join('\n'))[0]!;
+    assert.equal(
+      overloadDiff.anchors?.filter((anchor) => anchor.name === 'overloaded').length,
+      3,
+      'overload signatures and implementation are retained without count loss',
+    );
+
+    const controlPath = 'src/control.ts';
+    const controlSource = [
+      'function outerControl() {',
+      '  const local = 1;',
+      '  if (local) {}',
+      '  for (let i = 0; i < 1; i++) {}',
+      '  for (const key in { a: 1 }) {}',
+      '  while (false) {}',
+      '  do {} while (false);',
+      '  switch (local) { case 1: break; }',
+      '  try { throw 1; } catch (error) { return error; }',
+      '}',
+    ].join('\n');
+    writeFileSync(join(root, controlPath), controlSource);
+    for (let line = 2; line <= 9; line++) {
+      const hunk = parseUnifiedDiff(root, [
+        `diff --git a/${controlPath} b/${controlPath}`,
+        `--- a/${controlPath}`,
+        `+++ b/${controlPath}`,
+        `@@ -${line},1 +${line},1 @@`,
+        '-old',
+        `+${controlSource.split('\n')[line - 1]}`,
+      ].join('\n'))[0]!;
+      assert.equal(hunk.anchor, 'outerControl', `control/local line ${line} never becomes an anchor`);
+      assert.equal(hunk.anchorKind, 'function');
+    }
+
+    const added = parseUnifiedDiff(root, [
+      'diff --git a/src/added.ts b/src/added.ts',
+      '--- /dev/null',
+      '+++ b/src/added.ts',
+      '@@ -0,0 +1,1 @@',
+      '+export function added() {}',
+    ].join('\n'))[0]!;
+    writeFileSync(join(root, 'src/added.ts'), 'export function added() {}\n');
+    const reparsedAdded = parseUnifiedDiff(root, [
+      'diff --git a/src/added.ts b/src/added.ts',
+      '--- /dev/null',
+      '+++ b/src/added.ts',
+      '@@ -0,0 +1,1 @@',
+      '+export function added() {}',
+    ].join('\n'))[0]!;
+    assert.equal(reparsedAdded.changeKind, 'add');
+    assert.equal(reparsedAdded.anchor, 'added');
+    assert.equal(added?.path, 'src/added.ts');
+
+    const kindMismatchHunk: ScopeDiffHunk = {
+      ...makeHunk(path, { anchor: 'Same' }),
+      anchors: [{ name: 'Same', kind: 'class', range: { start: 1, end: 2 } }],
+      previousAnchors: [{ name: 'Same', kind: 'function', range: { start: 1, end: 2 } }],
+      anchorParserVersion: SCOPE_ANCHOR_PARSER_VERSION,
+      anchorArtifactVersion: SCOPE_ANCHOR_ARTIFACT_VERSION,
+    };
+    const kindMismatch = checkSemanticScope(
+      makeContract({ mode: 'enforce', fileRules: [{ path, allowedAnchors: ['Same'] }] }),
+      makePack([kindMismatchHunk]),
+    );
+    assert.equal(kindMismatch.status, 'fail', 'same-name declaration kind changes require re-attestation');
+    assert.equal(kindMismatch.violations[0]?.anchor, 'Same');
+    assert.match(kindMismatch.violations[0]?.nextAction ?? '', /Re-attest/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+{
+  const root = mkdtempSync(join(tmpdir(), 'lattice-ast-delete-dev-null-'));
+  try {
+    mkdirSync(join(root, 'src'), { recursive: true });
+    writeFileSync(join(root, 'src/deleted.ts'), 'export function critical() { return 1; }\n');
+    execFileSync('git', ['init', '-b', 'main'], { cwd: root, stdio: 'ignore' });
+    execFileSync('git', ['config', 'user.email', 'delete@example.test'], { cwd: root });
+    execFileSync('git', ['config', 'user.name', 'Delete Smoke'], { cwd: root });
+    execFileSync('git', ['add', '.'], { cwd: root });
+    execFileSync('git', ['commit', '-m', 'base'], { cwd: root, stdio: 'ignore' });
+    rmSync(join(root, 'src/deleted.ts'));
+    const deletionDiff = execFileSync('git', ['diff', '--unified=20', '--', 'src/deleted.ts'], { cwd: root, encoding: 'utf8' });
+    assert.match(deletionDiff, /\+\+\+ \/dev\/null/, 'real git deletion uses /dev/null');
+    const deleted = parseUnifiedDiff(root, deletionDiff);
+    assert.equal(deleted.length, 1, 'whole-file deletion preserves a semantic hunk');
+    assert.equal(deleted[0]?.path, 'src/deleted.ts');
+    assert.equal(deleted[0]?.changeKind, 'remove');
+    assert.equal(deleted[0]?.previousAnchor, 'critical');
+    assert.equal(deleted[0]?.anchor, undefined);
+    const protectedDeletion = checkSemanticScope(
+      makeContract({ mode: 'enforce', protectedAnchors: ['critical'] }),
+      makePack(deleted),
+    );
+    assert.equal(protectedDeletion.status, 'fail');
+    assert.equal(protectedDeletion.violations[0]?.anchor, 'critical');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// B-0784 F-013: cartesian production-entry rollout matrix plus persisted-byte
+// rollback/re-enable. Every path mode is paired with every AST mode.
+{
+  const modes = ['off', 'warn', 'enforce'] as const;
+  for (const pathMode of modes) {
+    for (const astMode of modes) {
+      const root = mkdtempSync(join(tmpdir(), `lattice-rollout-${pathMode}-${astMode}-`));
+      try {
+        mkdirSync(join(root, 'src'), { recursive: true });
+        writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+          scanRoot: 'src',
+          rootDir: '.',
+          storyDir: '.lattice/story/actives',
+          requirementsDir: 'docs/requirements',
+          scopeProtection: { pathCanonicalization: pathMode, astAnchors: astMode },
+        }));
+        writeFileSync(join(root, 'src/matrix.ts'), 'export function matrix() { return 1; }\n');
+        execFileSync('git', ['init', '-b', 'main'], { cwd: root, stdio: 'ignore' });
+        execFileSync('git', ['config', 'user.email', 'rollout@example.test'], { cwd: root });
+        execFileSync('git', ['config', 'user.name', 'Rollout Smoke'], { cwd: root });
+        execFileSync('git', ['add', '.'], { cwd: root });
+        execFileSync('git', ['commit', '-m', 'base'], { cwd: root, stdio: 'ignore' });
+        resetConfigCache();
+        const store = new StoryStore(root);
+        const storyId = 'B-a13f';
+        store.writeStory(storyId, {
+          storyId,
+          name: storyId,
+          title: storyId,
+          description: 'rollout matrix',
+          type: 'feature',
+          phase: 'DEV',
+          priority: 'high',
+          createdAt: new Date().toISOString(),
+          startedAt: new Date().toISOString(),
+          endedAt: null,
+          events: [],
+        });
+        const handlers = createScopeContractHandlers({ store, root } as HandlerContext);
+        handlers.scope_contract_set({
+          storyId,
+          mode: 'enforce',
+          allowedModify: ['matrix.ts'],
+          fileRules: [{ path: 'matrix.ts', allowedAnchors: ['matrix'] }],
+        });
+        const contract = store.readScopeContract(storyId)!;
+        assert.equal(
+          contract.pathCanonicalizerVersion,
+          pathMode === 'off' ? undefined : SCOPE_PATH_CANONICALIZER_VERSION,
+          `${pathMode}×${astMode}: writer path version`,
+        );
+        assert.equal(
+          contract.anchorParserVersion,
+          astMode === 'off' ? undefined : SCOPE_ANCHOR_PARSER_VERSION,
+          `${pathMode}×${astMode}: writer parser version`,
+        );
+        writeFileSync(join(root, 'src/matrix.ts'), 'export function matrix() { return 2; }\n');
+        const pack = buildScopeDiffPack(root);
+        assert.equal(pack.astAnchorMode, astMode, `${pathMode}×${astMode}: production diff-pack mode`);
+        const pathResult = JSON.parse(handlers.scope_contract_check({ storyId, json: true }));
+        assert.equal(
+          pathResult.status,
+          pathMode === 'off' ? 'fail' : 'pass',
+          `${pathMode}×${astMode}: production path reader outcome`,
+        );
+        const semantic = checkSemanticScope(contract, pack);
+        assert.equal(
+          semantic.status,
+          astMode === 'off' ? 'skip' : 'pass',
+          `${pathMode}×${astMode}: production semantic reader outcome`,
+        );
+        assert.equal(
+          runPrewriteGuardCheck({
+            normalizedPaths: ['src/matrix.ts'],
+            contract,
+            storyId,
+            projectRoot: root,
+          }).verdict,
+          pathMode === 'off' ? 'deny' : 'allow',
+          `${pathMode}×${astMode}: production prewrite outcome`,
+        );
+        assert.equal(
+          detectGuardViolations(contract, pack, [], new Date().toISOString(), root).length === 0,
+          pathMode !== 'off',
+          `${pathMode}×${astMode}: production guard-session outcome`,
+        );
+
+        if (pathMode !== 'off') {
+          store.writeScopeContract(storyId, { ...contract, pathCanonicalizerVersion: 'repo-relative-v999' });
+          const futurePath = JSON.parse(handlers.scope_contract_check({ storyId, json: true }));
+          assert.equal(futurePath.status, pathMode === 'warn' ? 'warn' : 'fail', `${pathMode}: future path version`);
+          store.writeScopeContract(storyId, contract);
+        }
+        if (astMode !== 'off') {
+          const futureSemantic = checkSemanticScope({
+            ...contract,
+            anchorParserVersion: 'typescript-ast-v999',
+            anchorArtifactVersion: 'scope-anchor-artifact-v999',
+          }, pack);
+          assert.equal(futureSemantic.status, astMode === 'warn' ? 'warn' : 'fail', `${astMode}: future AST versions`);
+        }
+      } finally {
+        rmSync(root, { recursive: true, force: true });
+        resetConfigCache();
+      }
+    }
+  }
+
+  const root = mkdtempSync(join(tmpdir(), 'lattice-rollout-persisted-bytes-'));
+  try {
+    mkdirSync(join(root, 'src'), { recursive: true });
+    const writeConfig = (pathCanonicalization: 'off' | 'warn' | 'enforce', astAnchors: 'off' | 'warn' | 'enforce'): void => {
+      writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+        scanRoot: 'src',
+        rootDir: '.',
+        storyDir: '.lattice/story/actives',
+        requirementsDir: 'docs/requirements',
+        scopeProtection: { pathCanonicalization, astAnchors },
+      }));
+      resetConfigCache();
+    };
+    writeConfig('off', 'off');
+    writeFileSync(join(root, 'src/matrix.ts'), 'export function matrix() { return 1; }\n');
+    execFileSync('git', ['init', '-b', 'main'], { cwd: root, stdio: 'ignore' });
+    execFileSync('git', ['config', 'user.email', 'persist@example.test'], { cwd: root });
+    execFileSync('git', ['config', 'user.name', 'Persist Smoke'], { cwd: root });
+    execFileSync('git', ['add', '.'], { cwd: root });
+    execFileSync('git', ['commit', '-m', 'base'], { cwd: root, stdio: 'ignore' });
+    const store = new StoryStore(root);
+    const storyId = 'B-b13f';
+    store.writeStory(storyId, {
+      storyId, name: storyId, title: storyId, description: 'persisted rollback', type: 'feature',
+      phase: 'DEV', priority: 'high', createdAt: new Date().toISOString(),
+      startedAt: new Date().toISOString(), endedAt: null, events: [],
+    });
+    store.writeScopeContract(storyId, makeContract({
+      storyId,
+      mode: 'enforce',
+      allowedModify: ['src/matrix.ts', 'lattice.config.json'],
+      fileRules: [{ path: 'src/matrix.ts', allowedAnchors: ['matrix'] }],
+    }));
+    const artifactPath = join(root, '.lattice/story/actives', storyId, 'scope-contract.json');
+    const legacyBytes = readFileSync(artifactPath, 'utf8');
+    writeFileSync(join(root, 'src/matrix.ts'), 'export function matrix() { return 2; }\n');
+    const offHandlers = createScopeContractHandlers({ store, root } as HandlerContext);
+    offHandlers.scope_contract_check({ storyId, json: true });
+    buildScopeDiffPack(root);
+    assert.equal(readFileSync(artifactPath, 'utf8'), legacyBytes, 'rollback off does not rewrite persisted signed bytes');
+
+    writeConfig('warn', 'warn');
+    const warnHandlers = createScopeContractHandlers({ store, root } as HandlerContext);
+    const warnPathResult = JSON.parse(warnHandlers.scope_contract_check({ storyId, json: true }));
+    assert.equal(warnPathResult.status, 'warn', JSON.stringify(warnPathResult));
+    assert.equal(checkSemanticScope(store.readScopeContract(storyId)!, buildScopeDiffPack(root)).status, 'warn');
+    assert.equal(readFileSync(artifactPath, 'utf8'), legacyBytes, 'warn reader does not rewrite persisted signed bytes');
+
+    writeConfig('enforce', 'enforce');
+    const enforceHandlers = createScopeContractHandlers({ store, root } as HandlerContext);
+    assert.equal(JSON.parse(enforceHandlers.scope_contract_check({ storyId, json: true })).status, 'fail');
+    assert.equal(checkSemanticScope(store.readScopeContract(storyId)!, buildScopeDiffPack(root)).status, 'fail');
+    assert.equal(readFileSync(artifactPath, 'utf8'), legacyBytes, 'enforce rejection does not rewrite persisted signed bytes');
+    enforceHandlers.scope_contract_set({
+      storyId,
+      mode: 'enforce',
+      allowedModify: ['src/matrix.ts', 'lattice.config.json'],
+      fileRules: [{ path: 'src/matrix.ts', allowedAnchors: ['matrix'] }],
+    });
+    const reenabled = store.readScopeContract(storyId)!;
+    assert.equal(reenabled.pathCanonicalizerVersion, SCOPE_PATH_CANONICALIZER_VERSION);
+    assert.equal(reenabled.anchorParserVersion, SCOPE_ANCHOR_PARSER_VERSION);
+    assert.notEqual(readFileSync(artifactPath, 'utf8'), legacyBytes, 'forward re-enable writes current-version artifact');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+    resetConfigCache();
   }
 }
 

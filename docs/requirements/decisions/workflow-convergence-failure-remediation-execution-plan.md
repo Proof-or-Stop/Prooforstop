@@ -470,6 +470,11 @@ consumer supplies the project root, so source-root declarations and git
 repo-root paths converge identically rather than only in the explicit
 `scope_contract_check` command.
 
+Malformed glob grammar is rejected at every current-version write boundary.
+Legacy enforce consumption also blocks malformed protected/excluded patterns
+before evaluating broad allow rules; an invalid deny rule can never degrade
+into a silent non-match.
+
 The gate must compare canonical paths on both sides. It must not indefinitely
 accept multiple ambiguous bases by trial and error.
 
@@ -488,6 +493,12 @@ by each span (including previous-source declarations for deletions/renames),
 and the semantic gate evaluates every touched declaration. A protected or
 denied declaration therefore cannot hide behind the first declaration in a
 multi-declaration hunk.
+
+Whole-file deletion retains the `--- a/...` identity when Git renders
+`+++ /dev/null`, binds previous-source declarations, and checks protected
+anchors. Multi-anchor violations report the declaration that actually matched
+the protected/denied/unmatched rule, including declaration kind/range, parser
+and artifact versions, rule detail, and remediation.
 
 Control-flow nodes (`if`, `for`, `while`, `switch`, `catch`) and local variables
 must not replace their enclosing function/method anchor. Regex keyword exclusion

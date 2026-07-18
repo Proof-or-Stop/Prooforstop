@@ -1834,6 +1834,12 @@ export interface ScopeViolation {
   rule: 'protected' | 'excluded' | 'out_of_scope' | 'denied_anchor' | 'protected_anchor' | 'unmatched_anchor' | 'change_kind';
   acknowledged: boolean;
   anchor?: string;
+  anchorKind?: string;
+  anchorRange?: { start: number; end: number };
+  anchorParserVersion?: string;
+  anchorArtifactVersion?: string;
+  detail?: string;
+  nextAction?: string;
   hunkDigest?: string;
 }
 

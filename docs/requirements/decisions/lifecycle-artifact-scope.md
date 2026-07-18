@@ -77,6 +77,11 @@ order:
      directory rather than the mutable story artifact. This is canonical-writer
      tamper evidence for cooperative local tooling, not an authorization
      boundary against an attacker who already controls the same OS account.
+   – genesis is accepted only for a truly absent/canonically empty parent
+     artifact. A committed non-empty legacy artifact must match the worktree
+     semantically before its first receipt can extend it. Canonical findings or
+     ledger symlinks are rejected even when they remain inside the repository
+     and expose identical content.
 
 4. **fall-through** → normal `allowedModify` / `allowedCreate` /
    `allowedTest` / `protectedFiles` / `explicitExcludes` enforcement applies.

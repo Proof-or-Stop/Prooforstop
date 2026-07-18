@@ -345,9 +345,13 @@ function assertGapLogHistoryExtendable(root: string, data: import('./types.js').
   }
   const currentDigest = digestGapLogArtifact(data);
   const committedDigest = headArtifactDigest(root);
-  if (data.findings.length > 0 && committedDigest !== currentDigest) {
+  const canonicalEmptyDigest = digestGapLogArtifact({ findings: [] });
+  if (
+    (committedDigest !== null && committedDigest !== currentDigest)
+    || (committedDigest === null && currentDigest !== canonicalEmptyDigest)
+  ) {
     throw new Error(
-      'gap_log: legacy B-META findings require an unchanged committed HEAD artifact before provenance migration; '
+      'gap_log: legacy B-META findings require exact committed HEAD history, or canonical empty genesis when HEAD has no artifact; '
       + `current=${currentDigest} HEAD=${committedDigest ?? '(missing)'}`,
     );
   }

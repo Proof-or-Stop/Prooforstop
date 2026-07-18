@@ -29,7 +29,9 @@ import type { ChecklistData, ScopeContractData, StoryInfo } from '../core/types.
 import { checkScopeContract, validatePaths } from '../core/scope-contract.js';
 import {
   canonicalizeScopePath,
+  isMalformedScopeGlob,
   pathMatchesScopePattern,
+  scopeGlobRegex,
   SCOPE_PATH_CANONICALIZER_VERSION,
 } from '../core/scope-path-classifier.js';
 import { createScopeContractHandlers } from '../handlers/scope-contract.js';
@@ -183,6 +185,58 @@ try {
   assert.equal(pathMatchesScopePattern('src/a.ts', 'src/{a,b}.ts'), true, 'brace alternatives are supported');
   assert.equal(pathMatchesScopePattern('src/c.ts', 'src/{a,b}.ts'), false, 'brace alternatives do not overmatch');
   assert.equal(pathMatchesScopePattern('src/a.ts', 'src/[ab.ts'), false, 'invalid glob grammar fails closed');
+  const malformedGlobs = [
+    'src/[broken',
+    'src/[]',
+    'src/broken]',
+    'src/[!]',
+    'src/[z-a]',
+    'src/{broken',
+    'src/{}',
+    'src/{one}',
+    'src/{one,}',
+    'src/broken}',
+    'src/a**b',
+    'src/***',
+    'src/{one,{two,three}}',
+    'src/[a/b]',
+  ];
+  for (const pattern of malformedGlobs) {
+    assert.equal(scopeGlobRegex(pattern), null, `${pattern}: malformed glob has no matcher`);
+    assert.equal(isMalformedScopeGlob(pattern), true, `${pattern}: malformed glob is classified`);
+    assert.throws(
+      () => canonicalizeScopePath({ ...canonicalArgs, input: pattern }),
+      /malformed glob/,
+      `${pattern}: canonical write boundary rejects malformed glob`,
+    );
+  }
+  const globContract = {
+    storyId,
+    mode: 'enforce' as const,
+    allowedModify: ['src/**/*.{ts,tsx}'],
+    allowedCreate: [],
+    allowedTest: [],
+    protectedFiles: ['src/**/protected?.[tj]s'],
+    explicitExcludes: ['src/**/{excluded,blocked}.ts'],
+    acknowledgements: [],
+    pathCanonicalizationMode: 'off' as const,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  assert.equal(checkScopeContract(globContract, ['src/deep/ok.ts']).status, 'pass');
+  assert.equal(checkScopeContract(globContract, ['src/deep/protected1.ts']).violations[0]?.rule, 'protected');
+  assert.equal(checkScopeContract(globContract, ['src/deep/excluded.ts']).violations[0]?.rule, 'excluded');
+  for (const field of ['protectedFiles', 'explicitExcludes'] as const) {
+    const malformedLegacy = {
+      ...globContract,
+      allowedModify: ['src/**'],
+      protectedFiles: field === 'protectedFiles' ? ['src/[broken'] : [],
+      explicitExcludes: field === 'explicitExcludes' ? ['src/{broken'] : [],
+    };
+    const result = checkScopeContract(malformedLegacy, ['src/anything.ts']);
+    assert.equal(result.status, 'fail', `${field}: malformed legacy deny fails closed under broad allow`);
+    assert.equal(result.violations[0]?.rule, field === 'protectedFiles' ? 'protected' : 'excluded');
+  }
   write(root, 'shared/x.ts', 'repo\n');
   write(root, 'packages/main/src/shared/x.ts', 'source\n');
   assert.throws(
@@ -222,6 +276,14 @@ try {
   const invalid = run(root, 'scope_contract_set', { storyId, mode: 'strict' }, true);
   assert.match(invalid, /Invalid option|mode|strict/, 'invalid mode should be rejected');
   assert.throws(() => validatePaths(['../secret'], 'allowedModify'), /unsafe relative path/, 'unsafe paths are rejected by core validation');
+  for (const field of ['allowedModify', 'allowedCreate', 'allowedTest', 'protectedFiles', 'explicitExcludes'] as const) {
+    const rejected = run(root, 'scope_contract_set', {
+      storyId,
+      mode: 'enforce',
+      [field]: ['src/[broken'],
+    }, true);
+    assert.match(rejected, /malformed glob/, `${field}: handler write boundary rejects malformed glob syntax`);
+  }
   const legacyContract: ScopeContractData = {
     storyId: 'B-legacy',
     mode: 'enforce',

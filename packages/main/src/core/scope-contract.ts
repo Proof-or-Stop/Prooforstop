@@ -536,8 +536,15 @@ export function renderScopeCheckResult(result: ScopeCheckResult): string {
     for (const v of [...result.semantic.violations, ...result.semantic.warnings]) {
       const ackTag = v.acknowledged ? ' [acknowledged]' : '';
       const anchor = v.anchor ? ` anchor=${v.anchor}` : ' anchor=(none)';
+      const anchorKind = v.anchorKind ? ` anchorKind=${v.anchorKind}` : '';
+      const anchorRange = v.anchorRange ? ` anchorRange=${v.anchorRange.start}-${v.anchorRange.end}` : '';
+      const versions = v.anchorParserVersion
+        ? ` parserVersion=${v.anchorParserVersion} artifactVersion=${v.anchorArtifactVersion ?? '(missing)'}`
+        : '';
       const digest = v.hunkDigest ? ` hunkDigest=${v.hunkDigest}` : '';
-      lines.push(`  ${v.rule.toUpperCase()}: ${v.path}${anchor}${digest}${ackTag}`);
+      lines.push(`  ${v.rule.toUpperCase()}: ${v.path}${anchor}${anchorKind}${anchorRange}${versions}${digest}${ackTag}`);
+      if (v.detail) lines.push(`    detail: ${v.detail}`);
+      if (v.nextAction) lines.push(`    nextAction: ${v.nextAction}`);
     }
   }
   return lines.join('\n');

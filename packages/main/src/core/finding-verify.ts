@@ -243,8 +243,8 @@ export function verifyGapLogArtifactBinding(
   const firstCommittedDigest = committedArtifactDigest(projectRoot, receipts[0].parentHead);
   const canonicalEmptyDigest = digestGapLogArtifact({ findings: [] });
   if (
-    firstCommittedDigest !== receipts[0].preArtifactDigest
-    && receipts[0].preArtifactDigest !== canonicalEmptyDigest
+    (firstCommittedDigest !== null && firstCommittedDigest !== receipts[0].preArtifactDigest)
+    || (firstCommittedDigest === null && receipts[0].preArtifactDigest !== canonicalEmptyDigest)
   ) {
     return { trusted: false, reason: 'invalid_binding_shape', findingId: receipts[0].findingId };
   }

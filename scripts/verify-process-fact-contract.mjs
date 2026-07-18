@@ -4702,6 +4702,7 @@ async function assertLifecycleArtifactScopePolicy() {
     'SCOPE_PATH_CANONICALIZER_VERSION',
     'canonicalizeScopePath',
     'ambiguous scope path',
+    'malformed glob syntax',
     'symlink',
     'source-root',
     'repo-root',
@@ -4713,6 +4714,7 @@ async function assertLifecycleArtifactScopePolicy() {
     'SCOPE_ANCHOR_ARTIFACT_VERSION',
     'ts.createSourceFile',
     'typescript_parse_error_fail_closed',
+    "line === '+++ /dev/null'",
     'file_scope_no_enclosing_declaration',
   ]) {
     assert(scopeDiffPackText.includes(token), `AST semantic anchor contract missing ${token}`);
@@ -4720,7 +4722,7 @@ async function assertLifecycleArtifactScopePolicy() {
   for (const token of ['classifySharedLifecycleMetadata', 'verifyGapLogArtifactBinding', 'shared-gap-log-metadata-v1']) {
     assert(lifecycleRegistryText.includes(token), `shared B-META classifier contract missing ${token}`);
   }
-  for (const token of ['GAP_LOG_PROVENANCE_SCHEMA', 'GAP_LOG_PROVENANCE_LEDGER_PATH', 'createHmac', 'digestGapLogArtifact', 'content_digest_mismatch', 'finding_signature_invalid']) {
+  for (const token of ['GAP_LOG_PROVENANCE_SCHEMA', 'GAP_LOG_PROVENANCE_LEDGER_PATH', 'createHmac', 'committedArtifactDigest', 'canonicalEmptyDigest', 'digestGapLogArtifact', 'content_digest_mismatch', 'finding_signature_invalid']) {
     assert(gapLogVerifyText.includes(token), `gap_log provenance contract missing ${token}`);
   }
   assert(donePrepareMetadataText.includes('classifySharedLifecycleMetadata'), 'done_prepare clean-tree must consume shared B-META classifier');

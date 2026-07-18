@@ -82,6 +82,7 @@ interface AstAnchor {
 
 function nodeName(node: ts.Node, source: ts.SourceFile): string | undefined {
   if (ts.isConstructorDeclaration(node)) return 'constructor';
+  if (ts.isModuleDeclaration(node)) return node.name.getText(source).replace(/^['"]|['"]$/g, '');
   const named = node as ts.NamedDeclaration;
   if (named.name) {
     if (ts.isIdentifier(named.name) || ts.isPrivateIdentifier(named.name)) return named.name.text;
@@ -91,7 +92,6 @@ function nodeName(node: ts.Node, source: ts.SourceFile): string | undefined {
     (ts.isFunctionDeclaration(node) || ts.isClassDeclaration(node))
     && node.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.DefaultKeyword)
   ) return '<default>';
-  if (ts.isModuleDeclaration(node)) return node.name.getText(source).replace(/^['"]|['"]$/g, '');
   return undefined;
 }
 
@@ -265,6 +265,7 @@ function changedBlocks(
 export function parseUnifiedDiff(projectRoot: string, diffText: string): ScopeDiffHunk[] {
   const hunks: ScopeDiffHunk[] = [];
   let currentPath = '';
+  let oldPath = '';
   let currentHeader = '';
   let currentRange: ReturnType<typeof parseHunkHeader> = null;
   let currentBody: string[] = [];
@@ -334,13 +335,22 @@ export function parseUnifiedDiff(projectRoot: string, diffText: string): ScopeDi
     if (line.startsWith('diff --git ')) {
       flush();
       currentPath = '';
+      oldPath = '';
       currentHeader = '';
       currentRange = null;
       currentBody = [];
       continue;
     }
+    if (line.startsWith('--- a/')) {
+      oldPath = line.slice('--- a/'.length);
+      continue;
+    }
     if (line.startsWith('+++ b/')) {
       currentPath = line.slice('+++ b/'.length);
+      continue;
+    }
+    if (line === '+++ /dev/null') {
+      currentPath = oldPath;
       continue;
     }
     if (line.startsWith('@@ ')) {

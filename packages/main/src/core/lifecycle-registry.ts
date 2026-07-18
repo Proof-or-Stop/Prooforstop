@@ -749,6 +749,19 @@ export function classifySharedLifecycleMetadata(
       reason: 'missing_binding_artifact',
     };
   }
+  for (const canonicalPath of [GAP_LOG_ARTIFACT_PATH, GAP_LOG_PROVENANCE_LEDGER_PATH]) {
+    const candidate = join(rootReal, canonicalPath);
+    if (existsSync(candidate) && lstatSync(candidate).isSymbolicLink()) {
+      return {
+        trusted: false,
+        path: normalized,
+        registryId: 'shared-gap-log-metadata-v1',
+        writer: 'unknown',
+        contentBinding: 'invalid',
+        reason: `symlink_alias:${canonicalPath}`,
+      };
+    }
+  }
   const artifactReal = realpathSync.native(absolute);
   if (artifactReal !== rootReal && !artifactReal.startsWith(`${rootReal}${sep}`)) {
     return {
@@ -875,7 +888,7 @@ export function isAnyLatticeStoryMetadataPath(
 ): boolean {
   return classifyLifecycleArtifact(path, options) !== null;
 }
-import { existsSync, readFileSync, realpathSync } from 'node:fs';
+import { existsSync, lstatSync, readFileSync, realpathSync } from 'node:fs';
 import { join, relative, resolve, sep } from 'node:path';
 import type { FindingData } from './types.js';
 import {

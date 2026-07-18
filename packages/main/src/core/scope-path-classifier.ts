@@ -86,6 +86,9 @@ export function canonicalizeScopePath(args: {
     throw blocked('encoded traversal/separator is forbidden');
   }
   const slash = trimmed.replace(/\\/g, '/').replace(/\/+/g, '/');
+  if (/[*?[\]{}]/.test(slash) && scopeGlobRegex(slash) === null) {
+    throw blocked('malformed glob syntax', slash);
+  }
   const segments = slash.split('/');
   const normalizedSegments: string[] = [];
   for (const segment of segments) {
@@ -194,6 +197,9 @@ function globFragment(pattern: string): string | null {
     const char = pattern[index];
     if (char === '*') {
       if (pattern[index + 1] === '*') {
+        const previous = index === 0 ? '' : pattern[index - 1];
+        const following = pattern[index + 2] ?? '';
+        if ((previous && previous !== '/') || (following && following !== '/')) return null;
         index++;
         if (pattern[index + 1] === '/') {
           index++;
@@ -216,10 +222,12 @@ function globFragment(pattern: string): string | null {
       let body = pattern.slice(index + 1, close);
       if (!body || body.includes('/')) return null;
       if (body.startsWith('!')) body = `^${body.slice(1)}`;
+      if (body === '^') return null;
       out += `[${body.replace(/\\/g, '\\\\')}]`;
       index = close;
       continue;
     }
+    if (char === ']' || char === '}') return null;
     if (char === '{') {
       const close = pattern.indexOf('}', index + 1);
       if (close < 0) return null;
@@ -260,6 +268,11 @@ export function pathMatchesScopePattern(filePath: string, pattern: string): bool
   return false;
 }
 
+export function isMalformedScopeGlob(pattern: string): boolean {
+  const normalized = normalizeScopePath(pattern);
+  return /[*?[\]{}]/.test(normalized) && scopeGlobRegex(normalized) === null;
+}
+
 function firstMatchedPattern(filePath: string, patterns: readonly string[]): string | undefined {
   return patterns.find((pattern) => pathMatchesScopePattern(filePath, pattern));
 }
@@ -298,6 +311,32 @@ export function classifyScopePath(
   options: { projectRoot?: string } = {},
 ): ScopePathClassification {
   const normalizedPath = normalizeScopePath(path);
+  const malformedProtected = contract.protectedFiles.find(isMalformedScopeGlob);
+  if (malformedProtected) {
+    return classification({
+      path,
+      category: 'protected',
+      source: 'scope-contract.protectedFiles',
+      rule: 'protected',
+      allowed: false,
+      matchedPattern: malformedProtected,
+      detail: `Malformed protectedFiles glob fails closed: ${malformedProtected}.`,
+      hint: 'Re-attest the scope contract with valid glob syntax; broad allow rules cannot override a malformed deny rule.',
+    });
+  }
+  const malformedExcluded = contract.explicitExcludes.find(isMalformedScopeGlob);
+  if (malformedExcluded) {
+    return classification({
+      path,
+      category: 'excluded',
+      source: 'scope-contract.explicitExcludes',
+      rule: 'excluded',
+      allowed: false,
+      matchedPattern: malformedExcluded,
+      detail: `Malformed explicitExcludes glob fails closed: ${malformedExcluded}.`,
+      hint: 'Re-attest the scope contract with valid glob syntax; broad allow rules cannot override a malformed deny rule.',
+    });
+  }
 
   const shared = options.projectRoot
     ? classifySharedLifecycleMetadata(options.projectRoot, normalizedPath)
@@ -315,15 +354,19 @@ export function classifyScopePath(
     });
   }
   if (shared) {
+    const digestDetail = shared.expectedDigest || shared.observedDigest
+      ? ` | expectedDigest=${shared.expectedDigest ?? '(none)'} | observedDigest=${shared.observedDigest ?? '(none)'}`
+      : '';
+    const receiptDetail = shared.findingId ? ` | receiptFindingId=${shared.findingId}` : '';
     return classification({
       path,
       category: 'unknown',
       source: 'lifecycle-registry',
       rule: 'out_of_scope',
       allowed: false,
-      detail: `Untrusted shared metadata: ${shared.path} | reason: ${shared.reason} | status: FAIL`,
+      detail: `Untrusted shared metadata: ${shared.path} | class=${shared.registryId} | reason=${shared.reason}${digestDetail}${receiptDetail} | freshness=invalid | status=FAIL`,
       registryId: shared.registryId,
-      hint: 'Repair or re-attest the canonical gap_log provenance chain; a lifecycle filename alone cannot admit shared B-META metadata.',
+      hint: 'Run an official gap_log repair/re-attestation from an unchanged canonical artifact, or restore the last trusted findings+ledger pair; a lifecycle filename alone cannot admit shared B-META metadata.',
     });
   }
 

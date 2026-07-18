@@ -86,13 +86,23 @@ function makeViolation(
   hunk: ScopeDiffHunk,
   rule: ScopeViolation['rule'],
   acknowledged: boolean,
+  offendingAnchor?: string,
 ): ScopeViolation {
-  const anchor = hunkAnchor(hunk);
+  const anchor = offendingAnchor ?? hunkAnchor(hunk);
+  const declaration = [...(hunk.anchors ?? []), ...(hunk.previousAnchors ?? [])]
+    .find((candidate) => candidate.name === anchor);
   return {
     path: hunk.path,
     rule,
     acknowledged,
     ...(anchor ? { anchor } : {}),
+    ...(declaration ? { anchorKind: declaration.kind, anchorRange: declaration.range } : {}),
+    ...(hunk.anchorParserVersion ? { anchorParserVersion: hunk.anchorParserVersion } : {}),
+    ...(hunk.anchorArtifactVersion ? { anchorArtifactVersion: hunk.anchorArtifactVersion } : {}),
+    detail: `Semantic scope rule ${rule} matched ${anchor ?? '(no declaration)'} in ${hunk.path}.`,
+    nextAction: rule === 'protected_anchor'
+      ? 'Revert the protected declaration change; acknowledgements cannot bypass protected anchors.'
+      : 'Re-attest the semantic scope rule or revert the out-of-intent declaration change.',
     hunkDigest: hunk.hunkDigest,
   };
 }
@@ -167,23 +177,36 @@ export function checkSemanticScope(
       continue;
     }
 
+    const previousByName = new Map((hunk.previousAnchors ?? []).map((candidate) => [candidate.name, candidate.kind]));
+    const kindMismatch = (hunk.anchors ?? []).find((candidate) => {
+      const previousKind = previousByName.get(candidate.name);
+      return previousKind !== undefined && previousKind !== candidate.kind;
+    });
+    if (kindMismatch) {
+      violations.push(makeViolation(hunk, 'unmatched_anchor', false, kindMismatch.name));
+      continue;
+    }
+
     // 1. Global protected anchor — hard block, acknowledgement cannot downgrade.
-    if (anchors.some((candidate) => globalProtected.has(candidate))) {
-      violations.push(makeViolation(hunk, 'protected_anchor', false));
+    const globalProtectedAnchor = anchors.find((candidate) => globalProtected.has(candidate));
+    if (globalProtectedAnchor) {
+      violations.push(makeViolation(hunk, 'protected_anchor', false, globalProtectedAnchor));
       continue;
     }
 
     if (!rule) continue;
 
     // 2. File-level protected anchor — hard block, acknowledgement cannot downgrade.
-    if (anchors.some((candidate) => (rule.protectedAnchors ?? []).includes(candidate))) {
-      violations.push(makeViolation(hunk, 'protected_anchor', false));
+    const fileProtectedAnchor = anchors.find((candidate) => (rule.protectedAnchors ?? []).includes(candidate));
+    if (fileProtectedAnchor) {
+      violations.push(makeViolation(hunk, 'protected_anchor', false, fileProtectedAnchor));
       continue;
     }
 
     // 3. Denied anchor — blocking unless acknowledged.
-    if (anchors.some((candidate) => (rule.deniedAnchors ?? []).includes(candidate))) {
-      (acknowledged ? warnings : violations).push(makeViolation(hunk, 'denied_anchor', acknowledged));
+    const deniedAnchor = anchors.find((candidate) => (rule.deniedAnchors ?? []).includes(candidate));
+    if (deniedAnchor) {
+      (acknowledged ? warnings : violations).push(makeViolation(hunk, 'denied_anchor', acknowledged, deniedAnchor));
       continue;
     }
 
@@ -200,7 +223,8 @@ export function checkSemanticScope(
         declarationAnchors.length === 0
         || declarationAnchors.some((candidate) => !rule.allowedAnchors!.includes(candidate))
       ) {
-        (acknowledged ? warnings : violations).push(makeViolation(hunk, 'unmatched_anchor', acknowledged));
+        const unmatched = declarationAnchors.find((candidate) => !rule.allowedAnchors!.includes(candidate));
+        (acknowledged ? warnings : violations).push(makeViolation(hunk, 'unmatched_anchor', acknowledged, unmatched));
       }
     }
   }
