@@ -88,7 +88,7 @@
       "desc": "packages/main/src/cli-engine.ts:1250-1258 — HIGH: failure of the new canonical terminal commit is thrown and immediately swallowed by the surrounding catch, which only records a best-effort health issue; run() then prints the original validate/story_advance result and exits success. A CAS/hook/signing/index-refresh/rollback failure can therefore be reported as PASS despite missing or partial canonical terminal persistence, contrary to the must requirement that persistence failures be classified and never publish false PASS. Propagate a structured failure to run() (while avoiding recursive terminal writes) and cover the failure path.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-18T10:59:30.436Z",
@@ -96,7 +96,11 @@
       "reviewRunId": "B-8195:RR-002",
       "_hash": "aea6f8f9892dcb08a1a05b7c9dad4106652ff12c2bd80864180dd601d598a042",
       "signatureTag": "adversarial|unknown|packages-main-engine",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 94a0085b13: writeCodexProcessEvent rethrows terminal closeout failure as CanonicalTerminalCloseoutError (lines 1279-1287), outer run catch suppresses recursive terminal writing and exits 1 without printing the original PASS (lines 1491-1503). The postCommand closeout-failure regression verifies nonzero exit and no PASS stdout.",
+      "resolvedAt": "2026-07-18T11:24:55.115Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8195:F-007",
