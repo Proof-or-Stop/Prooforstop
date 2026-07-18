@@ -5,7 +5,7 @@
       "desc": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md:114-123,545-564,615-646 — medium: the #7/B-8195 outcome and boundary are not actually recorded. The only new text places routine-validate writer closeout inside Workstream A even though 6.1 says that workstream owns C1 only; the landing-order table still lists only five stories and the exit criterion still says all five stories. Add a bounded implemented-contract/status entry (or an explicit interposed follow-up row) naming B-8195, its one-shot TEST-transition/CLI-terminal closeout result, verifier-entry fail-closed boundary, and non-goals, without implying C1/DONE-required scope absorbed routine validate.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-18T10:57:31.879Z",
@@ -13,7 +13,11 @@
       "reviewRunId": "B-8195:RR-004",
       "_hash": "3fe90e17f4febe0062e56a792fbb301255834a31586e515a807d7b6c5124125a",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 94a0085b13 adds explicit section 6A for interposed #7/B-8195, records the one-shot reused PASS outcome and strict verifier-entry boundary, lists non-goals, and updates landing order, verification matrix, metrics, and exit criteria from five to six stories.",
+      "resolvedAt": "2026-07-18T11:22:34.227Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8195:F-002",
