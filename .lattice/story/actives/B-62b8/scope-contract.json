@@ -53,8 +53,26 @@
       "phase": "DEV",
       "headHash": "74b7fc01eb6a87c9bcc2e00a9d9ee03371213fff",
       "materialHash": "a18f6a942cfea5fa08a9a832b241fc1c2a2785d7d641b8cc3d364f957a0e1d67"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Formal validation exposed the exact legitimate cli-engine dynamic-loader fingerprint as stale; these two contract files must be repinned together to preserve the narrow approved call site without changing runtime behavior or broadening the allowlist.",
+      "timestamp": "2026-07-18T01:08:08.250Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "0fc143ac001c38b181934167e51f3603ad9e98eb",
+      "materialHash": "2e674b4bce1484505d4e09a7b63861a8bcc38c963c5d1170cb51fe186df85263"
     }
   ],
   "createdAt": "2026-07-17T23:11:48.723Z",
-  "updatedAt": "2026-07-18T00:46:02.385Z"
+  "updatedAt": "2026-07-18T01:08:08.250Z"
 }
