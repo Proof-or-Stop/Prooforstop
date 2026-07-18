@@ -68,7 +68,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:88-165 does not validate roleContract.renderDigest against the supplied rolePrompt (or otherwise enforce canonical Role Contract/render coherence). Verified repro against built code: assembleFullPromptEnvelope accepted lattice-review-quality RoleContract combined with the lattice-review-behavior prompt, emitted roleId=lattice-review-quality, verifyPromptEnvelopeIntegrity=true, and the assembled prompt ended with the behavior prompt. This violates must intent envelope-role-contract-coherence and lets a miswired trusted caller sign an internally valid ReviewRun envelope for the wrong role instructions. Add a fail-closed coherence check and a cross-role mutation test.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-18T21:30:34.096Z",
@@ -80,7 +80,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in b4efda425c: roleContract renderDigest is checked against the canonical role Prompt and cross-role mutation is rejected; regression test proves prior repro fails closed.",
+      "resolvedAt": "2026-07-18T21:50:32.356Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-dd81:F-005",
