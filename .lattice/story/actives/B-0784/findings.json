@@ -381,7 +381,7 @@
       "desc": "The new B-META ledger still launders deletion of a committed non-empty legacy history when no ledger exists. assertGapLogHistoryExtendable rejects a legacy mismatch only when data.findings.length > 0; replacing a committed non-empty findings.json with {findings:[]} bypasses that guard. verifyGapLogArtifactBinding also accepts canonicalEmptyDigest as first preArtifactDigest even when the receipt parentHead contains a different non-empty artifact. Targeted repro: commit one legacy finding, overwrite worktree findings with an empty array, call official gap_log; it returns status PASS, creates a genesis receipt, verifyGapLogArtifactBinding returns trusted:true, and the committed legacy finding is gone. Genesis may use canonical-empty only when parentHead has no artifact (or its artifact is canonically empty); otherwise require exact parentHead digest before writing.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-18T02:40:48.431Z",
@@ -394,7 +394,11 @@
         "packages/main/src/tasks/gap-log-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|meta-ledger-still",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by f1e5eb927b. audit-meta-store.ts and finding-verify.ts now compare the exact committed findings blob digest whenever a parent artifact exists, including a currently empty worktree; canonicalEmptyDigest is accepted only for true no-history genesis. gap-log-smoke proves nonempty legacy to empty is rejected, unchanged nonempty can append, and true empty to nonempty genesis remains valid.",
+      "resolvedAt": "2026-07-18T03:01:20.476Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0784:F-017",
