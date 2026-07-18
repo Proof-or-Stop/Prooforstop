@@ -93,6 +93,29 @@
         "scanEscalationReason": null
       },
       "_hash": "31e33a138e20ab06ad89100f9cafbc6b97e112d6de99fe890c45f551a135f926"
+    },
+    {
+      "id": "B-0784:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-5 incremental coverage PASS for 1572a6e170. Real staged git mv flows through readChangedFiles with both old/new identities, buildScopeDiffPack with explicit rename/copy detection, identity-only hunks, and checkSemanticScope. Assertions distinguish ordinary versus protected/excluded/unknown target renames, pure and modified declaration renames, missing target versus missing previous source remediation, generic parse/source failure wording, copy fail-closed, and an absent-intermediate rename chain. Build plus scope-contract and semantic-scope focused smokes pass; claims stay within the exercised matrix.",
+      "createdAt": "2026-07-18T03:17:46.778Z",
+      "reviewRound": "2026-07-18T03:15:34.899Z",
+      "reviewRunId": "B-0784:RR-014",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/scope-contract.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/semantic-scope-gate.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts",
+          "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3c4f1f131b5de9b689e8feb8cef2faa8758d034b9d1410b491237ce1e4180daf"
     }
   ]
 }
