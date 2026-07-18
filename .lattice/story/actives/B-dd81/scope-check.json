@@ -1,6 +1,6 @@
 {
   "storyId": "B-dd81",
-  "checkedAt": "2026-07-18T20:22:55.750Z",
+  "checkedAt": "2026-07-18T20:24:38.260Z",
   "features": [
     {
       "feature": "Canonical full Task Context, known execution environment digest, and content-addressed full Prompt Envelope are defined without incremental behavior",
@@ -17,18 +17,18 @@
       "source": ".lattice/story/actives/B-dd81/plan.md"
     },
     {
-      "feature": "dispatchKind separates audit-only story-dispatch envelopes from signed-authority review-run envelopes with kind-specific required fields",
+      "feature": "dispatchKind separates audit-only story-dispatch from signed-authority review-run with kind-specific required fields",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-dd81/checklist.json#CHK-001"
     },
     {
-      "feature": "Story-aware agent_prompt performs trusted full assembly, rejects caller authority fields, persists append-only audit, and preserves no-Story role bytes",
+      "feature": "Story-aware agent_prompt produces only story-dispatch, rejects reviewer-authority/caller fields, persists append-only audit, and preserves no-Story bytes",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-dd81/plan.md#CHK-002"
+      "source": ".lattice/story/actives/B-dd81/checklist.json verification intent agent-prompt-story-full-assembly"
     },
     {
       "feature": "Only ReviewRun signs envelopeId and story-dispatch audit cannot mint reviewer evidence",
@@ -52,25 +52,25 @@
       "source": ".lattice/story/actives/B-dd81/checklist.json#CHK-003"
     },
     {
-      "feature": "A material/scope-fresh non-latest pass remains admissible and open older findings stay surfaced",
+      "feature": "A material/scope-fresh non-latest pass remains admissible and older open findings stay surfaced",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-dd81/checklist.json#CHK-003"
     },
     {
-      "feature": "Compatibility/retired evidence cannot satisfy REVIEW, assurance-floor, active receipt, forced parsing, or quorum; role flags and rollback stay gate-safe",
+      "feature": "Compatibility/retired evidence cannot satisfy REVIEW, assurance-floor, active receipt, forced parsing, or quorum",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-dd81/milestone-ledger.json#M4"
     },
     {
-      "feature": "agent_prompt Story-aware verification uses the canonical dispatchKind literals and does not claim a reviewer-authority request path unavailable to its role/storyId/format-only schema",
-      "covered_by": "CHK-002",
-      "status": "drift",
+      "feature": "Per-role full-envelope flags and bounded legacy-full-context rollback preserve exact bytes without loosening gates",
+      "covered_by": "CHK-004",
+      "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-dd81/checklist.json verification intent agent-prompt-story-full-assembly"
+      "source": ".lattice/story/actives/B-dd81/plan.md#CHK-004"
     },
     {
       "feature": "Incremental prompt selection and impact classification",
@@ -129,24 +129,13 @@
   },
   "summary": {
     "total": 15,
-    "covered": 9,
+    "covered": 10,
     "excluded": 5,
     "gaps": 0,
     "orphanSuspect": 0,
-    "drift": 1
+    "drift": 0
   },
   "reviewRound": "",
-  "_hash": "ae1e8567dfeb2ecf821fd7030457fd766ad023754968c74e8f7485ed9a9d1028",
-  "openQuestions": [
-    {
-      "id": "OQ-007",
-      "q": "Should agent-prompt-story-full-assembly verify only dispatchKind=story-dispatch, leaving dispatchKind=review-run entirely to CHK-003/review_run_start?",
-      "evidence": "The updated plan and existing PromptEnvelope contract define dispatchKind as story-dispatch|review-run; CHK-002 says agent_prompt accepts only role/storyId/format and returns story-dispatch. The updated intent instead asserts dispatchKind=audit and says reviewer-authority requests resolve through agent_prompt, introducing an invalid discriminator and a request path the plan forbids.",
-      "sourcePointers": [
-        ".lattice/story/actives/B-dd81/plan.md#CHK-002",
-        ".lattice/story/actives/B-dd81/checklist.json#CHK-002",
-        "packages/main/src/core/prompt-contracts.ts#PromptEnvelope"
-      ]
-    }
-  ]
+  "_hash": "0b927f2033a16217c6194475c95e797cae90367ecca40833ab57ecb3501f995a",
+  "openQuestions": []
 }
