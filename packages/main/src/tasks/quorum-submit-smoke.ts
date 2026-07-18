@@ -825,6 +825,35 @@ try {
     });
   });
 
+  check('writer-owned append identity never claims a foreign row inserted before host_verdict', () => {
+    withFreshFixture((fixture) => {
+      recordReviewerPasses(fixture.registry);
+      const processEvents = join(fixture.store.storyDirPath(STORY_ID), 'process-events.jsonl');
+      const baseline = readFileSync(processEvents);
+      const originalAppend = fixture.store.appendProcessEvent.bind(fixture.store);
+      let injected = false;
+      let foreignBytes = Buffer.alloc(0);
+      fixture.store.appendProcessEvent = ((storyId, event) => {
+        if (!injected && event.type === 'host_verdict') {
+          injected = true;
+          originalAppend(storyId, {
+            type: 'foreign_pre_host_append',
+            marker: 'preserve-writer-boundary',
+          });
+          foreignBytes = Buffer.from(readFileSync(processEvents).subarray(baseline.length));
+        }
+        return originalAppend(storyId, event);
+      }) as typeof fixture.store.appendProcessEvent;
+
+      const handler = createQuorumSubmitHandlers(fixture.ctx).quorum_submit;
+      assert.throws(() => handler(quorumArgs()), /atomic closeout failed/);
+      assert.ok(foreignBytes.length > 0);
+      assert.deepEqual(readFileSync(processEvents), Buffer.concat([baseline, foreignBytes]));
+      assert.equal(hostVerdictEventCount(fixture.store), 0);
+      assert.equal(verdictFileCount(fixture.root), 0);
+    });
+  });
+
   check('rollback never deletes an owned-row byte sequence embedded inside foreign binary', () => {
     withFreshFixture((fixture) => {
       recordReviewerPasses(fixture.registry);
