@@ -10,6 +10,7 @@
     "packages/main/src/core/usage-burn-alert.ts",
     "packages/main/src/handlers/doctor.ts",
     "packages/main/src/handlers/usage-sweep.ts",
+    "packages/main/src/handlers/validate-concept.ts",
     "packages/main/src/core/runtime-artifact-registry.ts",
     "packages/main/src/core/lattice-dispatch.ts",
     "packages/main/src/core/codex-adapter-checks.ts",
@@ -27,6 +28,7 @@
     "packages/main/src/tasks/owner-session-guardrail.ts",
     "packages/main/src/tasks/story-owner-lease-smoke.ts",
     "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+    "packages/main/src/tasks/concept-gate-scope-smoke.ts",
     "packages/main/src/tasks/cli-surface-smoke.ts",
     "packages/main/src/tasks/thin-init-assets-smoke.ts",
     "scripts/verify-entrypoints.mjs",
@@ -34,7 +36,7 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "F-014 expands the already-ratified raw-token non-disclosure requirement to the shared usage-sweep/hostBurnScan projection and its focused regression; no unrelated runtime behavior is added.",
+  "scopeChangeReason": "Actual TEST concept preflight requires minimal language routing: parse only supported declaration-bearing source extensions, skip story metadata/docs, and preserve supported-source fail-closed behavior. Full #6 canonical path/AST anchor work is explicitly deferred.",
   "acknowledgements": [
     {
       "actor": "main-agent",
@@ -54,5 +56,5 @@
     }
   ],
   "createdAt": "2026-07-17T23:11:48.723Z",
-  "updatedAt": "2026-07-18T00:21:56.908Z"
+  "updatedAt": "2026-07-18T00:46:02.385Z"
 }
