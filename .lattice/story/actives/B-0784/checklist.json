@@ -258,6 +258,64 @@
           "packages/main/src/tasks/closeout-trust-smoke.ts",
           "scripts/verify-process-fact-contract.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused smoke coverage exercises source-root, repo-root, Windows-separator, and dot-segment path inputs and proves equivalent paths converge to one canonical identity with exact/subtree behavior preserved.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Focused semantic smoke coverage proves enclosing anchors for functions, nested functions, methods, constructors, classes, interfaces/types and documented top-level scope, including stable overload behavior and protected-anchor blocking.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "End-to-end gap_log/closeout coverage proves an officially provenance-bound B-META finding is admitted as shared metadata and done_prepare remains usable for an unrelated story.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "The path and AST rollout flags are tested independently in all enabled/disabled combinations, including rollback reading signed legacy/versioned artifacts without mutation and forward re-enable producing current-version artifacts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Migration tests cover missing/legacy/current/future or changed canonicalizer, anchor parser, and artifact versions, and assert the exact accept, stale, migrate, or re-attest outcome without rewriting signed history.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Anchor matrices cover if/for/while/switch/catch/local const, multiple changes in one declaration, nested ranges, between-declaration changes, overloads, deletion and rename so coverage cannot pass by checking only a simple function fixture.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Diagnostics assertions require original and canonical path/base, declaration kind/name/range, canonicalizer/parser/artifact version, provenance digest/freshness, classifier/match rule, and a concrete remediation for every rejected or stale case.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Negative path tests include absolute POSIX, drive and UNC paths, traversal, ambiguous bases, prefix collisions, symlink escapes and separator/dot obfuscation; every case remains fail-closed at write and comparison boundaries.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Negative metadata tests include missing, stale, mismatched, forged, replayed and content-substituted provenance, direct edits, arbitrary B-META, symlink aliases and unknown .lattice files; no case is admitted by path alone.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Process-fact contract verification binds every new gate-consumed version, provenance, classifier and diagnostic semantic, and regression tests prove rollback or legacy compatibility cannot bypass protected/out-of-scope gates.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
       }
     }
   ]
