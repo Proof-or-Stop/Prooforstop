@@ -515,6 +515,28 @@
           "materialHash": "347cfb2109382505126449578a841c9fff644a77a941919d0062ade6e98b2639",
           "storyFilesHash": "8fd19c086e0dc234c3a7636603c5ee0245f2dee4c6e7d4ec30276271e6a66c5e",
           "timestamp": "2026-07-18T20:38:14.797Z"
+        },
+        {
+          "intentRef": "B-8195:F-012-locality-contract",
+          "kind": "logic_test",
+          "command": "NODE_OPTIONS=--max-old-space-size=3072 npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Contract enforces exactly two canonical validation transaction calls, checks both reuse and executed persistence function-local bindings, and contains a mutation self-test that removes only executed persistence and requires rejection.",
+          "headHash": "1c969baa1a601a7b78f4596c93a9709a5c4671c4",
+          "materialHash": "ffa0207d34a4c452c683618a8e1c29c6a47a0f92b5beb65517b1011e77c82e3f",
+          "storyFilesHash": "7950b9c8c5d86b5b4f83c7e1ce09dae6bd2be8f3b3e8182559b79274f6976e08",
+          "timestamp": "2026-07-18T20:48:13.818Z"
+        },
+        {
+          "intentRef": "B-8195:F-012-runtime-regression",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "Existing validation reuse and executed persistence transaction behavior remains green after contract-only hardening.",
+          "headHash": "1c969baa1a601a7b78f4596c93a9709a5c4671c4",
+          "materialHash": "ffa0207d34a4c452c683618a8e1c29c6a47a0f92b5beb65517b1011e77c82e3f",
+          "storyFilesHash": "7950b9c8c5d86b5b4f83c7e1ce09dae6bd2be8f3b3e8182559b79274f6976e08",
+          "timestamp": "2026-07-18T20:48:13.818Z"
         }
       ]
     }
