@@ -68,6 +68,45 @@
         "scanEscalationReason": null
       },
       "_hash": "3fc1e73dc7139c7f08d9587f569df3c1832653d6b0bf1824f1974658f0251bae"
+    },
+    {
+      "id": "B-dd81:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: current merged-head coverage verified 47/47 unique passing evidence refs on storyFilesHash f6e8f71a; global-thin and thin reviewer flow requires zero project prompt assets; explicit full mode verifies and rejects drift only for the selected host; compatibility/retired-only reviewer receipts cannot cross quorum into host-verdict assurance-floor evidence; frozen 16-role baseline, build, prompt-envelope, review-run, assurance 18/18, quorum 18/18, Codex registry, flow-stability, and process-fact suites all pass.",
+      "createdAt": "2026-07-18T23:00:12.989Z",
+      "reviewRound": "2026-07-18T22:53:28.493Z",
+      "reviewRunId": "B-dd81:RR-012",
+      "writerSessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-dd81/background.md",
+          ".lattice/story/actives/B-dd81/checklist.json",
+          ".lattice/story/actives/B-dd81/plan.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8007f857aecf2d8d2a931ce8bd4467a99877d7fd9668a75f64558dc223c2a9b6"
     }
   ]
 }
