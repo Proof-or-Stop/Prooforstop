@@ -744,9 +744,9 @@
         "rewriting Prompt bodies to satisfy budgets",
         "A/B replay"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-18T00:00:35.657Z",
-      "endTime": null,
+      "endTime": "2026-07-18T00:03:49.455Z",
       "files": {
         "modify": [
           "scripts/verify-proof-or-stop-prompt-baseline.mjs"
@@ -806,7 +806,97 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Read-only verifier proves all 16 pre-Story agent_prompt bytes/hashes unchanged and sidecar current at commit bf6a386b4c.",
+          "headHash": "bf6a386b4c0d551a61f741d4d0a658612b0fd55c",
+          "materialHash": "5dad12dce4ee8b2b00d085a7d544faf51277620a908111cc5d45b31cc79f0146",
+          "storyFilesHash": "14c38cd5c3c28ffb71b710e2e984f32178423943f16414c317160a585b754b43",
+          "timestamp": "2026-07-18T00:03:49.642Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Build and focused verifier suite pass; repeated measurement serialization is byte-identical.",
+          "headHash": "bf6a386b4c0d551a61f741d4d0a658612b0fd55c",
+          "materialHash": "5dad12dce4ee8b2b00d085a7d544faf51277620a908111cc5d45b31cc79f0146",
+          "storyFilesHash": "14c38cd5c3c28ffb71b710e2e984f32178423943f16414c317160a585b754b43",
+          "timestamp": "2026-07-18T00:03:49.795Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Exact 16-role lifecycle boundary rows and current alias/dispatch behavior are asserted.",
+          "headHash": "bf6a386b4c0d551a61f741d4d0a658612b0fd55c",
+          "materialHash": "5dad12dce4ee8b2b00d085a7d544faf51277620a908111cc5d45b31cc79f0146",
+          "storyFilesHash": "14c38cd5c3c28ffb71b710e2e984f32178423943f16414c317160a585b754b43",
+          "timestamp": "2026-07-18T00:03:49.950Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "manual_transcript",
+          "command": "git diff --exit-code main -- packages/main/templates/agents .claude/agents .lattice-codex/agents docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "result": "pass",
+          "note": "All protected prompt templates, both mirrors, and existing proof-or-stop baseline have empty diffs.",
+          "headHash": "bf6a386b4c0d551a61f741d4d0a658612b0fd55c",
+          "materialHash": "5dad12dce4ee8b2b00d085a7d544faf51277620a908111cc5d45b31cc79f0146",
+          "storyFilesHash": "14c38cd5c3c28ffb71b710e2e984f32178423943f16414c317160a585b754b43",
+          "timestamp": "2026-07-18T00:03:50.101Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Unavailable observations, multibyte/newline boundaries, digest stability, and semantic mutation sensitivity pass.",
+          "headHash": "bf6a386b4c0d551a61f741d4d0a658612b0fd55c",
+          "materialHash": "5dad12dce4ee8b2b00d085a7d544faf51277620a908111cc5d45b31cc79f0146",
+          "storyFilesHash": "14c38cd5c3c28ffb71b710e2e984f32178423943f16414c317160a585b754b43",
+          "timestamp": "2026-07-18T00:03:50.334Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Missing/unknown contract fields and invalid lifecycle metadata fail closed.",
+          "headHash": "bf6a386b4c0d551a61f741d4d0a658612b0fd55c",
+          "materialHash": "5dad12dce4ee8b2b00d085a7d544faf51277620a908111cc5d45b31cc79f0146",
+          "storyFilesHash": "14c38cd5c3c28ffb71b710e2e984f32178423943f16414c317160a585b754b43",
+          "timestamp": "2026-07-18T00:03:50.489Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Tampered contract/metric/report values and stale sidecar data are rejected.",
+          "headHash": "bf6a386b4c0d551a61f741d4d0a658612b0fd55c",
+          "materialHash": "5dad12dce4ee8b2b00d085a7d544faf51277620a908111cc5d45b31cc79f0146",
+          "storyFilesHash": "14c38cd5c3c28ffb71b710e2e984f32178423943f16414c317160a585b754b43",
+          "timestamp": "2026-07-18T00:03:50.642Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-baseline-drift && node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-prompt-policy-manifest",
+          "result": "pass",
+          "note": "Controlled synthetic prompt/role/hash mutations fail verification, restore path passes, and baseline-refresh self-authorization is rejected without touching protected files.",
+          "headHash": "bf6a386b4c0d551a61f741d4d0a658612b0fd55c",
+          "materialHash": "5dad12dce4ee8b2b00d085a7d544faf51277620a908111cc5d45b31cc79f0146",
+          "storyFilesHash": "14c38cd5c3c28ffb71b710e2e984f32178423943f16414c317160a585b754b43",
+          "timestamp": "2026-07-18T00:03:50.797Z"
+        }
+      ]
     }
   ]
 }

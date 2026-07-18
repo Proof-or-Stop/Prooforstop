@@ -8,7 +8,8 @@
     "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/core/config.ts",
     "packages/main/src/cli/activity-policy.ts",
-    "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "scripts/verify-process-fact-contract.mjs"
   ],
   "allowedCreate": [
     "packages/main/src/core/prompt-contracts.ts",
@@ -20,7 +21,8 @@
   ],
   "allowedTest": [
     "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
-    "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "scripts/verify-process-fact-contract.mjs"
   ],
   "protectedFiles": [
     "packages/main/templates/agents",
@@ -33,8 +35,8 @@
     ".claude/agents",
     ".lattice-codex/agents"
   ],
-  "scopeChangeReason": "Story 1 is additive contract/measurement infrastructure; current Prompt bodies, mirrors, approved output baseline, dispatch behavior, and gates are protected from change.",
+  "scopeChangeReason": "Add scripts/verify-process-fact-contract.mjs only because AGENTS.md requires every new process-fact registry entry to update its mechanical contract verifier. This verifies the already-scoped read-only L0 command and does not expand runtime behavior.",
   "acknowledgements": [],
   "createdAt": "2026-07-17T23:49:12.563Z",
-  "updatedAt": "2026-07-17T23:49:12.563Z"
+  "updatedAt": "2026-07-18T00:02:06.369Z"
 }
