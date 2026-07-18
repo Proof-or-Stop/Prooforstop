@@ -10,7 +10,50 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Production-path RED: in a clean real story worktree with current signed reviewer passes, invoke the worktree-local CLI quorum_submit and assert exactly six current-round host_verdict rows are appended while .lattice/story/actives/B-6ed2/process-events.jsonl remains a tracked dirty path; record before/after HEAD, byte length, row identities and git status so the failure is the real handler path, not a mocked helper.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Immediately cross the real validation persistence boundary after that RED and assert validation executes but refuses canonical PASS persistence because the quorum residue pre-existed its transaction; no PASS receipt, validation_terminal PASS, or clean-tree claim may be produced.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Prove the RED is deterministic from a clean baseline: repeating the fixture setup yields the same six-row causal delta and dirty process-events path without unrelated source/config changes.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Inspect all six emitted rows and prove they bind the intended three rounds by two distinct hosts to the current material/story-files/prompt/validation identity; duplicate or stale rows do not count toward the observed batch.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Seed process-events.jsonl with unrelated pre-existing bytes before quorum_submit and prove neither quorum_submit nor the following validate launders those bytes into a trusted commit or accepts PASS.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Inject a concurrent foreign append between quorum emission and the next persistence boundary and prove exact-byte/HEAD checks expose the race; no false PASS and no partial trusted quorum are accepted.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Assert the RED harness fails if it uses the global/main runtime, a fake store, direct handler-only shortcut, or fewer than six exact host_verdict rows, preserving production-path authority.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
