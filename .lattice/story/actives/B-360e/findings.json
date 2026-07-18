@@ -14,6 +14,21 @@
       "_hash": "6576b20de728e69de0502010a91c0e2f69df8df61a96035f65a224da5dabc94f",
       "signatureTag": "adversarial|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-360e:F-002",
+      "desc": "packages/main/src/core/prompt-contracts.ts:161-198 — MEDIUM: canonicalJsonStringify enumerates only Object.keys and therefore silently drops symbol-keyed own properties instead of rejecting non-CanonicalJson input. Runtime reproduction canonicalJsonStringify({a:1,[Symbol(\"hidden\")]:2}) returns {\"a\":1}, allowing two structurally different inputs to collapse to the same canonical bytes/digest. This directly violates CHK-001 canonical-fail-closed intent that unsupported values must not disappear or produce an admissible digest. Reject own symbol keys (and cover the mutation in the focused smoke) before canonicalizing object entries.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-18T00:10:58.495Z",
+      "reviewRound": "2026-07-18T00:08:34.511Z",
+      "reviewRunId": "B-360e:RR-001",
+      "_hash": "f2482b28ce19be80f2f86ba92d6e16ef86998ad5f2ab05485d9ceffcb4b004ee",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
