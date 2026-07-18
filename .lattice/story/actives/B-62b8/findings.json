@@ -260,6 +260,21 @@
       "_hash": "65ed34249ad1773e721d49fbfe85a9335be0fa0e7a83f8162f1bff0b72aaa07b",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-62b8:F-015",
+      "desc": "packages/main/src/core/usage-sweep.ts:109-130 and packages/main/src/core/usage-burn-alert.ts:160-191 — MEDIUM: the outward projection is not idempotent. projectSweepSessionRowForOutput always hashes row.sessionId, so projecting an already projected row changes sess-d25b… into sess-09e1…; JSON.stringify(once)!==JSON.stringify(twice). The same applies to projectSweepReportForOutput and projectBurnAlertEvaluationForOutput through composition. This does not re-expose the native token, but it breaks the promised stable opaque correlation across doctor/report/alert layers and makes defensive double-projection unsafe. Add an explicit projection marker or recognize the exact canonical outward shape, return it unchanged, and add row/report/burn double-projection regressions while preserving total redaction.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-18T00:29:41.129Z",
+      "reviewRound": "2026-07-18T00:27:35.045Z",
+      "reviewRunId": "B-62b8:RR-014",
+      "_hash": "e64d1352a75f8de1b94bd2de56867d2c1a58df3c508352179d27ae0db7fd1ad6",
+      "signatureTag": "edge|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
