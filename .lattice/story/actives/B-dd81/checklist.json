@@ -9,7 +9,8 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The full-context response exposes a deterministic envelope ID and canonical Task Context whose Story, HEAD, round and ReviewRun fields can be inspected and reproduced."
     },
     {
       "id": "CHK-002",
@@ -20,7 +21,8 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Calling agent_prompt for a Story returns the canonical full Prompt and signed envelope; attempts to provide or splice a caller-built envelope are rejected with a stable reason."
     },
     {
       "id": "CHK-003",
@@ -31,7 +33,8 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "A fresh reviewer pass succeeds only with the matching envelope; replay against a new HEAD, round or ReviewRun is rejected, while a provider retry retains its existing usage-ledger attempt ID."
     },
     {
       "id": "CHK-004",
@@ -42,7 +45,8 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Role flags can roll back to legacy-full-context safely, while compatibility-only or retired-role receipts visibly fail REVIEW, assurance-floor and quorum readiness checks."
     }
   ]
 }

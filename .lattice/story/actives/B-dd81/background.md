@@ -8,4 +8,4 @@ The current host can observe and request prompts, but a trustworthy Story-aware 
 This Story implements only canonical full context and deliberately postpones incremental selection. It accepts additional signed artifacts and gate checks in exchange for replay resistance, deterministic rollback and auditable provider-attempt accounting.
 
 ## Conversational Texture
-The user explicitly authorized completing every milestone in order without repeated approval prompts. Work should remain evidence-led: preserve existing legal behavior, reject stale or forged envelopes, and avoid adding optimization mechanisms before their later Stories.
+After completion, a user can request a Story-aware full Prompt through agent_prompt and see a deterministic envelope identity tied to the current HEAD, review round and ReviewRun. Replaying an older envelope produces a stable rejection reason, provider retries retain the recorded attempt identity, and compatibility-only evidence visibly cannot unlock review gates.
