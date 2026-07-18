@@ -194,21 +194,23 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
             createdAt: startedAt,
             launcherSpec: { promptHash, reviewedIntentRefs: args.reviewedIntentRefs ?? [] },
           });
-          const envelopeData = store.readPromptEnvelopes(args.storyId);
-          const existingEnvelope = envelopeData.envelopes.find(candidate => candidate.envelopeId === assembly.envelope.envelopeId);
-          if (existingEnvelope && !verifyPromptEnvelopeIntegrity(existingEnvelope)) {
-            throw new Error(`review_run_start: persisted Prompt Envelope ${existingEnvelope.envelopeId} is invalid`);
-          }
-          if (!existingEnvelope) {
-            envelopeData.envelopes.push(assembly.envelope);
-            store.writePromptEnvelopes(args.storyId, envelopeData);
-          }
-          const persistedEnvelope = store.readPromptEnvelopes(args.storyId).envelopes.find(
-            candidate => candidate.envelopeId === assembly.envelope.envelopeId,
-          );
-          if (!persistedEnvelope || !verifyPromptEnvelopeIntegrity(persistedEnvelope)) {
-            throw new Error(`review_run_start: Prompt Envelope ${assembly.envelope.envelopeId} was not durably persisted`);
-          }
+          withMkdirLock(store.storyFilePath(args.storyId, 'prompt-envelopes.lock'), () => {
+            const envelopeData = store.readPromptEnvelopes(args.storyId);
+            const existingEnvelope = envelopeData.envelopes.find(candidate => candidate.envelopeId === assembly.envelope.envelopeId);
+            if (existingEnvelope && !verifyPromptEnvelopeIntegrity(existingEnvelope)) {
+              throw new Error(`review_run_start: persisted Prompt Envelope ${existingEnvelope.envelopeId} is invalid`);
+            }
+            if (!existingEnvelope) {
+              envelopeData.envelopes.push(assembly.envelope);
+              store.writePromptEnvelopes(args.storyId, envelopeData);
+            }
+            const persistedEnvelope = store.readPromptEnvelopes(args.storyId).envelopes.find(
+              candidate => candidate.envelopeId === assembly.envelope.envelopeId,
+            );
+            if (!persistedEnvelope || !verifyPromptEnvelopeIntegrity(persistedEnvelope)) {
+              throw new Error(`review_run_start: Prompt Envelope ${assembly.envelope.envelopeId} was not durably persisted`);
+            }
+          }, { label: 'prompt-envelopes metadata' });
           envelopeId = assembly.envelope.envelopeId;
         }
         const run: ReviewRun = {
