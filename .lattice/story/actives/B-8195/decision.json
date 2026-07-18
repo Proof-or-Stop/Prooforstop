@@ -1,0 +1,76 @@
+{
+  "principles": [
+    "Causal provenance over path-based trust",
+    "One-shot convergence without rerunning project commands",
+    "Fail closed outside the exact canonical lifecycle transaction"
+  ],
+  "drivers": [
+    "Remove the observed mandatory manual metadata commit and retry",
+    "Preserve canonical PASS receipt integrity and CAS semantics",
+    "Keep the patch narrow enough for focused adversarial review"
+  ],
+  "options": [
+    {
+      "name": "A: transition-owned atomic closeout",
+      "pros": [
+        "Makes the lifecycle transition finish clean before mandatory validate",
+        "Avoids teaching verifier to adopt pre-existing dirty state"
+      ],
+      "cons": [
+        "May couple phase advancement to validation-specific artifacts",
+        "Could alter closeout ordering beyond the observed path"
+      ]
+    },
+    {
+      "name": "B: receipt-bound reuse transaction admission",
+      "pros": [
+        "Keeps reuse persistence in the existing isolated CAS writer",
+        "Can atomically include only causally proven generated lifecycle paths"
+      ],
+      "cons": [
+        "Requires a strong canonical writer/receipt classifier",
+        "A weak event-shape check would create a bypass"
+      ]
+    },
+    {
+      "name": "C: permit metadata-only dirty paths generically",
+      "pros": [
+        "Small implementation",
+        "Makes the observed retry disappear"
+      ],
+      "cons": [
+        "Unsafe path-only trust",
+        "Would absorb human, forged or unrelated lifecycle metadata"
+      ]
+    }
+  ],
+  "chosen": "B: receipt-bound reuse transaction admission",
+  "rationale": "The verifier already owns the reused PASS persistence transaction. Extend that transaction only with dirty lifecycle metadata that existing canonical provenance proves belongs to the immediately preceding authorized flow; otherwise refuse exactly as today. If investigation shows no adequate proof primitive, fall back to option A rather than weakening trust.",
+  "preMortem": [
+    {
+      "scenario": "A forged process event is admitted because it resembles story_advance output.",
+      "trigger": "Admission checks only path, event type or prose.",
+      "consequence": "An external edit is silently committed as trusted metadata.",
+      "mitigation": "Require canonical receipt/causal writer binding and retain the human_confirmation/direct-edit negative controls."
+    },
+    {
+      "scenario": "The fix hides concurrent or hook-generated changes inside the metadata commit.",
+      "trigger": "Transaction capture occurs after untrusted dirt or does not verify exact index paths and HEAD CAS.",
+      "consequence": "Unrelated changes become part of a validation PASS commit.",
+      "mitigation": "Capture before authorized writes, verify exact managed path set, preserve index bytes, and keep concurrent-HEAD/hook mutation tests."
+    },
+    {
+      "scenario": "The RED passes without traversing the production lifecycle boundary.",
+      "trigger": "The test directly calls a helper or manually cleans metadata before reuse.",
+      "consequence": "B-0784 behavior remains broken despite green unit tests.",
+      "mitigation": "Run real local CLI story transition followed immediately by validate and assert a single successful invocation plus a clean tree."
+    },
+    {
+      "scenario": "Every TEST transition starts auto-committing arbitrary metadata and invalidates review evidence again.",
+      "trigger": "Writer ordering or hash binding changes too broadly.",
+      "consequence": "The fix trades one retry for repeated review re-attestation.",
+      "mitigation": "Limit committed paths to canonical generated metadata, assert trusted metadata-descendant lineage, and check review/storyFiles hashes remain admissible."
+    }
+  ],
+  "timestamp": "2026-07-18T10:17:52.998Z"
+}
