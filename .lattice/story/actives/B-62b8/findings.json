@@ -367,7 +367,7 @@
       "desc": "packages/main/src/handlers/validate-concept.ts:369-375 — HIGH: Python routing recognizes only .py, so standard Python interface stubs (.pyi) and Windows Python sources (.pyw) fall into the unsupported-file skip and silently pass. Executable matrix on current dist: deleting `def removed(value: str) -> str: ...` yields symbols=[removed] for api.py but symbols=[]/diagnostics=[] for api.pyi and gui.pyw. A .pyi deletion is an exported interface deletion—the exact concept-retirement signal this gate must not fail open on. Route .pyi (and .pyw if claimed supported) through collectPythonDeclarations and add deletion/body-change/malformed cases, while keeping genuinely unsupported metadata/docs skipped.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-18T00:56:19.113Z",
@@ -375,7 +375,11 @@
       "reviewRunId": "B-62b8:RR-022",
       "_hash": "9c86c495bcf7246f8d3b385d84d7d6682df31871a1ad32e7094cd485d037f93c",
       "signatureTag": "missing|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by bf9954756c: Python source routing now includes .pyi and .pyw as well as .py; focused smoke proves real deletions are detected in both variants while unsupported metadata remains skipped. Build and concept-gate-scope-smoke PASS.",
+      "resolvedAt": "2026-07-18T00:59:04.029Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
