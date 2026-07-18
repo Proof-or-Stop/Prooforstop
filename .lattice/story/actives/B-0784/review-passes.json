@@ -196,6 +196,26 @@
         "scanEscalationReason": null
       },
       "_hash": "4b0fb0e5eed87add0593662ea0c7b2fb46d19a97f5ecdff2b9a3ce36891b2875"
+    },
+    {
+      "id": "B-0784:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "PASS: 437c825460 resolves F-027 by keeping injected gitReader on resolvedGitCwd while checkScopeContract loads wrapper metadataRoot policy. The regression fixture preserves pathCanonicalization=off and passes; default diff-pack path retains the same authority split. Focused TypeScript build and scope-contract smoke passed.",
+      "createdAt": "2026-07-18T04:12:56.509Z",
+      "reviewRound": "2026-07-18T04:11:53.562Z",
+      "reviewRunId": "B-0784:RR-023",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "82db013385c46c9a48e23ed9da06281dc2c134c94e9a0bb919910ddc46c12686"
     }
   ]
 }
