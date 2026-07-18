@@ -1,0 +1,92 @@
+{
+  "storyId": "B-0784",
+  "checkedAt": "2026-07-18T04:27:17.074Z",
+  "headHash": "11818d00f558d9652659bf0b5c77557fa18187c4",
+  "materialHash": "90d8306a3662ae903b0cde4006e2670c0997cd7767e45d6593018254ebcfd567",
+  "storyFilesHash": "da6b9ee50ad574abb76c15794c7c36fe5142d8fffbb4e891a2f4a62d783664a5",
+  "reviewRound": "2026-07-18T04:14:57.758Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-0784/plan.md#CHK-001",
+      "promise": "Source-root core/foo.ts is persisted and compared as packages/main/src/core/foo.ts with original/canonical/base/version/rule diagnostics and fail-closed unsafe-input handling.",
+      "status": "verified",
+      "verifiedBy": "current declared diff, routine PASS, fresh live transcript and assertion reverse scan",
+      "evidence": "canonicalizeScopePath still provides deterministic repo/source normalization and unsafe-input rejection. BUG-001 follow-up now resolves each story signed workspace explicitly, keeps wrapper metadata/config root separate from story Git cwd, requires storyId for scope_diff_pack, and wrapper-worktree tests prove only the bound story diff is read."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-0784/plan.md#CHK-002",
+      "promise": "TypeScript semantic scope uses versioned parser-backed enclosing declarations; control flow and local const never replace the enclosing function, while protected rename/delete remains observable and blocked.",
+      "status": "verified",
+      "verifiedBy": "current diff and assertion-bearing focused evidence",
+      "evidence": "scope-diff-pack retains parser-backed actual-span and current/previous declaration logic; BUG-001 routes readChangedFiles, unified diff and main-side base source through the resolved story gitCwd while loading AST rollout config from metadataRoot. Existing semantic assertions plus wrapper astAnchors=off regression remain present."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-0784/plan.md#CHK-003",
+      "promise": "Official B-META gap_log metadata is shared only with valid canonical-writer whole-artifact provenance, while forged, copied, stale, direct-edited, symlinked, or unknown metadata is blocked.",
+      "status": "verified",
+      "verifiedBy": "current diff, routine PASS, fresh live transcript and provenance assertion scan",
+      "evidence": "HMAC chain and whole-artifact validation remain intact. BUG-001/root-authority fixes resolve the canonical B-META Git cwd separately from artifact metadata root and thread it through writer, verifier, classifier, scope, prewrite and done_prepare; new tests prove wrapper-root parity and reject noncanonical B-META story identity."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-0784/plan.md#CHK-004",
+      "promise": "Focused verification covers the canonical-path, AST-anchor and provenance migration/adversarial matrix with actionable diagnostics.",
+      "status": "verified",
+      "verifiedBy": "fresh live-smoke status, current routine validation PASS and test assertion reverse scan",
+      "evidence": "The fresh live transcript records successful canonical path, semantic, provenance and wrapper/worktree authority output. Focused test files remain assertion-bearing; new BUG-001 regressions add configured gitRoot, story worktree isolation, injected-reader cwd binding, nonexistent/missing storyId failure and B-META wrapper-consumer parity."
+    },
+    {
+      "docPath": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#10",
+      "promise": "One shared exact/subtree/glob grammar is used across write and gate boundaries and malformed deny rules fail closed.",
+      "status": "verified",
+      "verifiedBy": "unchanged promise implementation plus current routine PASS",
+      "evidence": "The shared classifier and malformed glob fail-closed matrix remain unchanged; root-authority plumbing does not alter grammar or broaden matches."
+    },
+    {
+      "docPath": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#10.3",
+      "promise": "Unified-diff context is excluded from changed spans, every touched current/previous declaration is retained, and deletion or rename cannot hide a protected declaration.",
+      "status": "verified",
+      "verifiedBy": "current diff mapped to existing and new assertions",
+      "evidence": "Actual-span and all-anchor behavior remains intact; base-source reads now use the bound story gitCwd, preventing wrapper/main-root drift from selecting the wrong prior declaration. Existing deletion/rename/protected assertions remain present."
+    },
+    {
+      "docPath": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#10.3-rollout",
+      "promise": "Path and AST migrations have independent off/warn/enforce modes; rollback reads legacy signed bytes without rewriting and re-enable writes current versions.",
+      "status": "verified",
+      "verifiedBy": "production config/diff review plus current routine PASS",
+      "evidence": "Independent config modes and persisted-byte 3x3 matrix remain unchanged. Wrapper regressions additionally prove rollout config comes from metadataRoot while Git material comes from the story worktree."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lifecycle-artifact-scope.md#classifier-outputs",
+      "promise": "Canonical B-META findings and ledger are trusted only when a contiguous HMAC receipt chain names gap_log and binds the current whole artifact; this is cooperative tamper evidence, not same-UID authorization.",
+      "status": "verified",
+      "verifiedBy": "current provenance implementation and wrapper-root adversarial regression scan",
+      "evidence": "Chain, HMAC, canonical identities and whole-artifact digest checks remain present. Writer/verifier now share the configured Git common-dir authority, artifact bytes remain under metadataRoot, all consumers receive the same gitCwd, and a noncanonical provenance storyId fails closed."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Current routine validation is PASS and the live-smoke artifact is present-fresh. Assertion-backed scope tests still cover canonical path behavior and now add wrapper config root versus bound story-worktree isolation, explicit storyId, nonexistent story failure, injected reader cwd binding and no fallback to wrapper/main dirt."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Assertion-backed semantic tests still cover enclosing AST declarations, control-flow exclusion, parser/version drift, protected rename and whole-file deletion. BUG-001 changes only authority routing: config loads from metadataRoot while diff and previous-source Git reads use the resolved story gitCwd."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Fresh live-smoke output includes provenance and wrapper/worktree authority PASS. Gap-log tests retain forgery/replay/direct-edit/symlink/legacy cases and now assert wrapper-root writer/classifier/scope/prewrite/done_prepare parity plus rejection of noncanonical B-META identity."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "The focused migration/adversarial matrix remains assertion-backed, and current routine validation is PASS. The fixed BUG-001 records its reproducer as test:gitroot-cwd-contract PASS with zero violations; follow-up focused regressions bind metadata/config and Git/worktree authorities mechanically without waivers."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All eight delivery promises and four feature items remain verified on the current material. BUG-001 and its adjacent wrapper-root authority fixes are included: metadata/config root and story Git cwd are mechanically separated across scope diff, base-source, B-META writer/verifier and every consuming gate, with assertion-backed wrapper/worktree regressions. Fresh live-smoke and current routine validation are PASS; no waiver or unresolved production TODO was found."
+  },
+  "_hash": "4b6727b39f2c110dd93fb073a86c0b9ef6d42590c0f5743424fbd8410dc3739a"
+}

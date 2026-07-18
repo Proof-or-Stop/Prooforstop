@@ -40,6 +40,7 @@ import {
 } from 'node:fs';
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { createInterface } from 'node:readline';
+import { deriveAdapterOwnerSessionId } from './owner-session-adapters.js';
 
 // ── Local usage shapes (intentionally NOT imported from core/usage-ledger) ───
 
@@ -85,6 +86,59 @@ export interface SweepSessionRow {
   usage: CodexUsageTotals | ClaudeUsageTotals | null;
   storyMentions: string[];
   parseErrors: number;
+}
+
+function ownerSessionProvider(host: SweepHost): 'codex' | 'claude-code' {
+  return host === 'codex' ? 'codex' : 'claude-code';
+}
+
+const OPAQUE_OWNER_SESSION_ID_RE = /^sess-[a-f0-9]{32}$/;
+
+function isProjectedSweepSessionRow(row: SweepSessionRow): boolean {
+  return OPAQUE_OWNER_SESSION_ID_RE.test(row.sessionId)
+    && row.file === `<${row.host}-transcript>/${row.sessionId}.jsonl`;
+}
+
+function redactNativeSessionMaterial<T extends string | null>(
+  value: T,
+  nativeSessionId: string,
+  opaqueSessionId: string,
+): T {
+  if (value === null || nativeSessionId.length === 0) return value;
+  return value.split(nativeSessionId).join(opaqueSessionId) as T;
+}
+
+/**
+ * Project an internally useful transcript row onto a safe outward shape.
+ * Scanners retain the real file path long enough to stream/stat it; callers
+ * must use this projection before serializing or rendering a row.
+ */
+export function projectSweepSessionRowForOutput(
+  row: SweepSessionRow,
+  projectRoot: string,
+): SweepSessionRow {
+  // Idempotence requires the whole projection contract, not a loose `sess-`
+  // prefix. A raw user value that merely resembles an owner id is re-hashed
+  // unless its exact canonical id and host-bound locator already agree.
+  if (isProjectedSweepSessionRow(row)) return row;
+  const opaqueSessionId = deriveAdapterOwnerSessionId(
+    projectRoot,
+    ownerSessionProvider(row.host),
+    row.sessionId,
+    'main',
+  );
+  return {
+    ...row,
+    sessionId: opaqueSessionId,
+    file: `<${row.host}-transcript>/${opaqueSessionId}.jsonl`,
+    cwd: redactNativeSessionMaterial(row.cwd, row.sessionId, opaqueSessionId),
+    originator: redactNativeSessionMaterial(row.originator, row.sessionId, opaqueSessionId),
+    originLabel: redactNativeSessionMaterial(row.originLabel, row.sessionId, opaqueSessionId),
+    firstTimestamp: redactNativeSessionMaterial(row.firstTimestamp, row.sessionId, opaqueSessionId),
+    lastTimestamp: redactNativeSessionMaterial(row.lastTimestamp, row.sessionId, opaqueSessionId),
+    storyMentions: row.storyMentions.map(value =>
+      redactNativeSessionMaterial(value, row.sessionId, opaqueSessionId)),
+  };
 }
 
 export interface SweepScanArgs {
@@ -452,6 +506,17 @@ export interface SweepReport {
   perStory: SweepPerStoryRollup[];
   unattributed: SweepBucket;
   grandTotals: { codex: CodexHostTotals; claude: ClaudeHostTotals };
+}
+
+/** Remove native host ids and transcript paths from every outward report row. */
+export function projectSweepReportForOutput(
+  report: SweepReport,
+  projectRoot: string,
+): SweepReport {
+  return {
+    ...report,
+    sessions: report.sessions.map(row => projectSweepSessionRowForOutput(row, projectRoot)),
+  };
 }
 
 function emptyCodexTotals(): CodexHostTotals {

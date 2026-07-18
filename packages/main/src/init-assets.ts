@@ -163,9 +163,10 @@ export const LATTICE_CODEX_ADAPTER_MANIFEST: CodexAdapterManifest = {
   ],
   sessionEnv: {
     source: 'LATTICE_ACTIVITY_SOURCE',
-    session: 'LATTICE_ACTIVITY_SESSION',
+    session: 'LATTICE_OWNER_SESSION_ADAPTER_TASK',
     recordReadOnly: 'LATTICE_ACTIVITY_RECORD_READONLY',
     sessionCandidates: [
+      'CODEX_THREAD_ID',
       'CODEX_SESSION_ID',
       'OPENAI_SESSION_ID',
       'TERM_SESSION_ID',
@@ -357,13 +358,20 @@ process.env.LATTICE_ACTIVITY_SOURCE = 'codex';
 process.env.LATTICE_ACTIVITY_RECORD_READONLY = '1';
 process.env.LATTICE_CODEX_ENTRYPOINT = 'local-wrapper';
 
-if (!process.env.LATTICE_ACTIVITY_SESSION) {
-  process.env.LATTICE_ACTIVITY_SESSION =
+if (!process.env.LATTICE_OWNER_SESSION_ADAPTER_TASK) {
+  process.env.LATTICE_OWNER_SESSION_ADAPTER_TASK =
+    process.env.CODEX_THREAD_ID ||
     process.env.CODEX_SESSION_ID ||
     process.env.OPENAI_SESSION_ID ||
     process.env.TERM_SESSION_ID ||
     '';
 }
+process.env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER = 'codex';
+process.env.LATTICE_OWNER_SESSION_ADAPTER_AGENT =
+  process.env.LATTICE_OWNER_SESSION_ADAPTER_AGENT ||
+  process.env.LATTICE_AGENT ||
+  'main';
+delete process.env.LATTICE_ACTIVITY_SESSION;
 
 async function main() {
   const [{ existsSync }, { dirname, join }, { pathToFileURL }] = await Promise.all([

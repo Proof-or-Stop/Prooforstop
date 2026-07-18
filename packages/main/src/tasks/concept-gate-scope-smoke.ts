@@ -191,7 +191,11 @@ const signatureReplacement = fileDiff(
     '}',
   ].join('\n'),
 );
-assert.deepEqual(scanDeletedSymbols(signatureReplacement), ['changed', 'constructor', 'method'], 'true signature replacement remains a deletion signal');
+assert.deepEqual(
+  scanDeletedSymbols(signatureReplacement),
+  [],
+  'same file/scope/kind/name continuity treats signature changes as retained names',
+);
 
 const overloadRemoval = fileDiff(
   'src/overload.ts',
@@ -206,6 +210,40 @@ const overloadRemoval = fileDiff(
   ].join('\n'),
 );
 assert.deepEqual(scanDeletedSymbols(overloadRemoval), ['overload'], 'one removed overload cannot be hidden by a same-name survivor');
+
+const overloadReplacement = fileDiff(
+  'src/overload-replacement.ts',
+  [
+    'export function overload(value: string): string;',
+    'export function overload(value: number): number;',
+    'export function overload(value: string | number): string | number { return value; }',
+  ].join('\n'),
+  [
+    'export function overload(value: boolean): boolean;',
+    'export function overload(value: number): number;',
+    'export function overload(value: boolean | number): boolean | number { return value; }',
+  ].join('\n'),
+);
+assert.deepEqual(
+  scanDeletedSymbols(overloadReplacement),
+  ['overload'],
+  'same-count overload replacement detects the removed declaration signature',
+);
+
+const reorderedOverloads = fileDiff(
+  'src/overload-reordered.ts',
+  [
+    'export function overload(value: string): string;',
+    'export function overload(value: number): number;',
+    'export function overload(value: string | number): string | number { return value; }',
+  ].join('\n'),
+  [
+    'export function overload(value: number): number;',
+    'export function overload(value: string): string;',
+    'export function overload(value: string | number): string | number { return value; }',
+  ].join('\n'),
+);
+assert.deepEqual(scanDeletedSymbols(reorderedOverloads), [], 'unchanged overload signatures pair regardless of declaration order');
 
 const crossFile = [
   fileDiff('src/a.ts', 'export function shared(value: string): string { return value; }', ''),
@@ -705,8 +743,8 @@ const renameAndExportRemoval = fileDiff(
 );
 assert.deepEqual(
   scanDeletedSymbols(renameAndExportRemoval),
-  ['noLongerExported', 'removedExport'],
-  'rename and export removal remain deletions; comments and strings cannot forge declaration survivors',
+  ['removedExport'],
+  'rename remains a deletion while export-state change preserves the same declaration name',
 );
 
 const pythonScope = fileDiff(
@@ -728,6 +766,19 @@ const pythonScope = fileDiff(
   ].join('\n'),
 );
 assert.deepEqual(scanDeletedSymbols(pythonScope), ['shared'], 'Python file/scope identity prevents same-name cancellation');
+
+for (const extension of ['pyi', 'pyw']) {
+  const pythonVariantDeletion = fileDiff(
+    `src/python-variant.${extension}`,
+    ['def removed(value: str) -> str:', '    return value'].join('\n'),
+    '',
+  );
+  assert.deepEqual(
+    scanDeletedSymbols(pythonVariantDeletion),
+    ['removed'],
+    `.${extension} files use Python declaration analysis`,
+  );
+}
 
 const multilinePythonDeletion = fileDiff(
   'src/multiline.py',
@@ -803,6 +854,74 @@ for (const malformedSide of [
   const analysis = analyzeDeletedSymbols(malformedSide);
   assert.ok(analysis.diagnostics.length > 0, 'a malformed supported old or new side must fail closed');
 }
+
+const unsupportedMetadata = [
+  fileDiff(
+    '.lattice/story/actives/B-smoke/index.json',
+    '{"phase":"DEV","looksLikeCode":"export function broken( {"}',
+    '{"phase":"REVIEW","looksLikeCode":"class ["}',
+  ),
+  fileDiff(
+    '.lattice/story/actives/B-smoke/process-events.jsonl',
+    '{"detail":"function phantom( {"}',
+    '{"detail":"const phantom = ("}',
+  ),
+  fileDiff(
+    'docs/requirements/notes.md',
+    '# Removed\nexport function proseOnly( {',
+    '# Retained\nclass proseOnly [',
+  ),
+  fileDiff(
+    '.lattice-codex/lattice.json',
+    '{"prompt":"async function promptText( {"}',
+    '{"prompt":"const promptText = ("}',
+  ),
+].join('\n');
+const unsupportedAnalysis = analyzeDeletedSymbols(unsupportedMetadata);
+assert.deepEqual(unsupportedAnalysis.symbols, [], 'unsupported-only metadata/docs diff yields no deleted symbols');
+assert.deepEqual(unsupportedAnalysis.diagnostics, [], 'unsupported-only metadata/docs diff yields no parser diagnostics');
+const unsupportedResult = checkConcept({
+  projectRoot: '/tmp/unused',
+  gitDiffReader: () => unsupportedMetadata,
+});
+assert.equal(unsupportedResult.status, 'pass', 'unsupported-only metadata/docs diff passes concept preflight');
+assert.deepEqual(unsupportedResult.deletedSymbols, []);
+assert.equal(unsupportedResult.diagnostics, undefined);
+
+const mixedLanguageDiff = [
+  unsupportedMetadata,
+  fileDiff(
+    'src/mixed.ts',
+    'export function actuallyRemoved(): boolean { return true; }',
+    '',
+  ),
+].join('\n');
+const mixedLanguageAnalysis = analyzeDeletedSymbols(mixedLanguageDiff);
+assert.deepEqual(mixedLanguageAnalysis.symbols, ['actuallyRemoved'], 'mixed diff still detects a real deleted TypeScript declaration');
+assert.deepEqual(mixedLanguageAnalysis.diagnostics, [], 'mixed non-code files contribute no fake TypeScript diagnostics');
+
+const legacyHeaderlessFragment = [
+  '-export function fragmentRemoved(): boolean { return true; }',
+  '+',
+].join('\n');
+assert.deepEqual(
+  scanDeletedSymbols(legacyHeaderlessFragment),
+  ['fragmentRemoved'],
+  'headerless injected diff keeps the __fragment__.ts TypeScript fallback',
+);
+
+const shebangBodyOnly = [
+  'diff --git a/bin/tool.mjs b/bin/tool.mjs',
+  '--- a/bin/tool.mjs',
+  '+++ b/bin/tool.mjs',
+  '@@ -1,2 +1,2 @@',
+  ' #!/usr/bin/env node',
+  '-export function retained() { return true; }',
+  '+export function retained() { return Boolean(1); }',
+].join('\n');
+const shebangAnalysis = analyzeDeletedSymbols(shebangBodyOnly);
+assert.deepEqual(shebangAnalysis.diagnostics, [], 'first-hunk reconstruction keeps a legal JS shebang on line 1');
+assert.deepEqual(shebangAnalysis.symbols, [], 'body-only edit after a shebang preserves declaration identity');
 
 const diffFailure = checkConcept({
   projectRoot: '/tmp/unused',

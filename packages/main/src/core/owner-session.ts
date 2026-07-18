@@ -60,6 +60,7 @@ function resolveSessionRoot(): string {
 }
 
 let cachedSessionIdentity: SessionIdentity | null = null;
+let derivedPpidMutationWarningEmitted = false;
 
 export function getSessionIdentity(): SessionIdentity {
   if (cachedSessionIdentity !== null) return cachedSessionIdentity;
@@ -74,7 +75,26 @@ export function getSessionId(): string {
   return getSessionIdentity().sessionId;
 }
 
-export function resetSessionIdForTest(): void {
-  cachedSessionIdentity = null;
+export function renderSessionIdentityDiagnostic(identity: SessionIdentity): string[] {
+  const provider = identity.hostProvider ? ` provider=${identity.hostProvider}` : '';
+  const lines = [`session identity: ${identity.sessionId} [${identity.sessionSource}${provider}]`];
+  if (identity.sessionSource === 'derived-ppid') {
+    lines.push(
+      'session identity degraded: derived-ppid; export LATTICE_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.',
+    );
+  }
+  return lines;
 }
 
+export function warnIfDerivedPpidSessionIdentity(): void {
+  if (derivedPpidMutationWarningEmitted) return;
+  const identity = getSessionIdentity();
+  if (identity.sessionSource !== 'derived-ppid') return;
+  derivedPpidMutationWarningEmitted = true;
+  console.warn(`⚠ ${renderSessionIdentityDiagnostic(identity)[1]}`);
+}
+
+export function resetSessionIdForTest(): void {
+  cachedSessionIdentity = null;
+  derivedPpidMutationWarningEmitted = false;
+}

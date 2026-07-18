@@ -20,14 +20,21 @@
  */
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
-import type { ChecklistData, StoryInfo } from '../core/types.js';
-import { checkScopeContract, validatePaths } from '../core/scope-contract.js';
-import { createScopeContractHandlers } from '../handlers/scope-contract.js';
+import type { ChecklistData, ScopeContractData, StoryInfo } from '../core/types.js';
+import { checkScopeContract, readChangedFiles, validatePaths } from '../core/scope-contract.js';
+import {
+  canonicalizeScopePath,
+  isMalformedScopeGlob,
+  pathMatchesScopePattern,
+  scopeGlobRegex,
+  SCOPE_PATH_CANONICALIZER_VERSION,
+} from '../core/scope-path-classifier.js';
+import { createScopeContractHandlers, runScopeGate } from '../handlers/scope-contract.js';
 import { runScopeTransitionGate } from '../handlers/phase-gates.js';
 import type { HandlerContext } from '../handlers/context.js';
 
@@ -122,6 +129,7 @@ try {
   }, null, 2));
   write(root, 'src/allowed.ts', 'export const allowed = 1;\n');
   write(root, 'src/protected.ts', 'export const protectedValue = 1;\n');
+  write(root, 'packages/main/src/core/foo.ts', 'export const foo = 1;\n');
   write(root, 'README.md', 'scope contract smoke\n');
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'init']);
@@ -150,6 +158,117 @@ try {
   git(root, ['commit', '-m', 'story metadata']);
   git(root, ['checkout', '-b', `story/${storyId}`]);
 
+  const canonicalArgs = { projectRoot: root, scanRoot: 'packages/main', sourceRoot: 'src' };
+  const canonicalSource = canonicalizeScopePath({ ...canonicalArgs, input: 'core/foo.ts' });
+  assert.equal(canonicalSource.canonicalPath, 'packages/main/src/core/foo.ts');
+  assert.equal(canonicalSource.base, 'source-root');
+  assert.equal(canonicalSource.version, SCOPE_PATH_CANONICALIZER_VERSION);
+  assert.equal(
+    canonicalizeScopePath({ ...canonicalArgs, input: '.\\core\\..\\core\\foo.ts' }).canonicalPath,
+    canonicalSource.canonicalPath,
+    'Windows separators and dot segments converge',
+  );
+  assert.equal(
+    canonicalizeScopePath({ ...canonicalArgs, input: 'packages/main/src/core/foo.ts' }).canonicalPath,
+    canonicalSource.canonicalPath,
+    'repo-root-relative input is idempotent',
+  );
+  assert.throws(() => canonicalizeScopePath({ ...canonicalArgs, input: '/etc/passwd' }), /absolute/);
+  assert.throws(() => canonicalizeScopePath({ ...canonicalArgs, input: 'C:\\Windows\\system.ini' }), /absolute/);
+  assert.throws(() => canonicalizeScopePath({ ...canonicalArgs, input: '../secret' }), /traversal/);
+  assert.throws(() => canonicalizeScopePath({ ...canonicalArgs, input: '%2e%2e/secret' }), /encoded/);
+  assert.equal(pathMatchesScopePattern('src/core/a.ts', 'src/**/*.ts'), true, '** matches nested files');
+  assert.equal(pathMatchesScopePattern('src/a.ts', 'src/**/*.ts'), true, '** matches zero directory segments');
+  assert.equal(pathMatchesScopePattern('src/a1.ts', 'src/a?.ts'), true, '? matches exactly one character');
+  assert.equal(pathMatchesScopePattern('src/a.ts', 'src/[ab].ts'), true, 'character classes are supported');
+  assert.equal(pathMatchesScopePattern('src/c.ts', 'src/[!ab].ts'), true, 'negated character classes are supported');
+  assert.equal(pathMatchesScopePattern('src/a.ts', 'src/{a,b}.ts'), true, 'brace alternatives are supported');
+  assert.equal(pathMatchesScopePattern('src/c.ts', 'src/{a,b}.ts'), false, 'brace alternatives do not overmatch');
+  assert.equal(pathMatchesScopePattern('src/a.ts', 'src/[ab.ts'), false, 'invalid glob grammar fails closed');
+  const malformedGlobs = [
+    'src/[broken',
+    'src/[]',
+    'src/broken]',
+    'src/[!]',
+    'src/[z-a]',
+    'src/{broken',
+    'src/{}',
+    'src/{one}',
+    'src/{one,}',
+    'src/broken}',
+    'src/a**b',
+    'src/***',
+    'src/{one,{two,three}}',
+    'src/[a/b]',
+  ];
+  for (const pattern of malformedGlobs) {
+    assert.equal(scopeGlobRegex(pattern), null, `${pattern}: malformed glob has no matcher`);
+    assert.equal(isMalformedScopeGlob(pattern), true, `${pattern}: malformed glob is classified`);
+    assert.throws(
+      () => canonicalizeScopePath({ ...canonicalArgs, input: pattern }),
+      /malformed glob/,
+      `${pattern}: canonical write boundary rejects malformed glob`,
+    );
+  }
+  const globContract = {
+    storyId,
+    mode: 'enforce' as const,
+    allowedModify: ['src/**/*.{ts,tsx}'],
+    allowedCreate: [],
+    allowedTest: [],
+    protectedFiles: ['src/**/protected?.[tj]s'],
+    explicitExcludes: ['src/**/{excluded,blocked}.ts'],
+    acknowledgements: [],
+    pathCanonicalizationMode: 'off' as const,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  assert.equal(checkScopeContract(globContract, ['src/deep/ok.ts']).status, 'pass');
+  assert.equal(checkScopeContract(globContract, ['src/deep/protected1.ts']).violations[0]?.rule, 'protected');
+  assert.equal(checkScopeContract(globContract, ['src/deep/excluded.ts']).violations[0]?.rule, 'excluded');
+  for (const field of ['protectedFiles', 'explicitExcludes'] as const) {
+    const malformedLegacy = {
+      ...globContract,
+      allowedModify: ['src/**'],
+      protectedFiles: field === 'protectedFiles' ? ['src/[broken'] : [],
+      explicitExcludes: field === 'explicitExcludes' ? ['src/{broken'] : [],
+    };
+    const result = checkScopeContract(malformedLegacy, ['src/anything.ts']);
+    assert.equal(result.status, 'fail', `${field}: malformed legacy deny fails closed under broad allow`);
+    assert.equal(result.violations[0]?.rule, field === 'protectedFiles' ? 'protected' : 'excluded');
+  }
+  write(root, 'shared/x.ts', 'repo\n');
+  write(root, 'packages/main/src/shared/x.ts', 'source\n');
+  assert.throws(
+    () => canonicalizeScopePath({ ...canonicalArgs, input: 'shared/x.ts' }),
+    /ambiguous/,
+    'a spelling valid under both bases is rejected',
+  );
+  rmSync(join(root, 'shared'), { recursive: true, force: true });
+  rmSync(join(root, 'packages/main/src/shared'), { recursive: true, force: true });
+  const outside = mkdtempSync(join(tmpdir(), 'lattice-scope-outside-'));
+  try {
+    symlinkSync(outside, join(root, 'escape'));
+    assert.throws(
+      () => canonicalizeScopePath({ ...canonicalArgs, input: 'escape/file.ts' }),
+      /symlink/,
+      'symlink escape is rejected',
+    );
+  } finally {
+    rmSync(join(root, 'escape'), { force: true });
+    rmSync(outside, { recursive: true, force: true });
+  }
+  symlinkSync(join(root, 'packages/main/src/core'), join(root, 'core-alias'));
+  try {
+    assert.equal(
+      canonicalizeScopePath({ ...canonicalArgs, input: 'core-alias/foo.ts' }).canonicalPath,
+      'packages/main/src/core/foo.ts',
+      'an in-repository symlink converges to the physical repository identity',
+    );
+  } finally {
+    rmSync(join(root, 'core-alias'), { force: true });
+  }
+
   const noContract = run(root, 'scope_contract_check', { storyId, json: true });
   assert.equal(JSON.parse(noContract).status, 'skip', 'no contract should be backward-compatible skip');
   assert.match(run(root, 'scope_contract_show', { storyId }), /Scope contract: not configured/, 'show should degrade without contract');
@@ -157,6 +276,43 @@ try {
   const invalid = run(root, 'scope_contract_set', { storyId, mode: 'strict' }, true);
   assert.match(invalid, /Invalid option|mode|strict/, 'invalid mode should be rejected');
   assert.throws(() => validatePaths(['../secret'], 'allowedModify'), /unsafe relative path/, 'unsafe paths are rejected by core validation');
+  for (const field of ['allowedModify', 'allowedCreate', 'allowedTest', 'protectedFiles', 'explicitExcludes'] as const) {
+    const rejected = run(root, 'scope_contract_set', {
+      storyId,
+      mode: 'enforce',
+      [field]: ['src/[broken'],
+    }, true);
+    assert.match(rejected, /malformed glob/, `${field}: handler write boundary rejects malformed glob syntax`);
+  }
+  const legacyContract: ScopeContractData = {
+    storyId: 'B-legacy',
+    mode: 'enforce',
+    allowedModify: ['src/allowed.ts'],
+    allowedCreate: [],
+    allowedTest: [],
+    protectedFiles: [],
+    explicitExcludes: [],
+    acknowledgements: [],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  const legacyBytes = JSON.stringify(legacyContract);
+  assert.equal(
+    checkScopeContract({ ...legacyContract, pathCanonicalizationMode: 'off' }, ['src/allowed.ts']).status,
+    'pass',
+    'path rollout off preserves legacy interpretation',
+  );
+  assert.equal(
+    checkScopeContract({ ...legacyContract, pathCanonicalizationMode: 'warn' }, ['src/allowed.ts']).status,
+    'warn',
+    'path rollout warn reads legacy artifacts with a migration advisory',
+  );
+  assert.equal(
+    checkScopeContract({ ...legacyContract, pathCanonicalizationMode: 'enforce' }, ['src/allowed.ts']).status,
+    'fail',
+    'path rollout enforce rejects a missing canonicalizer version',
+  );
+  assert.equal(JSON.stringify(legacyContract), legacyBytes, 'versioned readers never rewrite signed legacy bytes in place');
 
   const set = run(root, 'scope_contract_set', {
     storyId,
@@ -212,6 +368,28 @@ try {
     blocking: false,
     action: /review|acknowledged|visible/i,
   });
+  run(root, 'scope_contract_acknowledge', {
+    storyId,
+    paths: ['core/future.ts'],
+    actor: 'scope-contract-smoke',
+    reason: 'Verify acknowledgement paths use the same canonical source-root mapping.',
+  });
+  const ackContract = store.readScopeContract(storyId)!;
+  assert.deepEqual(
+    ackContract.acknowledgements.at(-1)?.paths,
+    ['packages/main/src/core/future.ts'],
+    'acknowledgement paths cannot bypass canonicalization with source-relative spelling',
+  );
+  assert.match(
+    run(root, 'scope_contract_acknowledge', {
+      storyId,
+      paths: ['../escape.ts'],
+      actor: 'scope-contract-smoke',
+      reason: 'Traversal must remain rejected at acknowledgement boundary.',
+    }, true),
+    /unsafe|traversal/,
+    'acknowledgement rejects traversal instead of recording a bypass',
+  );
 
   const waveContract = {
     storyId,
@@ -504,6 +682,8 @@ try {
       protectedFiles: [],
       explicitExcludes: [],
       acknowledgements: [],
+      pathCanonicalizerVersion: SCOPE_PATH_CANONICALIZER_VERSION,
+      pathCanonicalizationMode: 'enforce',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });
@@ -532,6 +712,143 @@ try {
     assert.doesNotMatch(lifecycleOutput, /root-dirt/, 'B-08be: lifecycle scope rows must not report metadataRoot dirt');
   } finally {
     rmSync(authorityRoot, { recursive: true, force: true });
+  }
+
+  // B-0784 F-022: name-status rename identity retains both old and new paths
+  // so old-path deny rules and target boundary changes remain enforceable.
+  const renameRoot = mkdtempSync(join(tmpdir(), 'lattice-scope-rename-paths-'));
+  try {
+    write(renameRoot, 'src/old.ts', 'export function stable() { return 1; }\n');
+    git(renameRoot, ['init', '-b', 'main']);
+    git(renameRoot, ['config', 'user.email', 'rename-path@example.test']);
+    git(renameRoot, ['config', 'user.name', 'Rename Path Smoke']);
+    git(renameRoot, ['add', '.']);
+    git(renameRoot, ['commit', '-m', 'base']);
+    git(renameRoot, ['mv', 'src/old.ts', 'src/new.ts']);
+    const changed = readChangedFiles(renameRoot);
+    assert.deepEqual(changed, ['src/new.ts', 'src/old.ts'], 'pure staged rename retains both path identities');
+
+    const renameContract = (overrides: Partial<ScopeContractData>): ScopeContractData => ({
+      storyId: 'B-rename-path',
+      mode: 'enforce',
+      allowedModify: ['src/old.ts', 'src/new.ts'],
+      allowedCreate: [],
+      allowedTest: [],
+      protectedFiles: [],
+      explicitExcludes: [],
+      acknowledgements: [],
+      pathCanonicalizationMode: 'off',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      ...overrides,
+    });
+    assert.equal(checkScopeContract(renameContract({}), changed).status, 'pass', 'ordinary allowed rename passes');
+    const protectedOld = checkScopeContract(renameContract({ protectedFiles: ['src/old.ts'] }), changed);
+    assert.equal(protectedOld.status, 'fail');
+    assert.equal(protectedOld.violations[0]?.path, 'src/old.ts');
+    assert.equal(protectedOld.violations[0]?.rule, 'protected');
+    const excludedOld = checkScopeContract(renameContract({ explicitExcludes: ['src/old.ts'] }), changed);
+    assert.equal(excludedOld.status, 'fail');
+    assert.equal(excludedOld.violations[0]?.path, 'src/old.ts');
+    assert.equal(excludedOld.violations[0]?.rule, 'excluded');
+    const excludedTarget = checkScopeContract(renameContract({ explicitExcludes: ['src/new.ts'] }), changed);
+    assert.equal(excludedTarget.status, 'fail', 'allowed-to-excluded rename blocks at the target');
+    const unknownTarget = checkScopeContract(renameContract({ allowedModify: ['src/old.ts'] }), changed);
+    assert.equal(unknownTarget.status, 'fail', 'allowed-to-unknown rename blocks at the target');
+    assert.equal(unknownTarget.violations[0]?.path, 'src/new.ts');
+  } finally {
+    rmSync(renameRoot, { recursive: true, force: true });
+  }
+
+  // B-0784 F-023/F-024/F-026: scope_diff_pack keeps wrapper config authority
+  // separate from the story worktree Git authority.
+  const wrapperRoot = mkdtempSync(join(tmpdir(), 'lattice-scope-wrapper-pack-'));
+  try {
+    const innerRepo = join(wrapperRoot, 'repo');
+    const storyWorktree = join(wrapperRoot, '.worktrees', 'B-wrap');
+    write(wrapperRoot, 'lattice.config.json', JSON.stringify({
+      gitRoot: 'repo',
+      scanRoot: 'src',
+      rootDir: '.',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      scopeProtection: { pathCanonicalization: 'off', astAnchors: 'off' },
+    }));
+    write(innerRepo, 'src/allowed.ts', 'export function allowed() { return 1; }\n');
+    git(innerRepo, ['init', '-b', 'main']);
+    git(innerRepo, ['config', 'user.email', 'wrapper-scope@example.test']);
+    git(innerRepo, ['config', 'user.name', 'Wrapper Scope Smoke']);
+    git(innerRepo, ['add', '.']);
+    git(innerRepo, ['commit', '-m', 'base']);
+    mkdirSync(dirname(storyWorktree), { recursive: true });
+    git(innerRepo, ['worktree', 'add', '-b', 'story/B-wrap', storyWorktree]);
+
+    const wrapperStore = new StoryStore(wrapperRoot);
+    wrapperStore.writeStory('B-wrap', {
+      storyId: 'B-wrap',
+      name: 'wrapper-pack',
+      title: 'Wrapper scope diff pack',
+      description: 'Verify metadata config and story Git authority stay separate.',
+      type: 'feature',
+      phase: 'DEV',
+      priority: 'high',
+      createdAt: new Date().toISOString(),
+      startedAt: new Date().toISOString(),
+      endedAt: null,
+      events: [],
+      worktree: {
+        path: '.worktrees/B-wrap',
+        branch: 'story/B-wrap',
+        createdAt: new Date().toISOString(),
+      },
+    });
+    wrapperStore.writeScopeContract('B-wrap', {
+      storyId: 'B-wrap',
+      mode: 'enforce',
+      allowedModify: ['src/allowed.ts'],
+      allowedCreate: [],
+      allowedTest: [],
+      protectedFiles: [],
+      explicitExcludes: [],
+      acknowledgements: [],
+      pathCanonicalizationMode: 'off',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+    write(storyWorktree, 'src/allowed.ts', 'export function allowed() { return 2; }\n');
+    write(innerRepo, 'src/root-dirt.ts', 'export const rootDirt = true;\n');
+
+    const wrapperHandlers = createScopeContractHandlers({
+      store: wrapperStore,
+      root: wrapperRoot,
+    } as HandlerContext);
+    const wrapperPack = JSON.parse(wrapperHandlers.scope_diff_pack({ storyId: 'B-wrap', json: true }));
+    assert.deepEqual(wrapperPack.changedFiles, ['src/allowed.ts'], 'scope_diff_pack reads only the bound story worktree');
+    assert.equal(wrapperPack.astAnchorMode, 'off', 'wrapper metadata config controls AST rollout');
+    assert.equal(wrapperPack.hunks[0]?.anchor, undefined);
+    assert.equal(wrapperPack.hunks[0]?.parseFallback, 'ast_anchor_rollout_off_legacy_history_preserved');
+    assert.equal(
+      runScopeGate('B-wrap', wrapperStore, wrapperRoot, (cwd) => {
+        assert.equal(cwd, storyWorktree, 'injected reader receives the resolved story worktree');
+        assert.notEqual(cwd, wrapperRoot, 'injected reader never receives the metadata wrapper root');
+        assert.notEqual(cwd, innerRepo, 'injected reader never receives the main inner repo');
+        return ['src/allowed.ts'];
+      }, storyWorktree)?.status,
+      'pass',
+      'injected-reader runScopeGate honors wrapper pathCanonicalization=off instead of inner-repo defaults',
+    );
+    assert.throws(
+      () => wrapperHandlers.scope_diff_pack({ storyId: 'B-NONEXISTENT', json: true }),
+      /does not exist/,
+      'nonexistent storyId fails closed instead of falling back to another workspace',
+    );
+    assert.throws(
+      () => wrapperHandlers.scope_diff_pack({ json: true }),
+      /storyId is required/,
+      'missing storyId fails closed',
+    );
+  } finally {
+    rmSync(wrapperRoot, { recursive: true, force: true });
   }
 
   console.log('scope contract smoke passed');

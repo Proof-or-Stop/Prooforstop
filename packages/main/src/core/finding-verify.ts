@@ -2,8 +2,17 @@
  * Finding integrity: sign & verify (shared between handlers and machine guards)
  */
 
-import { createHash } from 'crypto';
-import type { ReviewerReadDiagnostic, ReviewerReadLogEvidence, ReviewerReadManifest } from './types.js';
+import { createHash, createHmac, timingSafeEqual } from 'crypto';
+import { execFileSync } from 'node:child_process';
+import { existsSync, readFileSync } from 'node:fs';
+import { isAbsolute, join, resolve } from 'node:path';
+import type {
+  FindingData,
+  GapLogProvenanceBinding,
+  ReviewerReadDiagnostic,
+  ReviewerReadLogEvidence,
+  ReviewerReadManifest,
+} from './types.js';
 import { digestCanonicalJson } from './digest.js';
 import {
   normalizeReviewerReadDiagnostics,
@@ -26,7 +35,22 @@ export function signFinding(
   readManifest?: ReviewerReadManifest,
   readLog?: ReviewerReadLogEvidence,
   readDiagnostics?: ReviewerReadDiagnostic[],
+  gapLogBinding?: GapLogProvenanceBinding,
 ): string {
+  if (gapLogBinding !== undefined) {
+    return digestCanonicalJson({
+      version: 3,
+      salt: FINDING_SALT,
+      storyId,
+      id,
+      desc,
+      severity,
+      timestamp,
+      reviewRound,
+      reviewRunId,
+      gapLogBinding,
+    });
+  }
   if (readManifest !== undefined || readLog !== undefined || readDiagnostics !== undefined) {
     return digestCanonicalJson({
       version: 2,
@@ -60,10 +84,30 @@ export function verifyFinding(
     readManifest?: ReviewerReadManifest;
     readLog?: ReviewerReadLogEvidence;
     readDiagnostics?: ReviewerReadDiagnostic[];
+    gapLogBinding?: GapLogProvenanceBinding;
   },
 ): boolean {
   if (!f._hash || !f.createdAt) return false;
   const reviewRunId = f.reviewRunId?.trim() || '';
+  if (f.gapLogBinding !== undefined) {
+    try {
+      return f._hash === signFinding(
+        storyId,
+        f.id,
+        f.desc,
+        f.severity,
+        f.createdAt,
+        f.reviewRound || '',
+        reviewRunId,
+        undefined,
+        undefined,
+        undefined,
+        f.gapLogBinding,
+      );
+    } catch {
+      return false;
+    }
+  }
   if (f.readManifest !== undefined || f.readLog !== undefined || f.readDiagnostics !== undefined) {
     try {
       return f._hash === signFinding(
@@ -91,6 +135,165 @@ export function verifyFinding(
   // Fallback: try old format (without reviewRound) for backward compatibility
   const oldExpected = createHash('sha256').update(`${storyId}:${f.id}:${f.desc}:${f.severity}:${f.createdAt}:${FINDING_SALT}`).digest('hex');
   return f._hash === oldExpected;
+}
+
+export const GAP_LOG_PROVENANCE_SCHEMA = 'lattice.gap-log-provenance.v1' as const;
+export const GAP_LOG_ARTIFACT_PATH = '.lattice/story/actives/B-META-framework-audit/findings.json' as const;
+export const GAP_LOG_PROVENANCE_LEDGER_PATH = '.lattice/story/actives/B-META-framework-audit/gap-log-provenance.jsonl' as const;
+
+export interface GapLogProvenanceReceipt {
+  schemaVersion: typeof GAP_LOG_PROVENANCE_SCHEMA;
+  sequence: number;
+  previousIntegrityHash: string;
+  artifactPath: typeof GAP_LOG_ARTIFACT_PATH;
+  ledgerPath: typeof GAP_LOG_PROVENANCE_LEDGER_PATH;
+  storyId: 'B-META-framework-audit';
+  writerCommand: 'gap_log';
+  findingId: string;
+  gapFingerprint: string;
+  preArtifactDigest: string;
+  postArtifactDigest: string;
+  parentHead: string;
+  timestamp: string;
+  integrityHash: string;
+}
+
+/** Canonical whole-file semantic digest; binding/hash fields are excluded to avoid circularity. */
+export function digestGapLogArtifact(data: FindingData): string {
+  return digestCanonicalJson(data);
+}
+
+function gitCommonDir(gitCwd: string): string {
+  const raw = execFileSync('git', ['rev-parse', '--git-common-dir'], {
+    cwd: gitCwd,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+  return isAbsolute(raw) ? raw : resolve(gitCwd, raw);
+}
+
+function receiptKeyPath(gitCwd: string): string {
+  return join(gitCommonDir(gitCwd), 'lattice-gap-log-provenance.key');
+}
+
+function receiptPayload(receipt: Omit<GapLogProvenanceReceipt, 'integrityHash'>): string {
+  return JSON.stringify(receipt);
+}
+
+function expectedReceiptHash(gitCwd: string, receipt: Omit<GapLogProvenanceReceipt, 'integrityHash'>): string | null {
+  const keyPath = receiptKeyPath(gitCwd);
+  if (!existsSync(keyPath)) return null;
+  return createHmac('sha256', readFileSync(keyPath)).update(receiptPayload(receipt)).digest('hex');
+}
+
+function committedArtifactDigest(gitCwd: string, commit: string): string | null {
+  try {
+    const text = execFileSync('git', ['show', `${commit}:${GAP_LOG_ARTIFACT_PATH}`], {
+      cwd: gitCwd,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    return digestGapLogArtifact(JSON.parse(text) as FindingData);
+  } catch {
+    return null;
+  }
+}
+
+export function readGapLogProvenanceLedger(root: string): GapLogProvenanceReceipt[] {
+  const path = join(root, GAP_LOG_PROVENANCE_LEDGER_PATH);
+  if (!existsSync(path)) return [];
+  return readFileSync(path, 'utf8')
+    .split('\n')
+    .filter(Boolean)
+    .map((line) => JSON.parse(line) as GapLogProvenanceReceipt);
+}
+
+export interface GapLogArtifactVerification {
+  trusted: boolean;
+  reason:
+    | 'valid_official_gap_log_binding'
+    | 'wrong_artifact_path'
+    | 'missing_binding'
+    | 'invalid_binding_shape'
+    | 'content_digest_mismatch'
+    | 'finding_signature_invalid';
+  expectedDigest?: string;
+  observedDigest?: string;
+  findingId?: string;
+}
+
+export function verifyGapLogArtifactBinding(
+  data: FindingData,
+  artifactPath: string = GAP_LOG_ARTIFACT_PATH,
+  projectRoot?: string,
+  gitCwdOverride?: string,
+): GapLogArtifactVerification {
+  if (artifactPath.replace(/\\/g, '/').replace(/^\.\//, '') !== GAP_LOG_ARTIFACT_PATH) {
+    return { trusted: false, reason: 'wrong_artifact_path' };
+  }
+  if (!projectRoot || !gitCwdOverride) return { trusted: false, reason: 'missing_binding' };
+  const gitCwd = gitCwdOverride;
+  let receipts: GapLogProvenanceReceipt[];
+  try {
+    receipts = readGapLogProvenanceLedger(projectRoot);
+  } catch {
+    return { trusted: false, reason: 'invalid_binding_shape' };
+  }
+  if (receipts.length === 0) return { trusted: false, reason: 'missing_binding' };
+  let previous = '';
+  let priorPost = receipts[0].preArtifactDigest;
+  const firstCommittedDigest = committedArtifactDigest(gitCwd, receipts[0].parentHead);
+  const canonicalEmptyDigest = digestGapLogArtifact({ findings: [] });
+  if (
+    (firstCommittedDigest !== null && firstCommittedDigest !== receipts[0].preArtifactDigest)
+    || (firstCommittedDigest === null && receipts[0].preArtifactDigest !== canonicalEmptyDigest)
+  ) {
+    return { trusted: false, reason: 'invalid_binding_shape', findingId: receipts[0].findingId };
+  }
+  for (let index = 0; index < receipts.length; index++) {
+    const receipt = receipts[index];
+    const { integrityHash, ...unsigned } = receipt;
+    const expected = expectedReceiptHash(gitCwd, unsigned);
+    const authentic = expected && /^[a-f0-9]{64}$/.test(integrityHash)
+      && timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(integrityHash, 'hex'));
+    if (
+      !authentic
+      || receipt.schemaVersion !== GAP_LOG_PROVENANCE_SCHEMA
+      || receipt.sequence !== index + 1
+      || receipt.previousIntegrityHash !== previous
+      || receipt.preArtifactDigest !== priorPost
+      || receipt.artifactPath !== GAP_LOG_ARTIFACT_PATH
+      || receipt.ledgerPath !== GAP_LOG_PROVENANCE_LEDGER_PATH
+      || receipt.storyId !== 'B-META-framework-audit'
+      || receipt.writerCommand !== 'gap_log'
+      || !/^[a-f0-9]{40,64}$/.test(receipt.parentHead)
+      || !Number.isFinite(Date.parse(receipt.timestamp))
+    ) return { trusted: false, reason: 'invalid_binding_shape', findingId: receipt.findingId };
+    previous = integrityHash;
+    priorPost = receipt.postArtifactDigest;
+  }
+  const latest = receipts[receipts.length - 1];
+  const expectedDigest = digestGapLogArtifact(data);
+  if (latest.postArtifactDigest !== expectedDigest) {
+    return {
+      trusted: false,
+      reason: 'content_digest_mismatch',
+      expectedDigest,
+      observedDigest: latest.postArtifactDigest,
+      findingId: latest.findingId,
+    };
+  }
+  const finding = data.findings.find((candidate) => candidate.id === latest.findingId);
+  if (!finding || finding.gapFingerprint !== latest.gapFingerprint) {
+    return { trusted: false, reason: 'finding_signature_invalid', expectedDigest, observedDigest: latest.postArtifactDigest, findingId: latest.findingId };
+  }
+  return {
+    trusted: true,
+    reason: 'valid_official_gap_log_binding',
+    expectedDigest,
+    observedDigest: latest.postArtifactDigest,
+    findingId: latest.findingId,
+  };
 }
 
 /**

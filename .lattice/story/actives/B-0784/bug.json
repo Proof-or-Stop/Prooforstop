@@ -1,0 +1,23 @@
+{
+  "bugs": [
+    {
+      "id": "BUG-001",
+      "title": "New scope and B-META Git reads use bare projectRoot instead of resolved worktree Git cwd",
+      "status": "fixed",
+      "foundAt": "2026-07-18T03:48:57.081Z",
+      "fixedAt": "2026-07-18T03:55:14.126Z",
+      "checklistId": "CHK-004",
+      "evidence": {
+        "symptom": "Root full suite test:gitroot-cwd-contract reported five bare projectRoot Git cwd call sites in new scope and B-META helpers.",
+        "reproSteps": [
+          "Run npm run test:gitroot-cwd-contract",
+          "Observe five violations in audit-meta-store.ts, finding-verify.ts, and scope-diff-pack.ts"
+        ],
+        "hypothesis": "New provenance and base-source helpers bypassed the existing story-keyed worktree Git cwd resolver.",
+        "rootCause": "B-META writer and verifier passed metadata/project root directly to Git, while scope_diff_pack lacked storyId plumbing needed to resolve the active story worktree.",
+        "fixEvidence": "Commit 514b1654bb routes all five sites through resolveGitCwd using the canonical B-META identity or requested storyId; build, gap-log smoke, semantic-scope-guard smoke, process-fact contract, diff check, and scope check all pass.",
+        "reproTest": "npm run test:gitroot-cwd-contract — PASS, 743 TypeScript files scanned, 0 violations"
+      }
+    }
+  ]
+}

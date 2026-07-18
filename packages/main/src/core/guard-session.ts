@@ -194,6 +194,7 @@ export function detectGuardViolations(
   diffPack: ScopeDiffPack,
   simulatedWrites: readonly string[] = [],
   now: string = new Date().toISOString(),
+  projectRoot?: string,
 ): GuardSessionViolation[] {
   const enforceContract: ScopeContractData = contract.mode === 'enforce'
     ? contract
@@ -222,7 +223,7 @@ export function detectGuardViolations(
     });
   };
 
-  for (const v of checkScopeContract(enforceContract, changedFiles).violations) push(v);
+  for (const v of checkScopeContract(enforceContract, changedFiles, { projectRoot }).violations) push(v);
   for (const v of checkSemanticScope(enforceContract, diffPack).violations) push(v);
   return out;
 }

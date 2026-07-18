@@ -423,7 +423,7 @@ export function buildScopeProtectionSummary(input: ScopeProtectionSummaryInput):
     };
   }
 
-  const path = checkScopeContract(input.contract, input.diffPack.changedFiles);
+  const path = checkScopeContract(input.contract, input.diffPack.changedFiles, { projectRoot: input.projectRoot });
   const pathGate = path.status as ScopeGateLabel;
 
   const semanticGate: ScopeGateLabel = isSemanticContract(input.contract)

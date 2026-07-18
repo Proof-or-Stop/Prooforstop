@@ -168,6 +168,9 @@ export const PROCESS_FACT_RUNTIME_SEMANTICS = {
   'runtime:composite_scope_digest_review_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'review-run', 'gate-evidence'],
   'runtime:trusted_closeout_artifact_validation': ['runtime-behavior', 'schema-contract', 'verification-policy', 'gate-evidence'],
   'runtime:routine_validation_fresh_pass_reuse_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'validation-result', 'verification-policy', 'gate-evidence'],
+  'runtime:canonical_scope_path_gate': ['runtime-behavior', 'schema-contract', 'normalization-policy', 'freshness-policy', 'gate-evidence'],
+  'runtime:ast_semantic_anchor_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
+  'runtime:shared_gap_log_metadata_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
   'runtime:delivery_promise_outcome_done_gate': ['runtime-behavior', 'schema-contract', 'normalization-policy', 'gate-evidence'],
 } as const satisfies Record<string, readonly ProcessFactSemantic[]>;
 

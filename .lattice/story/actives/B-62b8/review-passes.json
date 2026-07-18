@@ -1,0 +1,552 @@
+{
+  "passes": [
+    {
+      "id": "B-62b8:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Incremental docs review PASS for a2f141b9ec: F-008 is fixed. Both CLI activity/process-event writers persist getSessionIdentity opaque id/source/provider; Codex wrapper no longer maps raw native values into LATTICE_ACTIVITY_SESSION; canonical document, session_brief and doctor diagnostics agree and preserve local non-Authority semantics. owner-session guardrail passed. The later story-owner-lease-smoke failure is the separate REVIEW-phase harness defect already recorded as F-012, not an F-008 docs/runtime mismatch.",
+      "createdAt": "2026-07-18T00:02:57.752Z",
+      "reviewRound": "2026-07-17T23:59:25.126Z",
+      "reviewRunId": "B-62b8:RR-008",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/owner-session-token-store.ts",
+          "packages/main/src/core/owner-session.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/tasks/owner-session-guardrail.ts",
+          "packages/main/src/tasks/story-owner-lease-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "ca7bd5fa3fa8b0a1e61da208ae526aacb3f1e9902f2a7c738aa871623910c96d"
+      },
+      "readDiagnostics": [],
+      "_hash": "a6e133b33b2bb2fd2d6d56dd36461af90256cf641150cf7bfc8813898781d685"
+    },
+    {
+      "id": "B-62b8:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Bounded round-3 docs review PASS for f3b9f3c13e. The canonical plan now specifies seven days of inactivity, successful same-scope use renews lastUsedAt/expiresAt under the scope lock without token rotation, and only truly idle records are replaced/repaired. owner-session-token-store implements exactly that sliding renewal and scoped cleanup; doctor health semantics remain aligned. Build plus story-owner-lease smoke passed, including active-past-original-TTL stability and truly-idle replacement. No promise drift found.",
+      "createdAt": "2026-07-18T00:14:13.972Z",
+      "reviewRound": "2026-07-18T00:12:18.838Z",
+      "reviewRunId": "B-62b8:RR-012",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "packages/main/src/core/owner-session-token-store.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/story-owner-lease-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "ca7bd5fa3fa8b0a1e61da208ae526aacb3f1e9902f2a7c738aa871623910c96d"
+      },
+      "readDiagnostics": [],
+      "_hash": "d3c18b123dec4aa9803d422836cd6afca374ac03dc222eaa913122b05ef959db"
+    },
+    {
+      "id": "B-62b8:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round-3 bounded incremental quality review PASS: canonical trimmed deny precedence verified; phase-independent REVIEW/TEST lease-gate smoke passes; idle sliding renewal remains under the per-scope lock with atomic publication, concurrent creator and scope-isolated cleanup coverage. No new blocker found in f3b9f3c13e.",
+      "createdAt": "2026-07-18T00:14:14.825Z",
+      "reviewRound": "2026-07-18T00:12:18.838Z",
+      "reviewRunId": "B-62b8:RR-010",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/owner-session-token-store.ts",
+          "packages/main/src/tasks/story-owner-lease-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "ce5612d721a138aed4c4ac59a848f202efca941f91627fcae15d6c0a9d7b7e1a"
+      },
+      "readDiagnostics": [],
+      "_hash": "ce1e4f6490f943cc884917c603cf9767aa16c22cee234515ddce1662163ee365"
+    },
+    {
+      "id": "B-62b8:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-3 bounded F-013 re-review PASS: isolated REVIEW and TEST temp stories use separate direct/nested OS processes to acquire and refresh one host-adapter composite lease, heartbeat advances, derived-ppid reaches the owner gate with warning and remains blocked; current REVIEW build plus owner-session smoke and guardrail pass; exact f3b9f3c evidence is integration_test-scoped and explicitly removes cli-surface claims.",
+      "createdAt": "2026-07-18T00:14:20.651Z",
+      "reviewRound": "2026-07-18T00:12:18.838Z",
+      "reviewRunId": "B-62b8:RR-011",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/owner-session-token-store.ts",
+          "packages/main/src/tasks/story-owner-lease-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "892bf2732bf773f7adae0ddf8bc94c4f4f5fd3584ff834b93cfa1ffd0ddfbbac"
+    },
+    {
+      "id": "B-62b8:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "PASS bounded round-4 F-014 re-review. Shared projection is applied after internal scan/stat and before every doctor and usage_sweep text/JSON/out/alert surface. usage-burn-alert smoke passed 23 checks across real-shaped Codex/Claude plus agy owner identity. Live doctor JSON no longer contains current CODEX_THREAD_ID and renders opaque session ids/transcript locators. No new blocker.",
+      "createdAt": "2026-07-18T00:29:32.533Z",
+      "reviewRound": "2026-07-18T00:27:35.045Z",
+      "reviewRunId": "B-62b8:RR-013",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "555d6a795ddce1255bf2225cca74580a400b1f07a819bdcfed199a3f663bf5b5"
+    },
+    {
+      "id": "B-62b8:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Targeted round-4 docs/delivery consistency PASS. No canonical Markdown changed. Projecting doctor/usage_sweep outward rows to opaque stable session ids and opaque transcript locators is a direct extension of the existing owner-session non-disclosure contract; docs/host-run-usage.md promises per-session aggregation/diagnostics but does not promise raw native ids or filesystem transcript paths, so no user-facing promise update is required. Opaque projection preserves host, totals, cwd/origin/timestamps/story mentions and advisory semantics. Build, usage-burn-alert and usage-sweep focused suites passed, including every outward string-field sentinel redaction.",
+      "createdAt": "2026-07-18T00:29:55.607Z",
+      "reviewRound": "2026-07-18T00:27:35.045Z",
+      "reviewRunId": "B-62b8:RR-016",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "ca7bd5fa3fa8b0a1e61da208ae526aacb3f1e9902f2a7c738aa871623910c96d"
+      },
+      "readDiagnostics": [],
+      "_hash": "3a5c030745105e1eb2d78995854842311d8dd61e0ded7f3bb003017db1591457"
+    },
+    {
+      "id": "B-62b8:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Round-5 bounded F-015 quality review PASS: strict host-bound projected predicate, deep row/report/burn idempotence, lookalike raw rehash, and all usage-burn outward surfaces verified; 24/24 smoke PASS and no lifecycle command executed.",
+      "createdAt": "2026-07-18T00:35:05.376Z",
+      "reviewRound": "2026-07-18T00:33:52.557Z",
+      "reviewRunId": "B-62b8:RR-017",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9b637ba125d8c6127b99bb6c75a2b3343b161892a7fa01d16089ebfc1648aed9"
+    },
+    {
+      "id": "B-62b8:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-5 bounded F-016 re-review PASS: realistic Codex and Claude sentinels traverse doctor text/JSON, usage_sweep plain/alert text, plain/alert JSON, and a unique create-only --out file whose full bytes are read back; every surface rejects raw ids and retains opaque ids/locators. Row/report/burn projection is deeply idempotent and rejects a sess-like input without the matching host locator. Current build, usage-burn 24 checks, and usage-sweep 19 checks all pass.",
+      "createdAt": "2026-07-18T00:35:26.549Z",
+      "reviewRound": "2026-07-18T00:33:52.557Z",
+      "reviewRunId": "B-62b8:RR-018",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "39609fc78693d69436754550bde18bc59ddfab0f1830885c35dd94fb342131a5"
+    },
+    {
+      "id": "B-62b8:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Round-5 bounded docs re-attestation PASS for 63c23a3c68. No docs changed. The two-file change makes the existing opaque usage/doctor projection idempotent and expands coverage across text, JSON, alert, and --out surfaces; it does not change the canonical non-disclosure contract or user-facing opaque-id/locator semantics. Exact canonical id plus host-bound locator is required before an input is trusted as already projected, so raw lookalikes still re-hash. Build and usage-burn-alert focused suite passed.",
+      "createdAt": "2026-07-18T00:35:36.834Z",
+      "reviewRound": "2026-07-18T00:33:52.557Z",
+      "reviewRunId": "B-62b8:RR-020",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "ca7bd5fa3fa8b0a1e61da208ae526aacb3f1e9902f2a7c738aa871623910c96d"
+      },
+      "readDiagnostics": [],
+      "_hash": "8e03bdf9b5e25e5b357ba82ff3e92e5640d6f7895caed24aaced692cf6232d7d"
+    },
+    {
+      "id": "B-62b8:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "PASS bounded round-5 re-attestation for 63c23a3c68. Projection idempotence requires both canonical opaque id and exact host-bound opaque locator, so raw sess-shaped inputs remain re-projected. Row/report/burn double projection is deep-stable; all sentinel routes remain redacted. usage-burn-alert smoke passed 24 checks and live doctor still omits current CODEX_THREAD_ID while retaining an opaque locator. No semantic regression or blocker.",
+      "createdAt": "2026-07-18T00:35:37.463Z",
+      "reviewRound": "2026-07-18T00:33:52.557Z",
+      "reviewRunId": "B-62b8:RR-019",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ca39752ff5bf93c20d81ae1bdca0d2b06a256c7a9c411099a93f12b6d37216c4"
+    },
+    {
+      "id": "B-62b8:RP-011",
+      "agent": "lattice-review-docs",
+      "note": "Round-6 bounded docs re-attestation PASS for 2f9fe77398. This is an internal concept-gate parsing/continuity repair: only supported source languages are parsed, metadata/docs no longer create TypeScript diagnostics, and same file/scope/kind/name declaration continuity survives signature/export-form changes while actual rename/deletion remains detectable. No canonical Markdown, CLI syntax, configurable policy, user-visible output contract, or owner-session non-disclosure semantics changed; targeted docs contain no promise of the prior false-positive behavior, so no docs update is required. Build and concept-gate-scope smoke passed.",
+      "createdAt": "2026-07-18T00:55:55.070Z",
+      "reviewRound": "2026-07-18T00:53:30.666Z",
+      "reviewRunId": "B-62b8:RR-024",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "613e7dc74c7cd1183bb14f38a11099c229db689c25b845b28d503d761d751868"
+    },
+    {
+      "id": "B-62b8:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-6 bounded commit 2f9fe77398 coverage PASS: the focused smoke covers unsupported-only JSON/JSONL/Markdown/manifest diffs, mixed unsupported+real TS deletion, malformed TS and multiline/malformed Python fail-closed, headerless fragment fallback, first-line shebang reconstruction, same-name declaration continuity across signature/export-state edits, and true deletion/rename/cross-file/overload-count removal. Current build and concept-gate-scope smoke pass.",
+      "createdAt": "2026-07-18T00:56:13.062Z",
+      "reviewRound": "2026-07-18T00:53:30.666Z",
+      "reviewRunId": "B-62b8:RR-023",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "681b4331dcd3649fe11a92d66ddd703d71d8c2f0c69128cf9839d76be73f12c1"
+    },
+    {
+      "id": "B-62b8:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Round-7 bounded quality review PASS for bf9954756c: overload declaration signatures pair as a multiset, same-count replacement detects removal, reorder is stable, body-bearing implementation signature changes retain continuity, .pyi/.pyw route to Python, and unsupported metadata remains skipped. Focused smoke PASS.",
+      "createdAt": "2026-07-18T00:59:54.860Z",
+      "reviewRound": "2026-07-18T00:58:51.193Z",
+      "reviewRunId": "B-62b8:RR-026",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0a0034d35a7947d87ac35d69b43673d36e0028d910bfb818a5a03428e92f7eb4"
+    },
+    {
+      "id": "B-62b8:RP-014",
+      "agent": "lattice-review-docs",
+      "note": "Round-7 bounded docs re-attestation PASS for bf9954756c on current material. The change only refines internal concept-gate declaration matching: implementation declarations retain name continuity, bodyless overload signatures pair by normalized signature, and .pyi/.pyw route through the existing Python analyzer. It introduces no CLI/config surface, diagnostic wording, owner-session behavior, or user-facing contract, and targeted docs do not promise parser-extension or overload internals. No docs update is required. Build and concept-gate-scope smoke passed.",
+      "createdAt": "2026-07-18T01:00:05.030Z",
+      "reviewRound": "2026-07-18T00:58:51.193Z",
+      "reviewRunId": "B-62b8:RR-027",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "28b9ba94f558ad43f59fa365638b3d7192ecdbaa3e2bf54d2e7dee2dc939acb2"
+    },
+    {
+      "id": "B-62b8:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "PASS: targeted Round 7 re-review confirms F-017 same-count overload replacement now reports the removed overload while unchanged reordered overloads remain non-findings; F-018 routes .pyi/.pyw through Python deletion analysis. The dedicated concept-gate smoke and an independent dist-level exact repro both pass. Prior residual-local assessment remains intact: activityFor is superseded by activityForEntrypoint; nativeAdapterSession/redactRef no longer exist, and generic candidate occurrences are unrelated live locals.",
+      "createdAt": "2026-07-18T01:00:19.598Z",
+      "reviewRound": "2026-07-18T00:58:51.193Z",
+      "reviewRunId": "B-62b8:RR-025",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "63284184678e7a6f681fa1b390c08874a0b8306ee6cb199da80ad34325776177"
+    },
+    {
+      "id": "B-62b8:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "Focused coverage PASS for bf9954756c: direct smoke coverage for same-count overload replacement, overload reorder, count decrease, .pyi/.pyw deletion routing, and unsupported metadata; build and focused smoke pass.",
+      "createdAt": "2026-07-18T01:00:36.278Z",
+      "reviewRound": "2026-07-18T00:58:51.193Z",
+      "reviewRunId": "B-62b8:RR-028",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7941fb1d2f99956ff54baad57849820b9e76b43bd618836441d7ed52a1ffac84"
+    },
+    {
+      "id": "B-62b8:RP-017",
+      "agent": "lattice-review-docs",
+      "note": "Round-8 bounded docs re-attestation PASS for 0fc143ac00. The commit changes only two exact executable-source fingerprint constants after already-reviewed cli-engine source movement; it introduces no runtime behavior, process-fact meaning, CLI/config/output surface, or documentation promise, so no docs update is required. verify-process-fact-contract passed. The additional retired-authority guard run exposed a separate current-material dynamic-import allowlist failure in bin/lattice-codex.js; that is not a docs obligation or fingerprint semantic drift and must be handled by quality/implementation before convergence.",
+      "createdAt": "2026-07-18T01:10:50.043Z",
+      "reviewRound": "2026-07-18T01:08:09.314Z",
+      "reviewRunId": "B-62b8:RR-033",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9d6da2e0cef2d089b40f17b1247768b7ed4deda2f4a35e783f4f32ffe478c17f"
+    },
+    {
+      "id": "B-62b8:RP-018",
+      "agent": "lattice-review-concept",
+      "note": "PASS (bounded 0fc143ac00): this is an exact structural-fingerprint re-attestation, not an authority expansion or runtime behavior change. The commit changes only the cli-engine pinned AST digest and its mirrored process-fact assertion. The source change that caused the digest drift (a2f141b9ec) only imports getSessionIdentity and replaces activity-session logging fields; a bounded diff contains no dynamic import/require/initPath/dashboard change. Blame confirms both legitimate cli-engine dynamic loaders are unchanged since 4edf2925a9. verify-process-fact-contract passes. The vocabulary smoke accepts the new cli-engine pin and proceeds, but separately reports an unapproved bin/lattice-codex.js loader outside this commit/scope; no finding is attributed to 0fc143ac00.",
+      "createdAt": "2026-07-18T01:10:56.865Z",
+      "reviewRound": "2026-07-18T01:08:09.314Z",
+      "reviewRunId": "B-62b8:RR-031",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "06afa9cc031dd38aa781c3ff14f19d6393f124970acf6f5da03f58c0036672db"
+    },
+    {
+      "id": "B-62b8:RP-019",
+      "agent": "lattice-review-quality",
+      "note": "Round-9 final bounded quality PASS for 1a802b23fc: all six benign-loader fingerprints independently match, bootstrap is unchanged, Codex wrapper repin is exact, finite file/anchor/argument controls and negative mutations remain enforced by the full retired-authority guard, and process-fact contract passes. RR-038 refreshes only the metadata-staled binding after F-019 resolution.",
+      "createdAt": "2026-07-18T01:16:17.442Z",
+      "reviewRound": "2026-07-18T01:14:08.901Z",
+      "reviewRunId": "B-62b8:RR-038",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f0d7b5121b609c51950818541b0432ea7315645d1b648be87b3cc541a9d123e7"
+    },
+    {
+      "id": "B-62b8:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "PASS (bounded 1a802b23fc): exact Codex-wrapper loader fingerprint re-attestation only. The commit changes only the bin/lattice-codex.js digest in BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS and its mirrored process-fact literal; it adds no loader allowlist entry, path, anchor, runtime branch, or executable behavior. The source drift requiring repinning changes only pre-main owner-session adapter environment setup; main still imports exactly pathToFileURL(localLattice).href under the existing main anchor. Guard authority remains constrained by registered file, exact anchor, exact argument, and whole-source canonical AST fingerprint. Full retired-authority vocabulary guard and process-fact contract pass.",
+      "createdAt": "2026-07-18T01:16:24.822Z",
+      "reviewRound": "2026-07-18T01:14:08.901Z",
+      "reviewRunId": "B-62b8:RR-039",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "bin/lattice-codex.js",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c84cdd1e3f4393d985bf1f9a148673d1ca76e939472d4ab5d71a1349b4136d85"
+    },
+    {
+      "id": "B-62b8:RP-021",
+      "agent": "lattice-review-docs",
+      "note": "Round-9 final bounded docs re-attestation PASS for 1a802b23fc. The commit only updates the exact bin/lattice-codex.js benign-loader source fingerprint in the executable guard and its mirrored process-fact contract assertion. It neither widens the loader exemption nor changes wrapper/runtime behavior, CLI/config/output semantics, or any documented promise. No docs update is required. Build and retired-authority vocabulary guard passed on current material.",
+      "createdAt": "2026-07-18T01:16:25.490Z",
+      "reviewRound": "2026-07-18T01:14:08.901Z",
+      "reviewRunId": "B-62b8:RR-040",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "bin/lattice-codex.js",
+          "docs/CLI.md",
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9cdf7c845a050c8e79e235f84a4685cdad0cec440b86f84a051a7a666945a61c"
+    },
+    {
+      "id": "B-62b8:RP-022",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final bounded coverage PASS for 1a802b23fc: full retired-authority vocabulary guard runs to completion, process-fact contract passes, registered fingerprint cardinality and exact-once checks remain, and loader relocation/path/nested/replacement negative controls remain intact.",
+      "createdAt": "2026-07-18T01:16:28.861Z",
+      "reviewRound": "2026-07-18T01:14:08.901Z",
+      "reviewRunId": "B-62b8:RR-041",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b58ef5c69852990fb64951e4cd56a8a062f9f7f12582ca3fb2ccec83ada8428a"
+    }
+  ]
+}

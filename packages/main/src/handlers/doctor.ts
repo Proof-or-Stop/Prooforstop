@@ -50,12 +50,19 @@ import {
 import {
   BURN_ALERT_ENV,
   evaluateBurnAlerts,
+  projectBurnAlertEvaluationForOutput,
   renderHostBurnScan,
   resolveBurnAlertThresholds,
   type BurnAlertEvaluation,
 } from '../core/usage-burn-alert.js';
 import { sweepClaudeProjects, sweepCodexSessions } from '../core/usage-sweep.js';
 import { truncateOneLine } from '../cli/output-verbosity.js';
+import { getSessionIdentity, renderSessionIdentityDiagnostic } from '../core/owner-session.js';
+import {
+  repairOwnerSessionTokenStore,
+  scanOwnerSessionTokenStore,
+  type OwnerSessionTokenStoreRepair,
+} from '../core/owner-session-token-store.js';
 
 export function createDoctorHandlers(ctx: HandlerContext) {
   const { root, store } = ctx;
@@ -108,6 +115,13 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       const auxiliaryRepaired: AuxiliaryCleanupResult[] = [];
       const auxiliaryRepairFailed: Array<{ path: string; error: string }> = [];
       const partialDone = detectPartialDoneStories(root, store);
+      const sessionIdentity = getSessionIdentity();
+      let ownerSessionTokenStore = scanOwnerSessionTokenStore(root);
+      let ownerSessionTokenRepair: OwnerSessionTokenStoreRepair | null = null;
+      if (args?.repair && ownerSessionTokenStore.needsRepair) {
+        ownerSessionTokenRepair = repairOwnerSessionTokenStore(root);
+        ownerSessionTokenStore = ownerSessionTokenRepair.health;
+      }
       // B-f60c CHK-004: scan the unified main write lock for a stuck/stale
       // leftover (a crashed holder's lock). An active in-flight lock (within
       // the stale window) is reported as healthy, never misflagged as stuck.
@@ -154,7 +168,10 @@ export function createDoctorHandlers(ctx: HandlerContext) {
             sweepCodexSessions({ dir: burnCodexDir, sinceMs }),
             sweepClaudeProjects({ dir: burnClaudeDir, sinceMs }),
           ]);
-          hostBurnScan = evaluateBurnAlerts([...codexRows, ...claudeRows], { nowMs, thresholds: burnThresholds });
+          hostBurnScan = projectBurnAlertEvaluationForOutput(
+            evaluateBurnAlerts([...codexRows, ...claudeRows], { nowMs, thresholds: burnThresholds }),
+            root,
+          );
         } catch {
           // PROBE: the advisory scan must never break doctor; an unreadable
           // store simply reports as zero scanned sessions.
@@ -276,6 +293,17 @@ export function createDoctorHandlers(ctx: HandlerContext) {
             terminalStale: storyOwnerLeases.terminalStale,
             hasStale: storyOwnerLeases.stale.length > 0,
             hasTerminalStale: storyOwnerLeases.terminalStale.length > 0,
+          },
+          ownerSessionIdentity: {
+            sessionId: sessionIdentity.sessionId,
+            sessionSource: sessionIdentity.sessionSource,
+            hostProvider: sessionIdentity.hostProvider ?? null,
+            degraded: sessionIdentity.sessionSource === 'derived-ppid',
+          },
+          ownerSessionTokenStore: {
+            ...ownerSessionTokenStore,
+            repairRequested: !!args?.repair,
+            repair: ownerSessionTokenRepair,
           },
           guardSessions: {
             preToolUseHook: guardSessionScan.preToolUseHook,
@@ -481,6 +509,24 @@ export function createDoctorHandlers(ctx: HandlerContext) {
 
       lines.push('');
       for (const line of renderStoryOwnerLeaseScan(storyOwnerLeases)) lines.push(line);
+
+      lines.push('');
+      lines.push('Owner session identity:');
+      for (const line of renderSessionIdentityDiagnostic(sessionIdentity)) lines.push(`  ${line}`);
+      lines.push(
+        `  generated-token store: healthy=${ownerSessionTokenStore.healthy} expired=${ownerSessionTokenStore.expired} ` +
+        `corrupt=${ownerSessionTokenStore.corrupt} orphanLocks=${ownerSessionTokenStore.orphanLocks} ` +
+        `orphanTemps=${ownerSessionTokenStore.orphanTemps}`,
+      );
+      if (ownerSessionTokenStore.needsRepair && !args?.repair) {
+        lines.push('  ⚠ generated-token store needs bounded cleanup; run lattice doctor --repair.');
+      } else if (ownerSessionTokenRepair) {
+        lines.push(
+          `  repaired generated-token store: expired=${ownerSessionTokenRepair.removedExpired} ` +
+          `corrupt=${ownerSessionTokenRepair.removedCorrupt} locks=${ownerSessionTokenRepair.removedLocks} ` +
+          `temps=${ownerSessionTokenRepair.removedTemps}`,
+        );
+      }
 
       lines.push('');
       for (const line of renderGuardSessionDoctorSection(guardSessionScan)) lines.push(line);

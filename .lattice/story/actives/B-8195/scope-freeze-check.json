@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-8195",
+  "checkedAt": "2026-07-18T10:03:11.462Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "5149d2d76c63f18a1428176215a8a093b5ef21b21c4c749d544cbd87b04a89c4",
+  "executionBoundaryHash": "8de8131bb4f7b0e62bf57842c06e0598ee07316f7426fa6b1571d5dff3e27cf0",
+  "freshnessHash": "7e09bbfece4377733eb3d7ba64ceb6215f7bafdade80606589d80896bcb085ea",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "Candidate routing, host liveness or typed dispatch changes",
+    "customerKeyRef",
+    "General metadata-only dirty bypasses",
+    "Layer4",
+    "Remote host execution, publishing or release readiness",
+    "repair UX",
+    "Validation command, timeout or coverage-policy redesign"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Candidate routing, host liveness or typed dispatch changes",
+      "source": "scopeBoundary.excluded",
+      "text": "Candidate routing, host liveness or typed dispatch changes",
+      "excluded": true
+    },
+    {
+      "keyword": "General metadata-only dirty bypasses",
+      "source": "scopeBoundary.excluded",
+      "text": "General metadata-only dirty bypasses",
+      "excluded": true
+    },
+    {
+      "keyword": "Remote host execution, publishing or release readiness",
+      "source": "scopeBoundary.excluded",
+      "text": "Remote host execution, publishing or release readiness",
+      "excluded": true
+    },
+    {
+      "keyword": "Validation command, timeout or coverage-policy redesign",
+      "source": "scopeBoundary.excluded",
+      "text": "Validation command, timeout or coverage-policy redesign",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "614a233af037cbe2a3299ab63796cec8d0fcf56dfd258dd8343b86910dc59a3d"
+}

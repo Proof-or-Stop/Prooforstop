@@ -16,10 +16,13 @@ import type {
   ScopeGateStatus,
 } from './types.js';
 import { execFileSync } from 'node:child_process';
+import { loadConfig } from './config.js';
 import {
+  canonicalizeScopePath,
   classifyScopePath,
   normalizeScopePath,
   pathMatchesScopePattern,
+  SCOPE_PATH_CANONICALIZER_VERSION,
 } from './scope-path-classifier.js';
 
 // ── Validation ──
@@ -187,44 +190,45 @@ export type GitChangedFilesReader = (projectRoot: string) => string[];
  */
 export function readChangedFiles(projectRoot: string): string[] {
   const files = new Set<string>();
+  const addNameStatus = (output: string): void => {
+    for (const line of output.trim().split('\n')) {
+      if (!line) continue;
+      const fields = line.split('\t');
+      const status = fields[0] ?? '';
+      if (/^[RC]\d+$/.test(status) && fields.length >= 3) {
+        // Both identities matter: a rename removes the old path and introduces
+        // the new path. Keeping only the target can bypass old-path protection.
+        files.add(fields[1]!.trim());
+        files.add(fields[2]!.trim());
+      } else {
+        const path = fields.at(-1)?.trim();
+        if (path) files.add(path);
+      }
+    }
+  };
   try {
     // Tracked changed files vs merge-base with main
     const tracked = execFileSync(
-      'git', ['diff', '--name-only', 'main...HEAD'],
+      'git', ['diff', '--name-status', '--find-renames', 'main...HEAD'],
       { cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] },
     ).trim();
-    if (tracked) {
-      for (const f of tracked.split('\n')) {
-        const t = f.trim();
-        if (t) files.add(t);
-      }
-    }
+    if (tracked) addNameStatus(tracked);
   } catch { /* not a git repo or no main branch */ }
   try {
     // Unstaged changes on top of HEAD
     const unstaged = execFileSync(
-      'git', ['diff', '--name-only'],
+      'git', ['diff', '--name-status', '--find-renames'],
       { cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] },
     ).trim();
-    if (unstaged) {
-      for (const f of unstaged.split('\n')) {
-        const t = f.trim();
-        if (t) files.add(t);
-      }
-    }
+    if (unstaged) addNameStatus(unstaged);
   } catch { /* ignore */ }
   try {
     // Staged changes not yet committed
     const staged = execFileSync(
-      'git', ['diff', '--name-only', '--cached'],
+      'git', ['diff', '--name-status', '--find-renames', '--cached'],
       { cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] },
     ).trim();
-    if (staged) {
-      for (const f of staged.split('\n')) {
-        const t = f.trim();
-        if (t) files.add(t);
-      }
-    }
+    if (staged) addNameStatus(staged);
   } catch { /* ignore */ }
   try {
     // Untracked files
@@ -331,12 +335,74 @@ function problemRow(
 // ── Core check function ──
 
 export function checkScopeContract(
-  contract: ScopeContractData,
+  originalContract: ScopeContractData,
   changedFiles: string[],
+  options: { projectRoot?: string; gitCwd?: string } = {},
 ): ScopeCheckResult {
+  let contract = originalContract;
   const violations: ScopeViolation[] = [];
   const warnings: ScopeViolation[] = [];
   const rows: ScopeCheckRow[] = [];
+  const livePathMode = options.projectRoot
+    ? (loadConfig(options.projectRoot).scopeProtection?.pathCanonicalization ?? 'enforce')
+    : contract.pathCanonicalizationMode;
+  const versionCurrent = contract.pathCanonicalizerVersion === SCOPE_PATH_CANONICALIZER_VERSION;
+  let migrationWarning: string | undefined;
+
+  if (livePathMode === 'enforce' && !versionCurrent) {
+    const violations = changedFiles.map((path) => ({
+      path,
+      rule: 'out_of_scope' as const,
+      acknowledged: false,
+    }));
+    return {
+      status: 'fail',
+      mode: contract.mode,
+      changedFiles,
+      violations,
+      warnings: [],
+      acknowledgedPaths: [],
+      rows: changedFiles.map((path) => ({
+        id: `scope.out_of_scope:${normalizeScopePath(path)}`,
+        status: 'fail',
+        blocking: true,
+        path,
+        source: path,
+        classifierSource: 'changed-files',
+        category: 'unknown',
+        rule: 'out_of_scope',
+        detail: `Scope path artifact is stale: observed canonicalizer=${contract.pathCanonicalizerVersion ?? 'legacy'}, expected=${SCOPE_PATH_CANONICALIZER_VERSION}.`,
+        nextAction: 'Re-run scope_contract_init_from_plan (or scope_contract_set) to re-attest paths under the current canonicalizer.',
+      })),
+      summary: 'Scope gate: fail (path canonicalizer version drift; re-attestation required)',
+    };
+  }
+  if (livePathMode === 'warn' && !versionCurrent) {
+    migrationWarning = `Scope path migration advisory: observed canonicalizer=${contract.pathCanonicalizerVersion ?? 'legacy'}, expected=${SCOPE_PATH_CANONICALIZER_VERSION}; artifact was interpreted in memory and not rewritten.`;
+    if (!contract.pathCanonicalizerVersion && options.projectRoot) {
+      const config = loadConfig(options.projectRoot);
+      const canonicalize = (values: string[]): string[] => values.map((input) => canonicalizeScopePath({
+        projectRoot: options.projectRoot!,
+        scanRoot: config.scanRoot,
+        sourceRoot: config.rootDir ?? config.scanRoot,
+        input,
+      }).canonicalPath);
+      try {
+        contract = {
+          ...contract,
+          allowedModify: canonicalize(contract.allowedModify),
+          allowedCreate: canonicalize(contract.allowedCreate),
+          allowedTest: canonicalize(contract.allowedTest),
+          protectedFiles: canonicalize(contract.protectedFiles),
+          explicitExcludes: canonicalize(contract.explicitExcludes),
+          fileRules: contract.fileRules?.map((rule) => ({ ...rule, path: canonicalize([rule.path])[0]! })),
+          acknowledgements: contract.acknowledgements.map((ack) => ({ ...ack, paths: canonicalize(ack.paths) })),
+        };
+      } catch (error) {
+        migrationWarning += ` Legacy canonicalization failed closed to original spelling: ${(error as Error).message}`;
+      }
+    }
+  }
 
   const allAllowedLists = [
     contract.allowedModify,
@@ -346,11 +412,15 @@ export function checkScopeContract(
   const hasAllowedScope = allAllowedLists.some(l => l.length > 0);
 
   for (const file of changedFiles) {
-    const classification = classifyScopePath(contract, file);
+    const classification = classifyScopePath(contract, file, options);
     const acked = isAcknowledged(file, contract);
 
     if (classification.allowed) {
       rows.push(passRow(classification));
+    } else if (classification.registryId === 'shared-gap-log-metadata-v1') {
+      const v: ScopeViolation = { path: file, rule: 'out_of_scope', acknowledged: false };
+      violations.push(v);
+      rows.push(problemRow(contract, classification, v, false));
     } else if (classification.category === 'protected') {
       const v: ScopeViolation = { path: file, rule: 'protected', acknowledged: false };
       violations.push(v);
@@ -399,6 +469,20 @@ export function checkScopeContract(
     ? `Scope gate: warn (${warnCount + violations.filter(v => v.acknowledged).length} warning(s), mode=${contract.mode})`
     : `Scope gate: fail (${violationCount} unacknowledged violation(s), mode=enforce)`;
 
+  if (migrationWarning) {
+    rows.push({
+      id: 'scope.path_migration',
+      status: 'warn',
+      blocking: false,
+      classifierSource: 'changed-files',
+      category: 'unknown',
+      rule: 'out_of_scope',
+      detail: migrationWarning,
+      nextAction: 'Re-attest the scope contract under the current canonicalizer before enabling enforce mode.',
+    });
+    if (status === 'pass') status = 'warn';
+  }
+
   return {
     status,
     mode: contract.mode,
@@ -407,7 +491,7 @@ export function checkScopeContract(
     warnings,
     acknowledgedPaths,
     rows,
-    summary,
+    summary: migrationWarning ? `${summary}; ${migrationWarning}` : summary,
   };
 }
 
@@ -453,8 +537,15 @@ export function renderScopeCheckResult(result: ScopeCheckResult): string {
     for (const v of [...result.semantic.violations, ...result.semantic.warnings]) {
       const ackTag = v.acknowledged ? ' [acknowledged]' : '';
       const anchor = v.anchor ? ` anchor=${v.anchor}` : ' anchor=(none)';
+      const anchorKind = v.anchorKind ? ` anchorKind=${v.anchorKind}` : '';
+      const anchorRange = v.anchorRange ? ` anchorRange=${v.anchorRange.start}-${v.anchorRange.end}` : '';
+      const versions = v.anchorParserVersion
+        ? ` parserVersion=${v.anchorParserVersion} artifactVersion=${v.anchorArtifactVersion ?? '(missing)'}`
+        : '';
       const digest = v.hunkDigest ? ` hunkDigest=${v.hunkDigest}` : '';
-      lines.push(`  ${v.rule.toUpperCase()}: ${v.path}${anchor}${digest}${ackTag}`);
+      lines.push(`  ${v.rule.toUpperCase()}: ${v.path}${anchor}${anchorKind}${anchorRange}${versions}${digest}${ackTag}`);
+      if (v.detail) lines.push(`    detail: ${v.detail}`);
+      if (v.nextAction) lines.push(`    nextAction: ${v.nextAction}`);
     }
   }
   return lines.join('\n');

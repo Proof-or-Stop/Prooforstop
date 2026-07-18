@@ -1,0 +1,79 @@
+{
+  "principles": [
+    "Canonicalize at contract write boundaries and compare one unambiguous identity.",
+    "Syntax and versioned evidence beat regex inference and silent reinterpretation.",
+    "Trust generated shared metadata only through narrow mechanical provenance.",
+    "Rollout and rollback must preserve historical readability without weakening blockers."
+  ],
+  "drivers": [
+    "Eliminate repeat false scope blockers and metadata-only review churn.",
+    "Retain protected-anchor and out-of-scope safety.",
+    "Make migrations diagnosable and reversible.",
+    "Keep implementation bounded to Workstream E."
+  ],
+  "options": [
+    {
+      "name": "A: Canonical path module plus TypeScript AST anchors and provenance-bound shared metadata",
+      "pros": [
+        "Directly satisfies C6 acceptance",
+        "Independent flags and versioned artifacts",
+        "Narrow fail-closed B-META trust"
+      ],
+      "cons": [
+        "Requires schema/version migration and focused cross-component tests"
+      ]
+    },
+    {
+      "name": "B: Regex exclusions and path alias trial matching",
+      "pros": [
+        "Smaller immediate diff",
+        "Low implementation cost"
+      ],
+      "cons": [
+        "Ambiguous bases persist",
+        "New syntax bypasses remain",
+        "Historical evidence silently changes meaning"
+      ]
+    },
+    {
+      "name": "C: Blanket source-root and B-META exemptions",
+      "pros": [
+        "Suppresses observed false positives quickly"
+      ],
+      "cons": [
+        "Creates scope bypasses",
+        "Cannot prove provenance",
+        "Violates lifecycle artifact policy"
+      ]
+    }
+  ],
+  "chosen": "A: Canonical path module plus TypeScript AST anchors and provenance-bound shared metadata",
+  "rationale": "Option A is the only design that removes the root ambiguity while preserving fail-closed behavior, versioned evidence, independent rollback, and mechanical provenance. B and C reduce symptoms by broadening heuristics or exemptions and recreate the maintenance hazards this workstream exists to remove.",
+  "preMortem": [
+    {
+      "scenario": "Source-relative canonicalization maps an unintended path into allowed scope",
+      "trigger": "Ambiguous base, traversal, absolute input, or symlink segment is accepted",
+      "consequence": "Genuine out-of-scope edits pass",
+      "mitigation": "One declared base, realpath containment checks, reject ambiguity/traversal/absolute paths, and adversarial fixtures."
+    },
+    {
+      "scenario": "AST rollout silently reinterprets signed historical anchors",
+      "trigger": "Parser semantics/version changes without artifact staleness",
+      "consequence": "Protected edits pass or old review evidence appears fresh",
+      "mitigation": "Persist anchorParserVersion, versioned readers, explicit stale/re-attestation, independent flag and rollback tests."
+    },
+    {
+      "scenario": "B-META path exemption permits forged framework findings",
+      "trigger": "Classifier trusts path/storyId without gap_log content binding",
+      "consequence": "Direct metadata edits bypass cleanTree/scope gates",
+      "mitigation": "Bind trusted classification to canonical writer receipt/event plus content digest; missing/stale/mismatch/forged cases fail closed."
+    },
+    {
+      "scenario": "New rollout flags interact and cannot roll back independently",
+      "trigger": "Shared mode switch or coupled schema branches",
+      "consequence": "Disabling AST also disables path fixes or corrupts readability",
+      "mitigation": "Separate flags, explicit compatibility matrix, and no in-place artifact rewrites."
+    }
+  ],
+  "timestamp": "2026-07-18T01:42:36.921Z"
+}

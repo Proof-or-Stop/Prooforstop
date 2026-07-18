@@ -16,9 +16,10 @@
   ],
   "sessionEnv": {
     "source": "LATTICE_ACTIVITY_SOURCE",
-    "session": "LATTICE_ACTIVITY_SESSION",
+    "session": "LATTICE_OWNER_SESSION_ADAPTER_TASK",
     "recordReadOnly": "LATTICE_ACTIVITY_RECORD_READONLY",
     "sessionCandidates": [
+      "CODEX_THREAD_ID",
       "CODEX_SESSION_ID",
       "OPENAI_SESSION_ID",
       "TERM_SESSION_ID"

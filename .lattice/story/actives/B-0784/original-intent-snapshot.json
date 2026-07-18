@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-0784",
+  "sourceText": "After completing stable owner identity, complete #6 through DONE: fix canonical scope path mismatches and semantic anchor false positives, including the observed official B-META gap_log metadata blocker, while avoiding repeat loops and unnecessary cost.",
+  "normalizedOutcome": "Equivalent path forms pass one canonical scope comparison; semantic edits bind to their real enclosing TypeScript declarations; official gap_log metadata is safely recognized without trusting forged or unknown metadata; all behavior is versioned, independently rollable, tested, and reaches DONE.",
+  "acceptanceClaim": "A focused current-worktree transcript shows canonical path equivalence, AST anchor selection, rollout/version migration, official provenance-bound B-META acceptance, and adversarial fail-closed cases all PASS, followed by fresh routine and DONE-required validation.",
+  "keyRequirementIds": [
+    "REQ-AST",
+    "REQ-BMETA",
+    "REQ-PATH",
+    "REQ-ROLLBACK"
+  ],
+  "requestHash": "sha256:52f4cf850aa522d1db9ef581ffebcf11c1a64ad6c46ed3e6a479567f9b8998fa",
+  "createdAt": "2026-07-18T01:45:45.071Z",
+  "updatedAt": "2026-07-18T01:45:45.071Z"
+}

@@ -31,6 +31,7 @@ import type {
   ChecklistData,
 } from '../core/types.js';
 import { StoryStore } from '../core/store.js';
+import { SCOPE_PATH_CANONICALIZER_VERSION } from '../core/scope-path-classifier.js';
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 
@@ -441,6 +442,8 @@ function writeStoreStory(root: string): { store: StoryStore; storyId: string } {
     protectedFiles: ['src/protected.ts'],
     explicitExcludes: [],
     acknowledgements: [],
+    pathCanonicalizerVersion: SCOPE_PATH_CANONICALIZER_VERSION,
+    pathCanonicalizationMode: 'enforce',
     createdAt: now,
     updatedAt: now,
   };

@@ -1,0 +1,78 @@
+{
+  "storyId": "B-62b8",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/owner-session.ts",
+    "packages/main/src/core/owner-session-adapters.ts",
+    "packages/main/src/core/owner-session-token-store.ts",
+    "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+    "packages/main/src/core/usage-sweep.ts",
+    "packages/main/src/core/usage-burn-alert.ts",
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/src/handlers/usage-sweep.ts",
+    "packages/main/src/handlers/validate-concept.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/core/lattice-dispatch.ts",
+    "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/init-assets.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/context.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "bin/lattice-codex.js",
+    ".lattice-codex/lattice.json",
+    "packages/main/src/core/story-owner-lease.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/owner-session-guardrail.ts",
+    "packages/main/src/tasks/story-owner-lease-smoke.ts",
+    "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+    "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+    "packages/main/src/tasks/cli-surface-smoke.ts",
+    "packages/main/src/tasks/thin-init-assets-smoke.ts",
+    "scripts/verify-entrypoints.mjs",
+    "packages/main/src/tasks/flow-stability-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Actual TEST concept preflight requires minimal language routing: parse only supported declaration-bearing source extensions, skip story metadata/docs, and preserve supported-source fail-closed behavior. Full #6 canonical path/AST anchor work is explicitly deferred.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "This shared audit metadata was written by the official gap_log command while B-62b8 diagnosed a verification-intent prompt/gate mismatch. It is not runtime implementation material for B-62b8, remains unstaged from the lattice-implementer commit, and must be preserved as reviewer-visible framework evidence rather than reverted or silently absorbed into story scope.",
+      "timestamp": "2026-07-17T23:28:35.930Z",
+      "paths": [
+        ".lattice/story/actives/B-META-framework-audit/findings.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-META-framework-audit/findings.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "74b7fc01eb6a87c9bcc2e00a9d9ee03371213fff",
+      "materialHash": "a18f6a942cfea5fa08a9a832b241fc1c2a2785d7d641b8cc3d364f957a0e1d67"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Formal validation exposed the exact legitimate cli-engine dynamic-loader fingerprint as stale; these two contract files must be repinned together to preserve the narrow approved call site without changing runtime behavior or broadening the allowlist.",
+      "timestamp": "2026-07-18T01:08:08.250Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "0fc143ac001c38b181934167e51f3603ad9e98eb",
+      "materialHash": "2e674b4bce1484505d4e09a7b63861a8bcc38c963c5d1170cb51fe186df85263"
+    }
+  ],
+  "createdAt": "2026-07-17T23:11:48.723Z",
+  "updatedAt": "2026-07-18T01:08:08.250Z"
+}

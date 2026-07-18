@@ -219,6 +219,21 @@ function readActivityRecord(session, tool) {
   return entries.findLast(entry => entry.session === session && entry.tool === tool) || null;
 }
 
+function readLatestActivityRecord(tool, entrypoint = 'local-wrapper') {
+  const activityPath = [
+    join(repoRoot, '.lattice', 'activity.jsonl'),
+    join(repoRoot, '.koala', 'activity.jsonl'),
+  ].find(existsSync);
+  if (!activityPath) return null;
+  const text = readFileSync(activityPath, 'utf8').trim();
+  if (!text) return null;
+  return text
+    .split('\n')
+    .filter(Boolean)
+    .map(line => JSON.parse(line))
+    .findLast(entry => entry.tool === tool && entry.source === 'codex' && entry.entrypoint === entrypoint) || null;
+}
+
 function currentStoryId() {
   try {
     const branch = execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], { cwd: repoRoot, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
@@ -250,7 +265,8 @@ function assertCodexWrapperSessionFrom(envName) {
   const env = {
     ...process.env,
     LATTICE_ACTIVITY_SOURCE: 'not-codex',
-    LATTICE_ACTIVITY_SESSION: '',
+    LATTICE_ACTIVITY_SESSION: marker,
+    CODEX_THREAD_ID: '',
     CODEX_SESSION_ID: '',
     OPENAI_SESSION_ID: '',
     TERM_SESSION_ID: '',
@@ -261,12 +277,24 @@ function assertCodexWrapperSessionFrom(envName) {
     /# lattice session brief/.test(out),
     `bin/lattice-codex.js ${envName} session_brief missing session_brief heading`,
   );
+  assertNotIncludes(out, marker, `bin/lattice-codex.js ${envName} stdout`);
 
-  const record = readActivityRecord(marker, 'session_brief');
-  assert(record, `bin/lattice-codex.js should derive session from ${envName}`);
+  const record = readLatestActivityRecord('session_brief');
+  assert(record, `bin/lattice-codex.js should derive an opaque session from ${envName}`);
+  assert(/^sess-[a-f0-9]+$/.test(record.session), 'bin/lattice-codex.js should persist an opaque canonical session id');
+  assert(record.session !== marker, `bin/lattice-codex.js must not persist raw ${envName}`);
   assert(record.source === 'codex', 'bin/lattice-codex.js should force activity source=codex');
   assert(record.entrypoint === 'local-wrapper', 'bin/lattice-codex.js should mark entrypoint=local-wrapper');
-  return marker;
+  const activityText = readFileSync(join(repoRoot, '.lattice', 'activity.jsonl'), 'utf8');
+  assertNotIncludes(activityText, marker, `activity log raw ${envName}`);
+  const storyId = currentStoryId();
+  if (storyId) {
+    const processEventPath = join(repoRoot, '.lattice', 'story', 'actives', storyId, 'process-events.jsonl');
+    if (existsSync(processEventPath)) {
+      assertNotIncludes(readFileSync(processEventPath, 'utf8'), marker, `story process events raw ${envName}`);
+    }
+  }
+  return record.session;
 }
 
 function installTemporaryXstateStub() {
@@ -327,12 +355,8 @@ checks.push(() => {
 });
 
 checks.push(() => {
-  const marker = assertCodexWrapperSessionFrom('CODEX_SESSION_ID');
-  if (currentStoryId()) {
-    const event = readProcessEvent(marker, 'session_brief');
-    assert(event, 'bin/lattice-codex.js should write codex_cli process-event in active story');
-    assert(event.source === 'codex' && event.entrypoint === 'local-wrapper', 'codex_cli event should include source and local wrapper entrypoint');
-  }
+  assertCodexWrapperSessionFrom('CODEX_THREAD_ID');
+  assertCodexWrapperSessionFrom('CODEX_SESSION_ID');
 });
 
 checks.push(() => {
@@ -358,10 +382,16 @@ checks.push(() => {
     'global Codex fallback core CLI session_brief missing session_brief heading',
   );
 
-  const record = readActivityRecord(marker, 'session_brief');
-  assert(record, 'global Codex fallback should write a session_brief activity record');
+  const record = readLatestActivityRecord('session_brief', 'global-fallback');
+  assert(record, 'global Codex fallback should write an opaque session_brief activity record');
+  assert(record.session !== marker && /^sess-[a-f0-9]+$/.test(record.session), 'global fallback must hash raw LATTICE_ACTIVITY_SESSION');
   assert(record.source === 'codex', 'global Codex fallback should write source=codex');
   assert(record.entrypoint === 'global-fallback', 'global Codex fallback should mark entrypoint=global-fallback');
+  assertNotIncludes(
+    readFileSync(join(repoRoot, '.lattice', 'activity.jsonl'), 'utf8'),
+    marker,
+    'global fallback activity log raw session',
+  );
 });
 
 checks.push(() => {
@@ -427,11 +457,13 @@ checks.push(() => {
       'adapter manifest should warn that global fallback is not current-worktree gate/status evidence',
     );
     assert(
-      codexManifest.sessionEnv.sessionCandidates.includes('CODEX_SESSION_ID')
+      codexManifest.sessionEnv.sessionCandidates.includes('CODEX_THREAD_ID')
+        && codexManifest.sessionEnv.sessionCandidates.includes('CODEX_SESSION_ID')
         && codexManifest.sessionEnv.sessionCandidates.includes('OPENAI_SESSION_ID')
         && codexManifest.sessionEnv.sessionCandidates.includes('TERM_SESSION_ID'),
-      'adapter manifest should document Codex/OpenAI/terminal session env candidates',
+      'adapter manifest should document Codex thread/session/OpenAI/terminal task env candidates',
     );
+    assert(codexManifest.sessionEnv.session === 'LATTICE_OWNER_SESSION_ADAPTER_TASK', 'adapter manifest should name the non-logging task bridge');
     assert(codexManifest.sessionEnv.recordReadOnly === 'LATTICE_ACTIVITY_RECORD_READONLY', 'adapter manifest should document read-only activity opt-in');
     assert(!codexManifest.excludedRuntimeAssets.includes('.lattice-codex/hooks'), 'adapter manifest should allow managed Codex native hooks');
     assert(codexManifest.excludedRuntimeAssets.includes('.lattice-codex/settings.json'), 'adapter manifest should exclude .lattice-codex/settings.json');
@@ -462,7 +494,7 @@ checks.push(() => {
 
     const cleanupClaudeMirror = seedClaudeAgentMirror(tempDir);
     const verifyInitOut = run(process.execPath, [join(tempDir, 'bin', 'lattice.js'), 'verify_codex'], { cwd: tempDir });
-    assertIncludes(verifyInitOut, 'Codex adapter checks passed', 'lattice verify_codex output');
+    assertIncludes(verifyInitOut, 'Codex adapter checks passed', `lattice verify_codex output (${verifyInitOut.trim()})`);
     assertIncludes(verifyInitOut, 'Codex agents mirror: 16 prompt(s) mirrored', 'lattice verify_codex mirror check');
     assertPathMissing(tempDir, 'src/core', 'lattice verify_codex src/core');
     assertPathMissing(tempDir, 'src/shells', 'lattice verify_codex src/shells');
@@ -631,7 +663,7 @@ checks.push(() => {
   const result = runManagedAssetCheck(repoRoot, { profile: 'all', assetMode: 'full' });
   const item = result.items.find(asset => asset.relPath === 'bin/lattice.js');
   assert(item?.status === 'OK', 'self-repo local wrapper should be accepted as Lattice-owned compatibility asset');
-  assert(item.reason.includes('recognized Lattice compatibility contract'), 'self-repo local wrapper should explain alternate contract');
+  assert(item.reason.includes('recognized Proofbound compatibility contract'), 'self-repo local wrapper should explain the canonical Proofbound compatibility contract');
 });
 
 checks.push(() => {
@@ -666,7 +698,7 @@ checks.push(() => {
     writeFileSync(join(tempDir, '.gitignore'), existingGitignoreLines.join('\n'));
 
     const initOut = run('node', [INIT_ENTRYPOINT, tempDir]);
-    assertIncludes(initOut, '.gitignore (merged Lattice runtime ignores)', 'lattice init existing .gitignore merge output');
+    assertIncludes(initOut, '.gitignore (merged Proofbound runtime ignores)', 'lattice init existing .gitignore merge output');
 
     const gitignore = readFileSync(join(tempDir, '.gitignore'), 'utf8');
     assertIncludes(gitignore, 'custom-cache/', 'existing .gitignore merge should preserve user content');
@@ -875,9 +907,9 @@ checks.push(() => {
     writeFileSync(join(tempDir, 'LATTICE.md'), latticeOriginal);
 
     const initOut = run('node', [INIT_ENTRYPOINT, '--profile=all', '--asset-mode=full', tempDir]);
-    assertIncludes(initOut, 'AGENTS.md (exists, no Lattice managed markers, skip)', 'AGENTS.md unmanaged preservation log');
-    assertIncludes(initOut, 'CLAUDE.md (exists, no Lattice managed markers, skip)', 'CLAUDE.md unmanaged preservation log');
-    assertIncludes(initOut, 'LATTICE.md (exists, no Lattice managed markers, skip)', 'LATTICE.md unmanaged preservation log');
+    assertIncludes(initOut, 'AGENTS.md (exists, no Proofbound managed markers, skip)', 'AGENTS.md unmanaged preservation log');
+    assertIncludes(initOut, 'CLAUDE.md (exists, no Proofbound managed markers, skip)', 'CLAUDE.md unmanaged preservation log');
+    assertIncludes(initOut, 'LATTICE.md (exists, no Proofbound managed markers, skip)', 'LATTICE.md unmanaged preservation log');
     assert(readFileSync(join(tempDir, 'AGENTS.md'), 'utf8') === agentsOriginal, 'AGENTS.md without markers should be preserved');
     assert(readFileSync(join(tempDir, 'CLAUDE.md'), 'utf8') === claudeOriginal, 'CLAUDE.md without markers should be preserved');
     assert(readFileSync(join(tempDir, 'LATTICE.md'), 'utf8') === latticeOriginal, 'LATTICE.md without markers should be preserved');

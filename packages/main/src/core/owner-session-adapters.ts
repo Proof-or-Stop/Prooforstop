@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { readOrCreateOwnerSessionToken } from './owner-session-token-store.js';
 
 export type OwnerSessionHostProvider =
@@ -14,12 +15,18 @@ export interface OwnerSessionEnv {
   LATTICE_SESSION_ID?: string | undefined;
   LATTICE_ACTIVITY_SOURCE?: string | undefined;
   LATTICE_ACTIVITY_SESSION?: string | undefined;
+  LATTICE_AGENT?: string | undefined;
   LATTICE_OWNER_SESSION_ADAPTER_PROVIDER?: string | undefined;
   LATTICE_OWNER_SESSION_ADAPTER_SESSION?: string | undefined;
+  LATTICE_OWNER_SESSION_ADAPTER_TASK?: string | undefined;
+  LATTICE_OWNER_SESSION_ADAPTER_AGENT?: string | undefined;
+  LATTICE_OWNER_SESSION_ADAPTER_ROLE?: string | undefined;
   LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY?: string | undefined;
+  LATTICE_OWNER_SESSION_ADAPTER_GENERATED?: string | undefined;
   CLAUDE_CODE_SESSION_ID?: string | undefined;
   CLAUDE_SESSION_ID?: string | undefined;
   CODEX_SESSION_ID?: string | undefined;
+  CODEX_THREAD_ID?: string | undefined;
   OPENAI_SESSION_ID?: string | undefined;
   TERM_SESSION_ID?: string | undefined;
   ANTIGRAVITY_SESSION_ID?: string | undefined;
@@ -51,60 +58,60 @@ function normalizeProvider(value: string | undefined): OwnerSessionHostProvider 
   if (normalized === 'codex') return 'codex';
   if (normalized === 'antigravity' || normalized === 'agy') return 'antigravity';
   if (normalized === 'fake') return 'fake';
-  return 'unknown';
-}
-
-function redactRef(provider: OwnerSessionHostProvider, key: string, value: string): string {
-  const prefix = value.slice(0, 8);
-  return `${provider}:${key}:${prefix}${value.length > prefix.length ? '...' : ''}`;
+  return null;
 }
 
 function detectProvider(env: OwnerSessionEnv): OwnerSessionHostProvider | null {
   return normalizeProvider(env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER)
     ?? normalizeProvider(env.LATTICE_ACTIVITY_SOURCE)
     ?? (trimToNull(env.CLAUDE_CODE_SESSION_ID) || trimToNull(env.CLAUDE_SESSION_ID) ? 'claude-code' : null)
-    ?? (trimToNull(env.CODEX_SESSION_ID) || trimToNull(env.OPENAI_SESSION_ID) ? 'codex' : null)
+    ?? (trimToNull(env.CODEX_THREAD_ID) || trimToNull(env.CODEX_SESSION_ID) || trimToNull(env.OPENAI_SESSION_ID) ? 'codex' : null)
     ?? (trimToNull(env.ANTIGRAVITY_SESSION_ID) || trimToNull(env.AGY_SESSION_ID) ? 'antigravity' : null);
 }
 
-function candidate(provider: OwnerSessionHostProvider, key: string, value: string | undefined): AdapterSessionIdentity | null {
-  const sessionId = trimToNull(value);
-  if (sessionId === null) return null;
-  return {
-    sessionId,
-    sessionSource: 'host-adapter',
-    hostProvider: provider,
-    nativeSessionRef: redactRef(provider, key, sessionId),
-  };
+function nativeTaskIdentity(
+  env: OwnerSessionEnv,
+  provider: OwnerSessionHostProvider,
+): string | null {
+  if (provider === 'claude-code') {
+    return trimToNull(env.CLAUDE_CODE_SESSION_ID)
+      ?? trimToNull(env.CLAUDE_SESSION_ID);
+  }
+  if (provider === 'codex') {
+    return trimToNull(env.LATTICE_OWNER_SESSION_ADAPTER_TASK)
+      ?? trimToNull(env.CODEX_THREAD_ID)
+      ?? trimToNull(env.LATTICE_ACTIVITY_SESSION)
+      ?? trimToNull(env.CODEX_SESSION_ID)
+      ?? trimToNull(env.OPENAI_SESSION_ID)
+      ?? trimToNull(env.TERM_SESSION_ID);
+  }
+  if (provider === 'antigravity') {
+    return trimToNull(env.LATTICE_ACTIVITY_SESSION)
+      ?? trimToNull(env.ANTIGRAVITY_SESSION_ID)
+      ?? trimToNull(env.AGY_SESSION_ID);
+  }
+  if (provider === 'fake') {
+    return trimToNull(env.LATTICE_ACTIVITY_SESSION);
+  }
+  return null;
 }
 
-function nativeAdapterSession(env: OwnerSessionEnv, provider: OwnerSessionHostProvider): AdapterSessionIdentity | null {
-  const explicitAdapterSession = candidate(provider, 'LATTICE_OWNER_SESSION_ADAPTER_SESSION', env.LATTICE_OWNER_SESSION_ADAPTER_SESSION);
-  if (explicitAdapterSession) return explicitAdapterSession;
-
-  if (provider === 'claude-code') {
-    return candidate(provider, 'CLAUDE_CODE_SESSION_ID', env.CLAUDE_CODE_SESSION_ID)
-      ?? candidate(provider, 'CLAUDE_SESSION_ID', env.CLAUDE_SESSION_ID);
-  }
-
-  if (provider === 'codex') {
-    return candidate(provider, 'LATTICE_ACTIVITY_SESSION', env.LATTICE_ACTIVITY_SESSION)
-      ?? candidate(provider, 'CODEX_SESSION_ID', env.CODEX_SESSION_ID)
-      ?? candidate(provider, 'OPENAI_SESSION_ID', env.OPENAI_SESSION_ID)
-      ?? candidate(provider, 'TERM_SESSION_ID', env.TERM_SESSION_ID);
-  }
-
-  if (provider === 'antigravity') {
-    return candidate(provider, 'LATTICE_ACTIVITY_SESSION', env.LATTICE_ACTIVITY_SESSION)
-      ?? candidate(provider, 'ANTIGRAVITY_SESSION_ID', env.ANTIGRAVITY_SESSION_ID)
-      ?? candidate(provider, 'AGY_SESSION_ID', env.AGY_SESSION_ID);
-  }
-
-  if (provider === 'fake' || provider === 'unknown') {
-    return candidate(provider, 'LATTICE_ACTIVITY_SESSION', env.LATTICE_ACTIVITY_SESSION);
-  }
-
-  return null;
+export function deriveAdapterOwnerSessionId(
+  projectRoot: string,
+  provider: OwnerSessionHostProvider,
+  taskIdentity: string,
+  agentOrRoleIdentity: string,
+): string {
+  const digest = createHash('sha256')
+    .update([
+      'lattice.owner-session.host-adapter.v2',
+      projectRoot,
+      provider,
+      taskIdentity,
+      agentOrRoleIdentity,
+    ].join('\0'))
+    .digest('hex');
+  return `sess-${digest.slice(0, 32)}`;
 }
 
 export function resolveAdapterOwnerSession(
@@ -123,18 +130,48 @@ export function resolveAdapterOwnerSession(
   const provider = detectProvider(env);
   if (provider === null) return null;
 
-  const native = nativeAdapterSession(env, provider);
-  if (native !== null) return native;
+  const canonicalTaskIdentity = trimToNull(env.LATTICE_OWNER_SESSION_ADAPTER_TASK);
+  const nativeTask = nativeTaskIdentity(env, provider);
+  const taskIdentity = canonicalTaskIdentity ?? nativeTask;
+  const agentIdentity = trimToNull(env.LATTICE_OWNER_SESSION_ADAPTER_AGENT);
+  const roleIdentity = trimToNull(env.LATTICE_OWNER_SESSION_ADAPTER_ROLE);
+  if (agentIdentity !== null && roleIdentity !== null && agentIdentity !== roleIdentity) return null;
+  const agentOrRoleIdentity = agentIdentity
+    ?? roleIdentity
+    ?? trimToNull(env.LATTICE_AGENT)
+    ?? (canonicalTaskIdentity === null && nativeTask !== null ? 'main' : null);
+  if (taskIdentity === null || agentOrRoleIdentity === null) return null;
 
   const boundary = trimToNull(env.LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY);
-  if (boundary !== null) {
+  const generatedRequested = ['1', 'true'].includes(
+    trimToNull(env.LATTICE_OWNER_SESSION_ADAPTER_GENERATED)?.toLowerCase() ?? '',
+  );
+  if (generatedRequested) {
+    if (boundary === null) return null;
     return {
-      sessionId: readOrCreateOwnerSessionToken(options.projectRoot, provider, boundary, options.now),
+      sessionId: readOrCreateOwnerSessionToken(
+        options.projectRoot,
+        provider,
+        taskIdentity,
+        agentOrRoleIdentity,
+        boundary,
+        options.now,
+      ),
       sessionSource: 'generated-token',
       hostProvider: provider,
-      nativeSessionRef: `${provider}:generated-boundary`,
+      nativeSessionRef: `${provider}:generated-composite`,
     };
   }
 
-  return null;
+  return {
+    sessionId: deriveAdapterOwnerSessionId(
+      options.projectRoot,
+      provider,
+      taskIdentity,
+      agentOrRoleIdentity,
+    ),
+    sessionSource: 'host-adapter',
+    hostProvider: provider,
+    nativeSessionRef: `${provider}:validated-composite`,
+  };
 }

@@ -855,7 +855,7 @@ function assertCloseoutTrustBoundary() {
     '458d8aeaf36286e2ca0cafe968c2e9559d46e57e6920ca9581ea58ee38b77887',
     '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844',
     'd6ca0a50fd24368b13817065278e2ca4d59d38983dc21a79322f9997de497e9e',
-    'f3cbdee85850ad38eecf32073f2651309813e2ef6f68c4f843ec4a2d5c1356c1',
+    '966ee4cc3c3af7427588ffab6f03bfdcfc92995a3481eeff66f2218d72702861',
     '20149fa438b1ec78fc9c9713eb3cc4a890bc58a1d82e7a5fa0d588e9c4e7ee91',
     '518890b58fd8e369488721d66d954f9589a049a42066635f42c057227788ae45',
     'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83',
@@ -952,7 +952,7 @@ function assertCloseoutTrustBoundary() {
     'the fixture executor is the sixth exact whole-source executable exemption; no broad pattern exemptions are allowed',
     'BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS',
     '1ec6b25bb116809b885adb83768d9fb96d24ad7549f31a144507dc4d84875765',
-    '9ad446b5d41be3ee62a7bde640289f55c4d1c5663a42b003f4abbd3a2ffaea57',
+    '4df693798fca7584fd2666249134120b891d6336ff433768891b5ed6483da1b8',
     'PackageAliasEdge',
     'buildPackageAliasEdgeInventory',
     'PACKAGE_ALIAS_EDGE_INVENTORY',
@@ -4619,6 +4619,8 @@ function assertProcessFactRegistryContract(cliToolNames, policyEntries, configTe
  * The policy doc lives at docs/requirements/decisions/lifecycle-artifact-scope.md.
  */
 async function assertLifecycleArtifactScopePolicy() {
+  const levelRegistry = new Map(parseProcessFactLevelRegistry().map(entry => [entry.name, entry]));
+  const registry = processFactRegistryMap();
   const policyDocPath = 'docs/requirements/decisions/lifecycle-artifact-scope.md';
   const roadmapDocPath = 'docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md';
   const guardDocPath = 'docs/guide-scope-guard.md';
@@ -4680,6 +4682,10 @@ async function assertLifecycleArtifactScopePolicy() {
 
   const scopeContractText = read('packages/main/src/core/scope-contract.ts');
   const scopePathClassifierText = read('packages/main/src/core/scope-path-classifier.ts');
+  const scopeDiffPackText = read('packages/main/src/core/scope-diff-pack.ts');
+  const lifecycleRegistryText = read('packages/main/src/core/lifecycle-registry.ts');
+  const gapLogVerifyText = read('packages/main/src/core/finding-verify.ts');
+  const donePrepareMetadataText = read('packages/main/src/core/done-prepare-generated-metadata.ts');
   if (scopeContractText.includes(`if (file.startsWith('.koala/')) continue;`)) {
     fail('packages/main/src/core/scope-contract.ts: blanket `.koala/` exemption regressed — must use isRuntimeArtifactPath instead');
   }
@@ -4691,6 +4697,45 @@ async function assertLifecycleArtifactScopePolicy() {
   }
   if (!scopePathClassifierText.includes('classifyLifecycleArtifact')) {
     fail('packages/main/src/core/scope-path-classifier.ts: must keep classifyLifecycleArtifact for story metadata');
+  }
+  for (const token of [
+    'SCOPE_PATH_CANONICALIZER_VERSION',
+    'canonicalizeScopePath',
+    'ambiguous scope path',
+    'malformed glob syntax',
+    'symlink',
+    'source-root',
+    'repo-root',
+  ]) {
+    assert(scopePathClassifierText.includes(token), `scope path canonicalization contract missing ${token}`);
+  }
+  for (const token of [
+    'SCOPE_ANCHOR_PARSER_VERSION',
+    'SCOPE_ANCHOR_ARTIFACT_VERSION',
+    'ts.createSourceFile',
+    'typescript_parse_error_fail_closed',
+    "line === '+++ /dev/null'",
+    'file_scope_no_enclosing_declaration',
+  ]) {
+    assert(scopeDiffPackText.includes(token), `AST semantic anchor contract missing ${token}`);
+  }
+  for (const token of ['classifySharedLifecycleMetadata', 'verifyGapLogArtifactBinding', 'shared-gap-log-metadata-v1']) {
+    assert(lifecycleRegistryText.includes(token), `shared B-META classifier contract missing ${token}`);
+  }
+  for (const token of ['GAP_LOG_PROVENANCE_SCHEMA', 'GAP_LOG_PROVENANCE_LEDGER_PATH', 'createHmac', 'committedArtifactDigest', 'canonicalEmptyDigest', 'digestGapLogArtifact', 'content_digest_mismatch', 'finding_signature_invalid']) {
+    assert(gapLogVerifyText.includes(token), `gap_log provenance contract missing ${token}`);
+  }
+  assert(donePrepareMetadataText.includes('classifySharedLifecycleMetadata'), 'done_prepare clean-tree must consume shared B-META classifier');
+  assert(donePrepareMetadataText.includes('filterDonePrepareTrustedMetadataRows'), 'done_prepare must expose the production shared-metadata row filter for contract testing');
+  for (const runtimeName of [
+    'runtime:canonical_scope_path_gate',
+    'runtime:ast_semantic_anchor_gate',
+    'runtime:shared_gap_log_metadata_gate',
+  ]) {
+    const level = levelRegistry.get(runtimeName);
+    const registryEntry = registry.get(runtimeName);
+    assert(level?.level === 'L4' && level.gateConsumer, `${runtimeName}: L4 gate-consumed fact missing`);
+    assert(registryEntry?.semantics?.includes('gate-evidence'), `${runtimeName}: process registry gate evidence semantic missing`);
   }
 
   const scopeMod = await import(pathToFileURL(join(root, 'packages/main/dist/core/scope-contract.js')).href);

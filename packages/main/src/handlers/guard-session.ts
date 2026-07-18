@@ -152,7 +152,7 @@ export function createGuardSessionHandlers(ctx: HandlerContext): Record<string, 
       const simulatedWrites = Array.isArray(args.simulatedWrites) ? args.simulatedWrites : [];
       const diffPack = buildScopeDiffPack(root);
       const now = new Date().toISOString();
-      const violations = detectGuardViolations(contract, diffPack, simulatedWrites, now);
+      const violations = detectGuardViolations(contract, diffPack, simulatedWrites, now, root);
       const scopeContractHash = digestScopeContract(contract);
       const updated = applyGuardCheck(session, violations, now, scopeContractHash);
       store.writeGuardSession(args.storyId, updated);
@@ -207,7 +207,7 @@ export function runGuardSessionGate(
 
   const now = new Date().toISOString();
   const diffPack = buildScopeDiffPack(ctx.root);
-  const violations = detectGuardViolations(contract, diffPack, [], now);
+  const violations = detectGuardViolations(contract, diffPack, [], now, ctx.root);
   const scopeContractHash = digestScopeContract(contract);
   const updated = applyGuardCheck(session, violations, now, scopeContractHash);
   ctx.store.writeGuardSession(storyId, updated);
