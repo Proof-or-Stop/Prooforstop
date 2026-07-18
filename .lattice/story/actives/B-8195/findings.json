@@ -24,7 +24,7 @@
       "desc": "packages/main/src/cli-engine.ts:1250-1258,1382: HIGH — the new canonical terminal closeout throws on transaction failure, but writeCodexProcessEvent catches that error and only reports a health issue; run() then continues to print the original successful validate/story_advance result and exits 0. A commit-hook/CAS/persistence failure can therefore publish a reused PASS while its terminal audit closeout failed, directly violating the story contract that persistence failure must never report PASS or require a blind retry. Make closeout failure part of the command result/exit path while avoiding recursive error-event writes, or perform the required terminal closeout inside a transaction whose failure the caller cannot swallow.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-18T10:57:43.800Z",
@@ -32,7 +32,11 @@
       "reviewRunId": "B-8195:RR-001",
       "_hash": "7751f2713dfe7ca9fbc2c2721594a29f2f2f7ae699ae2eb648c98ff5589d7826",
       "signatureTag": "adversarial|unknown|packages-main-engine",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 94a0085 makes writeCodexProcessEvent throw CanonicalTerminalCloseoutError for successful TEST/validate closeout failures; run() catches it, suppresses recursive error-event writing, prints no original success payload, and exits 1. Focused smoke covers injected terminal commit failure and passed.",
+      "resolvedAt": "2026-07-18T11:25:29.157Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8195:F-003",
