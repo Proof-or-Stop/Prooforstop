@@ -297,11 +297,11 @@
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
-          "note": "30-check focused quorum_submit smoke PASS: production CLI atomic commit, immediate provisional ownership, pre-write boundary rejection, exact-offset rollback, foreign-byte preservation, and retry/CAS cases all passed.",
-          "headHash": "67b0e2da64e4e7fe637cf32523659c8b70a5cbcc",
-          "materialHash": "6f82155954c54ffed7e7719f2ada1ba8792fddf02e462bd28ac471489487d348",
-          "storyFilesHash": "0d4ec71cb6fc46040b35bc6d3abaa41d88f9d100e8329ae741b28504ff16691f",
-          "timestamp": "2026-07-18T23:34:01.834Z"
+          "note": "31-check smoke PASS: a foreign process event inserted by the same Store writer immediately before host_verdict is preserved, while the writer-identified generated event and verdict JSON are fully rolled back.",
+          "headHash": "55f6d658b013f4bc4d2589dd4c9d9d9263a15ee6",
+          "materialHash": "fec058ca6437bc288234b9fb3c9932e8d53754a422d71c0a4fc2203c75d3f54b",
+          "storyFilesHash": "71b044a1ffa8a9ee934a2f5786b0fa418de3ac6c7608b2b8738832d76454c629",
+          "timestamp": "2026-07-18T23:53:25.837Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
@@ -327,14 +327,14 @@
         },
         {
           "intentRef": "CHK-002:adversarial:4",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
-          "note": "30-check focused quorum_submit smoke PASS: production CLI atomic commit, immediate provisional ownership, pre-write boundary rejection, exact-offset rollback, foreign-byte preservation, and retry/CAS cases all passed.",
-          "headHash": "67b0e2da64e4e7fe637cf32523659c8b70a5cbcc",
-          "materialHash": "6f82155954c54ffed7e7719f2ada1ba8792fddf02e462bd28ac471489487d348",
-          "storyFilesHash": "0d4ec71cb6fc46040b35bc6d3abaa41d88f9d100e8329ae741b28504ff16691f",
-          "timestamp": "2026-07-18T23:34:01.834Z"
+          "note": "31-check smoke PASS: rollback consumes exact writer-returned event offsets/bytes and verdict JSON path/bytes; changed foreign content is preserved and partial quorum remains impossible.",
+          "headHash": "55f6d658b013f4bc4d2589dd4c9d9d9263a15ee6",
+          "materialHash": "fec058ca6437bc288234b9fb3c9932e8d53754a422d71c0a4fc2203c75d3f54b",
+          "storyFilesHash": "71b044a1ffa8a9ee934a2f5786b0fa418de3ac6c7608b2b8738832d76454c629",
+          "timestamp": "2026-07-18T23:53:25.838Z"
         },
         {
           "intentRef": "CHK-002:happy:0",
@@ -490,11 +490,11 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
-          "note": "30-check smoke directly proves foreign between-row append preservation and exact captured-offset rollback that never searches for or deletes embedded foreign byte copies.",
-          "headHash": "d96dfe548024370c76b72d33c9805a61b000ac9f",
-          "materialHash": "6f82155954c54ffed7e7719f2ada1ba8792fddf02e462bd28ac471489487d348",
-          "storyFilesHash": "0d4ec71cb6fc46040b35bc6d3abaa41d88f9d100e8329ae741b28504ff16691f",
-          "timestamp": "2026-07-18T23:34:22.604Z"
+          "note": "31-check smoke PASS covers the F-007 writer-boundary race, between-row append, embedded identical bytes, capture-time failure, and non-UTF8 foreign suffix preservation.",
+          "headHash": "55f6d658b013f4bc4d2589dd4c9d9d9263a15ee6",
+          "materialHash": "fec058ca6437bc288234b9fb3c9932e8d53754a422d71c0a4fc2203c75d3f54b",
+          "storyFilesHash": "71b044a1ffa8a9ee934a2f5786b0fa418de3ac6c7608b2b8738832d76454c629",
+          "timestamp": "2026-07-18T23:53:25.838Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
@@ -512,11 +512,11 @@
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
-          "note": "30-check focused quorum_submit smoke PASS: production CLI atomic commit, immediate provisional ownership, pre-write boundary rejection, exact-offset rollback, foreign-byte preservation, and retry/CAS cases all passed.",
-          "headHash": "67b0e2da64e4e7fe637cf32523659c8b70a5cbcc",
-          "materialHash": "6f82155954c54ffed7e7719f2ada1ba8792fddf02e462bd28ac471489487d348",
-          "storyFilesHash": "0d4ec71cb6fc46040b35bc6d3abaa41d88f9d100e8329ae741b28504ff16691f",
-          "timestamp": "2026-07-18T23:34:01.834Z"
+          "note": "31-check smoke PASS proves F-005 capture-time failure removes unchanged generated event/JSON and reports conflicts without deleting competing bytes.",
+          "headHash": "55f6d658b013f4bc4d2589dd4c9d9d9263a15ee6",
+          "materialHash": "fec058ca6437bc288234b9fb3c9932e8d53754a422d71c0a4fc2203c75d3f54b",
+          "storyFilesHash": "71b044a1ffa8a9ee934a2f5786b0fa418de3ac6c7608b2b8738832d76454c629",
+          "timestamp": "2026-07-18T23:53:25.838Z"
         },
         {
           "intentRef": "CHK-003:adversarial:4",
