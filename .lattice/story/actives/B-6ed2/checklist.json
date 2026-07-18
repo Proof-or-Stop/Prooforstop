@@ -135,7 +135,65 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A focused regression drives the worktree-local quorum_submit production CLI from clean signed current-round reviewer passes and asserts one atomic six-row commit, clean post-state, complete 3x2 local-review-quorum, and no Authority/production completion overclaim.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Because atomic quorum persistence is gate-consumed semantics, the process-fact registry and verify-process-fact-contract projection explicitly bind quorum_submit, host_verdict/local-review-quorum, atomic persistence/refusal behavior and its gate consumer; the runtime-fact registry remains unchanged unless an actual environment fact is introduced.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Regression covers duplicate submission after success: no duplicate rows or commit are created and the already-complete quorum remains exactly three rounds by two distinct hosts.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Regression covers idempotent retry after a fully rolled-back infra failure: retry succeeds once, produces exactly six durable rows, and does not inherit partial state from the failed attempt.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Process-fact contract/vocabulary fingerprint tests are updated together with registry semantics and pass alongside the focused quorum test, without weakening unrelated receipt, validation, review, or Authority facts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Regression seeds pre-dirty process-events metadata and separately unrelated staged/user dirt; quorum_submit refuses both before a trusted commit, preserves bytes/index, and cannot make the assurance gate PASS.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Regression injects a foreign append/content mutation during the transaction; CAS failure preserves foreign bytes and yields zero durable generated rows or a structured rollback conflict, never a partial countable quorum.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Regression forces commit-hook/git commit failure without bypassing hooks; exact rollback restores file and index baseline, emits no quorum commit, and leaves the gate incomplete.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Regression forces rollback conflict and asserts fail-closed diagnostics expose both primary and rollback failure while refusing to overwrite competing content or count any subset of the six verdicts.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Regression moves HEAD at the pre-commit boundary and asserts CAS refusal, no generated commit, all-or-none verdict durability, and no validation/review receipt is synthesized to mask the failure.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
