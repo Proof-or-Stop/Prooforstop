@@ -104,6 +104,21 @@
       "_hash": "008b1a5c321a7bb93d32892d89d15c2dd336e44b0d3d92efab8dd80c19ca7086",
       "signatureTag": "edge|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8195:F-008",
+      "desc": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts:138-168,386-457,1001-1017 — HIGH coverage gap: the new lifecycle transactions introduced in transition-orchestrator.ts:676-749 and cli-engine.ts:1210-1252 are exercised only on their happy path plus pre-entry human/forged process-event dirt. The CAS/HEAD race, phase-hook content mutation, commit failure, exact 3-path/1-path admission, rollback restoration, and unrelated source/config/command-entry controls recorded for CHK-002 edge:1/edge:2/adversarial:1 and CHK-003 adversarial:1/adversarial:2 still run only against the older validation-reuse 3-file writer, not either new lifecycle caller/helper. Also CHK-003 edge:0 merely checks the counter on the second validate; it never snapshots HEAD, process-event count, receipt count, or canonical status to prove no duplicate facts/receipts and stable cleanup. Add deterministic tests for both new transaction kinds/call sites (including hook mutation and rollback byte/index preservation), assert exact commit path sets, and strengthen repeated-idempotence assertions before treating all 20 must intents as covered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-18T10:59:58.894Z",
+      "reviewRound": "2026-07-18T10:55:37.177Z",
+      "reviewRunId": "B-8195:RR-003",
+      "_hash": "28bbc882f11cbf481b83c7120143bef91094014413487dac77d40f7e4c18f2d0",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
