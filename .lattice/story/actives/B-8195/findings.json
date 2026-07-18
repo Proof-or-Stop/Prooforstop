@@ -170,6 +170,21 @@
       "resolvedAt": "2026-07-18T11:52:57.448Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-8195:F-010",
+      "desc": "packages/main/src/handlers/transition-orchestrator.ts:558-610,729-748: HIGH — moving the lifecycle capture ahead of the internal validation gate opens an unproven write window that can span the entire project suite. readLifecycleMetadataOutputHashes is taken only after validation and phase writes, so any concurrent/human append to index.json, process-events.jsonl, or process-metrics.json after the clean capture but before line 729 becomes part of verifiedHashes and is committed as if transition-owned. The transaction detects changes only after that hash sample; it cannot distinguish the verifier terminal from unrelated in-flight bytes. This violates the exact causal-writer boundary and CHK-002/003 concurrent-content guarantee even though pre-entry dirt is still rejected. Keep the long validation outside the transaction, make the direct verifier persist its own terminal cleanly, or validate an exact append/delta receipt rather than trusting the whole post-gate file; add a deterministic mid-validation foreign-append test that proves the bytes are preserved but never committed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-18T12:25:26.946Z",
+      "reviewRound": "2026-07-18T12:23:57.483Z",
+      "reviewRunId": "B-8195:RR-014",
+      "_hash": "2bc91aece51dfaa38590812da161dd2fef57138637bdd16273aebb559e8b03c2",
+      "signatureTag": "adversarial|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
