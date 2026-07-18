@@ -494,6 +494,25 @@
       "resolvedAt": "2026-07-18T03:08:33.771Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0784:F-021",
+      "desc": "F-021: ee1329cef8 classifies every parseFallback ending in _fail_closed as an extraction failure, but makeViolation now gives every such failure the rename-specific nextAction `Restore both sides of the renamed source`. Existing non-rename fallbacks such as typescript_parse_error_fail_closed and typescript_source_unavailable_fail_closed therefore receive an incorrect remediation. Keep the generic fail-closed gate, but branch the nextAction by rename fallback versus ordinary parse/source failure and add a non-rename regression assertion.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-18T03:10:08.374Z",
+      "reviewRound": "2026-07-18T03:08:11.701Z",
+      "reviewRunId": "B-0784:RR-010",
+      "_hash": "a831d72b35ef2ebdd6ca99c641631d16db7825060995e40ac8a0b2cd5d56304c",
+      "files": [
+        "packages/main/src/core/semantic-scope-gate.ts",
+        "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|ee1329cef8-classifies-every",
+      "signatureTagSource": "auto"
     }
   ]
 }
