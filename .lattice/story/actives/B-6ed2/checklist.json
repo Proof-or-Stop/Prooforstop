@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Capture a production-path RED for quorum metadata residue",
+      "context": "From a clean story worktree with current signed reviewer passes, run the local CLI quorum_submit and prove six verdict rows are emitted while process-events.jsonl remains dirty; prove the next validation persistence boundary refuses this pre-existing dirt without accepting a false PASS.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Persist the quorum verdict batch as one exact metadata transaction",
+      "context": "Commit only the causally generated process-events delta for the quorum invocation. Recheck HEAD/content before commit; pre-existing or concurrent unrelated/user dirt is never staged. Hook/commit/CAS failures roll back all six verdict rows and produce no partial quorum.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Bind adversarial regression and process-fact coverage",
+      "context": "Cover clean success, duplicate refusal, pre-dirty metadata, foreign append, commit hook failure, rollback conflict and idempotent retry. Update process-fact/runtime contracts only where gate-consumed quorum persistence semantics require it.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
