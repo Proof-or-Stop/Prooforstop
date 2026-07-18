@@ -375,7 +375,7 @@
       "desc": "packages/main/src/tasks/concept-gate-scope-smoke.ts:122-141 — HIGH: mixed-artifact coverage omits supported-source to unsupported-artifact renames. Independent repro renaming src/removed.ts to docs/removed.md while deleting export function realDeletion returns symbols=[] and diagnostics=[] because analyzeDeletedSymbols classifies both sides by the new path. This leaves the round-8 real TS/JS/Python deletion guarantee bypassable. Add TS/JS/Python supported→unsupported and unsupported→supported rename probes, plus malformed supported old/new side cases; bind each side to its own path/parser so real deletions remain visible and malformed source remains fail closed.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-18T09:52:53.316Z",
@@ -387,7 +387,11 @@
         "packages/main/src/handlers/validate-concept.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 3fd29d4993 with adversarial coverage for TS/JS/Python supported-to-unsupported renames, unsupported-to-supported additions, supported path renames, /dev/null addition/deletion, malformed supported old/new sides, and ignored non-source artifacts. Concept smoke and real story concept validation pass.",
+      "resolvedAt": "2026-07-18T09:55:19.918Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
