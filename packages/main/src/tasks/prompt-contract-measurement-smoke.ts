@@ -613,7 +613,8 @@ try {
     cwd: process.cwd(),
     encoding: 'utf8',
   });
-  writeFileSync(beforeStatusPath, gitStatus(), 'utf8');
+  const initialStatus = gitStatus();
+  writeFileSync(beforeStatusPath, initialStatus, 'utf8');
   for (const format of ['text', 'json']) {
     execFileSync(process.execPath, ['bin/lattice.js', 'prompt_measurement_report', `--format=${format}`], {
       cwd: process.cwd(),
@@ -625,6 +626,23 @@ try {
     readFileSync(afterStatusPath, 'utf8'),
     readFileSync(beforeStatusPath, 'utf8'),
     'text and JSON prompt measurement reports must not change repository git status',
+  );
+
+  const writeSensitivityDir = mkdtempSync(join(process.cwd(), 'prompt-measurement-write-probe-'));
+  try {
+    writeFileSync(join(writeSensitivityDir, 'marker'), 'detector sensitivity control\n', 'utf8');
+    assert.notEqual(
+      gitStatus(),
+      initialStatus,
+      'git-status snapshot detector must observe a temporary repository write',
+    );
+  } finally {
+    rmSync(writeSensitivityDir, { recursive: true, force: true });
+  }
+  assert.equal(
+    gitStatus(),
+    initialStatus,
+    'detector sensitivity control must restore the original repository status',
   );
 } finally {
   rmSync(statusSnapshotDir, { recursive: true, force: true });
