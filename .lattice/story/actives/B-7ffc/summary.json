@@ -1,0 +1,55 @@
+{
+  "storyId": "B-7ffc",
+  "changes": "Promoted the reviewed role-prompt modularization and budget execution plan into the canonical decisions corpus and added its unique requirements navigation entry.",
+  "usage": "Open docs/requirements/NAV.md and follow the Proofbound Role Prompt entry to the accepted canonical execution plan.",
+  "expectedOutcome": "The reviewed plan is durable in the repository decision source of truth and discoverable without any temporary path.",
+  "actualTranscript": "PASS: canonical role-prompt plan exists and is discoverable from requirements navigation",
+  "outcomeDiff": "No user-visible mismatch: the canonical file exists, the exact relative NAV link resolves once, and the entry states that implementation proceeds through separate ordered Stories.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This Story intentionally changes documentation only; it does not implement the seven planned runtime milestones, which will execute as separate ordered Stories.",
+  "pitfalls": "Do not treat accepted planning authority as runtime implementation evidence, and do not create the conditional enforce Story unless its evidence thresholds are met.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 80375
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 52639
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 474625
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 200884
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 542238
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 543070
+    }
+  },
+  "totalDurationMs": 1894386,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-17T23:39:19.436Z",
+  "updatedAt": "2026-07-17T23:39:19.436Z"
+}

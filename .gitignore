@@ -87,6 +87,10 @@ packages/main/coverage/
 tmp/
 output/
 
+# Local document export artifacts (generated docx/pdf conversions, kept local-only)
+/Proof-or-Stop-*.docx
+/Proof-or-Stop-*.pdf
+
 # recovery-runner experiment artifacts (large run logs, kept local-only)
 experiments/recovery-runner/powered/
 experiments/recovery-runner/ablation-run-records.jsonl.exclusions.jsonl

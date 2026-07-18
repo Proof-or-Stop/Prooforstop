@@ -1,0 +1,20 @@
+{
+  "storyId": "B-7ffc",
+  "expected": "The reviewed plan is durable in the repository decision source of truth.",
+  "actual": {
+    "command": "node -e \"const fs=require(\\\"fs\\\");const p=\\\"docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md\\\";const n=fs.readFileSync(\\\"docs/requirements/NAV.md\\\",\\\"utf8\\\");if(!fs.existsSync(p)||!n.includes(\\\"decisions/role-prompt-modularization-and-budget-execution-plan.md\\\"))process.exit(1);console.log(\\\"PASS: canonical role-prompt plan exists and is discoverable from requirements navigation\\\")\"",
+    "exitCode": 0,
+    "stdout": "PASS: canonical role-prompt plan exists and is discoverable from requirements navigation\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-17T23:30:56.678Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "06b4eaa6ea6864ef80b7d0a2a158d527f25e5c80",
+  "materialHash": "4fc068d1d379a7381854b3a9789eab4f0aa6d00f9428d7cd7a532a59dd7c5bf4"
+}

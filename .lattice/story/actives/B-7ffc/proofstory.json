@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-7ffc",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "milestones_provided",
+      "message": "A milestone ledger exists, so every ledger row needs checklist and verificationIntent coverage.",
+      "requires": "milestone-ledger"
+    },
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:31c7ca1c9c582d5b63969df6866855b2cffffce986a897ca450810dbe6dd8c4c",
+  "confirmedMilestoneLedgerHash": "sha256:67450b2e25de4c6a4407a7b5695b951895068e798cbe64b12439d9aafaae8577",
+  "acceptanceBindings": [
+    {
+      "id": "AB-001",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:happy:1",
+        "CHK-001:edge:0",
+        "CHK-001:edge:1",
+        "CHK-001:adversarial:0",
+        "CHK-001:adversarial:1",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:edge:1",
+        "CHK-002:adversarial:0",
+        "CHK-002:adversarial:1",
+        "CHK-002:adversarial:2"
+      ],
+      "milestoneIds": [
+        "M1",
+        "M2"
+      ],
+      "acceptanceClaim": "B-7ffc preserves and links the reviewed plan as an accepted canonical decision without claiming runtime implementation, after which Story 1 is created and started separately.",
+      "note": "Binds the migration Story acceptance to canonical content integrity and discoverability evidence; Story 1 creation remains the immediate follow-on obligation."
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "Docs-only promotion contract for the first bounded slice of the user request.",
+  "createdAt": "2026-07-17T23:17:46.315Z",
+  "updatedAt": "2026-07-17T23:17:46.315Z"
+}

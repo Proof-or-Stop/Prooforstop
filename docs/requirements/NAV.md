@@ -1,6 +1,6 @@
 # Source of Truth Navigation
 
-> Curated, non-exhaustive navigation. Inventory count: 115 Markdown files directly under `docs/requirements/decisions/`; not every file is linked below.
+> Curated, non-exhaustive navigation. Inventory count: 119 Markdown files directly under `docs/requirements/decisions/`; not every file is linked below.
 
 ## evidence
 
@@ -83,6 +83,7 @@
 - [Review Run Start Workspace Diagnostics Execution Plan](decisions/review-run-start-workspace-diagnostics-execution-plan.md)
 - [Repro-First Story Intake Experiment](decisions/repro-first-story-intake-experiment.md)
 - [Proofbound Multi-Role Separation Refactor Plan](decisions/role-separation.md)
+- [Proofbound Role Prompt 模块化与预算治理执行方案](decisions/role-prompt-modularization-and-budget-execution-plan.md) — accepted planning authority; implementation proceeds through separate ordered Stories.
 - [Root Document Migration Guide](decisions/root-document-migration-guide.md)
 - [Root Markdown Migration Execution Solution](decisions/root-markdown-migration-execution-solution.md)
 - [Missing Scope Check Guidance Execution Plan](decisions/scope-check-missing-guidance-execution-plan.md)

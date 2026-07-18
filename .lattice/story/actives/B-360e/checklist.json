@@ -1,0 +1,74 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define versioned prompt contract schemas and deterministic digest algorithms",
+      "context": "Add RuntimeContract, RoleContract, PromptEnvelope, PromptMeasurementRecord, and usage observation structures with pinned canonical serialization, line, byte, token-estimator, and repetition algorithms. Story 1 defines PromptEnvelope but must never instantiate a Story-bound envelope.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+      ],
+      "userSees": "The CLI can report the exact contract and measurement algorithm versions used for the baseline.",
+      "excludes": [
+        "Story-bound Prompt Envelope creation",
+        "full or incremental Task Context assembly",
+        "review-pass gate binding"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Freeze the canonical lifecycle registry for all 16 prompt roles",
+      "context": "Use the current package prompt registry as the exact role set. Record active, compatibility, and retired states plus replacements/defaultDispatch without changing current legal dispatch behavior; channel is retired, product-reviewer remains active INIT authority, implementation-reviewer is compatibility, and legacy verification names point to verification-intent.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+      ],
+      "userSees": "The role report lists exactly 16 roles and clearly separates active, compatibility, and retired roles.",
+      "excludes": [
+        "Deleting compatibility Prompt assets",
+        "changing active reviewer routing",
+        "creating new reviewer authority"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Expose a reproducible three-layer prompt measurement report and sidecar baseline",
+      "context": "Add a read-only report for bytes, lines, estimated tokens, repetition, assembledPromptTokens, knownDispatchInputTokens availability, and providerProcessedInputTokens availability. The no-Story baseline must use PromptMeasurementRecord and honestly mark unobserved provider input unavailable.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json"
+      ],
+      "userSees": "Running the measurement command prints per-role and aggregate costs with unavailable fields shown explicitly instead of zero.",
+      "excludes": [
+        "Calling a provider",
+        "claiming hidden system-wrapper coverage",
+        "budget enforcement"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Prove all existing prompt outputs remain byte-identical and new registries fail closed",
+      "context": "Extend focused smokes/verifiers so all 16 agent_prompt hashes and bytes remain unchanged, role membership/status/replacements are exact, canonical digest changes are detected, missing contract fields fail, and measurement output is deterministic.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json"
+      ],
+      "userSees": "Focused verification reports all 16 existing Prompt outputs unchanged while contract and measurement mutation probes fail closed.",
+      "excludes": [
+        "Refreshing existing output hashes",
+        "rewriting Prompt bodies to satisfy budgets",
+        "A/B replay"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

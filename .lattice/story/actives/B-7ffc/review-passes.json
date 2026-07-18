@@ -1,0 +1,147 @@
+{
+  "passes": [
+    {
+      "id": "B-7ffc:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept blocker: the accepted wrapper clearly distinguishes planning authority from implementation evidence; the complete source plan is embedded once with fence-aware heading demotion, all seven ordered Stories plus conditional enforce follow-up remain, NAV wording is plan-only, and the non-metadata diff is docs-only. plan.md is not materialized for this Story, so story_get/checklist and background supplied its structured plan.",
+      "createdAt": "2026-07-17T23:23:13.843Z",
+      "reviewRound": "2026-07-17T23:21:14.128Z",
+      "reviewRunId": "B-7ffc:RR-001",
+      "writerSessionId": "sess-2a40d3cb626970d2",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7ffc/background.md",
+          ".lattice/story/actives/B-7ffc/checklist.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "0b00ae586930afd8310856dfd777837eb6748e3eda6c7081416082618ba5d3c9"
+      },
+      "readDiagnostics": [],
+      "_hash": "d31bd4a9a2ab4103cb425dc41718b04aae97765bed663f4f86fca841bc487827"
+    },
+    {
+      "id": "B-7ffc:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "No documentation blocker: canonical accepted wrapper clearly states planning-only/docs-only scope; the complete reviewed source is preserved by exact fence-aware transformation with seven ordered Stories plus the conditional follow-up; NAV has one resolving relative link, accurate direct inventory 119, and explicit later-implementation wording.",
+      "createdAt": "2026-07-17T23:23:20.641Z",
+      "reviewRound": "2026-07-17T23:21:14.128Z",
+      "reviewRunId": "B-7ffc:RR-003",
+      "writerSessionId": "sess-2a40d3cb626970d2",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7ffc/background.md",
+          ".lattice/story/actives/B-7ffc/checklist.json",
+          ".lattice/story/actives/B-7ffc/understanding.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "0b00ae586930afd8310856dfd777837eb6748e3eda6c7081416082618ba5d3c9"
+      },
+      "readDiagnostics": [],
+      "_hash": "5ac89ff1ef02574a53aeb21366644f806119e4d9e2eb9c33378bf75ca0f583ae"
+    },
+    {
+      "id": "B-7ffc:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality review found no blocker: canonical decision content preserves source SHA-256 3a7e9b…0610 through the documented fence-aware transform, saved digest ef7c3b…ba0b matches the target, NAV resolves exactly once with accurate inventory, and the non-metadata diff is docs-only with explicit plan-not-implementation boundaries.",
+      "createdAt": "2026-07-17T23:23:32.032Z",
+      "reviewRound": "2026-07-17T23:21:14.128Z",
+      "reviewRunId": "B-7ffc:RR-004",
+      "writerSessionId": "sess-2a40d3cb626970d2",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7ffc/background.md",
+          ".lattice/story/actives/B-7ffc/checklist.json",
+          ".lattice/story/actives/B-7ffc/decision-doc-proposals.json",
+          ".lattice/story/actives/B-7ffc/proofstory.json",
+          ".lattice/story/actives/B-7ffc/scope-contract.json",
+          ".lattice/story/actives/B-7ffc/understanding.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "0b00ae586930afd8310856dfd777837eb6748e3eda6c7081416082618ba5d3c9"
+      },
+      "readDiagnostics": [],
+      "_hash": "3e71f89d1b1124a97af985e47bd2639d3458c5415faa701b70b375834e784278"
+    },
+    {
+      "id": "B-7ffc:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Independently recomputed all 12 verification intents at current HEAD: source/content transformation, fence preservation, renderer/save/event digest equality, seven ordered Stories plus conditional follow-up, exact canonical NAV resolution, 119-file inventory, single link, temp-path rejection, plan-only wording, and docs-only implementation diff all pass with no blocker.",
+      "createdAt": "2026-07-17T23:23:47.381Z",
+      "reviewRound": "2026-07-17T23:21:14.128Z",
+      "reviewRunId": "B-7ffc:RR-002",
+      "writerSessionId": "sess-2a40d3cb626970d2",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7ffc/background.md",
+          ".lattice/story/actives/B-7ffc/checklist.json",
+          ".lattice/story/actives/B-7ffc/decision-doc-proposals.json",
+          ".lattice/story/actives/B-7ffc/process-events.jsonl",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "0b00ae586930afd8310856dfd777837eb6748e3eda6c7081416082618ba5d3c9"
+      },
+      "readDiagnostics": [],
+      "_hash": "a82e528ac0ae7d79766bceaaa7c59b0d096c7160016e78bcf63959680da611ce"
+    }
+  ]
+}

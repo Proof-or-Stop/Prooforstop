@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-7ffc",
+  "state": "confirmed",
+  "ledgerHash": "sha256:67450b2e25de4c6a4407a7b5695b951895068e798cbe64b12439d9aafaae8577",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "USR-2026-07-18-PROMOTE",
+      "claim": "The reviewed plan exists in the canonical decisions corpus.",
+      "doneMeans": "The repository contains the reviewed plan at the canonical decisions path with temporary-source claims removed.",
+      "requiredEvidence": [
+        "document-diff",
+        "content-integrity"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:happy:1",
+        "CHK-001:edge:0",
+        "CHK-001:edge:1",
+        "CHK-001:adversarial:0",
+        "CHK-001:adversarial:1"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "USR-2026-07-18-DISCOVER",
+      "claim": "The canonical plan is discoverable from requirements navigation.",
+      "doneMeans": "docs/requirements/NAV.md links to the canonical plan.",
+      "requiredEvidence": [
+        "navigation-check"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:edge:1",
+        "CHK-002:adversarial:0",
+        "CHK-002:adversarial:1",
+        "CHK-002:adversarial:2"
+      ],
+      "status": "covered"
+    }
+  ],
+  "createdAt": "2026-07-17T23:07:45.050Z",
+  "updatedAt": "2026-07-17T23:17:25.357Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260717231725",
+    "acceptedInterpretationHash": "sha256:fb4b356e90859e6e1b78b4b6cde3da9a274f1a5ce42df21a99ef800fe9c2781a",
+    "acceptedAt": "2026-07-17T23:17:25.357Z"
+  }
+}

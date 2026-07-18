@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-7ffc",
+  "allowedCommands": [
+    "git add*",
+    "git commit*",
+    "git diff*",
+    "git status*",
+    "lattice *",
+    "rg *",
+    "sed *",
+    "shasum *",
+    "wc *"
+  ],
+  "allowedTools": [
+    "apply_patch"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+    "docs/requirements/NAV.md"
+  ],
+  "excludedCommands": [
+    "git clean*",
+    "git push*",
+    "git reset*"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src",
+    "packages/main/tests"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "Documentation-only promotion boundary confirmed by user request.",
+  "createdAt": "2026-07-17T23:07:45.050Z",
+  "updatedAt": "2026-07-17T23:07:45.050Z",
+  "_hash": "089bd06e912b3f1ce08708a17f27b22f4db12efdb54300236b097c72ac70451f"
+}

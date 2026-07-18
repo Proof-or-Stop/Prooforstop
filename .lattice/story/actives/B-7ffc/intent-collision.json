@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-7ffc",
+  "id": "IC-20260717231725",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "B-7ffc is the bounded prerequisite slice: promote the reviewed plan and expose its canonical link without changing runtime behavior. The user’s instruction to execute in order continues immediately after B-7ffc through a separately scoped Story 1, so document migration is not misrepresented as implementation completion.",
+  "acceptedInterpretationHash": "sha256:fb4b356e90859e6e1b78b4b6cde3da9a274f1a5ce42df21a99ef800fe9c2781a",
+  "notes": "This resolves the apparent collision between docs-only promotion and the broader sequential implementation request while preserving both obligations.",
+  "ledgerHashBeforeDecision": "sha256:67450b2e25de4c6a4407a7b5695b951895068e798cbe64b12439d9aafaae8577",
+  "confirmedLedgerHash": "sha256:67450b2e25de4c6a4407a7b5695b951895068e798cbe64b12439d9aafaae8577",
+  "createdAt": "2026-07-17T23:17:25.356Z",
+  "updatedAt": "2026-07-17T23:17:25.356Z"
+}

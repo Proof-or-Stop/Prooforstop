@@ -1,0 +1,22 @@
+{
+  "task": "Promote the reviewed role prompt modularization execution plan from temporary storage into the canonical decisions corpus and navigation.",
+  "outcome": "The user can open docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md and follow its link from docs/requirements/NAV.md; the promotion itself makes no runtime behavior claim.",
+  "facts": [
+    "The reviewed source currently exists only at /tmp/role-prompt-modularization-and-budget-execution-plan.md.",
+    "The source has 7 fixed implementation Stories plus one conditional budget-enforce follow-up.",
+    "The current Story is documentation-only and does not authorize runtime changes.",
+    "docs/requirements/NAV.md is curated and non-exhaustive."
+  ],
+  "constraints": [
+    "Do not modify runtime code, Prompt templates, role registries, or tests in this Story.",
+    "Preserve the evidence-calibrated document content.",
+    "Remove dependence on the temporary path from the canonical artifact.",
+    "Use the normal Lattice lifecycle and independent review."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+    "docs/requirements/NAV.md"
+  ],
+  "timestamp": "2026-07-17T23:10:23.264Z"
+}

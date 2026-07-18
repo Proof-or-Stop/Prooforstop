@@ -1,0 +1,59 @@
+{
+  "storyId": "B-360e",
+  "name": "role-prompt-contract-measurement-baseline",
+  "title": "Story 1: establish role-prompt contracts and a no-output-drift measurement baseline",
+  "description": "Implement Story 1 of the accepted role-prompt modularization plan: add versioned Runtime Contract, Role Contract, Prompt Envelope, and PromptMeasurementRecord structures; mechanically freeze the 16-role lifecycle matrix; and expose reproducible prompt-cost measurements while preserving every existing agent_prompt output byte-for-byte. This Story records measurement sidecars only and must not create Story-bound Prompt Envelopes or change dispatch behavior.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+  "keywords": [
+    "role-prompt",
+    "runtime-contract",
+    "role-contract",
+    "prompt-envelope",
+    "prompt-measurement",
+    "baseline"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    }
+  ],
+  "createdAt": "2026-07-17T23:42:14.413Z",
+  "startedAt": "2026-07-17T23:42:14.413Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-17T23:42:14.800Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-b99b5f715fd91d61",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-17T23:43:12.178Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-61f03d29ed66512b",
+      "agent": "main"
+    }
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Security/Credentials",
+      "reason": "False positive: every token reference is a prompt-size estimator or reported input-token metric. This Story does not read, write, validate, or change authentication tokens, credentials, secrets, or security policy.",
+      "at": "2026-07-17T23:42:32.885Z"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-360e",
+    "branch": "story/B-360e",
+    "createdAt": "2026-07-17T23:43:09.726Z"
+  }
+}

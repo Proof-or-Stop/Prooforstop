@@ -1,0 +1,97 @@
+{
+  "storyId": "B-7ffc",
+  "checkedAt": "2026-07-17T23:16:16.429Z",
+  "features": [
+    {
+      "feature": "Create the canonical accepted decision document at docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7ffc/checklist.json"
+    },
+    {
+      "feature": "Preserve the complete evidence-calibrated reviewed source identified by SHA-256 3a7e9beaf60b692753de91ee50eeacccdadfd57586fb28b6d07189d953b60610 through deterministic canonical wrapping and fence-aware heading demotion",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7ffc/checklist.json"
+    },
+    {
+      "feature": "Expose the canonical plan through an exact relative link from docs/requirements/NAV.md",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7ffc/checklist.json"
+    },
+    {
+      "feature": "Keep NAV inventory metadata and canonical-entry uniqueness accurate after promotion",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7ffc/checklist.json"
+    },
+    {
+      "feature": "Remove discovery dependence on temporary or absolute filesystem paths",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7ffc/understanding.json"
+    },
+    {
+      "feature": "Represent the promoted artifact as an accepted execution plan, not evidence that runtime implementation is complete",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7ffc/checklist.json"
+    },
+    {
+      "feature": "Limit this Story diff to the decision document, requirements navigation, and normal local workflow metadata",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-7ffc/background.md"
+    },
+    {
+      "feature": "Runtime Contract, Role Contract, Prompt Envelope, registry, handler, gate, prompt asset, package-version, or test-behavior implementation",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The background, understanding constraints, and CHK-001 adversarial intent explicitly reserve all runtime behavior changes for later independent Stories.",
+      "source": ".lattice/story/actives/B-7ffc/understanding.json"
+    },
+    {
+      "feature": "Sequential execution of the seven numbered implementation Stories",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The source plan and Story background require separate Lattice Stories in order; B-7ffc is only the prerequisite canonical-document promotion.",
+      "source": "/tmp/role-prompt-modularization-and-budget-execution-plan.md"
+    },
+    {
+      "feature": "Budget-enforcement implementation or creation of its conditional follow-up Story",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The plan makes enforcement conditional on Story 7 evidence and explicitly does not preassign a Story number; promotion cannot claim or enable it.",
+      "source": "/tmp/role-prompt-modularization-and-budget-execution-plan.md"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-7ffc/background.md",
+      ".lattice/story/actives/B-7ffc/checklist.json",
+      ".lattice/story/actives/B-7ffc/understanding.json",
+      "docs/requirements/NAV.md"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 10,
+    "covered": 7,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "990c8eff63bcead8d943f79dd20311fcddf8879af4a3f2204c7ecc9e19b8327f",
+  "openQuestions": []
+}

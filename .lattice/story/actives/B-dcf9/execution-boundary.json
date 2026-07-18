@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-dcf9",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff*",
+    "git status*",
+    "lattice *",
+    "node *",
+    "rg *",
+    "sed *",
+    "wc *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/bounded-document-context-scaling-execution-plan.md"
+  ],
+  "excludedCommands": [
+    "git clean*",
+    "git push*",
+    "git reset*",
+    "git restore*",
+    "rm *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "docs/story",
+    "package.json",
+    "packages",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Document-only story. Existing main worktree changes and unrelated artifacts must remain untouched.",
+  "createdAt": "2026-07-16T23:48:19.189Z",
+  "updatedAt": "2026-07-16T23:48:19.189Z",
+  "_hash": "62faf761b553c6635a36be74c762ede4da727b05f0f8773eeb3e65420e308e60"
+}

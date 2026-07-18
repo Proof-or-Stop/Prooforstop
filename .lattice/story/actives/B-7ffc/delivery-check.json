@@ -1,0 +1,56 @@
+{
+  "storyId": "B-7ffc",
+  "checkedAt": "2026-07-17T23:32:42.202Z",
+  "headHash": "8a9622646e89ff1edfd8dc8358f126fdba601098",
+  "materialHash": "4fc068d1d379a7381854b3a9789eab4f0aa6d00f9428d7cd7a532a59dd7c5bf4",
+  "storyFilesHash": "90722a3e8941271bfe34f2fe0beb826258190c479cce2c7bbe1699d695dbe7c5",
+  "reviewRound": "2026-07-17T23:21:14.128Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+      "promise": "The reviewed role-prompt modularization and budget execution plan is durable in the canonical decisions corpus with its seven ordered implementation Stories and separate conditional budget-enforcement follow-up preserved.",
+      "status": "verified",
+      "verifiedBy": "Independent digest/content-equivalence, fence and milestone inventory checks against reviewed source SHA-256 3a7e9beaf60b692753de91ee50eeacccdadfd57586fb28b6d07189d953b60610.",
+      "evidence": "Saved decision SHA-256 is ef7c3bd67422dc1fff071008c13af98224a3af56e9dfd5eac8d9ee2cacf5ba0b; transformed reviewed content is embedded exactly, 18 fence delimiters remain, Story 1-7 and the conditional enforce heading are present."
+    },
+    {
+      "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+      "promise": "This promotion is planning authority only and does not itself change Prompt assets, runtime behavior, gates, registry behavior, tests, or enable budget enforcement.",
+      "status": "verified",
+      "verifiedBy": "git diff --name-only main...HEAD with workflow metadata excluded, plus review of Decision, Scope, Non-Goals and Chosen Approach wording.",
+      "evidence": "The only product files changed are docs/requirements/NAV.md and the new canonical decision document; no runtime, Prompt, configuration, handler, registry, package, or test file changed."
+    },
+    {
+      "docPath": "docs/requirements/NAV.md",
+      "promise": "Readers can discover the canonical plan through one exact repository-relative navigation link without depending on a temporary or absolute local path.",
+      "status": "verified",
+      "verifiedBy": "Independent exact-link count, filesystem resolution, absolute/tmp-path rejection and case-sensitive target checks.",
+      "evidence": "NAV contains exactly one decisions/role-prompt-modularization-and-budget-execution-plan.md target, it resolves to the checked-in file, and NAV contains no /tmp, /private/tmp or /Users path."
+    },
+    {
+      "docPath": "docs/requirements/NAV.md",
+      "promise": "Navigation inventory and wording remain accurate and do not claim the numbered implementation Stories have completed.",
+      "status": "verified",
+      "verifiedBy": "Direct decisions Markdown inventory count and plan-only wording assertion.",
+      "evidence": "The decisions directory contains 119 direct Markdown files, NAV says 119, and the entry says implementation proceeds through separate ordered Stories."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independent local Node verification exited 0: PASS canonical decision digest/content/milestones/fences; PASS docs-only product diff; routine validation evidence is complete/PASS with 46 configured commands, 0 required failures, 0 optional failures, and 12/12 required verification intents covered."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Fresh local smoke command exited 0 and printed: PASS: canonical role-prompt plan exists and is discoverable from requirements navigation. Stored live-smoke transcript records exitCode 0 and explicitly records authorityDone=false and productionDone=false."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All documented promotion promises are mapped to checked evidence: canonical content/provenance, fence-aware preservation, seven ordered Stories plus conditional follow-up, exact NAV resolution/inventory, docs-only diff, 12/12 intent coverage, 46-command validation PASS, and fresh local live smoke. No remote or production behavior is claimed."
+  },
+  "_hash": "8f64398af50f3b1b4f549b8952b41e6b90e8d5ad6a9fbde604030e1bcd633187"
+}
