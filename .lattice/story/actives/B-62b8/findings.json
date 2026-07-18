@@ -376,8 +376,8 @@
       "_hash": "9c86c495bcf7246f8d3b385d84d7d6682df31871a1ad32e7094cd485d037f93c",
       "signatureTag": "missing|unknown|packages-main-handlers",
       "signatureTagSource": "auto",
-      "resolvedReason": "Fixed by bf9954756c: Python source routing now includes .pyi and .pyw as well as .py; focused smoke proves real deletions are detected in both variants while unsupported metadata remains skipped. Build and concept-gate-scope-smoke PASS.",
-      "resolvedAt": "2026-07-18T00:59:04.029Z",
+      "resolvedReason": "Fixed in bf9954756c: .py/.pyi/.pyw route through Python declaration analysis. Independent deletion matrix returns removed for pyi/pyw, unsupported JSON remains empty, malformed variants remain fail-closed through the same parser, and concept-gate-scope smoke passes.",
+      "resolvedAt": "2026-07-18T00:59:53.258Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     }
