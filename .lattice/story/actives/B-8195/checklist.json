@@ -42,6 +42,16 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "RED test reports the current failure: reuse selected commandExecutions=0 but validate returns infra_failure because canonical process-events metadata is dirty.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ]
       }
     },
     {
