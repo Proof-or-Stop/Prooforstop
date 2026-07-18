@@ -234,6 +234,25 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-360e:F-012",
+      "desc": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts:89-109 — HIGH: the expanded array mutation matrix still omits Array subclasses/custom prototypes and prototype-dispatched map behavior. Independent repro against current dist shows an Array subclass overriding map serializes as invalid [MALICIOUS], while an Array with a custom prototype carrying hidden inherited state serializes as [1]. Because packages/main/src/core/prompt-contracts.ts invokes candidate.map and does not restrict the array prototype, CHK-001 canonical-fail-closed remains uncovered. Add subclass, overridden-map, and custom-prototype probes and require ordinary Array.prototype (or intrinsic index iteration) before refreshing evidence.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-18T00:25:33.730Z",
+      "reviewRound": "2026-07-18T00:22:20.597Z",
+      "reviewRunId": "B-360e:RR-009",
+      "_hash": "18c714fd666fdb74a30c4a3ded6615c301adfd9cdcf8455abdaed92a4b63b6fe",
+      "files": [
+        "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+        "packages/main/src/core/prompt-contracts.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
