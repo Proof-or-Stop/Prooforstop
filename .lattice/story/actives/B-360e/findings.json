@@ -453,6 +453,25 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-360e:F-022",
+      "desc": "packages/main/src/tasks/concept-gate-scope-smoke.ts:206-294 — HIGH: copy/rename/quoted-path coverage omits internally inconsistent or incomplete diff metadata. Independent repros show (1) diff --git old path src/deleted.ts overwritten by --- a/docs/not-source.md and (2) a lone copy from without copy to both hide a supported TypeScript deletion with symbols=[] and diagnostics=[]. This leaves malformed-input fail-closed bypassable. Add header-vs-side-marker mismatch, incomplete copy from/to, incomplete rename from/to, and operation-path mismatch probes; parser must validate complete consistent metadata before suppressing an old side or changing source classification.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-18T10:08:23.121Z",
+      "reviewRound": "2026-07-18T10:04:57.258Z",
+      "reviewRunId": "B-360e:RR-030",
+      "_hash": "82d39cb62e4c0cbcea432f938b25b483fc583f0852229ba5431f9168cac998d4",
+      "files": [
+        "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+        "packages/main/src/handlers/validate-concept.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
