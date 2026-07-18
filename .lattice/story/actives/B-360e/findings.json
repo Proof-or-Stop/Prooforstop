@@ -198,7 +198,7 @@
       "desc": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts:75-88 — HIGH: canonical fail-closed coverage only probes symbol/non-enumerable/accessor fields on plain objects, not arrays. Independent runtime repro confirms arrays carrying each of those own-state forms are still ACCEPTED as [1] because packages/main/src/core/prompt-contracts.ts:178-185 returns before own-key/descriptor validation. This leaves CHK-001 prompt-contract-canonical-fail-closed uncovered and permits distinct inputs to collapse to one digest. Add array variants for symbol-keyed, extra string-keyed (enumerable and non-enumerable), and accessor fields, then bind refreshed evidence after fixing the array validator.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-18T00:20:07.398Z",
@@ -210,7 +210,11 @@
         "packages/main/src/core/prompt-contracts.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 29789e7eeb: adversarial smoke covers array symbol keys, extra enumerable/non-enumerable strings, accessor extra/index fields, non-enumerable indices, malformed indices and sparse arrays.",
+      "resolvedAt": "2026-07-18T00:22:34.976Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
