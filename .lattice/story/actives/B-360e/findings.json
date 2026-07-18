@@ -24,7 +24,7 @@
       "desc": "packages/main/src/core/prompt-contracts.ts:161-198 — MEDIUM: canonicalJsonStringify enumerates only Object.keys and therefore silently drops symbol-keyed own properties instead of rejecting non-CanonicalJson input. Runtime reproduction canonicalJsonStringify({a:1,[Symbol(\"hidden\")]:2}) returns {\"a\":1}, allowing two structurally different inputs to collapse to the same canonical bytes/digest. This directly violates CHK-001 canonical-fail-closed intent that unsupported values must not disappear or produce an admissible digest. Reject own symbol keys (and cover the mutation in the focused smoke) before canonicalizing object entries.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-18T00:10:58.495Z",
@@ -32,7 +32,11 @@
       "reviewRunId": "B-360e:RR-001",
       "_hash": "f2482b28ce19be80f2f86ba92d6e16ef86998ad5f2ab05485d9ceffcb4b004ee",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 973f9ce95a: canonical serializer rejects own symbol keys before enumeration; focused smoke proves symbol-keyed input cannot collapse to canonical bytes.",
+      "resolvedAt": "2026-07-18T00:16:07.274Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-360e:F-003",
