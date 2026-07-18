@@ -221,7 +221,9 @@
       "evidence": "\"excluded\": [\"S1 orchestrator routing\", \"W1 language-neutral classifier\", \"W2 RED evidence subsystem\", \"W3 enforce gate\"]",
       "sourcePointers": [
         "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md"
-      ]
+      ],
+      "resolution": "scope-boundary excluded 'S1 orchestrator routing' is a program-internal cross-reference to sibling story B-d877 (route dev_finish/dev_merge through runStoryTransition), part of the Workstream-0 pre-existing-defects table in docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md (committed at 23600eb, read via git show main). It is not a decisions-corpus feature term; the exclusion is a deliberate program-level split, not a mislabeled carry-over.",
+      "resolvedAt": "2026-07-18T23:22:53.426Z"
     }
   ]
 }
