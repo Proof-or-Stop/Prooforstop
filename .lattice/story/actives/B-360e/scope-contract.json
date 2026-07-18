@@ -8,9 +8,7 @@
     "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/core/config.ts",
     "packages/main/src/cli/activity-policy.ts",
-    "scripts/verify-proof-or-stop-prompt-baseline.mjs",
-    "scripts/verify-process-fact-contract.mjs",
-    "packages/main/src/handlers/validate-concept.ts"
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs"
   ],
   "allowedCreate": [
     "packages/main/src/core/prompt-contracts.ts",
@@ -22,9 +20,7 @@
   ],
   "allowedTest": [
     "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
-    "scripts/verify-proof-or-stop-prompt-baseline.mjs",
-    "scripts/verify-process-fact-contract.mjs",
-    "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs"
   ],
   "protectedFiles": [
     "packages/main/templates/agents",
@@ -37,8 +33,25 @@
     ".claude/agents",
     ".lattice-codex/agents"
   ],
-  "scopeChangeReason": "Human-authorized bounded gate repair: REVIEW-to-TEST is blocked because validate-concept parses non-source lifecycle JSON/Markdown and reconstructed MJS shebang fragments as TypeScript. Add only the concept gate handler and its focused smoke so the existing fail-closed declaration scan applies to supported source files without bypassing real deleted symbols.",
+  "scopeChangeReason": "Re-attest the existing Story 1 PLAN file scope under repo-relative-v1 after merging current main; no product scope expansion.",
   "acknowledgements": [],
   "createdAt": "2026-07-17T23:49:12.563Z",
-  "updatedAt": "2026-07-18T09:48:09.232Z"
+  "updatedAt": "2026-07-18T11:53:58.310Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/registry.ts": "packages/main/src/registry.ts",
+    "packages/main/src/core/command-policy.ts": "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
+    "packages/main/src/cli/activity-policy.ts": "packages/main/src/cli/activity-policy.ts",
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "packages/main/src/core/prompt-contracts.ts": "packages/main/src/core/prompt-contracts.ts",
+    "packages/main/src/core/prompt-role-contract-registry.ts": "packages/main/src/core/prompt-role-contract-registry.ts",
+    "packages/main/src/core/prompt-measurement.ts": "packages/main/src/core/prompt-measurement.ts",
+    "packages/main/src/handlers/prompt-measurement.ts": "packages/main/src/handlers/prompt-measurement.ts",
+    "docs/requirements/baselines/role-prompt-measurement-baseline.json": "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+    "packages/main/src/tasks/prompt-contract-measurement-smoke.ts": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+  }
 }
