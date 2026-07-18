@@ -746,3 +746,9 @@ DONE-required execution and reuse use one bounded contract:
   and its ignored local verdict files. Concurrent foreign bytes and competing
   HEAD movement are preserved. A rollback conflict remains an explicit
   infrastructure failure and cannot make a partial 3x2 quorum durable.
+- The worktree-local CLI delegates the quorum terminal to that handler-owned
+  transaction and skips its generic post-handler `codex_cli` append. Duplicate
+  authority comes from committed host-verdict events, so deleting the ignored
+  cache cannot reopen the same-material batch. Exact event and verdict-file
+  bytes are frozen at generation; rollback uses Buffer spans and never
+  normalizes foreign binary, blank, or unterminated suffix bytes.

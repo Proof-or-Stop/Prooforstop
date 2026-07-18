@@ -136,7 +136,12 @@ verdict write. Hook, content, or HEAD failures remove every generated verdict
 row and ignored local verdict file together; concurrent foreign bytes are
 preserved and reported rather than staged or overwritten. The assurance
 evaluator therefore consumes a durable complete quorum, never a partial dirty
-batch left by a failed closeout.
+batch left by a failed closeout. `quorum_submit` owns this terminal completely:
+the CLI does not append a generic post-handler `codex_cli` row that would dirty
+the just-committed file. Same-material duplicate refusal reads committed
+`process-events.jsonl`, not the gitignored local verdict cache. Rollback removes
+only frozen event/JSON byte spans, preserving altered files and arbitrary
+foreign binary suffix bytes exactly.
 
 ## Risks
 

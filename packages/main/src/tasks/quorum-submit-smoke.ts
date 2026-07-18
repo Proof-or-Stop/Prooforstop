@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { appendFileSync, chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { captureLifecycleMetadataTransaction } from '../core/auto-commit-metadata.js';
 import { canonicalDigest } from '../core/authority-signing.js';
 import { resetConfigCache } from '../core/config.js';
@@ -25,6 +26,9 @@ import type { HandlerContext } from '../handlers/context.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 
 const STORY_ID = 'B-quorum-smoke';
+const DIST_CLI_PATH = fileURLToPath(new URL('../cli.js', import.meta.url));
+const IMPLEMENTATION_REPO_ROOT = fileURLToPath(new URL('../../../..', import.meta.url));
+const HISTORICAL_RED_COMMIT = 'ffedfb4eb3';
 const REVIEW_ROUND = '2026-06-22T10:00:00.000Z';
 const COMMIT_ENV = ['-c', 'user.email=quorum-smoke@example.test', '-c', 'user.name=Quorum Submit Smoke'];
 const REVIEW_LANES = [
@@ -62,6 +66,14 @@ function writeConfig(root: string): void {
     storyDir: '.lattice/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'balanced' },
+    validate: {
+      commands: [{
+        label: 'bounded quorum CLI validation probe',
+        command: process.execPath,
+        args: ['probe.mjs'],
+        timeoutMs: 10_000,
+      }],
+    },
     proofAdmissibility: {
       mode: 'enforce',
       enforcedConsumers: ['REVIEW'],
@@ -106,6 +118,14 @@ function checklist(): ChecklistData {
 function makeFixture(): { root: string; store: StoryStore; ctx: HandlerContext; registry: ReturnType<typeof createMainRegistry> } {
   const root = mkdtempSync(join(tmpdir(), 'lattice-quorum-submit-'));
   writeConfig(root);
+  write(root, '.gitignore', '.lattice/autopilot-verdicts/\n.lattice/activity.jsonl\n.lattice/locks/\n');
+  write(root, 'bin/lattice.js', `#!/usr/bin/env node\nimport ${JSON.stringify(DIST_CLI_PATH)};\n`);
+  write(root, 'probe.mjs', [
+    "import { appendFileSync } from 'node:fs';",
+    "if (process.env.QUORUM_CLI_PROBE_COUNTER) appendFileSync(process.env.QUORUM_CLI_PROBE_COUNTER, 'run\\n');",
+    "console.log('bounded quorum CLI validation probe PASS');",
+    '',
+  ].join('\n'));
   write(root, 'README.md', 'quorum submit smoke\n');
   write(root, 'packages/main/src/index.ts', 'export const seed = true;\n');
   git(root, ['init']);
@@ -132,6 +152,21 @@ function makeFixture(): { root: string; store: StoryStore; ctx: HandlerContext; 
   const ctx: HandlerContext = { root, store, scanRoot: join(root, 'packages/main') };
   const registry = createMainRegistry(ctx);
   return { root, store, ctx, registry };
+}
+
+function runFixtureCli(root: string, args: string[], env: Record<string, string> = {}) {
+  return spawnSync(process.execPath, ['bin/lattice.js', ...args], {
+    cwd: root,
+    encoding: 'utf8',
+    timeout: 20_000,
+    env: {
+      ...process.env,
+      LATTICE_PROJECT_ROOT: root,
+      LATTICE_SESSION_ID: 'quorum-submit-cli-integration',
+      LATTICE_ACTIVITY_SOURCE: 'codex',
+      ...env,
+    },
+  });
 }
 
 function withFreshFixture(
@@ -341,6 +376,135 @@ try {
     }
     const changedEvidence = deriveHostVerdictBindings({ ...base, testEvidence: { result: 'FAIL' } });
     assert.notEqual(changedEvidence.validationDigest, original.validationDigest);
+  });
+
+  check('worktree-local CLI commits the exact quorum batch through the production entrypoint', () => {
+    withFreshFixture((fixture) => {
+      recordReviewerPasses(fixture.registry);
+      const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
+      const result = runFixtureCli(fixture.root, ['quorum_submit', JSON.stringify(quorumArgs())]);
+      assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+      assert.match(result.stdout, /metadataCommitSha/);
+      assert.notEqual(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead);
+      assert.equal(git(fixture.root, ['status', '--porcelain=v1']), '');
+      assert.equal(hostVerdictEventCount(fixture.store), 6);
+      assert.equal(verdictFileCount(fixture.root), 6);
+    });
+  });
+
+  check('production CLI refuses process-events, staged source, and lifecycle metadata pre-dirt', () => {
+    const cases: Array<{
+      name: string;
+      mutate: (fixture: ReturnType<typeof makeFixture>) => string;
+    }> = [
+      {
+        name: 'process-events',
+        mutate: (fixture) => {
+          const path = join(fixture.store.storyDirPath(STORY_ID), 'process-events.jsonl');
+          appendFileSync(path, '{"type":"foreign_preexisting_event"}\n');
+          return path;
+        },
+      },
+      {
+        name: 'staged-source',
+        mutate: (fixture) => {
+          const path = join(fixture.root, 'packages/main/src/index.ts');
+          appendFileSync(path, 'export const stagedUserChange = true;\n');
+          git(fixture.root, ['add', 'packages/main/src/index.ts']);
+          return path;
+        },
+      },
+      {
+        name: 'lifecycle-metadata',
+        mutate: (fixture) => {
+          const path = join(fixture.store.storyDirPath(STORY_ID), 'index.json');
+          const value = JSON.parse(readFileSync(path, 'utf8')) as Record<string, unknown>;
+          value.foreignLifecycleMutation = true;
+          writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`);
+          return path;
+        },
+      },
+    ];
+    for (const testCase of cases) {
+      withFreshFixture((fixture) => {
+        recordReviewerPasses(fixture.registry);
+        const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
+        const path = testCase.mutate(fixture);
+        const beforeBytes = readFileSync(path);
+        const result = runFixtureCli(fixture.root, ['quorum_submit', JSON.stringify(quorumArgs())]);
+        assert.notEqual(result.status, 0, `${testCase.name} pre-dirt must refuse`);
+        assert.match(`${result.stdout}\n${result.stderr}`, /worktree\/index must be clean|canonical metadata was already dirty/);
+        assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead);
+        assert.deepEqual(readFileSync(path), beforeBytes);
+        assert.equal(verdictFileCount(fixture.root), 0);
+      });
+    }
+  });
+
+  check('historical RED dirty baseline makes CLI validation refuse canonical PASS persistence', () => {
+    execFileSync('git', ['cat-file', '-e', `${HISTORICAL_RED_COMMIT}^{commit}`], {
+      cwd: IMPLEMENTATION_REPO_ROOT,
+      stdio: 'ignore',
+    });
+    withFreshFixture((fixture) => {
+      const current = fixture.store.readStory(STORY_ID);
+      fixture.store.writeStory(STORY_ID, {
+        ...current,
+        phase: 'TEST',
+        events: [...(current.events ?? []), {
+          phase: 'TEST',
+          action: 'advance',
+          timestamp: '2026-06-22T10:30:00.000Z',
+        }],
+      });
+      fixture.store.writeTestEvidence(STORY_ID, {
+        result: 'FAIL',
+        command: 'historical-red-baseline',
+        output: `bound to RED commit ${HISTORICAL_RED_COMMIT}`,
+        timestamp: '2026-06-22T10:31:00.000Z',
+      });
+      git(fixture.root, ['add', '.lattice/story']);
+      git(fixture.root, [...COMMIT_ENV, 'commit', '-m', 'seed TEST failure baseline']);
+      for (let index = 0; index < 6; index += 1) {
+        fixture.store.appendProcessEvent(STORY_ID, {
+          type: 'host_verdict',
+          mode: 'local',
+          verdictId: `historical-red-verdict-${index}`,
+          runId: `${STORY_ID}-q-r${Math.floor(index / 2) + 1}`,
+          hostId: index % 2 === 0 ? 'claude-host' : 'codex-host',
+          provider: index % 2 === 0 ? 'claude' : 'codex',
+          sessionId: `historical-red-session-${index % 2}`,
+          keyId: `historical-red-key-${index % 2}`,
+          decision: 'pass',
+          materialDigest: 'historical-red-material',
+          storyFilesHash: 'historical-red-story-files',
+          validationDigest: 'historical-red-validation',
+          promptDigest: 'historical-red-prompt',
+        });
+      }
+      const dirtyBytes = readFileSync(join(fixture.store.storyDirPath(STORY_ID), 'process-events.jsonl'));
+      const result = runFixtureCli(fixture.root, ['validate', `--story=${STORY_ID}`, '--json']);
+      const payload = JSON.parse(result.stdout.trim()) as {
+        status?: unknown;
+        allPass?: unknown;
+        failureKind?: unknown;
+        disposition?: unknown;
+        commandExecutions?: unknown;
+      };
+      assert.equal(payload.status, 'fail');
+      assert.equal(payload.allPass, false);
+      assert.equal(payload.failureKind, 'infra_failure');
+      assert.equal(payload.disposition, 'executed');
+      assert.equal(payload.commandExecutions, 1);
+      assert.match(`${result.stdout}\n${result.stderr}`, /canonical metadata was already dirty|pre-existing|infra_failure/);
+      assert.equal(fixture.store.readTestEvidence(STORY_ID)?.result, 'FAIL');
+      assert.deepEqual(
+        readFileSync(join(fixture.store.storyDirPath(STORY_ID), 'process-events.jsonl')),
+        dirtyBytes,
+        'validation refusal preserves the historical dirty baseline',
+      );
+      assert.doesNotMatch(result.stdout, /"result"\s*:\s*"PASS"|"status"\s*:\s*"pass"/);
+    });
   });
 
   check('refuses when required reviewer passes are absent and writes no verdicts', () => {
@@ -645,7 +809,9 @@ try {
       }).quorum_submit;
       assert.throws(() => handler(quorumArgs()), /exact canonical host_verdict bytes/);
       assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead);
-      assert.equal(hostVerdictEventCount(fixture.store), 0);
+      assert.equal(hostVerdictEventCount(fixture.store), 1, 'concurrently forged row is preserved but remains uncommitted');
+      assert.match(readFileSync(processEvents, 'utf8'), /"decision":"fail"/);
+      assert.match(git(fixture.root, ['status', '--porcelain=v1', '--', processEvents]), /^M /);
       assert.equal(verdictFileCount(fixture.root), 0);
     });
   });

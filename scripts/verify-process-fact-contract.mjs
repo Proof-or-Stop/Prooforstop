@@ -3698,6 +3698,11 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     assert(/review escalation/i.test(quorumRegistryEntry.consumerGate), `${processFactRegistryPath}: ${quorumCommand} consumerGate drifted (${quorumRegistryEntry.consumerGate})`);
     assert(/review assurance floor/i.test(quorumRegistryEntry.consumerGate), `${processFactRegistryPath}: ${quorumCommand} consumerGate must name review assurance floor (${quorumRegistryEntry.consumerGate})`);
   }
+  const cliEngineText = read('packages/main/src/cli-engine.ts');
+  assert(
+    cliEngineText.includes("if (entry.command === 'quorum_submit') return;"),
+    'packages/main/src/cli-engine.ts: quorum_submit must retain sole ownership of its atomic process-events terminal instead of receiving a generic post-handler codex_cli append',
+  );
 
   const runtimeName = 'runtime:review_escalation_done_gate';
   const runtimeLevel = levelRegistry.get(runtimeName);
