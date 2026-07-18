@@ -120,11 +120,11 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
-          "note": "Final-material deterministic algorithm fixtures pass.",
-          "headHash": "04e9e4385d668a24a8580ca1389e08039f326212",
+          "note": "Stateful array Proxy cannot influence canonical bytes because it is rejected before any trap; deterministic normal object/array fixtures remain stable.",
+          "headHash": "e08aee38e79ae186ab72bc09a2f217b7c7f00fe2",
           "materialHash": "9c60700ef63c3b146487c6898727119b5dc82144eb578ebc62221d98a0d0e9b0",
           "storyFilesHash": "c7cdd182865134b415476cd0a670d1118c229325b51be9b4897f3f6bb65b827b",
-          "timestamp": "2026-07-18T00:31:45.661Z"
+          "timestamp": "2026-07-18T00:31:46.804Z"
         },
         {
           "intentRef": "prompt-contract-reuses-estimator",
@@ -186,11 +186,11 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
-          "note": "Canonical arrays require exact Array.prototype and are encoded through validated own data descriptors with an explicit indexed loop; subclass/custom prototype and candidate-owned map methods reject without invocation, while normal dense arrays pass.",
-          "headHash": "04e9e4385d668a24a8580ca1389e08039f326212",
+          "note": "Node util.types.isProxy rejects plain-object, array and revoked Proxies before Array.isArray/prototype/ownKeys/descriptor traversal; instrumented traps remain at zero and normal plain inputs are unchanged.",
+          "headHash": "e08aee38e79ae186ab72bc09a2f217b7c7f00fe2",
           "materialHash": "9c60700ef63c3b146487c6898727119b5dc82144eb578ebc62221d98a0d0e9b0",
           "storyFilesHash": "c7cdd182865134b415476cd0a670d1118c229325b51be9b4897f3f6bb65b827b",
-          "timestamp": "2026-07-18T00:31:45.661Z"
+          "timestamp": "2026-07-18T00:31:46.804Z"
         },
         {
           "intentRef": "prompt-contract-schema-fail-closed",
@@ -879,11 +879,11 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
-          "note": "Subclass overriding map, custom prototype with hidden inherited state, and own map tampering fail closed without method invocation; ordinary dense array remains deterministic and prompt baseline remains unchanged.",
-          "headHash": "04e9e4385d668a24a8580ca1389e08039f326212",
+          "note": "Plain/stateful-array/revoked Proxy mutations fail closed without trap invocation; normal prompt baseline remains unchanged.",
+          "headHash": "e08aee38e79ae186ab72bc09a2f217b7c7f00fe2",
           "materialHash": "9c60700ef63c3b146487c6898727119b5dc82144eb578ebc62221d98a0d0e9b0",
           "storyFilesHash": "c7cdd182865134b415476cd0a670d1118c229325b51be9b4897f3f6bb65b827b",
-          "timestamp": "2026-07-18T00:31:45.661Z"
+          "timestamp": "2026-07-18T00:31:46.804Z"
         },
         {
           "intentRef": "CHK-004:adversarial:2",
