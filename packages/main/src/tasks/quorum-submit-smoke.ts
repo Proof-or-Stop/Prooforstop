@@ -2,7 +2,7 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { appendFileSync, chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative } from 'node:path';
 import { captureLifecycleMetadataTransaction } from '../core/auto-commit-metadata.js';
@@ -20,6 +20,7 @@ import { evaluateReviewAssuranceFloor } from '../core/review-assurance-floor.js'
 import { StoryStore } from '../core/store.js';
 import { listVerdicts, summarizeVerdicts } from '../core/verdicts.js';
 import { createMainRegistry } from '../registry.js';
+import { createQuorumSubmitHandlers } from '../handlers/quorum-submit.js';
 import type { HandlerContext } from '../handlers/context.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 
@@ -131,6 +132,34 @@ function makeFixture(): { root: string; store: StoryStore; ctx: HandlerContext; 
   const ctx: HandlerContext = { root, store, scanRoot: join(root, 'packages/main') };
   const registry = createMainRegistry(ctx);
   return { root, store, ctx, registry };
+}
+
+function withFreshFixture(
+  fn: (fixture: ReturnType<typeof makeFixture>) => void,
+): void {
+  const fixture = makeFixture();
+  const previous = process.cwd();
+  try {
+    process.chdir(fixture.root);
+    fn(fixture);
+  } finally {
+    process.chdir(previous);
+    rmSync(fixture.root, { recursive: true, force: true });
+    resetConfigCache();
+  }
+}
+
+function quorumArgs() {
+  return {
+    storyId: STORY_ID,
+    hostA: 'claude-host',
+    hostB: 'codex-host',
+    rounds: 3,
+    providerA: 'claude',
+    providerB: 'codex',
+    note: 'quorum_submit smoke atomic transaction',
+    format: 'json' as const,
+  };
 }
 
 function hostVerdictEventCount(store: StoryStore): number {
@@ -545,6 +574,111 @@ try {
     assert.equal(customResult.authorityDone, false);
     assert.equal(customResult.fullAuthorityDone, false);
     assert.equal(customResult.productionDone, false);
+  });
+
+  check('refuses pre-existing user dirt before writing any verdict', () => {
+    withFreshFixture((fixture) => {
+      recordReviewerPasses(fixture.registry);
+      write(fixture.root, 'user-notes.txt', 'preserve me\n');
+      const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
+      assert.throws(
+        () => fixture.registry.get('quorum_submit')!(quorumArgs()),
+        /worktree\/index must be clean/,
+      );
+      assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead);
+      assert.equal(readFileSync(join(fixture.root, 'user-notes.txt'), 'utf8'), 'preserve me\n');
+      assert.equal(hostVerdictEventCount(fixture.store), 0);
+      assert.equal(verdictFileCount(fixture.root), 0);
+    });
+  });
+
+  check('foreign append fails exact verification and rolls back only the six owned verdicts', () => {
+    withFreshFixture((fixture) => {
+      recordReviewerPasses(fixture.registry);
+      const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
+      const processEvents = join(fixture.store.storyDirPath(STORY_ID), 'process-events.jsonl');
+      const foreign = JSON.stringify({ type: 'foreign_concurrent_event', marker: 'preserve-foreign-append' }) + '\n';
+      const handler = createQuorumSubmitHandlers(fixture.ctx, {
+        metadataCommit: {
+          afterAddBeforeCommit: () => appendFileSync(processEvents, foreign, 'utf8'),
+        },
+      }).quorum_submit;
+      assert.throws(() => handler(quorumArgs()), /atomic closeout failed.*rolled back/s);
+      assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead);
+      assert.equal(verdictFileCount(fixture.root), 0);
+      const after = readFileSync(processEvents, 'utf8');
+      assert.match(after, /preserve-foreign-append/);
+      assert.doesNotMatch(after, /"type":"host_verdict"/);
+    });
+  });
+
+  check('commit-hook rejection rolls back all rows and a clean retry succeeds once', () => {
+    withFreshFixture((fixture) => {
+      recordReviewerPasses(fixture.registry);
+      const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
+      const hook = join(fixture.root, '.git', 'hooks', 'pre-commit');
+      writeFileSync(hook, '#!/bin/sh\nexit 23\n', 'utf8');
+      chmodSync(hook, 0o755);
+      assert.throws(
+        () => fixture.registry.get('quorum_submit')!(quorumArgs()),
+        /git pre-commit hook failed.*all emitted verdicts were rolled back/s,
+      );
+      assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead);
+      assert.equal(hostVerdictEventCount(fixture.store), 0);
+      assert.equal(verdictFileCount(fixture.root), 0);
+      rmSync(hook);
+      const retry: any = fixture.registry.get('quorum_submit')!(quorumArgs());
+      assert.equal(retry.emittedCount, 6);
+      assert.equal(hostVerdictEventCount(fixture.store), 6);
+      assert.equal(verdictFileCount(fixture.root), 6);
+      assert.notEqual(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead);
+    });
+  });
+
+  check('HEAD movement loses the CAS without reverting the competing HEAD', () => {
+    withFreshFixture((fixture) => {
+      recordReviewerPasses(fixture.registry);
+      const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
+      let movedHead = '';
+      const handler = createQuorumSubmitHandlers(fixture.ctx, {
+        metadataCommit: {
+          beforeCasUpdate: (oldHead, targetRef) => {
+            const tree = git(fixture.root, ['rev-parse', `${oldHead}^{tree}`]);
+            movedHead = git(fixture.root, [...COMMIT_ENV, 'commit-tree', tree, '-p', oldHead, '-m', 'foreign HEAD movement']);
+            git(fixture.root, ['update-ref', targetRef, movedHead, oldHead]);
+          },
+        },
+      }).quorum_submit;
+      assert.throws(() => handler(quorumArgs()), /HEAD changed before isolated metadata commit CAS.*rolled back/s);
+      assert.ok(movedHead);
+      assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), movedHead);
+      assert.notEqual(movedHead, beforeHead);
+      assert.equal(hostVerdictEventCount(fixture.store), 0);
+      assert.equal(verdictFileCount(fixture.root), 0);
+    });
+  });
+
+  check('rollback conflict preserves competing prefix bytes and removes every countable verdict', () => {
+    withFreshFixture((fixture) => {
+      recordReviewerPasses(fixture.registry);
+      const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
+      const processEvents = join(fixture.store.storyDirPath(STORY_ID), 'process-events.jsonl');
+      const handler = createQuorumSubmitHandlers(fixture.ctx, {
+        metadataCommit: {
+          afterAddBeforeCommit: () => {
+            const bytes = readFileSync(processEvents);
+            bytes[0] = bytes[0] === 0x7b ? 0x20 : 0x7b;
+            writeFileSync(processEvents, bytes);
+          },
+        },
+      }).quorum_submit;
+      assert.throws(() => handler(quorumArgs()), /rollback conflicts preserved.*pre-quorum bytes changed and were preserved/s);
+      assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead);
+      assert.equal(verdictFileCount(fixture.root), 0);
+      const after = readFileSync(processEvents, 'utf8');
+      assert.doesNotMatch(after, /"type":"host_verdict"/);
+      assert.equal(after.charCodeAt(0), 0x20, 'competing prefix mutation is preserved byte-for-byte');
+    });
   });
 
   check('rejects non-independent host identity before writing additional verdicts', () => {

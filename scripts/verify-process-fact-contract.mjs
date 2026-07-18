@@ -127,7 +127,7 @@ const requiredProcessFactSemantics = {
   finding_resolve: ['finding-state', 'blocker-state', 'gate-evidence'],
   finding_dismiss: ['finding-state', 'blocker-state', 'gate-evidence'],
   autopilot_review_submit: ['host-verdict', 'execution-evidence', 'freshness-policy', 'schema-contract', 'gate-evidence'],
-  quorum_submit: ['host-verdict', 'execution-evidence', 'gate-evidence'],
+  quorum_submit: ['host-verdict', 'execution-evidence', 'atomic-persistence', 'gate-evidence'],
   decision_doc_proposal: ['schema-contract', 'gate-evidence'],
   decision_doc_save: ['artifact', 'schema-contract', 'execution-evidence', 'gate-evidence'],
   review_escalation_policy_set: ['schema-contract', 'gate-evidence'],
@@ -3689,8 +3689,11 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     assert(quorumRegistryEntry.kind === 'host-verdict', `${processFactRegistryPath}: ${quorumCommand} registry kind must stay host-verdict`);
     assert(quorumRegistryEntry.gateEvidence === true, `${processFactRegistryPath}: ${quorumCommand} registry gateEvidence must stay true`);
     assert(quorumRegistryEntry.artifact?.path === 'process-events.jsonl', `${processFactRegistryPath}: ${quorumCommand} must record process-events.jsonl evidence`);
-    for (const semantic of ['host-verdict', 'execution-evidence', 'gate-evidence']) {
+    for (const semantic of ['host-verdict', 'execution-evidence', 'atomic-persistence', 'gate-evidence']) {
       assert(quorumRegistryEntry.semantics.includes(semantic), `${processFactRegistryPath}: ${quorumCommand} missing ${semantic} semantic`);
+    }
+    for (const token of ['one immutable metadata commit', 'pre-dirty refusal', 'HEAD CAS', 'all-row rollback']) {
+      assert(new RegExp(token, 'i').test(quorumLevelEntry?.rationale || ''), `${processFactLevelRegistryPath}: ${quorumCommand} rationale must name ${token}`);
     }
     assert(/review escalation/i.test(quorumRegistryEntry.consumerGate), `${processFactRegistryPath}: ${quorumCommand} consumerGate drifted (${quorumRegistryEntry.consumerGate})`);
     assert(/review assurance floor/i.test(quorumRegistryEntry.consumerGate), `${processFactRegistryPath}: ${quorumCommand} consumerGate must name review assurance floor (${quorumRegistryEntry.consumerGate})`);

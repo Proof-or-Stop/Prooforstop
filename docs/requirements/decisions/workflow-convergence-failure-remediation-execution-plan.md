@@ -730,3 +730,19 @@ DONE-required execution and reuse use one bounded contract:
 - The rejection emits one shell-quoted recovery command: change to the canonical worktree root and run `node bin/lattice.js` with the same canonical command and arguments. Unsafe argument bytes remain inert data.
 - Only `session_brief` with explicit `LATTICE_CODEX_ENTRYPOINT=global-fallback` is exempt, and only as heartbeat output. Correct worktree-local runtimes and external consumer repositories remain executable. An unresolved runtime identity fails closed for mutating/expensive self-host worktree commands.
 - This is a runtime fact in `runtime-fact-registry.ts`, not a process fact. Doctor/contract checks expose it without turning external-repository symlink expectations into a hard gate.
+
+## B-6ed2 atomic quorum closeout contract (implemented)
+
+- `quorum_submit` refuses any pre-existing tracked or untracked worktree/index
+  dirt before emitting a verdict. From a clean baseline it verifies that the
+  causal `process-events.jsonl` append contains exactly its `rounds × 2`
+  `host_verdict` rows.
+- The bounded append is installed through the shared immutable metadata
+  transaction: exact-path isolated index, normal commit hooks, verified bytes,
+  and old-HEAD compare-and-swap. Success creates one metadata-only commit and
+  leaves the worktree clean, so a following validation writer does not inherit
+  quorum residue.
+- Hook/commit/content/HEAD failure removes the whole generated verdict batch
+  and its ignored local verdict files. Concurrent foreign bytes and competing
+  HEAD movement are preserved. A rollback conflict remains an explicit
+  infrastructure failure and cannot make a partial 3x2 quorum durable.

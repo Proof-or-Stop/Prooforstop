@@ -27,6 +27,7 @@ export type ProcessFactKind =
 
 export type ProcessFactSemantic =
   | 'artifact'
+  | 'atomic-persistence'
   | 'blocker-state'
   | 'command'
   | 'execution-evidence'
@@ -126,7 +127,7 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   finding_resolve: ['finding-state', 'blocker-state', 'gate-evidence'],
   finding_dismiss: ['finding-state', 'blocker-state', 'gate-evidence'],
   autopilot_review_submit: ['host-verdict', 'execution-evidence', 'freshness-policy', 'schema-contract', 'gate-evidence'],
-  quorum_submit: ['host-verdict', 'execution-evidence', 'gate-evidence'],
+  quorum_submit: ['host-verdict', 'execution-evidence', 'atomic-persistence', 'gate-evidence'],
   decision_doc_proposal: ['schema-contract', 'gate-evidence'],
   decision_doc_save: ['artifact', 'schema-contract', 'execution-evidence', 'gate-evidence'],
   review_escalation_policy_set: ['schema-contract', 'gate-evidence'],

@@ -125,6 +125,19 @@ capability.
   one-host rounds, rejects stale/tampered bindings before write, and never
   fabricates a second host or upgrades degraded assurance to 3x2.
 
+### Atomic local quorum persistence
+
+`quorum_submit` closes its bounded host-verdict batch as one immutable metadata
+transaction. It requires a clean entry HEAD/index/worktree, verifies that the
+`process-events.jsonl` delta contains exactly the invocation's `rounds × 2`
+`host_verdict` rows, runs normal commit hooks, and installs the exact metadata
+tree through a HEAD compare-and-swap. Pre-existing dirt is refused before any
+verdict write. Hook, content, or HEAD failures remove every generated verdict
+row and ignored local verdict file together; concurrent foreign bytes are
+preserved and reported rather than staged or overwritten. The assurance
+evaluator therefore consumes a durable complete quorum, never a partial dirty
+batch left by a failed closeout.
+
 ## Risks
 
 - Over-escalation could waste tokens if every source diff is treated as failure-triggered.
