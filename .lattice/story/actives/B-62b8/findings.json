@@ -275,6 +275,21 @@
       "_hash": "e64d1352a75f8de1b94bd2de56867d2c1a58df3c508352179d27ae0db7fd1ad6",
       "signatureTag": "edge|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-62b8:F-016",
+      "desc": "packages/main/src/tasks/usage-burn-alert-smoke.ts:524-570,866-897 — HIGH incomplete F-014 coverage: the realistic Codex/Claude native-sentinel fixture exercises doctor text+JSON and usage_sweep plain JSON+alert JSON, while the new all-string-field helper projection checks JSON plus doctor renderer text. It never sends that tainted fixture through usage_sweep plain text, usage_sweep alert text, or an explicit --out file and asserts the persisted/rendered bytes contain no native sentinel. The existing real-CLI --out test uses codexDir/claudeDir fixtures whose ids are not the F-014 native sentinels, so it cannot catch a future rawReport wiring regression. Adjacent Claude and agy identity checks plus the synthetic originLabel/timestamp/storyMentions projection are present and pass. WHY: CHK-002 evidence now claims total outward redaction across doctor/usage_sweep text+JSON, but helper correctness alone does not prove every handler renderer/writer consumes the projected object; F-014 itself escaped through exactly such an outward-surface wiring gap. Extend the realistic native-sentinel check to call non-JSON usage_sweep, alert text, and --out (read the file), and assert Codex and Claude sentinels are absent from each complete payload; retain the originLabel and agy adjacent checks.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-18T00:30:06.888Z",
+      "reviewRound": "2026-07-18T00:27:35.045Z",
+      "reviewRunId": "B-62b8:RR-015",
+      "_hash": "b9f8d22cddfba15abe143e705274adf830781c13c7fa13d045130d090b0603f4",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
