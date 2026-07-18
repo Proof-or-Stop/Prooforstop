@@ -2454,7 +2454,7 @@ Behavior:
   }},
 
   // B-be27: Scope Contract — story-scoped allowed-file contract + post-diff gate
-  { name: 'scope_contract_set', description: 'Create or update the scope contract for a story (allowed/protected/excluded files, mode)', schema: {
+  { name: 'scope_contract_set', description: 'Create or update a versioned repo-root-relative scope contract (configured source-root inputs are canonicalized; unsafe/ambiguous paths fail closed)', schema: {
     storyId: z.string().describe('Story ID'),
     mode: z.enum(['local', 'shadow', 'enforce']).describe('Gate behavior: local=advisory, shadow=warn, enforce=block on violations'),
     allowedModify: z.array(z.string()).optional().describe('Files/globs allowed to be modified'),
@@ -2469,7 +2469,7 @@ Behavior:
   { name: 'scope_contract_show', description: 'Show the current scope contract for a story', schema: {
     storyId: z.string().describe('Story ID'),
   }},
-  { name: 'scope_contract_check', description: 'Run the post-diff scope gate (compares git diff against contract)', schema: {
+  { name: 'scope_contract_check', description: 'Run versioned canonical-path and parser-backed enclosing-declaration scope gates against the git diff', schema: {
     storyId: z.string().describe('Story ID'),
     json: z.boolean().optional().describe('Output structured JSON with status, violations, warnings'),
   }},
@@ -2482,7 +2482,8 @@ Behavior:
     hunkDigest: z.string().optional().describe('Single hunk digest covered by this acknowledgement'),
     hunkDigests: z.array(z.string()).optional().describe('Multiple hunk digests covered by this acknowledgement'),
   }},
-  { name: 'scope_diff_pack', description: 'Generate a mechanical diff context pack with hunk digests and anchors', schema: {
+  { name: 'scope_diff_pack', description: 'Generate a mechanical diff context pack with hunk digests and versioned TypeScript-AST declaration anchors', schema: {
+    storyId: z.string().describe('Story ID whose signed workspace supplies the Git diff'),
     json: z.boolean().optional().describe('Output structured JSON'),
   }},
   { name: 'scope_contract_init_from_plan', description: 'Initialize a story scope contract from PLAN checklist files', schema: {

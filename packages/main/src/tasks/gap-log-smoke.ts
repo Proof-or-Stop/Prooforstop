@@ -17,15 +17,26 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync, spawn } from 'node:child_process';
-import { existsSync, mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
-import { META_STORY_ID, appendGapFinding } from '../core/audit-meta-store.js';
+import { META_STORY_ID, appendGapFinding, ensureMetaStory } from '../core/audit-meta-store.js';
 import { createGapLogHandlers } from '../handlers/gap-log.js';
-import type { FindingData } from '../core/types.js';
+import type { FindingData, ScopeContractData, ScopeDiffPack } from '../core/types.js';
+import {
+  GAP_LOG_ARTIFACT_PATH,
+  GAP_LOG_PROVENANCE_LEDGER_PATH,
+  verifyGapLogArtifactBinding,
+} from '../core/finding-verify.js';
+import { classifySharedLifecycleMetadata } from '../core/lifecycle-registry.js';
+import { filterDonePrepareTrustedMetadataRows } from '../core/done-prepare-generated-metadata.js';
+import { checkScopeContract } from '../core/scope-contract.js';
+import { classifyScopePath, SCOPE_PATH_CANONICALIZER_VERSION } from '../core/scope-path-classifier.js';
+import { runPrewriteGuardCheck } from '../core/prewrite-guard.js';
+import { detectGuardViolations } from '../core/guard-session.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
@@ -193,6 +204,102 @@ function assertDefaultWriteIsSuspected(): void {
     assert.equal(findings[0].status, 'open');
     assert.ok((findings[0].uncertaintyReason ?? '').length >= 10, 'suspected finding must carry an uncertaintyReason');
     assert.ok(findings[0]._hash, 'finding must be signed');
+    assert.equal(findings[0].gapLogBinding, undefined, 'official provenance is independent of the mutable findings artifact');
+    assert.equal(existsSync(join(root, GAP_LOG_PROVENANCE_LEDGER_PATH)), true, 'official gap_log writes an independent append ledger');
+    const data = readMetaFindings(root);
+    const verified = verifyGapLogArtifactBinding(data, GAP_LOG_ARTIFACT_PATH, root, root);
+    assert.equal(verified.trusted, true, verified.reason);
+    const classified = classifySharedLifecycleMetadata(root, GAP_LOG_ARTIFACT_PATH);
+    assert.equal(classified?.trusted, true, classified?.reason);
+    assert.equal(classified?.writer, 'gap_log');
+    assert.equal(classified?.contentBinding, 'valid');
+    assert.equal(
+      classifySharedLifecycleMetadata(root, GAP_LOG_PROVENANCE_LEDGER_PATH)?.trusted,
+      true,
+      'the separately dirty provenance ledger is admitted only when the full chain and findings head agree',
+    );
+    assert.deepEqual(
+      filterDonePrepareTrustedMetadataRows(root, [
+        ` M ${GAP_LOG_ARTIFACT_PATH}`,
+        `?? ${GAP_LOG_PROVENANCE_LEDGER_PATH}`,
+      ]),
+      [],
+      'the production done_prepare clean-tree consumer ignores both paths only after full-chain verification',
+    );
+    const ledgerPath = join(root, GAP_LOG_PROVENANCE_LEDGER_PATH);
+    const ledgerText = readFileSync(ledgerPath, 'utf8');
+    const receipt = JSON.parse(ledgerText.trim());
+    receipt.sequence = 2;
+    writeFileSync(ledgerPath, `${JSON.stringify(receipt)}\n`);
+    assert.equal(
+      classifySharedLifecycleMetadata(root, GAP_LOG_PROVENANCE_LEDGER_PATH)?.reason,
+      'invalid_binding_shape',
+      'edited/resequenced provenance receipts fail closed',
+    );
+    assert.deepEqual(
+      filterDonePrepareTrustedMetadataRows(root, [` M ${GAP_LOG_ARTIFACT_PATH}`]),
+      [` M ${GAP_LOG_ARTIFACT_PATH}`],
+      'done_prepare keeps untrusted B-META dirt blocking',
+    );
+    assert.equal(
+      checkScopeContract({
+        storyId: META_STORY_ID,
+        mode: 'enforce',
+        allowedModify: [],
+        allowedCreate: [],
+        allowedTest: [],
+        protectedFiles: [],
+        explicitExcludes: [],
+        acknowledgements: [],
+        pathCanonicalizerVersion: SCOPE_PATH_CANONICALIZER_VERSION,
+        pathCanonicalizationMode: 'enforce',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }, [GAP_LOG_ARTIFACT_PATH], { projectRoot: root }).status,
+      'fail',
+      'scope cannot fall through from a failed shared classifier to the generic lifecycle filename pass',
+    );
+    writeFileSync(ledgerPath, ledgerText);
+    writeFileSync(ledgerPath, '');
+    assert.equal(
+      classifySharedLifecycleMetadata(root, GAP_LOG_PROVENANCE_LEDGER_PATH)?.reason,
+      'missing_binding',
+      'deleted provenance rows fail closed',
+    );
+    writeFileSync(ledgerPath, ledgerText);
+
+    const artifact = join(root, GAP_LOG_ARTIFACT_PATH);
+    const tampered = JSON.parse(JSON.stringify(data)) as FindingData;
+    tampered.findings[0].desc = 'direct edit must invalidate whole-artifact binding';
+    writeFileSync(artifact, JSON.stringify(tampered, null, 2));
+    const rejected = classifySharedLifecycleMetadata(root, GAP_LOG_ARTIFACT_PATH);
+    assert.equal(rejected?.trusted, false, 'direct edit is fail-closed');
+    assert.equal(rejected?.reason, 'content_digest_mismatch');
+    const forged = JSON.parse(JSON.stringify(data)) as FindingData;
+    forged.findings[0].desc = 'forged content with recomputed plain digest';
+    writeFileSync(artifact, JSON.stringify(forged, null, 2));
+    assert.equal(
+      classifySharedLifecycleMetadata(root, GAP_LOG_ARTIFACT_PATH)?.reason,
+      'content_digest_mismatch',
+      'recomputing a public artifact digest cannot forge the independent canonical-writer receipt',
+    );
+    writeFileSync(artifact, JSON.stringify(data, null, 2));
+    rmSync(join(root, GAP_LOG_PROVENANCE_LEDGER_PATH));
+    assert.equal(
+      classifySharedLifecycleMetadata(root, GAP_LOG_ARTIFACT_PATH)?.reason,
+      'missing_binding',
+      'legacy/path-only B-META stays untrusted until official re-attestation',
+    );
+    assert.equal(
+      verifyGapLogArtifactBinding(data, '.lattice/story/actives/B-META-other/findings.json', root, root).reason,
+      'wrong_artifact_path',
+      'copied provenance is bound to the canonical framework-audit path',
+    );
+    assert.equal(
+      classifySharedLifecycleMetadata(root, '.lattice/story/actives/B-META-framework-audit/unknown.json'),
+      null,
+      'arbitrary B-META path is never admitted by path alone',
+    );
     console.log('✓ gap-log-2: default gap_log writes evidenceState=suspected');
   } finally { rmSync(root, { recursive: true, force: true }); }
 }
@@ -367,10 +474,7 @@ function assertDifferentGapsNotFalselyMerged(): void {
   } finally { rmSync(root, { recursive: true, force: true }); }
 }
 
-// ── 8c: a resolved gap can be re-logged (dedup only blocks OPEN duplicates) ──
-// Dedup keys on an OPEN finding. A gap that was closed and is then observed
-// again is a legitimately new occurrence — re-logging it after the original is
-// resolved must create a fresh finding, not silently no-op.
+// ── 8c: a later gap_log cannot launder an unbound historical mutation ──
 function assertResolvedGapCanBeReLogged(): void {
   const root = createMainProject('lattice-gaplog-relog-');
   try {
@@ -381,13 +485,15 @@ function assertResolvedGapCanBeReLogged(): void {
     assert.equal(data.findings.length, 1, 'first gap_log writes one finding');
     data.findings[0].status = 'resolved';
     store.writeFindings(META_STORY_ID, data);
-    // re-log the identical gap — the prior finding is resolved, so this is a new occurrence
-    const out = runGapLog(root, VALID);
-    assert.match(out, /Gap logged: B-META-framework-audit:F-/,
-      're-logging a gap whose prior finding is resolved must create a fresh finding');
+    // A public/direct store mutation is not a canonical-writer event. A later
+    // gap_log must reject it rather than bless the altered history with a new
+    // receipt.
+    const out = runGapLogExpectFail(root, VALID);
+    assert.match(out, /existing provenance chain is not extendable.*content_digest_mismatch/,
+      'a later gap_log must reject, not launder, an unbound historical mutation');
     const after = readMetaFindings(root).findings;
-    assert.equal(after.length, 2, 'a resolved gap re-logged produces a second finding (new occurrence)');
-    console.log('✓ gap-log-8c: a gap can be re-logged after its prior finding is resolved');
+    assert.equal(after.length, 1, 'rejected laundering attempt must not append a finding');
+    console.log('✓ gap-log-8c: later gap_log rejects an unbound historical mutation');
   } finally { rmSync(root, { recursive: true, force: true }); }
 }
 
@@ -535,6 +641,208 @@ async function assertConcurrentSameGapDeduped(): Promise<void> {
   } finally { rmSync(root, { recursive: true, force: true }); }
 }
 
+function assertProvenanceAndConsumerMatrix(): void {
+  const root = createMainProject('lattice-gaplog-provenance-matrix-');
+  try {
+    runGapLog(root, VALID);
+    runGapLog(root, {
+      ...VALID,
+      evidence: 'a second distinct official update must extend rather than replace the first receipt',
+      sourceRefs: ['packages/main/src/core/finding-verify.ts:200'],
+    });
+    const data = readMetaFindings(root);
+    const ledgerPath = join(root, GAP_LOG_PROVENANCE_LEDGER_PATH);
+    const originalLedger = readFileSync(ledgerPath, 'utf8');
+    const receipts = originalLedger.trim().split('\n').map((line) => JSON.parse(line));
+    assert.equal(receipts.length, 2, 'initial plus second official update produce two receipts');
+    assert.equal(receipts[1].sequence, 2);
+    assert.equal(receipts[1].previousIntegrityHash, receipts[0].integrityHash);
+    assert.equal(receipts[1].preArtifactDigest, receipts[0].postArtifactDigest);
+    assert.equal(verifyGapLogArtifactBinding(data, GAP_LOG_ARTIFACT_PATH, root, root).trusted, true);
+
+    const artifactPath = join(root, GAP_LOG_ARTIFACT_PATH);
+    const canonicalReordered: FindingData = {
+      findings: data.findings.map((finding) => Object.fromEntries(
+        Object.entries(finding).reverse(),
+      ) as any),
+    };
+    writeFileSync(artifactPath, JSON.stringify(canonicalReordered, null, 7));
+    assert.equal(
+      classifySharedLifecycleMetadata(root, GAP_LOG_ARTIFACT_PATH)?.trusted,
+      true,
+      'canonical key order and whitespace changes preserve semantic content binding',
+    );
+    writeFileSync(artifactPath, JSON.stringify(data, null, 2));
+
+    const mutationCases: Array<[string, (receipt: any) => void]> = [
+      ['writer identity', (receipt) => { receipt.writerCommand = 'finding_add'; }],
+      ['story identity', (receipt) => { receipt.storyId = 'B-META-other'; }],
+      ['ledger identity', (receipt) => { receipt.ledgerPath = '.lattice/other.jsonl'; }],
+      ['artifact path identity', (receipt) => { receipt.artifactPath = '.lattice/other.json'; }],
+      ['fingerprint identity', (receipt) => { receipt.gapFingerprint = '0'.repeat(64); }],
+      ['sequence', (receipt) => { receipt.sequence = 99; }],
+      ['previous hash', (receipt) => { receipt.previousIntegrityHash = 'f'.repeat(64); }],
+      ['content substitution', (receipt) => { receipt.postArtifactDigest = 'e'.repeat(64); }],
+      ['parent head', (receipt) => { receipt.parentHead = 'd'.repeat(40); }],
+    ];
+    for (const [label, mutate] of mutationCases) {
+      const changed = receipts.map((receipt) => ({ ...receipt }));
+      mutate(changed[1]);
+      writeFileSync(ledgerPath, `${changed.map((receipt) => JSON.stringify(receipt)).join('\n')}\n`);
+      const classified = classifySharedLifecycleMetadata(root, GAP_LOG_PROVENANCE_LEDGER_PATH);
+      assert.equal(classified?.trusted, false, `${label}: mutated receipt is untrusted`);
+      assert.equal(classified?.reason, 'invalid_binding_shape', `${label}: actionable identity/chain failure`);
+      assert.deepEqual(
+        filterDonePrepareTrustedMetadataRows(root, [` M ${GAP_LOG_ARTIFACT_PATH}`]),
+        [` M ${GAP_LOG_ARTIFACT_PATH}`],
+        `${label}: done_prepare keeps the row blocking`,
+      );
+    }
+    writeFileSync(ledgerPath, `${JSON.stringify(receipts[0])}\n${JSON.stringify(receipts[0])}\n`);
+    assert.equal(
+      classifySharedLifecycleMetadata(root, GAP_LOG_PROVENANCE_LEDGER_PATH)?.reason,
+      'invalid_binding_shape',
+      'receipt replay fails sequence/previous-link validation',
+    );
+    writeFileSync(ledgerPath, originalLedger);
+
+    const contract: ScopeContractData = {
+      storyId: 'B-unrelated',
+      mode: 'enforce',
+      allowedModify: [],
+      allowedCreate: [],
+      allowedTest: [],
+      protectedFiles: [],
+      explicitExcludes: [],
+      acknowledgements: [],
+      pathCanonicalizerVersion: SCOPE_PATH_CANONICALIZER_VERSION,
+      pathCanonicalizationMode: 'enforce',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    assert.equal(checkScopeContract(contract, [GAP_LOG_ARTIFACT_PATH], { projectRoot: root }).status, 'pass');
+    assert.equal(runPrewriteGuardCheck({
+      normalizedPaths: [GAP_LOG_ARTIFACT_PATH],
+      contract,
+      storyId: contract.storyId,
+      projectRoot: root,
+    }).verdict, 'allow');
+    const pack: ScopeDiffPack = {
+      changedFiles: [GAP_LOG_ARTIFACT_PATH],
+      hunks: [],
+      generatedAt: new Date().toISOString(),
+      diffPackHash: 'gap-log-matrix',
+    };
+    assert.equal(detectGuardViolations(contract, pack, [], new Date().toISOString(), root).length, 0);
+    assert.deepEqual(
+      filterDonePrepareTrustedMetadataRows(root, [
+        ` M ${GAP_LOG_ARTIFACT_PATH}`,
+        ` M ${GAP_LOG_PROVENANCE_LEDGER_PATH}`,
+      ]),
+      [],
+      'scope, prewrite, guard, and done_prepare agree on valid official metadata',
+    );
+
+    const tampered = JSON.parse(JSON.stringify(data)) as FindingData;
+    tampered.findings[0].desc = 'tampered consumer parity';
+    writeFileSync(artifactPath, JSON.stringify(tampered, null, 2));
+    const invalid = classifySharedLifecycleMetadata(root, GAP_LOG_ARTIFACT_PATH)!;
+    assert.equal(invalid.reason, 'content_digest_mismatch');
+    assert.ok(invalid.expectedDigest && invalid.observedDigest && invalid.findingId, 'digest and receipt identity diagnostics are populated');
+    const pathDiagnostic = classifyScopePath(contract, GAP_LOG_ARTIFACT_PATH, { projectRoot: root });
+    assert.match(pathDiagnostic.detail, /class=shared-gap-log-metadata-v1/);
+    assert.match(pathDiagnostic.detail, /expectedDigest=.*observedDigest=.*receiptFindingId=/);
+    assert.match(pathDiagnostic.hint ?? '', /official gap_log repair|restore the last trusted/);
+    assert.equal(checkScopeContract(contract, [GAP_LOG_ARTIFACT_PATH], { projectRoot: root }).status, 'fail');
+    assert.equal(runPrewriteGuardCheck({
+      normalizedPaths: [GAP_LOG_ARTIFACT_PATH],
+      contract,
+      projectRoot: root,
+    }).verdict, 'deny');
+    assert.equal(detectGuardViolations(contract, pack, [], new Date().toISOString(), root).length, 1);
+    assert.deepEqual(
+      filterDonePrepareTrustedMetadataRows(root, [` M ${GAP_LOG_ARTIFACT_PATH}`]),
+      [` M ${GAP_LOG_ARTIFACT_PATH}`],
+    );
+    writeFileSync(artifactPath, JSON.stringify(data, null, 2));
+
+    const ledgerCopy = join(dirname(ledgerPath), 'ledger-copy.jsonl');
+    writeFileSync(ledgerCopy, originalLedger);
+    rmSync(ledgerPath);
+    symlinkSync('ledger-copy.jsonl', ledgerPath);
+    assert.match(
+      classifySharedLifecycleMetadata(root, GAP_LOG_PROVENANCE_LEDGER_PATH)?.reason ?? '',
+      /symlink_alias/,
+      'canonical ledger symlink aliases are rejected even when content is identical',
+    );
+    rmSync(ledgerPath);
+    writeFileSync(ledgerPath, originalLedger);
+
+    const artifactCopy = join(dirname(artifactPath), 'findings-copy.json');
+    writeFileSync(artifactCopy, readFileSync(artifactPath));
+    rmSync(artifactPath);
+    symlinkSync('findings-copy.json', artifactPath);
+    assert.match(
+      classifySharedLifecycleMetadata(root, GAP_LOG_ARTIFACT_PATH)?.reason ?? '',
+      /symlink_alias/,
+      'canonical artifact symlink aliases are rejected even when content is identical',
+    );
+    rmSync(artifactPath);
+    writeFileSync(artifactPath, JSON.stringify(data, null, 2));
+    assert.equal(
+      classifySharedLifecycleMetadata(root, '.lattice/story/actives/B-META-framework-audit/../B-META-framework-audit/findings.json'),
+      null,
+      'non-canonical path aliases are not admitted',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+
+  const prepareLegacy = (prefix: string): { root: string; data: FindingData } => {
+    const legacyRoot = createMainProject(prefix);
+    runGapLog(legacyRoot, VALID);
+    const legacyData = readMetaFindings(legacyRoot);
+    rmSync(join(legacyRoot, GAP_LOG_PROVENANCE_LEDGER_PATH));
+    git(legacyRoot, ['add', '-A']);
+    git(legacyRoot, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'convert to committed non-empty legacy history']);
+    return { root: legacyRoot, data: legacyData };
+  };
+
+  {
+    const { root: legacyRoot } = prepareLegacy('lattice-gaplog-legacy-unchanged-');
+    try {
+      runGapLog(legacyRoot, {
+        ...VALID,
+        evidence: 'unchanged committed non-empty legacy history may receive its first official append receipt',
+        analysisNote: 'legacy migration remains exact-head bound',
+      });
+      assert.equal(
+        verifyGapLogArtifactBinding(readMetaFindings(legacyRoot), GAP_LOG_ARTIFACT_PATH, legacyRoot, legacyRoot).trusted,
+        true,
+        'non-empty unchanged committed legacy history accepts an official append',
+      );
+    } finally {
+      rmSync(legacyRoot, { recursive: true, force: true });
+    }
+  }
+
+  {
+    const { root: legacyRoot } = prepareLegacy('lattice-gaplog-legacy-delete-');
+    try {
+      writeFileSync(join(legacyRoot, GAP_LOG_ARTIFACT_PATH), JSON.stringify({ findings: [] }, null, 2));
+      const rejected = runGapLogExpectFail(legacyRoot, {
+        ...VALID,
+        evidence: 'deleting committed non-empty legacy history must not create an empty genesis',
+      });
+      assert.match(rejected, /require exact committed HEAD history/);
+      assert.equal(existsSync(join(legacyRoot, GAP_LOG_PROVENANCE_LEDGER_PATH)), false);
+    } finally {
+      rmSync(legacyRoot, { recursive: true, force: true });
+    }
+  }
+  console.log('✓ gap-log-13: full provenance, consumer parity, legacy genesis, and diagnostic matrix');
+}
+
 // ── 11: gap_log is discoverable -> lattice help / lattice gap_log --help shows it ──
 function assertCommandDiscoverable(): void {
   const root = createMainProject('lattice-gaplog-discover-');
@@ -547,6 +855,85 @@ function assertCommandDiscoverable(): void {
     assert.match(help, /severity/, 'help must list the severity parameter');
     console.log('✓ gap-log-11: gap_log is registered and discoverable via lattice help');
   } finally { rmSync(root, { recursive: true, force: true }); }
+}
+
+function assertWrapperRootAuthorityParity(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-gaplog-wrapper-root-'));
+  try {
+    const gitCwd = join(root, 'repo');
+    write(root, 'lattice.config.json', JSON.stringify({
+      gitRoot: 'repo',
+      scanRoot: 'src',
+      rootDir: '.',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      scopeProtection: { pathCanonicalization: 'off', astAnchors: 'off' },
+    }));
+    write(gitCwd, 'README.md', 'wrapper git authority\n');
+    git(gitCwd, ['init', '-b', 'main']);
+    git(gitCwd, ['config', 'user.email', 'wrapper-gap@example.test']);
+    git(gitCwd, ['config', 'user.name', 'Wrapper Gap Smoke']);
+    git(gitCwd, ['add', '.']);
+    git(gitCwd, ['commit', '-m', 'base']);
+    resetConfigCache();
+
+    const store = new StoryStore(root);
+    ensureMetaStory(store);
+    const handlers = createGapLogHandlers({ store, root } as any);
+    const output = handlers.gap_log({
+      category: 'missing',
+      severity: 'medium',
+      evidence: 'wrapper-root official writer and consumers must share configured Git authority',
+      sourceRefs: ['packages/main/src/core/lifecycle-registry.ts:734'],
+    });
+    assert.match(output, /contentBinding: valid/);
+    assert.equal(
+      classifySharedLifecycleMetadata(root, GAP_LOG_ARTIFACT_PATH, gitCwd)?.trusted,
+      true,
+      'official wrapper-root writer is immediately trusted by the shared classifier',
+    );
+    const contract: ScopeContractData = {
+      storyId: 'B-wrapper-consumer',
+      mode: 'enforce',
+      allowedModify: [],
+      allowedCreate: [],
+      allowedTest: [],
+      protectedFiles: [],
+      explicitExcludes: [],
+      acknowledgements: [],
+      pathCanonicalizationMode: 'off',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    assert.equal(
+      checkScopeContract(contract, [GAP_LOG_ARTIFACT_PATH], { projectRoot: root, gitCwd }).status,
+      'pass',
+    );
+    assert.equal(runPrewriteGuardCheck({
+      normalizedPaths: [GAP_LOG_ARTIFACT_PATH],
+      contract,
+      projectRoot: root,
+      gitCwd,
+    }).verdict, 'allow');
+    assert.deepEqual(
+      filterDonePrepareTrustedMetadataRows(root, [` M ${GAP_LOG_ARTIFACT_PATH}`], [], gitCwd),
+      [],
+      'done_prepare consumes the same wrapper-root Git authority',
+    );
+    assert.throws(
+      () => appendGapFinding(store, {
+        category: 'missing',
+        severity: 'low',
+        desc: 'noncanonical provenance identity must be rejected',
+        evidenceState: 'suspected',
+        uncertaintyReason: 'canonical meta story identity is mandatory',
+      }, 'B-META-attacker', { projectRoot: root }),
+      /requires canonical storyId B-META-framework-audit/,
+    );
+    console.log('✓ gap-log-14: wrapper-root writer/classifier/scope/prewrite/done_prepare authority parity');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 }
 
 (async () => {
@@ -564,6 +951,8 @@ function assertCommandDiscoverable(): void {
   assertDisprovenRejected();
   assertRapidSuccessionAllWritten();
   assertSourceRefsAndFilesMerged();
+  assertProvenanceAndConsumerMatrix();
+  assertWrapperRootAuthorityParity();
   assertCommandDiscoverable();
 
   console.log('✓ gap-log smoke passed');

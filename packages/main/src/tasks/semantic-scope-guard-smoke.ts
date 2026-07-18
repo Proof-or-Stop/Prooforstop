@@ -19,7 +19,8 @@
  *   - [CHK-003] Verify checkSemanticScope / mergeSemanticScopeResult / render
  */
 import { strict as assert } from 'node:assert';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type {
@@ -67,14 +68,22 @@ import { resetConfigCache } from '../core/config.js';
 import { collectReviewerEvidenceState, currentScopeContextForStory, signReviewRun } from '../core/review-run.js';
 import { getGuardFailureReason } from '../core/machine.js';
 import { signFinding, signReviewPass } from '../core/finding-verify.js';
-import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
+import {
+  buildScopeDiffPack,
+  parseUnifiedDiff,
+  SCOPE_ANCHOR_ARTIFACT_VERSION,
+  SCOPE_ANCHOR_PARSER_VERSION,
+} from '../core/scope-diff-pack.js';
 import { createScopeContractHandlers } from '../handlers/scope-contract.js';
+import { SCOPE_PATH_CANONICALIZER_VERSION } from '../core/scope-path-classifier.js';
+import { runPrewriteGuardCheck } from '../core/prewrite-guard.js';
 import type { HandlerContext } from '../handlers/context.js';
 
 function makeContract(overrides: Partial<ScopeContractData> & { mode: ScopeContractMode }): ScopeContractData {
   const now = new Date().toISOString();
   return {
-    storyId: 'B-semantic',
+    ...overrides,
+    storyId: overrides.storyId ?? 'B-semantic',
     mode: overrides.mode,
     allowedModify: overrides.allowedModify ?? [],
     allowedCreate: overrides.allowedCreate ?? [],
@@ -84,8 +93,6 @@ function makeContract(overrides: Partial<ScopeContractData> & { mode: ScopeContr
     acknowledgements: overrides.acknowledgements ?? [],
     createdAt: now,
     updatedAt: now,
-    ...(overrides.fileRules ? { fileRules: overrides.fileRules } : {}),
-    ...(overrides.protectedAnchors ? { protectedAnchors: overrides.protectedAnchors } : {}),
   };
 }
 
@@ -1083,6 +1090,766 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
   assert.match(warnSummary.nextAction, /scope_contract_acknowledge/, '17f: warn next action names scope_contract_acknowledge');
   assert.match(warnSummary.nextAction, /roll back to DEV/, '17f: warn next action names roll back to DEV when in TEST');
   assert.match(warnSummary.nextAction, /delivery reviewer/, '17f: warn next action mentions delivery reviewer');
+}
+
+// B-0784: AST rollout is independent and versioned.
+{
+  const legacySemantic = makeContract({
+    mode: 'enforce',
+    allowedModify: ['src/a.ts'],
+    fileRules: [{ path: 'src/a.ts', allowedAnchors: ['fn'] }],
+  });
+  const basePack = makePack([makeHunk('src/a.ts', { anchor: 'fn' })]);
+  assert.equal(
+    checkSemanticScope(legacySemantic, { ...basePack, astAnchorMode: 'off' }).status,
+    'skip',
+    'AST rollout off preserves path-only behavior',
+  );
+  assert.equal(
+    checkSemanticScope(legacySemantic, { ...basePack, astAnchorMode: 'warn' }).status,
+    'warn',
+    'AST rollout warn diagnoses missing parser/artifact versions without blocking',
+  );
+  assert.equal(
+    checkSemanticScope(legacySemantic, { ...basePack, astAnchorMode: 'enforce' }).status,
+    'fail',
+    'AST rollout enforce fails closed on missing parser/artifact versions',
+  );
+}
+
+// B-0784: parser-backed anchors never select control flow or local variables.
+{
+  const root = mkdtempSync(join(tmpdir(), 'lattice-ast-anchor-'));
+  try {
+    const path = 'src/anchors.ts';
+    mkdirSync(join(root, 'src'), { recursive: true });
+    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+      scanRoot: 'src',
+      rootDir: '.',
+      scopeProtection: { astAnchors: 'enforce', pathCanonicalization: 'off' },
+    }));
+    const source = [
+      'export function outer() {',
+      '  const storyId = "B-x";',
+      '  if (storyId) {',
+      '    return storyId;',
+      '  }',
+      '  function nested() {',
+      '    for (const item of [1]) return item;',
+      '  }',
+      '}',
+      '',
+      'export class Box {',
+      '  constructor() {}',
+      '  method() { while (false) {} }',
+      '}',
+      'export interface Shape { x: number }',
+      'export type Alias = Shape;',
+      'const localTop = 1, secondTop = 2;',
+      'const arrowTop = () => 1;',
+      '',
+    ].join('\n');
+    writeFileSync(join(root, path), source);
+    const hunkAt = (line: number) => parseUnifiedDiff(root, [
+      `diff --git a/${path} b/${path}`,
+      `+++ b/${path}`,
+      `@@ -${line},1 +${line},1 @@`,
+      '-old',
+      '+new',
+    ].join('\n'))[0];
+    for (const line of [2, 3, 4]) {
+      const hunk = hunkAt(line);
+      assert.equal(hunk.anchor, 'outer', `line ${line}: local const/control flow bind to outer`);
+      assert.equal(hunk.anchorKind, 'function');
+      assert.equal(hunk.anchorParserVersion, SCOPE_ANCHOR_PARSER_VERSION);
+      assert.equal(hunk.anchorArtifactVersion, SCOPE_ANCHOR_ARTIFACT_VERSION);
+    }
+    assert.equal(hunkAt(7).anchor, 'nested', 'nested function is the nearest enclosing declaration');
+    assert.equal(hunkAt(12).anchor, 'constructor');
+    assert.equal(hunkAt(13).anchor, 'method');
+    assert.equal(hunkAt(15).anchor, 'Shape');
+    assert.equal(hunkAt(16).anchor, 'Alias');
+    assert.deepEqual(
+      hunkAt(17).anchors?.map((anchor) => anchor.name),
+      ['localTop', 'secondTop'],
+      'same-line top-level declarations are all retained',
+    );
+    assert.equal(hunkAt(18).anchor, 'arrowTop', 'top-level arrow variables retain their declaration name');
+    assert.equal(hunkAt(10).anchorKind, 'file', 'between declarations uses file scope');
+    const separatedChanges = parseUnifiedDiff(root, [
+      `diff --git a/${path} b/${path}`,
+      `+++ b/${path}`,
+      '@@ -1,13 +1,13 @@',
+      ' export function outer() {',
+      '-  const storyId = "old";',
+      '+  const storyId = "B-x";',
+      '   if (storyId) {',
+      '     return storyId;',
+      '   }',
+      '   function nested() {',
+      '     for (const item of [1]) return item;',
+      '   }',
+      ' }',
+      ' ',
+      ' export class Box {',
+      '   constructor() {}',
+      '-  method() { while (true) {} }',
+      '+  method() { while (false) {} }',
+    ].join('\n'));
+    assert.equal(separatedChanges.length, 2, 'unified context separates two actual changed spans');
+    assert.deepEqual(
+      separatedChanges.map((hunk) => hunk.anchor),
+      ['outer', 'method'],
+      'unchanged context declarations are not misreported as changed anchors',
+    );
+    assert.ok(separatedChanges.every((hunk) => hunk.changeKind === 'modify'), 'replacement spans are explicitly classified modify');
+    const wholeFileReplacement = parseUnifiedDiff(root, [
+      `diff --git a/${path} b/${path}`,
+      `+++ b/${path}`,
+      '@@ -1,18 +1,18 @@',
+      ...source.trimEnd().split('\n').map((line) => `-${line}`),
+      ...source.trimEnd().split('\n').map((line) => `+${line}`),
+    ].join('\n'))[0];
+    const touchedNames = new Set(wholeFileReplacement.anchors?.map((anchor) => anchor.name));
+    assert.ok(touchedNames.has('outer') && touchedNames.has('Shape') && touchedNames.has('Alias'),
+      'one changed span records every declaration it touches');
+    const multiProtected = checkSemanticScope(
+      makeContract({ mode: 'enforce', allowedModify: [path], protectedAnchors: ['Shape'] }),
+      makePack([wholeFileReplacement]),
+    );
+    assert.equal(multiProtected.status, 'fail', 'a later protected declaration cannot hide behind the first anchor');
+    assert.equal(multiProtected.violations[0]?.anchor, 'Shape', 'diagnostics report the actual violating anchor');
+    assert.equal(multiProtected.violations[0]?.anchorKind, 'interface');
+    assert.deepEqual(multiProtected.violations[0]?.anchorRange, { start: 15, end: 15 });
+    assert.equal(multiProtected.violations[0]?.anchorParserVersion, SCOPE_ANCHOR_PARSER_VERSION);
+    assert.equal(multiProtected.violations[0]?.anchorArtifactVersion, SCOPE_ANCHOR_ARTIFACT_VERSION);
+    assert.match(multiProtected.violations[0]?.detail ?? '', /protected_anchor.*Shape/);
+    assert.match(multiProtected.violations[0]?.nextAction ?? '', /Revert.*protected/);
+    const deniedLater = checkSemanticScope(
+      makeContract({
+        mode: 'enforce',
+        allowedModify: [path],
+        fileRules: [{ path, deniedAnchors: ['Alias'] }],
+      }),
+      makePack([wholeFileReplacement]),
+    );
+    assert.equal(deniedLater.violations[0]?.anchor, 'Alias', 'denied diagnostics report the matched later anchor');
+    const unmatchedLater = checkSemanticScope(
+      makeContract({
+        mode: 'enforce',
+        allowedModify: [path],
+        fileRules: [{ path, allowedAnchors: ['outer'] }],
+      }),
+      makePack([wholeFileReplacement]),
+    );
+    assert.notEqual(unmatchedLater.violations[0]?.anchor, 'outer', 'unmatched diagnostics report an actual non-allowlisted anchor');
+    execFileSync('git', ['init', '-b', 'main'], { cwd: root, stdio: 'ignore' });
+    execFileSync('git', ['config', 'user.email', 'ast@example.test'], { cwd: root });
+    execFileSync('git', ['config', 'user.name', 'AST Smoke'], { cwd: root });
+    execFileSync('git', ['add', '.'], { cwd: root });
+    execFileSync('git', ['commit', '-m', 'base'], { cwd: root, stdio: 'ignore' });
+    writeFileSync(join(root, path), source.replace('function outer', 'function renamedOuter'));
+    const renamed = hunkAt(1);
+    assert.equal(renamed.anchor, 'renamedOuter');
+    assert.equal(renamed.previousAnchor, 'outer', 'rename retains the prior declaration identity');
+    const protectedRename = checkSemanticScope(
+      makeContract({ mode: 'enforce', allowedModify: [path], protectedAnchors: ['outer'] }),
+      makePack([renamed]),
+    );
+    assert.equal(protectedRename.status, 'fail', 'renaming a protected old declaration remains observable and blocked');
+    writeFileSync(join(root, path), 'export function broken( {\n');
+    const brokenHunk = hunkAt(1);
+    assert.equal(brokenHunk.parseFallback, 'typescript_parse_error_fail_closed');
+    const brokenGate = checkSemanticScope(
+      makeContract({ mode: 'enforce', fileRules: [{ path, allowedAnchors: ['broken'] }] }),
+      makePack([brokenHunk]),
+    );
+    assert.equal(brokenGate.status, 'fail', 'parser failure is a blocking semantic diagnostic');
+    assert.equal(brokenGate.violations[0]?.rule, 'unmatched_anchor');
+    assert.match(brokenGate.violations[0]?.nextAction ?? '', /parse error/);
+    assert.match(brokenGate.violations[0]?.nextAction ?? '', /Re-attest/);
+    assert.doesNotMatch(brokenGate.violations[0]?.nextAction ?? '', /rename|both sides/i);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// B-0784 F-014/F-019: every declaration/control-flow/change-kind noun is
+// exercised through parser-backed diff production, not representative aliases.
+{
+  const root = mkdtempSync(join(tmpdir(), 'lattice-ast-declaration-matrix-'));
+  try {
+    const path = 'src/matrix.ts';
+    mkdirSync(join(root, 'src'), { recursive: true });
+    const source = [
+      'function plain() { return 1; }',
+      'function overloaded(x: string): string;',
+      'function overloaded(x: number): number;',
+      'function overloaded(x: unknown) { return x; }',
+      'class PlainClass {',
+      '  constructor() {}',
+      '  method() {}',
+      '  [Symbol.iterator]() { return [][Symbol.iterator](); }',
+      '  @sealed',
+      '  decorated(',
+      '    value: string,',
+      '  ) { return value; }',
+      '}',
+      'interface Contract { value: string }',
+      'type AliasType = Contract;',
+      'namespace Space { export const value = 1; }',
+      'declare module "pkg" { export const value: number; }',
+      'enum Colour { Red, Blue }',
+      'export default function () { return 1; }',
+      'export default class { value = 1; }',
+      'const localArrow = () => 1;',
+      '',
+    ].join('\n');
+    writeFileSync(join(root, path), source);
+    const lineOf = (needle: string): number => {
+      const index = source.split('\n').findIndex((line) => line.includes(needle));
+      assert.notEqual(index, -1, `matrix source contains ${needle}`);
+      return index + 1;
+    };
+    const atLine = (line: number): ScopeDiffHunk => parseUnifiedDiff(root, [
+      `diff --git a/${path} b/${path}`,
+      `--- a/${path}`,
+      `+++ b/${path}`,
+      `@@ -${line},1 +${line},1 @@`,
+      '-old',
+      `+${source.split('\n')[line - 1]}`,
+    ].join('\n'))[0]!;
+    const declarationCases: Array<[string, string, string]> = [
+      ['plain()', 'plain', 'function'],
+      ['class PlainClass', 'PlainClass', 'class'],
+      ['constructor()', 'constructor', 'constructor'],
+      ['method()', 'method', 'method'],
+      ['[Symbol.iterator]', '[Symbol.iterator]', 'method'],
+      ['@sealed', 'decorated', 'method'],
+      ['value: string,', 'decorated', 'method'],
+      ['interface Contract', 'Contract', 'interface'],
+      ['type AliasType', 'AliasType', 'type'],
+      ['namespace Space', 'Space', 'module'],
+      ['declare module', 'pkg', 'module'],
+      ['enum Colour', 'Colour', 'enum'],
+      ['export default function', '<default>', 'function'],
+      ['export default class', '<default>', 'class'],
+      ['localArrow', 'localArrow', 'top-level-variable'],
+    ];
+    for (const [needle, expectedName, expectedKind] of declarationCases) {
+      const hunk = atLine(lineOf(needle));
+      assert.equal(hunk.anchor, expectedName, `${needle}: declaration name`);
+      assert.equal(hunk.anchorKind, expectedKind, `${needle}: declaration kind`);
+      assert.ok(hunk.anchorRange && hunk.anchorRange.start <= lineOf(needle) && hunk.anchorRange.end >= lineOf(needle));
+      assert.equal(hunk.anchorParserVersion, SCOPE_ANCHOR_PARSER_VERSION);
+      assert.equal(hunk.anchorArtifactVersion, SCOPE_ANCHOR_ARTIFACT_VERSION);
+    }
+    const overloadDiff = parseUnifiedDiff(root, [
+      `diff --git a/${path} b/${path}`,
+      `--- a/${path}`,
+      `+++ b/${path}`,
+      '@@ -2,3 +2,3 @@',
+      '-old1',
+      '-old2',
+      '-old3',
+      '+function overloaded(x: string): string;',
+      '+function overloaded(x: number): number;',
+      '+function overloaded(x: unknown) { return x; }',
+    ].join('\n'))[0]!;
+    assert.equal(
+      overloadDiff.anchors?.filter((anchor) => anchor.name === 'overloaded').length,
+      3,
+      'overload signatures and implementation are retained without count loss',
+    );
+
+    const controlPath = 'src/control.ts';
+    const controlSource = [
+      'function outerControl() {',
+      '  const local = 1;',
+      '  if (local) {}',
+      '  for (let i = 0; i < 1; i++) {}',
+      '  for (const key in { a: 1 }) {}',
+      '  while (false) {}',
+      '  do {} while (false);',
+      '  switch (local) { case 1: break; }',
+      '  try { throw 1; } catch (error) { return error; }',
+      '}',
+    ].join('\n');
+    writeFileSync(join(root, controlPath), controlSource);
+    for (let line = 2; line <= 9; line++) {
+      const hunk = parseUnifiedDiff(root, [
+        `diff --git a/${controlPath} b/${controlPath}`,
+        `--- a/${controlPath}`,
+        `+++ b/${controlPath}`,
+        `@@ -${line},1 +${line},1 @@`,
+        '-old',
+        `+${controlSource.split('\n')[line - 1]}`,
+      ].join('\n'))[0]!;
+      assert.equal(hunk.anchor, 'outerControl', `control/local line ${line} never becomes an anchor`);
+      assert.equal(hunk.anchorKind, 'function');
+    }
+
+    const added = parseUnifiedDiff(root, [
+      'diff --git a/src/added.ts b/src/added.ts',
+      '--- /dev/null',
+      '+++ b/src/added.ts',
+      '@@ -0,0 +1,1 @@',
+      '+export function added() {}',
+    ].join('\n'))[0]!;
+    writeFileSync(join(root, 'src/added.ts'), 'export function added() {}\n');
+    const reparsedAdded = parseUnifiedDiff(root, [
+      'diff --git a/src/added.ts b/src/added.ts',
+      '--- /dev/null',
+      '+++ b/src/added.ts',
+      '@@ -0,0 +1,1 @@',
+      '+export function added() {}',
+    ].join('\n'))[0]!;
+    assert.equal(reparsedAdded.changeKind, 'add');
+    assert.equal(reparsedAdded.anchor, 'added');
+    assert.equal(added?.path, 'src/added.ts');
+
+    const kindMismatchHunk: ScopeDiffHunk = {
+      ...makeHunk(path, { anchor: 'Same' }),
+      anchors: [{ name: 'Same', kind: 'class', range: { start: 1, end: 2 } }],
+      previousAnchors: [{ name: 'Same', kind: 'function', range: { start: 1, end: 2 } }],
+      anchorParserVersion: SCOPE_ANCHOR_PARSER_VERSION,
+      anchorArtifactVersion: SCOPE_ANCHOR_ARTIFACT_VERSION,
+    };
+    const kindMismatch = checkSemanticScope(
+      makeContract({ mode: 'enforce', fileRules: [{ path, allowedAnchors: ['Same'] }] }),
+      makePack([kindMismatchHunk]),
+    );
+    assert.equal(kindMismatch.status, 'fail', 'same-name declaration kind changes require re-attestation');
+    assert.equal(kindMismatch.violations[0]?.anchor, 'Same');
+    assert.match(kindMismatch.violations[0]?.nextAction ?? '', /Re-attest/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+{
+  const root = mkdtempSync(join(tmpdir(), 'lattice-ast-delete-dev-null-'));
+  try {
+    mkdirSync(join(root, 'src'), { recursive: true });
+    writeFileSync(join(root, 'src/deleted.ts'), 'export function critical() { return 1; }\n');
+    execFileSync('git', ['init', '-b', 'main'], { cwd: root, stdio: 'ignore' });
+    execFileSync('git', ['config', 'user.email', 'delete@example.test'], { cwd: root });
+    execFileSync('git', ['config', 'user.name', 'Delete Smoke'], { cwd: root });
+    execFileSync('git', ['add', '.'], { cwd: root });
+    execFileSync('git', ['commit', '-m', 'base'], { cwd: root, stdio: 'ignore' });
+    rmSync(join(root, 'src/deleted.ts'));
+    const deletionDiff = execFileSync('git', ['diff', '--unified=20', '--', 'src/deleted.ts'], { cwd: root, encoding: 'utf8' });
+    assert.match(deletionDiff, /\+\+\+ \/dev\/null/, 'real git deletion uses /dev/null');
+    const deleted = parseUnifiedDiff(root, deletionDiff);
+    assert.equal(deleted.length, 1, 'whole-file deletion preserves a semantic hunk');
+    assert.equal(deleted[0]?.path, 'src/deleted.ts');
+    assert.equal(deleted[0]?.changeKind, 'remove');
+    assert.equal(deleted[0]?.previousAnchor, 'critical');
+    assert.equal(deleted[0]?.anchor, undefined);
+    const protectedDeletion = checkSemanticScope(
+      makeContract({ mode: 'enforce', protectedAnchors: ['critical'] }),
+      makePack(deleted),
+    );
+    assert.equal(protectedDeletion.status, 'fail');
+    assert.equal(protectedDeletion.violations[0]?.anchor, 'critical');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// B-0784 F-020: real staged file renames retain the old path as the
+// previous-source identity. Missing either rename side fails closed with an
+// actionable diagnostic instead of silently dropping the old declaration.
+{
+  const baseSource = [
+    'export function critical() {',
+    '  const one = 1;',
+    '  const two = 2;',
+    '  const three = 3;',
+    '  return one + two + three;',
+    '}',
+    '',
+  ].join('\n');
+  const initRenameRepo = (prefix: string): string => {
+    const root = mkdtempSync(join(tmpdir(), prefix));
+    mkdirSync(join(root, 'src'), { recursive: true });
+    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+      scanRoot: 'src',
+      rootDir: '.',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      scopeProtection: { pathCanonicalization: 'enforce', astAnchors: 'enforce' },
+    }));
+    writeFileSync(join(root, 'src/old.ts'), baseSource);
+    execFileSync('git', ['init', '-b', 'main'], { cwd: root, stdio: 'ignore' });
+    execFileSync('git', ['config', 'user.email', 'rename@example.test'], { cwd: root });
+    execFileSync('git', ['config', 'user.name', 'Rename Smoke'], { cwd: root });
+    execFileSync('git', ['add', '.'], { cwd: root });
+    execFileSync('git', ['commit', '-m', 'base'], { cwd: root, stdio: 'ignore' });
+    return root;
+  };
+
+  const pureRoot = initRenameRepo('lattice-ast-pure-rename-');
+  try {
+    execFileSync('git', ['mv', 'src/old.ts', 'src/new.ts'], { cwd: pureRoot });
+    resetConfigCache();
+    const purePack = buildScopeDiffPack(pureRoot);
+    assert.ok(purePack.changedFiles.includes('src/new.ts'), 'pure rename remains visible to the path gate');
+    assert.ok(purePack.changedFiles.includes('src/old.ts'), 'pure rename retains the protected old path');
+    assert.equal(purePack.hunks.length, 1, 'pure rename emits one identity-only semantic hunk');
+    assert.equal(purePack.hunks[0]?.anchor, 'critical');
+    assert.equal(purePack.hunks[0]?.previousAnchor, 'critical');
+    const allowedPureRename = checkSemanticScope(
+      makeContract({
+        mode: 'enforce',
+        fileRules: [{ path: 'src/new.ts', allowedAnchors: ['critical'] }],
+        anchorParserVersion: SCOPE_ANCHOR_PARSER_VERSION,
+        anchorArtifactVersion: SCOPE_ANCHOR_ARTIFACT_VERSION,
+      }),
+      purePack,
+    );
+    assert.equal(allowedPureRename.status, 'pass', 'ordinary pure rename is not misclassified as a semantic failure');
+    const protectedPureRename = checkSemanticScope(
+      makeContract({
+        mode: 'enforce',
+        protectedAnchors: ['critical'],
+        anchorParserVersion: SCOPE_ANCHOR_PARSER_VERSION,
+        anchorArtifactVersion: SCOPE_ANCHOR_ARTIFACT_VERSION,
+      }),
+      purePack,
+    );
+    assert.equal(protectedPureRename.status, 'fail', 'pure rename exposes the protected old declaration');
+    assert.equal(protectedPureRename.violations[0]?.anchor, 'critical');
+  } finally {
+    rmSync(pureRoot, { recursive: true, force: true });
+  }
+
+  const modifiedRoot = initRenameRepo('lattice-ast-rename-modify-');
+  try {
+    execFileSync('git', ['mv', 'src/old.ts', 'src/new.ts'], { cwd: modifiedRoot });
+    writeFileSync(join(modifiedRoot, 'src/new.ts'), baseSource.replace('critical', 'renamed'));
+    execFileSync('git', ['add', '-A'], { cwd: modifiedRoot });
+    const stagedRenameDiff = execFileSync(
+      'git',
+      ['diff', '--cached', '--find-renames', '--unified=20'],
+      { cwd: modifiedRoot, encoding: 'utf8' },
+    );
+    assert.match(stagedRenameDiff, /rename from src\/old\.ts/);
+    assert.match(stagedRenameDiff, /rename to src\/new\.ts/);
+
+    resetConfigCache();
+    const renamedPack = buildScopeDiffPack(modifiedRoot);
+    const renamedHunk = renamedPack.hunks.find((hunk) => hunk.path === 'src/new.ts');
+    assert.equal(renamedHunk?.anchor, 'renamed');
+    assert.equal(renamedHunk?.previousAnchor, 'critical', 'git mv reads the base declaration from oldPath');
+    const protectedRename = checkSemanticScope(
+      makeContract({
+        mode: 'enforce',
+        protectedAnchors: ['critical'],
+        anchorParserVersion: SCOPE_ANCHOR_PARSER_VERSION,
+        anchorArtifactVersion: SCOPE_ANCHOR_ARTIFACT_VERSION,
+      }),
+      renamedPack,
+    );
+    assert.equal(protectedRename.status, 'fail');
+    assert.equal(protectedRename.violations[0]?.anchor, 'critical');
+
+    rmSync(join(modifiedRoot, 'src/new.ts'));
+    const missingTarget = parseUnifiedDiff(modifiedRoot, stagedRenameDiff);
+    assert.equal(
+      missingTarget[0]?.parseFallback,
+      'typescript_rename_target_source_unavailable_fail_closed',
+    );
+    const missingTargetGate = checkSemanticScope(
+      makeContract({
+        mode: 'enforce',
+        protectedAnchors: ['unrelated'],
+        anchorParserVersion: SCOPE_ANCHOR_PARSER_VERSION,
+        anchorArtifactVersion: SCOPE_ANCHOR_ARTIFACT_VERSION,
+      }),
+      makePack(missingTarget),
+    );
+    assert.equal(missingTargetGate.status, 'fail');
+    assert.match(missingTargetGate.violations[0]?.detail ?? '', /rename_target_source_unavailable_fail_closed/);
+    assert.match(missingTargetGate.violations[0]?.nextAction ?? '', /Restore the renamed target source/);
+    assert.doesNotMatch(missingTargetGate.violations[0]?.nextAction ?? '', /previous source|both sides/);
+  } finally {
+    rmSync(modifiedRoot, { recursive: true, force: true });
+  }
+
+  const missingPreviousRoot = initRenameRepo('lattice-ast-rename-missing-previous-');
+  try {
+    writeFileSync(join(missingPreviousRoot, 'src/new.ts'), baseSource.replace('critical', 'renamed'));
+    const missingPreviousDiff = [
+      'diff --git a/src/absent.ts b/src/new.ts',
+      'similarity index 92%',
+      'rename from src/absent.ts',
+      'rename to src/new.ts',
+      '--- a/src/absent.ts',
+      '+++ b/src/new.ts',
+      '@@ -1,1 +1,1 @@',
+      '-export function critical() {',
+      '+export function renamed() {',
+    ].join('\n');
+    const missingPrevious = parseUnifiedDiff(missingPreviousRoot, missingPreviousDiff);
+    assert.equal(
+      missingPrevious[0]?.parseFallback,
+      'typescript_rename_previous_source_unavailable_fail_closed',
+    );
+    const missingPreviousGate = checkSemanticScope(
+      makeContract({
+        mode: 'enforce',
+        protectedAnchors: ['unrelated'],
+        anchorParserVersion: SCOPE_ANCHOR_PARSER_VERSION,
+        anchorArtifactVersion: SCOPE_ANCHOR_ARTIFACT_VERSION,
+      }),
+      makePack(missingPrevious),
+    );
+    assert.equal(missingPreviousGate.status, 'fail');
+    assert.match(missingPreviousGate.violations[0]?.detail ?? '', /rename_previous_source_unavailable_fail_closed/);
+    assert.match(missingPreviousGate.violations[0]?.nextAction ?? '', /Restore the previous source/);
+    assert.doesNotMatch(missingPreviousGate.violations[0]?.nextAction ?? '', /renamed target|both sides/);
+
+    const genericUnavailable = checkSemanticScope(
+      makeContract({
+        mode: 'enforce',
+        protectedAnchors: ['unrelated'],
+        anchorParserVersion: SCOPE_ANCHOR_PARSER_VERSION,
+        anchorArtifactVersion: SCOPE_ANCHOR_ARTIFACT_VERSION,
+      }),
+      makePack([{
+        ...makeHunk('src/unavailable.ts'),
+        parseFallback: 'typescript_source_unavailable_fail_closed',
+        anchorParserVersion: SCOPE_ANCHOR_PARSER_VERSION,
+        anchorArtifactVersion: SCOPE_ANCHOR_ARTIFACT_VERSION,
+      }]),
+    );
+    assert.equal(genericUnavailable.status, 'fail');
+    assert.match(genericUnavailable.violations[0]?.nextAction ?? '', /Restore the unavailable source file/);
+    assert.doesNotMatch(genericUnavailable.violations[0]?.nextAction ?? '', /rename|both sides/i);
+
+    writeFileSync(join(missingPreviousRoot, 'src/copied.ts'), baseSource);
+    const copyDiff = [
+      'diff --git a/src/old.ts b/src/copied.ts',
+      'similarity index 100%',
+      'copy from src/old.ts',
+      'copy to src/copied.ts',
+    ].join('\n');
+    const copied = parseUnifiedDiff(missingPreviousRoot, copyDiff);
+    assert.equal(copied.length, 1);
+    assert.equal(copied[0]?.parseFallback, 'typescript_copy_identity_unsupported_fail_closed');
+    const copyGate = checkSemanticScope(
+      makeContract({
+        mode: 'enforce',
+        fileRules: [{ path: 'src/copied.ts', allowedAnchors: ['critical'] }],
+        anchorParserVersion: SCOPE_ANCHOR_PARSER_VERSION,
+        anchorArtifactVersion: SCOPE_ANCHOR_ARTIFACT_VERSION,
+      }),
+      makePack(copied),
+    );
+    assert.equal(copyGate.status, 'fail', 'copy identity is fail-closed');
+    assert.match(copyGate.violations[0]?.nextAction ?? '', /explicit create\/update/);
+
+    writeFileSync(join(missingPreviousRoot, 'src/middle.ts'), baseSource);
+    writeFileSync(join(missingPreviousRoot, 'src/final.ts'), baseSource);
+    const renameChainDiff = [
+      'diff --git a/src/old.ts b/src/middle.ts',
+      'similarity index 100%',
+      'rename from src/old.ts',
+      'rename to src/middle.ts',
+      'diff --git a/src/middle.ts b/src/final.ts',
+      'similarity index 100%',
+      'rename from src/middle.ts',
+      'rename to src/final.ts',
+    ].join('\n');
+    const renameChain = parseUnifiedDiff(missingPreviousRoot, renameChainDiff);
+    assert.equal(renameChain.length, 2);
+    assert.equal(renameChain[0]?.previousAnchor, 'critical');
+    assert.equal(
+      renameChain[1]?.parseFallback,
+      'typescript_rename_previous_source_unavailable_fail_closed',
+      'rename chain fails closed when an intermediate old identity is absent from base',
+    );
+  } finally {
+    rmSync(missingPreviousRoot, { recursive: true, force: true });
+  }
+}
+
+// B-0784 F-013: cartesian production-entry rollout matrix plus persisted-byte
+// rollback/re-enable. Every path mode is paired with every AST mode.
+{
+  const modes = ['off', 'warn', 'enforce'] as const;
+  for (const pathMode of modes) {
+    for (const astMode of modes) {
+      const root = mkdtempSync(join(tmpdir(), `lattice-rollout-${pathMode}-${astMode}-`));
+      try {
+        mkdirSync(join(root, 'src'), { recursive: true });
+        writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+          scanRoot: 'src',
+          rootDir: '.',
+          storyDir: '.lattice/story/actives',
+          requirementsDir: 'docs/requirements',
+          scopeProtection: { pathCanonicalization: pathMode, astAnchors: astMode },
+        }));
+        writeFileSync(join(root, 'src/matrix.ts'), 'export function matrix() { return 1; }\n');
+        execFileSync('git', ['init', '-b', 'main'], { cwd: root, stdio: 'ignore' });
+        execFileSync('git', ['config', 'user.email', 'rollout@example.test'], { cwd: root });
+        execFileSync('git', ['config', 'user.name', 'Rollout Smoke'], { cwd: root });
+        execFileSync('git', ['add', '.'], { cwd: root });
+        execFileSync('git', ['commit', '-m', 'base'], { cwd: root, stdio: 'ignore' });
+        resetConfigCache();
+        const store = new StoryStore(root);
+        const storyId = 'B-a13f';
+        store.writeStory(storyId, {
+          storyId,
+          name: storyId,
+          title: storyId,
+          description: 'rollout matrix',
+          type: 'feature',
+          phase: 'DEV',
+          priority: 'high',
+          createdAt: new Date().toISOString(),
+          startedAt: new Date().toISOString(),
+          endedAt: null,
+          events: [],
+        });
+        const handlers = createScopeContractHandlers({ store, root } as HandlerContext);
+        handlers.scope_contract_set({
+          storyId,
+          mode: 'enforce',
+          allowedModify: ['matrix.ts'],
+          fileRules: [{ path: 'matrix.ts', allowedAnchors: ['matrix'] }],
+        });
+        const contract = store.readScopeContract(storyId)!;
+        assert.equal(
+          contract.pathCanonicalizerVersion,
+          pathMode === 'off' ? undefined : SCOPE_PATH_CANONICALIZER_VERSION,
+          `${pathMode}×${astMode}: writer path version`,
+        );
+        assert.equal(
+          contract.anchorParserVersion,
+          astMode === 'off' ? undefined : SCOPE_ANCHOR_PARSER_VERSION,
+          `${pathMode}×${astMode}: writer parser version`,
+        );
+        writeFileSync(join(root, 'src/matrix.ts'), 'export function matrix() { return 2; }\n');
+        const pack = buildScopeDiffPack(root);
+        assert.equal(pack.astAnchorMode, astMode, `${pathMode}×${astMode}: production diff-pack mode`);
+        const pathResult = JSON.parse(handlers.scope_contract_check({ storyId, json: true }));
+        assert.equal(
+          pathResult.status,
+          pathMode === 'off' ? 'fail' : 'pass',
+          `${pathMode}×${astMode}: production path reader outcome`,
+        );
+        const semantic = checkSemanticScope(contract, pack);
+        assert.equal(
+          semantic.status,
+          astMode === 'off' ? 'skip' : 'pass',
+          `${pathMode}×${astMode}: production semantic reader outcome`,
+        );
+        assert.equal(
+          runPrewriteGuardCheck({
+            normalizedPaths: ['src/matrix.ts'],
+            contract,
+            storyId,
+            projectRoot: root,
+          }).verdict,
+          pathMode === 'off' ? 'deny' : 'allow',
+          `${pathMode}×${astMode}: production prewrite outcome`,
+        );
+        assert.equal(
+          detectGuardViolations(contract, pack, [], new Date().toISOString(), root).length === 0,
+          pathMode !== 'off',
+          `${pathMode}×${astMode}: production guard-session outcome`,
+        );
+
+        if (pathMode !== 'off') {
+          store.writeScopeContract(storyId, { ...contract, pathCanonicalizerVersion: 'repo-relative-v999' });
+          const futurePath = JSON.parse(handlers.scope_contract_check({ storyId, json: true }));
+          assert.equal(futurePath.status, pathMode === 'warn' ? 'warn' : 'fail', `${pathMode}: future path version`);
+          store.writeScopeContract(storyId, contract);
+        }
+        if (astMode !== 'off') {
+          const futureSemantic = checkSemanticScope({
+            ...contract,
+            anchorParserVersion: 'typescript-ast-v999',
+            anchorArtifactVersion: 'scope-anchor-artifact-v999',
+          }, pack);
+          assert.equal(futureSemantic.status, astMode === 'warn' ? 'warn' : 'fail', `${astMode}: future AST versions`);
+        }
+      } finally {
+        rmSync(root, { recursive: true, force: true });
+        resetConfigCache();
+      }
+    }
+  }
+
+  const root = mkdtempSync(join(tmpdir(), 'lattice-rollout-persisted-bytes-'));
+  try {
+    mkdirSync(join(root, 'src'), { recursive: true });
+    const writeConfig = (pathCanonicalization: 'off' | 'warn' | 'enforce', astAnchors: 'off' | 'warn' | 'enforce'): void => {
+      writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+        scanRoot: 'src',
+        rootDir: '.',
+        storyDir: '.lattice/story/actives',
+        requirementsDir: 'docs/requirements',
+        scopeProtection: { pathCanonicalization, astAnchors },
+      }));
+      resetConfigCache();
+    };
+    writeConfig('off', 'off');
+    writeFileSync(join(root, 'src/matrix.ts'), 'export function matrix() { return 1; }\n');
+    execFileSync('git', ['init', '-b', 'main'], { cwd: root, stdio: 'ignore' });
+    execFileSync('git', ['config', 'user.email', 'persist@example.test'], { cwd: root });
+    execFileSync('git', ['config', 'user.name', 'Persist Smoke'], { cwd: root });
+    execFileSync('git', ['add', '.'], { cwd: root });
+    execFileSync('git', ['commit', '-m', 'base'], { cwd: root, stdio: 'ignore' });
+    const store = new StoryStore(root);
+    const storyId = 'B-b13f';
+    store.writeStory(storyId, {
+      storyId, name: storyId, title: storyId, description: 'persisted rollback', type: 'feature',
+      phase: 'DEV', priority: 'high', createdAt: new Date().toISOString(),
+      startedAt: new Date().toISOString(), endedAt: null, events: [],
+    });
+    store.writeScopeContract(storyId, makeContract({
+      storyId,
+      mode: 'enforce',
+      allowedModify: ['src/matrix.ts', 'lattice.config.json'],
+      fileRules: [{ path: 'src/matrix.ts', allowedAnchors: ['matrix'] }],
+    }));
+    const artifactPath = join(root, '.lattice/story/actives', storyId, 'scope-contract.json');
+    const legacyBytes = readFileSync(artifactPath, 'utf8');
+    writeFileSync(join(root, 'src/matrix.ts'), 'export function matrix() { return 2; }\n');
+    const offHandlers = createScopeContractHandlers({ store, root } as HandlerContext);
+    offHandlers.scope_contract_check({ storyId, json: true });
+    buildScopeDiffPack(root);
+    assert.equal(readFileSync(artifactPath, 'utf8'), legacyBytes, 'rollback off does not rewrite persisted signed bytes');
+
+    writeConfig('warn', 'warn');
+    const warnHandlers = createScopeContractHandlers({ store, root } as HandlerContext);
+    const warnPathResult = JSON.parse(warnHandlers.scope_contract_check({ storyId, json: true }));
+    assert.equal(warnPathResult.status, 'warn', JSON.stringify(warnPathResult));
+    assert.equal(checkSemanticScope(store.readScopeContract(storyId)!, buildScopeDiffPack(root)).status, 'warn');
+    assert.equal(readFileSync(artifactPath, 'utf8'), legacyBytes, 'warn reader does not rewrite persisted signed bytes');
+
+    writeConfig('enforce', 'enforce');
+    const enforceHandlers = createScopeContractHandlers({ store, root } as HandlerContext);
+    assert.equal(JSON.parse(enforceHandlers.scope_contract_check({ storyId, json: true })).status, 'fail');
+    assert.equal(checkSemanticScope(store.readScopeContract(storyId)!, buildScopeDiffPack(root)).status, 'fail');
+    assert.equal(readFileSync(artifactPath, 'utf8'), legacyBytes, 'enforce rejection does not rewrite persisted signed bytes');
+    enforceHandlers.scope_contract_set({
+      storyId,
+      mode: 'enforce',
+      allowedModify: ['src/matrix.ts', 'lattice.config.json'],
+      fileRules: [{ path: 'src/matrix.ts', allowedAnchors: ['matrix'] }],
+    });
+    const reenabled = store.readScopeContract(storyId)!;
+    assert.equal(reenabled.pathCanonicalizerVersion, SCOPE_PATH_CANONICALIZER_VERSION);
+    assert.equal(reenabled.anchorParserVersion, SCOPE_ANCHOR_PARSER_VERSION);
+    assert.notEqual(readFileSync(artifactPath, 'utf8'), legacyBytes, 'forward re-enable writes current-version artifact');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+    resetConfigCache();
+  }
 }
 
 console.log('semantic scope guard smoke passed');

@@ -31,7 +31,7 @@ Server production/runtime conformance, Authority receipts, Layer 4 production
 proof, customer key behavior, baseline unlocks, renderer/scheduler work, or
 unrelated runtime features.
 
-## The three classifier outputs
+## The classifier outputs
 
 `packages/main/src/core/scope-contract.ts` evaluates each changed file in this
 order:
@@ -65,7 +65,25 @@ order:
      pass.** An arbitrary file like `.lattice/foo.json` does not match any registered runtime matcher and
      therefore falls through.
 
-3. **fall-through** → normal `allowedModify` / `allowedCreate` /
+3. **`classifySharedLifecycleMetadata(root, file)`**
+   – recognizes only the canonical B-META `findings.json` and its separate
+     `gap-log-provenance.jsonl` append ledger;
+   – admits either path only when the complete HMAC receipt chain is contiguous,
+     every receipt names the canonical `gap_log` writer/path, and the ledger
+     head binds the current whole findings artifact;
+   – rejects missing/reordered/edited receipts, public digest recomputation,
+     symlink escape, direct findings edits, and a later `gap_log` attempt to
+     launder altered history. The key is stored in the repository git common
+     directory rather than the mutable story artifact. This is canonical-writer
+     tamper evidence for cooperative local tooling, not an authorization
+     boundary against an attacker who already controls the same OS account.
+   – genesis is accepted only for a truly absent/canonically empty parent
+     artifact. A committed non-empty legacy artifact must match the worktree
+     semantically before its first receipt can extend it. Canonical findings or
+     ledger symlinks are rejected even when they remain inside the repository
+     and expose identical content.
+
+4. **fall-through** → normal `allowedModify` / `allowedCreate` /
    `allowedTest` / `protectedFiles` / `explicitExcludes` enforcement applies.
    This includes ordinary source files and any unrecognized JSON under
    `.lattice/`.
@@ -130,6 +148,9 @@ Expected row families:
 - `scope_contract_acknowledge` is still required for ordinary in-scope file
   expansions (product code, docs, new tests). It is **not** required for
   lifecycle artifacts.
+- Acknowledgement paths pass through the same repo/source-root canonicalizer as
+  contract paths. Acknowledgement cannot be used as a raw-spelling bypass for
+  traversal, ambiguity, protected files, or excluded files.
 - `scope_contract_acknowledge` is intentionally forbidden in TEST phase. The
   lifecycle-artifact classifier is the only legitimate path for command-
   generated artifact writes that arrive in TEST or later.
@@ -147,6 +168,9 @@ Mechanical evidence lives in:
   files in the retired hidden Proofbound tree and nearby non-transcript evidence
   files, includes the INIT scope anti-expansion artifact filenames, and rejects
   ordinary product source files when scope is unacknowledged.
+- `packages/main/src/tasks/gap-log-smoke.ts` — asserts the independent B-META
+  receipt chain, current-artifact binding, public-forgery rejection, and
+  fail-closed refusal to extend an altered history.
 - `scripts/verify-gap-convergence.mjs` — asserts derived `.build` symlink
   loops do not crash `convergence_check` and do not hide real `docs/story` /
   truth-source content.

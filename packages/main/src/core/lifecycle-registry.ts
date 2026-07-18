@@ -325,6 +325,7 @@ export const LIFECYCLE_ARTIFACTS = [
   'delivery-check.json',
   'review-runs.json',
   'findings.json',
+  'gap-log-provenance.jsonl',
   'review-passes.json',
   'draft-check.json',
   'summary.json',
@@ -713,6 +714,97 @@ export interface LifecycleArtifactClassifyOptions {
   storyId?: string;
 }
 
+export interface SharedLifecycleMetadataClassification {
+  trusted: boolean;
+  path: string;
+  registryId: 'shared-gap-log-metadata-v1';
+  writer: 'gap_log' | 'unknown';
+  contentBinding: 'valid' | 'invalid';
+  reason: string;
+  expectedDigest?: string;
+  observedDigest?: string;
+  findingId?: string;
+}
+
+/**
+ * The B-META findings and provenance-ledger paths are shared only when the
+ * complete canonical-writer receipt chain is valid and its head covers the
+ * exact current findings content. Merely matching either path is insufficient.
+ */
+export function classifySharedLifecycleMetadata(
+  root: string,
+  path: string,
+  gitCwd = root,
+): SharedLifecycleMetadataClassification | null {
+  const normalized = normalizeArtifactPath(path);
+  if (normalized !== GAP_LOG_ARTIFACT_PATH && normalized !== GAP_LOG_PROVENANCE_LEDGER_PATH) return null;
+  const rootReal = realpathSync.native(resolve(root));
+  const absolute = join(rootReal, normalized);
+  if (!existsSync(absolute)) {
+    return {
+      trusted: false,
+      path: normalized,
+      registryId: 'shared-gap-log-metadata-v1',
+      writer: 'unknown',
+      contentBinding: 'invalid',
+      reason: 'missing_binding_artifact',
+    };
+  }
+  for (const canonicalPath of [GAP_LOG_ARTIFACT_PATH, GAP_LOG_PROVENANCE_LEDGER_PATH]) {
+    const candidate = join(rootReal, canonicalPath);
+    if (existsSync(candidate) && lstatSync(candidate).isSymbolicLink()) {
+      return {
+        trusted: false,
+        path: normalized,
+        registryId: 'shared-gap-log-metadata-v1',
+        writer: 'unknown',
+        contentBinding: 'invalid',
+        reason: `symlink_alias:${canonicalPath}`,
+      };
+    }
+  }
+  const artifactReal = realpathSync.native(absolute);
+  if (artifactReal !== rootReal && !artifactReal.startsWith(`${rootReal}${sep}`)) {
+    return {
+      trusted: false,
+      path: normalized,
+      registryId: 'shared-gap-log-metadata-v1',
+      writer: 'unknown',
+      contentBinding: 'invalid',
+      reason: `symlink_escape:${relative(rootReal, artifactReal)}`,
+    };
+  }
+  try {
+    const findingsAbsolute = join(rootReal, GAP_LOG_ARTIFACT_PATH);
+    const findingsReal = realpathSync.native(findingsAbsolute);
+    if (findingsReal !== rootReal && !findingsReal.startsWith(`${rootReal}${sep}`)) {
+      throw new Error('findings symlink escape');
+    }
+    const data = JSON.parse(readFileSync(findingsReal, 'utf8')) as FindingData;
+    const verification = verifyGapLogArtifactBinding(data, GAP_LOG_ARTIFACT_PATH, root, gitCwd);
+    return {
+      trusted: verification.trusted,
+      path: normalized,
+      registryId: 'shared-gap-log-metadata-v1',
+      writer: verification.trusted ? 'gap_log' : 'unknown',
+      contentBinding: verification.trusted ? 'valid' : 'invalid',
+      reason: verification.reason,
+      ...(verification.expectedDigest ? { expectedDigest: verification.expectedDigest } : {}),
+      ...(verification.observedDigest ? { observedDigest: verification.observedDigest } : {}),
+      ...(verification.findingId ? { findingId: verification.findingId } : {}),
+    };
+  } catch {
+    return {
+      trusted: false,
+      path: normalized,
+      registryId: 'shared-gap-log-metadata-v1',
+      writer: 'unknown',
+      contentBinding: 'invalid',
+      reason: 'malformed_or_incomplete_artifact',
+    };
+  }
+}
+
 export function classifyLifecycleArtifact(
   path: string,
   options: LifecycleArtifactClassifyOptions = {},
@@ -797,3 +889,11 @@ export function isAnyLatticeStoryMetadataPath(
 ): boolean {
   return classifyLifecycleArtifact(path, options) !== null;
 }
+import { existsSync, lstatSync, readFileSync, realpathSync } from 'node:fs';
+import { join, relative, resolve, sep } from 'node:path';
+import type { FindingData } from './types.js';
+import {
+  GAP_LOG_ARTIFACT_PATH,
+  GAP_LOG_PROVENANCE_LEDGER_PATH,
+  verifyGapLogArtifactBinding,
+} from './finding-verify.js';

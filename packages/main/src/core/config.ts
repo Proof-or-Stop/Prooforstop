@@ -93,6 +93,15 @@ export interface LatticeConfig {
     /** Independent total runtime budget for unattended semantic proposal hosts. */
     hostTotalTimeoutMs?: number;
   };
+  /**
+   * Independently deployable scope-contract migrations. `off` preserves the
+   * signed legacy representation; `warn` reads both representations but emits
+   * migration diagnostics; `enforce` writes/compares only current versions.
+   */
+  scopeProtection?: {
+    pathCanonicalization?: 'off' | 'warn' | 'enforce';
+    astAnchors?: 'off' | 'warn' | 'enforce';
+  };
   storyPrefix: string;
   flows: LatticeFlowConfig;
   wrappersDir?: string;
@@ -471,6 +480,10 @@ const DEFAULT_CONFIG: LatticeConfig = {
     hostStartupTimeoutMs: DEFAULT_CANDIDATE_HOST_STARTUP_TIMEOUT_MS,
     hostTotalTimeoutMs: DEFAULT_CANDIDATE_HOST_TOTAL_TIMEOUT_MS,
   },
+  scopeProtection: {
+    pathCanonicalization: 'enforce',
+    astAnchors: 'enforce',
+  },
   storyPrefix: 'B',
   flows: {
     defaults: {},
@@ -580,6 +593,10 @@ export function loadConfig(projectRoot?: string): LatticeConfig {
     flows: {
       ...DEFAULT_CONFIG.flows,
       ...(userConfig.flows || {}),
+    },
+    scopeProtection: {
+      ...DEFAULT_CONFIG.scopeProtection,
+      ...(userConfig.scopeProtection || {}),
     },
   };
 

@@ -1,0 +1,296 @@
+{
+  "passes": [
+    {
+      "id": "B-0784:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Targeted round-3 review PASS for f1e5eb927b. Verified exact-HEAD legacy genesis rejects committed non-empty -> empty laundering without creating a ledger; canonical empty genesis with no HEAD artifact remains legal. Real git /dev/null whole-file deletion retains old protected declaration critical and blocks. Multi-anchor diagnostics report the actual offending declaration with kind/range/parser/artifact versions. Focused semantic-scope-guard and gap-log smokes passed; no full suite or lifecycle command was run.",
+      "createdAt": "2026-07-18T03:03:21.682Z",
+      "reviewRound": "2026-07-18T03:00:34.659Z",
+      "reviewRunId": "B-0784:RR-007",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/audit-meta-store.ts",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/semantic-scope-gate.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/tasks/gap-log-smoke.ts",
+          "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e1fc54334681b8280115e3eb6fe65e8d7d11378920567638b68984b99541806f"
+    },
+    {
+      "id": "B-0784:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-3 targeted coverage PASS for f1e5eb927b. F-013 now has all 9 path×AST rollout combinations through scope_contract_set/check, buildScopeDiffPack, checkSemanticScope, prewrite, and guard-session consumers; it asserts future versions plus persisted-byte off/warn/enforce rollback and forward re-enable. F-014 now table-tests every named declaration/control-flow/change-kind case through parseUnifiedDiff and checkSemanticScope, including diagnostics and protected deletion. F-015 now exercises two official appends, receipt identity/chain mutations, replay, canonical serialization, four production consumers, digest diagnostics, symlink/path aliases, and legacy genesis. Build and the three focused smokes pass; the 37 intent claims are supported without a full-suite inference.",
+      "createdAt": "2026-07-18T03:03:44.662Z",
+      "reviewRound": "2026-07-18T03:00:34.659Z",
+      "reviewRunId": "B-0784:RR-008",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/semantic-scope-gate.ts",
+          "packages/main/src/tasks/gap-log-smoke.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts",
+          "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4bb698d5e658c211deccc658c950c0dc6e7c72f31591c35ba70205b48095cd9e"
+    },
+    {
+      "id": "B-0784:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-4 incremental coverage PASS for ee1329cef8. The focused smoke creates real Git repositories and exercises pure staged git mv, staged rename plus declaration rename through buildScopeDiffPack, protected previous-anchor enforcement through checkSemanticScope, and missing target/previous source fail-closed diagnostics through parseUnifiedDiff plus the semantic gate. Assertions bind changedFiles/hunks/current and previous anchors/status/rule/detail/remediation, so this is production-path semantic coverage rather than helper-only setup. Build and semantic-scope-guard-smoke pass; no broader suite was run.",
+      "createdAt": "2026-07-18T03:09:48.438Z",
+      "reviewRound": "2026-07-18T03:08:11.701Z",
+      "reviewRunId": "B-0784:RR-011",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/semantic-scope-gate.ts",
+          "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "53bfc7dabe58c5804f181551150d057b23869dbba582c273251c9adbc2554c60"
+    },
+    {
+      "id": "B-0784:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "PASS: 1572a6e170 preserves both rename path identities in path gating, distinguishes rename from copy identity, emits identity-only hunks for pure renames, reads prior anchors from the old base path, fails closed for missing rename sides/copies, and branches remediation by fallback type. Focused scope-contract and semantic-scope smokes passed.",
+      "createdAt": "2026-07-18T03:17:31.185Z",
+      "reviewRound": "2026-07-18T03:15:34.899Z",
+      "reviewRunId": "B-0784:RR-013",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/scope-contract.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/semantic-scope-gate.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts",
+          "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "31e33a138e20ab06ad89100f9cafbc6b97e112d6de99fe890c45f551a135f926"
+    },
+    {
+      "id": "B-0784:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-5 incremental coverage PASS for 1572a6e170. Real staged git mv flows through readChangedFiles with both old/new identities, buildScopeDiffPack with explicit rename/copy detection, identity-only hunks, and checkSemanticScope. Assertions distinguish ordinary versus protected/excluded/unknown target renames, pure and modified declaration renames, missing target versus missing previous source remediation, generic parse/source failure wording, copy fail-closed, and an absent-intermediate rename chain. Build plus scope-contract and semantic-scope focused smokes pass; claims stay within the exercised matrix.",
+      "createdAt": "2026-07-18T03:17:46.778Z",
+      "reviewRound": "2026-07-18T03:15:34.899Z",
+      "reviewRunId": "B-0784:RR-014",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/scope-contract.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/semantic-scope-gate.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts",
+          "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3c4f1f131b5de9b689e8feb8cef2faa8758d034b9d1410b491237ce1e4180daf"
+    },
+    {
+      "id": "B-0784:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "PASS: incremental review of 1572a6e170/F-021/F-022. Independent real-git pure rename matrix retained old+new paths; dual-allowed passed, old protected/excluded and target excluded/unknown blocked. Identity-only hunk retained current+previous critical and protected anchor blocked. Rename+modify/missing-side focused smoke passed; copy and rename-chain ambiguity failed closed; generic parse/source guidance remained non-rename-specific. Build, scope-contract-smoke, semantic-scope-guard-smoke, and diff-check passed. No full suite or owner lifecycle run.",
+      "createdAt": "2026-07-18T03:18:24.739Z",
+      "reviewRound": "2026-07-18T03:15:34.899Z",
+      "reviewRunId": "B-0784:RR-015",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/scope-contract.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/semantic-scope-gate.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts",
+          "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "57d1c27eb468a14d7f54c88caaa308223b31a882a194d225eaca59c01ba6e087"
+    },
+    {
+      "id": "B-0784:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-7 incremental coverage PASS for 671e9d77fe and F-023..F-026. scope-contract-smoke creates a wrapper metadata root, configured inner Git repo, and linked story worktree; scope_diff_pack asserts only worktree dirt, wrapper astAnchors=off behavior, and fail-closed missing/nonexistent storyId. gap-log-smoke creates a wrapper root plus configured Git authority and proves the official writer, classifier, scope, prewrite, and done_prepare filter share the same authority/key/HEAD, while noncanonical META identity is rejected. Build, gitroot-cwd-contract, scope-contract-smoke, and gap-log-smoke all pass; no broader suite or lifecycle was run.",
+      "createdAt": "2026-07-18T04:09:06.578Z",
+      "reviewRound": "2026-07-18T04:06:45.081Z",
+      "reviewRunId": "B-0784:RR-021",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/audit-meta-store.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/prewrite-guard.ts",
+          "packages/main/src/core/scope-contract.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/scope-path-classifier.ts",
+          "packages/main/src/handlers/prewrite-guard.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/tasks/gap-log-smoke.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "20a4c4eba956cffb997db232d25a87c7374ddd3d4fa165c16aab73d81f052a54"
+    },
+    {
+      "id": "B-0784:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "PASS incremental review of 671e9d77fe and F-023..F-026 resolutions. metadata/config root remains separate from resolved Git cwd; nonexistent story and unresolved signed workspace fail before diff generation; wrapper rollout config and bound worktree selection are preserved. Canonical B-META writer, classifier, scope, prewrite, and done_prepare share Git authority; noncanonical META storyId is rejected. No arbitrary-root or guard bypass found. Focused build, scope-contract-smoke, gap-log-smoke, nonexistent-story CLI repro, and git diff-check passed; no validate, full suite, or lifecycle commands run.",
+      "createdAt": "2026-07-18T04:09:44.585Z",
+      "reviewRound": "2026-07-18T04:06:45.081Z",
+      "reviewRunId": "B-0784:RR-022",
+      "writerSessionId": "b0784-review-quality-fresh",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/audit-meta-store.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/prewrite-guard.ts",
+          "packages/main/src/core/scope-contract.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/scope-path-classifier.ts",
+          "packages/main/src/handlers/prewrite-guard.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/tasks/gap-log-smoke.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4b0fb0e5eed87add0593662ea0c7b2fb46d19a97f5ecdff2b9a3ce36891b2875"
+    },
+    {
+      "id": "B-0784:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "PASS: 437c825460 resolves F-027 by keeping injected gitReader on resolvedGitCwd while checkScopeContract loads wrapper metadataRoot policy. The regression fixture preserves pathCanonicalization=off and passes; default diff-pack path retains the same authority split. Focused TypeScript build and scope-contract smoke passed.",
+      "createdAt": "2026-07-18T04:12:56.509Z",
+      "reviewRound": "2026-07-18T04:11:53.562Z",
+      "reviewRunId": "B-0784:RR-023",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "82db013385c46c9a48e23ed9da06281dc2c134c94e9a0bb919910ddc46c12686"
+    },
+    {
+      "id": "B-0784:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "PASS incremental review of 437c825460 only. runScopeGate now keeps metadataRoot for configuration/artifact classification and passes resolvedGitCwd separately for injected changed-file readers and Git-backed provenance; the normal diff-pack branch uses the same authority split. Wrapper injected-reader regression passes with pathCanonicalization=off, and no arbitrary-root, fallback, or guard bypass was introduced. Focused build, scope-contract-smoke, and git diff-check passed; no full suite, validate, or lifecycle commands run.",
+      "createdAt": "2026-07-18T04:13:13.649Z",
+      "reviewRound": "2026-07-18T04:11:53.562Z",
+      "reviewRunId": "B-0784:RR-025",
+      "writerSessionId": "b0784-review-quality-fresh",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6deb3165f8056d6812a8a45f6e55a295fa5040ce0177084cfc8b508b1ff03ed2"
+    },
+    {
+      "id": "B-0784:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "PASS: 88e43cc818 adds a precise regression assertion that the injected scope reader receives the resolved story worktree, never the metadata wrapper root or main inner repo. This binds the Git authority half of the existing metadataRoot/gitCwd separation without changing production behavior. Focused scope-contract smoke passed.",
+      "createdAt": "2026-07-18T04:15:55.170Z",
+      "reviewRound": "2026-07-18T04:14:57.758Z",
+      "reviewRunId": "B-0784:RR-026",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6bc6813746607b4eb0eb887ed6f0bf9389044e59f54be8982e1a820b49557342"
+    },
+    {
+      "id": "B-0784:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-9 F-028 coverage PASS for 88e43cc818. The injected reader now asserts its cwd equals the linked storyWorktree and differs from both wrapperRoot and innerRepo before returning changed files. The surrounding status=pass assertion still exercises wrapper pathCanonicalization=off, so the pre-fix config-root conflation would fail even though the reader cwd is correct. Build and scope-contract-smoke pass; no broader suite or lifecycle was run.",
+      "createdAt": "2026-07-18T04:16:20.290Z",
+      "reviewRound": "2026-07-18T04:14:57.758Z",
+      "reviewRunId": "B-0784:RR-028",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4eaf8d1c2c66916208010323f0202e939cbaa812e02e41104138052193d6daee"
+    },
+    {
+      "id": "B-0784:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "PASS incremental review of test-only commit 88e43cc818. The injected-reader assertion is non-tautological: expected authority is the constructed linked story worktree, while observed cwd is supplied by production runScopeGate; metadata wrapper root and inner main repo are explicitly rejected. Only scope-contract-smoke.ts changed under packages/main/src, with no production delta. Focused scope smoke and git diff-check passed; no broad, full-suite, validate, or lifecycle commands run.",
+      "createdAt": "2026-07-18T04:16:22.638Z",
+      "reviewRound": "2026-07-18T04:14:57.758Z",
+      "reviewRunId": "B-0784:RR-027",
+      "writerSessionId": "b0784-review-quality-fresh",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "68de2d2a4622c6b3b5aa85e05f337de399d714866a28906597dc4389f2678435"
+    }
+  ]
+}
