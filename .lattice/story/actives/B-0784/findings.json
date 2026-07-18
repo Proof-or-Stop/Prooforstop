@@ -402,6 +402,26 @@
       ],
       "signatureTag": "edge|ts|multi-anchor-enforcement",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0784:F-018",
+      "desc": "Invalid glob grammar fails open for protectedFiles and explicitExcludes. canonicalizeScopePath classifies any pattern containing [ as glob but does not validate its grammar, so scope_contract_set can persist src/[broken. pathMatchesScopePattern then maps scopeGlobRegex(...)=null to false. With allowedModify=[src/**], classifyScopePath for the exact changed path src/[broken falls through both deny lists and returns allowed_modify. Minimal repro on built commit 4106eb3531 printed {field:protectedFiles,regex:null,matches:false,category:allowed_modify,allowed:true} and the same for explicitExcludes. This violates the documented rule that invalid glob syntax fails closed and permits malformed deny rules to silently remove protection. Reject malformed globs at every write/canonicalization boundary, and make versioned legacy/enforce consumption surface malformed protected/exclude patterns as blocking re-attestation rather than treating them as non-matches; add production-classifier tests for protectedFiles and explicitExcludes under a broad allowlist.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-18T02:41:06.121Z",
+      "reviewRound": "2026-07-18T02:37:22.053Z",
+      "reviewRunId": "B-0784:RR-006",
+      "_hash": "42ac4e5dd6e863916a4d2aafbb345477d56474fcf05db877d0c706b77e8dad6d",
+      "files": [
+        "packages/main/src/core/scope-path-classifier.ts",
+        "packages/main/src/handlers/scope-contract.ts",
+        "packages/main/src/tasks/scope-contract-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|invalid-deny-glob-fails-open",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
