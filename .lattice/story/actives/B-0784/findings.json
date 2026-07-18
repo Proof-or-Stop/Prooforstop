@@ -513,6 +513,27 @@
       ],
       "signatureTag": "edge|ts|ee1329cef8-classifies-every",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0784:F-022",
+      "desc": "Pure Git rename still bypasses both old protected path and protected semantic anchor. ee1329cef8 deliberately emits no semantic hunk for a content-identical rename, while readChangedFiles uses git diff --name-only and returns only the destination path. In a real staged git mv src/old.ts→src/new.ts where old.ts contains function critical, with protectedFiles=[src/old.ts], allowedModify=[src/new.ts], and global protectedAnchors=[critical], buildScopeDiffPack returned changedFiles=[src/new.ts], hunks=[]; checkScopeContract returned pass and checkSemanticScope returned pass. A rename changes the protected file/declaration identity even without text changes and must not erase the source-side protection. Read rename-aware name-status so both old and new paths participate in the path gate and/or emit a rename identity hunk carrying previous/current anchors; add a production test proving pure rename of a protected path/anchor blocks. Keep ordinary unprotected pure rename free of false semantic failures.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-18T03:10:12.587Z",
+      "reviewRound": "2026-07-18T03:08:11.701Z",
+      "reviewRunId": "B-0784:RR-012",
+      "_hash": "c8247c623a4d6be2a55e93a0051781b737f296ed156abe8ed2ef2df2dd33655f",
+      "files": [
+        "packages/main/src/core/scope-contract.ts",
+        "packages/main/src/core/scope-diff-pack.ts",
+        "packages/main/src/core/semantic-scope-gate.ts",
+        "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|pure-file-rename-protection-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
