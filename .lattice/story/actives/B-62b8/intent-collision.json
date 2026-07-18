@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-62b8",
+  "id": "IC-20260717230041",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "This story changes only local owner-session identity resolution and adapter propagation: stable taskIdentity + agentOrRoleIdentity, explicit override first, bounded generated fallback, warned ppid last. It does not create authentication, reviewer attestation, Authority evidence, repo-global ownership, or new takeover semantics.",
+  "acceptedInterpretationHash": "sha256:8679c8ad534e4dfc10b253b44d53ebec41fc9904b75aaa2c068ae641f49cfdd1",
+  "notes": "Resolved the main collision between cross-shell continuity and role separation by requiring both independent dimensions; Codex+agy reviewed the same bound contract PASS.",
+  "createdAt": "2026-07-17T23:00:41.802Z",
+  "updatedAt": "2026-07-17T23:00:41.802Z"
+}

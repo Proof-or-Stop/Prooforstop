@@ -1,0 +1,41 @@
+{
+  "task": "Stabilize local story owner identity across shell boundaries without collapsing independent tasks or agents.",
+  "outcome": "The same host task and agent can invoke Lattice through different shell parent processes without a false foreign-owner rejection; a different task or agent remains rejected, and degraded ppid identity is clearly diagnosed.",
+  "facts": [
+    "Core ownership consumes a resolved session identity and currently falls back to hostname+root+ppid.",
+    "Canonical documents require LATTICE_SESSION_ID as the only generic core owner id and keep provider-specific signals at adapter boundaries.",
+    "The accepted Workstream D contract requires a composite taskIdentity + agentOrRoleIdentity; repository-global and thread-only identities are rejected.",
+    "Codex, Claude, and agy launchers are installed, but the current parent environment exposes no native stable session variables; supported adapters/wrappers must inject validated dimensions or a bounded generated boundary.",
+    "Owner leases are local non-cryptographic write-coordination metadata; takeover semantics remain unchanged.",
+    "Fresh initial Codex and Antigravity/agy reviews passed over the pre-update document, but they will not authorize runtime after the canonical document changes; fresh post-document reviews are required.",
+    "Claude evidence was excluded because permission, binding, and liveness failures prevented one exact valid PASS."
+  ],
+  "constraints": [
+    "Do not use a repo-global token that collapses independent tasks.",
+    "Do not collapse implementer, verification-intent, reviewer, or other agent/role identities within one task.",
+    "Do not treat the local identity as authentication, Authority evidence, or reviewer independence proof.",
+    "Keep explicit LATTICE_SESSION_ID highest priority and derived-ppid only as a visible degraded fallback.",
+    "Persisted generated tokens must be registered runtime artifacts, gitignored, excluded from material hashes, and have bounded cleanup.",
+    "Keep lease equality and takeover state-machine semantics unchanged.",
+    "No raw host-native token may be logged or persisted as review/story prose.",
+    "Update the canonical document and refresh two-host review plus the three manual transcripts before any runtime implementation."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+    "packages/main/src/core/owner-session.ts",
+    "packages/main/src/core/owner-session-adapters.ts",
+    "packages/main/src/core/owner-session-token-store.ts",
+    "packages/main/src/core/story-owner-lease.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/src/handlers/context.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/tasks/owner-session-guardrail.ts",
+    "packages/main/src/tasks/story-owner-lease-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/cli-surface-smoke.ts"
+  ],
+  "timestamp": "2026-07-17T23:03:47.758Z"
+}

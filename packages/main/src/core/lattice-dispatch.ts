@@ -1669,21 +1669,38 @@ function ownerSessionProviderForHostRuntime(host: HostRuntimeId): 'codex' | 'cla
   return null;
 }
 
-function buildCanonicalHostRuntimeEnv(
+export function buildCanonicalHostRuntimeEnv(
   policy: DispatchCommandExecutionPolicy,
   host: HostRuntimeId,
-  adapterBoundary: string,
+  identity: {
+    taskIdentity: string;
+    agentOrRoleIdentity: string;
+    adapterBoundary: string;
+  },
 ): NodeJS.ProcessEnv {
   const env = buildRequiredCommandEnv(policy) as NodeJS.ProcessEnv;
-  const sessionId = getSessionId();
-  env.LATTICE_SESSION_ID = sessionId;
-  env.LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY = adapterBoundary;
+  const allowedEnvNames = new Set(policy.envAllowlist.map(name => name.trim()).filter(Boolean));
+  const deniedEnvNames = new Set(policy.envDenylist.map(name => name.trim()).filter(Boolean));
+  const deliberateOverride = allowedEnvNames.has('LATTICE_SESSION_ID')
+    && !deniedEnvNames.has('LATTICE_SESSION_ID')
+    ? process.env.LATTICE_SESSION_ID?.trim()
+    : undefined;
+  if (deliberateOverride) {
+    env.LATTICE_SESSION_ID = deliberateOverride;
+  } else {
+    delete env.LATTICE_SESSION_ID;
+  }
+  env.LATTICE_OWNER_SESSION_ADAPTER_TASK = identity.taskIdentity;
+  env.LATTICE_OWNER_SESSION_ADAPTER_AGENT = identity.agentOrRoleIdentity;
+  delete env.LATTICE_OWNER_SESSION_ADAPTER_ROLE;
+  env.LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY = identity.adapterBoundary;
+  delete env.LATTICE_OWNER_SESSION_ADAPTER_GENERATED;
   env.LATTICE_ACTIVITY_SOURCE = host;
-  env.LATTICE_ACTIVITY_SESSION = sessionId;
+  delete env.LATTICE_ACTIVITY_SESSION;
   const provider = ownerSessionProviderForHostRuntime(host);
   if (provider !== null) {
     env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER = provider;
-    env.LATTICE_OWNER_SESSION_ADAPTER_SESSION = sessionId;
+    delete env.LATTICE_OWNER_SESSION_ADAPTER_SESSION;
   }
   return env;
 }
@@ -2327,10 +2344,15 @@ function runBoundedRealLeafDispatch(
   const argv = invocation.length > 1 ? invocation.slice(1) : [];
   const timeoutMs = Math.ceil(executionPolicy.maxRuntimeMs);
   const runner = hostKind === 'codex' ? runBoundedCodexProvider : runBoundedGeminiProvider;
+  const pack = readPack(root, record.dispatchId);
   const providerEnv = buildCanonicalHostRuntimeEnv(
     executionPolicy,
     record.selectedHost,
-    `${record.storyId}:${record.dispatchId}:${hostKind}`,
+    {
+      taskIdentity: `dispatch:${record.dispatchId}`,
+      agentOrRoleIdentity: pack.role ?? `lattice-dispatch:${hostKind}`,
+      adapterBoundary: `${record.storyId}:${record.dispatchId}:${hostKind}`,
+    },
   );
 
   // ---- THIN ONE-WAY USAGE-LEDGER SEAM (opt-in; OFF path is byte-identical) ----
@@ -2470,7 +2492,15 @@ function runClaudeCodeRealLeafDispatch(
   const commandTemplate = runtime.invocationTemplate ?? canonicalReviewHostLauncherSpec('claude').launcherArgv;
   const commandLabel = CLAUDE_PRINT_LAUNCHER;
   const transcriptPath = resolve(root, record.transcriptFile);
-  const commandEnv = buildRequiredCommandEnv(executionPolicy);
+  const commandEnv = buildCanonicalHostRuntimeEnv(
+    executionPolicy,
+    record.selectedHost,
+    {
+      taskIdentity: `dispatch:${record.dispatchId}`,
+      agentOrRoleIdentity: pack.role ?? DISPATCH_LEDGER_AGENT_TYPE,
+      adapterBoundary: `${record.storyId}:${record.dispatchId}:claude-code`,
+    },
+  );
   const timeoutMs = Math.ceil(executionPolicy.maxRuntimeMs);
 
   // ---- THIN ONE-WAY USAGE-LEDGER SEAM (opt-in; usage extraction best-effort) ----

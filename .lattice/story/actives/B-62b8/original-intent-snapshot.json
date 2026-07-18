@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-62b8",
+  "sourceText": "修复 derived-ppid 导致同一 Codex 任务跨 shell 自己抢 owner lease；身份必须按 task + agent/role 稳定，不能使用 repo-global token，并保持 takeover 与外部 session 隔离。",
+  "normalizedOutcome": "同一任务中的同一 agent 跨不同 shell/ppid 继续拥有 story；不同任务或不同角色仍被识别为 foreign owner，ppid 仅作为带警告的降级路径。",
+  "acceptanceClaim": "在相同 repo/worktree 中，task+agent 相同而 ppid 不同得到同一 owner id；task 或 agent/role 任一不同得到不同 id，且既有 foreign/stale/active takeover 行为不变。",
+  "keyRequirementIds": [
+    "REQ-B62B8-ROLE-ISOLATION",
+    "REQ-B62B8-STABLE-TASK-AGENT",
+    "REQ-B62B8-TAKEOVER-COMPAT"
+  ],
+  "requestHash": "sha256:8bbd90629ee4320d0dad742bf608cf0d3c967117f69b6190865c50cad550964d",
+  "createdAt": "2026-07-17T23:00:38.233Z",
+  "updatedAt": "2026-07-17T23:00:38.233Z"
+}

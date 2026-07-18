@@ -47,12 +47,19 @@ import {
   DEFAULT_BURN_ALERT_THRESHOLDS,
   burnInputTokensOf,
   evaluateBurnAlerts,
+  projectBurnAlertEvaluationForOutput,
   renderHostBurnScan,
   renderSweepAlertSection,
   resolveBurnAlertThresholds,
   type BurnAlertThresholds,
 } from '../core/usage-burn-alert.js';
-import { sweepCodexSessions, type SweepSessionRow } from '../core/usage-sweep.js';
+import {
+  buildSweepReport,
+  projectSweepReportForOutput,
+  projectSweepSessionRowForOutput,
+  sweepCodexSessions,
+  type SweepSessionRow,
+} from '../core/usage-sweep.js';
 import { StoryStore } from '../core/store.js';
 import { createDoctorHandlers } from '../handlers/doctor.js';
 import {
@@ -63,6 +70,8 @@ import {
 import type { HandlerContext } from '../handlers/context.js';
 import { resolveEffectiveOwnershipClass } from '../cli/ownership-gate.js';
 import { isReadOnlyCommand, shouldWriteActivityLog } from '../cli/activity-policy.js';
+import { deriveAdapterOwnerSessionId } from '../core/owner-session-adapters.js';
+import { resetSessionIdForTest, resolveSessionIdentity } from '../core/owner-session.js';
 
 let passed = 0;
 const failures: string[] = [];
@@ -100,6 +109,11 @@ const ENV_KEYS = [
   BURN_ALERT_ENV.recentHours,
   BURN_ALERT_ENV.codexDir,
   BURN_ALERT_ENV.claudeDir,
+  'LATTICE_SESSION_ID',
+  'LATTICE_AGENT',
+  'CODEX_THREAD_ID',
+  'CLAUDE_CODE_SESSION_ID',
+  'AGY_SESSION_ID',
 ] as const;
 
 async function withEnv<T>(env: Record<string, string | undefined>, fn: () => T | Promise<T>): Promise<T> {
@@ -133,12 +147,19 @@ function codexRollout(opts: {
   firstTs: string;
   inputTokens: number | null;
   pad?: number;
+  originator?: string;
+  source?: string;
 }): string[] {
   const lines = [
     JSON.stringify({
       timestamp: opts.firstTs,
       type: 'session_meta',
-      payload: { id: opts.id, cwd: opts.cwd, originator: 'Codex Desktop', source: 'desktop' },
+      payload: {
+        id: opts.id,
+        cwd: opts.cwd,
+        originator: opts.originator ?? 'Codex Desktop',
+        source: opts.source ?? 'desktop',
+      },
     }),
   ];
   if (opts.inputTokens !== null) {
@@ -264,6 +285,40 @@ async function main(): Promise<void> {
   // Claude CACHE-HEAVY: input 1k but cacheRead 120M → burn tokens over 100M.
   writeJsonl(join(claudeDir, 'proj-x', 'claude-cache-heavy.jsonl'), [
     JSON.stringify({ type: 'assistant', timestamp: iso(NOW - 120_000), cwd: '/tmp/claude-cache-heavy', requestId: 'req_1', message: { id: 'msg_1', usage: { input_tokens: 1_000, cache_creation_input_tokens: 500, cache_read_input_tokens: 120_000_000, output_tokens: 10 } } }),
+  ]);
+
+  const codexNativeSentinel = '0198f2e7-1b31-7f42-9a0b-fa1400000014';
+  const claudeNativeSentinel = 'c1aude14-cafe-4bad-8dad-000000000014';
+  const agyNativeSentinel = 'a9a00014-cafe-4bad-8dad-000000000014';
+  const nativeSentinelCodexDir = join(root, 'native-sentinel-codex');
+  const nativeSentinelClaudeDir = join(root, 'native-sentinel-claude');
+  writeJsonl(
+    join(nativeSentinelCodexDir, '2026', '07', '18', `rollout-${codexNativeSentinel}.jsonl`),
+    codexRollout({
+      id: codexNativeSentinel,
+      cwd: `/tmp/codex/${codexNativeSentinel}`,
+      firstTs: iso(NOW - 10 * DAY),
+      inputTokens: 250_000_000,
+      originator: `Codex Desktop ${codexNativeSentinel}`,
+      source: `desktop/${codexNativeSentinel}`,
+    }),
+  );
+  writeJsonl(join(nativeSentinelClaudeDir, `proj-${claudeNativeSentinel}`, `${claudeNativeSentinel}.jsonl`), [
+    JSON.stringify({
+      type: 'assistant',
+      timestamp: iso(NOW - 120_000),
+      cwd: `/tmp/claude/${claudeNativeSentinel}`,
+      requestId: 'req_native',
+      message: {
+        id: 'msg_native',
+        usage: {
+          input_tokens: 1_000,
+          cache_creation_input_tokens: 500,
+          cache_read_input_tokens: 120_000_000,
+          output_tokens: 10,
+        },
+      },
+    }),
   ]);
 
   // ── 1. resolver defaults ────────────────────────────────────────────────────
@@ -443,25 +498,193 @@ async function main(): Promise<void> {
   await checkAsync('doctor: flagged store prints the prominent warning naming file/cwd/tokens; JSON is advisory-only', async () => {
     const ctx = makeCtx('doctor-flagged');
     const handlers = createDoctorHandlers(ctx);
+    const hotOpaqueId = deriveAdapterOwnerSessionId(ctx.root, 'codex', 'codex-burn-A', 'main');
+    const megaOpaqueId = deriveAdapterOwnerSessionId(ctx.root, 'codex', 'codex-mega-M', 'main');
+    const claudeOpaqueId = deriveAdapterOwnerSessionId(ctx.root, 'claude-code', 'claude-cache-heavy', 'main');
     await withEnv(
       { [BURN_ALERT_ENV.codexDir]: codexDir, [BURN_ALERT_ENV.claudeDir]: claudeDir },
       async () => {
         const text = String(await handlers.doctor({ format: 'text' }));
         assert.ok(text.includes('Host burn scan (advisory):'), 'section header present');
-        assert.ok(text.includes('✗ BURN ALERT codex codex-burn-A'), 'warning names host + session id');
-        assert.ok(text.includes('rollout-hot.jsonl'), 'warning names the session file');
+        assert.ok(text.includes(`✗ BURN ALERT codex ${hotOpaqueId}`), 'warning names host + opaque session id');
+        assert.ok(text.includes(`<codex-transcript>/${hotOpaqueId}.jsonl`), 'warning uses an opaque transcript locator');
         assert.ok(text.includes('/tmp/burning-desktop-thread'), 'warning names the cwd');
         assert.ok(text.includes('~150_000_000'), 'warning names cumulative tokens');
         assert.ok(text.includes('input-tokens'), 'tripped thresholds listed');
-        assert.ok(text.includes('claude claude-cache-heavy'), 'claude cache-heavy session flagged too');
+        assert.ok(text.includes(`claude ${claudeOpaqueId}`), 'claude cache-heavy session is reported with an opaque id');
         const json = (await handlers.doctor({ format: 'json' })) as Record<string, any>;
         assert.equal(json.hostBurnScan.advisory, true, 'JSON advisory=true');
         assert.equal(json.hostBurnScan.gateEvidence, false, 'JSON gateEvidence=false');
         assert.equal(json.hostBurnScan.disabled, false, 'scan ran');
         assert.equal(json.hostBurnScan.scanWindowHours, 48, 'scanWindowHours field carries the recent-activity window');
         assert.ok(json.hostBurnScan.findings.length >= 2, 'both flagged sessions in JSON');
+        assert.equal(json.hostBurnScan.findings[0]?.sessionId, megaOpaqueId, 'opaque ids preserve burn ordering');
       },
     );
+  });
+
+  await checkAsync('doctor/usage projection: native Codex + Claude ids and transcript paths never escape outward surfaces', async () => {
+    const ctx = makeCtx('doctor-native-redaction');
+    const handlers = createDoctorHandlers(ctx);
+    const sweepHandlers = createUsageSweepHandlers(ctx, { now: () => NOW });
+    const expectedCodexId = deriveAdapterOwnerSessionId(ctx.root, 'codex', codexNativeSentinel, 'main');
+    const expectedClaudeId = deriveAdapterOwnerSessionId(ctx.root, 'claude-code', claudeNativeSentinel, 'main');
+    await withEnv(
+      {
+        [BURN_ALERT_ENV.codexDir]: nativeSentinelCodexDir,
+        [BURN_ALERT_ENV.claudeDir]: nativeSentinelClaudeDir,
+        LATTICE_SESSION_ID: undefined,
+        LATTICE_AGENT: 'main',
+        CODEX_THREAD_ID: codexNativeSentinel,
+      },
+      async () => {
+        resetSessionIdForTest();
+        const text = String(await handlers.doctor({ format: 'text' }));
+        const json = await handlers.doctor({ format: 'json' });
+        const sweepJson = await sweepHandlers.usage_sweep({
+          since: '20d',
+          codexSessionsDir: nativeSentinelCodexDir,
+          claudeProjectsDir: nativeSentinelClaudeDir,
+          json: true,
+        });
+        const sweepAlert = await sweepHandlers.usage_sweep({
+          since: '20d',
+          codexSessionsDir: nativeSentinelCodexDir,
+          claudeProjectsDir: nativeSentinelClaudeDir,
+          alert: true,
+          json: true,
+        });
+        const sweepText = await sweepHandlers.usage_sweep({
+          since: '20d',
+          codexSessionsDir: nativeSentinelCodexDir,
+          claudeProjectsDir: nativeSentinelClaudeDir,
+        });
+        const sweepAlertText = await sweepHandlers.usage_sweep({
+          since: '20d',
+          codexSessionsDir: nativeSentinelCodexDir,
+          claudeProjectsDir: nativeSentinelClaudeDir,
+          alert: true,
+        }) as UsageSweepAlertResult;
+        const outRelative = `reports/native-redaction-${process.pid}.json`;
+        await sweepHandlers.usage_sweep({
+          since: '20d',
+          codexSessionsDir: nativeSentinelCodexDir,
+          claudeProjectsDir: nativeSentinelClaudeDir,
+          out: outRelative,
+          json: true,
+        });
+        const outBytes = readFileSync(join(ctx.root, outRelative), 'utf8');
+        const outwardSurfaces = {
+          doctorText: text,
+          doctorJson: JSON.stringify(json),
+          sweepJson: JSON.stringify(sweepJson),
+          sweepAlertJson: JSON.stringify(sweepAlert),
+          sweepText: String(sweepText),
+          sweepAlertText: String(sweepAlertText.output),
+          sweepOutFile: outBytes,
+        };
+        for (const [surface, output] of Object.entries(outwardSurfaces)) {
+          assert.equal(output.includes(codexNativeSentinel), false, `${surface} omits the raw Codex native id`);
+          assert.equal(output.includes(claudeNativeSentinel), false, `${surface} omits the raw Claude native id`);
+        }
+        const serialized = Object.values(outwardSurfaces).join('\n');
+        assert.equal(serialized.includes(codexNativeSentinel), false, 'Codex native thread id is absent from doctor text and JSON');
+        assert.equal(serialized.includes(claudeNativeSentinel), false, 'Claude native session id is absent from doctor text and JSON');
+        assert.ok(serialized.includes(expectedCodexId), 'doctor retains the canonical opaque Codex owner-session identity');
+        assert.ok(serialized.includes(expectedClaudeId), 'doctor retains a useful opaque Claude finding identity');
+        assert.ok(outwardSurfaces.sweepText.includes(expectedCodexId.slice(0, 8)), 'plain text retains a bounded opaque Codex id');
+        assert.ok(outwardSurfaces.sweepText.includes(expectedClaudeId.slice(0, 8)), 'plain text retains a bounded opaque Claude id');
+        for (const [surface, output] of [
+          ['alert text', outwardSurfaces.sweepAlertText],
+          ['out file', outwardSurfaces.sweepOutFile],
+        ]) {
+          assert.ok(output.includes(expectedCodexId), `${surface} retains the opaque Codex id`);
+          assert.ok(output.includes(expectedClaudeId), `${surface} retains the opaque Claude id`);
+          assert.ok(output.includes(`<codex-transcript>/${expectedCodexId}.jsonl`), `${surface} retains the opaque Codex locator`);
+          assert.ok(output.includes(`<claude-transcript>/${expectedClaudeId}.jsonl`), `${surface} retains the opaque Claude locator`);
+        }
+        const findings = (json as any).hostBurnScan.findings;
+        assert.ok(findings.every((finding: any) => /^sess-[a-f0-9]{32}$/.test(finding.sessionId)), 'every outward finding id is opaque');
+        assert.ok(findings.every((finding: any) => /^<(?:codex|claude)-transcript>\/sess-[a-f0-9]{32}\.jsonl$/.test(finding.file)), 'every outward transcript locator is opaque');
+      },
+    );
+    resetSessionIdForTest();
+
+    for (const [provider, env, sentinel] of [
+      ['claude-code', { CLAUDE_CODE_SESSION_ID: claudeNativeSentinel, LATTICE_AGENT: 'main' }, claudeNativeSentinel],
+      ['antigravity', { AGY_SESSION_ID: agyNativeSentinel, LATTICE_AGENT: 'main' }, agyNativeSentinel],
+    ] as const) {
+      const identity = resolveSessionIdentity(
+        env,
+        { hostname: 'native-redaction-host', root: ctx.root, ppid: 4242 },
+      );
+      assert.equal(JSON.stringify(identity).includes(sentinel), false, `${provider} owner identity never serializes the raw native candidate`);
+      assert.match(identity.sessionId, /^sess-[a-f0-9]{32}$/, `${provider} retains a useful opaque canonical identity`);
+    }
+  });
+
+  await checkAsync('outward projection: every Sweep/Burn string field is redacted, including originLabel and timestamps', () => {
+    const taintedRow = row({
+      host: 'codex',
+      sessionId: codexNativeSentinel,
+      file: `/native/${codexNativeSentinel}.jsonl`,
+      cwd: `/cwd/${codexNativeSentinel}`,
+      originator: `origin/${codexNativeSentinel}`,
+      originLabel: `codex-desktop/${codexNativeSentinel}` as any,
+      firstTimestamp: `first/${codexNativeSentinel}`,
+      lastTimestamp: `last/${codexNativeSentinel}`,
+      storyMentions: [`B-0014/${codexNativeSentinel}`],
+      usage: codexUsage(250_000_000),
+    });
+    const projectedRow = projectSweepSessionRowForOutput(taintedRow, root);
+    assert.equal(JSON.stringify(projectedRow).includes(codexNativeSentinel), false, 'SweepSessionRow projection covers every outward string field');
+
+    const projectedBurn = projectBurnAlertEvaluationForOutput(
+      evaluateBurnAlerts([taintedRow], {
+        nowMs: NOW,
+        thresholds: T,
+        fileSizeOf: () => 0,
+      }),
+      root,
+    );
+    const burnSerialized = `${JSON.stringify(projectedBurn)}\n${renderHostBurnScan(projectedBurn, { disabled: false }).join('\n')}`;
+    assert.equal(burnSerialized.includes(codexNativeSentinel), false, 'Burn finding JSON/text redacts a tainted originLabel and timestamp fields');
+  });
+
+  await checkAsync('outward projection: row, report, and burn evaluation are deeply idempotent', () => {
+    const raw = row({
+      host: 'codex',
+      sessionId: codexNativeSentinel,
+      file: `/native/${codexNativeSentinel}.jsonl`,
+      cwd: `/cwd/${codexNativeSentinel}`,
+      originator: `origin/${codexNativeSentinel}`,
+      usage: codexUsage(250_000_000),
+    });
+    const rowOnce = projectSweepSessionRowForOutput(raw, root);
+    const rowTwice = projectSweepSessionRowForOutput(rowOnce, root);
+    assert.deepEqual(rowTwice, rowOnce, 'row projection is deep-equal on a second pass');
+    assert.equal(rowTwice.sessionId, rowOnce.sessionId, 'row projection preserves the exact opaque id');
+
+    const reportOnce = projectSweepReportForOutput(buildSweepReport([raw]), root);
+    const reportTwice = projectSweepReportForOutput(reportOnce, root);
+    assert.deepEqual(reportTwice, reportOnce, 'report projection is deep-equal on a second pass');
+
+    const burnRaw = evaluateBurnAlerts([raw], {
+      nowMs: NOW,
+      thresholds: T,
+      fileSizeOf: () => 0,
+    });
+    const burnOnce = projectBurnAlertEvaluationForOutput(burnRaw, root);
+    const burnTwice = projectBurnAlertEvaluationForOutput(burnOnce, root);
+    assert.deepEqual(burnTwice, burnOnce, 'burn projection is deep-equal on a second pass');
+
+    const lookalike = row({
+      host: 'codex',
+      sessionId: 'sess-0123456789abcdef0123456789abcdef',
+      file: '/raw/user-controlled.jsonl',
+    });
+    const projectedLookalike = projectSweepSessionRowForOutput(lookalike, root);
+    assert.notEqual(projectedLookalike.sessionId, lookalike.sessionId, 'exact-looking user input without the host-bound locator is not trusted as projected');
   });
 
   await checkAsync('doctor: clean stores print the ✓ line; RECENT_HOURS=0 prints disabled and skips scanning', async () => {
@@ -516,7 +739,9 @@ async function main(): Promise<void> {
         // block (the session id is on the block header, not the tripped line),
         // instead of grabbing the first 'tripped:' line in the whole output.
         const lines = text.split('\n');
-        const headerIdx = lines.findIndex((line) => line.includes('✗ BURN ALERT codex codex-burn-A'));
+        const hotOpaqueId = deriveAdapterOwnerSessionId(ctx.root, 'codex', 'codex-burn-A', 'main');
+        const megaOpaqueId = deriveAdapterOwnerSessionId(ctx.root, 'codex', 'codex-mega-M', 'main');
+        const headerIdx = lines.findIndex((line) => line.includes(`✗ BURN ALERT codex ${hotOpaqueId}`));
         assert.ok(headerIdx >= 0, 'codex-burn-A warning block present');
         const nextHeader = lines.findIndex((line, i) => i > headerIdx && line.includes('✗ BURN ALERT'));
         const hotBlock = lines.slice(headerIdx, nextHeader === -1 ? lines.length : nextHeader);
@@ -525,11 +750,11 @@ async function main(): Promise<void> {
         // Selector rigor: codex-mega-M (250M, young) sorts FIRST, so the first
         // 'tripped:' line in the output is NOT codex-burn-A's — a regression to
         // the pre-F-004 first-line selector would fail these assertions.
-        assert.equal(json.hostBurnScan.findings[0]?.sessionId, 'codex-mega-M', 'bigger-burn young session sorts first');
+        assert.equal(json.hostBurnScan.findings[0]?.sessionId, megaOpaqueId, 'bigger-burn young session sorts first');
         const firstTrippedIdx = lines.findIndex((line) => line.includes('tripped:'));
         assert.ok(firstTrippedIdx >= 0 && firstTrippedIdx < headerIdx, 'first tripped line precedes the codex-burn-A block (mega renders first)');
         assert.ok(!(lines[firstTrippedIdx] ?? '').includes('session-age'), 'first tripped line belongs to codex-mega-M (no session-age) — block slicing is load-bearing');
-        const hot = json.hostBurnScan.findings.find((f: any) => f.sessionId === 'codex-burn-A');
+        const hot = json.hostBurnScan.findings.find((f: any) => f.sessionId === hotOpaqueId);
         assert.ok(hot, 'HOT fixture flagged');
         assert.deepEqual([...hot.reasons].sort(), ['file-size', 'input-tokens', 'session-age'], 'doctor JSON lists all three reasons');
         assert.ok(hotTripped && hotTripped.includes('file-size') && hotTripped.includes('input-tokens') && hotTripped.includes('session-age'), 'codex-burn-A block tripped line lists all three reasons');

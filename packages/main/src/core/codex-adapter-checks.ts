@@ -452,9 +452,10 @@ function checkCodexNativeHooks(root: string, checks: CodexAdapterCheck[]): void 
   push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'pass', true, '.codex/hooks.json wires apply_patch/Edit/Write to lattice-scope-pretool.cjs');
 }
 
-function activityFor(root: string, session: string, tool: string): Record<string, unknown> | null {
-  return readActivityLogTail(root, 200)
-    .find(entry => entry.session === session && entry.tool === tool) || null;
+function activityForEntrypoint(root: string, tool: string, entrypoint: string): Record<string, unknown> | null {
+  return [...readActivityLogTail(root, 200)]
+    .reverse()
+    .find(entry => entry.tool === tool && entry.entrypoint === entrypoint) || null;
 }
 
 function runHeartbeat(
@@ -485,6 +486,8 @@ function runHeartbeat(
         LATTICE_ACTIVITY_SOURCE: id === 'local-wrapper-heartbeat' ? 'not-codex' : 'codex',
         LATTICE_ACTIVITY_RECORD_READONLY: '1',
         LATTICE_ACTIVITY_SESSION: session,
+        CODEX_THREAD_ID: id === 'local-wrapper-heartbeat' ? session : '',
+        LATTICE_AGENT: 'main',
         LATTICE_CODEX_ENTRYPOINT: expectedEntrypoint,
       },
     });
@@ -493,9 +496,30 @@ function runHeartbeat(
     return;
   }
 
-  const record = activityFor(root, session, 'session_brief');
+  const record = activityForEntrypoint(root, 'session_brief', expectedEntrypoint);
   if (!record) {
-    push(checks, id, label, 'fail', true, `no activity heartbeat for session ${session}`, retryCommand);
+    push(checks, id, label, 'fail', true, 'no activity heartbeat with the expected entrypoint', retryCommand);
+    return;
+  }
+  const opaqueSession = typeof record.session === 'string' ? record.session : '';
+  if (!/^sess-[a-f0-9]+$/.test(opaqueSession) || opaqueSession === session) {
+    if (id === 'global-fallback-heartbeat') {
+      push(
+        checks,
+        id,
+        label,
+        'warn',
+        false,
+        'installed global lattice still reports a legacy raw heartbeat identity; upgrade the global CLI before using it for owner coordination',
+        retryCommand,
+      );
+      return;
+    }
+    push(checks, id, label, 'fail', true, 'activity heartbeat did not redact the raw host task/session token', retryCommand);
+    return;
+  }
+  if (JSON.stringify(readActivityLogTail(root, 20)).includes(session)) {
+    push(checks, id, label, 'fail', true, 'raw host task/session token leaked into recent activity events', retryCommand);
     return;
   }
   if (record.source !== 'codex') {
@@ -503,14 +527,14 @@ function runHeartbeat(
     return;
   }
   if (!record.entrypoint && expectedEntrypoint === 'global-fallback') {
-    push(checks, id, label, 'pass', true, `source=codex session=${session}; installed global CLI has no entrypoint field yet`);
+    push(checks, id, label, 'pass', true, `source=codex session=${opaqueSession}; installed global CLI has no entrypoint field yet`);
     return;
   }
   if (record.entrypoint !== expectedEntrypoint) {
     push(checks, id, label, 'fail', true, `entrypoint=${String(record.entrypoint)} expected ${expectedEntrypoint}`, retryCommand);
     return;
   }
-  push(checks, id, label, 'pass', true, `source=codex session=${session} entrypoint=${expectedEntrypoint}`);
+  push(checks, id, label, 'pass', true, `source=codex session=${opaqueSession} entrypoint=${expectedEntrypoint}`);
 }
 
 function isPackagedDesktopRuntime(): boolean {

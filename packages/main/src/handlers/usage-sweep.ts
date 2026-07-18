@@ -25,6 +25,7 @@ import {
   buildSweepReport,
   openReportFileExclusive,
   parseSinceToMs,
+  projectSweepReportForOutput,
   rowTotalTokens,
   sweepClaudeProjects,
   sweepCodexSessions,
@@ -35,6 +36,7 @@ import {
 } from '../core/usage-sweep.js';
 import {
   evaluateBurnAlerts,
+  projectBurnAlertEvaluationForOutput,
   renderSweepAlertSection,
   resolveBurnAlertThresholds,
   type BurnAlertEvaluation,
@@ -194,8 +196,11 @@ export function createUsageSweepHandlers(ctx: HandlerContext, options: CreateUsa
         sweepClaudeProjects({ dir: claudeDir, sinceMs }),
       ]);
 
-      const base = buildSweepReport([...codexRows, ...claudeRows], { since: label, sinceMs });
-      const report: UsageSweepReport = { ...base, generatedAt: new Date(now()).toISOString() };
+      const rawReport = buildSweepReport([...codexRows, ...claudeRows], { since: label, sinceMs });
+      const report: UsageSweepReport = {
+        ...projectSweepReportForOutput(rawReport, ctx.root),
+        generatedAt: new Date(now()).toISOString(),
+      };
 
       // The ONLY write path: an explicit --out, create-only via the hardened
       // core fence (relative-only, no overwrite, no symlinked ancestors).
@@ -215,10 +220,13 @@ export function createUsageSweepHandlers(ctx: HandlerContext, options: CreateUsa
       // recency window is the caller's --since (documented); the handler never
       // throws on fired alerts — exit-code semantics live in the CLI wrapper.
       if (args.alert === true) {
-        const evaluation = evaluateBurnAlerts(report.sessions, {
-          nowMs: now(),
-          thresholds: resolveBurnAlertThresholds(process.env),
-        });
+        const evaluation = projectBurnAlertEvaluationForOutput(
+          evaluateBurnAlerts(rawReport.sessions, {
+            nowMs: now(),
+            thresholds: resolveBurnAlertThresholds(process.env),
+          }),
+          ctx.root,
+        );
         const output: UsageSweepAlertResult['output'] = wantsJson(args)
           ? { ...report, alert: evaluation }
           : `${renderHuman(report)}\n\n${renderSweepAlertSection(evaluation).join('\n')}`;

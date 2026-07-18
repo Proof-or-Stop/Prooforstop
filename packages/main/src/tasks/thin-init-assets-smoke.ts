@@ -79,6 +79,8 @@ function runSessionBriefHeartbeat(root: string, session: string): void {
       LATTICE_ACTIVITY_RECORD_READONLY: '1',
       LATTICE_ACTIVITY_SOURCE: 'codex',
       LATTICE_ACTIVITY_SESSION: session,
+      CODEX_THREAD_ID: session,
+      LATTICE_AGENT: 'main',
       LATTICE_CODEX_ENTRYPOINT: 'global-fallback',
     },
   });
@@ -86,9 +88,12 @@ function runSessionBriefHeartbeat(root: string, session: string): void {
 
 function assertSessionBriefActivity(root: string, session: string): void {
   assert.equal(existsSync(getRuntimeActivityLogPath(root)), true, '.lattice/activity.jsonl should exist');
-  const record = readActivityLogTail(root, 20).find(entry =>
-    entry.session === session && entry.tool === 'session_brief');
-  assert.ok(record, `session_brief heartbeat should be recorded for ${session}`);
+  const records = readActivityLogTail(root, 20);
+  const record = [...records].reverse().find(entry => entry.tool === 'session_brief');
+  assert.ok(record, 'session_brief heartbeat should be recorded');
+  assert.match(String(record.session), /^sess-[a-f0-9]+$/, 'heartbeat session should be opaque');
+  assert.notEqual(record.session, session, 'heartbeat must not persist the raw host task/session token');
+  assert.equal(JSON.stringify(records).includes(session), false, 'raw host task/session token is absent from activity events');
   assert.equal(record.source, 'codex');
   assert.equal(record.status, 'ok');
 }

@@ -36,7 +36,13 @@ import { isBlockingOracleRow } from '../core/oracle-row.js';
 import { buildMainSyncReadiness, renderMainSyncReadinessAdvisory } from '../core/lifecycle-readiness.js';
 import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
 import { currentGitHead, tryCaptureEvidenceHashSnapshot } from '../core/evidence-freshness.js';
-import { getSessionId, summarizeOwnerLease, type OwnerLeaseView } from '../core/story-owner-lease.js';
+import {
+  getSessionId,
+  getSessionIdentity,
+  renderSessionIdentityDiagnostic,
+  summarizeOwnerLease,
+  type OwnerLeaseView,
+} from '../core/story-owner-lease.js';
 import { renderCapsuleBrief, validateCapsuleRefs } from '../core/story-capsule.js';
 import { buildScopeProtectionSummary, renderScopeProtectionSummary } from '../core/review-scope-binding.js';
 import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
@@ -1122,6 +1128,9 @@ export function createSessionHandlers(ctx: HandlerContext) {
         for (const l of renderMetaAuditBlock(storyId)) lines.push(l);
       } else {
         try {
+          lines.push('');
+          lines.push('## Session identity');
+          for (const l of renderSessionIdentityDiagnostic(getSessionIdentity())) lines.push(`  ${l}`);
           const view = summarizeOwnerLease(
             ctx.store.storyDirPath(storyId),
             getSessionId(),

@@ -130,6 +130,7 @@ interface DiffFileSources {
 
 interface DeclarationIdentity {
   key: string;
+  continuityKey: string;
   name: string;
 }
 
@@ -158,8 +159,12 @@ function diffFileSources(diff: string): DiffFileSources[] {
     }
     if (!current) current = { file: '__fragment__.ts', oldLines: [], newLines: [] };
     if (line.startsWith('@@')) {
-      current.oldLines.push('');
-      current.newLines.push('');
+      // Separate later hunks without shifting a first-line shebang to line 2.
+      // Full-context diffs begin with @@ before any source line.
+      if (current.oldLines.length > 0 || current.newLines.length > 0) {
+        current.oldLines.push('');
+        current.newLines.push('');
+      }
     } else if (line.startsWith('---') || line.startsWith('+++') || line.startsWith('\\ No newline')) {
       continue;
     } else if (line.startsWith('-')) {
@@ -201,8 +206,23 @@ function declarationName(node: ts.NamedDeclaration, source: ts.SourceFile): stri
   return text || null;
 }
 
+function tsDeclarationContinuityKey(
+  base: string,
+  node: ts.SignatureDeclarationBase,
+  source: ts.SourceFile,
+  declarationOnly: boolean,
+): string {
+  return declarationOnly ? `${base}|signature|${normalizedTsSignature(node, source)}` : base;
+}
+
 function collectTsDeclarations(file: string, sourceText: string): { declarations: DeclarationIdentity[]; diagnostics: string[] } {
-  const kind = /\.tsx$/i.test(file) ? ts.ScriptKind.TSX : /\.jsx$/i.test(file) ? ts.ScriptKind.JSX : ts.ScriptKind.TS;
+  const kind = /\.tsx$/i.test(file)
+    ? ts.ScriptKind.TSX
+    : /\.jsx$/i.test(file)
+      ? ts.ScriptKind.JSX
+      : /\.(?:js|mjs|cjs)$/i.test(file)
+        ? ts.ScriptKind.JS
+        : ts.ScriptKind.TS;
   const source = ts.createSourceFile(file, sourceText, ts.ScriptTarget.Latest, true, kind);
   const parseDiagnostics = (source as ts.SourceFile & { parseDiagnostics?: readonly ts.Diagnostic[] }).parseDiagnostics ?? [];
   const diagnostics = parseDiagnostics.map((diagnostic: ts.Diagnostic) => {
@@ -214,14 +234,17 @@ function collectTsDeclarations(file: string, sourceText: string): { declarations
     let childScope = scope;
     const exported = hasTsModifier(node, ts.SyntaxKind.ExportKeyword) ? 'export' : 'local';
     if (ts.isFunctionDeclaration(node) && node.name) {
+      const base = `${file}|${scope.join('.') || '<module>'}|function|${node.name.text}`;
       declarations.push({
         name: node.name.text,
+        continuityKey: tsDeclarationContinuityKey(base, node, source, node.body === undefined),
         key: `${file}|${scope.join('.') || '<module>'}|function|${node.name.text}|${exported}|${normalizedTsSignature(node, source)}`,
       });
       childScope = [...scope, node.name.text];
     } else if (ts.isClassDeclaration(node) && node.name) {
       declarations.push({
         name: node.name.text,
+        continuityKey: `${file}|${scope.join('.') || '<module>'}|class|${node.name.text}`,
         key: `${file}|${scope.join('.') || '<module>'}|class|${node.name.text}|${exported}`,
       });
       childScope = [...scope, node.name.text];
@@ -229,19 +252,29 @@ function collectTsDeclarations(file: string, sourceText: string): { declarations
       && node.initializer && (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer))) {
       declarations.push({
         name: node.name.text,
+        continuityKey: `${file}|${scope.join('.') || '<module>'}|const-arrow|${node.name.text}`,
         key: `${file}|${scope.join('.') || '<module>'}|const-arrow|${node.name.text}|${exported}|${normalizedTsSignature(node.initializer, source)}`,
       });
       childScope = [...scope, node.name.text];
     } else if (ts.isMethodDeclaration(node) || ts.isMethodSignature(node)) {
       const name = declarationName(node, source);
+      const base = `${file}|${scope.join('.') || '<module>'}|method|${name}`;
       if (name) declarations.push({
         name,
+        continuityKey: tsDeclarationContinuityKey(
+          base,
+          node,
+          source,
+          ts.isMethodSignature(node) || node.body === undefined,
+        ),
         key: `${file}|${scope.join('.') || '<module>'}|method|${name}|${normalizedTsSignature(node, source)}`,
       });
       if (name) childScope = [...scope, name];
     } else if (ts.isConstructorDeclaration(node)) {
+      const base = `${file}|${scope.join('.') || '<module>'}|constructor|constructor`;
       declarations.push({
         name: 'constructor',
+        continuityKey: tsDeclarationContinuityKey(base, node, source, node.body === undefined),
         key: `${file}|${scope.join('.') || '<module>'}|constructor|constructor|${normalizedTsSignature(node, source)}`,
       });
       childScope = [...scope, 'constructor'];
@@ -339,6 +372,7 @@ function collectPythonDeclarations(file: string, sourceText: string): { declarat
     const scope = scopes.map((entry) => entry.name).join('.') || '<module>';
     declarations.push({
       name: name!,
+      continuityKey: `${file}|${scope}|py-${kind}|${name}`,
       key: `${file}|${scope}|py-${kind}|${name}|${asyncFlag ? 'async' : ''}|${signature}`,
     });
     scopes.push({ indent, name: name! });
@@ -351,7 +385,12 @@ export function analyzeDeletedSymbols(diff: string): DeletedSymbolAnalysis {
   const added = new Map<string, number>();
   const diagnostics: string[] = [];
   for (const file of diffFileSources(diff)) {
-    const python = /\.py$/i.test(file.file);
+    const python = /\.py(?:i|w)?$/i.test(file.file);
+    const typeScriptFamily = /\.(?:js|jsx|ts|tsx|mjs|cjs|mts|cts)$/i.test(file.file);
+    // Declaration analysis is language-routed. Story metadata, JSON/JSONL,
+    // Markdown, manifests, and every other unsupported extension are not
+    // source fragments and must not be handed to the TypeScript parser.
+    if (!python && !typeScriptFamily) continue;
     const oldSide = python
       ? collectPythonDeclarations(file.file, file.oldSource)
       : collectTsDeclarations(file.file, file.oldSource);
@@ -360,10 +399,16 @@ export function analyzeDeletedSymbols(diff: string): DeletedSymbolAnalysis {
       : collectTsDeclarations(file.file, file.newSource);
     diagnostics.push(...oldSide.diagnostics, ...newSide.diagnostics);
     for (const declaration of oldSide.declarations) {
-      removed.set(declaration.key, [...(removed.get(declaration.key) ?? []), declaration]);
+      removed.set(
+        declaration.continuityKey,
+        [...(removed.get(declaration.continuityKey) ?? []), declaration],
+      );
     }
     for (const declaration of newSide.declarations) {
-      added.set(declaration.key, (added.get(declaration.key) ?? 0) + 1);
+      added.set(
+        declaration.continuityKey,
+        (added.get(declaration.continuityKey) ?? 0) + 1,
+      );
     }
   }
   const symbols: string[] = [];
