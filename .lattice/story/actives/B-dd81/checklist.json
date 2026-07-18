@@ -1,0 +1,48 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define trusted full-context Task Context and Prompt Envelope contracts",
+      "context": "Extend the Story 1 versioned contracts with Task Context, known execution environment, content addressing, and fail-closed Story/HEAD/round/ReviewRun bindings without enabling incremental mode.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-2可信-full-context-装配与-envelope"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Route Story-aware full-context assembly through agent_prompt CLI",
+      "context": "The host/main Agent must request canonical full assembly from the trusted CLI and must not be able to supply or splice its own envelope payload.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-2可信-full-context-装配与-envelope"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Bind signed review evidence and gates to fresh Prompt Envelopes",
+      "context": "ReviewRun, reviewer pass, HEAD and round must consume the same signed content-addressed envelope; stale or replayed envelopes fail closed, while provider retry keeps the usage-ledger attempt identity contract.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-2可信-full-context-装配与-envelope"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Enforce role eligibility and legacy full-context compatibility",
+      "context": "Compatibility and retired roles cannot independently satisfy REVIEW, assurance floor or quorum; per-role feature flags and legacy-full-context pass compatibility must have explicit rollback verification.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-2可信-full-context-装配与-envelope"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
