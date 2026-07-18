@@ -470,6 +470,26 @@
       "resolvedAt": "2026-07-18T03:01:23.814Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0784:F-020",
+      "desc": "Real Git file rename with a declaration rename still loses the protected previous declaration. f1e5eb927b captures oldPath for +++ /dev/null, but flush always calls readBaseSource(projectRoot,currentPath). For a detected rename (`--- a/src/old.ts`, `+++ b/src/new.ts`), main:src/new.ts does not exist; oldPath is never passed to the base reader. A real staged 92%-similar rename changing function critical to renamed produced anchors=[{path:src/new.ts,anchor:renamed,previousAnchor:undefined}] and checkSemanticScope with global protectedAnchors=[critical] returned PASS. The claimed rename test only renames a function within the same file. Carry oldPath as the previous-source identity for rename hunks (while currentPath remains the changed path), read main:oldPath, and add a real git mv/staged rename test proving previousAnchor=critical and protected old identity blocks.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-18T03:04:06.591Z",
+      "reviewRound": "2026-07-18T03:00:34.659Z",
+      "reviewRunId": "B-0784:RR-009",
+      "_hash": "46718a87ef34f4f6199d512aea51494c9c4c1290cd0c27e09cdeac6ef5f15140",
+      "files": [
+        "packages/main/src/core/scope-diff-pack.ts",
+        "packages/main/src/core/semantic-scope-gate.ts",
+        "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|renamed-file-old-anchor-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
