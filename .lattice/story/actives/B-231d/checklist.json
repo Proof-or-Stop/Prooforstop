@@ -16,6 +16,25 @@
         "test": [
           "packages/main/src/tasks/worktree-portability-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "validationExecutionLockPath resolves to the same lock path for two different worktree roots of the same story.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "a plain (non-worktree) repo still locks correctly; different storyIds still get different locks.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
