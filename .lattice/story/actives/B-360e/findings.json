@@ -392,6 +392,25 @@
       "resolvedAt": "2026-07-18T09:55:19.918Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-360e:F-019",
+      "desc": "packages/main/src/handlers/validate-concept.ts:141 The old/new path fix still treats Git copy patches as if the source path were removed. diffFileSources ignores `copy from` / `copy to` metadata, and declaration identity is path-bound, so a modified copy from src/original.ts to src/copied.ts with the same still-existing function produces symbols=[stillExists], diagnostics=[] even though no concept was deleted. A 100%-copy patch with context behaves the same. On repositories/configurations that enable copy detection this can create spurious residuals and block REVIEW despite the original declaration remaining. Distinguish copy metadata from rename metadata (or model the copy old side as a survivor), and add pure/modified copy probes while retaining current rename and /dev/null fail-closed behavior.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-18T09:57:03.458Z",
+      "reviewRound": "2026-07-18T09:55:07.480Z",
+      "reviewRunId": "B-360e:RR-026",
+      "_hash": "36788023b4346bad14fb3861724484069c0f019b9e937e6ffcc30cfc2c8879e1",
+      "files": [
+        "packages/main/src/handlers/validate-concept.ts",
+        "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
