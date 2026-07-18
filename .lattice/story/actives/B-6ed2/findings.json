@@ -43,7 +43,7 @@
       "desc": "packages/main/src/handlers/quorum-submit.ts:398-410 and packages/main/src/tasks/quorum-submit-smoke.ts:489-512 — HIGH: same-material duplicate refusal trusts listVerdicts(), whose .lattice/autopilot-verdicts JSON files are gitignored/non-durable, instead of the canonical committed host_verdict events. Deleting that ignored directory after a successful quorum makes the same-material retry emit and commit another six rows, violating the explicit idempotency contract. The current smoke only tests while ignored JSON remains. Derive duplicate detection from committed process-events (exact runId/material binding), and add a regression that removes/loses the cache before retry.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-18T22:46:11.282Z",
@@ -51,7 +51,11 @@
       "reviewRunId": "B-6ed2:RR-001",
       "_hash": "fdbabd452815729b04f6687af2d8ab99cecef2b4e3336b5b6144348428badaed",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "rootCause: same-material duplicate refusal read gitignored autopilot-verdict JSON files, so cache loss erased duplicate authority despite committed host_verdict facts. repro: remove .lattice/autopilot-verdicts/B-quorum-smoke after a successful quorum and retry the same material. reproTest: quorum-submit-smoke same-material duplicate refusal survives deletion of the ignored verdict cache. evidence: smoke PASS 27/27; committedHostVerdictEvents reads HEAD process-events and retry leaves HEAD/event count unchanged in commit 8d7b031bfa.",
+      "resolvedAt": "2026-07-18T23:17:04.285Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-6ed2:F-004",
