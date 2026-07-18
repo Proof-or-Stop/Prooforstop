@@ -221,8 +221,10 @@
       "q": "scope-boundary.json lists \"S1 orchestrator routing\" as an explicit exclusion for B-231d, but this term does not appear anywhere in the enumerated 121-file decisions/ corpus (including the story's own referenced spec, repro-first-gate-enforce-execution-plan.md). Is this exclusion grounded in a decisions/ doc not yet written, or is it a mislabel/carry-over from another story's scope contract?",
       "evidence": "\"excluded\": [\"S1 orchestrator routing\", \"W1 language-neutral classifier\", \"W2 RED evidence subsystem\", \"W3 enforce gate\"]",
       "sourcePointers": [
-        ".lattice/story/actives/B-231d/scope-boundary.json:13"
-      ]
+        "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md"
+      ],
+      "resolution": "The scope-boundary excluded entry 'S1 orchestrator routing' is a PROGRAM-internal cross-reference to sibling story B-d877 (route dev_finish/dev_merge through runStoryTransition), part of the same Workstream-0 pre-existing-defects table in docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md; it is not a decisions/-corpus feature term. This story (B-231d = W0.2 lock + W0.4 digest) deliberately excludes the orchestrator-routing defect (W0.1) and the same-owner mutex (W0.3), which are owned by B-d877; they are orphan-suspect here only because the split is program-level, not corpus-level.",
+      "resolvedAt": "2026-07-18T23:05:02.961Z"
     }
   ]
 }
