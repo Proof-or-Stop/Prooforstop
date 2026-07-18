@@ -34,7 +34,20 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Semantic scope output selects the enclosing function or method with an anchor parser version; if/loop/local-const edits no longer appear as declaration anchors.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/semantic-scope-gate.ts",
+          "packages/main/src/core/types.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-003",
