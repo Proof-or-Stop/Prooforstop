@@ -26,11 +26,18 @@
             "priority": "must"
           }
         ],
-        "edge": [],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "non-git project falls back to projectRoot lock without throwing.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
         "adversarial": [
           {
             "id": "CHK-001:adversarial:0",
-            "desc": "a plain (non-worktree) repo still locks correctly; different storyIds still get different locks.",
+            "desc": "different storyIds still get different locks; plain repo unchanged.",
             "type": "cli",
             "priority": "must"
           }

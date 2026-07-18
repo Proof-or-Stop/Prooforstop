@@ -1,0 +1,25 @@
+{
+  "storyId": "B-231d",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/validation-execution-lock.ts",
+    "packages/main/src/core/done-required-validation.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/worktree-portability-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-18T22:55:35.576Z",
+  "updatedAt": "2026-07-18T22:55:35.576Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/validation-execution-lock.ts": "packages/main/src/core/validation-execution-lock.ts",
+    "packages/main/src/core/done-required-validation.ts": "packages/main/src/core/done-required-validation.ts",
+    "packages/main/src/tasks/worktree-portability-smoke.ts": "packages/main/src/tasks/worktree-portability-smoke.ts"
+  }
+}
