@@ -17,6 +17,7 @@ import {
   PROMPT_ROLE_CONTRACTS,
   PROMPT_ROLE_CONTRACT_REGISTRY_VERSION,
   promptRoleContractRegistryDigest,
+  validatePromptRoleContracts,
 } from './prompt-role-contract-registry.js';
 import { readPromptRegistry, readPromptTemplate } from './prompt-registry.js';
 
@@ -86,6 +87,8 @@ function unavailable(reason: string): PromptInputLayerAvailability {
 
 export function generatePromptMeasurementReport(): PromptMeasurementReport {
   const snapshot = readPromptRegistry();
+  const currentRoleIds = snapshot.agents.map(entry => entry.agentId);
+  validatePromptRoleContracts(PROMPT_ROLE_CONTRACTS, currentRoleIds);
   if (snapshot.agents.length !== PROMPT_ROLE_CONTRACTS.length) {
     throw new Error('prompt measurement role set differs from lifecycle contract registry');
   }

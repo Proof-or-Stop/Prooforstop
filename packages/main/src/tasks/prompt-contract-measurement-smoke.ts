@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 
 import {
@@ -399,6 +400,67 @@ assert.equal(roleById.get('implementation-reviewer')?.replacementAgentType, 'lat
 assert.match(roleById.get('implementation-reviewer')?.migrationHint ?? '', /lattice-review-behavior/);
 assert.equal(roleById.get('test-intent')?.replacementAgentType, 'verification-intent');
 assert.equal(roleById.get('test-case-reviewer')?.replacementAgentType, 'verification-intent');
+assert.equal(Object.isFrozen(PROMPT_ROLE_CONTRACTS), true);
+for (const contract of PROMPT_ROLE_CONTRACTS) {
+  assert.equal(Object.isFrozen(contract), true, `${contract.roleId} row must be frozen`);
+  for (const key of [
+    'requiredInputIds',
+    'requiredCheckIds',
+    'allowedCommandIds',
+    'forbiddenActionIds',
+    'requiredOutputIds',
+    'stopConditionCodes',
+  ] as const) {
+    assert.equal(Object.isFrozen(contract[key]), true, `${contract.roleId}.${key} must be frozen`);
+  }
+}
+
+const roleRegistryModuleUrl = new URL('../core/prompt-role-contract-registry.js', import.meta.url).href;
+const measurementModuleUrl = new URL('../core/prompt-measurement.js', import.meta.url).href;
+const promptRegistryModuleUrl = new URL('../core/prompt-registry.js', import.meta.url).href;
+const mutationChildOutput = execFileSync(process.execPath, ['--input-type=module', '--eval', `
+  import {
+    PROMPT_ROLE_CONTRACTS,
+    validatePromptRoleContracts,
+  } from ${JSON.stringify(roleRegistryModuleUrl)};
+  import { generatePromptMeasurementReport } from ${JSON.stringify(measurementModuleUrl)};
+  import { readPromptRegistry } from ${JSON.stringify(promptRegistryModuleUrl)};
+
+  const first = PROMPT_ROLE_CONTRACTS[0];
+  const originalStatus = first.status;
+  let statusThrew = false;
+  try { first.status = originalStatus === 'active' ? 'retired' : 'active'; } catch { statusThrew = true; }
+  if (!statusThrew && first.status !== originalStatus) throw new Error('frozen row status mutated');
+
+  const originalInputCount = first.requiredInputIds.length;
+  let pushThrew = false;
+  try { first.requiredInputIds.push('foreign-input'); } catch { pushThrew = true; }
+  if (!pushThrew && first.requiredInputIds.length !== originalInputCount) throw new Error('frozen nested array mutated');
+
+  const originalDigest = first.semanticDigest;
+  let digestThrew = false;
+  try { first.semanticDigest = 'b'.repeat(64); } catch { digestThrew = true; }
+  if (!digestThrew && first.semanticDigest !== originalDigest) throw new Error('frozen semantic digest mutated');
+
+  const foreign = structuredClone(PROMPT_ROLE_CONTRACTS);
+  foreign[0].status = foreign[0].status === 'active' ? 'retired' : 'active';
+  let foreignRejected = false;
+  try {
+    validatePromptRoleContracts(foreign, readPromptRegistry().agents.map(entry => entry.agentId));
+  } catch {
+    foreignRejected = true;
+  }
+  if (!foreignRejected) throw new Error('foreign corrupted registry was accepted');
+
+  const report = generatePromptMeasurementReport();
+  if (
+    report.aggregate.activeRoleCount !== 12 ||
+    report.aggregate.compatibilityRoleCount !== 3 ||
+    report.aggregate.retiredRoleCount !== 1
+  ) throw new Error('report partition changed');
+  console.log('deep-freeze-consumption PASS');
+`], { encoding: 'utf8' });
+assert.match(mutationChildOutput, /deep-freeze-consumption PASS/);
 
 const dispatchBefore = canonicalJsonStringify(AGENT_DISPATCH_REGISTRY);
 buildPromptRoleContracts();

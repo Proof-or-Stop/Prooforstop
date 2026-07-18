@@ -319,4 +319,16 @@ export function promptRoleContractRegistryDigest(contracts: readonly RoleContrac
   return domainSeparatedDigest('prompt-role-contract-registry.v1', contracts);
 }
 
-export const PROMPT_ROLE_CONTRACTS = Object.freeze(buildPromptRoleContracts());
+function deepFreezeRoleContract(contract: RoleContract): Readonly<RoleContract> {
+  Object.freeze(contract.requiredInputIds);
+  Object.freeze(contract.requiredCheckIds);
+  Object.freeze(contract.allowedCommandIds);
+  Object.freeze(contract.forbiddenActionIds);
+  Object.freeze(contract.requiredOutputIds);
+  Object.freeze(contract.stopConditionCodes);
+  return Object.freeze(contract);
+}
+
+export const PROMPT_ROLE_CONTRACTS = Object.freeze(
+  buildPromptRoleContracts().map(deepFreezeRoleContract),
+);
