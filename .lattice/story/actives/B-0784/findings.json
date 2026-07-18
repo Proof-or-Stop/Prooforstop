@@ -30,7 +30,7 @@
       "desc": "The whole-artifact gap binding can launder pre-existing tampering. appendGapFinding reads the current findings array, never verifies its existing binding/signatures, appends a new finding, then signs a digest that includes every earlier record. Thus a direct edit to an older finding followed by any legitimate non-dedup gap_log call produces a new valid latest binding over the altered history; verifyGapLogArtifactBinding verifies only the latest finding signature and will trust the artifact. Require a valid current official binding before extending a bound artifact (with an explicit legacy migration path), and/or verify the complete signed chain rather than only the latest record. Add regression: valid artifact -> mutate old finding -> gap_log new distinct gap -> classifier must remain fail-closed.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-18T02:14:26.701Z",
@@ -43,7 +43,11 @@
         "packages/main/src/tasks/gap-log-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|whole-artifact-binding",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "4106eb3531 replaces self-contained rebinding with an independent HMAC append ledger, verifies the complete receipt chain and initial committed-or-canonical-empty history, and rejects a later gap_log after unbound historical mutation. Verified by gap-log-smoke.",
+      "resolvedAt": "2026-07-18T02:37:47.171Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0784:F-003",
