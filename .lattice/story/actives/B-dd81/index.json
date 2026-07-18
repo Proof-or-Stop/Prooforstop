@@ -4,7 +4,7 @@
   "title": "Story 2: trusted full-context assembly and content-addressed Prompt Envelope",
   "description": "Implement the ordered plan Story 2: move Story-aware full-context prompt assembly behind the trusted agent_prompt CLI path, bind content-addressed Prompt Envelopes to signed ReviewRun, HEAD, review round and reviewer pass, exclude compatibility/retired evidence from gates and quorum, and preserve legacy-full-context compatibility with rollback verification.",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "createdAt": "2026-07-18T19:19:00.243Z",
   "startedAt": "2026-07-18T19:19:00.243Z",
@@ -153,6 +153,15 @@
       "user": "Harmonygo",
       "sessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-18T23:23:40.222Z",
+      "branch": "story/B-dd81",
+      "user": "Harmonygo",
+      "sessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -160,5 +169,5 @@
     "branch": "story/B-dd81",
     "createdAt": "2026-07-18T19:23:06.492Z"
   },
-  "currentReviewRound": "2026-07-18T22:53:28.493Z"
+  "currentReviewRound": "2026-07-18T23:23:40.222Z"
 }
