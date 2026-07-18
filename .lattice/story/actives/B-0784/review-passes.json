@@ -139,6 +139,35 @@
         "scanEscalationReason": null
       },
       "_hash": "57d1c27eb468a14d7f54c88caaa308223b31a882a194d225eaca59c01ba6e087"
+    },
+    {
+      "id": "B-0784:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-7 incremental coverage PASS for 671e9d77fe and F-023..F-026. scope-contract-smoke creates a wrapper metadata root, configured inner Git repo, and linked story worktree; scope_diff_pack asserts only worktree dirt, wrapper astAnchors=off behavior, and fail-closed missing/nonexistent storyId. gap-log-smoke creates a wrapper root plus configured Git authority and proves the official writer, classifier, scope, prewrite, and done_prepare filter share the same authority/key/HEAD, while noncanonical META identity is rejected. Build, gitroot-cwd-contract, scope-contract-smoke, and gap-log-smoke all pass; no broader suite or lifecycle was run.",
+      "createdAt": "2026-07-18T04:09:06.578Z",
+      "reviewRound": "2026-07-18T04:06:45.081Z",
+      "reviewRunId": "B-0784:RR-021",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/audit-meta-store.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/prewrite-guard.ts",
+          "packages/main/src/core/scope-contract.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/scope-path-classifier.ts",
+          "packages/main/src/handlers/prewrite-guard.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/tasks/gap-log-smoke.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "20a4c4eba956cffb997db232d25a87c7374ddd3d4fa165c16aab73d81f052a54"
     }
   ]
 }
