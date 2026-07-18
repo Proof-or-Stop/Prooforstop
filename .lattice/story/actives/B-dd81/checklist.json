@@ -35,7 +35,22 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Calling agent_prompt for a Story returns the canonical full Prompt and signed envelope; attempts to provide or splice a caller-built envelope are rejected with a stable reason."
+      "userSees": "Calling agent_prompt for a Story returns the canonical full Prompt and signed envelope; attempts to provide or splice a caller-built envelope are rejected with a stable reason.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-003",
