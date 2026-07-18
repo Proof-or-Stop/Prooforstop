@@ -62,7 +62,7 @@
       "desc": "packages/main/src/handlers/quorum-submit.ts:284-314 and packages/main/src/tasks/quorum-submit-smoke.ts:595-612 — HIGH: rollback claims to preserve malformed/foreign concurrent bytes verbatim but decodes the entire suffix as UTF-8, drops blank lines, and rejoins with a synthesized trailing newline. A concurrent non-UTF8 byte, blank line, or unterminated append is therefore rewritten/corrupted during rollback. The smoke covers only normalized JSON plus newline and asserts marker presence, not byte equality. Remove owned rows by exact byte spans while copying every other byte unchanged, and assert Buffer equality for malformed/non-UTF8 and unterminated foreign suffixes.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-18T22:46:14.848Z",
@@ -70,7 +70,11 @@
       "reviewRunId": "B-6ed2:RR-001",
       "_hash": "b9cb896e9dba76e7f4adb548e0f1899aa1876df0a75f3b4c9d2cd4bc3c38dbe8",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "rootCause: rollback decoded the concurrent suffix as UTF-8, discarded blank lines, and synthesized a trailing newline, corrupting arbitrary foreign bytes. repro: append Buffer bytes containing blank lines, 0xff, NUL, JSON braces, and no terminal newline between verification and commit. reproTest: quorum-submit-smoke asserts exact Buffer equality after rollback. evidence: smoke PASS 27/27; rollback now removes only frozen owned Buffer spans and copies all remaining bytes unchanged in commit 8d7b031bfa.",
+      "resolvedAt": "2026-07-18T23:17:06.878Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
