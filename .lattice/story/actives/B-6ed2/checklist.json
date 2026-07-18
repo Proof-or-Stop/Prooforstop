@@ -8,9 +8,9 @@
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-18T22:39:00.894Z",
       "verificationIntent": {
         "happy": [
           {
@@ -53,7 +53,86 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "quorum_submit smoke passed 20 checks including exact six-row commit, dirty refusal, foreign append, hook failure and retry, HEAD CAS, rollback conflict, duplicate refusal, clean post-state, and no Authority overclaim.",
+          "headHash": "10ddfb321e31e5af53b4444963401b6e8bacd2b1",
+          "materialHash": "4224e1712ac63b6699a3f7c49713d041ec2ccefa985d064b4a2e51e17bef8959",
+          "storyFilesHash": "e3da6ea08864425d485a9e6cd829b642f930d62de812b3e150786cdaa399f9b3",
+          "timestamp": "2026-07-18T22:39:01.630Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "quorum_submit smoke passed 20 checks including exact six-row commit, dirty refusal, foreign append, hook failure and retry, HEAD CAS, rollback conflict, duplicate refusal, clean post-state, and no Authority overclaim.",
+          "headHash": "10ddfb321e31e5af53b4444963401b6e8bacd2b1",
+          "materialHash": "4224e1712ac63b6699a3f7c49713d041ec2ccefa985d064b4a2e51e17bef8959",
+          "storyFilesHash": "e3da6ea08864425d485a9e6cd829b642f930d62de812b3e150786cdaa399f9b3",
+          "timestamp": "2026-07-18T22:39:02.169Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "quorum_submit smoke passed 20 checks including exact six-row commit, dirty refusal, foreign append, hook failure and retry, HEAD CAS, rollback conflict, duplicate refusal, clean post-state, and no Authority overclaim.",
+          "headHash": "10ddfb321e31e5af53b4444963401b6e8bacd2b1",
+          "materialHash": "4224e1712ac63b6699a3f7c49713d041ec2ccefa985d064b4a2e51e17bef8959",
+          "storyFilesHash": "e3da6ea08864425d485a9e6cd829b642f930d62de812b3e150786cdaa399f9b3",
+          "timestamp": "2026-07-18T22:39:02.594Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "quorum_submit smoke passed 20 checks including exact six-row commit, dirty refusal, foreign append, hook failure and retry, HEAD CAS, rollback conflict, duplicate refusal, clean post-state, and no Authority overclaim.",
+          "headHash": "10ddfb321e31e5af53b4444963401b6e8bacd2b1",
+          "materialHash": "4224e1712ac63b6699a3f7c49713d041ec2ccefa985d064b4a2e51e17bef8959",
+          "storyFilesHash": "e3da6ea08864425d485a9e6cd829b642f930d62de812b3e150786cdaa399f9b3",
+          "timestamp": "2026-07-18T22:39:02.974Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "quorum_submit smoke passed 20 checks including exact six-row commit, dirty refusal, foreign append, hook failure and retry, HEAD CAS, rollback conflict, duplicate refusal, clean post-state, and no Authority overclaim.",
+          "headHash": "10ddfb321e31e5af53b4444963401b6e8bacd2b1",
+          "materialHash": "4224e1712ac63b6699a3f7c49713d041ec2ccefa985d064b4a2e51e17bef8959",
+          "storyFilesHash": "e3da6ea08864425d485a9e6cd829b642f930d62de812b3e150786cdaa399f9b3",
+          "timestamp": "2026-07-18T22:39:03.321Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "quorum_submit smoke passed 20 checks including exact six-row commit, dirty refusal, foreign append, hook failure and retry, HEAD CAS, rollback conflict, duplicate refusal, clean post-state, and no Authority overclaim.",
+          "headHash": "10ddfb321e31e5af53b4444963401b6e8bacd2b1",
+          "materialHash": "4224e1712ac63b6699a3f7c49713d041ec2ccefa985d064b4a2e51e17bef8959",
+          "storyFilesHash": "e3da6ea08864425d485a9e6cd829b642f930d62de812b3e150786cdaa399f9b3",
+          "timestamp": "2026-07-18T22:39:03.737Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "quorum_submit smoke passed 20 checks including exact six-row commit, dirty refusal, foreign append, hook failure and retry, HEAD CAS, rollback conflict, duplicate refusal, clean post-state, and no Authority overclaim.",
+          "headHash": "10ddfb321e31e5af53b4444963401b6e8bacd2b1",
+          "materialHash": "4224e1712ac63b6699a3f7c49713d041ec2ccefa985d064b4a2e51e17bef8959",
+          "storyFilesHash": "e3da6ea08864425d485a9e6cd829b642f930d62de812b3e150786cdaa399f9b3",
+          "timestamp": "2026-07-18T22:39:04.090Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
