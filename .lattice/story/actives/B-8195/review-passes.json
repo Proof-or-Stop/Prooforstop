@@ -783,6 +783,27 @@
         "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
       },
       "_hash": "60667d21bdcf393a737ec263361bb0d00f3e99f4647f0225cb172eadfb99a5c0"
+    },
+    {
+      "id": "B-8195:RP-023",
+      "agent": "lattice-review-concept",
+      "note": "Round-8 incremental concept review of 1c969baa1a passes. The contract now requires exactly two validation transaction writer occurrences and separately extracts reusedStoryValidationResult and persistStoryValidationEvidence to require evidence, terminal, transaction, validate reason, and closeout binding in each local body. Its mutation bite deletes the executed writer while reuse remains and asserts both the local executed contract and exact-count contract fail. The process-fact contract command passed.",
+      "createdAt": "2026-07-18T20:50:04.748Z",
+      "reviewRound": "2026-07-18T20:48:38.996Z",
+      "reviewRunId": "B-8195:RR-031",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "f167f44f9b75ca6eea9121667d7a22162c42ac7b3904119b0ce2fe3ed1565f82"
     }
   ]
 }
