@@ -4,17 +4,17 @@
   "actual": {
     "command": "node --input-type=module -e 'import { canonicalizeScopePath } from \"./packages/main/dist/core/scope-path-classifier.js\"; const r=canonicalizeScopePath({projectRoot:process.cwd(),scanRoot:\"packages/main\",sourceRoot:\"src\",input:\"core/foo.ts\"}); if(r.canonicalPath!==\"packages/main/src/core/foo.ts\") process.exit(1); console.log(\"input: core/foo.ts | canonical: \"+r.canonicalPath+\" | rule: allowed_modify | status: PASS\")' && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node packages/main/dist/tasks/gap-log-smoke.js",
     "exitCode": 0,
-    "stdout": "input: core/foo.ts | canonical: packages/main/src/core/foo.ts | rule: allowed_modify | status: PASS\nsemantic scope guard smoke passed\n✓ gap-log-1: missing category/severity/evidence/source rejected by both Zod and handler runtime, nothing written\n✓ gap-log-2: default gap_log writes evidenceState=suspected\n✓ gap-log-3: verified without structured evidence can never become a verified finding\n✓ gap-log-4: verified with structured evidence is allowed\n✓ gap-log-5: empty / whitespace-only evidence rejected\n✓ gap-log-6: B-META container is auto-bootstrapped, then reused\n✓ gap-log-7: gap_log runs with no story worktree\n✓ gap-log-8: identical gap logged twice dedupes into one canonical finding\n✓ gap-log-8b: gaps differing in any identity channel get distinct fingerprints, never merged\n✓ gap-log-8c: later gap_log rejects an unbound historical mutation\n✓ gap-log-8d: concurrent same gap -> one canonical finding; concurrent distinct gaps -> all kept\n✓ gap-log-9: evidenceState=disproven and out-of-enum values rejected by Zod and handler runtime\n✓ gap-log-10: 5 rapid gap_log calls all persisted with unique ids\n✓ gap-log-12: sourceRefs + files both passed are merged & deduped, no silent loss\n✓ gap-log-13: full provenance, consumer parity, legacy genesis, and diagnostic matrix\n✓ gap-log-11: gap_log is registered and discoverable via lattice help\n✓ gap-log smoke passed\n"
+    "stdout": "input: core/foo.ts | canonical: packages/main/src/core/foo.ts | rule: allowed_modify | status: PASS\nsemantic scope guard smoke passed\n✓ gap-log-1: missing category/severity/evidence/source rejected by both Zod and handler runtime, nothing written\n✓ gap-log-2: default gap_log writes evidenceState=suspected\n✓ gap-log-3: verified without structured evidence can never become a verified finding\n✓ gap-log-4: verified with structured evidence is allowed\n✓ gap-log-5: empty / whitespace-only evidence rejected\n✓ gap-log-6: B-META container is auto-bootstrapped, then reused\n✓ gap-log-7: gap_log runs with no story worktree\n✓ gap-log-8: identical gap logged twice dedupes into one canonical finding\n✓ gap-log-8b: gaps differing in any identity channel get distinct fingerprints, never merged\n✓ gap-log-8c: later gap_log rejects an unbound historical mutation\n✓ gap-log-8d: concurrent same gap -> one canonical finding; concurrent distinct gaps -> all kept\n✓ gap-log-9: evidenceState=disproven and out-of-enum values rejected by Zod and handler runtime\n✓ gap-log-10: 5 rapid gap_log calls all persisted with unique ids\n✓ gap-log-12: sourceRefs + files both passed are merged & deduped, no silent loss\n✓ gap-log-13: full provenance, consumer parity, legacy genesis, and diagnostic matrix\n✓ gap-log-14: wrapper-root writer/classifier/scope/prewrite/done_prepare authority parity\n✓ gap-log-11: gap_log is registered and discoverable via lattice help\n✓ gap-log smoke passed\n"
   },
   "mode": {
     "runCommands": true,
     "writeEvidence": true
   },
-  "capturedAtIso": "2026-07-18T03:31:34.346Z",
+  "capturedAtIso": "2026-07-18T04:25:10.513Z",
   "claims": {
     "authorityDone": false,
     "productionDone": false
   },
-  "headHash": "004789e2db1e2c83a2b0180c97afb509d66bbfc7",
-  "materialHash": "36eb243a7534bd90e2bd7e916824134fe46598a36e707b08f23d87ce0b7a5d8a"
+  "headHash": "1d06d085a2ce923172f927e2466c0a8807ab8986",
+  "materialHash": "90d8306a3662ae903b0cde4006e2670c0997cd7767e45d6593018254ebcfd567"
 }
