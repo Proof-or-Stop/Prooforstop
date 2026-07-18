@@ -140,7 +140,7 @@
         "happy": [
           {
             "id": "agent-prompt-story-full-assembly",
-            "desc": "For each supported active role, agent_prompt invoked with the required Story and trusted review target inputs returns contextMode=full, the exact canonical assembled Prompt bytes, a validated TaskContext, known-environment digest, envelopeId and all inspectable Story/HEAD/round/ReviewRun bindings from the CLI-owned assembly path.",
+            "desc": "For each supported active role, agent_prompt returns contextMode=full, exact canonical Prompt bytes, validated TaskContext, known-environment digest, envelopeId and common Story/HEAD bindings from the trusted CLI path. audit story-dispatch returns dispatchKind=audit without round/ReviewRun and is barred from reviewer evidence; reviewer-authority requests resolve and bind the exact signed reviewRound/ReviewRun before their envelope can support reviewer evidence.",
             "type": "cli",
             "requiredIn": "balanced",
             "priority": "must"
@@ -184,7 +184,7 @@
           },
           {
             "id": "agent-prompt-no-provider-or-evidence-side-effect",
-            "desc": "Full assembly is local and deterministic: it performs no provider call, usage fabrication, reviewer-pass/finding/review-run/lifecycle mutation or aggregate-evidence write; activity/process observation, if required by policy, is the only bounded side effect and cannot count as gate evidence.",
+            "desc": "Full assembly is local and deterministic: it performs no provider call, usage fabrication, reviewer-pass/finding/review-run/lifecycle mutation or aggregate-evidence write. An audit story-dispatch envelope is explicitly non-authoritative and cannot be submitted as reviewer evidence; bounded activity/process observation cannot count as gate evidence.",
             "type": "cli",
             "requiredIn": "strict",
             "priority": "must"
