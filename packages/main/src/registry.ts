@@ -100,6 +100,7 @@ import { createQuantumClaimAdmissibilityHandlers } from './handlers/quantum-clai
 import { createPlaybookRuntimeMemoryHandlers } from './handlers/playbook-runtime-memory.js';
 import { createCapabilityListHandlers } from './handlers/capability-list.js';
 import { createAgentPromptHandlers } from './handlers/agent-prompt.js';
+import { createPromptMeasurementHandlers } from './handlers/prompt-measurement.js';
 import { createStoryExportHandlers } from './handlers/story-export.js';
 import { createLatticeHandoffHandlers } from './handlers/lattice-handoff.js';
 import { createLatticeDispatchHandlers } from './handlers/lattice-dispatch.js';
@@ -369,6 +370,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // the canonical role body straight from the package prompt registry (the same
   // registry the Codex manifest resolves). Claude thin-shims fetch from here.
   registry.registerBatch(createAgentPromptHandlers());
+  registry.registerBatch(createPromptMeasurementHandlers());
 
   // Proofbound productized export and cross-host handoff surfaces.
   registry.registerBatch(createLatticeCliHandlers(ctx));

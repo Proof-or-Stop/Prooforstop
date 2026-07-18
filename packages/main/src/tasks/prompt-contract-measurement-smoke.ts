@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 
 import {
   PROMPT_CONTRACT_ALGORITHMS,
@@ -31,6 +32,21 @@ import {
   validatePromptRolePolicyDefinition,
 } from '../core/prompt-role-contract-registry.js';
 import { readPromptRegistry } from '../core/prompt-registry.js';
+import {
+  PROMPT_MEASUREMENT_BASELINE_PATH,
+  canonicalPromptMeasurementReportJson,
+  generatePromptMeasurementReport,
+  verifyPromptMeasurementReport,
+} from '../core/prompt-measurement.js';
+import {
+  createPromptMeasurementHandlers,
+  renderPromptMeasurementReportText,
+} from '../handlers/prompt-measurement.js';
+import { COMMAND_POLICIES } from '../core/command-policy.js';
+import { getProcessFactLevelEntry } from '../core/process-fact-levels.js';
+import { isCommandAllowed } from '../core/config.js';
+import { isReadOnlyCommand } from '../cli/activity-policy.js';
+import { MAIN_TOOLS } from '../cli/command-catalog.js';
 
 function rejects(fn: () => unknown, pattern: RegExp): void {
   assert.throws(fn, pattern);
@@ -263,4 +279,56 @@ rejects(
   /retired/,
 );
 
-console.log('prompt-contract-measurement-smoke CHK-001/CHK-002 PASS');
+const reportA = generatePromptMeasurementReport();
+const reportB = generatePromptMeasurementReport();
+assert.equal(canonicalPromptMeasurementReportJson(reportA), canonicalPromptMeasurementReportJson(reportB));
+assert.equal(reportA.records.length, 16);
+assert.deepEqual(reportA.records.map(record => record.roleId).sort(), packageRoleIds);
+assert.equal(reportA.aggregate.roleCount, 16);
+assert.equal(reportA.aggregate.activeRoleCount, 12);
+assert.equal(reportA.aggregate.compatibilityRoleCount, 3);
+assert.equal(reportA.aggregate.retiredRoleCount, 1);
+assert.equal(reportA.aggregate.bytes, reportA.records.reduce((sum, record) => sum + record.bytes, 0));
+assert.equal(reportA.aggregate.lines, reportA.records.reduce((sum, record) => sum + record.lines, 0));
+assert.equal(reportA.aggregate.estimatedTokens, reportA.records.reduce((sum, record) => sum + record.estimatedTokens, 0));
+for (const record of reportA.records) {
+  assert.equal(record.assembledPromptTokens.availability, 'available');
+  assert.equal(record.knownDispatchInputTokens.availability, 'unavailable');
+  assert.equal(record.providerProcessedInputTokens.availability, 'unavailable');
+}
+assert.equal(reportA.aggregate.knownDispatchInputTokens.availability, 'unavailable');
+assert.equal(reportA.aggregate.providerProcessedInputTokens.availability, 'unavailable');
+verifyPromptMeasurementReport(reportA);
+rejects(() => verifyPromptMeasurementReport({
+  ...reportA,
+  records: reportA.records.slice(1),
+}), /16 records/);
+rejects(() => verifyPromptMeasurementReport({
+  ...reportA,
+  records: reportA.records.map((record, index) => index === 0 ? { ...record, bytes: record.bytes + 1 } : record),
+}), /does not match/);
+
+const handlers = createPromptMeasurementHandlers();
+const jsonReport = handlers.prompt_measurement_report({ format: 'json' });
+assert.equal(canonicalJsonStringify(jsonReport), canonicalJsonStringify(reportA));
+const textReport = handlers.prompt_measurement_report({ format: 'text' });
+assert.equal(textReport, renderPromptMeasurementReportText(reportA));
+assert.equal(textReport.split('\n').filter(line => packageRoleIds.some(id => line.startsWith(`${id}:`))).length, 16);
+assert.match(textReport, /knownDispatch=unavailable/);
+assert.match(textReport, /providerProcessed=unavailable/);
+assert.match(textReport, /L0 observational only/);
+
+assert.equal(COMMAND_POLICIES.prompt_measurement_report.ownershipClass, 'readOnly');
+assert.equal(COMMAND_POLICIES.prompt_measurement_report.allowedPhases, 'all');
+assert.equal(isReadOnlyCommand('prompt_measurement_report'), true);
+for (const phase of ['INIT', 'INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE']) {
+  assert.equal(isCommandAllowed('prompt_measurement_report', phase), true);
+}
+assert.equal(getProcessFactLevelEntry('prompt_measurement_report')?.level, 'L0');
+assert.equal(MAIN_TOOLS.filter(tool => tool.name === 'prompt_measurement_report').length, 1);
+
+const checkedInBaseline = readFileSync(PROMPT_MEASUREMENT_BASELINE_PATH, 'utf8');
+assert.equal(checkedInBaseline, canonicalPromptMeasurementReportJson(reportA));
+assert.doesNotMatch(checkedInBaseline, /prompt-envelope|envelopeId|reviewRunId/i);
+
+console.log('prompt-contract-measurement-smoke CHK-001/CHK-002/CHK-003 PASS');

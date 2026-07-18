@@ -275,6 +275,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'capability_list', // B-f26a M2: read-only host capability diagnostics for cross-host degradation
     'capability_probe', // B-cd31 CHK-002: productized single-host capability diagnostics
     'agent_prompt', // B-097f CHK-002: read-only host-neutral agent prompt endpoint; resolves role body from package registry in any phase
+    'prompt_measurement_report', // B-360e: read-only deterministic no-Story prompt measurement, all phases
     'baseline_run', 'baseline_suite', 'baseline_suite_report', 'capability_claim_evaluate', 'capability_claim_formal_evaluate', // B-92e2/B-ce79: baseline artifact/report commands; formal claim still does not mutate lifecycle or release readiness
     'memory_benchmark_*', // B-d4dd/B-2a63: virtual benchmark + real-data export harnesses are read-only in all phases
     'pinn_*', // B-db1b: PINN claim-admissibility check/benchmark/report commands are local read-only diagnostics in all phases
