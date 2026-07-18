@@ -38,6 +38,38 @@
       },
       "readDiagnostics": [],
       "_hash": "4fba6c1920d7c1cb0f07c6795ca790ee3a17d8a0a4b3354d0e82327318df43f1"
+    },
+    {
+      "id": "B-360e:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round-4 full concept re-review found no remaining blocker. The canonical serializer now rejects array subclasses/custom prototypes before any candidate method can run, validates the exact own-key/descriptor domain, and encodes indices through descriptors; adversarial probes confirmed subclass/custom/own map methods were never invoked. The 16-role lifecycle registry rejects exact status/default/policy-field/semantic-digest drift, all three measurement layers retain honest availability semantics, no PromptEnvelope authority is created, both report modes are read-only, all focused/process-fact/baseline verifiers pass, and protected prompt outputs remain byte-identical.",
+      "createdAt": "2026-07-18T00:29:53.807Z",
+      "reviewRound": "2026-07-18T00:27:20.625Z",
+      "reviewRunId": "B-360e:RR-011",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-360e/background.md",
+          ".lattice/story/actives/B-360e/checklist.json",
+          ".lattice/story/actives/B-360e/plan.md",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/prompt-measurement.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "467be5707e7cbf775b7d084b6eb43ca084a4d8f67b816268738cf54403d31d14"
     }
   ]
 }
