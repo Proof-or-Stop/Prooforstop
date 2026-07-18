@@ -283,7 +283,7 @@
       "desc": "scope_contract_acknowledge bypasses the new canonicalizer: it calls validatePaths and persists the caller spelling directly (handlers/scope-contract.ts:353,379,388), while the contract paths and changed files are repo-root-relative. Thus acknowledging core/foo.ts on this project will not cover the changed path packages/main/src/core/foo.ts, and acknowledgement matching can retain the exact path-shape false positive this story is meant to remove. Canonicalize acknowledgement paths with the same version/base rules, retain original spelling for diagnostics, and test source-root-relative, Windows, traversal, ambiguity and legacy acknowledgements.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-18T02:14:58.656Z",
@@ -296,7 +296,11 @@
         "packages/main/src/tasks/scope-contract-smoke.ts"
       ],
       "signatureTag": "edge|ts|scope-contract-acknowledge",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "4106eb3531 routes scope_contract_acknowledge paths through the same canonicalizer, persists original inputs, rejects traversal/ambiguity, and retains protected/excluded fail-closed semantics. scope-contract-smoke verifies source-root convergence and traversal rejection.",
+      "resolvedAt": "2026-07-18T02:37:57.942Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
