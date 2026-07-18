@@ -445,6 +445,29 @@
         "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
       },
       "_hash": "843a9eb8fb4025aa8faa8c955d68418451ad5e2952d0f8a575b1602aed947ca5"
+    },
+    {
+      "id": "B-8195:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Round 5 F-011 delta verified: executed validation owns an exact three-file isolated transaction before the shorter phase transaction, eliminating nested story-branch HEAD movement. Story-branch success, main direct-handler closeout, validation-failure persistence, and foreign mid-validation append controls all pass; no path or event-shape trust was broadened.",
+      "createdAt": "2026-07-18T12:46:26.620Z",
+      "reviewRound": "2026-07-18T12:43:58.206Z",
+      "reviewRunId": "B-8195:RR-020",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "16993c383dae511e05375dca25155674fb04b8d26d4294d7a89b9ceff139f404"
     }
   ]
 }
