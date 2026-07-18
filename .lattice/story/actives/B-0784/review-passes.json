@@ -254,6 +254,25 @@
         "scanEscalationReason": null
       },
       "_hash": "6bc6813746607b4eb0eb887ed6f0bf9389044e59f54be8982e1a820b49557342"
+    },
+    {
+      "id": "B-0784:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-9 F-028 coverage PASS for 88e43cc818. The injected reader now asserts its cwd equals the linked storyWorktree and differs from both wrapperRoot and innerRepo before returning changed files. The surrounding status=pass assertion still exercises wrapper pathCanonicalization=off, so the pre-fix config-root conflation would fail even though the reader cwd is correct. Build and scope-contract-smoke pass; no broader suite or lifecycle was run.",
+      "createdAt": "2026-07-18T04:16:20.290Z",
+      "reviewRound": "2026-07-18T04:14:57.758Z",
+      "reviewRunId": "B-0784:RR-028",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4eaf8d1c2c66916208010323f0202e939cbaa812e02e41104138052193d6daee"
     }
   ]
 }
