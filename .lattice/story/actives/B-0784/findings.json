@@ -500,7 +500,7 @@
       "desc": "F-021: ee1329cef8 classifies every parseFallback ending in _fail_closed as an extraction failure, but makeViolation now gives every such failure the rename-specific nextAction `Restore both sides of the renamed source`. Existing non-rename fallbacks such as typescript_parse_error_fail_closed and typescript_source_unavailable_fail_closed therefore receive an incorrect remediation. Keep the generic fail-closed gate, but branch the nextAction by rename fallback versus ordinary parse/source failure and add a non-rename regression assertion.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-18T03:10:08.374Z",
@@ -512,7 +512,11 @@
         "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
       ],
       "signatureTag": "edge|ts|ee1329cef8-classifies-every",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 1572a6e170. Semantic fallback recovery is now branch-specific for missing rename target, missing previous rename source, copy identity, generic parser failure, and generic source unavailability. Table assertions prove non-rename failures never instruct restoring both rename sides and each branch provides its exact remediation. Evidence PASS: build, semantic-scope-guard-smoke, git diff --check, scope_contract_check.",
+      "resolvedAt": "2026-07-18T03:16:00.154Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0784:F-022",
