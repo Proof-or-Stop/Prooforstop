@@ -380,6 +380,29 @@
         "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
       },
       "_hash": "984818537a071d9e924460890a1e0ceac9025ce15efe1b39c33ef4ebf8195502"
+    },
+    {
+      "id": "B-8195:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Round-5 F-010 re-review passes. The long validation window is outside the TEST phase transaction; executed verifier persistence starts a separate clean exact three-path transaction only after commands complete. Mid-validation foreign process metadata is refused before evidence/terminal writes, preserved uncommitted, returns failure, and cannot manufacture TEST. The focused deterministic F-010 smoke passed.",
+      "createdAt": "2026-07-18T12:45:27.217Z",
+      "reviewRound": "2026-07-18T12:43:58.206Z",
+      "reviewRunId": "B-8195:RR-017",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "199959b771a611a47e1b0d3bf98325ea8b50690ef10feed3ab6e7f9aee815843"
     }
   ]
 }
