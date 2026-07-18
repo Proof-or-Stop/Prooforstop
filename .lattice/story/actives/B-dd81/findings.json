@@ -91,7 +91,7 @@
       "desc": "Gate-consumer coverage is materially incomplete for 7 must intents. packages/main/src/tasks/review-run-smoke.ts only calls verifyReviewRunPromptEnvelope directly; packages/main/src/tasks/prompt-full-context-envelope-smoke.ts only checks isReviewerAgent/resolveReviewRunLane directly. The submitted suite contains no full-envelope or compatibility/retired-role scenario in review-assurance-floor-smoke.ts, quorum-submit-smoke.ts, or flow-stability-smoke.ts (source search finds none). Therefore REVIEW transition/current receipt, assurance floor and quorum are not exercised with tampered/replayed envelopes or numerically sufficient compatibility-only evidence, and removing one consumer filter would not be caught. This fails review-gates-consume-envelope-proof, replay-new-head/round/run, gate-paths-share-envelope-verifier, compatibility-only-review/assurance/quorum-blocked, all-gate-consumers-share-role-filter and rollback-never-downgrades-gates. Add focused end-to-end/mutation-sensitive fixtures through each real consumer, not registry-string assertions.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-18T21:30:50.911Z",
@@ -108,7 +108,11 @@
         "packages/main/src/handlers/quorum-submit.ts"
       ],
       "signatureTag": "missing|ts|gate-consumer-coverage",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in b4efda425c: machine REVIEW, review-assurance-floor and quorum real-consumer tests now cover envelope replay/tamper plus compatibility/retired-only evidence and mutation-sensitive shared filtering; all focused suites pass.",
+      "resolvedAt": "2026-07-18T21:50:34.514Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
