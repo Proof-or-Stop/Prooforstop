@@ -357,6 +357,21 @@
       "_hash": "e81249652b27fb4898f0890ece9eb5a7ec2e54e8f65938fbe892c0e37efa3665",
       "signatureTag": "edge|unknown|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-62b8:F-018",
+      "desc": "packages/main/src/handlers/validate-concept.ts:369-375 — HIGH: Python routing recognizes only .py, so standard Python interface stubs (.pyi) and Windows Python sources (.pyw) fall into the unsupported-file skip and silently pass. Executable matrix on current dist: deleting `def removed(value: str) -> str: ...` yields symbols=[removed] for api.py but symbols=[]/diagnostics=[] for api.pyi and gui.pyw. A .pyi deletion is an exported interface deletion—the exact concept-retirement signal this gate must not fail open on. Route .pyi (and .pyw if claimed supported) through collectPythonDeclarations and add deletion/body-change/malformed cases, while keeping genuinely unsupported metadata/docs skipped.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-18T00:56:19.113Z",
+      "reviewRound": "2026-07-18T00:53:30.666Z",
+      "reviewRunId": "B-62b8:RR-022",
+      "_hash": "9c86c495bcf7246f8d3b385d84d7d6682df31871a1ad32e7094cd485d037f93c",
+      "signatureTag": "missing|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
