@@ -890,6 +890,37 @@
       },
       "readDiagnostics": [],
       "_hash": "7d276f922d345c3a5b71886f099d0c21f6d03d3fbbed444f24e88a88352eb51e"
+    },
+    {
+      "id": "B-360e:RP-028",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-18 test-coverage PASS. Independently exercised baf064ba10 in a detached clean worktree. Control run began and ended with empty git status, passed the focused prompt-contract smoke, and left the dedicated TMPDIR empty. A reviewer-only mutation replaced the temporary worktree CLI with a stub that appended to tracked README.md; the exact same smoke then exited 1 with `text and JSON prompt measurement reports must not change repository git status`, proving the regression detects CLI writes. Its finally cleanup still left TMPDIR empty; the mutated worktree, logs, and temp directory were then fully removed. Current checklist is 4/4 done with 42/42 passing evidence records, no missing commands, and every record bound to storyFilesHash e156668 and evidence head baf064ba10. The F-031 mktemp command is self-contained and externally scoped. Fresh build, prompt measurement smoke, merge-preserving concept smoke, baseline mutation verifier, exact 16-role baseline, and protected prompt zero-drift checks pass; no open findings remain.",
+      "createdAt": "2026-07-18T13:45:49.893Z",
+      "reviewRound": "2026-07-18T12:46:15.092Z",
+      "reviewRunId": "B-360e:RR-057",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-360e/background.md",
+          ".lattice/story/actives/B-360e/plan.md",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-360e/checklist.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "43ef564bdf63f9a88ac53ac5ebfa5f886f338e297bcaebe3a7af391408c79b5b"
     }
   ]
 }
