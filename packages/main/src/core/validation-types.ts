@@ -162,6 +162,12 @@ export interface DoneRequiredCommandSpecEnvelope {
   args: string[];
   /** Repo-root-relative LOGICAL cwd (v2) / absolute cwd (legacy v1). Digested. */
   cwd: string;
+  /**
+   * Resolved ABSOLUTE physical workspace path where the command ran. Provenance
+   * only — deliberately EXCLUDED from the command-spec digest so it never breaks
+   * cross-worktree/host verification. Absent on legacy v1 receipts.
+   */
+  resolvedCwd?: string;
   shell: boolean;
   env: Record<string, string>;
   timeoutMs: number;

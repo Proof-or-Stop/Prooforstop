@@ -133,6 +133,9 @@ function sortedStringRecord(value?: Record<string, string>): Record<string, stri
 }
 
 function commandSpecDigestPayload(spec: Omit<DoneRequiredCommandSpecEnvelope, 'schema' | 'digest'>): string {
+  // NOTE: `resolvedCwd` (absolute physical workspace path) is deliberately NOT
+  // included here — it is non-digested provenance (CHK-003), so changing only
+  // the physical cwd leaves the digest unchanged and portable across worktrees.
   return stableStringify({
     command: spec.command,
     args: spec.args,
@@ -163,6 +166,10 @@ export function buildDoneRequiredCommandSpecEnvelope(
     command: executed?.command ?? command.command,
     args: [...(executed?.args ?? command.args)],
     cwd: repoRelativeLogicalCwd(projectRoot, command.cwd),
+    // Non-digested provenance: the real absolute workspace path the command ran
+    // in. commandSpecDigestPayload intentionally omits it so it never affects
+    // the portable digest (CHK-003).
+    resolvedCwd: normalizedCommandCwd(projectRoot, executed?.cwd ?? command.cwd),
     shell: executed ? executed.shell === true : command.shell === true,
     env: sortedStringRecord(command.env),
     timeoutMs: resolveCommandTimeoutMs(command),
