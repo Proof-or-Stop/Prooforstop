@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-d877",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Focused smoke reproducing the bypass and the concurrency race",
+    "Per-story transition mutex serializing read->gate->persist for same-owner concurrent transitions",
+    "Route dev_finish/dev_merge through runStoryTransition instead of raw actor + direct story.phase write"
+  ],
+  "excluded": [
+    "Any change to what runStoryTransition gates already enforce",
+    "Language-neutral classifier (W1)",
+    "RED evidence subsystem (W2)",
+    "The new DEV->REVIEW evidence gate (W3)",
+    "validation lock root / digest cwd (S2)"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Audit-derived transition-integrity fix; scope frozen to the two bypassing handlers plus the same-owner transition mutex and their smoke.",
+  "createdAt": "2026-07-18T13:48:06.194Z",
+  "updatedAt": "2026-07-18T13:48:06.194Z",
+  "_hash": "e330b0c496a4ab4b3227e4a5eb2f111efb724de9186ce7051c49ca3c4901a7ac"
+}

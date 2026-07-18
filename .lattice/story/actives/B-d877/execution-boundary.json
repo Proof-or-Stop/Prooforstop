@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-d877",
+  "allowedCommands": [
+    "git add*",
+    "git commit*",
+    "git diff*",
+    "git log*",
+    "git show*",
+    "git status*",
+    "git worktree*",
+    "lattice *",
+    "node packages/main/dist/tasks/*",
+    "npm --prefix packages/main *",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "lattice-review-story-init",
+    "product-reviewer"
+  ],
+  "allowedPaths": [
+    "packages/main/src/core/story-transition-lock.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/tasks/transition-integrity-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git push*",
+    "git reset --hard*",
+    "omx *"
+  ],
+  "excludedTools": [
+    "omx",
+    "remote publish"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "S1 transition-integrity; two bypassing handlers + per-story transition mutex + smoke.",
+  "createdAt": "2026-07-18T13:48:31.168Z",
+  "updatedAt": "2026-07-18T13:48:31.168Z",
+  "_hash": "174a287a42ef48563e40d1ca8ca2c2e1c76c7d399ffdd53689b3e28c2ef09ded"
+}

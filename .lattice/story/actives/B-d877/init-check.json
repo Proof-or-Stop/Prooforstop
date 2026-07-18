@@ -1,0 +1,52 @@
+{
+  "storyId": "B-d877",
+  "checkedAt": "2026-07-18T13:56:23.468Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md ## Solution Tradeoffs: \"nor touch the separate S2 (lock-root/digest portability) or W1/W2/W3 gate work\" — S2 has a parenthetical gloss, but W1/W2/W3 are letter+number codes with zero expansion anywhere in the text. Grepped docs/requirements/decisions/*.md (including proof-admissibility-hardening-execution-plan.md, which does define S2) and found no definition of W1, W2, or W3 anywhere in the repo. A fresh reader cannot tell what out-of-scope work these codes refer to."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "medium",
+      "desc": "Closing self-check gap: background.md Solution Tradeoffs commits to TWO deliverables — (1) route dev_finish/dev_merge through runStoryTransition, and (2) add a per-story transition lock held across read->gate->persist so same-owner concurrent transitions serialize (the second, related defect described in Key Insights). checklist.json has only CHK-001 \"Implement fix for reproduced failure\", whose context (\"Probe: rp-mrqf6efm-6wotja, Review: rr-mrqf729k-l0qs9c\") ties only to the repro that exercises defect #1 (the dev_finish bypass). Neither the title nor context of CHK-001 names the concurrency/mutex deliverable. Since checklist length is 1 (<=2) and index.json has no riskSignals populated, this story is fast-track-eligible (INIT_CHECK could skip PLAN straight to DEV per CLAUDE.md), so there is no guaranteed PLAN-phase scope-check to catch that the locking fix is not explicitly tracked as a separate verifiable checklist deliverable."
+    },
+    {
+      "id": "INIT-003",
+      "severity": "low",
+      "desc": "Minor standalone-readability gaps: background.md Trigger Event says \"cross-host audit (codex + agy)\" — \"agy\" (Antigravity host) is never expanded anywhere in the text; and \"candidate probe rp-mrqf6efm-6wotja, red-reviewed target-bug rr-mrqf729k-l0qs9c\" uses repro-first-methodology jargon (\"probe\", \"target-bug\") that is documented in docs/requirements/decisions/repro-first-story-intake-experiment.md but not linked or glossed inline. Both are inferable from surrounding context so this is advisory only."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-18T13:53:18.108Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-18T13:56:23.468Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md ## Solution Tradeoffs: \"nor touch the separate S2 (lock-root/digest portability) or W1/W2/W3 gate work\" — S2 has a parenthetical gloss, but W1/W2/W3 are letter+number codes with zero expansion anywhere in the text. Grepped docs/requirements/decisions/*.md (including proof-admissibility-hardening-execution-plan.md, which does define S2) and found no definition of W1, W2, or W3 anywhere in the repo. A fresh reader cannot tell what out-of-scope work these codes refer to."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "medium",
+          "desc": "Closing self-check gap: background.md Solution Tradeoffs commits to TWO deliverables — (1) route dev_finish/dev_merge through runStoryTransition, and (2) add a per-story transition lock held across read->gate->persist so same-owner concurrent transitions serialize (the second, related defect described in Key Insights). checklist.json has only CHK-001 \"Implement fix for reproduced failure\", whose context (\"Probe: rp-mrqf6efm-6wotja, Review: rr-mrqf729k-l0qs9c\") ties only to the repro that exercises defect #1 (the dev_finish bypass). Neither the title nor context of CHK-001 names the concurrency/mutex deliverable. Since checklist length is 1 (<=2) and index.json has no riskSignals populated, this story is fast-track-eligible (INIT_CHECK could skip PLAN straight to DEV per CLAUDE.md), so there is no guaranteed PLAN-phase scope-check to catch that the locking fix is not explicitly tracked as a separate verifiable checklist deliverable."
+        },
+        {
+          "id": "INIT-003",
+          "severity": "low",
+          "desc": "Minor standalone-readability gaps: background.md Trigger Event says \"cross-host audit (codex + agy)\" — \"agy\" (Antigravity host) is never expanded anywhere in the text; and \"candidate probe rp-mrqf6efm-6wotja, red-reviewed target-bug rr-mrqf729k-l0qs9c\" uses repro-first-methodology jargon (\"probe\", \"target-bug\") that is documented in docs/requirements/decisions/repro-first-story-intake-experiment.md but not linked or glossed inline. Both are inferable from surrounding context so this is advisory only."
+        }
+      ]
+    }
+  ],
+  "_hash": "ea06b43a90eb9b1746fcb41296d6ca763142fbeadeca46c6045f803b6248520f"
+}
