@@ -386,7 +386,7 @@
       "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:1419 and scripts/verify-process-fact-contract.mjs:955 — HIGH: 0fc143ac00 correctly repins cli-engine to independently recomputed canonical AST hash 966ee4…, but the required retired-authority smoke still fails because this story also changed bin/lattice-codex.js and its exact benign-loader fingerprint remains the stale 9ad446… instead of current canonical 4df693…. Repro after successful build: retired-authority-vocabulary-guard-smoke reports `bin/lattice-codex.js:30 unapproved non-literal dynamic module load`; process-fact contract separately PASSes because it mirrors the same stale literal rather than exercising the guard. Repin that wrapper in both exact maps after reviewing its pathToFileURL(localLattice).href call; do not broaden the file/anchor/argument allowlist.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-18T01:10:55.191Z",
@@ -394,7 +394,11 @@
       "reviewRunId": "B-62b8:RR-029",
       "_hash": "10b1f211b18bd5d098db46c0213c3ca9596ba83933f28ecde777a8dcd2d6e3c3",
       "signatureTag": "missing|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 1a802b23fc: enumerated all registered benign non-literal loader fingerprints; bootstrap-runner already matched, and only the story-modified bin/lattice-codex.js exact canonical AST fingerprint was repinned while its main anchor, exact pathToFileURL argument, sibling path, and negative controls remained unchanged. Full vocabulary guard and process-fact contract PASS.",
+      "resolvedAt": "2026-07-18T01:14:21.696Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-62b8:F-020",
