@@ -4,7 +4,7 @@
   "title": "Canonicalize scope paths and replace regex semantic anchors",
   "description": "Implement Workstream E/C6: persist one versioned repo-root-relative scope path base, canonicalize source-relative inputs deterministically, replace regex nearest-anchor inference with parser-backed enclosing declarations, and classify official shared B-META gap_log lifecycle metadata without weakening unknown-path fail-closed behavior.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-07-18T01:38:06.394Z",
   "startedAt": "2026-07-18T01:38:06.394Z",
-  "endedAt": null,
+  "endedAt": "2026-07-18T04:33:14.008Z",
   "events": [
     {
       "phase": "INIT",
@@ -222,12 +222,16 @@
       "user": "Harmonygo",
       "sessionId": "codex-wa-final",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-18T04:33:14.008Z",
+      "branch": "story/B-0784",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-0784",
-    "branch": "story/B-0784",
-    "createdAt": "2026-07-18T01:41:00.642Z"
-  },
   "currentReviewRound": "2026-07-18T04:14:57.758Z"
 }
