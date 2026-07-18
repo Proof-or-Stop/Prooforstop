@@ -420,6 +420,28 @@
         "scanEscalationReason": null
       },
       "_hash": "7941fb1d2f99956ff54baad57849820b9e76b43bd618836441d7ed52a1ffac84"
+    },
+    {
+      "id": "B-62b8:RP-017",
+      "agent": "lattice-review-docs",
+      "note": "Round-8 bounded docs re-attestation PASS for 0fc143ac00. The commit changes only two exact executable-source fingerprint constants after already-reviewed cli-engine source movement; it introduces no runtime behavior, process-fact meaning, CLI/config/output surface, or documentation promise, so no docs update is required. verify-process-fact-contract passed. The additional retired-authority guard run exposed a separate current-material dynamic-import allowlist failure in bin/lattice-codex.js; that is not a docs obligation or fingerprint semantic drift and must be handled by quality/implementation before convergence.",
+      "createdAt": "2026-07-18T01:10:50.043Z",
+      "reviewRound": "2026-07-18T01:08:09.314Z",
+      "reviewRunId": "B-62b8:RR-033",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9d6da2e0cef2d089b40f17b1247768b7ed4deda2f4a35e783f4f32ffe478c17f"
     }
   ]
 }
