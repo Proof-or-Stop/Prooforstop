@@ -356,7 +356,7 @@
       "desc": "F-011 was also resolved only partially. The new gap-log assertions correctly reach classifySharedLifecycleMetadata, checkScopeContract, and filterDonePrepareTrustedMetadataRows and cover a valid row, resequencing, missing ledger, direct content edit, wrong artifact path, and unknown filename. They still do not exercise symlink/path-alias rejection, wrong writer/story/ledger identity or authentic-looking copied/replayed receipt chains, canonical serialization/order/whitespace mutation, an explicit second official update proving prior-binding non-reuse, or the required diagnostic payload (class/path, expected vs observed digest, receipt identity/freshness, remediation). Thus CHK-003 happy:2/edge:0-1/adversarial:0-2 and CHK-004 adversarial:1 still exceed the tested matrix. Add targeted mutations against the independent ledger and assert production classifier/clean-tree diagnostics before refreshing all nine PASS bindings.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-18T02:40:48.271Z",
@@ -370,7 +370,11 @@
         "packages/main/src/core/done-prepare-generated-metadata.ts"
       ],
       "signatureTag": "missing|ts|resolved-partially-assertions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by f1e5eb927b. packages/main/src/tasks/gap-log-smoke.ts now covers official initial+second writes, legacy nonempty-to-empty rejection, unchanged legacy append, dirty/tamper/replay, writer/story/ledger/artifact/fingerprint/sequence/prevHash/content/head identity, canonical serialization, symlink/alias rejection, and scope/prewrite/guard/done_prepare consumer parity with actionable diagnostics. Verified PASS with build + gap-log-smoke.",
+      "resolvedAt": "2026-07-18T03:01:19.364Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0784:F-016",
