@@ -2483,6 +2483,7 @@ Behavior:
     hunkDigests: z.array(z.string()).optional().describe('Multiple hunk digests covered by this acknowledgement'),
   }},
   { name: 'scope_diff_pack', description: 'Generate a mechanical diff context pack with hunk digests and versioned TypeScript-AST declaration anchors', schema: {
+    storyId: z.string().describe('Story ID whose signed workspace supplies the Git diff'),
     json: z.boolean().optional().describe('Output structured JSON'),
   }},
   { name: 'scope_contract_init_from_plan', description: 'Initialize a story scope contract from PLAN checklist files', schema: {

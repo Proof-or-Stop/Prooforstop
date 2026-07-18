@@ -163,33 +163,33 @@ export function digestGapLogArtifact(data: FindingData): string {
   return digestCanonicalJson(data);
 }
 
-function gitCommonDir(root: string): string {
+function gitCommonDir(gitCwd: string): string {
   const raw = execFileSync('git', ['rev-parse', '--git-common-dir'], {
-    cwd: root,
+    cwd: gitCwd,
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
   }).trim();
-  return isAbsolute(raw) ? raw : resolve(root, raw);
+  return isAbsolute(raw) ? raw : resolve(gitCwd, raw);
 }
 
-function receiptKeyPath(root: string): string {
-  return join(gitCommonDir(root), 'lattice-gap-log-provenance.key');
+function receiptKeyPath(gitCwd: string): string {
+  return join(gitCommonDir(gitCwd), 'lattice-gap-log-provenance.key');
 }
 
 function receiptPayload(receipt: Omit<GapLogProvenanceReceipt, 'integrityHash'>): string {
   return JSON.stringify(receipt);
 }
 
-function expectedReceiptHash(root: string, receipt: Omit<GapLogProvenanceReceipt, 'integrityHash'>): string | null {
-  const keyPath = receiptKeyPath(root);
+function expectedReceiptHash(gitCwd: string, receipt: Omit<GapLogProvenanceReceipt, 'integrityHash'>): string | null {
+  const keyPath = receiptKeyPath(gitCwd);
   if (!existsSync(keyPath)) return null;
   return createHmac('sha256', readFileSync(keyPath)).update(receiptPayload(receipt)).digest('hex');
 }
 
-function committedArtifactDigest(root: string, commit: string): string | null {
+function committedArtifactDigest(gitCwd: string, commit: string): string | null {
   try {
     const text = execFileSync('git', ['show', `${commit}:${GAP_LOG_ARTIFACT_PATH}`], {
-      cwd: root,
+      cwd: gitCwd,
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
@@ -226,11 +226,13 @@ export function verifyGapLogArtifactBinding(
   data: FindingData,
   artifactPath: string = GAP_LOG_ARTIFACT_PATH,
   projectRoot?: string,
+  gitCwdOverride?: string,
 ): GapLogArtifactVerification {
   if (artifactPath.replace(/\\/g, '/').replace(/^\.\//, '') !== GAP_LOG_ARTIFACT_PATH) {
     return { trusted: false, reason: 'wrong_artifact_path' };
   }
-  if (!projectRoot) return { trusted: false, reason: 'missing_binding' };
+  if (!projectRoot || !gitCwdOverride) return { trusted: false, reason: 'missing_binding' };
+  const gitCwd = gitCwdOverride;
   let receipts: GapLogProvenanceReceipt[];
   try {
     receipts = readGapLogProvenanceLedger(projectRoot);
@@ -240,7 +242,7 @@ export function verifyGapLogArtifactBinding(
   if (receipts.length === 0) return { trusted: false, reason: 'missing_binding' };
   let previous = '';
   let priorPost = receipts[0].preArtifactDigest;
-  const firstCommittedDigest = committedArtifactDigest(projectRoot, receipts[0].parentHead);
+  const firstCommittedDigest = committedArtifactDigest(gitCwd, receipts[0].parentHead);
   const canonicalEmptyDigest = digestGapLogArtifact({ findings: [] });
   if (
     (firstCommittedDigest !== null && firstCommittedDigest !== receipts[0].preArtifactDigest)
@@ -251,7 +253,7 @@ export function verifyGapLogArtifactBinding(
   for (let index = 0; index < receipts.length; index++) {
     const receipt = receipts[index];
     const { integrityHash, ...unsigned } = receipt;
-    const expected = expectedReceiptHash(projectRoot, unsigned);
+    const expected = expectedReceiptHash(gitCwd, unsigned);
     const authentic = expected && /^[a-f0-9]{64}$/.test(integrityHash)
       && timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(integrityHash, 'hex'));
     if (

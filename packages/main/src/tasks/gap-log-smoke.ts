@@ -207,7 +207,7 @@ function assertDefaultWriteIsSuspected(): void {
     assert.equal(findings[0].gapLogBinding, undefined, 'official provenance is independent of the mutable findings artifact');
     assert.equal(existsSync(join(root, GAP_LOG_PROVENANCE_LEDGER_PATH)), true, 'official gap_log writes an independent append ledger');
     const data = readMetaFindings(root);
-    const verified = verifyGapLogArtifactBinding(data, GAP_LOG_ARTIFACT_PATH, root);
+    const verified = verifyGapLogArtifactBinding(data, GAP_LOG_ARTIFACT_PATH, root, root);
     assert.equal(verified.trusted, true, verified.reason);
     const classified = classifySharedLifecycleMetadata(root, GAP_LOG_ARTIFACT_PATH);
     assert.equal(classified?.trusted, true, classified?.reason);
@@ -291,7 +291,7 @@ function assertDefaultWriteIsSuspected(): void {
       'legacy/path-only B-META stays untrusted until official re-attestation',
     );
     assert.equal(
-      verifyGapLogArtifactBinding(data, '.lattice/story/actives/B-META-other/findings.json', root).reason,
+      verifyGapLogArtifactBinding(data, '.lattice/story/actives/B-META-other/findings.json', root, root).reason,
       'wrong_artifact_path',
       'copied provenance is bound to the canonical framework-audit path',
     );
@@ -658,7 +658,7 @@ function assertProvenanceAndConsumerMatrix(): void {
     assert.equal(receipts[1].sequence, 2);
     assert.equal(receipts[1].previousIntegrityHash, receipts[0].integrityHash);
     assert.equal(receipts[1].preArtifactDigest, receipts[0].postArtifactDigest);
-    assert.equal(verifyGapLogArtifactBinding(data, GAP_LOG_ARTIFACT_PATH, root).trusted, true);
+    assert.equal(verifyGapLogArtifactBinding(data, GAP_LOG_ARTIFACT_PATH, root, root).trusted, true);
 
     const artifactPath = join(root, GAP_LOG_ARTIFACT_PATH);
     const canonicalReordered: FindingData = {
@@ -817,7 +817,7 @@ function assertProvenanceAndConsumerMatrix(): void {
         analysisNote: 'legacy migration remains exact-head bound',
       });
       assert.equal(
-        verifyGapLogArtifactBinding(readMetaFindings(legacyRoot), GAP_LOG_ARTIFACT_PATH, legacyRoot).trusted,
+        verifyGapLogArtifactBinding(readMetaFindings(legacyRoot), GAP_LOG_ARTIFACT_PATH, legacyRoot, legacyRoot).trusted,
         true,
         'non-empty unchanged committed legacy history accepts an official append',
       );

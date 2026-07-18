@@ -244,8 +244,10 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
       return renderScopeCheckResult(result);
     },
 
-    scope_diff_pack(args: { json?: boolean }): string {
-      const pack = buildScopeDiffPack(root);
+    scope_diff_pack(args: { storyId: string; json?: boolean }): string {
+      if (!args.storyId) throw new Error('storyId is required');
+      const gitCwd = resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root });
+      const pack = buildScopeDiffPack(gitCwd);
       if (args.json) return JSON.stringify(pack, null, 2);
       return [
         `Scope diff pack: ${pack.diffPackHash}`,

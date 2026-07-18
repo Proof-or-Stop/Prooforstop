@@ -195,10 +195,10 @@ function inferPackageKeyPath(body: string[]): string | undefined {
   return undefined;
 }
 
-function readBaseSource(projectRoot: string, path: string): string | undefined {
+function readBaseSource(gitCwd: string, path: string): string | undefined {
   try {
     return execFileSync('git', ['show', `main:${path}`], {
-      cwd: projectRoot,
+      cwd: gitCwd,
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });

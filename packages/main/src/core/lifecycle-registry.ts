@@ -780,7 +780,7 @@ export function classifySharedLifecycleMetadata(
       throw new Error('findings symlink escape');
     }
     const data = JSON.parse(readFileSync(findingsReal, 'utf8')) as FindingData;
-    const verification = verifyGapLogArtifactBinding(data, GAP_LOG_ARTIFACT_PATH, root);
+    const verification = verifyGapLogArtifactBinding(data, GAP_LOG_ARTIFACT_PATH, root, root);
     return {
       trusted: verification.trusted,
       path: normalized,

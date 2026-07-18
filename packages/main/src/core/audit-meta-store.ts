@@ -18,6 +18,7 @@ import { execFileSync } from 'node:child_process';
 import { appendFileSync, chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 import type { StoryStore } from './store.js';
+import { resolveGitCwd } from './story-signed-workspace-resolution.js';
 import type { DisprovenEvidence, Finding, FindingEvidenceState, StoryInfo, StoryEvent } from './types.js';
 import {
   GAP_LOG_ARTIFACT_PATH,
@@ -295,17 +296,17 @@ export interface GapFindingResult {
   bindingStatus: 'valid' | 'legacy-unbound';
 }
 
-function gitCommonDir(root: string): string {
+function gitCommonDir(gitCwd: string): string {
   const raw = execFileSync('git', ['rev-parse', '--git-common-dir'], {
-    cwd: root,
+    cwd: gitCwd,
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
   }).trim();
-  return isAbsolute(raw) ? raw : resolve(root, raw);
+  return isAbsolute(raw) ? raw : resolve(gitCwd, raw);
 }
 
-function provenanceKey(root: string): Buffer {
-  const path = join(gitCommonDir(root), 'lattice-gap-log-provenance.key');
+function provenanceKey(gitCwd: string): Buffer {
+  const path = join(gitCommonDir(gitCwd), 'lattice-gap-log-provenance.key');
   if (!existsSync(path)) {
     mkdirSync(dirname(path), { recursive: true });
     try {
@@ -318,10 +319,10 @@ function provenanceKey(root: string): Buffer {
   return readFileSync(path);
 }
 
-function headArtifactDigest(root: string): string | null {
+function headArtifactDigest(gitCwd: string): string | null {
   try {
     const text = execFileSync('git', ['show', `HEAD:${GAP_LOG_ARTIFACT_PATH}`], {
-      cwd: root,
+      cwd: gitCwd,
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
@@ -331,10 +332,14 @@ function headArtifactDigest(root: string): string | null {
   }
 }
 
-function assertGapLogHistoryExtendable(root: string, data: import('./types.js').FindingData): void {
+function assertGapLogHistoryExtendable(
+  root: string,
+  gitCwd: string,
+  data: import('./types.js').FindingData,
+): void {
   const receipts = readGapLogProvenanceLedger(root);
   if (receipts.length > 0) {
-    const verified = verifyGapLogArtifactBinding(data, GAP_LOG_ARTIFACT_PATH, root);
+    const verified = verifyGapLogArtifactBinding(data, GAP_LOG_ARTIFACT_PATH, root, gitCwd);
     if (!verified.trusted) {
       throw new Error(
         `gap_log: existing provenance chain is not extendable (${verified.reason}); `
@@ -344,7 +349,7 @@ function assertGapLogHistoryExtendable(root: string, data: import('./types.js').
     return;
   }
   const currentDigest = digestGapLogArtifact(data);
-  const committedDigest = headArtifactDigest(root);
+  const committedDigest = headArtifactDigest(gitCwd);
   const canonicalEmptyDigest = digestGapLogArtifact({ findings: [] });
   if (
     (committedDigest !== null && committedDigest !== currentDigest)
@@ -359,6 +364,7 @@ function assertGapLogHistoryExtendable(root: string, data: import('./types.js').
 
 function appendGapLogReceipt(args: {
   root: string;
+  gitCwd: string;
   finding: Finding;
   preArtifactDigest: string;
   postArtifactDigest: string;
@@ -376,10 +382,10 @@ function appendGapLogReceipt(args: {
     gapFingerprint: args.finding.gapFingerprint!,
     preArtifactDigest: args.preArtifactDigest,
     postArtifactDigest: args.postArtifactDigest,
-    parentHead: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: args.root, encoding: 'utf8' }).trim(),
+    parentHead: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: args.gitCwd, encoding: 'utf8' }).trim(),
     timestamp: args.finding.createdAt!,
   };
-  const integrityHash = createHmac('sha256', provenanceKey(args.root))
+  const integrityHash = createHmac('sha256', provenanceKey(args.gitCwd))
     .update(JSON.stringify(unsigned))
     .digest('hex');
   const receipt = { ...unsigned, integrityHash };
@@ -446,7 +452,15 @@ export function appendGapFinding(
   options: { projectRoot?: string } = {},
 ): GapFindingResult {
   const data = store.readFindings(storyId);
-  if (options.projectRoot) assertGapLogHistoryExtendable(options.projectRoot, data);
+  const gitCwd = options.projectRoot
+    ? resolveGitCwd({
+      store,
+      storyId,
+      metadataRoot: options.projectRoot,
+      projectRoot: options.projectRoot,
+    })
+    : undefined;
+  if (options.projectRoot && gitCwd) assertGapLogHistoryExtendable(options.projectRoot, gitCwd, data);
   const preArtifactDigest = digestGapLogArtifact(data);
 
   // B-f60c CHK-003: idempotency — a gap with an identical fingerprint that is
@@ -468,7 +482,7 @@ export function appendGapFinding(
   );
   if (existing) {
     const provenance = options.projectRoot
-      ? verifyGapLogArtifactBinding(data, GAP_LOG_ARTIFACT_PATH, options.projectRoot)
+      ? verifyGapLogArtifactBinding(data, GAP_LOG_ARTIFACT_PATH, options.projectRoot, gitCwd)
       : null;
     return {
       findingId: existing.id,
@@ -502,7 +516,7 @@ export function appendGapFinding(
   store.writeFindings(storyId, data);
   const postArtifactDigest = digestGapLogArtifact(data);
   const receipt = options.projectRoot
-    ? appendGapLogReceipt({ root: options.projectRoot, finding, preArtifactDigest, postArtifactDigest })
+    ? appendGapLogReceipt({ root: options.projectRoot, gitCwd: gitCwd!, finding, preArtifactDigest, postArtifactDigest })
     : null;
   return {
     findingId: id,
