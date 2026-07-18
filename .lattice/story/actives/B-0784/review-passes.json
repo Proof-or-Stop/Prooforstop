@@ -70,6 +70,29 @@
         "scanEscalationReason": null
       },
       "_hash": "53bfc7dabe58c5804f181551150d057b23869dbba582c273251c9adbc2554c60"
+    },
+    {
+      "id": "B-0784:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "PASS: 1572a6e170 preserves both rename path identities in path gating, distinguishes rename from copy identity, emits identity-only hunks for pure renames, reads prior anchors from the old base path, fails closed for missing rename sides/copies, and branches remediation by fallback type. Focused scope-contract and semantic-scope smokes passed.",
+      "createdAt": "2026-07-18T03:17:31.185Z",
+      "reviewRound": "2026-07-18T03:15:34.899Z",
+      "reviewRunId": "B-0784:RR-013",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/scope-contract.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/semantic-scope-gate.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts",
+          "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "31e33a138e20ab06ad89100f9cafbc6b97e112d6de99fe890c45f551a135f926"
     }
   ]
 }
