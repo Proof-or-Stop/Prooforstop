@@ -248,6 +248,32 @@ function parseDiffGitPaths(input: string): DiffPathCandidate[] {
 function diffFileSources(diff: string): DiffFileSources[] {
   const files: DiffFileSources[] = [];
   const diagnostics: string[] = [];
+  const hasDiffHeaderToken = diff.split('\n').some(line => line.startsWith('diff --git '));
+  if (!hasDiffHeaderToken) {
+    if (diff.trim() === '') {
+      DIFF_SOURCE_DIAGNOSTICS.set(files, diagnostics);
+      return files;
+    }
+    const oldLines: string[] = [];
+    const newLines: string[] = [];
+    for (const line of diff.split('\n')) {
+      if (line.startsWith('-')) oldLines.push(line.slice(1));
+      else if (line.startsWith('+')) newLines.push(line.slice(1));
+      else if (line.startsWith(' ')) {
+        oldLines.push(line.slice(1));
+        newLines.push(line.slice(1));
+      }
+    }
+    files.push({
+      oldPath: '__fragment__.ts',
+      newPath: '__fragment__.ts',
+      oldSource: oldLines.join('\n'),
+      newSource: newLines.join('\n'),
+      copy: false,
+    });
+    DIFF_SOURCE_DIAGNOSTICS.set(files, diagnostics);
+    return files;
+  }
   let current: {
     oldPath: string;
     newPath: string;

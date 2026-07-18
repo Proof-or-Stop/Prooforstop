@@ -76,6 +76,34 @@ assert.equal(result.residuals.length, 1);
 assert.equal(result.residuals[0]?.file, 'src/live.ts');
 assert.match(renderConceptResult({ ...result, status: 'fail', recommendation: 'dispatch lattice-review-concept' }), /standalone validate --concept only reports raw residuals/);
 
+const headerlessFragment = '-export function headerlessRemoved() { return true; }';
+const headerlessAnalysis = analyzeDeletedSymbols(headerlessFragment);
+assert.deepEqual(headerlessAnalysis.symbols, ['headerlessRemoved'], 'legacy headerless fragments retain __fragment__.ts declaration parsing');
+assert.deepEqual(headerlessAnalysis.diagnostics, []);
+let headerlessGrepSeen = false;
+const headerlessConcept = checkConcept({
+  projectRoot: '/tmp/unused',
+  gitDiffReader: () => headerlessFragment,
+  grepReader: ({ symbol }) => {
+    headerlessGrepSeen = symbol === 'headerlessRemoved';
+    return './src/live.ts:1:headerlessRemoved();';
+  },
+});
+assert.equal(headerlessGrepSeen, true, 'headerless deleted symbols still flow through residual grep');
+assert.deepEqual(headerlessConcept.deletedSymbols, ['headerlessRemoved']);
+assert.equal(headerlessConcept.residuals.length, 1);
+
+const emptyFragmentAnalysis = analyzeDeletedSymbols('');
+assert.deepEqual(emptyFragmentAnalysis.symbols, []);
+assert.deepEqual(emptyFragmentAnalysis.diagnostics, [], 'empty headerless input is an empty diff, not a malformed fragment');
+
+const malformedPseudoHeader = analyzeDeletedSymbols([
+  'diff --git "a/src/broken.ts" "b/src/broken.ts',
+  '-export function pseudoHeaderMustNotFallback() { return true; }',
+].join('\n'));
+assert.deepEqual(malformedPseudoHeader.symbols, [], 'presence of a malformed diff header token disables legacy fragment fallback');
+assert.ok(malformedPseudoHeader.diagnostics.some(diagnostic => /diff path:.*closing quote/.test(diagnostic)));
+
 const observedBodyOnly = fileDiff(
   'src/observed.ts',
   [
