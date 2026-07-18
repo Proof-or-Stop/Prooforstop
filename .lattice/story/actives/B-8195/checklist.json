@@ -110,8 +110,7 @@
       "userSees": "The first mandatory TEST validate prints \"Validation PASS reused\", \"disposition=reused\", and \"commandExecutions=0\" without requiring a metadata commit or retry.",
       "files": {
         "modify": [
-          "packages/main/src/handlers/verifier.ts",
-          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
           "packages/main/src/core/auto-commit-metadata.ts"
         ],
         "create": [],
