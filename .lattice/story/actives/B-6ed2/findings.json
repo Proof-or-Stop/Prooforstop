@@ -90,8 +90,8 @@
       "_hash": "dbf794a3af37da2aa0fdb4083a4bc134fa56ada7861b3b1b8e335b738a6b7a2f",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
       "signatureTagSource": "auto",
-      "resolvedReason": "rootCause: verdict/event outputs were registered only after fallible post-write capture, so capture failure could leave an unchanged generated JSON/event outside rollback ownership. fix: 55f6d658 makes the process-event writer return exact start/end/eventBytes under its append lock and submitLocalVerdictWithOutputIdentity returns both event and exact verdict JSON identity; quorum registers both before validation hooks. append failure removes only an unchanged byte-equal JSON and preserves changed/unreadable bytes. repro: RED 1f5cbb39 plus capture-time failure test. verification: focused quorum-submit-smoke passed 31/31; static review of process-events.ts, store.ts, verdict.ts, quorum-submit.ts confirms the F005 capture-failure path is closed. F007 remains separately open because non-cooperative direct process-event writers still bypass the shared lock.",
-      "resolvedAt": "2026-07-18T23:58:42.719Z",
+      "resolvedReason": "rootCause: quorum learned event/JSON ownership only through fallible post-write capture, so capture failure could leave unchanged generated outputs; suffix indexOf could also match embedded foreign bytes. fix: submitLocalVerdictWithOutputIdentity now returns process-event offset/exact bytes and verdict JSON path/bytes directly from the writer; quorum records them before validation, rollback uses absolute offsets and exact JSON compare. reproTests: capture-time failure removes unchanged row/JSON, changed JSON is preserved, embedded identical bytes survive. verification: build PASS and focused quorum-submit-smoke PASS 31/31 at 55f6d658. F-008 separately tracks non-cooperating direct append writers outside this specific capture-time ownership fix.",
+      "resolvedAt": "2026-07-18T23:59:23.260Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
