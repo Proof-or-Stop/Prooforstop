@@ -8,7 +8,7 @@
  */
 
 import { z, type ZodType } from 'zod';
-import { existsSync, readFileSync, realpathSync } from 'fs';
+import { existsSync, realpathSync } from 'fs';
 import {
   enforceConvergenceBreakerGate,
   bumpGateFailureCount,
@@ -84,8 +84,15 @@ import { resolveGitCwd } from './core/story-signed-workspace-resolution.js';
 import {
   captureLifecycleMetadataTransaction,
   commitLifecycleMetadataTransaction,
+  readLifecycleMetadataOutputHashes,
 } from './core/auto-commit-metadata.js';
-import { rawArtifactDigest } from './core/closeout-trust.js';
+
+class CanonicalTerminalCloseoutError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'CanonicalTerminalCloseoutError';
+  }
+}
 
 export {
   READ_ONLY_COMMANDS,
@@ -1097,6 +1104,20 @@ export async function runCli(opts?: {
       || value?.result === 'blocked';
   }
 
+  function isCanonicalCommandFailure(result: unknown): boolean {
+    if (cmd !== 'validate' && !(cmd === 'story_advance' && parsed.phase === 'TEST')) return false;
+    let value: any = result;
+    if (typeof result === 'string') {
+      try { value = JSON.parse(result); } catch { return false; }
+    }
+    return value?.allPass === false
+      || value?.status === 'fail'
+      || value?.status === 'blocked'
+      || value?.result === 'failed'
+      || value?.result === 'timed_out'
+      || value?.result === 'blocked';
+  }
+
   // Unified logging: write to .lattice/activity.jsonl (dual-source module, legacy path is read-compatible only).
   // Write failure is a PERSIST issue (incomplete audit means it cannot be traced later), so reportHealthIssue is used instead.
   // staleWarnings are persisted too, making later trend analysis possible (how long agents go before forgetting an advance).
@@ -1193,12 +1214,12 @@ export async function runCli(opts?: {
     if (isReadOnlyCommand(entry.command, argsObject)) return;
     const storyId = storyIdFromArgs(argsObject, activeStory, { command: entry.command, projectRoot: root });
     if (!storyId) return;
+    const closeCanonicalTerminal = entry.success
+      && (
+        entry.command === 'validate'
+        || (entry.command === 'story_advance' && argsObject.phase === 'TEST')
+      );
     try {
-      const closeCanonicalTerminal = entry.success
-        && (
-          entry.command === 'validate'
-          || (entry.command === 'story_advance' && argsObject.phase === 'TEST')
-        );
       const terminalGitCwd = closeCanonicalTerminal
         ? resolveGitCwd({
           store,
@@ -1236,19 +1257,23 @@ export async function runCli(opts?: {
         ...(entry.error ? { errorSummary: entry.error.slice(0, 300) } : {}),
       });
       if (terminalCapture) {
-        const verifiedHashes = new Map(terminalCapture.transaction.paths.map((path) => [
-          path,
-          rawArtifactDigest(readFileSync(join(terminalGitCwd, path))),
-        ]));
+        const terminalOutput = readLifecycleMetadataOutputHashes({
+          root: terminalGitCwd,
+          capture: terminalCapture,
+        });
         const committed = commitLifecycleMetadataTransaction({
           root: terminalGitCwd,
           gitCwd: terminalGitCwd,
           storyId,
           capture: terminalCapture,
-          verifiedHashes,
+          verifiedHashes: terminalOutput.ok ? terminalOutput.hashes : new Map(),
         });
         if (!committed.ok) {
-          throw new Error(`Codex command terminal closeout failed: ${committed.reason}`);
+          throw new Error(
+            `Codex command terminal closeout failed: ${
+              terminalOutput.ok ? '' : `${terminalOutput.reason}; `
+            }${committed.reason}`,
+          );
         }
       }
     } catch (e: unknown) {
@@ -1256,6 +1281,11 @@ export async function runCli(opts?: {
         command: entry.command,
         storyId,
       });
+      if (closeCanonicalTerminal) {
+        throw new CanonicalTerminalCloseoutError(
+          `canonical terminal persistence failed for ${entry.command}: ${(e as Error)?.message || String(e)}`,
+        );
+      }
     }
   }
 
@@ -1355,6 +1385,7 @@ export async function runCli(opts?: {
       let result = fn();
       if (result && typeof (result as any).then === 'function') result = await result;
       const structuredDoneFailure = isStructuredDoneFailure(result);
+      const canonicalCommandFailure = isCanonicalCommandFailure(result);
       clearInterval(watchdog);
       log(`${cmd} ${structuredDoneFailure ? 'completed with structured failure' : 'done'}`);
       // B-bbaf CHK-006: a SUCCESSFUL story_advance is real progress THROUGH the
@@ -1376,10 +1407,19 @@ export async function runCli(opts?: {
       if (shouldWriteActivityLog(cmd, parsed) || staleWarnings.length > 0) {
         writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: !structuredDoneFailure, ...(structuredDoneFailure ? { error: 'structured terminal failure' } : {}), staleWarnings });
       }
-      // F-032: writeCodexProcessEvent self-gates on isReadOnlyCommand (same
-      // read-only contract as the activity log above and the pre/post hooks
-      // below), so a plain (no --out) usage_sweep appends NO story process event.
-      writeCodexProcessEvent({ command: cmd, args: parsed, success: !structuredDoneFailure, ...(structuredDoneFailure ? { error: 'structured terminal failure' } : {}) });
+      const closesCanonicalTerminal = !structuredDoneFailure
+        && !canonicalCommandFailure
+        && (
+          cmd === 'validate'
+          || (cmd === 'story_advance' && parsed.phase === 'TEST')
+        );
+      // Non-closeout commands retain their historical event-before-hook order.
+      // validate and story_advance(TEST) defer their terminal event until every
+      // postCommand hook has completed, making the exact closeout the true final
+      // canonical write of the successful command.
+      if (!closesCanonicalTerminal && !canonicalCommandFailure) {
+        writeCodexProcessEvent({ command: cmd, args: parsed, success: !structuredDoneFailure, ...(structuredDoneFailure ? { error: 'structured terminal failure' } : {}) });
+      }
       // Append next-step guidance. Only commands registered in hints.ts are decorated; other commands are returned unchanged.
       // B-7fc2: `--json` / `--format=json` stdout is a machine-only payload.
       // Skip hint decoration entirely in machine JSON mode so JSON.parse(stdout)
@@ -1409,6 +1449,9 @@ export async function runCli(opts?: {
         await runHooks('postCommand', cmd, buildHookEnvLocal('postCommand', {
           LATTICE_RESULT_JSON: truncateForEnv(resultText),
         }), config0, root);
+      }
+      if (closesCanonicalTerminal) {
+        writeCodexProcessEvent({ command: cmd, args: parsed, success: true });
       }
       let output = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
       output = appendMilestoneStatusAfterMutation(output);
@@ -1445,7 +1488,9 @@ export async function runCli(opts?: {
       }
       // F-032: same self-gating applies on the error path — a read-only command
       // (e.g. a plain usage_sweep) that fails still appends NO story process event.
-      writeCodexProcessEvent({ command: cmd, args: parsed, success: false, error: e.message });
+      if (!(e instanceof CanonicalTerminalCloseoutError)) {
+        writeCodexProcessEvent({ command: cmd, args: parsed, success: false, error: e.message });
+      }
       // onError hook — best-effort; always runs before exit(1).
       // Print a hint so the user knows why a failed command takes a few extra seconds.
       if (config0?.hooks?.onError) {

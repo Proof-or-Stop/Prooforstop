@@ -83,14 +83,22 @@ record was considered.
 The lifecycle and CLI writers must leave the next validate invocation a clean
 canonical boundary. A REVIEW-to-TEST transition captures a clean baseline for
 only `index.json`, `process-events.jsonl`, and `process-metrics.json`, writes its
-phase/metrics facts, verifies hooks did not alter those bytes, and commits only
-the exact changed subset with HEAD CAS and rollback. When the Codex CLI appends
-its own post-handler `codex_cli` row after a successful TEST transition or
-validate, that CLI writer separately captures and closes only
-`process-events.jsonl`. Neither writer infers trust from a filename, event
-`type`, or prose: pre-existing human/direct dirt, a forged canonical-looking
-row, hook mutation, HEAD movement, or an expanded path set fails closed and is
-never swept into the commit.
+phase/metrics facts, verifies phase hooks did not alter those bytes, and commits
+only the exact changed subset with HEAD CAS and rollback. After all
+`postCommand` hooks complete, the Codex CLI appends its own final `codex_cli`
+row for a successful TEST transition or validate; that CLI writer separately
+captures and closes only `process-events.jsonl`. A hook-created managed delta
+therefore makes the final capture fail instead of becoming post-closeout dirt.
+Terminal closeout failure propagates to a nonzero CLI outcome and suppresses
+the original successful handler result.
+
+Neither writer infers trust from a filename, event `type`, or prose:
+pre-existing human/direct dirt, a forged canonical-looking row, hook mutation,
+HEAD movement, unreadable output, or an expanded path set fails closed and is
+never swept into the commit. Rollback is compare-and-restore: it restores only
+worktree bytes still equal to the transaction's verified output, never rewrites
+the real index, and preserves concurrent managed-path bytes/index state with a
+classified diagnostic.
 
 ## Migration and rollback
 

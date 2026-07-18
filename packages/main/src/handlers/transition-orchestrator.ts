@@ -40,8 +40,8 @@
  */
 
 import { execFileSync } from 'child_process';
-import { readFileSync, realpathSync } from 'fs';
-import { join, relative } from 'path';
+import { realpathSync } from 'fs';
+import { relative } from 'path';
 import type { HandlerContext } from './context.js';
 import { collectContext, PHASE_TO_EVENT, assertCwdInWorktree } from './context.js';
 import { createStoryActor, getStateName, canSendStoryEventWithoutSnapshotCan } from '../core/machine.js';
@@ -100,9 +100,9 @@ import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 import {
   captureLifecycleMetadataTransaction,
   commitLifecycleMetadataTransaction,
+  readLifecycleMetadataOutputHashes,
   type LifecycleMetadataTransaction,
 } from '../core/auto-commit-metadata.js';
-import { rawArtifactDigest } from '../core/closeout-trust.js';
 
 /** Arguments for one story_advance transition. */
 export interface StoryTransitionArgs {
@@ -724,11 +724,11 @@ async function runStoryTransitionInner(
       recomputeProcessMetrics(args.storyId, store, ctx.root);
     }
 
-    const testTransitionHashes = testTransitionCapture
-      ? new Map(testTransitionCapture.transaction.paths.map((path) => [
-        path,
-        rawArtifactDigest(readFileSync(join(transitionGitCwd, path))),
-      ]))
+    const testTransitionOutput = testTransitionCapture
+      ? readLifecycleMetadataOutputHashes({
+        root: transitionGitCwd,
+        capture: testTransitionCapture,
+      })
       : null;
 
     // onPhaseChange hook — fires after the new phase is persisted.
@@ -737,16 +737,20 @@ async function runStoryTransitionInner(
     let metadataCommitReport = '';
     if (args.phase === 'REVIEW') {
       metadataCommitReport = commitReviewMetadata(ctx.root, args.storyId, args.phase);
-    } else if (testTransitionCapture && testTransitionHashes) {
+    } else if (testTransitionCapture && testTransitionOutput) {
       const committed = commitLifecycleMetadataTransaction({
         root: transitionGitCwd,
         gitCwd: transitionGitCwd,
         storyId: args.storyId,
         capture: testTransitionCapture,
-        verifiedHashes: testTransitionHashes,
+        verifiedHashes: testTransitionOutput.ok ? testTransitionOutput.hashes : new Map(),
       });
       if (!committed.ok) {
-        throw new Error(`TEST transition canonical metadata closeout failed: ${committed.reason}`);
+        throw new Error(
+          `TEST transition canonical metadata closeout failed: ${
+            testTransitionOutput.ok ? '' : `${testTransitionOutput.reason}; `
+          }${committed.reason}`,
+        );
       }
       if (committed.commitSha) {
         metadataCommitReport = `\n✓ lattice metadata auto-committed: lattice: record ${args.storyId} test-transition metadata (${committed.commitSha.slice(0, 7)})`;

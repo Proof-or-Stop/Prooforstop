@@ -19,6 +19,12 @@ import type { TestEvidenceData, VerificationCoverageReport } from '../core/types
 import type { RoutineValidationIdentity, RoutineValidationSourceKind, ValidationCommand } from '../core/validation-types.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
+import {
+  captureLifecycleMetadataTransaction,
+  commitLifecycleMetadataTransaction,
+  readLifecycleMetadataOutputHashes,
+} from '../core/auto-commit-metadata.js';
+import { rawArtifactDigest } from '../core/closeout-trust.js';
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -37,6 +43,412 @@ function git(cwd: string, args: string[]): string {
 
 function cliPath(): string {
   return join(resolve(dirname(fileURLToPath(import.meta.url)), '..'), 'cli.js');
+}
+
+function lifecycleHashes(root: string, paths: string[]): Map<string, string> {
+  return new Map(paths.map((path) => [path, rawArtifactDigest(readFileSync(join(root, path)))]));
+}
+
+function assertLifecycleMetadataTransactionBoundaries(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-lifecycle-metadata-transaction-'));
+  const storyId = 'B-lifecycle-transaction';
+  const storyRel = `.lattice/story/actives/${storyId}`;
+  const transitionPaths = [
+    `${storyRel}/index.json`,
+    `${storyRel}/process-events.jsonl`,
+    `${storyRel}/process-metrics.json`,
+  ];
+  const terminalPath = `${storyRel}/process-events.jsonl`;
+  try {
+    mkdirSync(join(root, storyRel), { recursive: true });
+    writeFileSync(join(root, transitionPaths[0]), '{"phase":"REVIEW"}\n', 'utf8');
+    writeFileSync(join(root, transitionPaths[1]), '{"type":"baseline"}\n', 'utf8');
+    writeFileSync(join(root, transitionPaths[2]), '{"count":0}\n', 'utf8');
+    writeFileSync(join(root, 'source.ts'), 'export const lifecycleTransaction = true;\n', 'utf8');
+    git(root, ['init']);
+    git(root, ['checkout', '-b', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+
+    const transitionCapture = captureLifecycleMetadataTransaction({
+      root,
+      gitCwd: root,
+      storyId,
+      storyRel,
+      kind: 'test-transition',
+    });
+    assert.deepEqual(transitionCapture.transaction.paths, [...transitionPaths].sort(),
+      'TEST transition transaction must own exactly index/process-events/process-metrics');
+    writeFileSync(join(root, transitionPaths[0]), '{"phase":"TEST"}\n', 'utf8');
+    writeFileSync(join(root, transitionPaths[1]), '{"type":"baseline"}\n{"type":"phase_transition"}\n', 'utf8');
+    writeFileSync(join(root, transitionPaths[2]), '{"count":1}\n', 'utf8');
+    const transitionCommit = commitLifecycleMetadataTransaction({
+      root,
+      gitCwd: root,
+      storyId,
+      capture: transitionCapture,
+      verifiedHashes: lifecycleHashes(root, transitionPaths),
+    });
+    assert.equal(transitionCommit.ok, true, transitionCommit.reason);
+    assert.deepEqual(
+      git(root, ['diff-tree', '--no-commit-id', '--name-only', '-r', 'HEAD']).split('\n').filter(Boolean).sort(),
+      [...transitionPaths].sort(),
+      'TEST transition commit must contain exactly its three canonical paths',
+    );
+
+    const terminalCapture = captureLifecycleMetadataTransaction({
+      root,
+      gitCwd: root,
+      storyId,
+      storyRel,
+      kind: 'codex-command-terminal',
+    });
+    assert.deepEqual(terminalCapture.transaction.paths, [terminalPath],
+      'Codex terminal transaction must own only process-events');
+    const terminalBefore = readFileSync(join(root, terminalPath));
+    writeFileSync(join(root, terminalPath), Buffer.concat([
+      terminalBefore,
+      Buffer.from('{"type":"codex_cli"}\n'),
+    ]));
+    const terminalCommit = commitLifecycleMetadataTransaction({
+      root,
+      gitCwd: root,
+      storyId,
+      capture: terminalCapture,
+      verifiedHashes: lifecycleHashes(root, [terminalPath]),
+    });
+    assert.equal(terminalCommit.ok, true, terminalCommit.reason);
+    assert.deepEqual(
+      git(root, ['diff-tree', '--no-commit-id', '--name-only', '-r', 'HEAD']).split('\n').filter(Boolean),
+      [terminalPath],
+      'Codex terminal commit must contain exactly process-events',
+    );
+
+    const failureCapture = captureLifecycleMetadataTransaction({
+      root,
+      gitCwd: root,
+      storyId,
+      storyRel,
+      kind: 'codex-command-terminal',
+    });
+    const failureBaseline = readFileSync(join(root, terminalPath));
+    writeFileSync(join(root, terminalPath), Buffer.concat([
+      failureBaseline,
+      Buffer.from('{"type":"owned-before-failure"}\n'),
+    ]));
+    const failureIndexBefore = git(root, ['ls-files', '--stage', '--', terminalPath]);
+    const failed = commitLifecycleMetadataTransaction({
+      root,
+      gitCwd: root,
+      storyId,
+      capture: failureCapture,
+      verifiedHashes: lifecycleHashes(root, [terminalPath]),
+      testHooks: { beforeAdd: () => { throw new Error('deterministic lifecycle writer failure'); } },
+    });
+    assert.equal(failed.ok, false);
+    assert.match(failed.reason ?? '', /deterministic lifecycle writer failure/);
+    assert.deepEqual(readFileSync(join(root, terminalPath)), failureBaseline,
+      'owned worktree bytes must roll back after commit failure');
+    assert.equal(git(root, ['ls-files', '--stage', '--', terminalPath]), failureIndexBefore,
+      'isolated writer failure must leave the real index byte-equivalent');
+
+    const contentRaceCapture = captureLifecycleMetadataTransaction({
+      root,
+      gitCwd: root,
+      storyId,
+      storyRel,
+      kind: 'codex-command-terminal',
+    });
+    const owned = Buffer.concat([failureBaseline, Buffer.from('{"type":"owned"}\n')]);
+    writeFileSync(join(root, terminalPath), owned);
+    const ownedHashes = lifecycleHashes(root, [terminalPath]);
+    const foreign = Buffer.concat([owned, Buffer.from('{"type":"foreign-concurrent"}\n')]);
+    writeFileSync(join(root, terminalPath), foreign);
+    const raced = commitLifecycleMetadataTransaction({
+      root,
+      gitCwd: root,
+      storyId,
+      capture: contentRaceCapture,
+      verifiedHashes: ownedHashes,
+    });
+    assert.equal(raced.ok, false);
+    assert.match(raced.reason ?? '', /concurrent divergence preserved/);
+    assert.deepEqual(readFileSync(join(root, terminalPath)), foreign,
+      'compare-and-restore must preserve concurrent managed-path bytes');
+
+    writeFileSync(join(root, terminalPath), failureBaseline);
+    assert.equal(git(root, ['status', '--porcelain=v1', '--', terminalPath]), '');
+    const headRaceCapture = captureLifecycleMetadataTransaction({
+      root,
+      gitCwd: root,
+      storyId,
+      storyRel,
+      kind: 'codex-command-terminal',
+    });
+    writeFileSync(join(root, terminalPath), Buffer.concat([
+      failureBaseline,
+      Buffer.from('{"type":"owned-before-head-race"}\n'),
+    ]));
+    const headBeforeRace = git(root, ['rev-parse', 'HEAD']);
+    const headRaced = commitLifecycleMetadataTransaction({
+      root,
+      gitCwd: root,
+      storyId,
+      capture: headRaceCapture,
+      verifiedHashes: lifecycleHashes(root, [terminalPath]),
+      testHooks: {
+        beforeCasUpdate: () => {
+          git(root, ['commit', '--allow-empty', '-m', 'concurrent lifecycle head movement']);
+        },
+      },
+    });
+    assert.equal(headRaced.ok, false);
+    assert.match(headRaced.reason ?? '', /CAS|changed|concurrent/i);
+    assert.notEqual(git(root, ['rev-parse', 'HEAD']), headBeforeRace,
+      'concurrent HEAD movement must survive the failed lifecycle CAS');
+    assert.deepEqual(readFileSync(join(root, terminalPath)), failureBaseline,
+      'owned bytes may roll back when concurrent HEAD did not change their content');
+
+    const readFailureCapture = captureLifecycleMetadataTransaction({
+      root,
+      gitCwd: root,
+      storyId,
+      storyRel,
+      kind: 'codex-command-terminal',
+    });
+    writeFileSync(join(root, terminalPath), Buffer.concat([
+      failureBaseline,
+      Buffer.from('{"type":"owned-before-read-failure"}\n'),
+    ]));
+    rmSync(join(root, terminalPath));
+    const unreadable = readLifecycleMetadataOutputHashes({ root, capture: readFailureCapture });
+    assert.equal(unreadable.ok, false, 'filesystem verification failure must be classified without throwing');
+    const readFailed = commitLifecycleMetadataTransaction({
+      root,
+      gitCwd: root,
+      storyId,
+      capture: readFailureCapture,
+      verifiedHashes: new Map(),
+    });
+    assert.equal(readFailed.ok, false);
+    assert.match(readFailed.reason ?? '', /hash set incomplete|concurrent divergence preserved/);
+    assert.equal(existsSync(join(root, terminalPath)), false,
+      'an unverified concurrent deletion must be preserved rather than overwritten during rollback');
+    writeFileSync(join(root, terminalPath), failureBaseline);
+
+    writeFileSync(join(root, terminalPath), Buffer.concat([
+      failureBaseline,
+      Buffer.from('{"type":"preexisting-forged"}\n'),
+    ]));
+    assert.throws(
+      () => captureLifecycleMetadataTransaction({
+        root,
+        gitCwd: root,
+        storyId,
+        storyRel,
+        kind: 'codex-command-terminal',
+      }),
+      /canonical metadata was already dirty/,
+      'a canonical-looking pre-entry row must never be adopted by path alone',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertPostCommandHookMutationFailsTerminalCloseout(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-validation-terminal-hook-'));
+  const counterPath = join(tmpdir(), `lattice-validation-terminal-hook-${process.pid}-${Date.now()}.log`);
+  const storyId = 'B-terminal-hook';
+  const processEventsRel = `.lattice/story/actives/${storyId}/process-events.jsonl`;
+  try {
+    writeFileSync(join(root, '.gitignore'), '.lattice/activity.jsonl\n.lattice/locks/\n', 'utf8');
+    writeFileSync(join(root, 'probe.mjs'), [
+      "import { appendFileSync } from 'node:fs';",
+      "appendFileSync(process.env.VALIDATION_REUSE_SMOKE_COUNTER, 'run\\n');",
+      "console.log('terminal hook probe PASS');",
+      '',
+    ].join('\n'), 'utf8');
+    writeFileSync(join(root, 'post-hook.mjs'), [
+      "import { appendFileSync } from 'node:fs';",
+      `appendFileSync(${JSON.stringify(processEventsRel)}, ${JSON.stringify('{"type":"postCommand_foreign_mutation"}\n')});`,
+      '',
+    ].join('\n'), 'utf8');
+    writeFileSync(join(root, 'source.ts'), 'export const terminalHook = true;\n', 'utf8');
+    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+      scanRoot: '.',
+      rootDir: '.',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      workflow: { profile: 'light' },
+      validate: {
+        commands: [{
+          label: 'terminal hook probe',
+          command: process.execPath,
+          args: ['probe.mjs'],
+          timeoutMs: 10_000,
+        }],
+      },
+      hooks: {
+        postCommand: {
+          validate: [`${process.execPath} post-hook.mjs`],
+        },
+      },
+    }, null, 2), 'utf8');
+    git(root, ['init']);
+    git(root, ['checkout', '-b', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    const now = '2026-07-18T00:00:00.000Z';
+    const store = new StoryStore(root);
+    store.writeStory(storyId, {
+      storyId,
+      name: 'terminal-hook',
+      title: 'terminal hook',
+      description: 'Proves a postCommand canonical mutation cannot be reported as a successful terminal closeout.',
+      type: 'bug',
+      phase: 'TEST',
+      priority: 'medium',
+      createdAt: now,
+      startedAt: now,
+      endedAt: null,
+      riskSignals: [],
+      events: [{ phase: 'TEST', action: 'advance', timestamp: now }],
+    });
+    store.writeChecklist(storyId, { items: [{
+      id: 'CHK-001',
+      title: 'terminal hook',
+      context: 'No required intents keeps current coverage complete.',
+      status: 'done',
+      startTime: now,
+      endTime: now,
+    }] });
+    git(root, ['add', '.lattice']);
+    git(root, ['commit', '-m', 'seed story metadata']);
+
+    const result = spawnSync(process.execPath, [cliPath(), 'validate', `--story=${storyId}`, '--json'], {
+      cwd: root,
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        LATTICE_PROJECT_ROOT: root,
+        LATTICE_SESSION_ID: 'validation-terminal-hook',
+        LATTICE_ACTIVITY_SOURCE: 'codex',
+        VALIDATION_REUSE_SMOKE_COUNTER: counterPath,
+      },
+    });
+    assert.notEqual(result.status, 0, 'terminal closeout failure must propagate to a nonzero CLI outcome');
+    assert.match(`${result.stdout}\n${result.stderr}`, /canonical terminal persistence failed/);
+    assert.doesNotMatch(result.stdout, /"status":"pass"/,
+      'the original handler PASS must not be printed after terminal persistence fails');
+    assert.match(readFileSync(join(root, processEventsRel), 'utf8'), /postCommand_foreign_mutation/,
+      'postCommand concurrent bytes must be preserved for diagnosis');
+    assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, 1);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+    rmSync(counterPath, { force: true });
+  }
+}
+
+function assertPhaseHookMutationFailsTransitionCloseout(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-validation-phase-hook-'));
+  const counterPath = join(tmpdir(), `lattice-validation-phase-hook-${process.pid}-${Date.now()}.log`);
+  const storyId = 'B-phase-hook';
+  const processEventsRel = `.lattice/story/actives/${storyId}/process-events.jsonl`;
+  try {
+    writeFileSync(join(root, '.gitignore'), '.lattice/activity.jsonl\n.lattice/locks/\n', 'utf8');
+    writeFileSync(join(root, 'probe.mjs'), [
+      "import { appendFileSync } from 'node:fs';",
+      "appendFileSync(process.env.VALIDATION_REUSE_SMOKE_COUNTER, 'run\\n');",
+      "console.log('phase hook probe PASS');",
+      '',
+    ].join('\n'), 'utf8');
+    writeFileSync(join(root, 'phase-hook.mjs'), [
+      "import { appendFileSync } from 'node:fs';",
+      `appendFileSync(${JSON.stringify(processEventsRel)}, ${JSON.stringify('{"type":"onPhaseChange_foreign_mutation"}\n')});`,
+      '',
+    ].join('\n'), 'utf8');
+    writeFileSync(join(root, 'source.ts'), 'export const phaseHook = true;\n', 'utf8');
+    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+      scanRoot: '.',
+      rootDir: '.',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      workflow: { profile: 'light' },
+      validate: {
+        commands: [{
+          label: 'phase hook probe',
+          command: process.execPath,
+          args: ['probe.mjs'],
+          timeoutMs: 10_000,
+        }],
+      },
+      hooks: {
+        onPhaseChange: {
+          'REVIEW->TEST': [`${process.execPath} phase-hook.mjs`],
+        },
+      },
+    }, null, 2), 'utf8');
+    git(root, ['init']);
+    git(root, ['checkout', '-b', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    const now = '2026-07-18T00:00:00.000Z';
+    const store = new StoryStore(root);
+    store.writeStory(storyId, {
+      storyId,
+      name: 'phase-hook',
+      title: 'phase hook',
+      description: 'Proves an onPhaseChange canonical mutation cannot be swept into TEST transition metadata.',
+      type: 'bug',
+      phase: 'REVIEW',
+      priority: 'medium',
+      createdAt: now,
+      startedAt: now,
+      endedAt: null,
+      riskSignals: [],
+      currentReviewRound: now,
+      events: [{ phase: 'REVIEW', action: 'advance', timestamp: now }],
+    });
+    store.writeChecklist(storyId, { items: [{
+      id: 'CHK-001',
+      title: 'phase hook',
+      context: 'No required intents keeps current coverage complete.',
+      status: 'done',
+      startTime: now,
+      endTime: now,
+    }] });
+    git(root, ['add', '.lattice']);
+    git(root, ['commit', '-m', 'seed story metadata']);
+    const runCli = (args: string[]) => spawnSync(process.execPath, [cliPath(), ...args], {
+      cwd: root,
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        LATTICE_PROJECT_ROOT: root,
+        LATTICE_SESSION_ID: 'validation-phase-hook',
+        LATTICE_ACTIVITY_SOURCE: 'codex',
+        VALIDATION_REUSE_SMOKE_COUNTER: counterPath,
+      },
+    });
+    const seed = runCli(['validate', `--story=${storyId}`, '--json']);
+    assert.equal(seed.status, 0, `${seed.stdout}\n${seed.stderr}`);
+    const advance = runCli(['story_advance', JSON.stringify({ storyId, phase: 'TEST' })]);
+    assert.notEqual(advance.status, 0, 'phase-hook managed mutation must fail TEST transition closeout');
+    assert.match(`${advance.stdout}\n${advance.stderr}`, /TEST transition canonical metadata closeout failed/);
+    assert.equal(store.readStory(storyId).phase, 'REVIEW',
+      'owned index bytes must roll back so a failed transition does not claim TEST');
+    assert.match(readFileSync(join(root, processEventsRel), 'utf8'), /onPhaseChange_foreign_mutation/,
+      'phase-hook concurrent bytes must be preserved for diagnosis');
+    assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, 1,
+      'internal TEST gate must reuse the seeded PASS before the phase-hook failure');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+    rmSync(counterPath, { force: true });
+  }
 }
 
 function assertReviewToTestTransitionLeavesExactReuseRed(): void {
@@ -160,12 +572,33 @@ function assertReviewToTestTransitionLeavesExactReuseRed(): void {
       'successful reused PASS and its Codex terminal event must leave canonical metadata clean',
     );
 
+    const closeoutReceiptPath = canonicalPaths[4];
+    const eventLinesBeforeRepeat = readFileSync(join(root, canonicalPaths[1]), 'utf8').trim().split('\n').filter(Boolean);
+    const receiptLinesBeforeRepeat = readFileSync(join(root, closeoutReceiptPath), 'utf8').trim().split('\n').filter(Boolean);
+    const phaseTransitionCountBeforeRepeat = eventLinesBeforeRepeat.filter((line) => line.includes('"type":"phase_transition"')).length;
+    const headBeforeRepeat = git(root, ['rev-parse', 'HEAD']);
     const repeated = runCli(['validate', `--story=${storyId}`, '--json']);
     assert.equal(repeated.status, 0, `${repeated.stdout}\n${repeated.stderr}`);
     assert.match(`${repeated.stdout}\n${repeated.stderr}`, /"disposition":"reused"/);
     assert.match(`${repeated.stdout}\n${repeated.stderr}`, /"commandExecutions":0/);
     assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, 1,
       'repeated unchanged validate must remain idempotent and zero-command');
+    const headAfterRepeat = git(root, ['rev-parse', 'HEAD']);
+    assert.equal(git(root, ['rev-list', '--count', `${headBeforeRepeat}..${headAfterRepeat}`]), '2',
+      'one repeated validate must create exactly the reused-evidence commit and its CLI terminal commit');
+    const eventLinesAfterRepeat = readFileSync(join(root, canonicalPaths[1]), 'utf8').trim().split('\n').filter(Boolean);
+    const receiptLinesAfterRepeat = readFileSync(join(root, closeoutReceiptPath), 'utf8').trim().split('\n').filter(Boolean);
+    assert.equal(eventLinesAfterRepeat.length, eventLinesBeforeRepeat.length + 2,
+      'repeated validate must append exactly one validation_terminal and one codex_cli event');
+    assert.equal(receiptLinesAfterRepeat.length, receiptLinesBeforeRepeat.length + 1,
+      'repeated validate must append exactly one causal test-evidence receipt');
+    assert.equal(
+      eventLinesAfterRepeat.filter((line) => line.includes('"type":"phase_transition"')).length,
+      phaseTransitionCountBeforeRepeat,
+      'repeated validate must not duplicate lifecycle phase_transition facts',
+    );
+    assert.equal(git(root, ['status', '--porcelain=v1', '--', ...canonicalPaths]), '',
+      'repeated validate must finish with every canonical path clean');
 
     store.appendProcessEvent(storyId, {
       type: 'human_confirmation',
@@ -558,6 +991,9 @@ function identity(root: string, sourceKind: RoutineValidationSourceKind, command
 }
 
 function main(): void {
+  assertLifecycleMetadataTransactionBoundaries();
+  assertPostCommandHookMutationFailsTerminalCloseout();
+  assertPhaseHookMutationFailsTransitionCloseout();
   assertReviewToTestTransitionLeavesExactReuseRed();
   const root = mkdtempSync(join(tmpdir(), 'lattice-validation-reuse-'));
   try {

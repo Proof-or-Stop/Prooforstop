@@ -1,6 +1,6 @@
 # Workflow Convergence Failure Remediation Execution Plan
 
-Status: proposal / execution coordination only; runtime fixes are not implemented by this document
+Status: execution coordination; downstream runtime status is recorded here but implemented by the named stories
 
 Date: 2026-07-15
 
@@ -8,14 +8,18 @@ Story: B-9f8a
 
 ## 1. Decision
 
-The six workflow failures confirmed while closing B-7776 will be remediated as
-five cohesive implementation workstreams, not as one cross-subsystem patch:
+The six workflow failures confirmed while closing B-7776 were sliced into five
+cohesive implementation workstreams. A sixth, interposed convergence story was
+added when the program itself produced independent evidence of routine
+validation metadata churn:
 
 1. DONE-required validation timeout and fresh-receipt reuse;
 2. unattended host liveness and candidate-routing specificity;
 3. typed agent dispatch contracts;
 4. stable per-task, per-agent owner identity;
 5. canonical scope paths and AST-backed semantic anchors.
+6. routine validation one-shot metadata closeout (B-8195, interposed after typed
+   dispatch and before host/candidate routing).
 
 This document coordinates execution order, shared invariants, verification, and
 rollback. It does not replace the subsystem decisions listed in section 4 and
@@ -91,7 +95,8 @@ decision; it must not silently rely on this umbrella plan as an override.
 
 ## 5. Shared Invariants
 
-All five workstreams must preserve these invariants:
+All five original workstreams and the interposed B-8195 story must preserve
+these invariants:
 
 1. **Freshness remains structural.** A cached receipt is reusable only when its
    required provenance, policy, and command-set bindings match current state.
@@ -113,9 +118,6 @@ All five workstreams must preserve these invariants:
 
 Routine TEST validation fresh-PASS reuse is specified separately in
 [Routine Validation Fresh-PASS Reuse](routine-validation-fresh-pass-reuse.md).
-Its one-shot convergence includes exact writer-owned closeout of TEST-transition
-metadata and the CLI terminal event; it does not permit the verifier to trust
-or sweep canonical-looking dirt found at validate entry.
 
 ### 6.1 Scope
 
@@ -171,6 +173,36 @@ receipt already exists, output must say that directly.
 Receipt reuse must be independently switchable off. If derived phase timing
 regresses, retain the independent phase deadline and fall back to a conservative
 derived sum plus grace rather than restoring 240 seconds.
+
+## 6A. Interposed #7 — Routine Validation One-Shot Closeout
+
+This is not part of Workstream A/C1. B-8195 was inserted after typed dispatch
+and before host-liveness/candidate-routing work when a production-path RED
+proved that a fresh reusable PASS could select `commandExecutions=0` yet return
+`canonical-pass-persistence-failed` because the TEST transition and CLI terminal
+writer left canonical metadata dirty.
+
+Implemented contract (B-8195):
+
+- REVIEW→TEST closes only the exact changed subset of its clean-baseline
+  `index.json`, `process-events.jsonl`, and `process-metrics.json` transaction;
+- a successful `validate` or `story_advance(TEST)` closes only its own final
+  `codex_cli` process event after post-command hooks;
+- the immediate validate succeeds once with `disposition=reused` and
+  `commandExecutions=0`, and repeated validate remains zero-command with a clean
+  canonical boundary;
+- HEAD movement, hook mutation, commit failure, and concurrent managed-path
+  changes fail closed; compare-and-restore rolls back only bytes still owned by
+  the transaction and preserves competing bytes for diagnosis;
+- verifier admission remains strict: dirty managed evidence found at validate
+  entry is rejected. A human-authored or forged canonical-looking event is not
+  trusted because of its path, event type, or prose.
+
+Non-goals for B-8195 are DONE-required timeout/receipt policy, validation
+coverage semantics, candidate routing, host readiness, typed dispatch, owner
+identity, scope anchors, generic metadata sweeping, and remote publication.
+The canonical subsystem contract is
+[Routine Validation Fresh-PASS Reuse](routine-validation-fresh-pass-reuse.md).
 
 ## 7. Workstream B — Unattended Host Liveness and Routing Specificity
 
@@ -550,9 +582,10 @@ them would recreate the assurance-cost imbalance this program is meant to fix.
 |---|---|---|---|
 | 1 | DONE-required validation convergence | A / C1 | Removes a deterministic DONE blocker and makes later stories cheaper to close. |
 | 2 | Typed agent dispatch registry | C / C4 | Prevents role-polluting prompts during the remaining implementation program. |
-| 3 | Unattended host liveness and candidate specificity | B / C2+C3 | Reduces stuck external execution and disproportionate review scans. |
-| 4 | Stable task-and-agent owner identity | D / C5 | Needs deliberate adapter/role design; explicit session id remains a safe interim workaround. |
-| 5 | Canonical scope paths and AST anchors | E / C6 | Benefits from clean role/session behavior and requires versioned evidence migration. |
+| 3 | B-8195 routine validation one-shot closeout (#7, interposed) | Fresh-PASS metadata convergence | Prevents later stories from paying an identical zero-command validate retry caused only by canonical lifecycle/CLI metadata. |
+| 4 | Unattended host liveness and candidate specificity | B / C2+C3 | Reduces stuck external execution and disproportionate review scans. |
+| 5 | Stable task-and-agent owner identity | D / C5 | Needs deliberate adapter/role design; explicit session id remains a safe interim workaround. |
+| 6 | Canonical scope paths and AST anchors | E / C6 | Benefits from clean role/session behavior and requires versioned evidence migration. |
 
 Workstreams A and C may proceed in parallel only if they do not share command
 catalogue or generated prompt files. Workstream D must receive role-separation
@@ -581,6 +614,7 @@ mode label without wiring it through config, handler, artifact, prompt, and gate
 | Area | Positive proof | Edge proof | Adversarial/negative proof |
 |---|---|---|---|
 | DONE convergence | Legal long suite completes or fresh receipt is reused. | Sequential budgets derive an independent phase deadline from their sum plus bounded grace. | Stale/mismatched receipt is rejected; hung child is killed and cleaned up. |
+| Routine validate convergence (#7) | TEST transition followed by validate returns reused PASS with zero command executions. | Repeated validate appends only its bounded evidence/terminal facts and finishes canonically clean. | Human/forged dirt, hook mutation, HEAD/content races, and writer failure fail closed without overwriting competing bytes. |
 | Host liveness | Verified unattended host produces output and completes. | Slow productive host passes startup but remains under total deadline. | Unverified/no-output/interactively blocked host is not left running. |
 | Candidate specificity | Exact paths and related docs are selected. | Common terms are down-weighted with an explainable threshold. | High-specificity risk still escalates; shadow never emits enforce STOP. |
 | Dispatch | Every known role receives its registered prompt and legal identifiers. | Legacy aliases map explicitly. | Unknown/reviewer roles never fall through to implementer commands. |
@@ -599,6 +633,9 @@ Record before/after values where the subsystem supports them:
 
 - DONE validation executions reused versus rerun, phase duration, command timeout,
   cleanup failures, and repeated identical timeout hints;
+- routine validate disposition/command execution count, exact transaction path
+  set, canonical dirty rows, terminal/receipt deltas, rollback conflicts, and
+  one-shot versus retry count;
 - host probe duration, startup-to-first-output, total execution, timeout reason,
   orphan cleanup, and unattended-readiness rejection;
 - query groups, document frequency, filtered tokens, raw hits, candidate count,
@@ -613,7 +650,8 @@ Record before/after values where the subsystem supports them:
   current/previous declaration, glob rule, acknowledgement canonicalization,
   and B-META provenance-chain rejection reason.
 
-The program is complete only when all five stories are DONE, their canonical
+The program is complete only when all six stories (the five original workstreams
+plus interposed B-8195) are DONE, their canonical
 subsystem documents reflect shipped behavior, no open high/critical finding
 remains, and the negative cases in section 13 pass. Finishing this umbrella
 document does not satisfy those exit criteria.
@@ -635,8 +673,9 @@ document does not satisfy those exit criteria.
 
 This plan does not:
 
-- implement any of the five runtime workstreams;
-- create the five downstream stories automatically;
+- itself implement runtime workstreams (the status above records implementation
+  owned by downstream stories);
+- create downstream stories automatically;
 - combine all fixes into one large story;
 - change DONE-required command policy or waive the full suite;
 - treat `validate:false` as evidence generation;
