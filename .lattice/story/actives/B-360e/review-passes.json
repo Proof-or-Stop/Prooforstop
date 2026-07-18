@@ -731,6 +731,47 @@
         "scanEscalationReason": null
       },
       "_hash": "2245fa2c140b240c337cd1d7e98add7a8545f1c0d57c0df214c7fe9a385fc237"
+    },
+    {
+      "id": "B-360e:RP-023",
+      "agent": "lattice-review-quality",
+      "note": "Round-17 quality review found no blocker. F-031 is fixed by a self-contained repository-external mktemp probe; the exact stored command was replayed successfully and leaves git status byte-identical. All 42 evidence entries pass with complete bindings and one current storyFilesHash. Build, prompt and concept smoke suites, full baseline verification, and process-fact contract pass. Protected Prompt outputs remain byte-identical to main.",
+      "createdAt": "2026-07-18T12:06:55.987Z",
+      "reviewRound": "2026-07-18T12:03:30.904Z",
+      "reviewRunId": "B-360e:RR-052",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/prompt-measurement.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/handlers/validate-concept.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "ffffb3c5e6e611b61f90a0d616ce94ce1f8d656a7116645ccec0ff268a40d97a"
     }
   ]
 }

@@ -3911,6 +3911,57 @@
         "bindingHash": "bb66855b26e97eda98be96a74ceeb31ec6e0d0500a692972b6aeab016ae30398"
       },
       "_hash": "cab8273606afaab610307bb5bf3d229a7f994da7906aa51567c5b8b9dbb1c76f"
+    },
+    {
+      "reviewRunId": "B-360e:RR-052",
+      "storyId": "B-360e",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-07-18T12:03:30.904Z",
+      "startedAt": "2026-07-18T12:06:44.317Z",
+      "headHash": "f8458db5c1caea9ef2541d04d3bb8b04829acff8",
+      "materialHash": "30b4630ba0eca1e217aee2100d782bc885c13d6bedc4487d56169514e3a88798",
+      "storyFilesHash": "098739c49b474379ec11fa3c9eb1124735942cb025c6f831dd7be17f1d6df885",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "a89765d4e7594f1dc6ded8ba93743d1667cbefbe5f549f3b7494359a225a33e8",
+        "compositeScopeDigest": "d79edfa01c93820e8218c586d8063d10ac93f5efb246d1e980a48a844968fe59",
+        "diffPackHash": "af3c6b0cf2e5f8cb30380f034458fcc1a8b912369c3b32249200845f862c0a30",
+        "reviewedChangedFiles": [
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/prompt-measurement.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [],
+        "bindingHash": "e42af49b70f36df99fc3ba5c7c77f54cfe91448fa9cb9371a0ef161971b3663a"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "workspaceMode": "story-worktree",
+        "headHash": "f8458db5c1caea9ef2541d04d3bb8b04829acff8",
+        "materialHash": "30b4630ba0eca1e217aee2100d782bc885c13d6bedc4487d56169514e3a88798",
+        "storyFilesHash": "098739c49b474379ec11fa3c9eb1124735942cb025c6f831dd7be17f1d6df885",
+        "bindingHash": "269c42430e81a5d22173e6125879136c8c52d022b5508f12c49da7fc43af6832"
+      },
+      "_hash": "4ed9b7e0ac8945079ed50d878effb8403747825b2dd4db59acc90b912cfcf4c6"
     }
   ]
 }
