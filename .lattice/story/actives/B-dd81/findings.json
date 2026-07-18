@@ -24,7 +24,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:82-186 and packages/main/src/core/review-run.ts:489-518 — [HIGH] The gate-consumed Prompt Envelope verifier proves only that envelopeId hashes the envelope fields; it never proves roleId equals reviewer lane, rolePrompt matches the registered role render, or the Runtime/Role digests match the actual prompt bytes. assembleFullPromptEnvelope accepts an arbitrary rolePrompt and a roleContract for lattice-review-concept while lane=lattice-review-quality, verifyPromptEnvelopeIntegrity returns true, and a ReviewRun signed over that envelopeId is accepted by verifyReviewRunPromptEnvelope. Repro: build, then assemble a review-run envelope with roleContract concept, rolePrompt ATTACKER-CONTROLLED PROMPT, lane quality; signReviewRun with the returned envelopeId; both verifyReviewRun and verifyReviewRunPromptEnvelope return true. This violates CHK-001 envelope-role-contract-coherence and CHK-003 gate-path shared verification, so a structurally valid but semantically wrong reviewer prompt can become gate evidence. Derive the prompt/contract from the canonical lane inside the trusted assembler or persist enough canonical material to recompute it, enforce roleId===lane for review-run envelopes, and add a gate-path regression test for prompt/role/lane substitution.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-18T21:28:34.091Z",
@@ -38,7 +38,11 @@
         "packages/main/src/tasks/review-run-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in b4efda425c: trusted assembly derives and verifies canonical lane/role contract/render coherence; roleId must equal reviewer lane and cross-role/prompt substitution fails closed in envelope and review-run smokes.",
+      "resolvedAt": "2026-07-18T21:50:28.158Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-dd81:F-003",
