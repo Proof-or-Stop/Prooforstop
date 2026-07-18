@@ -428,7 +428,7 @@
       "desc": "Invalid glob grammar fails open for protectedFiles and explicitExcludes. canonicalizeScopePath classifies any pattern containing [ as glob but does not validate its grammar, so scope_contract_set can persist src/[broken. pathMatchesScopePattern then maps scopeGlobRegex(...)=null to false. With allowedModify=[src/**], classifyScopePath for the exact changed path src/[broken falls through both deny lists and returns allowed_modify. Minimal repro on built commit 4106eb3531 printed {field:protectedFiles,regex:null,matches:false,category:allowed_modify,allowed:true} and the same for explicitExcludes. This violates the documented rule that invalid glob syntax fails closed and permits malformed deny rules to silently remove protection. Reject malformed globs at every write/canonicalization boundary, and make versioned legacy/enforce consumption surface malformed protected/exclude patterns as blocking re-attestation rather than treating them as non-matches; add production-classifier tests for protectedFiles and explicitExcludes under a broad allowlist.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-18T02:41:06.121Z",
@@ -441,7 +441,11 @@
         "packages/main/src/tasks/scope-contract-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|invalid-deny-glob-fails-open",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by f1e5eb927b. scope-path-classifier.ts rejects malformed glob tokens at canonical write and fails closed when legacy protected/excluded globs are malformed, before broad allows can match. scope-contract-smoke table-drives unmatched/empty/negated/range classes, unmatched/empty/single/trailing/nested braces, embedded double-star, triple-star, and slash-in-class across writer and enforce consumption. Verified PASS.",
+      "resolvedAt": "2026-07-18T03:01:22.717Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0784:F-019",
