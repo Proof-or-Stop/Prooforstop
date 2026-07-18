@@ -195,7 +195,7 @@
       "desc": "packages/main/src/handlers/transition-orchestrator.ts:558-610 and packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:559-585 — HIGH: the TEST lifecycle transaction now captures HEAD before `runValidateGate`, but a real production story runs on `story/*`, where `persistStoryValidationEvidence` calls `autoCommitStoryMetadata(..., validate)` and advances HEAD before the outer transaction commits. `commitLifecycleMetadataTransaction` will therefore reject the later phase closeout as `HEAD changed`, roll back the three worktree paths, and turn a passing internal validation into a failed TEST transition. The new success regression misses this because `assertStoryAdvanceReceivesHeartbeat` never checks out `story/${storyId}`; only its failure test does. Exercise the passing direct-validator path on a story branch and either suppress/defer the nested verifier commit under the outer exact transaction or rebase the transaction baseline through a causally verified inner commit without admitting foreign HEAD movement.",
       "severity": "high",
       "category": "happy",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-18T12:26:43.242Z",
@@ -203,7 +203,11 @@
       "reviewRunId": "B-8195:RR-015",
       "_hash": "04417d4169c91130384a1717530a2628a4c210ddce01999353158b5789c99de0",
       "signatureTag": "happy|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 0bcbebed93: executed validation now persists test-evidence, validation_terminal, and receipt through the same strict three-file isolated transaction used by reuse, so no nested generic story/* auto-commit advances HEAD. transition-orchestrator captures the shorter phase transaction only after validation closes. Targeted isolated tests passed for true story/* success (F011), main direct handler closeout, validation failure persistence, and mid-validation foreign append preservation (F010); pre-entry managed dirt is rejected before writes and exact path sets remain unchanged.",
+      "resolvedAt": "2026-07-18T12:46:13.594Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
