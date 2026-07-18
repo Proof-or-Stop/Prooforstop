@@ -92,6 +92,23 @@ function makeViolation(
   const declaration = [...(hunk.anchors ?? []), ...(hunk.previousAnchors ?? [])]
     .find((candidate) => candidate.name === anchor);
   const extractionFailure = hunk.parseFallback?.endsWith('_fail_closed') ?? false;
+  const extractionNextAction = (() => {
+    switch (hunk.parseFallback) {
+      case 'typescript_rename_target_source_unavailable_fail_closed':
+        return 'Restore the renamed target source at the new path, then re-run scope validation. Re-attest only after parsing succeeds.';
+      case 'typescript_rename_previous_source_unavailable_fail_closed':
+        return 'Restore the previous source at the old rename path in the base revision, then re-run scope validation. Re-attest only after parsing succeeds.';
+      case 'typescript_copy_identity_unsupported_fail_closed':
+      case 'copy_identity_unsupported_fail_closed':
+        return 'Replace the ambiguous copy with an explicit create/update operation, then re-run scope validation. Re-attest its source and target paths.';
+      case 'typescript_parse_error_fail_closed':
+        return 'Fix the TypeScript/JavaScript parse error, then re-run scope validation. Re-attest the semantic scope.';
+      case 'typescript_source_unavailable_fail_closed':
+        return 'Restore the unavailable source file, then re-run scope validation. Re-attest the semantic scope.';
+      default:
+        return 'Restore the unavailable source, then re-run scope validation. Re-attest the semantic scope.';
+    }
+  })();
   return {
     path: hunk.path,
     rule,
@@ -104,7 +121,7 @@ function makeViolation(
       ? `Semantic anchor extraction failed closed (${hunk.parseFallback}) for ${hunk.path}.`
       : `Semantic scope rule ${rule} matched ${anchor ?? '(no declaration)'} in ${hunk.path}.`,
     nextAction: extractionFailure
-      ? 'Restore both sides of the renamed source so previous and current declarations can be parsed, then re-run scope validation. Re-attest the semantic scope only after parsing succeeds.'
+      ? extractionNextAction
       : rule === 'protected_anchor'
       ? 'Revert the protected declaration change; acknowledgements cannot bypass protected anchors.'
       : 'Re-attest the semantic scope rule or revert the out-of-intent declaration change.',

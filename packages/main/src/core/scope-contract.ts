@@ -190,44 +190,45 @@ export type GitChangedFilesReader = (projectRoot: string) => string[];
  */
 export function readChangedFiles(projectRoot: string): string[] {
   const files = new Set<string>();
+  const addNameStatus = (output: string): void => {
+    for (const line of output.trim().split('\n')) {
+      if (!line) continue;
+      const fields = line.split('\t');
+      const status = fields[0] ?? '';
+      if (/^[RC]\d+$/.test(status) && fields.length >= 3) {
+        // Both identities matter: a rename removes the old path and introduces
+        // the new path. Keeping only the target can bypass old-path protection.
+        files.add(fields[1]!.trim());
+        files.add(fields[2]!.trim());
+      } else {
+        const path = fields.at(-1)?.trim();
+        if (path) files.add(path);
+      }
+    }
+  };
   try {
     // Tracked changed files vs merge-base with main
     const tracked = execFileSync(
-      'git', ['diff', '--name-only', 'main...HEAD'],
+      'git', ['diff', '--name-status', '--find-renames', 'main...HEAD'],
       { cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] },
     ).trim();
-    if (tracked) {
-      for (const f of tracked.split('\n')) {
-        const t = f.trim();
-        if (t) files.add(t);
-      }
-    }
+    if (tracked) addNameStatus(tracked);
   } catch { /* not a git repo or no main branch */ }
   try {
     // Unstaged changes on top of HEAD
     const unstaged = execFileSync(
-      'git', ['diff', '--name-only'],
+      'git', ['diff', '--name-status', '--find-renames'],
       { cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] },
     ).trim();
-    if (unstaged) {
-      for (const f of unstaged.split('\n')) {
-        const t = f.trim();
-        if (t) files.add(t);
-      }
-    }
+    if (unstaged) addNameStatus(unstaged);
   } catch { /* ignore */ }
   try {
     // Staged changes not yet committed
     const staged = execFileSync(
-      'git', ['diff', '--name-only', '--cached'],
+      'git', ['diff', '--name-status', '--find-renames', '--cached'],
       { cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] },
     ).trim();
-    if (staged) {
-      for (const f of staged.split('\n')) {
-        const t = f.trim();
-        if (t) files.add(t);
-      }
-    }
+    if (staged) addNameStatus(staged);
   } catch { /* ignore */ }
   try {
     // Untracked files

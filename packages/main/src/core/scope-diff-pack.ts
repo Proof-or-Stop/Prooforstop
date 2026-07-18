@@ -266,16 +266,19 @@ export function parseUnifiedDiff(projectRoot: string, diffText: string): ScopeDi
   const hunks: ScopeDiffHunk[] = [];
   let currentPath = '';
   let oldPath = '';
+  let identityKind: 'rename' | 'copy' | undefined;
   let currentHeader = '';
   let currentRange: ReturnType<typeof parseHunkHeader> = null;
   let currentBody: string[] = [];
+  let fileHunkCount = 0;
 
   function flush(): void {
     if (!currentPath || !currentHeader || !currentRange) return;
     const blocks = changedBlocks(currentRange, currentBody);
     const sourcePath = join(projectRoot, currentPath);
     const previousPath = oldPath || currentPath;
-    const isRename = previousPath !== currentPath;
+    const isRename = identityKind === 'rename' && previousPath !== currentPath;
+    const isCopy = identityKind === 'copy';
     const isTsLike = /\.(ts|tsx|js|jsx|mts|mjs|cts|cjs)$/.test(currentPath);
     const isPackageJson = currentPath.endsWith('package.json') || currentPath.endsWith('.json');
     const currentSource = isTsLike && existsSync(sourcePath) ? readFileSync(sourcePath, 'utf8') : undefined;
@@ -296,7 +299,9 @@ export function parseUnifiedDiff(projectRoot: string, diffText: string): ScopeDi
           previousAnchors = previous.anchors;
           parseFallback ??= previous.parseFallback;
         }
-        if (isRename && currentSource === undefined) {
+        if (isCopy) {
+          parseFallback = 'typescript_copy_identity_unsupported_fail_closed';
+        } else if (isRename && currentSource === undefined) {
           parseFallback = 'typescript_rename_target_source_unavailable_fail_closed';
         } else if (isRename && baseSource === undefined) {
           parseFallback = 'typescript_rename_previous_source_unavailable_fail_closed';
@@ -337,16 +342,116 @@ export function parseUnifiedDiff(projectRoot: string, diffText: string): ScopeDi
         hunkDigest: hashHunk(currentPath, `${currentHeader}:${blockIndex}`, block.body),
       });
     }
+    fileHunkCount += 1;
+  }
+
+  function appendIdentityOnlyHunk(): void {
+    if (!identityKind || fileHunkCount > 0 || !oldPath || !currentPath) return;
+    const isTsLike = /\.(ts|tsx|js|jsx|mts|mjs|cts|cjs)$/.test(currentPath);
+    const currentSource = isTsLike && existsSync(join(projectRoot, currentPath))
+      ? readFileSync(join(projectRoot, currentPath), 'utf8')
+      : undefined;
+    const baseSource = isTsLike ? readBaseSource(projectRoot, oldPath) : undefined;
+    let anchors: AstAnchor[] = [];
+    let previousAnchors: AstAnchor[] = [];
+    let parseFallback: string | undefined;
+    if (isTsLike) {
+      if (currentSource !== undefined) {
+        const parsed = parserBackedAnchors(
+          currentSource,
+          currentPath,
+          1,
+          Math.max(currentSource.split(/\r?\n/).length, 1),
+        );
+        anchors = parsed.anchors;
+        parseFallback = parsed.parseFallback;
+      }
+      if (baseSource !== undefined) {
+        const previous = parserBackedAnchors(
+          baseSource,
+          oldPath,
+          1,
+          Math.max(baseSource.split(/\r?\n/).length, 1),
+        );
+        previousAnchors = previous.anchors;
+        parseFallback ??= previous.parseFallback;
+      }
+      if (identityKind === 'copy') {
+        parseFallback = 'typescript_copy_identity_unsupported_fail_closed';
+      } else if (currentSource === undefined) {
+        parseFallback = 'typescript_rename_target_source_unavailable_fail_closed';
+      } else if (baseSource === undefined) {
+        parseFallback = 'typescript_rename_previous_source_unavailable_fail_closed';
+      }
+    } else {
+      parseFallback = identityKind === 'copy'
+        ? 'copy_identity_unsupported_fail_closed'
+        : 'unsupported_file_type';
+    }
+    const anchor = anchors[0];
+    const previousAnchor = previousAnchors[0];
+    const header = `@@ identity:${identityKind} ${oldPath} -> ${currentPath} @@`;
+    hunks.push({
+      path: currentPath,
+      oldStart: 1,
+      oldLines: baseSource?.split(/\r?\n/).length ?? 0,
+      newStart: 1,
+      newLines: currentSource?.split(/\r?\n/).length ?? 0,
+      header,
+      ...(anchor ? { anchor: anchor.name, anchorKind: anchor.kind, anchorRange: anchor.range } : {}),
+      ...(previousAnchor ? {
+        previousAnchor: previousAnchor.name,
+        previousAnchorKind: previousAnchor.kind,
+        previousAnchorRange: previousAnchor.range,
+      } : {}),
+      ...(anchors.length > 0 ? { anchors } : {}),
+      ...(previousAnchors.length > 0 ? { previousAnchors } : {}),
+      ...(isTsLike ? {
+        anchorParserVersion: SCOPE_ANCHOR_PARSER_VERSION,
+        anchorArtifactVersion: SCOPE_ANCHOR_ARTIFACT_VERSION,
+      } : {}),
+      parseFallback,
+      changeKind: 'modify',
+      hunkDigest: hashHunk(currentPath, header, [`${identityKind}:${oldPath}->${currentPath}`]),
+    });
+    fileHunkCount += 1;
+  }
+
+  function finishFile(): void {
+    flush();
+    appendIdentityOnlyHunk();
   }
 
   for (const line of diffText.split(/\r?\n/)) {
     if (line.startsWith('diff --git ')) {
-      flush();
+      finishFile();
       currentPath = '';
       oldPath = '';
+      identityKind = undefined;
       currentHeader = '';
       currentRange = null;
       currentBody = [];
+      fileHunkCount = 0;
+      continue;
+    }
+    if (line.startsWith('rename from ')) {
+      identityKind = 'rename';
+      oldPath = line.slice('rename from '.length);
+      continue;
+    }
+    if (line.startsWith('rename to ')) {
+      identityKind = 'rename';
+      currentPath = line.slice('rename to '.length);
+      continue;
+    }
+    if (line.startsWith('copy from ')) {
+      identityKind = 'copy';
+      oldPath = line.slice('copy from '.length);
+      continue;
+    }
+    if (line.startsWith('copy to ')) {
+      identityKind = 'copy';
+      currentPath = line.slice('copy to '.length);
       continue;
     }
     if (line.startsWith('--- a/')) {
@@ -370,16 +475,16 @@ export function parseUnifiedDiff(projectRoot: string, diffText: string): ScopeDi
     }
     if (currentHeader) currentBody.push(line);
   }
-  flush();
+  finishFile();
   return hunks;
 }
 
 function readUnifiedDiff(gitCwd: string): string {
   const parts: string[] = [];
   for (const args of [
-    ['diff', '--unified=20', 'main...HEAD'],
-    ['diff', '--unified=20'],
-    ['diff', '--unified=20', '--cached'],
+    ['diff', '--find-renames', '--find-copies', '--unified=20', 'main...HEAD'],
+    ['diff', '--find-renames', '--find-copies', '--unified=20'],
+    ['diff', '--find-renames', '--find-copies', '--unified=20', '--cached'],
   ]) {
     try {
       const output = execFileSync('git', args, { cwd: gitCwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();

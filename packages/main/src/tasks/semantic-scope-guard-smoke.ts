@@ -1266,7 +1266,9 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
     );
     assert.equal(brokenGate.status, 'fail', 'parser failure is a blocking semantic diagnostic');
     assert.equal(brokenGate.violations[0]?.rule, 'unmatched_anchor');
+    assert.match(brokenGate.violations[0]?.nextAction ?? '', /parse error/);
     assert.match(brokenGate.violations[0]?.nextAction ?? '', /Re-attest/);
+    assert.doesNotMatch(brokenGate.violations[0]?.nextAction ?? '', /rename|both sides/i);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -1493,7 +1495,31 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
     resetConfigCache();
     const purePack = buildScopeDiffPack(pureRoot);
     assert.ok(purePack.changedFiles.includes('src/new.ts'), 'pure rename remains visible to the path gate');
-    assert.equal(purePack.hunks.length, 0, 'pure rename without content changes creates no false semantic edit');
+    assert.ok(purePack.changedFiles.includes('src/old.ts'), 'pure rename retains the protected old path');
+    assert.equal(purePack.hunks.length, 1, 'pure rename emits one identity-only semantic hunk');
+    assert.equal(purePack.hunks[0]?.anchor, 'critical');
+    assert.equal(purePack.hunks[0]?.previousAnchor, 'critical');
+    const allowedPureRename = checkSemanticScope(
+      makeContract({
+        mode: 'enforce',
+        fileRules: [{ path: 'src/new.ts', allowedAnchors: ['critical'] }],
+        anchorParserVersion: SCOPE_ANCHOR_PARSER_VERSION,
+        anchorArtifactVersion: SCOPE_ANCHOR_ARTIFACT_VERSION,
+      }),
+      purePack,
+    );
+    assert.equal(allowedPureRename.status, 'pass', 'ordinary pure rename is not misclassified as a semantic failure');
+    const protectedPureRename = checkSemanticScope(
+      makeContract({
+        mode: 'enforce',
+        protectedAnchors: ['critical'],
+        anchorParserVersion: SCOPE_ANCHOR_PARSER_VERSION,
+        anchorArtifactVersion: SCOPE_ANCHOR_ARTIFACT_VERSION,
+      }),
+      purePack,
+    );
+    assert.equal(protectedPureRename.status, 'fail', 'pure rename exposes the protected old declaration');
+    assert.equal(protectedPureRename.violations[0]?.anchor, 'critical');
   } finally {
     rmSync(pureRoot, { recursive: true, force: true });
   }
@@ -1545,7 +1571,8 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
     );
     assert.equal(missingTargetGate.status, 'fail');
     assert.match(missingTargetGate.violations[0]?.detail ?? '', /rename_target_source_unavailable_fail_closed/);
-    assert.match(missingTargetGate.violations[0]?.nextAction ?? '', /Restore both sides/);
+    assert.match(missingTargetGate.violations[0]?.nextAction ?? '', /Restore the renamed target source/);
+    assert.doesNotMatch(missingTargetGate.violations[0]?.nextAction ?? '', /previous source|both sides/);
   } finally {
     rmSync(modifiedRoot, { recursive: true, force: true });
   }
@@ -1580,6 +1607,69 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
     );
     assert.equal(missingPreviousGate.status, 'fail');
     assert.match(missingPreviousGate.violations[0]?.detail ?? '', /rename_previous_source_unavailable_fail_closed/);
+    assert.match(missingPreviousGate.violations[0]?.nextAction ?? '', /Restore the previous source/);
+    assert.doesNotMatch(missingPreviousGate.violations[0]?.nextAction ?? '', /renamed target|both sides/);
+
+    const genericUnavailable = checkSemanticScope(
+      makeContract({
+        mode: 'enforce',
+        protectedAnchors: ['unrelated'],
+        anchorParserVersion: SCOPE_ANCHOR_PARSER_VERSION,
+        anchorArtifactVersion: SCOPE_ANCHOR_ARTIFACT_VERSION,
+      }),
+      makePack([{
+        ...makeHunk('src/unavailable.ts'),
+        parseFallback: 'typescript_source_unavailable_fail_closed',
+        anchorParserVersion: SCOPE_ANCHOR_PARSER_VERSION,
+        anchorArtifactVersion: SCOPE_ANCHOR_ARTIFACT_VERSION,
+      }]),
+    );
+    assert.equal(genericUnavailable.status, 'fail');
+    assert.match(genericUnavailable.violations[0]?.nextAction ?? '', /Restore the unavailable source file/);
+    assert.doesNotMatch(genericUnavailable.violations[0]?.nextAction ?? '', /rename|both sides/i);
+
+    writeFileSync(join(missingPreviousRoot, 'src/copied.ts'), baseSource);
+    const copyDiff = [
+      'diff --git a/src/old.ts b/src/copied.ts',
+      'similarity index 100%',
+      'copy from src/old.ts',
+      'copy to src/copied.ts',
+    ].join('\n');
+    const copied = parseUnifiedDiff(missingPreviousRoot, copyDiff);
+    assert.equal(copied.length, 1);
+    assert.equal(copied[0]?.parseFallback, 'typescript_copy_identity_unsupported_fail_closed');
+    const copyGate = checkSemanticScope(
+      makeContract({
+        mode: 'enforce',
+        fileRules: [{ path: 'src/copied.ts', allowedAnchors: ['critical'] }],
+        anchorParserVersion: SCOPE_ANCHOR_PARSER_VERSION,
+        anchorArtifactVersion: SCOPE_ANCHOR_ARTIFACT_VERSION,
+      }),
+      makePack(copied),
+    );
+    assert.equal(copyGate.status, 'fail', 'copy identity is fail-closed');
+    assert.match(copyGate.violations[0]?.nextAction ?? '', /explicit create\/update/);
+
+    writeFileSync(join(missingPreviousRoot, 'src/middle.ts'), baseSource);
+    writeFileSync(join(missingPreviousRoot, 'src/final.ts'), baseSource);
+    const renameChainDiff = [
+      'diff --git a/src/old.ts b/src/middle.ts',
+      'similarity index 100%',
+      'rename from src/old.ts',
+      'rename to src/middle.ts',
+      'diff --git a/src/middle.ts b/src/final.ts',
+      'similarity index 100%',
+      'rename from src/middle.ts',
+      'rename to src/final.ts',
+    ].join('\n');
+    const renameChain = parseUnifiedDiff(missingPreviousRoot, renameChainDiff);
+    assert.equal(renameChain.length, 2);
+    assert.equal(renameChain[0]?.previousAnchor, 'critical');
+    assert.equal(
+      renameChain[1]?.parseFallback,
+      'typescript_rename_previous_source_unavailable_fail_closed',
+      'rename chain fails closed when an intermediate old identity is absent from base',
+    );
   } finally {
     rmSync(missingPreviousRoot, { recursive: true, force: true });
   }

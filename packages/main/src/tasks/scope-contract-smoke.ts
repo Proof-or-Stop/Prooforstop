@@ -26,7 +26,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, ScopeContractData, StoryInfo } from '../core/types.js';
-import { checkScopeContract, validatePaths } from '../core/scope-contract.js';
+import { checkScopeContract, readChangedFiles, validatePaths } from '../core/scope-contract.js';
 import {
   canonicalizeScopePath,
   isMalformedScopeGlob,
@@ -712,6 +712,52 @@ try {
     assert.doesNotMatch(lifecycleOutput, /root-dirt/, 'B-08be: lifecycle scope rows must not report metadataRoot dirt');
   } finally {
     rmSync(authorityRoot, { recursive: true, force: true });
+  }
+
+  // B-0784 F-022: name-status rename identity retains both old and new paths
+  // so old-path deny rules and target boundary changes remain enforceable.
+  const renameRoot = mkdtempSync(join(tmpdir(), 'lattice-scope-rename-paths-'));
+  try {
+    write(renameRoot, 'src/old.ts', 'export function stable() { return 1; }\n');
+    git(renameRoot, ['init', '-b', 'main']);
+    git(renameRoot, ['config', 'user.email', 'rename-path@example.test']);
+    git(renameRoot, ['config', 'user.name', 'Rename Path Smoke']);
+    git(renameRoot, ['add', '.']);
+    git(renameRoot, ['commit', '-m', 'base']);
+    git(renameRoot, ['mv', 'src/old.ts', 'src/new.ts']);
+    const changed = readChangedFiles(renameRoot);
+    assert.deepEqual(changed, ['src/new.ts', 'src/old.ts'], 'pure staged rename retains both path identities');
+
+    const renameContract = (overrides: Partial<ScopeContractData>): ScopeContractData => ({
+      storyId: 'B-rename-path',
+      mode: 'enforce',
+      allowedModify: ['src/old.ts', 'src/new.ts'],
+      allowedCreate: [],
+      allowedTest: [],
+      protectedFiles: [],
+      explicitExcludes: [],
+      acknowledgements: [],
+      pathCanonicalizationMode: 'off',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      ...overrides,
+    });
+    assert.equal(checkScopeContract(renameContract({}), changed).status, 'pass', 'ordinary allowed rename passes');
+    const protectedOld = checkScopeContract(renameContract({ protectedFiles: ['src/old.ts'] }), changed);
+    assert.equal(protectedOld.status, 'fail');
+    assert.equal(protectedOld.violations[0]?.path, 'src/old.ts');
+    assert.equal(protectedOld.violations[0]?.rule, 'protected');
+    const excludedOld = checkScopeContract(renameContract({ explicitExcludes: ['src/old.ts'] }), changed);
+    assert.equal(excludedOld.status, 'fail');
+    assert.equal(excludedOld.violations[0]?.path, 'src/old.ts');
+    assert.equal(excludedOld.violations[0]?.rule, 'excluded');
+    const excludedTarget = checkScopeContract(renameContract({ explicitExcludes: ['src/new.ts'] }), changed);
+    assert.equal(excludedTarget.status, 'fail', 'allowed-to-excluded rename blocks at the target');
+    const unknownTarget = checkScopeContract(renameContract({ allowedModify: ['src/old.ts'] }), changed);
+    assert.equal(unknownTarget.status, 'fail', 'allowed-to-unknown rename blocks at the target');
+    assert.equal(unknownTarget.violations[0]?.path, 'src/new.ts');
+  } finally {
+    rmSync(renameRoot, { recursive: true, force: true });
   }
 
   console.log('scope contract smoke passed');
