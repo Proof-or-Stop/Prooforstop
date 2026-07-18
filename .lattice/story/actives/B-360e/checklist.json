@@ -109,11 +109,11 @@
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
-          "note": "Final-material rerun validates all v1 contracts and usage observation shapes.",
-          "headHash": "cc80555ec01200b860051b723a846cd9c7ea2c7c",
+          "note": "Final rerun at cc80555 validates DispatchUsageObservation optional provider fields plus complete-accounting equality.",
+          "headHash": "0da662e43df5855686c684ca8d37a6c8a1d36d45",
           "materialHash": "845a14ad3f7e4d835f900086c00526503c0993f69ec95341f615a42a8d78785e",
           "storyFilesHash": "483ce73db60851778b9b21584090ebecc8ee543ab5c2ac33e10cd1f343067edd",
-          "timestamp": "2026-07-18T00:07:52.599Z"
+          "timestamp": "2026-07-18T00:08:07.461Z"
         },
         {
           "intentRef": "prompt-contract-deterministic-algorithms",
@@ -197,11 +197,11 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
-          "note": "Final-material schema and binding mutations reject.",
-          "headHash": "cc80555ec01200b860051b723a846cd9c7ea2c7c",
+          "note": "Reported provider observations with all four input fields pass when providerProcessed equals uncached+cacheRead+cacheCreation and reject when unequal; partial optional observations remain valid.",
+          "headHash": "0da662e43df5855686c684ca8d37a6c8a1d36d45",
           "materialHash": "845a14ad3f7e4d835f900086c00526503c0993f69ec95341f615a42a8d78785e",
           "storyFilesHash": "483ce73db60851778b9b21584090ebecc8ee543ab5c2ac33e10cd1f343067edd",
-          "timestamp": "2026-07-18T00:07:52.599Z"
+          "timestamp": "2026-07-18T00:08:07.461Z"
         },
         {
           "intentRef": "prompt-contract-story1-no-envelope",
@@ -645,11 +645,11 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
-          "note": "Final-material three layer availability remains independent.",
-          "headHash": "cc80555ec01200b860051b723a846cd9c7ea2c7c",
+          "note": "Provider components retain optional independent representation, while complete reported accounting is mechanically consistent.",
+          "headHash": "0da662e43df5855686c684ca8d37a6c8a1d36d45",
           "materialHash": "845a14ad3f7e4d835f900086c00526503c0993f69ec95341f615a42a8d78785e",
           "storyFilesHash": "483ce73db60851778b9b21584090ebecc8ee543ab5c2ac33e10cd1f343067edd",
-          "timestamp": "2026-07-18T00:07:52.599Z"
+          "timestamp": "2026-07-18T00:08:07.461Z"
         },
         {
           "intentRef": "CHK-003:edge:all-phases",
@@ -857,11 +857,11 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
-          "note": "Unavailable observations, multibyte/newline boundaries, digest stability, and semantic mutation sensitivity pass.",
-          "headHash": "cc80555ec01200b860051b723a846cd9c7ea2c7c",
+          "note": "Final boundary smoke includes equal complete provider accounting PASS and partial optional provider observation PASS.",
+          "headHash": "0da662e43df5855686c684ca8d37a6c8a1d36d45",
           "materialHash": "845a14ad3f7e4d835f900086c00526503c0993f69ec95341f615a42a8d78785e",
           "storyFilesHash": "483ce73db60851778b9b21584090ebecc8ee543ab5c2ac33e10cd1f343067edd",
-          "timestamp": "2026-07-18T00:07:52.599Z"
+          "timestamp": "2026-07-18T00:08:07.461Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -879,11 +879,11 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
-          "note": "Tampered contract/metric/report values and stale sidecar data are rejected.",
-          "headHash": "cc80555ec01200b860051b723a846cd9c7ea2c7c",
+          "note": "Unequal complete provider accounting fails closed while the unchanged 16-role prompt baseline still passes.",
+          "headHash": "0da662e43df5855686c684ca8d37a6c8a1d36d45",
           "materialHash": "845a14ad3f7e4d835f900086c00526503c0993f69ec95341f615a42a8d78785e",
           "storyFilesHash": "483ce73db60851778b9b21584090ebecc8ee543ab5c2ac33e10cd1f343067edd",
-          "timestamp": "2026-07-18T00:07:52.599Z"
+          "timestamp": "2026-07-18T00:08:07.461Z"
         },
         {
           "intentRef": "CHK-004:adversarial:2",
