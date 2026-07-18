@@ -598,7 +598,7 @@
       "desc": "Official B-META provenance still diverges between writer and consumers in wrapper-root layouts. appendGapFinding now resolves a Git cwd and returned bindingStatus=valid in a temp wrapper root with gitRoot=repo, but classifySharedLifecycleMetadata still calls verifyGapLogArtifactBinding(..., root, root), treating the non-Git metadata root as Git cwd; the immediately unchanged official artifact was classified trusted=false reason=malformed_or_incomplete_artifact. done_prepare and scope/prewrite consumers call that classifier, so canonical official B-META dirt remains blocking despite a valid writer receipt. Additionally appendGapFinding resolves workspace using its mutable storyId parameter while the ledger schema/path/storyId are hardcoded B-META-framework-audit; provenance resolution must assert/use META_STORY_ID, never caller-selected story identity. Thread the separately resolved canonical Git cwd through shared classifier and all consumers, keep artifact reads rooted at metadataRoot, fail closed with the actual resolution reason, and add official writer→classifier→scope/prewrite/done_prepare wrapper-root parity plus noncanonical storyId rejection tests.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-18T03:58:10.990Z",
@@ -613,7 +613,11 @@
         "packages/main/src/core/scope-path-classifier.ts"
       ],
       "signatureTag": "adversarial|ts|meta-git-cwd-consumer-divergence",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Commit 671e9d77fe gives writer, classifier, scope, prewrite and done_prepare a shared explicit resolved Git authority, forces canonical META_STORY_ID, and adds official wrapper artifact writer-to-classifier parity coverage.",
+      "resolvedAt": "2026-07-18T04:07:04.255Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0784:F-026",
