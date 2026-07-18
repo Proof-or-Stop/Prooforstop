@@ -952,7 +952,7 @@ function assertCloseoutTrustBoundary() {
     'the fixture executor is the sixth exact whole-source executable exemption; no broad pattern exemptions are allowed',
     'BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS',
     '1ec6b25bb116809b885adb83768d9fb96d24ad7549f31a144507dc4d84875765',
-    '9ad446b5d41be3ee62a7bde640289f55c4d1c5663a42b003f4abbd3a2ffaea57',
+    '4df693798fca7584fd2666249134120b891d6336ff433768891b5ed6483da1b8',
     'PackageAliasEdge',
     'buildPackageAliasEdgeInventory',
     'PACKAGE_ALIAS_EDGE_INVENTORY',
