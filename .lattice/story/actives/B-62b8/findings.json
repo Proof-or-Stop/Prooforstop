@@ -203,6 +203,21 @@
       "_hash": "3e28f5af08185e856ade69ca860f5be66567c5b909077387c44c018b651ea188",
       "signatureTag": "edge|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-62b8:F-012",
+      "desc": "packages/main/src/tasks/story-owner-lease-smoke.ts:581-595 — HIGH: the new degraded-mutation regression invokes checklist_update against the live B-62b8 story, so it is phase-dependent. It passes only in DEV; in current REVIEW (and later TEST) command policy rejects checklist_update before owner-lease acquisition, producing no degraded warning and failing the smoke assertion. Confirmed by npm --prefix packages/main run test:story-owner-lease-smoke in REVIEW. This will deterministically break routine/full validation outside DEV. Use an isolated fixture/state whose phase permits the mutation or a phase-neutral owner-gated seam, and assert both pre-mutation warning and foreign rejection there.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-18T00:02:13.753Z",
+      "reviewRound": "2026-07-17T23:59:25.126Z",
+      "reviewRunId": "B-62b8:RR-006",
+      "_hash": "94ee83441691cd7f2cd9741f353c3caee5c08470b6ef357a135455b2c94b2324",
+      "signatureTag": "edge|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
