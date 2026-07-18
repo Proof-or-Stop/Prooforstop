@@ -12,14 +12,35 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "validation-types.ts holds the DoneRequiredCommandSpecEnvelope type, which CHK-003 extends with the non-digested resolvedCwd provenance field; done-required-validation-smoke.ts required a v1->v2 schema-constant assertion update as a direct consequence of the CHK-002 schema bump. Both are necessary, in-intent consequences of the declared CHK-002/CHK-003 changes.",
+      "timestamp": "2026-07-18T23:46:11.703Z",
+      "paths": [
+        "packages/main/src/core/validation-types.ts",
+        "packages/main/src/tasks/done-required-validation-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/validation-types.ts",
+        "packages/main/src/tasks/done-required-validation-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "670fab1bf23c1a8157a74d7f40ded9f7ec079d2d",
+      "materialHash": "7de37fd50c54f8d528e739339177387c69ba87e83963091f592d95a673d4cb73"
+    }
+  ],
   "createdAt": "2026-07-18T22:55:35.576Z",
-  "updatedAt": "2026-07-18T23:20:11.563Z",
+  "updatedAt": "2026-07-18T23:46:11.703Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
     "packages/main/src/core/validation-execution-lock.ts": "packages/main/src/core/validation-execution-lock.ts",
     "packages/main/src/core/done-required-validation.ts": "packages/main/src/core/done-required-validation.ts",
-    "packages/main/src/tasks/worktree-portability-smoke.ts": "packages/main/src/tasks/worktree-portability-smoke.ts"
+    "packages/main/src/tasks/worktree-portability-smoke.ts": "packages/main/src/tasks/worktree-portability-smoke.ts",
+    "packages/main/src/core/validation-types.ts": "packages/main/src/core/validation-types.ts",
+    "packages/main/src/tasks/done-required-validation-smoke.ts": "packages/main/src/tasks/done-required-validation-smoke.ts"
   }
 }
