@@ -277,9 +277,9 @@
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#acceptance",
         "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-18T10:54:18.215Z",
-      "endTime": null,
+      "endTime": "2026-07-18T10:54:42.170Z",
       "verificationIntent": {
         "happy": [
           {
@@ -345,7 +345,105 @@
           "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
           "scripts/verify-process-fact-contract.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "Production local CLI prints status=pass, disposition=reused, commandExecutions=0 immediately after REVIEW→TEST and leaves exact canonical paths clean.",
+          "headHash": "581410bbf4feebede40e9762df9e0a3f77be6d6b",
+          "materialHash": "a7555c26a41ea1cddaef41cb79334ffb3838ef8c330204ea41725ac9e584c9ce",
+          "storyFilesHash": "c8fa6e034be74a109ec9723dfdc6e2eb7e9fd00d2bd3f01ae1f492699ea75c92",
+          "timestamp": "2026-07-18T10:54:42.581Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "JSON and terminal log distinguish reused zero-command PASS and retain current identity/evidence bindings.",
+          "headHash": "581410bbf4feebede40e9762df9e0a3f77be6d6b",
+          "materialHash": "a7555c26a41ea1cddaef41cb79334ffb3838ef8c330204ea41725ac9e584c9ce",
+          "storyFilesHash": "c8fa6e034be74a109ec9723dfdc6e2eb7e9fd00d2bd3f01ae1f492699ea75c92",
+          "timestamp": "2026-07-18T10:54:42.871Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "A second unchanged validate is asserted reused with commandExecutions=0 and the external counter remains one.",
+          "headHash": "581410bbf4feebede40e9762df9e0a3f77be6d6b",
+          "materialHash": "a7555c26a41ea1cddaef41cb79334ffb3838ef8c330204ea41725ac9e584c9ce",
+          "storyFilesHash": "c8fa6e034be74a109ec9723dfdc6e2eb7e9fd00d2bd3f01ae1f492699ea75c92",
+          "timestamp": "2026-07-18T10:54:43.171Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "Existing identity/material/story-files/focus/lineage refusal matrix remains green.",
+          "headHash": "581410bbf4feebede40e9762df9e0a3f77be6d6b",
+          "materialHash": "a7555c26a41ea1cddaef41cb79334ffb3838ef8c330204ea41725ac9e584c9ce",
+          "storyFilesHash": "c8fa6e034be74a109ec9723dfdc6e2eb7e9fd00d2bd3f01ae1f492699ea75c92",
+          "timestamp": "2026-07-18T10:54:43.465Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "Fixture resolves cli.js from the built worktree and independently counts actual project command entry.",
+          "headHash": "581410bbf4feebede40e9762df9e0a3f77be6d6b",
+          "materialHash": "a7555c26a41ea1cddaef41cb79334ffb3838ef8c330204ea41725ac9e584c9ce",
+          "storyFilesHash": "c8fa6e034be74a109ec9723dfdc6e2eb7e9fd00d2bd3f01ae1f492699ea75c92",
+          "timestamp": "2026-07-18T10:54:43.767Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "Human and forged codex_cli rows are byte-preserved and rejected; existing malformed receipt and unrelated dirt matrix remains green.",
+          "headHash": "581410bbf4feebede40e9762df9e0a3f77be6d6b",
+          "materialHash": "a7555c26a41ea1cddaef41cb79334ffb3838ef8c330204ea41725ac9e584c9ce",
+          "storyFilesHash": "c8fa6e034be74a109ec9723dfdc6e2eb7e9fd00d2bd3f01ae1f492699ea75c92",
+          "timestamp": "2026-07-18T10:54:44.091Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/auto-commit-metadata.ts",
+          "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "HEAD is checked against capture before immutable old-HEAD CAS; existing concurrent-head regression remains green.",
+          "headHash": "581410bbf4feebede40e9762df9e0a3f77be6d6b",
+          "materialHash": "a7555c26a41ea1cddaef41cb79334ffb3838ef8c330204ea41725ac9e584c9ce",
+          "storyFilesHash": "c8fa6e034be74a109ec9723dfdc6e2eb7e9fd00d2bd3f01ae1f492699ea75c92",
+          "timestamp": "2026-07-18T10:54:44.423Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-prepare-auto-closeout-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check",
+          "result": "pass",
+          "note": "Done-prepare human metadata fail-closed control, process-fact contract, build, and diff check all pass; writer failures use isolated rollback primitive.",
+          "headHash": "581410bbf4feebede40e9762df9e0a3f77be6d6b",
+          "materialHash": "a7555c26a41ea1cddaef41cb79334ffb3838ef8c330204ea41725ac9e584c9ce",
+          "storyFilesHash": "c8fa6e034be74a109ec9723dfdc6e2eb7e9fd00d2bd3f01ae1f492699ea75c92",
+          "timestamp": "2026-07-18T10:54:44.717Z"
+        }
+      ]
     }
   ]
 }
