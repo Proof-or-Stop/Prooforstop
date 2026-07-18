@@ -482,9 +482,9 @@
         "claiming hidden system-wrapper coverage",
         "budget enforcement"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-17T23:58:53.500Z",
-      "endTime": null,
+      "endTime": "2026-07-18T00:00:28.409Z",
       "files": {
         "modify": [
           "packages/main/src/cli/command-catalog.ts",
@@ -594,7 +594,141 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:text-report",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js prompt_measurement_report --format=text",
+          "result": "pass",
+          "note": "Text report lists exactly 16 roles, aggregates, algorithms, repetition, and all three input layers at commit 6317b5f270.",
+          "headHash": "6317b5f270eb92314e3fa356aa2323c92f6f64f0",
+          "materialHash": "1730b3b0dd3e8626a886c0d18e6e0a67bd960dfc80126f7cd8e855f3ae9d0d5a",
+          "storyFilesHash": "aad581e5b1aaa333a918fb78c5d8c2c5e086ef5f3d5b27aade5ffb04f9c91228",
+          "timestamp": "2026-07-18T00:00:28.627Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:json-parity",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js prompt_measurement_report --format=json",
+          "result": "pass",
+          "note": "Machine JSON contains 16 deterministic records and matches the core generator.",
+          "headHash": "6317b5f270eb92314e3fa356aa2323c92f6f64f0",
+          "materialHash": "1730b3b0dd3e8626a886c0d18e6e0a67bd960dfc80126f7cd8e855f3ae9d0d5a",
+          "storyFilesHash": "aad581e5b1aaa333a918fb78c5d8c2c5e086ef5f3d5b27aade5ffb04f9c91228",
+          "timestamp": "2026-07-18T00:00:28.805Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:sidecar-determinism",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Checked-in canonical sidecar equals two independently generated reports byte-for-byte and contains 16 PromptMeasurementRecords.",
+          "headHash": "6317b5f270eb92314e3fa356aa2323c92f6f64f0",
+          "materialHash": "1730b3b0dd3e8626a886c0d18e6e0a67bd960dfc80126f7cd8e855f3ae9d0d5a",
+          "storyFilesHash": "aad581e5b1aaa333a918fb78c5d8c2c5e086ef5f3d5b27aade5ffb04f9c91228",
+          "timestamp": "2026-07-18T00:00:29.022Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:metric-boundaries",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "UTF-8, LF, estimator, normalization and repetition boundaries pass deterministically.",
+          "headHash": "6317b5f270eb92314e3fa356aa2323c92f6f64f0",
+          "materialHash": "1730b3b0dd3e8626a886c0d18e6e0a67bd960dfc80126f7cd8e855f3ae9d0d5a",
+          "storyFilesHash": "aad581e5b1aaa333a918fb78c5d8c2c5e086ef5f3d5b27aade5ffb04f9c91228",
+          "timestamp": "2026-07-18T00:00:29.223Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:independent-availability",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Assembled layer is available while known-dispatch/provider layers independently remain unavailable.",
+          "headHash": "6317b5f270eb92314e3fa356aa2323c92f6f64f0",
+          "materialHash": "1730b3b0dd3e8626a886c0d18e6e0a67bd960dfc80126f7cd8e855f3ae9d0d5a",
+          "storyFilesHash": "aad581e5b1aaa333a918fb78c5d8c2c5e086ef5f3d5b27aade5ffb04f9c91228",
+          "timestamp": "2026-07-18T00:00:29.410Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:all-phases",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "isCommandAllowed asserts report availability for INIT through DONE with no Story argument.",
+          "headHash": "6317b5f270eb92314e3fa356aa2323c92f6f64f0",
+          "materialHash": "1730b3b0dd3e8626a886c0d18e6e0a67bd960dfc80126f7cd8e855f3ae9d0d5a",
+          "storyFilesHash": "aad581e5b1aaa333a918fb78c5d8c2c5e086ef5f3d5b27aade5ffb04f9c91228",
+          "timestamp": "2026-07-18T00:00:29.606Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:read-only-policy",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Catalog/policy/config/activity registry classify command read-only all-phase and process-fact L0.",
+          "headHash": "6317b5f270eb92314e3fa356aa2323c92f6f64f0",
+          "materialHash": "1730b3b0dd3e8626a886c0d18e6e0a67bd960dfc80126f7cd8e855f3ae9d0d5a",
+          "storyFilesHash": "aad581e5b1aaa333a918fb78c5d8c2c5e086ef5f3d5b27aade5ffb04f9c91228",
+          "timestamp": "2026-07-18T00:00:29.793Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:unavailable-not-zero",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js prompt_measurement_report --format=json",
+          "result": "pass",
+          "note": "Known-dispatch and provider-processed fields use unavailable+reason and contain no numeric zero substitution.",
+          "headHash": "6317b5f270eb92314e3fa356aa2323c92f6f64f0",
+          "materialHash": "1730b3b0dd3e8626a886c0d18e6e0a67bd960dfc80126f7cd8e855f3ae9d0d5a",
+          "storyFilesHash": "aad581e5b1aaa333a918fb78c5d8c2c5e086ef5f3d5b27aade5ffb04f9c91228",
+          "timestamp": "2026-07-18T00:00:29.971Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:no-provider-call",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Report dependency graph is local prompt registry/contracts only; generation succeeds without launcher/provider seams.",
+          "headHash": "6317b5f270eb92314e3fa356aa2323c92f6f64f0",
+          "materialHash": "1730b3b0dd3e8626a886c0d18e6e0a67bd960dfc80126f7cd8e855f3ae9d0d5a",
+          "storyFilesHash": "aad581e5b1aaa333a918fb78c5d8c2c5e086ef5f3d5b27aade5ffb04f9c91228",
+          "timestamp": "2026-07-18T00:00:30.192Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:no-writes",
+          "kind": "manual_transcript",
+          "command": "git status --porcelain > before; node bin/lattice.js prompt_measurement_report --format=text >/dev/null; node bin/lattice.js prompt_measurement_report --format=json >/dev/null; git status --porcelain > after; cmp before after",
+          "result": "pass",
+          "note": "Text and JSON CLI probes left the exact porcelain snapshot unchanged.",
+          "headHash": "6317b5f270eb92314e3fa356aa2323c92f6f64f0",
+          "materialHash": "1730b3b0dd3e8626a886c0d18e6e0a67bd960dfc80126f7cd8e855f3ae9d0d5a",
+          "storyFilesHash": "aad581e5b1aaa333a918fb78c5d8c2c5e086ef5f3d5b27aade5ffb04f9c91228",
+          "timestamp": "2026-07-18T00:00:30.388Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:role-set-fail-closed",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Missing/duplicate/unknown role and mutated measurement/report probes fail closed.",
+          "headHash": "6317b5f270eb92314e3fa356aa2323c92f6f64f0",
+          "materialHash": "1730b3b0dd3e8626a886c0d18e6e0a67bd960dfc80126f7cd8e855f3ae9d0d5a",
+          "storyFilesHash": "aad581e5b1aaa333a918fb78c5d8c2c5e086ef5f3d5b27aade5ffb04f9c91228",
+          "timestamp": "2026-07-18T00:00:30.550Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:l0-non-authority",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Registry classifies the diagnostic exactly L0 command with no gate consumer or artifact authority.",
+          "headHash": "6317b5f270eb92314e3fa356aa2323c92f6f64f0",
+          "materialHash": "1730b3b0dd3e8626a886c0d18e6e0a67bd960dfc80126f7cd8e855f3ae9d0d5a",
+          "storyFilesHash": "aad581e5b1aaa333a918fb78c5d8c2c5e086ef5f3d5b27aade5ffb04f9c91228",
+          "timestamp": "2026-07-18T00:00:30.721Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
