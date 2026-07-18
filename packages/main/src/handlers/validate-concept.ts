@@ -201,9 +201,30 @@ function declarationName(node: ts.NamedDeclaration, source: ts.SourceFile): stri
   return text || null;
 }
 
+const TYPESCRIPT_DECLARATION_EXTENSION = /\.(?:ts|tsx|mts|cts)$/i;
+const JAVASCRIPT_DECLARATION_EXTENSION = /\.(?:js|jsx|mjs|cjs)$/i;
+const PYTHON_DECLARATION_EXTENSION = /\.py$/i;
+
+function scriptKindForDeclarationFile(file: string): ts.ScriptKind {
+  if (/\.tsx$/i.test(file)) return ts.ScriptKind.TSX;
+  if (/\.jsx$/i.test(file)) return ts.ScriptKind.JSX;
+  if (JAVASCRIPT_DECLARATION_EXTENSION.test(file)) return ts.ScriptKind.JS;
+  return ts.ScriptKind.TS;
+}
+
+function normalizeJsFamilySourceForParsing(sourceText: string): string {
+  return sourceText.replace(/^(?:[ \t]*\n)+(?=#!)/, '');
+}
+
 function collectTsDeclarations(file: string, sourceText: string): { declarations: DeclarationIdentity[]; diagnostics: string[] } {
-  const kind = /\.tsx$/i.test(file) ? ts.ScriptKind.TSX : /\.jsx$/i.test(file) ? ts.ScriptKind.JSX : ts.ScriptKind.TS;
-  const source = ts.createSourceFile(file, sourceText, ts.ScriptTarget.Latest, true, kind);
+  const kind = scriptKindForDeclarationFile(file);
+  const source = ts.createSourceFile(
+    file,
+    normalizeJsFamilySourceForParsing(sourceText),
+    ts.ScriptTarget.Latest,
+    true,
+    kind,
+  );
   const parseDiagnostics = (source as ts.SourceFile & { parseDiagnostics?: readonly ts.Diagnostic[] }).parseDiagnostics ?? [];
   const diagnostics = parseDiagnostics.map((diagnostic: ts.Diagnostic) => {
     const at = diagnostic.start === undefined ? '' : ` at ${source.getLineAndCharacterOfPosition(diagnostic.start).line + 1}`;
@@ -351,7 +372,14 @@ export function analyzeDeletedSymbols(diff: string): DeletedSymbolAnalysis {
   const added = new Map<string, number>();
   const diagnostics: string[] = [];
   for (const file of diffFileSources(diff)) {
-    const python = /\.py$/i.test(file.file);
+    const python = PYTHON_DECLARATION_EXTENSION.test(file.file);
+    if (
+      !python
+      && !TYPESCRIPT_DECLARATION_EXTENSION.test(file.file)
+      && !JAVASCRIPT_DECLARATION_EXTENSION.test(file.file)
+    ) {
+      continue;
+    }
     const oldSide = python
       ? collectPythonDeclarations(file.file, file.oldSource)
       : collectTsDeclarations(file.file, file.oldSource);

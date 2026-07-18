@@ -119,6 +119,27 @@ const crossFile = [
 ].join('\n');
 assert.deepEqual(scanDeletedSymbols(crossFile), ['shared'], 'a same-name declaration in another file cannot cancel a true deletion');
 
+const mixedSourceAndArtifacts = [
+  fileDiff('docs/requirements/baseline.json', '{"not": "typescript"}', '{"still": "not typescript"}'),
+  fileDiff('docs/requirements/plan.md', '# function pretendDeleted() {', '# replacement prose'),
+  fileDiff('src/real.ts', 'export function realDeletion() { return true; }', ''),
+].join('\n');
+const mixedAnalysis = analyzeDeletedSymbols(mixedSourceAndArtifacts);
+assert.deepEqual(mixedAnalysis.symbols, ['realDeletion'], 'non-source artifacts are ignored while supported source deletions remain visible');
+assert.deepEqual(mixedAnalysis.diagnostics, [], 'JSON and Markdown content cannot create declaration parse diagnostics');
+
+const shebangMjs = [
+  'diff --git a/scripts/tool.mjs b/scripts/tool.mjs',
+  '--- a/scripts/tool.mjs',
+  '+++ b/scripts/tool.mjs',
+  '@@ -1,2 +1 @@',
+  ' #!/usr/bin/env node',
+  '-export function removedFromCli() { return true; }',
+].join('\n');
+const shebangMjsAnalysis = analyzeDeletedSymbols(shebangMjs);
+assert.deepEqual(shebangMjsAnalysis.symbols, ['removedFromCli'], 'MJS declarations remain visible after a shebang');
+assert.deepEqual(shebangMjsAnalysis.diagnostics, [], 'a logical-start MJS shebang remains parseable after diff reconstruction');
+
 const renameAndExportRemoval = fileDiff(
   'src/rename.ts',
   [
