@@ -610,6 +610,25 @@
       "resolvedAt": "2026-07-18T10:26:39.910Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-360e:F-029",
+      "desc": "packages/main/src/handlers/validate-concept.ts:251 gates legacy fragment fallback only on lines starting with the exact string `diff --git `. Header-like but malformed inputs therefore bypass strict parsing: `diff --git` with no trailing space, `diff --git\\t...`, and a fragment containing only `---`/`+++`/`@@` headers all return a deleted symbol with diagnostics=[] in independent probes. This violates the intended boundary that fallback is available only for truly headerless +/- fragments and lets malformed structured diff input be accepted instead of failing closed. Detect any structured header token before fallback (at minimum /^diff --git(?:\\s|$)/ plus side/hunk headers as appropriate), emit a focused diagnostic, and add negative probes for bare, tab-separated, and orphan side/hunk headers while retaining the valid single-line headerless fragment case.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-18T11:10:22.256Z",
+      "reviewRound": "2026-07-18T11:08:37.150Z",
+      "reviewRunId": "B-360e:RR-041",
+      "_hash": "05f8bb38ea45f42bbea132405491ba120f793eae0dd4bac20c6102461c7ee225",
+      "files": [
+        "packages/main/src/handlers/validate-concept.ts",
+        "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
