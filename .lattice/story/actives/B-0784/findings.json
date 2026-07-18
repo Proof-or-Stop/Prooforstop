@@ -79,7 +79,7 @@
       "desc": "AST declaration binding uses the full unified hunk range, not the changed-line span. buildScopeDiffPack always requests --unified=20, while parserBackedAnchor only accepts a declaration when node.getFullStart() <= hunk start AND node.end >= hunk end. A short function surrounded by 20 context lines therefore degrades to file scope; file_scope_no_enclosing_declaration is not treated as parser failure, so protectedAnchors can silently miss the touched function. The focused test constructs @@ ...,1 hunks and does not exercise the production --unified=20 range. Compute anchors from actual +/- changed line positions (or a set of changed spans) and fail closed when a protected semantic contract cannot bind them; add a production-shaped regression.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-18T02:14:26.711Z",
@@ -92,7 +92,11 @@
         "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|declaration-binding-uses",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "4106eb3531 splits unified hunks into actual added/deleted spans and excludes unchanged context from anchor selection. semantic-scope-guard-smoke verifies two separated changes map only to outer and method.",
+      "resolvedAt": "2026-07-18T02:37:49.362Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0784:F-005",
