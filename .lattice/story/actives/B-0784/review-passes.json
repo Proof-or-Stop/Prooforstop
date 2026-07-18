@@ -24,6 +24,31 @@
         "scanEscalationReason": null
       },
       "_hash": "e1fc54334681b8280115e3eb6fe65e8d7d11378920567638b68984b99541806f"
+    },
+    {
+      "id": "B-0784:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-3 targeted coverage PASS for f1e5eb927b. F-013 now has all 9 path×AST rollout combinations through scope_contract_set/check, buildScopeDiffPack, checkSemanticScope, prewrite, and guard-session consumers; it asserts future versions plus persisted-byte off/warn/enforce rollback and forward re-enable. F-014 now table-tests every named declaration/control-flow/change-kind case through parseUnifiedDiff and checkSemanticScope, including diagnostics and protected deletion. F-015 now exercises two official appends, receipt identity/chain mutations, replay, canonical serialization, four production consumers, digest diagnostics, symlink/path aliases, and legacy genesis. Build and the three focused smokes pass; the 37 intent claims are supported without a full-suite inference.",
+      "createdAt": "2026-07-18T03:03:44.662Z",
+      "reviewRound": "2026-07-18T03:00:34.659Z",
+      "reviewRunId": "B-0784:RR-008",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/semantic-scope-gate.ts",
+          "packages/main/src/tasks/gap-log-smoke.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts",
+          "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4bb698d5e658c211deccc658c950c0dc6e7c72f31591c35ba70205b48095cd9e"
     }
   ]
 }
