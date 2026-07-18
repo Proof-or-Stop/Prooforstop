@@ -21,6 +21,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawn } from 'node:child_process';
 import {
+  appendFileSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
@@ -93,6 +94,14 @@ function gitOutput(root: string, args: string[]): string {
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
   }).trim();
+}
+
+async function waitForFile(path: string, timeoutMs = 5_000): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  while (!existsSync(path) && Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  }
+  assert.ok(existsSync(path), `timed out waiting for fixture file: ${path}`);
 }
 
 function commitAll(root: string, message: string): void {
@@ -559,6 +568,7 @@ function assertGreenBehavior(result: CliResult, started: string, finished: strin
 async function assertStoryAdvanceReceivesHeartbeat(): Promise<void> {
   const { root, storyId, started, finished } = setupStoryAdvanceFixture();
   try {
+    git(root, ['checkout', '-b', `story/${storyId}`]);
     const result = await runCli(root, ['story_advance', JSON.stringify({ storyId, phase: 'TEST' })], NON_MAX_HARNESS_CEILING_MS);
     assert.equal(result.status, 0, `story_advance should survive active validate heartbeat:\n${result.stderr}\n${result.stdout}`);
     assert.ok(existsSync(started), 'story_advance internal validate command must start');
@@ -583,6 +593,46 @@ async function assertStoryAdvanceReceivesHeartbeat(): Promise<void> {
       'TEST-transition commit must retain the invocation-owned direct-handler validation terminal');
     assert.match(committedEvents, /"type":"phase_transition"/,
       'TEST-transition commit must retain the later phase transition in the same bounded event path');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertMidValidationForeignAppendFailsClosed(): Promise<void> {
+  const { root, storyId, started } = setupStoryAdvanceFixture();
+  try {
+    const processEventsRel = `.lattice/story/actives/${storyId}/process-events.jsonl`;
+    const processEventsPath = join(root, processEventsRel);
+    const run = runCli(
+      root,
+      ['story_advance', JSON.stringify({ storyId, phase: 'TEST' })],
+      NON_MAX_HARNESS_CEILING_MS,
+    );
+    await waitForFile(started);
+    mkdirSync(dirname(processEventsPath), { recursive: true });
+    const foreignLine = JSON.stringify({
+      type: 'human_confirmation',
+      storyId,
+      phase: 'REVIEW',
+      command: 'mid_validation_foreign_append',
+      result: 'pass',
+    }) + '\n';
+    appendFileSync(processEventsPath, foreignLine, 'utf8');
+
+    const result = await run;
+    assert.notEqual(result.status, 0,
+      'mid-validation foreign canonical append must fail closed instead of joining the TEST transaction');
+    assert.equal(readFileSync(processEventsPath, 'utf8'), foreignLine,
+      'foreign bytes must be preserved exactly while invocation-owned terminal/transition bytes roll back');
+    assert.match(gitOutput(root, ['status', '--porcelain=v1', '--', processEventsRel]), /^\?\?/,
+      'foreign event must remain visible and uncommitted for human recovery');
+    assert.throws(
+      () => gitOutput(root, ['show', `HEAD:${processEventsRel}`]),
+      /does not exist in|exists on disk, but not in/i,
+      'foreign event must never enter repository history',
+    );
+    assert.equal(new StoryStore(root).readStory(storyId).phase, 'REVIEW',
+      'foreign append rejection must not persist TEST phase');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -669,6 +719,16 @@ async function assertTrueHangFailsClosedWithNamedDiagnostics(): Promise<void> {
 void (async () => {
   const { root, started, finished } = setupFixture();
   try {
+    if (process.env.VALIDATE_HEARTBEAT_F011_ONLY === '1') {
+      await assertStoryAdvanceReceivesHeartbeat();
+      console.log('validate-progress-heartbeat F-011 story-branch success PASS');
+      return;
+    }
+    if (process.env.VALIDATE_HEARTBEAT_F010_ONLY === '1') {
+      await assertMidValidationForeignAppendFailsClosed();
+      console.log('validate-progress-heartbeat F-010 foreign-append PASS');
+      return;
+    }
     const result = await runValidate(root);
     if (result.status !== 0) {
       assertRedBaseline(result, started, finished);
@@ -679,6 +739,7 @@ void (async () => {
     assert.match(startText, /^started \d+$/);
     assert.match(finishText, /^finished \d+$/);
     await assertStoryAdvanceReceivesHeartbeat();
+    await assertMidValidationForeignAppendFailsClosed();
     await assertFailedStoryAdvancePreservesValidationEvidence();
     await assertTrueHangFailsClosedWithNamedDiagnostics();
     await assertDirectDoneRequiredTimeoutMatrix();
