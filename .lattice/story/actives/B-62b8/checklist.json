@@ -477,6 +477,30 @@
           "materialHash": "c311f08c621f1e2b459d43cc3743b25284f8225ff76340513c38eef8773826e9",
           "storyFilesHash": "b4e8f363bc01d53128b1e210575305d3c48d1432979c1155226e3b3060a49649",
           "timestamp": "2026-07-18T00:33:40.107Z"
+        },
+        {
+          "intentRef": "CHK-002:r5:codex-final",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "codex exec --ephemeral identity-only direct+nested+clean-env R5",
+          "result": "pass",
+          "note": "Real Codex host PASS at head fc2e962770207a673672db44dcf14e036e276358, material c311f08c621f1e2b459d43cc3743b25284f8225ff76340513c38eef8773826e9, storyFiles b4e8f363bc01d53128b1e210575305d3c48d1432979c1155226e3b3060a49649: directSource=host-adapter, nestedSource=host-adapter, same opaque id=true, raw token printed=false.",
+          "headHash": "fc2e962770207a673672db44dcf14e036e276358",
+          "materialHash": "c311f08c621f1e2b459d43cc3743b25284f8225ff76340513c38eef8773826e9",
+          "storyFilesHash": "b4e8f363bc01d53128b1e210575305d3c48d1432979c1155226e3b3060a49649",
+          "timestamp": "2026-07-18T00:43:34.731Z"
+        },
+        {
+          "intentRef": "CHK-002:r5:antigravity-final",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "agy --dangerously-skip-permissions bounded R5 smoke + launcher identity proof",
+          "result": "pass",
+          "note": "Real Antigravity/agy host PASS on the same bound implementation: owner-session smoke and usage-burn redaction smoke passed; with inherited Codex signals removed, provider=antigravity, source=host-adapter, cross-ppid same opaque id=true, raw AGY token absent.",
+          "headHash": "fc2e962770207a673672db44dcf14e036e276358",
+          "materialHash": "c311f08c621f1e2b459d43cc3743b25284f8225ff76340513c38eef8773826e9",
+          "storyFilesHash": "b4e8f363bc01d53128b1e210575305d3c48d1432979c1155226e3b3060a49649",
+          "timestamp": "2026-07-18T00:43:34.731Z"
         }
       ]
     },
@@ -739,6 +763,18 @@
           "materialHash": "54066ea0df5af560494e0682d8d31f57abed888b8fcf32ed5156c7ba36ae1b75",
           "storyFilesHash": "a57bb2316beed2a7105278621ebaf3a6b27c88ff028a27113d0edbbcc28820fb",
           "timestamp": "2026-07-18T00:27:20.665Z"
+        },
+        {
+          "intentRef": "CHK-003:r5:degraded-final",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "Codex and agy clean-environment resolver comparison",
+          "result": "pass",
+          "note": "Negative/degraded proof on final implementation: after unsetting canonical/adapter/native signals, both real host runs report derived-ppid; agy proof confirms different ppid yields different derived ids. No raw ids recorded.",
+          "headHash": "fc2e962770207a673672db44dcf14e036e276358",
+          "materialHash": "c311f08c621f1e2b459d43cc3743b25284f8225ff76340513c38eef8773826e9",
+          "storyFilesHash": "b4e8f363bc01d53128b1e210575305d3c48d1432979c1155226e3b3060a49649",
+          "timestamp": "2026-07-18T00:43:34.731Z"
         }
       ]
     },
