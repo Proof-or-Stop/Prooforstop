@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-231d",
+  "allowedCommands": [
+    "git *",
+    "lattice *",
+    "node packages/main/dist/tasks/*",
+    "npm --prefix packages/main *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/src/core/done-required-validation.ts",
+    "packages/main/src/core/validation-execution-lock.ts",
+    "packages/main/src/tasks/worktree-portability-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git push*"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "main-agent",
+  "createdAt": "2026-07-18T22:40:18.495Z",
+  "updatedAt": "2026-07-18T22:40:18.495Z",
+  "_hash": "b006e0faa58fa191cbc637897b3246e07de215192c07bfe61d361152922dc25b"
+}

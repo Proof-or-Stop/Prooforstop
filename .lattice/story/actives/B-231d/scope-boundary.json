@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-231d",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Canonical shared validation lock root",
+    "Portability smoke",
+    "Repo-relative command-spec cwd digest",
+    "Versioned receipt-envelope migration"
+  ],
+  "excluded": [
+    "S1 orchestrator routing",
+    "W1 language-neutral classifier",
+    "W2 RED evidence subsystem",
+    "W3 enforce gate"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User authorized the W0 portability story split.",
+  "createdAt": "2026-07-18T22:40:17.139Z",
+  "updatedAt": "2026-07-18T22:40:17.139Z",
+  "_hash": "0922db1c974f2ebedd5e8bd711052c0275ba447ebc21a4a631c7d809e0f96b57"
+}

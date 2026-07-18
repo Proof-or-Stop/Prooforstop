@@ -1,0 +1,42 @@
+{
+  "storyId": "B-231d",
+  "checkedAt": "2026-07-18T22:48:04.786Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md ## Trigger Event references \"B-914f's cross-host serialization assumption\" without any explanation of what B-914f is or what assumption it established. A fresh reader with no conversation history and no access to other story directories cannot resolve this cross-story reference from the text alone (still unaddressed by the citation-fix edit)."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "low",
+      "desc": "background.md ## Trigger Event cites opaque IDs \"Intake probe rp-mrqfk0cx-bvnp86\" and \"repro review rr-mrqfkaj9-hj45oz\" and the classification label \"target-bug\" without defining what an intake probe / repro review is or how a reader could look them up. IDs verified to exist under .lattice/evidence/refs/by-id/, so not fabricated, but no standalone context is given for a first-time reader."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-18T22:41:53.795Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-18T22:48:04.786Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md ## Trigger Event references \"B-914f's cross-host serialization assumption\" without any explanation of what B-914f is or what assumption it established. A fresh reader with no conversation history and no access to other story directories cannot resolve this cross-story reference from the text alone (still unaddressed by the citation-fix edit)."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "background.md ## Trigger Event cites opaque IDs \"Intake probe rp-mrqfk0cx-bvnp86\" and \"repro review rr-mrqfkaj9-hj45oz\" and the classification label \"target-bug\" without defining what an intake probe / repro review is or how a reader could look them up. IDs verified to exist under .lattice/evidence/refs/by-id/, so not fabricated, but no standalone context is given for a first-time reader."
+        }
+      ]
+    }
+  ],
+  "_hash": "3300163f4f5319f4c9573d9fd1be35f90a30331135028ded4790fc72820c8af1"
+}
