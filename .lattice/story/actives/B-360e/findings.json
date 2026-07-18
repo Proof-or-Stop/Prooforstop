@@ -152,7 +152,7 @@
       "desc": "packages/main/src/core/prompt-contracts.ts:178 F-004 is only partially fixed: the new Reflect.ownKeys fail-closed checks run only in the plain-object branch, while arrays return at line 184 after validating numeric indices only. Arrays carrying an own Symbol key, an extra enumerable string field, or a non-enumerable/accessor field still serialize and hash byte-identically to the plain array, so unsupported values continue to disappear. Reproducer: compare canonicalJsonStringify([1]) with arrays mutated by arr[Symbol(...)]=undefined, arr.hidden=undefined, or defineProperty(arr,'hidden',{value:undefined,enumerable:false}); all return [1] with the same digest. The CHK-001 invariant covers nested object/array values and requires all otherwise non-canonical input to fail closed; validate array own keys/descriptors as well and add corresponding probes.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-18T00:19:45.178Z",
@@ -164,7 +164,11 @@
         "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 29789e7eeb by the same complete array own-key/descriptor validation; extra enumerable/non-enumerable/malformed keys and symbol keys cannot disappear into an admissible digest.",
+      "resolvedAt": "2026-07-18T00:22:33.385Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-360e:F-009",
