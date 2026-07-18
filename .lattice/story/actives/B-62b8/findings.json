@@ -405,7 +405,7 @@
       "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:1419 [high] The target repins cli-engine but leaves bin/lattice-codex.js at canonical fingerprint 9ad446..., while a2f141b9ec changed that executable and the current canonical fingerprint is 4df693.... As a result `node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js` fails with an unapproved non-literal dynamic module load at bin/lattice-codex.js:30. Repin only after reviewing that adapter change, retain the exact anchor/argument negative controls, and mirror any process-contract fingerprint token if that benign-loader map is contract-bound. `npm run test:process-fact-contract` passes independently, but the required paired validation is not green.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-18T01:11:13.431Z",
@@ -413,7 +413,11 @@
       "reviewRunId": "B-62b8:RR-030",
       "_hash": "331fb2f3b2a9de9ffc5b8ff896a7b7e7b2eb9c5375cebe02c2dd04b463ae086e",
       "signatureTag": "missing|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Same verified root cause and repair as F-019. Commit 1a802b23fc repins the exact current wrapper fingerprint and completes the fail-fast guard after enumerating all registered loader entries; full retired-authority smoke passes to completion and process-fact contract passes.",
+      "resolvedAt": "2026-07-18T01:14:22.433Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
