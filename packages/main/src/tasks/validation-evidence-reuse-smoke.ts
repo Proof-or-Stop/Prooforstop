@@ -528,6 +528,16 @@ function assertReviewToTestTransitionLeavesExactReuseRed(): void {
         VALIDATION_REUSE_SMOKE_COUNTER: counterPath,
       },
     });
+    const validateFailureAuditCount = () => {
+      const activityPath = join(root, '.lattice/activity.jsonl');
+      if (!existsSync(activityPath)) return 0;
+      return readFileSync(activityPath, 'utf8')
+        .trim()
+        .split('\n')
+        .filter(Boolean)
+        .map((line) => JSON.parse(line) as Record<string, unknown>)
+        .filter((event) => event.tool === 'validate' && event.status === 'fail').length;
+    };
     const first = runCli(['validate', `--story=${storyId}`, '--json']);
     assert.equal(first.status, 0, `${first.stdout}\n${first.stderr}`);
     assert.match(`${first.stdout}\n${first.stderr}`, /"disposition":"executed"/);
@@ -608,12 +618,15 @@ function assertReviewToTestTransitionLeavesExactReuseRed(): void {
       result: 'pass',
     });
     const humanBytes = readFileSync(join(root, canonicalPaths[1]), 'utf8');
+    const humanAuditBefore = validateFailureAuditCount();
     const rejected = runCli(['validate', `--story=${storyId}`, '--json']);
     assert.equal(rejected.status, 0, `${rejected.stdout}\n${rejected.stderr}`);
     assert.match(`${rejected.stdout}\n${rejected.stderr}`, /"status":"fail"/);
     assert.match(`${rejected.stdout}\n${rejected.stderr}`, /canonical metadata was already dirty/);
     assert.equal(readFileSync(join(root, canonicalPaths[1]), 'utf8'), humanBytes,
       'terminal closeout must not append to, commit, or rewrite a pre-existing human-authored managed delta');
+    assert.equal(validateFailureAuditCount(), humanAuditBefore + 1,
+      'dirty canonical rejection must remain durable as one failed activity audit without laundering process metadata');
     assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, 1,
       'pre-existing human metadata must fail closed without executing project commands');
 
@@ -631,11 +644,14 @@ function assertReviewToTestTransitionLeavesExactReuseRed(): void {
       result: 'pass',
     });
     const forgedBytes = readFileSync(join(root, canonicalPaths[1]), 'utf8');
+    const forgedAuditBefore = validateFailureAuditCount();
     const forged = runCli(['validate', `--story=${storyId}`, '--json']);
     assert.equal(forged.status, 0, `${forged.stdout}\n${forged.stderr}`);
     assert.match(`${forged.stdout}\n${forged.stderr}`, /canonical metadata was already dirty/);
     assert.equal(readFileSync(join(root, canonicalPaths[1]), 'utf8'), forgedBytes,
       'a canonical-looking codex_cli row is untrusted unless this CLI invocation itself appended it');
+    assert.equal(validateFailureAuditCount(), forgedAuditBefore + 1,
+      'forged canonical rejection must persist one failed activity audit while preserving the foreign row byte-for-byte');
     assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, 1);
     assert.equal(
       git(root, ['diff', '--', 'source.ts', 'lattice.config.json', 'probe.mjs']),
@@ -658,6 +674,7 @@ function assertHandlerExecutedThenReused(
   rejectReceipt = false,
   concurrentHead = false,
   hookAddsUnrelated = false,
+  structuredFailureAudit = false,
 ): void {
   const root = mkdtempSync(join(tmpdir(), `lattice-validation-reuse-${sourceKind}-`));
   const counterPath = join(tmpdir(), `lattice-validation-reuse-counter-${process.pid}-${Date.now()}.log`);
@@ -722,7 +739,9 @@ function assertHandlerExecutedThenReused(
       createdAt: now,
       startedAt: now,
       endedAt: null,
-      riskSignals: [],
+      riskSignals: structuredFailureAudit
+        ? [{ category: 'state machine/gate', matched: 'gate' }]
+        : [],
       events: [{ phase: 'TEST', action: 'advance', timestamp: now }],
     };
     const checklist: ChecklistData = { items: [{
@@ -732,9 +751,26 @@ function assertHandlerExecutedThenReused(
       status: 'done',
       startTime: now,
       endTime: now,
+      ...(structuredFailureAudit ? {
+        verificationIntent: {
+          happy: [{ desc: 'semantic validator must report PASS', type: 'logic', priority: 'must' }],
+          edge: [],
+          adversarial: [],
+        },
+        verificationEvidence: [],
+      } : {}),
     }] };
     store.writeStory(storyId, story);
     store.writeChecklist(storyId, checklist);
+    if (structuredFailureAudit) {
+      store.appendProcessEvent(storyId, {
+        type: 'phase_transition',
+        storyId,
+        phase: 'TEST',
+        command: 'story_advance',
+        result: 'pass',
+      });
+    }
     git(root, ['add', '.lattice']);
     git(root, ['commit', '-m', 'seed story metadata']);
 
@@ -743,9 +779,17 @@ function assertHandlerExecutedThenReused(
       encoding: 'utf8',
       env: { ...process.env, LATTICE_PROJECT_ROOT: root, LATTICE_SESSION_ID: 'validation-reuse-smoke', VALIDATION_REUSE_SMOKE_COUNTER: counterPath, ...extraEnv },
     });
+    const semanticPass = sourceKind !== 'validate-file'
+      || semanticResult === undefined
+      || (String(semanticResult.status ?? '').trim().toLowerCase() === 'pass'
+        && semanticResult.allPass !== false
+        && semanticResult.allPassed !== false);
     const directTransport = { CI: 'true', _: '/usr/bin/node', OLDPWD: '/direct/launcher', SHLVL: '1', PWD: '/direct/launcher' };
     const wrapperTransport = { CI: 'true', _: '/bin/zsh', OLDPWD: '/live-smoke/wrapper', SHLVL: '9', PWD: '/live-smoke/wrapper' };
-    const run = () => runWith(directTransport);
+    const run = () => runWith({
+      ...directTransport,
+      ...(structuredFailureAudit ? { LATTICE_ACTIVITY_SOURCE: 'codex' } : {}),
+    });
     const first = run();
     assert.equal(first.status, 0, `${first.stdout}\n${first.stderr}`);
     assert.match(`${first.stdout}\n${first.stderr}`, /"disposition":"executed"/);
@@ -757,6 +801,20 @@ function assertHandlerExecutedThenReused(
       );
     }
     assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, commandCount);
+    if (structuredFailureAudit) {
+      const processEventsPath = join(root, '.lattice/story/actives', storyId, 'process-events.jsonl');
+      const processEventBytes = existsSync(processEventsPath) ? readFileSync(processEventsPath, 'utf8') : '';
+      const failureEvents = processEventBytes
+        .trim()
+        .split('\n')
+        .filter(Boolean)
+        .map((line) => JSON.parse(line) as Record<string, unknown>)
+        .filter((event) => event.type === 'codex_cli' && event.command === 'validate' && event.result === 'fail');
+      assert.equal(failureEvents.length, 1,
+        `one structured validate failure must persist exactly one codex_cli failure event\n${first.stdout}\n${first.stderr}\n${processEventBytes}`);
+      assert.equal(git(root, ['status', '--porcelain=v1', '--', '.lattice/story/actives/' + storyId + '/process-events.jsonl']), '',
+        'the structured failure terminal event must be durably committed at a clean canonical boundary');
+    }
     // Simulate the trusted checklist verificationEvidence refresh that followed
     // B-19ca's command PASS. Some runtime audit rows intentionally remain after
     // the evidence auto-commit; committing those metadata-only rows establishes
@@ -768,19 +826,16 @@ function assertHandlerExecutedThenReused(
     const evidencePath = join(root, '.lattice/story/actives', storyId, 'test-evidence.json');
     const evidenceBefore = readFileSync(evidencePath, 'utf8');
     const parsedEvidence = JSON.parse(evidenceBefore) as TestEvidenceData;
-    const semanticPass = sourceKind !== 'validate-file'
-      || semanticResult === undefined
-      || (String(semanticResult.status ?? '').trim().toLowerCase() === 'pass'
-        && semanticResult.allPass !== false
-        && semanticResult.allPassed !== false);
     if (!semanticPass) {
       assert.equal(parsedEvidence.commandExecution?.status, 'FAIL', 'non-PASS semantic JSON must record commandExecution FAIL');
       const secondFailure = run();
       assert.equal(secondFailure.status, 0, `${secondFailure.stdout}\n${secondFailure.stderr}`);
       assert.match(`${secondFailure.stdout}\n${secondFailure.stderr}`, /"disposition":"executed"/);
-      const expectedRefusalReasons = parsedEvidence.result === 'PASS'
-        ? 'prior-command-execution-not-pass'
-        : 'prior-command-execution-not-pass,prior-overall-result-not-reusable';
+      const expectedRefusalReasons = structuredFailureAudit
+        ? 'current-verification-coverage-incomplete,prior-command-execution-not-pass'
+        : parsedEvidence.result === 'PASS'
+          ? 'prior-command-execution-not-pass'
+          : 'prior-command-execution-not-pass,prior-overall-result-not-reusable';
       assert.match(
         `${secondFailure.stdout}\n${secondFailure.stderr}`,
         new RegExp(
@@ -991,6 +1046,15 @@ function identity(root: string, sourceKind: RoutineValidationSourceKind, command
 }
 
 function main(): void {
+  if (process.env.VALIDATION_REUSE_SMOKE_F009_ONLY === '1') {
+    assertHandlerExecutedThenReused('validate-file', 1, {
+      provider: 'validate-file-smoke',
+      status: 'fail',
+      allPass: true,
+    }, false, false, false, false, false, true);
+    console.log('validation-evidence-reuse-smoke F-009 PASS (structured validate failure audit)');
+    return;
+  }
   assertLifecycleMetadataTransactionBoundaries();
   assertPostCommandHookMutationFailsTerminalCloseout();
   assertPhaseHookMutationFailsTransitionCloseout();
@@ -1437,6 +1501,11 @@ function main(): void {
     assertHandlerExecutedThenReused('configured');
     assertHandlerExecutedThenReused('fallback');
     assertHandlerExecutedThenReused('validate-file');
+    assertHandlerExecutedThenReused('validate-file', 1, {
+      provider: 'validate-file-smoke',
+      status: 'fail',
+      allPass: true,
+    }, false, false, false, false, false, true);
     for (const semanticResult of [
       { provider: 'validate-file-smoke', status: 'fail', allPass: true },
       { provider: 'validate-file-smoke', status: 'warn', allPass: true },

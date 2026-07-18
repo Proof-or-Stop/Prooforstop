@@ -1196,6 +1196,7 @@ export async function runCli(opts?: {
     args: unknown;
     success: boolean;
     error?: string;
+    canonicalFailure?: boolean;
   }) {
     if (!isCodexActivitySource()) return;
     const argsObject = entry.args && typeof entry.args === 'object' && !Array.isArray(entry.args)
@@ -1214,7 +1215,7 @@ export async function runCli(opts?: {
     if (isReadOnlyCommand(entry.command, argsObject)) return;
     const storyId = storyIdFromArgs(argsObject, activeStory, { command: entry.command, projectRoot: root });
     if (!storyId) return;
-    const closeCanonicalTerminal = entry.success
+    const closeCanonicalTerminal = (entry.success || entry.canonicalFailure === true)
       && (
         entry.command === 'validate'
         || (entry.command === 'story_advance' && argsObject.phase === 'TEST')
@@ -1281,7 +1282,7 @@ export async function runCli(opts?: {
         command: entry.command,
         storyId,
       });
-      if (closeCanonicalTerminal) {
+      if (closeCanonicalTerminal && entry.success) {
         throw new CanonicalTerminalCloseoutError(
           `canonical terminal persistence failed for ${entry.command}: ${(e as Error)?.message || String(e)}`,
         );
@@ -1404,8 +1405,9 @@ export async function runCli(opts?: {
           }
         } catch { /* best-effort: never fail a successful command on counter reset */ }
       }
+      const commandSucceeded = !structuredDoneFailure && !canonicalCommandFailure;
       if (shouldWriteActivityLog(cmd, parsed) || staleWarnings.length > 0) {
-        writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: !structuredDoneFailure, ...(structuredDoneFailure ? { error: 'structured terminal failure' } : {}), staleWarnings });
+        writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: commandSucceeded, ...(!commandSucceeded ? { error: 'structured terminal failure' } : {}), staleWarnings });
       }
       const closesCanonicalTerminal = !structuredDoneFailure
         && !canonicalCommandFailure
@@ -1452,6 +1454,21 @@ export async function runCli(opts?: {
       }
       if (closesCanonicalTerminal) {
         writeCodexProcessEvent({ command: cmd, args: parsed, success: true });
+      } else if (canonicalCommandFailure) {
+        // Structured validate/TEST-transition failures return normally from the
+        // handler, so the catch-path audit writer never runs. Close a single
+        // failure row under the same exact-path transaction used by PASS when
+        // the boundary is clean. If pre-existing/concurrent canonical bytes
+        // make that unsafe, writeCodexProcessEvent reports the health issue and
+        // leaves those bytes untouched; the failure activity row above remains
+        // the durable audit rather than laundering foreign metadata.
+        writeCodexProcessEvent({
+          command: cmd,
+          args: parsed,
+          success: false,
+          error: 'structured terminal failure',
+          canonicalFailure: true,
+        });
       }
       let output = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
       output = appendMilestoneStatusAfterMutation(output);
