@@ -216,6 +216,25 @@
         "scanEscalationReason": null
       },
       "_hash": "82db013385c46c9a48e23ed9da06281dc2c134c94e9a0bb919910ddc46c12686"
+    },
+    {
+      "id": "B-0784:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "PASS incremental review of 437c825460 only. runScopeGate now keeps metadataRoot for configuration/artifact classification and passes resolvedGitCwd separately for injected changed-file readers and Git-backed provenance; the normal diff-pack branch uses the same authority split. Wrapper injected-reader regression passes with pathCanonicalization=off, and no arbitrary-root, fallback, or guard bypass was introduced. Focused build, scope-contract-smoke, and git diff-check passed; no full suite, validate, or lifecycle commands run.",
+      "createdAt": "2026-07-18T04:13:13.649Z",
+      "reviewRound": "2026-07-18T04:11:53.562Z",
+      "reviewRunId": "B-0784:RR-025",
+      "writerSessionId": "b0784-review-quality-fresh",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6deb3165f8056d6812a8a45f6e55a295fa5040ce0177084cfc8b508b1ff03ed2"
     }
   ]
 }
