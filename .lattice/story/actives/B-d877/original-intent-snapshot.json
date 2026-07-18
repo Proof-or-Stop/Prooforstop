@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-d877",
+  "sourceText": "Close the audit-discovered defect where dev_finish and dev_merge advance a story's phase outside runStoryTransition, and serialize same-owner concurrent transitions.",
+  "normalizedOutcome": "No registered command can advance a story's phase without routing through runStoryTransition (review round minted, phase_transition event appended, correct REVIEW label); concurrent same-owner transitions produce exactly one review round.",
+  "acceptanceClaim": "The transition-integrity smoke shows dev_finish routes through the orchestrator (4 assertions pass) and two concurrent same-owner DEV->REVIEW transitions yield one review round.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:eecf2973b010eb2e0d60e20f21834c17b9063dfede82088b692e58091002e40d",
+  "createdAt": "2026-07-18T14:03:12.715Z",
+  "updatedAt": "2026-07-18T14:03:12.715Z"
+}

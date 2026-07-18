@@ -16,7 +16,62 @@
         "test": [
           "packages/main/src/tasks/transition-integrity-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "dev_finish on a completed DEV story routes through runStoryTransition: phase becomes REVIEW, a currentReviewRound is minted, and a phase_transition process-event with toPhase=REVIEW is appended.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "dev_merge (the second registered bypass door) also routes through the orchestrator and does not write phase directly.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
       }
+    },
+    {
+      "id": "CHK-002",
+      "title": "Serialize same-owner concurrent transitions with a per-story transition lock",
+      "context": "Hold a per-story transition lock across read, gate, and persist in runStoryTransition so two concurrent same-owner DEV to REVIEW attempts cannot both act on the same pre-transition state and double-mint review rounds.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-d877/background.md"
+      ],
+      "userSees": "Two concurrent DEV to REVIEW transitions for the same story produce exactly one review round and one phase_transition event; the second observes the committed transition.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "create": [
+          "packages/main/src/core/story-transition-lock.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/transition-integrity-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-18T14:01:18.407Z",
+      "phase": "PLAN",
+      "itemId": "CHK-002",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Story-init reviewer flagged the mutex deliverable was untracked by the single generic checklist item; add it explicitly.",
+      "addedTitle": "Serialize same-owner concurrent transitions with a per-story transition lock",
+      "addedContext": "Hold a per-story transition lock across read, gate, and persist in runStoryTransition so two concurrent same-owner DEV to REVIEW attempts cannot both act on the same pre-transition state and double-mint review rounds."
     }
   ]
 }
