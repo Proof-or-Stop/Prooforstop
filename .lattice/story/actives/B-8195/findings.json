@@ -138,7 +138,7 @@
       "desc": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts:138-168,386-457,1001-1017 — HIGH coverage gap: the new lifecycle transactions introduced in transition-orchestrator.ts:676-749 and cli-engine.ts:1210-1252 are exercised only on their happy path plus pre-entry human/forged process-event dirt. The CAS/HEAD race, phase-hook content mutation, commit failure, exact 3-path/1-path admission, rollback restoration, and unrelated source/config/command-entry controls recorded for CHK-002 edge:1/edge:2/adversarial:1 and CHK-003 adversarial:1/adversarial:2 still run only against the older validation-reuse 3-file writer, not either new lifecycle caller/helper. Also CHK-003 edge:0 merely checks the counter on the second validate; it never snapshots HEAD, process-event count, receipt count, or canonical status to prove no duplicate facts/receipts and stable cleanup. Add deterministic tests for both new transaction kinds/call sites (including hook mutation and rollback byte/index preservation), assert exact commit path sets, and strengthen repeated-idempotence assertions before treating all 20 must intents as covered.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-18T10:59:58.894Z",
@@ -146,7 +146,11 @@
       "reviewRunId": "B-8195:RR-003",
       "_hash": "28bbc882f11cbf481b83c7120143bef91094014413487dac77d40f7e4c18f2d0",
       "signatureTag": "missing|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 94a0085b13 adds deterministic exact 3-path and 1-path lifecycle transaction tests, owned-byte/index rollback on writer failure, concurrent content and HEAD CAS preservation, output-read failure, forged pre-entry rejection, real postCommand and onPhaseChange hook mutation caller tests, plus repeated validate HEAD/event/receipt/final-clean assertions. Focused validation-evidence-reuse smoke passes.",
+      "resolvedAt": "2026-07-18T11:25:33.896Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8195:F-009",
