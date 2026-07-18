@@ -664,6 +664,25 @@
       "resolvedAt": "2026-07-18T04:12:02.673Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0784:F-028",
+      "desc": "The new wrapper injected-reader regression catches the old config-root conflation, but it does not assert the other half of the contract: the injected Git reader receives the resolved story worktree. The callback is `() => [\"src/allowed.ts\"]` and ignores its cwd argument, so a future regression from `gitReader(resolvedGitCwd)` to `gitReader(metadataRoot)` would still pass while the test claims resolved-worktree coverage. Capture/assert the callback argument equals `storyWorktree` (and not `wrapperRoot`/inner repo) before returning the changed file. This is a one-line semantic assertion; build and scope smoke otherwise pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-18T04:13:34.724Z",
+      "reviewRound": "2026-07-18T04:11:53.562Z",
+      "reviewRunId": "B-0784:RR-024",
+      "_hash": "25a9f7c826411706a360910eaa55edd33a09c11d6c75d7b04d962388781ea01a",
+      "files": [
+        "packages/main/src/tasks/scope-contract-smoke.ts",
+        "packages/main/src/handlers/scope-contract.ts"
+      ],
+      "signatureTag": "missing|ts|wrapper-injected-reader",
+      "signatureTagSource": "auto"
     }
   ]
 }
