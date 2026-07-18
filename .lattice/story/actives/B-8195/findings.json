@@ -157,7 +157,7 @@
       "desc": "packages/main/src/cli-engine.ts:1410-1421 — MEDIUM: the new `canonicalCommandFailure` branch suppresses `writeCodexProcessEvent` entirely for routine validate results with status/allPass failure. These are structured handler failures that historically return without throwing, so they never reach the error-path writer either; the durable `codex_cli` audit row is silently lost, contradicting this function’s documented both-success-and-error choke-point contract. Emit a failure terminal row (and close it safely if a clean canonical boundary is required) rather than skipping the event; add a structured validate-failure assertion.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-18T11:23:30.890Z",
@@ -165,7 +165,11 @@
       "reviewRunId": "B-8195:RR-005",
       "_hash": "9a27a4cfbd624644aebeb2bb8202afc1106212fa363b0d67942b2c746d0922db",
       "signatureTag": "edge|unknown|packages-main-engine",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by a8f6a4dabf: canonical structured validate/TEST failures now derive commandSucceeded=false, write the durable failure activity row, then append exactly one codex_cli result=fail through the clean-boundary lifecycle transaction after postCommand hooks. Pre-existing/concurrent canonical dirt makes capture fail before append, is preserved, and falls back to the already-written activity audit; canonicalFailure closeout errors are health-reported without rethrow recursion, while PASS still uses the unchanged throwing closeout path. `VALIDATION_REUSE_SMOKE_F009_ONLY=1 node packages/main/dist/tasks/validation-evidence-reuse-smoke.js` passed and asserts one committed failure row.",
+      "resolvedAt": "2026-07-18T11:52:57.448Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
