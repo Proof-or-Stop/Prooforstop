@@ -107,7 +107,55 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "From a clean fixture with a fully bound fresh PASS, the real local CLI performs story_advance into TEST and the immediately following mandatory validate succeeds in that single invocation with status PASS, disposition reused, commandExecutions=0, no canonical-pass-persistence-failed diagnostic and a clean final worktree.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Both human-readable and JSON output explicitly distinguish the successful reused path from executed, skipped, timed-out and failed validation, and the resulting fresh evidence remains bound to the current story/material/command-set identity.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Repeating validate after the one-shot convergence is idempotent: it remains a zero-command reused PASS, does not duplicate lifecycle facts or receipts, and leaves HEAD/worktree stable except for explicitly canonical idempotent bookkeeping.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A stale or mismatched material hash, story-files hash, focus, ordered command-set hash, policy/binding or non-trusted HEAD lineage does not take the reuse shortcut and follows the existing execute-or-refuse behavior without fabricating PASS.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The integration suite proves the production entrypoint/worktree runtime is used and counts command executions independently, preventing a global/old CLI or mocked helper-only test from producing a false green.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A table-driven matrix rejects pre-entry human/direct edits, forged canonical-looking events, replayed wrong-invocation proofs, malformed/truncated receipts and unrelated source/config/command-entry dirt; every case asserts commandExecutions, exit classification, unchanged user content and absence of a new PASS receipt.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Deterministically injected concurrent HEAD/content movement between admission and CAS causes a classified infra failure or safe retry, never a reused PASS and never loss/commit of the competing change.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Injected staging, commit, persistence-hook and cleanup failures settle once, release locks/resources, preserve diagnostic causality, roll back framework-owned partial state where possible and never require or recommend an identical blind rerun as proof of success.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
