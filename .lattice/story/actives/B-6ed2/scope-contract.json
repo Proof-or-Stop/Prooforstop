@@ -8,6 +8,8 @@
     "packages/main/src/core/done-prepare-generated-metadata.ts",
     "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-events.ts",
+    "packages/main/src/core/store.ts",
     "packages/main/src/cli-engine.ts",
     "scripts/verify-process-fact-contract.mjs",
     "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
@@ -31,10 +33,10 @@
     "packages/main/src/core/candidate-spec-routing.ts",
     "packages/main/src/handlers/cross-host-review.ts"
   ],
-  "scopeChangeReason": "Production-entry RED proved cli-engine appends an uncommitted generic codex_cli terminal event after quorum_submit already atomically commits its exact six host verdict rows; add only cli-engine.ts so quorum_submit can declare/receive single-writer terminal ownership, without changing verifier, dirty allowlists, routing, package wiring or unrelated commands.",
+  "scopeChangeReason": "F-007 production RED proves quorum cannot infer exact ownership around an opaque process-event writer. Add only core/process-events.ts for cooperative locked append returning exact writer identity and core/store.ts to transparently propagate that identity; verdict/quorum consume it. Verifier, validation reuse, routing, package wiring and unrelated commands remain excluded.",
   "acknowledgements": [],
   "createdAt": "2026-07-18T22:21:57.061Z",
-  "updatedAt": "2026-07-18T23:07:37.278Z",
+  "updatedAt": "2026-07-18T23:40:45.771Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -60,6 +62,8 @@
     "packages/main/src/core/runtime-fact-registry.ts": "packages/main/src/core/runtime-fact-registry.ts",
     "packages/main/src/core/candidate-spec-routing.ts": "packages/main/src/core/candidate-spec-routing.ts",
     "packages/main/src/handlers/cross-host-review.ts": "packages/main/src/handlers/cross-host-review.ts",
-    "packages/main/src/cli-engine.ts": "packages/main/src/cli-engine.ts"
+    "packages/main/src/cli-engine.ts": "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/process-events.ts": "packages/main/src/core/process-events.ts",
+    "packages/main/src/core/store.ts": "packages/main/src/core/store.ts"
   }
 }
