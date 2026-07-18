@@ -24,7 +24,7 @@
       "desc": "packages/main/src/tasks/quorum-submit-smoke.ts:106-134,357-399 — HIGH coverage gap: the 27-intent evidence marks CHK-001 happy:0/happy:1/edge:0/adversarial:0/adversarial:2 and CHK-003 happy:0/adversarial:0 as covered by this smoke, but the smoke creates a synthetic temp repository with synthetic PASS evidence and invokes registry.get(\"quorum_submit\") directly; it never invokes the worktree-local CLI, never runs the validation persistence path, never demonstrates the historical validation refusal/no-false-PASS boundary, and never proves the harness rejects a direct-handler-only shortcut. The only post-quorum check at lines 390-399 calls captureLifecycleMetadataTransaction and expects success after GREEN. The sole pre-dirty case at lines 579-592 is an untracked user file, not the separately required pre-dirty process-events plus staged/source/lifecycle cases. Thus several MUST intents are contradicted or only narratively attested while checklist evidence claims executable coverage. Add a bounded production-entry integration that runs node bin/lattice.js quorum_submit in a real fixture/worktree and exercises the validation persistence refusal on the RED implementation (or bind a concrete immutable historical receipt), plus the explicitly required pre-dirty categories; keep the existing fast handler matrix for fault injection.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-18T22:44:32.594Z",
@@ -32,7 +32,11 @@
       "reviewRunId": "B-6ed2:RR-002",
       "_hash": "0fa67b1d3fed7bfeb0e556cb1d071627e997e9ca367a72a1ca24e4e2a0ad9218",
       "signatureTag": "missing|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "rootCause: the prior smoke used a direct registry handler in a synthetic repo and never crossed the worktree-local CLI or validation canonical persistence boundary; the CLI also appended a post-handler codex_cli row that re-dirtied process-events. repro: node bin/lattice.js quorum_submit in the bounded fixture left a codex_cli delta, and validate on the historical six-row dirty baseline executed once then returned infra_failure. reproTest: quorum-submit-smoke production-entry cases cover clean CLI quorum, process-events/staged-source/lifecycle pre-dirt, and historical RED validation no-false-PASS. evidence: smoke PASS 27/27; validation payload status=fail allPass=false failureKind=infra_failure disposition=executed commandExecutions=1; original FAIL evidence and bytes preserved; commit 8d7b031bfa.",
+      "resolvedAt": "2026-07-18T23:17:01.772Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-6ed2:F-003",
