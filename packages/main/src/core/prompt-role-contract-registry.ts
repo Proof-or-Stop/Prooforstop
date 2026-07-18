@@ -1,3 +1,6 @@
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import {
   canonicalJsonStringify,
   domainSeparatedDigest,
@@ -8,12 +11,87 @@ import {
 import {
   readPromptRegistry,
   readPromptTemplate,
+  renderPromptEntryForHost,
   type PromptRegistrySnapshot,
 } from './prompt-registry.js';
 
 export const PROMPT_ROLE_CONTRACT_REGISTRY_VERSION = 'proofbound.prompt-role-contract-registry.v1';
 export const PROMPT_ENVELOPE_ROLLOUT_VERSION = 'proofbound.prompt-envelope-rollout.v1';
 export type PromptEnvelopeRolloutMode = 'legacy-full-context' | 'full-envelope';
+
+export interface ReviewerHostRenderIdentity {
+  schemaVersion: 'proofbound.reviewer-host-render-identity.v1';
+  roleId: string;
+  packageTemplateDigest: string;
+  claudeRenderDigest: string;
+  codexRenderDigest: string;
+  codexSource: 'full-asset' | 'package-registry';
+  identityDigest: string;
+}
+
+function readCodexPromptMode(projectRoot: string): 'legacy-mirror' | 'registry' {
+  const path = join(projectRoot, '.lattice-codex', 'lattice.json');
+  if (!existsSync(path)) return 'registry';
+  try {
+    const parsed = JSON.parse(readFileSync(path, 'utf8')) as { promptMode?: unknown };
+    return parsed.promptMode === 'registry' ? 'registry' : 'legacy-mirror';
+  } catch {
+    throw new PromptRoleContractRegistryError('.lattice-codex/lattice.json is not valid JSON');
+  }
+}
+
+function assertExactHostAsset(path: string, expected: string, label: string): string {
+  if (!existsSync(path)) throw new PromptRoleContractRegistryError(`missing ${label} reviewer prompt asset: ${path}`);
+  const actual = readFileSync(path, 'utf8');
+  if (actual !== expected) {
+    throw new PromptRoleContractRegistryError(
+      `${label} reviewer prompt asset drift: ${path} does not equal the canonical package render`,
+    );
+  }
+  return actual;
+}
+
+/**
+ * Proves that every host-visible role prompt for a reviewer lane is the exact
+ * deterministic render of the package registry entry. Full Codex projects bind
+ * the materialized asset; thin projects bind the registry render identity.
+ */
+export function reviewerHostRenderIdentity(projectRoot: string, roleId: string): ReviewerHostRenderIdentity {
+  const registry = readPromptRegistry();
+  const entry = registry.agents.find(candidate => candidate.agentId === roleId);
+  if (!entry) throw new PromptRoleContractRegistryError(`unknown reviewer prompt role "${roleId}"`);
+  if (!isPromptRoleEligibleForReviewEvidence(roleId)) {
+    throw new PromptRoleContractRegistryError(`role "${roleId}" is not eligible for reviewer host rendering`);
+  }
+  const packageTemplate = readPromptTemplate(entry);
+  const claudeAsset = assertExactHostAsset(
+    join(projectRoot, '.claude', 'agents', entry.file),
+    packageTemplate,
+    'Claude',
+  );
+  const codexExpected = renderPromptEntryForHost(entry, 'codex');
+  const codexSource: ReviewerHostRenderIdentity['codexSource'] =
+    readCodexPromptMode(projectRoot) === 'registry' ? 'package-registry' : 'full-asset';
+  const codexRender = codexSource === 'package-registry'
+    ? codexExpected
+    : assertExactHostAsset(
+      join(projectRoot, '.lattice-codex', 'agents', entry.file),
+      codexExpected,
+      'Codex',
+    );
+  const semantic = {
+    schemaVersion: 'proofbound.reviewer-host-render-identity.v1' as const,
+    roleId,
+    packageTemplateDigest: domainSeparatedDigest('reviewer-package-template.raw-utf8.v1', packageTemplate),
+    claudeRenderDigest: domainSeparatedDigest('reviewer-claude-render.raw-utf8.v1', claudeAsset),
+    codexRenderDigest: domainSeparatedDigest('reviewer-codex-render.raw-utf8.v1', codexRender),
+    codexSource,
+  };
+  return {
+    ...semantic,
+    identityDigest: domainSeparatedDigest('reviewer-host-render-identity.v1', semantic),
+  };
+}
 
 interface RolePolicy {
   status: RoleLifecycleStatus;

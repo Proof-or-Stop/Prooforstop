@@ -2,14 +2,14 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { canonicalDigest } from '../core/authority-signing.js';
 import { resetConfigCache } from '../core/config.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { signReviewPass } from '../core/finding-verify.js';
-import { signReviewRun } from '../core/review-run.js';
+import { signReviewRun, verifyReviewRunPromptEnvelope } from '../core/review-run.js';
 import {
   deriveCanonicalHostKeyId,
   deriveHostVerdictBindings,
@@ -21,6 +21,7 @@ import { evaluateReviewAssuranceFloor } from '../core/review-assurance-floor.js'
 import { canPassReviewGuard, type StoryMachineContext } from '../core/machine.js';
 import { computePromptEnvelopeId } from '../core/prompt-envelope.js';
 import { PROMPT_ENVELOPE_ROLLOUT_VERSION } from '../core/prompt-role-contract-registry.js';
+import { readPromptRegistry, readPromptTemplate } from '../core/prompt-registry.js';
 import { StoryStore } from '../core/store.js';
 import { listVerdicts, summarizeVerdicts } from '../core/verdicts.js';
 import { createMainRegistry } from '../registry.js';
@@ -113,6 +114,11 @@ function checklist(): ChecklistData {
 function makeFixture(): { root: string; store: StoryStore; ctx: HandlerContext; registry: ReturnType<typeof createMainRegistry> } {
   const root = mkdtempSync(join(tmpdir(), 'lattice-quorum-submit-'));
   writeConfig(root);
+  const promptRegistry = readPromptRegistry();
+  for (const lane of REVIEW_LANES) {
+    const entry = promptRegistry.agents.find(candidate => candidate.agentId === lane)!;
+    write(root, `.claude/agents/${entry.file}`, readPromptTemplate(entry));
+  }
   write(root, 'README.md', 'quorum submit smoke\n');
   write(root, 'packages/main/src/index.ts', 'export const seed = true;\n');
   git(root, ['init']);
@@ -169,10 +175,14 @@ function assertQuorumRefuses(registry: ReturnType<typeof createMainRegistry>, st
 }
 
 function startRunAndPass(registry: ReturnType<typeof createMainRegistry>, lane: string): void {
+  const dispatch = registry.get('dispatch');
   const start = registry.get('review_run_start');
   const pass = registry.get('review_pass_set');
+  assert.ok(dispatch, 'dispatch handler is registered');
   assert.ok(start, 'review_run_start handler is registered');
   assert.ok(pass, 'review_pass_set handler is registered');
+  const dispatched = dispatch({ storyId: STORY_ID, agentType: lane }) as { prompt: string };
+  assert.match(dispatched.prompt, new RegExp(`Review lane: ${lane}`));
   const output = String(start({
     storyId: STORY_ID,
     agent: lane,
@@ -369,6 +379,18 @@ try {
     store.writeReviewRuns(STORY_ID, { runs });
     store.writeReviewPasses(STORY_ID, { passes });
     assertQuorumRefuses(registry, store, root, 'compatibility-only quorum refusal');
+    const floor = evaluateReviewAssuranceFloor({
+      projectRoot: root,
+      story: store.readStory(STORY_ID),
+      storyId: STORY_ID,
+      changedFiles: ['packages/main/src/index.ts'],
+      processEvents: store.readProcessEvents(STORY_ID),
+      materialHash,
+      storyFilesHash,
+    });
+    assert.equal(floor.ok, false, 'rejected compatibility-only receipts cannot cross the quorum boundary into floor evidence');
+    assert.equal(floor.localRounds.validRounds.length, 0, 'quorum refusal leaves no countable host-verdict round');
+    assert.equal(floor.proofAdmissibility.artifactKind, 'host-verdict');
     store.writeReviewRuns(STORY_ID, { runs: [] });
     store.writeReviewPasses(STORY_ID, { passes: [] });
   });
@@ -388,6 +410,23 @@ try {
       gitCwd: root,
     };
     assert.equal(canPassReviewGuard(machineContext), true, 'current canonical full-envelope evidence passes REVIEW');
+    const qualityAssetPath = '.claude/agents/lattice-review-quality.md';
+    const originalQualityAsset = readFileSync(join(root, qualityAssetPath), 'utf8');
+    write(root, qualityAssetPath, `${originalQualityAsset}\n<!-- host-asset-only drift -->\n`);
+    const qualityRun = [...store.readReviewRuns(STORY_ID).runs]
+      .reverse()
+      .find(run => run.lane === 'lattice-review-quality');
+    assert.ok(qualityRun, 'quality reviewer run exists for host-asset drift verification');
+    const driftedHostVerification = verifyReviewRunPromptEnvelope(store, qualityRun);
+    assert.equal(driftedHostVerification.ok, false, 'host-asset-only drift invalidates the bound Prompt Envelope');
+    assert.match(
+      driftedHostVerification.reason ?? '',
+      /host render identity|Claude reviewer prompt asset/,
+      'host-asset-only drift is rejected by the render identity boundary',
+    );
+    assert.equal(canPassReviewGuard(machineContext), false, 'machine REVIEW rejects host-asset-only drift');
+    write(root, qualityAssetPath, originalQualityAsset);
+    assert.equal(canPassReviewGuard(machineContext), true, 'restoring exact host asset bytes restores REVIEW evidence');
     const data = store.readPromptEnvelopes(STORY_ID);
     const original = data.envelopes[0];
     assert.ok(original, 'full-envelope reviewer run persists an envelope');

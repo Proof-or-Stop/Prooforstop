@@ -77,6 +77,8 @@ const common = {
   reviewRunId: 'B-envelope:RR-001',
   reviewRound: '2026-07-18T00:00:00.000Z',
   lane: 'lattice-review-quality',
+  dispatchPrompt: 'Trusted story-review dispatch prompt.',
+  hostRenderIdentityDigest: 'f'.repeat(64),
 };
 const first = assembleFullPromptEnvelope({ ...common, createdAt: '2026-07-18T00:00:01.000Z' });
 const repeated = assembleFullPromptEnvelope({ ...common, createdAt: '2026-07-18T00:00:02.000Z' });

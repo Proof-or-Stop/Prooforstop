@@ -32,13 +32,18 @@ import {
   verifyFullPromptAssemblyIntegrity,
   verifyPromptEnvelopeIntegrity,
 } from './prompt-envelope.js';
-import { domainSeparatedDigest } from './prompt-contracts.js';
+import {
+  domainSeparatedDigest,
+  reviewerDispatchBindingDigest,
+  reviewerDispatchPromptDigest,
+} from './prompt-contracts.js';
 import { BASELINE_RUNTIME_CONTRACT } from './prompt-measurement.js';
 import { readPromptRegistry, readPromptTemplate } from './prompt-registry.js';
 import { loadConfig } from './config.js';
 import {
   isPromptRoleEligibleForReviewEvidence,
   promptRoleContract,
+  reviewerHostRenderIdentity,
   resolvePromptEnvelopeRolloutMode,
 } from './prompt-role-contract-registry.js';
 
@@ -506,6 +511,70 @@ export function verifyReviewRun(run: ReviewRun): boolean {
     );
 }
 
+export interface VerifiedReviewerDispatchBinding {
+  dispatchPrompt: string;
+  dispatchPromptDigest: string;
+  hostRenderIdentityDigest: string;
+  dispatchBindingDigest: string;
+}
+
+export function verifyCurrentReviewerDispatchBinding(args: {
+  store: StoryStore;
+  storyId: string;
+  lane: string;
+  reviewRound: string;
+  projectRoot: string;
+}): { ok: true; binding: VerifiedReviewerDispatchBinding } | { ok: false; reason: string } {
+  let hostIdentity;
+  try {
+    hostIdentity = reviewerHostRenderIdentity(args.projectRoot, args.lane);
+  } catch (error) {
+    return {
+      ok: false,
+      reason: error instanceof Error ? error.message : String(error),
+    };
+  }
+  const event = [...args.store.readProcessEvents(args.storyId)].reverse().find(candidate =>
+    candidate.type === 'dispatch'
+    && candidate.targetKind === 'story-review'
+    && candidate.agentType === args.lane
+    && candidate.reviewRound === args.reviewRound);
+  if (!event) {
+    return { ok: false, reason: `no trusted story-review dispatch binding for ${args.lane} in the current REVIEW round` };
+  }
+  const dispatchPrompt = typeof event.dispatchPrompt === 'string' ? event.dispatchPrompt : '';
+  const dispatchPromptDigest = typeof event.dispatchPromptDigest === 'string' ? event.dispatchPromptDigest : '';
+  const hostRenderIdentityDigest = typeof event.hostRenderIdentityDigest === 'string'
+    ? event.hostRenderIdentityDigest
+    : '';
+  const dispatchBindingDigest = typeof event.dispatchBindingDigest === 'string' ? event.dispatchBindingDigest : '';
+  if (!dispatchPrompt || dispatchPromptDigest !== reviewerDispatchPromptDigest(dispatchPrompt)) {
+    return { ok: false, reason: 'story-review dispatch prompt bytes/digest are missing or tampered' };
+  }
+  if (hostRenderIdentityDigest !== hostIdentity.identityDigest) {
+    return { ok: false, reason: 'reviewer host render identity is stale or does not match current host assets' };
+  }
+  const expectedBindingDigest = reviewerDispatchBindingDigest({
+    storyId: args.storyId,
+    lane: args.lane,
+    reviewRound: args.reviewRound,
+    dispatchPromptDigest,
+    hostRenderIdentityDigest,
+  });
+  if (dispatchBindingDigest !== expectedBindingDigest) {
+    return { ok: false, reason: 'story-review dispatch binding digest is missing or tampered' };
+  }
+  return {
+    ok: true,
+    binding: {
+      dispatchPrompt,
+      dispatchPromptDigest,
+      hostRenderIdentityDigest,
+      dispatchBindingDigest,
+    },
+  };
+}
+
 export function verifyReviewRunPromptEnvelope(store: StoryStore, run: ReviewRun): { ok: boolean; reason?: string } {
   if (!run.envelopeId) return { ok: true };
   const matching = store.readPromptEnvelopes(run.storyId).envelopes.filter(
@@ -533,12 +602,22 @@ export function verifyReviewRunPromptEnvelope(store: StoryStore, run: ReviewRun)
   } catch {
     return { ok: false, reason: `no canonical Role Contract for ReviewRun lane ${run.lane}` };
   }
+  const dispatchBinding = verifyCurrentReviewerDispatchBinding({
+    store,
+    storyId: run.storyId,
+    lane: run.lane,
+    reviewRound: run.reviewRound,
+    projectRoot: run.workspaceBinding?.metadataRoot || run.workspaceBinding?.signedWorkspaceRoot || process.cwd(),
+  });
+  if (!dispatchBinding.ok) return dispatchBinding;
   if (!verifyFullPromptAssemblyIntegrity({
     prompt: run.assembledPrompt,
     envelope,
     runtimeContract: BASELINE_RUNTIME_CONTRACT,
     roleContract,
     rolePrompt: readPromptTemplate(promptEntry),
+    dispatchPrompt: dispatchBinding.binding.dispatchPrompt,
+    hostRenderIdentityDigest: dispatchBinding.binding.hostRenderIdentityDigest,
   })) {
     return { ok: false, reason: 'Prompt Envelope does not match the canonical runtime/role/task assembly bytes' };
   }

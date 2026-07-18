@@ -1118,9 +1118,9 @@ export const PROCESS_FACT_ARTIFACTS = [
     semantics: ['artifact', 'prompt-envelope', 'schema-contract'],
     level: 'L1',
     producer: 'handlers/agent-prompt + handlers/review-run',
-    consumerGate: 'story-dispatch rows are audit-only; review-run rows are verified through signed ReviewRun envelopeId by REVIEW, assurance-floor, and quorum gates',
+    consumerGate: 'story-dispatch rows are audit-only; review-run rows are verified through signed ReviewRun envelopeId by REVIEW and quorum gates; the assurance floor consumes host-verdict rounds emitted after quorum admission',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.agent_prompt,
-    rationale: 'Content-addressed full Prompt Envelopes are append-only. createdAt is provenance outside the envelopeId digest; story-dispatch cannot carry reviewer authority. Review-run envelopes additionally bind roleId to lane and their exact delivered assembledPrompt bytes to the signed ReviewRun promptHash.',
+    rationale: 'Content-addressed full Prompt Envelopes are append-only. createdAt is provenance outside the envelopeId digest; story-dispatch cannot carry reviewer authority. Review-run envelopes additionally bind roleId to lane, the exact standard story-dispatch prompt bytes, deterministic package-to-Claude/Codex host-render identity, and their exact delivered assembledPrompt bytes to the signed ReviewRun promptHash.',
   },
   {
     name: 'artifact:review-runs.json',

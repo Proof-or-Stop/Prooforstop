@@ -5,6 +5,7 @@ import {
   PROMPT_CONTRACT_ALGORITHMS,
   promptLogicalLines,
   promptUtf8Bytes,
+  reviewerDispatchPromptDigest,
   validateFullTaskContext,
   validateKnownExecutionEnvironment,
   validatePromptEnvelope,
@@ -36,6 +37,8 @@ export interface FullPromptAssemblyInput {
   commandPolicy?: unknown;
   toolPolicy?: unknown;
   systemInstruction?: string;
+  dispatchPrompt?: string;
+  hostRenderIdentityDigest?: string;
 }
 
 export interface FullPromptAssembly {
@@ -51,8 +54,9 @@ function renderFullPrompt(
   taskContext: FullTaskContext,
   environment: KnownExecutionEnvironment,
   rolePrompt: string,
+  dispatchPrompt?: string,
 ): string {
-  return [
+  const sections = [
     '## Runtime Contract',
     runtimeContract.compactText,
     '## Role Contract',
@@ -61,9 +65,10 @@ function renderFullPrompt(
     canonicalJsonStringify(taskContext),
     '## Known Execution Environment',
     canonicalJsonStringify(environment),
-    '## Role Prompt',
-    rolePrompt,
-  ].join('\n\n');
+  ];
+  if (dispatchPrompt !== undefined) sections.push('## Dispatch Prompt', dispatchPrompt);
+  sections.push('## Role Prompt', rolePrompt);
+  return sections.join('\n\n');
 }
 
 function assertContractRenderCoherence(
@@ -224,6 +229,12 @@ export function assembleFullPromptEnvelope(input: FullPromptAssemblyInput): Full
         `review-run Prompt Envelope role/lane mismatch: ${input.roleContract.roleId} !== ${input.lane}`,
       );
     }
+    if (typeof input.dispatchPrompt !== 'string' || input.dispatchPrompt.length === 0) {
+      throw new Error('review-run Prompt Envelope requires the exact story-dispatch prompt bytes');
+    }
+    if (!/^[a-f0-9]{64}$/.test(input.hostRenderIdentityDigest ?? '')) {
+      throw new Error('review-run Prompt Envelope requires a hostRenderIdentityDigest');
+    }
   } else if (input.reviewRunId !== undefined || input.reviewRound !== undefined || input.lane !== undefined) {
     throw new Error('story-dispatch Prompt Envelope cannot carry reviewer authority');
   }
@@ -234,6 +245,7 @@ export function assembleFullPromptEnvelope(input: FullPromptAssemblyInput): Full
     input.taskContext,
     environment,
     input.rolePrompt,
+    input.dispatchPrompt,
   );
   const envelopeWithoutId: Omit<PromptEnvelope, 'envelopeId'> = {
     schemaVersion: 'proofbound.prompt-envelope.v1',
@@ -243,6 +255,8 @@ export function assembleFullPromptEnvelope(input: FullPromptAssemblyInput): Full
     ...(input.reviewRunId ? { reviewRunId: input.reviewRunId } : {}),
     ...(input.reviewRound ? { reviewRound: input.reviewRound } : {}),
     ...(input.lane ? { lane: input.lane } : {}),
+    ...(input.dispatchPrompt ? { dispatchPromptDigest: reviewerDispatchPromptDigest(input.dispatchPrompt) } : {}),
+    ...(input.hostRenderIdentityDigest ? { hostRenderIdentityDigest: input.hostRenderIdentityDigest } : {}),
     createdAt: input.createdAt,
     headHash: input.taskContext.headHash,
     runtimeContractVersion: input.runtimeContract.schemaVersion,
@@ -293,19 +307,31 @@ export function verifyFullPromptAssemblyIntegrity(input: {
   runtimeContract: RuntimeContract;
   roleContract: RoleContract;
   rolePrompt: string;
+  dispatchPrompt?: string;
+  hostRenderIdentityDigest?: string;
 }): boolean {
   try {
     assertContractRenderCoherence(input.runtimeContract, input.roleContract, input.rolePrompt);
     validatePromptEnvelope(input.envelope);
     const taskMarker = '\n\n## Task Context\n\n';
     const environmentMarker = '\n\n## Known Execution Environment\n\n';
+    const dispatchPromptMarker = '\n\n## Dispatch Prompt\n\n';
     const rolePromptMarker = '\n\n## Role Prompt\n\n';
     const taskStart = input.prompt.indexOf(taskMarker);
     const environmentStart = input.prompt.indexOf(environmentMarker, taskStart + taskMarker.length);
+    const dispatchPromptStart = input.prompt.indexOf(
+      dispatchPromptMarker,
+      environmentStart + environmentMarker.length,
+    );
     const rolePromptStart = input.prompt.indexOf(rolePromptMarker, environmentStart + environmentMarker.length);
     if (taskStart < 0 || environmentStart < 0 || rolePromptStart < 0) return false;
     const taskJson = input.prompt.slice(taskStart + taskMarker.length, environmentStart);
-    const environmentJson = input.prompt.slice(environmentStart + environmentMarker.length, rolePromptStart);
+    const environmentEnd = dispatchPromptStart >= 0 ? dispatchPromptStart : rolePromptStart;
+    const environmentJson = input.prompt.slice(environmentStart + environmentMarker.length, environmentEnd);
+    const embeddedDispatchPrompt = dispatchPromptStart >= 0
+      ? input.prompt.slice(dispatchPromptStart + dispatchPromptMarker.length, rolePromptStart)
+      : undefined;
+    if (embeddedDispatchPrompt !== input.dispatchPrompt) return false;
     const taskContext = JSON.parse(taskJson) as FullTaskContext;
     const environment = JSON.parse(environmentJson) as KnownExecutionEnvironment;
     validateFullTaskContext(taskContext);
@@ -318,6 +344,7 @@ export function verifyFullPromptAssemblyIntegrity(input: {
       taskContext,
       environment,
       input.rolePrompt,
+      input.dispatchPrompt,
     );
     if (input.prompt !== expectedPrompt) return false;
     const envelope = input.envelope;
@@ -330,6 +357,10 @@ export function verifyFullPromptAssemblyIntegrity(input: {
       && envelope.roleContractVersion === input.roleContract.schemaVersion
       && envelope.roleSemanticDigest === input.roleContract.semanticDigest
       && envelope.roleRenderDigest === input.roleContract.renderDigest
+      && envelope.dispatchPromptDigest === (
+        input.dispatchPrompt === undefined ? undefined : reviewerDispatchPromptDigest(input.dispatchPrompt)
+      )
+      && envelope.hostRenderIdentityDigest === input.hostRenderIdentityDigest
       && envelope.storyId === taskContext.storyId
       && envelope.headHash === taskContext.headHash
       && envelope.materialHash === taskContext.materialHash

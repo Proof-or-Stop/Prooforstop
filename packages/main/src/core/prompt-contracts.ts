@@ -202,6 +202,8 @@ export interface PromptEnvelope {
   toolPolicyDigest?: string;
   systemInstructionDigest?: string;
   requestedModelId?: string;
+  dispatchPromptDigest?: string;
+  hostRenderIdentityDigest?: string;
   assembledPromptDigest: string;
   bytes: number;
   lines: number;
@@ -337,6 +339,20 @@ export function domainSeparatedDigest(domain: string, value: unknown): string {
     .update(`proofbound.digest.v1\0${domain}\0`, 'utf8')
     .update(bytes, 'utf8')
     .digest('hex');
+}
+
+export function reviewerDispatchPromptDigest(prompt: string): string {
+  return domainSeparatedDigest('reviewer-story-dispatch.raw-utf8.v1', prompt);
+}
+
+export function reviewerDispatchBindingDigest(value: {
+  storyId: string;
+  lane: string;
+  reviewRound: string;
+  dispatchPromptDigest: string;
+  hostRenderIdentityDigest: string;
+}): string {
+  return domainSeparatedDigest('reviewer-dispatch-binding.v1', value);
 }
 
 export function promptUtf8Bytes(text: string): number {
@@ -543,6 +559,7 @@ export function validatePromptEnvelope(value: unknown): asserts value is PromptE
   const optional = [
     'reviewRunId', 'reviewRound', 'lane', 'priorPassRef', 'materialHash', 'storyFilesHash', 'policyHash',
     'freshnessClassification', 'toolPolicyDigest', 'systemInstructionDigest', 'requestedModelId',
+    'dispatchPromptDigest', 'hostRenderIdentityDigest',
   ];
   requireExactKeys(record, required, optional, 'PromptEnvelope');
   if (record.schemaVersion !== 'proofbound.prompt-envelope.v1') throw new PromptContractValidationError('PromptEnvelope.schemaVersion is unsupported');
@@ -560,13 +577,20 @@ export function validatePromptEnvelope(value: unknown): asserts value is PromptE
     if (record.roleId !== record.lane) {
       throw new PromptContractValidationError('review-run PromptEnvelope.roleId must equal PromptEnvelope.lane');
     }
+    requireDigest(record.dispatchPromptDigest, 'PromptEnvelope.dispatchPromptDigest');
+    requireDigest(record.hostRenderIdentityDigest, 'PromptEnvelope.hostRenderIdentityDigest');
   } else if (record.reviewRunId !== undefined || record.reviewRound !== undefined || record.lane !== undefined) {
     throw new PromptContractValidationError('story-dispatch PromptEnvelope cannot carry review authority');
+  } else if (record.dispatchPromptDigest !== undefined || record.hostRenderIdentityDigest !== undefined) {
+    throw new PromptContractValidationError('story-dispatch PromptEnvelope cannot carry reviewer host dispatch authority');
   }
   if (record.contextMode !== 'full' || record.eligibilityDecision !== 'full' || record.priorPassRef !== undefined) {
     throw new PromptContractValidationError('Story 2 PromptEnvelope supports full context only');
   }
-  const optionalDigests = ['materialHash', 'storyFilesHash', 'policyHash', 'toolPolicyDigest', 'systemInstructionDigest'];
+  const optionalDigests = [
+    'materialHash', 'storyFilesHash', 'policyHash', 'toolPolicyDigest', 'systemInstructionDigest',
+    'dispatchPromptDigest', 'hostRenderIdentityDigest',
+  ];
   for (const key of optionalDigests.filter(key => record[key] !== undefined)) {
     requireDigest(record[key], `PromptEnvelope.${key}`);
   }

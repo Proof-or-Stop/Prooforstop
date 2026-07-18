@@ -32,6 +32,14 @@ import {
   validateAgentDispatchRequest,
   type ResolvedAgentDispatchType,
 } from '../core/agent-dispatch-registry.js';
+import {
+  reviewerDispatchBindingDigest,
+  reviewerDispatchPromptDigest,
+} from '../core/prompt-contracts.js';
+import {
+  reviewerHostRenderIdentity,
+  resolvePromptEnvelopeRolloutMode,
+} from '../core/prompt-role-contract-registry.js';
 
 // B-45ed CHK-008: agent-type → background injection strategy mapping table
 // Source: CLAUDE.md "background.md tiered injection (subagent)" subsection
@@ -108,6 +116,11 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     itemId?: string;
     findingId?: string;
     clusterId?: string;
+    dispatchPrompt?: string;
+    dispatchPromptDigest?: string;
+    hostRenderIdentityDigest?: string;
+    dispatchBindingDigest?: string;
+    reviewRound?: string;
   }): void {
     try {
       const story = store.readStory(args.storyId);
@@ -122,6 +135,11 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         ...(args.itemId ? { itemId: args.itemId, checklistId: args.itemId } : {}),
         ...(args.findingId ? { findingId: args.findingId } : {}),
         ...(args.clusterId ? { clusterId: args.clusterId } : {}),
+        ...(args.dispatchPrompt !== undefined ? { dispatchPrompt: args.dispatchPrompt } : {}),
+        ...(args.dispatchPromptDigest ? { dispatchPromptDigest: args.dispatchPromptDigest } : {}),
+        ...(args.hostRenderIdentityDigest ? { hostRenderIdentityDigest: args.hostRenderIdentityDigest } : {}),
+        ...(args.dispatchBindingDigest ? { dispatchBindingDigest: args.dispatchBindingDigest } : {}),
+        ...(args.reviewRound ? { reviewRound: args.reviewRound } : {}),
       });
     } catch (e: any) {
       reportHealthIssue('persist:dispatchProcessEvent', e as Error, {
@@ -713,7 +731,40 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       }
       if (promptBuilder === 'story-review' || promptBuilder === 'coverage-review') {
         const result = buildStoryReviewPrompt({ storyId: args.storyId, resolved });
-        appendDispatchEvent({ storyId: args.storyId, agentType: canonicalType, targetKind: 'story-review' });
+        const envelopeMode = resolvePromptEnvelopeRolloutMode(
+          canonicalType,
+          loadConfig(root).promptEnvelope,
+        );
+        if (envelopeMode === 'full-envelope') {
+          if (!story.currentReviewRound) {
+            throw new Error(`review dispatch requires currentReviewRound for story ${args.storyId}`);
+          }
+          const hostIdentity = reviewerHostRenderIdentity(root, canonicalType);
+          const dispatchPromptDigest = reviewerDispatchPromptDigest(result.prompt);
+          const dispatchBindingDigest = reviewerDispatchBindingDigest({
+            storyId: args.storyId,
+            lane: canonicalType,
+            reviewRound: story.currentReviewRound,
+            dispatchPromptDigest,
+            hostRenderIdentityDigest: hostIdentity.identityDigest,
+          });
+          appendDispatchEvent({
+            storyId: args.storyId,
+            agentType: canonicalType,
+            targetKind: 'story-review',
+            dispatchPrompt: result.prompt,
+            dispatchPromptDigest,
+            hostRenderIdentityDigest: hostIdentity.identityDigest,
+            dispatchBindingDigest,
+            reviewRound: story.currentReviewRound,
+          });
+        } else {
+          appendDispatchEvent({
+            storyId: args.storyId,
+            agentType: canonicalType,
+            targetKind: 'story-review',
+          });
+        }
         return result;
       }
       if (promptBuilder === 'delivery-review') {

@@ -25,6 +25,7 @@
     "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/core/process-fact-registry.ts",
     "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/core/proof-admissibility.ts",
     "scripts/verify-process-fact-contract.mjs",
     "packages/main/src/handlers/story-dispatch.ts",
     "packages/main/src/core/codex-adapter-checks.ts",
@@ -62,10 +63,10 @@
     "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
   ],
   "explicitExcludes": [],
-  "scopeChangeReason": "Expand only to resolve verified F-008 host-render drift and F-006 real assurance consumer coverage: bind story-dispatch and actual Codex/Claude reviewer assets to the canonical package render, enforce adapter identity, and add mutation-sensitive adapter/flow tests. No incremental, A/B, budget or release scope.",
+  "scopeChangeReason": "Expand only to resolve verified F-006/F-008: add proof-admissibility.ts so host-verdict is modeled as the actual signed REVIEW/review-pass proof surface instead of an incorrect handoff-pack alias; retain host-render/dispatch binding and adapter identity changes. No incremental, A/B, budget or release scope.",
   "acknowledgements": [],
   "createdAt": "2026-07-18T20:25:02.600Z",
-  "updatedAt": "2026-07-18T22:01:36.396Z",
+  "updatedAt": "2026-07-18T22:11:22.629Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -120,6 +121,7 @@
     ".lattice-codex/agents/lattice-review-behavior.md": ".lattice-codex/agents/lattice-review-behavior.md",
     ".lattice-codex/agents/lattice-review-docs.md": ".lattice-codex/agents/lattice-review-docs.md",
     "packages/main/src/tasks/codex-registry-mode-smoke.ts": "packages/main/src/tasks/codex-registry-mode-smoke.ts",
-    "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts"
+    "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/core/proof-admissibility.ts": "packages/main/src/core/proof-admissibility.ts"
   }
 }

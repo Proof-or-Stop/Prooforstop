@@ -9,6 +9,7 @@ import {
   hashReviewPrompt,
   resolveReviewRunLane,
   signReviewRun,
+  verifyCurrentReviewerDispatchBinding,
 } from '../core/review-run.js';
 import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
 import { computeReviewScopeBinding } from '../core/review-scope-binding.js';
@@ -177,6 +178,16 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
         let envelopeId: string | undefined;
         let assembledPrompt: string | undefined;
         if (rolloutMode === 'full-envelope') {
+          const dispatchBinding = verifyCurrentReviewerDispatchBinding({
+            store,
+            storyId: args.storyId,
+            lane,
+            reviewRound: story.currentReviewRound!,
+            projectRoot: workspace.metadataRoot || ctx.root,
+          });
+          if (!dispatchBinding.ok) {
+            throw new Error(`review_run_start: ${dispatchBinding.reason}; rerun lattice dispatch for ${lane}`);
+          }
           const assembly = assembleFullPromptEnvelope({
             roleContract: promptRoleContract(lane),
             runtimeContract: BASELINE_RUNTIME_CONTRACT,
@@ -194,7 +205,12 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
             reviewRound: story.currentReviewRound!,
             lane,
             createdAt: startedAt,
-            launcherSpec: { reviewedIntentRefs: args.reviewedIntentRefs ?? [] },
+            dispatchPrompt: dispatchBinding.binding.dispatchPrompt,
+            hostRenderIdentityDigest: dispatchBinding.binding.hostRenderIdentityDigest,
+            launcherSpec: {
+              reviewedIntentRefs: args.reviewedIntentRefs ?? [],
+              dispatchBindingDigest: dispatchBinding.binding.dispatchBindingDigest,
+            },
           });
           withMkdirLock(store.storyFilePath(args.storyId, 'prompt-envelopes.lock'), () => {
             const envelopeData = store.readPromptEnvelopes(args.storyId);

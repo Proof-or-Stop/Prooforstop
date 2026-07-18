@@ -83,6 +83,24 @@ try {
   rmSync(mirrorRoot, { recursive: true, force: true });
 }
 
+const jointlyDriftedHostRoot = makeRoot('codex-joint-host-drift');
+try {
+  writeText(jointlyDriftedHostRoot, '.lattice-codex/lattice.json', renderLatticeCodexAdapterManifest());
+  seedLegacyPrompts(jointlyDriftedHostRoot);
+  const file = 'lattice-review-quality.md';
+  const drift = '\n<!-- jointly drifted host asset -->\n';
+  for (const relPath of [`.claude/agents/${file}`, `.lattice-codex/agents/${file}`]) {
+    const path = join(jointlyDriftedHostRoot, relPath);
+    writeText(jointlyDriftedHostRoot, relPath, readFileSync(path, 'utf8') + drift);
+  }
+  const result = runCodexAdapterChecks(jointlyDriftedHostRoot, { executeHeartbeats: false });
+  assert.equal(result.ok, false, 'joint Claude/Codex drift cannot evade the package render identity');
+  assert.equal(checkById(result, 'agents-mirror').status, 'fail');
+  assert.match(checkById(result, 'agents-mirror').detail, /package\/Claude drift lattice-review-quality\.md/);
+} finally {
+  rmSync(jointlyDriftedHostRoot, { recursive: true, force: true });
+}
+
 const legacyOnlyRoot = mkdtempSync(join(tmpdir(), 'lattice-codex-legacy-only-'));
 try {
   writeText(legacyOnlyRoot, '.lattice-codex/legacy.json', renderLatticeCodexAdapterManifest());

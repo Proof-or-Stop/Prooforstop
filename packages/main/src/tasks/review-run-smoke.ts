@@ -3,7 +3,12 @@ import assert from 'node:assert/strict';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
 import { assembleFullPromptEnvelope } from '../core/prompt-envelope.js';
 import { promptRoleContract } from '../core/prompt-role-contract-registry.js';
+import { reviewerHostRenderIdentity } from '../core/prompt-role-contract-registry.js';
 import { readPromptRegistry, readPromptTemplate } from '../core/prompt-registry.js';
+import {
+  reviewerDispatchBindingDigest,
+  reviewerDispatchPromptDigest,
+} from '../core/prompt-contracts.js';
 import {
   signReviewRun,
   verifyReviewRun,
@@ -15,6 +20,16 @@ import type { ReviewPass, ReviewRun } from '../core/types.js';
 const qualityPrompt = readPromptTemplate(
   readPromptRegistry().agents.find(entry => entry.agentId === 'lattice-review-quality')!,
 );
+const dispatchPrompt = 'As lattice-review-quality, review story B-run in full.';
+const hostIdentity = reviewerHostRenderIdentity(process.cwd(), 'lattice-review-quality');
+const dispatchPromptDigest = reviewerDispatchPromptDigest(dispatchPrompt);
+const dispatchBindingDigest = reviewerDispatchBindingDigest({
+  storyId: 'B-run',
+  lane: 'lattice-review-quality',
+  reviewRound: 'round-1',
+  dispatchPromptDigest,
+  hostRenderIdentityDigest: hostIdentity.identityDigest,
+});
 const envelope = assembleFullPromptEnvelope({
   roleContract: promptRoleContract('lattice-review-quality'),
   runtimeContract: BASELINE_RUNTIME_CONTRACT,
@@ -46,6 +61,8 @@ const envelope = assembleFullPromptEnvelope({
   reviewRunId: 'B-run:RR-001',
   reviewRound: 'round-1',
   lane: 'lattice-review-quality',
+  dispatchPrompt,
+  hostRenderIdentityDigest: hostIdentity.identityDigest,
   createdAt: '2026-07-18T00:00:00.000Z',
 });
 
@@ -81,12 +98,23 @@ run._hash = signReviewRun(
 assert.equal(verifyReviewRun(run), true);
 const store = {
   readPromptEnvelopes: () => ({ envelopes: [envelope.envelope] }),
+  readProcessEvents: () => [{
+    type: 'dispatch',
+    targetKind: 'story-review',
+    agentType: 'lattice-review-quality',
+    reviewRound: 'round-1',
+    dispatchPrompt,
+    dispatchPromptDigest,
+    hostRenderIdentityDigest: hostIdentity.identityDigest,
+    dispatchBindingDigest,
+  }],
 };
 assert.deepEqual(verifyReviewRunPromptEnvelope(store as never, run), { ok: true });
 assert.equal(verifyReviewRun({ ...run, envelopeId: 'e'.repeat(64) }), false, 'envelopeId is signed by ReviewRun');
 assert.equal(
   verifyReviewRunPromptEnvelope({
     readPromptEnvelopes: () => ({ envelopes: [{ ...envelope.envelope, headHash: 'f'.repeat(40) }] }),
+    readProcessEvents: store.readProcessEvents,
   } as never, run).ok,
   false,
   'payload tamper is rejected even when the outer ReviewRun remains signed',
