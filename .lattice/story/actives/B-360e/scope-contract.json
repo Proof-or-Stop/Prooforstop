@@ -9,7 +9,8 @@
     "packages/main/src/core/config.ts",
     "packages/main/src/cli/activity-policy.ts",
     "scripts/verify-proof-or-stop-prompt-baseline.mjs",
-    "scripts/verify-process-fact-contract.mjs"
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/handlers/validate-concept.ts"
   ],
   "allowedCreate": [
     "packages/main/src/core/prompt-contracts.ts",
@@ -22,7 +23,8 @@
   "allowedTest": [
     "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
     "scripts/verify-proof-or-stop-prompt-baseline.mjs",
-    "scripts/verify-process-fact-contract.mjs"
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/concept-gate-scope-smoke.ts"
   ],
   "protectedFiles": [
     "packages/main/templates/agents",
@@ -35,8 +37,8 @@
     ".claude/agents",
     ".lattice-codex/agents"
   ],
-  "scopeChangeReason": "Add scripts/verify-process-fact-contract.mjs only because AGENTS.md requires every new process-fact registry entry to update its mechanical contract verifier. This verifies the already-scoped read-only L0 command and does not expand runtime behavior.",
+  "scopeChangeReason": "Human-authorized bounded gate repair: REVIEW-to-TEST is blocked because validate-concept parses non-source lifecycle JSON/Markdown and reconstructed MJS shebang fragments as TypeScript. Add only the concept gate handler and its focused smoke so the existing fail-closed declaration scan applies to supported source files without bypassing real deleted symbols.",
   "acknowledgements": [],
   "createdAt": "2026-07-17T23:49:12.563Z",
-  "updatedAt": "2026-07-18T00:02:06.369Z"
+  "updatedAt": "2026-07-18T09:48:09.232Z"
 }
