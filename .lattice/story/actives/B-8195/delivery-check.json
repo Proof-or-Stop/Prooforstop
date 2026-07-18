@@ -1,53 +1,53 @@
 {
   "storyId": "B-8195",
-  "checkedAt": "2026-07-18T19:06:44.520Z",
-  "headHash": "46ecd1fca45fee26d92341a80641a211d1365250",
-  "materialHash": "7c00f20486109bf9f9c1f17ee28fd7ed963940412888fc417c8f56120d40cd0a",
-  "storyFilesHash": "2ec94ce651f96cc48e9f0b2ecd2a380d34c306a6a40930c9cbf755500e74c121",
-  "reviewRound": "2026-07-18T12:43:58.206Z",
+  "checkedAt": "2026-07-18T20:22:02.050Z",
+  "headHash": "c3dba4543c60a359867b62f499283c0c35001c18",
+  "materialHash": "97a299839a501088c606e446f288a73150a1d9dd649be37e7a3eb2bbcc593f83",
+  "storyFilesHash": "7f5d8ff787fe5ada7b76548829a9c0e3ca7b327918f01ee8bf4a9cec66842c9f",
+  "reviewRound": "2026-07-18T19:23:26.499Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
       "docPath": "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
       "promise": "A fresh eligible PASS after REVIEW-to-TEST is persisted and returned as a clean zero-command reused validation without weakening dirty-state admission.",
       "status": "verified",
-      "verifiedBy": "Fresh local production CLI transcript plus focused integration evidence",
-      "evidence": "live-smoke-transcript exitCode=0 reports provider=lattice-verifier-reused, status=pass, disposition=reused and commandExecutions=0; current TEST evidence is PASS with 20/20 required coverage."
+      "verifiedBy": "Fresh local production CLI transcript plus verifier-only delta review",
+      "evidence": "Fresh transcript captured 2026-07-18T20:18:17.318Z at materialHash 97a299839a50 exits 0 with provider=lattice-verifier-reused, status=pass, disposition=reused and commandExecutions=0; 050b177b90 does not alter reuse admission."
     },
     {
       "docPath": "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
       "promise": "Lifecycle and CLI writers close only their causally generated bounded metadata and fail closed for human/forged dirt, hooks, races and writer failure.",
       "status": "verified",
-      "verifiedBy": "Focused adversarial matrix and signed review evidence",
-      "evidence": "CHK-002/003 evidence covers direct human and forged rows, HEAD/content races, hook mutation, rollback, main/direct-handler execution and story-branch nested commits; no open high/critical findings remain."
+      "verifiedBy": "Prior signed adversarial evidence plus incremental verifier persistence audit",
+      "evidence": "050b177b90 adds classified preflight/write failure handling and rollback; its non-git compatibility fallback writes only FAIL evidence and never permits PASS or terminal/receipt fabrication. Existing CHK-002/003 adversarial bindings remain current at materialHash 97a299839a50."
     },
     {
       "docPath": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
       "promise": "B-8195 interposed #7 delivers one-shot routine-validation closeout before host/candidate routing work, without changing DONE-required, routing, dispatch, owner or scope-anchor policy.",
       "status": "met",
-      "verifiedBy": "Current diff and subsystem boundary review",
-      "evidence": "Diff is limited to routine validation/lifecycle closeout implementation, focused tasks and the two named decision docs; live validate reused in 5.6 seconds with zero project-command executions."
+      "verifiedBy": "Incremental scope and current binding review",
+      "evidence": "Latest material delta is verifier-only commit 050b177b90; no routing, dispatch, owner, scope-anchor or DONE-required policy file changed. Current routine validate remains zero-command reused PASS."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "Historical RED is preserved by commit 1f66c4c749 and evidence records status=fail, failureKind=infra_failure, canonical-pass-persistence-failed and commandExecutions=0 before the fix. The live-smoke artifact expected field still quotes this historical CHK-001 RED; that label is not the current product expectation."
+      "transcript": "Historical RED remains preserved by commit 1f66c4c749. The current live-smoke expected field still quotes that intentionally historical RED; it is a known nonblocking selector wording issue, not the current product expectation."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "On the current TEST worktree, env NODE_OPTIONS=--max-old-space-size=3072 LATTICE_SESSION_ID=codex-wa-final node bin/lattice.js validate --story=B-8195 --json exited 0 and returned Validation PASS reused (trusted-story-metadata-descendant), disposition=reused, commandExecutions=0."
+      "transcript": "Fresh production CLI transcript at current materialHash 97a299839a50: validate exits 0 and reports Validation PASS reused (trusted-story-metadata-descendant), disposition=reused, commandExecutions=0."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "Fresh live transcript captured 2026-07-18T19:05:20.744Z shows a 5.6-second successful reused validate with 20/20 coverage; signed focused evidence covers repeated/idempotent reuse, local worktree entrypoint, direct-handler/main and story-branch transitions, foreign append, race and rollback cases."
+      "transcript": "Fresh transcript completed in 9.2 seconds with 20/20 coverage and zero project command executions. Incremental audit confirms 050b177b90 only classifies persistence preflight/write failures and preserves fail-closed PASS handling."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Delivery promises are met. The transcript expected string is a selector artifact pointing at the intentionally preserved pre-fix RED in CHK-001, while its actual command output and the current user-visible promises in CHK-002/003 are green. This mismatch is documented and non-blocking because it does not contradict the executed outcome, but future transcript selection should prefer the current outcome promise."
+    "summary": "Incremental delivery re-attestation passes. The verifier-only material change preserves all promises and improves classified failure behavior; current bindings and fresh live transcript are green. Historical RED wording in the transcript expected selector remains explicitly documented as nonblocking."
   },
-  "_hash": "550a492e48b555a0cbe717e06cf004baa37a0d9d94226c2877efb0a0fb4ceca7"
+  "_hash": "242f189c69a0e110f3e0b96e141727348f502c5052399da9c11b0696bb3587cd"
 }
