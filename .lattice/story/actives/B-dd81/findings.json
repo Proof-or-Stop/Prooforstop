@@ -113,6 +113,27 @@
       "resolvedAt": "2026-07-18T21:50:34.514Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-dd81:F-006",
+      "desc": "packages/main/src/tasks/review-assurance-floor-smoke.ts:458-479 does not test the must intent compatibility-only-assurance-floor-blocked. The fixture includes a valid canonical host verdict and asserts report.ok=true; compatibility/retired rows are only injected as findings, so the test proves they do not raise failureSignals, not that compatibility-only review evidence cannot satisfy the assurance floor. Production evaluateReviewAssuranceFloor consumes findings plus host-verdict process events and never reads ReviewRun/ReviewPass/PromptEnvelope, while process-fact-levels.ts still declares Prompt Envelope and role eligibility as direct assurance-floor gate consumers. Either make the floor consume and verify structured eligible reviewer/envelope provenance, or narrow the declared contract/intent to the actual indirect quorum boundary and add a test that fails if that boundary is bypassed. The current passing test cannot validate the promised gate fact.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-18T21:55:29.972Z",
+      "reviewRound": "2026-07-18T21:50:02.147Z",
+      "reviewRunId": "B-dd81:RR-005",
+      "_hash": "1b786182b7ed9121901fff83e339173b40e6a7812dd52cdbbff48f831211aef4",
+      "files": [
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+        "packages/main/src/core/review-assurance-floor.ts",
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/src/core/process-fact-registry.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
