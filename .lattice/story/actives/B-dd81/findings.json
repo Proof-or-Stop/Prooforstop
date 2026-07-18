@@ -176,6 +176,21 @@
       "resolvedAt": "2026-07-18T22:27:59.718Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-dd81:F-009",
+      "desc": ".lattice/story/actives/B-dd81/plan.md:25-27 and .lattice/story/actives/B-dd81/checklist.json intents compatibility-only-assurance-floor-blocked/all-gate-consumers-share-role-filter [medium] F-006 chose the valid indirect architecture in which assurance floor consumes signed host-verdict rounds and quorum_submit is the sole reviewer-role/envelope admission boundary; packages/main/src/core/process-fact-levels.ts:388-389 now states this accurately. The Story contract was not narrowed with that fix: PLAN still says assurance floor directly consumes filtered reviewer state, and the two must intents still require assurance floor itself to report eligible active lanes/share the role filter. Current tests prove the indirect outcome, not those direct-consumer claims, so 47/47 evidence currently attests requirements that contradict production semantics. Update PLAN and the affected verificationIntent wording through Lattice to state the quorum-to-host-verdict boundary, then rebind evidence; do not reintroduce direct reviewer-role parsing into assurance floor merely to match stale text.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-18T22:33:17.955Z",
+      "reviewRound": "2026-07-18T22:27:24.332Z",
+      "reviewRunId": "B-dd81:RR-008",
+      "_hash": "90431d9542b2d321ba19ac376903e303ff4f086100e1c1bf136ee8b49075a394",
+      "signatureTag": "missing|unknown|lattice-story-actives",
+      "signatureTagSource": "auto"
     }
   ]
 }
