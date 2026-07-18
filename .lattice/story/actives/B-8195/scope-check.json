@@ -1,6 +1,6 @@
 {
   "storyId": "B-8195",
-  "checkedAt": "2026-07-18T10:29:50.401Z",
+  "checkedAt": "2026-07-18T10:31:09.411Z",
   "features": [
     {
       "feature": "Persist a production-path RED that proves fresh-PASS reuse selects commandExecutions=0 but fails only on lifecycle-generated managed metadata after REVIEW-to-TEST.",
@@ -165,8 +165,8 @@
     },
     {
       "feature": "Align CHK-002 verification intent with the chosen transition-owned ordering: the transition atomically closes only its TEST lifecycle metadata, while verifier later persists the reused PASS through its existing separate strict transaction; do not require a nonexistent signed transition receipt.",
-      "covered_by": null,
-      "status": "gap",
+      "covered_by": "CHK-002",
+      "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-8195/checklist.json"
     }
@@ -301,25 +301,13 @@
   },
   "summary": {
     "total": 24,
-    "covered": 18,
+    "covered": 19,
     "excluded": 5,
-    "gaps": 1,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "92496f1d64ea236498663e9059f576ff7dd47a83653e93f3e4f06ee0c58aca25",
-  "openQuestions": [
-    {
-      "id": "OQ-003",
-      "q": "Should the two CHK-002 happy verification intents be rewritten to match the chosen transition-owned closeout ordering before DEV?",
-      "evidence": "The updated plan says the transition closes exactly its freshly generated TEST metadata and verifier never adopts pre-existing dirt. CHK-002 still requires lifecycle metadata and reused PASS in one transaction and a signed/receipt-bound proof, which belongs to the rejected option B.",
-      "sourcePointers": [
-        ".lattice/story/actives/B-8195/plan.md:9",
-        ".lattice/story/actives/B-8195/decision.json",
-        ".lattice/story/actives/B-8195/checklist.json:CHK-002:happy:0",
-        ".lattice/story/actives/B-8195/checklist.json:CHK-002:happy:1"
-      ]
-    }
-  ]
+  "_hash": "a24853a24b9100cf8b7fcec92577f17bf6a5c289d65fc0c6cf2b60d8d3118b4e",
+  "openQuestions": []
 }
