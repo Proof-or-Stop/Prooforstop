@@ -468,6 +468,27 @@
         "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
       },
       "_hash": "16993c383dae511e05375dca25155674fb04b8d26d4294d7a89b9ceff139f404"
+    },
+    {
+      "id": "B-8195:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Round-6 targeted concept review of 050b177b90 passes. The non-git compatibility branch is gated by !allPass plus an explicit not-a-git-repository diagnostic, writes only FAIL test evidence without hashes, and always returns canonical-validation-persistence-failed; it never reaches recordValidationTerminal, receipt generation, or success. Git-backed paths still require a clean exact three-path capture, rollback partial writes, and commit through the isolated immutable transaction.",
+      "createdAt": "2026-07-18T19:24:33.062Z",
+      "reviewRound": "2026-07-18T19:23:26.499Z",
+      "reviewRunId": "B-8195:RR-021",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "e25100281c9b3f49ab9e51eb9ca5ff419bed027cd16241440be4aed367da6624"
     }
   ]
 }
