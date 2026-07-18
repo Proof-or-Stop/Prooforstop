@@ -551,7 +551,7 @@
       "desc": "packages/main/src/handlers/validate-concept.ts:218-235 — MEDIUM: unquoted `diff --git` parsing splits on the first ` b/`, but Git paths may legally contain a space followed by a `b/` directory segment. For `diff --git a/src/a b/file.ts b/src/a b/file.ts` with matching `--- a/src/a b/file.ts`, `+++ /dev/null`, and a valid deletion hunk, parseDiffGitPaths derives authoritative paths `src/a` and `file.ts b/src/a b/file.ts`; analysis returns symbols=[] plus header-identity/mismatch diagnostics instead of the deleted symbol. Thus a legitimate space path is falsely blocked after the stricter state-machine repair. Make unquoted pair parsing unambiguous against both side tokens (or require/consume authoritative side headers before validating), and add same-path plus rename/copy probes where old/new paths contain ` b/`.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-18T10:20:55.835Z",
@@ -559,7 +559,11 @@
       "reviewRunId": "B-360e:RR-035",
       "_hash": "7d3a1bee30eea84f1c959c6d07ea8f84f9aa8c01d20b2eda7c9d63ea11e16377",
       "signatureTag": "edge|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 3d9cabef8d: unquoted diff headers enumerate every b/ delimiter candidate and resolve only through side-header, rename/copy, null-identity, or exact-symmetry corroboration; unresolved/ambiguous headers fail closed. Binary markers now fail closed for any supported TS/JS/Python authoritative or metadata endpoint, while unsupported binaries remain ignored. Full path-ambiguity and binary add/replace/delete/rename/copy probes pass.",
+      "resolvedAt": "2026-07-18T10:26:37.020Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-360e:F-027",
