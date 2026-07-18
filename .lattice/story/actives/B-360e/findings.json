@@ -398,7 +398,7 @@
       "desc": "packages/main/src/handlers/validate-concept.ts:141 The old/new path fix still treats Git copy patches as if the source path were removed. diffFileSources ignores `copy from` / `copy to` metadata, and declaration identity is path-bound, so a modified copy from src/original.ts to src/copied.ts with the same still-existing function produces symbols=[stillExists], diagnostics=[] even though no concept was deleted. A 100%-copy patch with context behaves the same. On repositories/configurations that enable copy detection this can create spurious residuals and block REVIEW despite the original declaration remaining. Distinguish copy metadata from rename metadata (or model the copy old side as a survivor), and add pure/modified copy probes while retaining current rename and /dev/null fail-closed behavior.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-18T09:57:03.458Z",
@@ -410,7 +410,11 @@
         "packages/main/src/tasks/concept-gate-scope-smoke.ts"
       ],
       "signatureTag": "edge|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 5ccc18596f: Git copy metadata is parsed explicitly and copy old sides never enter removed declarations, including modified copies; rename path-bound deletion behavior remains unchanged. Git diff/header/rename/copy paths now share fail-closed C-quoted path decoding.",
+      "resolvedAt": "2026-07-18T10:05:12.241Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-360e:F-020",
