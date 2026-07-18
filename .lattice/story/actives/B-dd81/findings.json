@@ -225,7 +225,7 @@
       "desc": "packages/main/src/handlers/story-dispatch.ts:61-62 [HIGH] The selected-host provenance fix still silently classifies every non-Claude session as Codex. OwnerSessionHostProvider explicitly supports antigravity/agy, fake and unknown (packages/main/src/core/owner-session-adapters.ts:4-9,54-60), while PromptHost only contains claude/codex. Therefore a full-envelope dispatch executed by an Antigravity/agy reviewer records hostRenderHost=codex; review_run_start signs that value and the gate later recomputes the same Codex identity, so the proof is internally consistent but does not identify the actual reviewer host/render. The new tests call Claude/Codex identity directly or exercise the default Codex path and do not cover session-to-host selection. This violates the F-010 selected/current-host provenance outcome. Map supported providers explicitly and fail closed for unsupported/unknown hosts, or add a real Antigravity host render identity, then add dispatch-to-review_run_start-to-gate tests for antigravity and unknown/fake rather than silently aliasing them to Codex.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-18T23:00:50.439Z",
@@ -240,7 +240,11 @@
         "packages/main/src/tasks/codex-registry-mode-smoke.ts"
       ],
       "signatureTag": "edge|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 80450301fa: provider mapping is explicit; claude-code/claude-cli normalize to Claude, codex/codex-cli to Codex, while agy/antigravity/fake/unknown/absent fail closed with stable diagnostics. Quorum 21/21 covers dispatch-to-ReviewRun-to-gate for supported full/thin and unsupported rejection.",
+      "resolvedAt": "2026-07-18T23:23:49.619Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-dd81:F-012",
