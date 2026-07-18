@@ -221,7 +221,7 @@
       "desc": "packages/main/src/core/prompt-contracts.ts:178 F-008 still does not close the full array runtime domain: Array.isArray accepts array subclasses and arrays with custom prototypes, but the implementation does not require the ordinary Array prototype and invokes candidate.map through the untrusted prototype. A subclass can override map() so canonicalJsonStringify of a one-element array returns the invalid/non-canonical string [MALICIOUS]; a custom prototype preserving Array.prototype.map plus hidden inherited state serializes and hashes identically to [1]. This breaks determinism/fail-closed canonicalization even though own-key probes now pass. Require the supported array prototype/domain and invoke the intrinsic Array.prototype.map (or iterate indices without prototype dispatch), with subclass/custom-prototype mutation probes.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-18T00:24:51.327Z",
@@ -233,7 +233,11 @@
         "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 181771de4b: canonical arrays require Object.getPrototypeOf(candidate)===Array.prototype and serialize by explicit index loop over validated own data descriptors; subclass/custom prototypes reject before any candidate method invocation.",
+      "resolvedAt": "2026-07-18T00:27:31.552Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-360e:F-012",
