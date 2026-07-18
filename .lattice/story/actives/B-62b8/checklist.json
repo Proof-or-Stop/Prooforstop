@@ -18,12 +18,17 @@
           "packages/main/src/core/owner-session.ts",
           "packages/main/src/core/owner-session-adapters.ts",
           "packages/main/src/core/owner-session-token-store.ts",
-          "docs/requirements/decisions/owner-session-contract-execution-plan.md"
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/usage-sweep.ts"
         ],
         "create": [],
         "test": [
           "packages/main/src/tasks/owner-session-guardrail.ts",
-          "packages/main/src/tasks/story-owner-lease-smoke.ts"
+          "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
         ]
       },
       "verificationIntent": {
