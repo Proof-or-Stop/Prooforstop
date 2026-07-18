@@ -523,7 +523,7 @@
       "desc": "Pure Git rename still bypasses both old protected path and protected semantic anchor. ee1329cef8 deliberately emits no semantic hunk for a content-identical rename, while readChangedFiles uses git diff --name-only and returns only the destination path. In a real staged git mv src/old.ts→src/new.ts where old.ts contains function critical, with protectedFiles=[src/old.ts], allowedModify=[src/new.ts], and global protectedAnchors=[critical], buildScopeDiffPack returned changedFiles=[src/new.ts], hunks=[]; checkScopeContract returned pass and checkSemanticScope returned pass. A rename changes the protected file/declaration identity even without text changes and must not erase the source-side protection. Read rename-aware name-status so both old and new paths participate in the path gate and/or emit a rename identity hunk carrying previous/current anchors; add a production test proving pure rename of a protected path/anchor blocks. Keep ordinary unprotected pure rename free of false semantic failures.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-18T03:10:12.587Z",
@@ -537,7 +537,11 @@
         "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|pure-file-rename-protection-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 1572a6e170. Git name-status/-M retains old and new rename paths for path enforcement, while pure rename identity-only semantic hunks retain previous/current declarations. Focused tables prove old protectedFiles and explicitExcludes block, ordinary dual-allowed rename passes, allowed-to-excluded/unknown blocks, old protectedAnchors block, and copy/rename-chain ambiguity fails closed. Evidence PASS: build, scope-contract-smoke, semantic-scope-guard-smoke, git diff --check, scope_contract_check (43 files, 0 violations).",
+      "resolvedAt": "2026-07-18T03:16:00.873Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
