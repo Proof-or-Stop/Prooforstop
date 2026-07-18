@@ -1,0 +1,35 @@
+{
+  "passes": [
+    {
+      "id": "B-dd81:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept PASS: b4efda425c removes caller-controlled reviewer Prompt/hash, review_run_start returns and signs the exact canonical assembled Prompt, gate consumers reconstruct and verify those bytes against runtime/role/task contracts and lane, and FullTaskContext now digest-binds verificationIntent, candidate files, relatedDocs, and bounded scope facts. Focused build, envelope, ReviewRun, assurance-floor, quorum, and process-fact suites all passed; no remaining concept blocker found.",
+      "createdAt": "2026-07-18T21:55:14.537Z",
+      "reviewRound": "2026-07-18T21:50:02.147Z",
+      "reviewRunId": "B-dd81:RR-004",
+      "writerSessionId": "sess-bbc70cb6a16008e97230e79f211800a2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-dd81/background.md",
+          ".lattice/story/actives/B-dd81/plan.md",
+          "packages/main/src/core/prompt-envelope.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-dd81/checklist.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b01372cfe2e4bd04e2b46d80e002af2d59ee5489b3b4ed99637311f891cb44f4"
+    }
+  ]
+}
