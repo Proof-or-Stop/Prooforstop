@@ -110,6 +110,28 @@
       },
       "readDiagnostics": [],
       "_hash": "ce1e4f6490f943cc884917c603cf9767aa16c22cee234515ddce1662163ee365"
+    },
+    {
+      "id": "B-62b8:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-3 bounded F-013 re-review PASS: isolated REVIEW and TEST temp stories use separate direct/nested OS processes to acquire and refresh one host-adapter composite lease, heartbeat advances, derived-ppid reaches the owner gate with warning and remains blocked; current REVIEW build plus owner-session smoke and guardrail pass; exact f3b9f3c evidence is integration_test-scoped and explicitly removes cli-surface claims.",
+      "createdAt": "2026-07-18T00:14:20.651Z",
+      "reviewRound": "2026-07-18T00:12:18.838Z",
+      "reviewRunId": "B-62b8:RR-011",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/owner-session-token-store.ts",
+          "packages/main/src/tasks/story-owner-lease-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "892bf2732bf773f7adae0ddf8bc94c4f4f5fd3584ff834b93cfa1ffd0ddfbbac"
     }
   ]
 }
