@@ -5,7 +5,7 @@
       "desc": "Canonicalization advertises and persists glob rules, but pathMatchesScopePattern is not a glob matcher. Patterns such as packages/main/src/**/*.ts, src/foo?.ts, character classes, and brace patterns are detected as rule='glob' by pathRule yet only exact/subtree, a trailing-star strip, or basename '*.ext' are matched. This can fail open for protectedFiles/explicitExcludes globs and fail closed spuriously for allowed globs, violating the required preservation of exact/glob semantics. Implement one bounded canonical glob grammar shared by all consumers and add positive/negative protected and allowed glob regressions.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-18T02:14:26.698Z",
@@ -19,7 +19,11 @@
         "packages/main/src/tasks/scope-contract-smoke.ts"
       ],
       "signatureTag": "edge|ts|canonicalization-advertises-persists",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "4106eb3531 implements one shared exact/subtree/glob matcher with **, *, ?, character classes and brace alternatives; invalid grammar fails closed. Verified by scope-contract-smoke and prewrite-guard-smoke.",
+      "resolvedAt": "2026-07-18T02:37:46.127Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0784:F-002",
