@@ -235,6 +235,25 @@
         "scanEscalationReason": null
       },
       "_hash": "6deb3165f8056d6812a8a45f6e55a295fa5040ce0177084cfc8b508b1ff03ed2"
+    },
+    {
+      "id": "B-0784:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "PASS: 88e43cc818 adds a precise regression assertion that the injected scope reader receives the resolved story worktree, never the metadata wrapper root or main inner repo. This binds the Git authority half of the existing metadataRoot/gitCwd separation without changing production behavior. Focused scope-contract smoke passed.",
+      "createdAt": "2026-07-18T04:15:55.170Z",
+      "reviewRound": "2026-07-18T04:14:57.758Z",
+      "reviewRunId": "B-0784:RR-026",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6bc6813746607b4eb0eb887ed6f0bf9389044e59f54be8982e1a820b49557342"
     }
   ]
 }
