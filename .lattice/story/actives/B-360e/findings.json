@@ -616,7 +616,7 @@
       "desc": "packages/main/src/handlers/validate-concept.ts:251 gates legacy fragment fallback only on lines starting with the exact string `diff --git `. Header-like but malformed inputs therefore bypass strict parsing: `diff --git` with no trailing space, `diff --git\\t...`, and a fragment containing only `---`/`+++`/`@@` headers all return a deleted symbol with diagnostics=[] in independent probes. This violates the intended boundary that fallback is available only for truly headerless +/- fragments and lets malformed structured diff input be accepted instead of failing closed. Detect any structured header token before fallback (at minimum /^diff --git(?:\\s|$)/ plus side/hunk headers as appropriate), emit a focused diagnostic, and add negative probes for bare, tab-separated, and orphan side/hunk headers while retaining the valid single-line headerless fragment case.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-18T11:10:22.256Z",
@@ -628,7 +628,11 @@
         "packages/main/src/tasks/concept-gate-scope-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in f959a28ba9: legacy __fragment__.ts fallback is enabled only when the entire input contains no structured diff control token. Bare/tab diff headers, orphan side/hunk/rename/copy/binary/index/mode/similarity tokens disable fallback and receive fail-closed diagnostics; pure headerless +/-/context and empty input remain compatible. Exact gitroot and concept smoke regressions plus full checks pass.",
+      "resolvedAt": "2026-07-18T11:15:07.279Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-360e:F-030",
