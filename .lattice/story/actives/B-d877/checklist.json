@@ -6,7 +6,17 @@
       "context": "Probe: rp-mrqf6efm-6wotja, Review: rr-mrqf729k-l0qs9c",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "After dev_finish on a DEV story, the story is in REVIEW with a freshly minted currentReviewRound, a phase_transition process-event whose toPhase is REVIEW, and no event mislabeled TEST.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/transition-integrity-smoke.ts"
+        ]
+      }
     }
   ]
 }
