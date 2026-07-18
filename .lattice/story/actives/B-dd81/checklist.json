@@ -240,9 +240,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-2可信-full-context-装配与-envelope"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-18T20:33:25.631Z",
-      "endTime": null,
+      "endTime": "2026-07-18T20:33:34.571Z",
       "userSees": "Calling agent_prompt for a Story returns the canonical full Prompt plus a deterministic content-addressed audit Envelope; caller-built authority fields are rejected, and only a reviewer ReviewRun can sign that envelopeId into gate-consumed evidence.",
       "files": {
         "modify": [
@@ -343,7 +343,130 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "agent-prompt-story-full-assembly",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Story-aware trusted handler assembly, append-only content-addressed audit persistence, caller-splicing rejection, rollback, and exact 16-role baseline verification passed.",
+          "headHash": "dfd56d5468a266fc1b238a94efba4fd895fd45e5",
+          "materialHash": "31ef8c7a6c56b99f1cdf6c1cf02af6fefc1e40eb07a42c52465a34ff83e8a60f",
+          "storyFilesHash": "1aff2e0ee3fd8c376f3678b30f219092a5d6a476c6bda8eba515fd3715c6057b",
+          "timestamp": "2026-07-18T20:33:35.006Z"
+        },
+        {
+          "intentRef": "agent-prompt-role-only-byte-zero-drift",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Story-aware trusted handler assembly, append-only content-addressed audit persistence, caller-splicing rejection, rollback, and exact 16-role baseline verification passed.",
+          "headHash": "dfd56d5468a266fc1b238a94efba4fd895fd45e5",
+          "materialHash": "31ef8c7a6c56b99f1cdf6c1cf02af6fefc1e40eb07a42c52465a34ff83e8a60f",
+          "storyFilesHash": "1aff2e0ee3fd8c376f3678b30f219092a5d6a476c6bda8eba515fd3715c6057b",
+          "timestamp": "2026-07-18T20:33:35.478Z"
+        },
+        {
+          "intentRef": "agent-prompt-repeatable-json-contract",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Story-aware trusted handler assembly, append-only content-addressed audit persistence, caller-splicing rejection, rollback, and exact 16-role baseline verification passed.",
+          "headHash": "dfd56d5468a266fc1b238a94efba4fd895fd45e5",
+          "materialHash": "31ef8c7a6c56b99f1cdf6c1cf02af6fefc1e40eb07a42c52465a34ff83e8a60f",
+          "storyFilesHash": "1aff2e0ee3fd8c376f3678b30f219092a5d6a476c6bda8eba515fd3715c6057b",
+          "timestamp": "2026-07-18T20:33:35.863Z"
+        },
+        {
+          "intentRef": "agent-prompt-storyless-legacy-boundary",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Story-aware trusted handler assembly, append-only content-addressed audit persistence, caller-splicing rejection, rollback, and exact 16-role baseline verification passed.",
+          "headHash": "dfd56d5468a266fc1b238a94efba4fd895fd45e5",
+          "materialHash": "31ef8c7a6c56b99f1cdf6c1cf02af6fefc1e40eb07a42c52465a34ff83e8a60f",
+          "storyFilesHash": "1aff2e0ee3fd8c376f3678b30f219092a5d6a476c6bda8eba515fd3715c6057b",
+          "timestamp": "2026-07-18T20:33:36.199Z"
+        },
+        {
+          "intentRef": "agent-prompt-worktree-authority-resolution",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Story-aware trusted handler assembly, append-only content-addressed audit persistence, caller-splicing rejection, rollback, and exact 16-role baseline verification passed.",
+          "headHash": "dfd56d5468a266fc1b238a94efba4fd895fd45e5",
+          "materialHash": "31ef8c7a6c56b99f1cdf6c1cf02af6fefc1e40eb07a42c52465a34ff83e8a60f",
+          "storyFilesHash": "1aff2e0ee3fd8c376f3678b30f219092a5d6a476c6bda8eba515fd3715c6057b",
+          "timestamp": "2026-07-18T20:33:36.529Z"
+        },
+        {
+          "intentRef": "agent-prompt-target-cardinality-role-status",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Story-aware trusted handler assembly, append-only content-addressed audit persistence, caller-splicing rejection, rollback, and exact 16-role baseline verification passed.",
+          "headHash": "dfd56d5468a266fc1b238a94efba4fd895fd45e5",
+          "materialHash": "31ef8c7a6c56b99f1cdf6c1cf02af6fefc1e40eb07a42c52465a34ff83e8a60f",
+          "storyFilesHash": "1aff2e0ee3fd8c376f3678b30f219092a5d6a476c6bda8eba515fd3715c6057b",
+          "timestamp": "2026-07-18T20:33:36.851Z"
+        },
+        {
+          "intentRef": "agent-prompt-no-provider-or-evidence-side-effect",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Story-aware trusted handler assembly, append-only content-addressed audit persistence, caller-splicing rejection, rollback, and exact 16-role baseline verification passed.",
+          "headHash": "dfd56d5468a266fc1b238a94efba4fd895fd45e5",
+          "materialHash": "31ef8c7a6c56b99f1cdf6c1cf02af6fefc1e40eb07a42c52465a34ff83e8a60f",
+          "storyFilesHash": "1aff2e0ee3fd8c376f3678b30f219092a5d6a476c6bda8eba515fd3715c6057b",
+          "timestamp": "2026-07-18T20:33:37.181Z"
+        },
+        {
+          "intentRef": "agent-prompt-rejects-caller-envelope-fields",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Story-aware trusted handler assembly, append-only content-addressed audit persistence, caller-splicing rejection, rollback, and exact 16-role baseline verification passed.",
+          "headHash": "dfd56d5468a266fc1b238a94efba4fd895fd45e5",
+          "materialHash": "31ef8c7a6c56b99f1cdf6c1cf02af6fefc1e40eb07a42c52465a34ff83e8a60f",
+          "storyFilesHash": "1aff2e0ee3fd8c376f3678b30f219092a5d6a476c6bda8eba515fd3715c6057b",
+          "timestamp": "2026-07-18T20:33:37.506Z"
+        },
+        {
+          "intentRef": "agent-prompt-rejects-prompt-splicing",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Story-aware trusted handler assembly, append-only content-addressed audit persistence, caller-splicing rejection, rollback, and exact 16-role baseline verification passed.",
+          "headHash": "dfd56d5468a266fc1b238a94efba4fd895fd45e5",
+          "materialHash": "31ef8c7a6c56b99f1cdf6c1cf02af6fefc1e40eb07a42c52465a34ff83e8a60f",
+          "storyFilesHash": "1aff2e0ee3fd8c376f3678b30f219092a5d6a476c6bda8eba515fd3715c6057b",
+          "timestamp": "2026-07-18T20:33:37.814Z"
+        },
+        {
+          "intentRef": "agent-prompt-no-untrusted-handler-bypass",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Story-aware trusted handler assembly, append-only content-addressed audit persistence, caller-splicing rejection, rollback, and exact 16-role baseline verification passed.",
+          "headHash": "dfd56d5468a266fc1b238a94efba4fd895fd45e5",
+          "materialHash": "31ef8c7a6c56b99f1cdf6c1cf02af6fefc1e40eb07a42c52465a34ff83e8a60f",
+          "storyFilesHash": "1aff2e0ee3fd8c376f3678b30f219092a5d6a476c6bda8eba515fd3715c6057b",
+          "timestamp": "2026-07-18T20:33:38.136Z"
+        },
+        {
+          "intentRef": "agent-prompt-role-only-drift-detector-sensitive",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Story-aware trusted handler assembly, append-only content-addressed audit persistence, caller-splicing rejection, rollback, and exact 16-role baseline verification passed.",
+          "headHash": "dfd56d5468a266fc1b238a94efba4fd895fd45e5",
+          "materialHash": "31ef8c7a6c56b99f1cdf6c1cf02af6fefc1e40eb07a42c52465a34ff83e8a60f",
+          "storyFilesHash": "1aff2e0ee3fd8c376f3678b30f219092a5d6a476c6bda8eba515fd3715c6057b",
+          "timestamp": "2026-07-18T20:33:38.506Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
