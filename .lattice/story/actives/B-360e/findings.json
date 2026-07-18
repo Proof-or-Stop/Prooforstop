@@ -261,6 +261,21 @@
       "resolvedAt": "2026-07-18T00:27:32.260Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-360e:F-013",
+      "desc": "packages/main/src/core/prompt-contracts.ts:165-211 — HIGH: canonicalJsonStringify still accepts Proxy-wrapped arrays. Array.isArray(proxy) is true and the proxy can report Array.prototype, while hasOwnProperty/Reflect.ownKeys/Object.getOwnPropertyDescriptor invoke attacker-controlled traps. A minimal proxy whose getOwnPropertyDescriptor returns an incrementing value for index 0 serializes the unchanged same proxy as [3] on the first call and [6] on the second. Thus the canonical/digest entry point is neither deterministic nor side-effect-free for an unsupported runtime structure, violating CHK-001 deterministic and canonical-fail-closed intents. Reject Proxy inputs before array/object traversal (for example Node util.types.isProxy) and add array plus plain-object proxy probes proving no traps are consumed into admissible bytes.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-18T00:29:18.542Z",
+      "reviewRound": "2026-07-18T00:27:20.625Z",
+      "reviewRunId": "B-360e:RR-010",
+      "_hash": "376e3588ac83e0374886592216b5909773741aae7e02d8fa4ed3c72210e5d1f1",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
