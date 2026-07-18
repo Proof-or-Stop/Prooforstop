@@ -446,6 +446,42 @@
           "materialHash": "7c00f20486109bf9f9c1f17ee28fd7ed963940412888fc417c8f56120d40cd0a",
           "storyFilesHash": "2ec94ce651f96cc48e9f0b2ecd2a380d34c306a6a40930c9cbf755500e74c121",
           "timestamp": "2026-07-18T12:43:20.132Z"
+        },
+        {
+          "intentRef": "B-8195:non-git-validation-persistence",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
+          "result": "pass",
+          "note": "Non-git fake-store validation failure now reaches the public did-not-pass gate, preserves FAIL test-evidence, and never leaks raw git preflight exceptions.",
+          "headHash": "050b177b90209d265a88b4273aff7ab32149ab53",
+          "materialHash": "97a299839a501088c606e446f288a73150a1d9dd649be37e7a3eb2bbcc593f83",
+          "storyFilesHash": "7f5d8ff787fe5ada7b76548829a9c0e3ca7b327918f01ee8bf4a9cec66842c9f",
+          "timestamp": "2026-07-18T19:22:42.911Z"
+        },
+        {
+          "intentRef": "B-8195:heartbeat-regression-after-preflight",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Git-backed main/story branches, foreign append, rollback, validation failure and watchdog controls remain green after structured preflight handling.",
+          "headHash": "050b177b90209d265a88b4273aff7ab32149ab53",
+          "materialHash": "97a299839a501088c606e446f288a73150a1d9dd649be37e7a3eb2bbcc593f83",
+          "storyFilesHash": "7f5d8ff787fe5ada7b76548829a9c0e3ca7b327918f01ee8bf4a9cec66842c9f",
+          "timestamp": "2026-07-18T19:22:42.911Z"
+        },
+        {
+          "intentRef": "B-8195:reuse-regression-after-preflight",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "Fresh-PASS reuse and exact metadata rollback matrix remain green after executed-persistence preflight error classification.",
+          "headHash": "050b177b90209d265a88b4273aff7ab32149ab53",
+          "materialHash": "97a299839a501088c606e446f288a73150a1d9dd649be37e7a3eb2bbcc593f83",
+          "storyFilesHash": "7f5d8ff787fe5ada7b76548829a9c0e3ca7b327918f01ee8bf4a9cec66842c9f",
+          "timestamp": "2026-07-18T19:22:42.911Z"
         }
       ]
     }
