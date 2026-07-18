@@ -3,7 +3,13 @@
  */
 
 import { createHash } from 'crypto';
-import type { ReviewerReadDiagnostic, ReviewerReadLogEvidence, ReviewerReadManifest } from './types.js';
+import type {
+  FindingData,
+  GapLogProvenanceBinding,
+  ReviewerReadDiagnostic,
+  ReviewerReadLogEvidence,
+  ReviewerReadManifest,
+} from './types.js';
 import { digestCanonicalJson } from './digest.js';
 import {
   normalizeReviewerReadDiagnostics,
@@ -26,7 +32,22 @@ export function signFinding(
   readManifest?: ReviewerReadManifest,
   readLog?: ReviewerReadLogEvidence,
   readDiagnostics?: ReviewerReadDiagnostic[],
+  gapLogBinding?: GapLogProvenanceBinding,
 ): string {
+  if (gapLogBinding !== undefined) {
+    return digestCanonicalJson({
+      version: 3,
+      salt: FINDING_SALT,
+      storyId,
+      id,
+      desc,
+      severity,
+      timestamp,
+      reviewRound,
+      reviewRunId,
+      gapLogBinding,
+    });
+  }
   if (readManifest !== undefined || readLog !== undefined || readDiagnostics !== undefined) {
     return digestCanonicalJson({
       version: 2,
@@ -60,10 +81,30 @@ export function verifyFinding(
     readManifest?: ReviewerReadManifest;
     readLog?: ReviewerReadLogEvidence;
     readDiagnostics?: ReviewerReadDiagnostic[];
+    gapLogBinding?: GapLogProvenanceBinding;
   },
 ): boolean {
   if (!f._hash || !f.createdAt) return false;
   const reviewRunId = f.reviewRunId?.trim() || '';
+  if (f.gapLogBinding !== undefined) {
+    try {
+      return f._hash === signFinding(
+        storyId,
+        f.id,
+        f.desc,
+        f.severity,
+        f.createdAt,
+        f.reviewRound || '',
+        reviewRunId,
+        undefined,
+        undefined,
+        undefined,
+        f.gapLogBinding,
+      );
+    } catch {
+      return false;
+    }
+  }
   if (f.readManifest !== undefined || f.readLog !== undefined || f.readDiagnostics !== undefined) {
     try {
       return f._hash === signFinding(
@@ -91,6 +132,81 @@ export function verifyFinding(
   // Fallback: try old format (without reviewRound) for backward compatibility
   const oldExpected = createHash('sha256').update(`${storyId}:${f.id}:${f.desc}:${f.severity}:${f.createdAt}:${FINDING_SALT}`).digest('hex');
   return f._hash === oldExpected;
+}
+
+export const GAP_LOG_PROVENANCE_SCHEMA = 'lattice.gap-log-provenance.v1' as const;
+export const GAP_LOG_ARTIFACT_PATH = '.lattice/story/actives/B-META-framework-audit/findings.json' as const;
+
+/** Canonical whole-file semantic digest; binding/hash fields are excluded to avoid circularity. */
+export function digestGapLogArtifact(data: FindingData): string {
+  let bindingOwner = -1;
+  for (let index = 0; index < data.findings.length; index++) {
+    if (data.findings[index].gapLogBinding) bindingOwner = index;
+  }
+  return digestCanonicalJson({
+    findings: data.findings.map((finding, index) => {
+      if (index !== bindingOwner) return finding;
+      const { _hash: _signature, gapLogBinding: _binding, ...boundFinding } = finding;
+      return boundFinding;
+    }),
+  });
+}
+
+export interface GapLogArtifactVerification {
+  trusted: boolean;
+  reason:
+    | 'valid_official_gap_log_binding'
+    | 'wrong_artifact_path'
+    | 'missing_binding'
+    | 'invalid_binding_shape'
+    | 'content_digest_mismatch'
+    | 'finding_signature_invalid';
+  expectedDigest?: string;
+  observedDigest?: string;
+  findingId?: string;
+}
+
+export function verifyGapLogArtifactBinding(
+  data: FindingData,
+  artifactPath: string = GAP_LOG_ARTIFACT_PATH,
+): GapLogArtifactVerification {
+  if (artifactPath.replace(/\\/g, '/').replace(/^\.\//, '') !== GAP_LOG_ARTIFACT_PATH) {
+    return { trusted: false, reason: 'wrong_artifact_path' };
+  }
+  const bound = data.findings.filter((finding) => finding.gapLogBinding);
+  const latest = bound[bound.length - 1];
+  if (!latest?.gapLogBinding) return { trusted: false, reason: 'missing_binding' };
+  const binding = latest.gapLogBinding;
+  if (
+    binding.schemaVersion !== GAP_LOG_PROVENANCE_SCHEMA
+    || binding.command !== 'gap_log'
+    || binding.storyId !== 'B-META-framework-audit'
+    || binding.artifactPath !== GAP_LOG_ARTIFACT_PATH
+    || binding.findingId !== latest.id
+    || binding.createdAt !== latest.createdAt
+  ) {
+    return { trusted: false, reason: 'invalid_binding_shape', findingId: latest.id };
+  }
+  const expectedDigest = digestGapLogArtifact(data);
+  if (binding.contentDigest !== expectedDigest) {
+    return {
+      trusted: false,
+      reason: 'content_digest_mismatch',
+      expectedDigest,
+      observedDigest: binding.contentDigest,
+      findingId: latest.id,
+    };
+  }
+  if (!verifyFinding('B-META-framework-audit', latest)) {
+    return { trusted: false, reason: 'finding_signature_invalid', expectedDigest, observedDigest: binding.contentDigest, findingId: latest.id };
+  }
+  return {
+    trusted: true,
+    reason: 'valid_official_gap_log_binding',
+    expectedDigest,
+    observedDigest: binding.contentDigest,
+    findingId: latest.id,
+  };
 }
 
 /**

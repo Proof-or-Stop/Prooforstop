@@ -20,10 +20,19 @@ import {
   renderScopeCheckResult,
   readChangedFiles,
 } from '../core/scope-contract.js';
+import {
+  canonicalizeScopePath,
+  SCOPE_PATH_CANONICALIZER_VERSION,
+} from '../core/scope-path-classifier.js';
 import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
+import {
+  SCOPE_ANCHOR_ARTIFACT_VERSION,
+  SCOPE_ANCHOR_PARSER_VERSION,
+} from '../core/scope-diff-pack.js';
 import { checkSemanticScope, mergeSemanticScopeResult } from '../core/semantic-scope-gate.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
+import { loadConfig } from '../core/config.js';
 
 type StructuredScopeAcknowledgement = ScopeContractAcknowledgement & {
   assuranceLabel?: 'acknowledged-expansion';
@@ -58,9 +67,37 @@ function renderAcknowledgementRow(ack: ScopeContractAcknowledgement, index: numb
 
 export function createScopeContractHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   const { store, root } = ctx;
+  const config = loadConfig(root);
+  const pathMode = config.scopeProtection?.pathCanonicalization ?? 'enforce';
+
+  function canonicalPaths(paths: unknown, fieldName: string): {
+    values: string[] | undefined;
+    originals: Record<string, string>;
+    diagnostics: string[];
+  } {
+    const validated = paths === undefined ? undefined : validatePaths(paths, fieldName);
+    if (validated === undefined || pathMode === 'off') return { values: validated, originals: {}, diagnostics: [] };
+    const originals: Record<string, string> = {};
+    const diagnostics: string[] = [];
+    const values = validated.map((input) => {
+      const result = canonicalizeScopePath({
+        projectRoot: root,
+        scanRoot: config.scanRoot,
+        sourceRoot: config.rootDir ?? config.scanRoot,
+        input,
+      });
+      originals[result.canonicalPath] = result.originalInput;
+      diagnostics.push(
+        `input: ${result.originalInput} | canonical: ${result.canonicalPath} | base: ${result.base} `
+        + `| version: ${result.version} | rule: ${fieldName} | status: PASS`,
+      );
+      return result.canonicalPath;
+    });
+    return { values: uniquePaths(values), originals, diagnostics };
+  }
 
   function optionalPaths(paths: unknown, fieldName: string): string[] | undefined {
-    return paths === undefined ? undefined : validatePaths(paths, fieldName);
+    return canonicalPaths(paths, fieldName).values;
   }
 
   return {
@@ -81,13 +118,30 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
       store.readStory(args.storyId);
 
       const mode = validateMode(args.mode);
-      const allowedModify = optionalPaths(args.allowedModify, 'allowedModify');
-      const allowedCreate = optionalPaths(args.allowedCreate, 'allowedCreate');
-      const allowedTest = optionalPaths(args.allowedTest, 'allowedTest');
-      const protectedFiles = optionalPaths(args.protectedFiles, 'protectedFiles');
-      const explicitExcludes = optionalPaths(args.explicitExcludes, 'explicitExcludes');
-      const fileRules = args.fileRules === undefined ? undefined : validateFileRules(args.fileRules);
+      const pathFields = [
+        canonicalPaths(args.allowedModify, 'allowedModify'),
+        canonicalPaths(args.allowedCreate, 'allowedCreate'),
+        canonicalPaths(args.allowedTest, 'allowedTest'),
+        canonicalPaths(args.protectedFiles, 'protectedFiles'),
+        canonicalPaths(args.explicitExcludes, 'explicitExcludes'),
+      ];
+      const [allowedModify, allowedCreate, allowedTest, protectedFiles, explicitExcludes] = pathFields.map((entry) => entry.values);
+      const rawFileRules = args.fileRules === undefined ? undefined : validateFileRules(args.fileRules);
+      const fileRulePaths = rawFileRules?.map((rule, index) => {
+        const canonical = canonicalPaths([rule.path], `fileRules[${index}].path`);
+        return { ...rule, path: canonical.values![0], __canonical: canonical };
+      });
+      const fileRules = fileRulePaths?.map(({ __canonical: _diagnostic, ...rule }) => rule);
       const protectedAnchors = args.protectedAnchors === undefined ? undefined : validateAnchors(args.protectedAnchors, 'protectedAnchors');
+      const originals = Object.assign(
+        {},
+        ...pathFields.map((entry) => entry.originals),
+        ...(fileRulePaths ?? []).map((entry) => entry.__canonical.originals),
+      );
+      const diagnostics = [
+        ...pathFields.flatMap((entry) => entry.diagnostics),
+        ...(fileRulePaths ?? []).flatMap((entry) => entry.__canonical.diagnostics),
+      ];
 
       // B-6bfd CHK-006: readScopeContract now fails closed (throws) on a corrupt
       // existing contract. scope_contract_set is a RECOVERY path — a corrupt
@@ -104,6 +158,20 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
         { mode, allowedModify, allowedCreate, allowedTest, protectedFiles, explicitExcludes, scopeChangeReason: args.scopeChangeReason, fileRules, protectedAnchors },
         existing,
       );
+      if (pathMode !== 'off') {
+        contract.pathCanonicalizerVersion = SCOPE_PATH_CANONICALIZER_VERSION;
+        contract.pathCanonicalizationMode = pathMode;
+        contract.originalPathInputs = {
+          ...(existing?.originalPathInputs ?? {}),
+          ...originals,
+        };
+      }
+      const astMode = config.scopeProtection?.astAnchors ?? 'enforce';
+      if (astMode !== 'off' && ((fileRules?.length ?? 0) > 0 || (protectedAnchors?.length ?? 0) > 0)) {
+        contract.anchorParserVersion = SCOPE_ANCHOR_PARSER_VERSION;
+        contract.anchorArtifactVersion = SCOPE_ANCHOR_ARTIFACT_VERSION;
+        contract.astAnchorMode = astMode;
+      }
       store.writeScopeContract(args.storyId, contract);
       return [
         `Scope contract: configured`,
@@ -116,6 +184,8 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
         `explicitExcludes: [${contract.explicitExcludes.join(', ')}]`,
         `fileRules: ${JSON.stringify(contract.fileRules ?? [])}`,
         `protectedAnchors: [${(contract.protectedAnchors ?? []).join(', ')}]`,
+        `pathCanonicalizerVersion: ${contract.pathCanonicalizerVersion ?? 'legacy'}`,
+        ...diagnostics,
       ].join('\n');
     },
 
@@ -143,6 +213,12 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
         `explicitExcludes: [${contract.explicitExcludes.join(', ')}]`,
         `fileRules: ${JSON.stringify(contract.fileRules ?? [])}`,
         `protectedAnchors: [${(contract.protectedAnchors ?? []).join(', ')}]`,
+        `pathCanonicalizerVersion: ${contract.pathCanonicalizerVersion ?? 'legacy'}`,
+        `pathCanonicalizationMode: ${contract.pathCanonicalizationMode ?? 'legacy'}`,
+        `originalPathInputs: ${JSON.stringify(contract.originalPathInputs ?? {})}`,
+        `anchorParserVersion: ${contract.anchorParserVersion ?? 'legacy'}`,
+        `anchorArtifactVersion: ${contract.anchorArtifactVersion ?? 'legacy'}`,
+        `astAnchorMode: ${contract.astAnchorMode ?? 'legacy'}`,
         `scopeChangeReason: ${contract.scopeChangeReason ?? '(none)'}`,
         ...ackRows,
         `createdAt: ${contract.createdAt}`,
@@ -161,7 +237,7 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
       const gitCwd = resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root });
       const diffPack = buildScopeDiffPack(gitCwd);
       const result = mergeSemanticScopeResult(
-        checkScopeContract(contract, diffPack.changedFiles),
+        checkScopeContract(contract, diffPack.changedFiles, { projectRoot: gitCwd }),
         checkSemanticScope(contract, diffPack),
       );
       if (args.json) return JSON.stringify(result, null, 2);
@@ -178,9 +254,16 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
         `Hunks (${pack.hunks.length}):`,
         ...pack.hunks.map((hunk) => {
           const anchor = hunk.anchor ? ` anchor=${hunk.anchor}` : '';
+          const previousAnchor = hunk.previousAnchor ? ` previousAnchor=${hunk.previousAnchor}` : '';
+          const anchorKind = hunk.anchorKind ? ` anchorKind=${hunk.anchorKind}` : '';
+          const anchorRange = hunk.anchorRange ? ` anchorRange=${hunk.anchorRange.start}-${hunk.anchorRange.end}` : '';
+          const versions = hunk.anchorParserVersion
+            ? ` anchorParserVersion=${hunk.anchorParserVersion} anchorArtifactVersion=${hunk.anchorArtifactVersion}`
+            : '';
           const keyPath = hunk.keyPath ? ` keyPath=${hunk.keyPath}` : '';
           const fallback = hunk.parseFallback ? ` fallback=${hunk.parseFallback}` : '';
-          return `  ${hunk.path}:${hunk.newStart} ${hunk.changeKind ?? 'modify'} ${hunk.hunkDigest}${anchor}${keyPath}${fallback}`;
+          return `  ${hunk.path}:${hunk.newStart} ${hunk.changeKind ?? 'modify'} ${hunk.hunkDigest}`
+            + `${anchor}${previousAnchor}${anchorKind}${anchorRange}${versions}${keyPath}${fallback}`;
         }),
       ].join('\n');
     },
@@ -204,8 +287,13 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
         for (const file of item.files?.create ?? []) allowedCreate.add(file);
         for (const file of item.files?.test ?? []) allowedTest.add(file);
       }
-      const protectedFiles = optionalPaths(args.protectedFiles, 'protectedFiles');
-      const explicitExcludes = optionalPaths(args.explicitExcludes, 'explicitExcludes');
+      const canonicalModify = canonicalPaths([...allowedModify], 'allowedModify');
+      const canonicalCreate = canonicalPaths([...allowedCreate], 'allowedCreate');
+      const canonicalTest = canonicalPaths([...allowedTest], 'allowedTest');
+      const canonicalProtected = canonicalPaths(args.protectedFiles, 'protectedFiles');
+      const canonicalExcludes = canonicalPaths(args.explicitExcludes, 'explicitExcludes');
+      const protectedFiles = canonicalProtected.values;
+      const explicitExcludes = canonicalExcludes.values;
       // B-6bfd CHK-006: tolerate a corrupt existing contract here too — init from
       // PLAN is a (re)initialization path and must be able to recover by writing a
       // fresh contract over an unreadable one (readScopeContract now throws on
@@ -220,15 +308,24 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
         args.storyId,
         {
           mode,
-          allowedModify: validatePaths([...allowedModify], 'allowedModify'),
-          allowedCreate: validatePaths([...allowedCreate], 'allowedCreate'),
-          allowedTest: validatePaths([...allowedTest], 'allowedTest'),
+          allowedModify: canonicalModify.values,
+          allowedCreate: canonicalCreate.values,
+          allowedTest: canonicalTest.values,
           protectedFiles,
           explicitExcludes,
           scopeChangeReason: args.scopeChangeReason ?? 'Initialized from checklist files declared during PLAN.',
         },
         existing,
       );
+      if (pathMode !== 'off') {
+        contract.pathCanonicalizerVersion = SCOPE_PATH_CANONICALIZER_VERSION;
+        contract.pathCanonicalizationMode = pathMode;
+        contract.originalPathInputs = Object.assign(
+          {},
+          ...[canonicalModify, canonicalCreate, canonicalTest, canonicalProtected, canonicalExcludes]
+            .map((entry) => entry.originals),
+        );
+      }
       store.writeScopeContract(args.storyId, contract);
       return [
         'Scope contract initialized from PLAN files',
@@ -237,6 +334,9 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
         `allowedModify: [${contract.allowedModify.join(', ')}]`,
         `allowedCreate: [${contract.allowedCreate.join(', ')}]`,
         `allowedTest: [${contract.allowedTest.join(', ')}]`,
+        `pathCanonicalizerVersion: ${contract.pathCanonicalizerVersion ?? 'legacy'}`,
+        ...[canonicalModify, canonicalCreate, canonicalTest, canonicalProtected, canonicalExcludes]
+          .flatMap((entry) => entry.diagnostics),
       ].join('\n');
     },
 
@@ -342,10 +442,11 @@ export function runScopeGate(
 ): import('../core/types.js').ScopeCheckResult | null {
   const contract = store.readScopeContract(storyId);
   if (!contract) return null;
-  if (gitReader) return checkScopeContract(contract, gitReader(gitCwd ?? metadataRoot));
-  const diffPack = buildScopeDiffPack(gitCwd ?? metadataRoot);
+  const projectRoot = gitCwd ?? metadataRoot;
+  if (gitReader) return checkScopeContract(contract, gitReader(projectRoot), { projectRoot });
+  const diffPack = buildScopeDiffPack(projectRoot);
   return mergeSemanticScopeResult(
-    checkScopeContract(contract, diffPack.changedFiles),
+    checkScopeContract(contract, diffPack.changedFiles, { projectRoot }),
     checkSemanticScope(contract, diffPack),
   );
 }

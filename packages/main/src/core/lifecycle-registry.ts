@@ -713,6 +713,78 @@ export interface LifecycleArtifactClassifyOptions {
   storyId?: string;
 }
 
+export interface SharedLifecycleMetadataClassification {
+  trusted: boolean;
+  path: string;
+  registryId: 'shared-gap-log-metadata-v1';
+  writer: 'gap_log' | 'unknown';
+  contentBinding: 'valid' | 'invalid';
+  reason: string;
+  expectedDigest?: string;
+  observedDigest?: string;
+  findingId?: string;
+}
+
+/**
+ * The B-META findings path is shared only when the exact current content is
+ * covered by the latest signed official gap_log whole-artifact binding.
+ * Merely matching the path is never sufficient.
+ */
+export function classifySharedLifecycleMetadata(
+  root: string,
+  path: string,
+): SharedLifecycleMetadataClassification | null {
+  const normalized = normalizeArtifactPath(path);
+  if (normalized !== GAP_LOG_ARTIFACT_PATH) return null;
+  const rootReal = realpathSync.native(resolve(root));
+  const absolute = join(rootReal, normalized);
+  if (!existsSync(absolute)) {
+    return {
+      trusted: false,
+      path: normalized,
+      registryId: 'shared-gap-log-metadata-v1',
+      writer: 'unknown',
+      contentBinding: 'invalid',
+      reason: 'missing_binding_artifact',
+    };
+  }
+  const artifactReal = realpathSync.native(absolute);
+  if (artifactReal !== rootReal && !artifactReal.startsWith(`${rootReal}${sep}`)) {
+    return {
+      trusted: false,
+      path: normalized,
+      registryId: 'shared-gap-log-metadata-v1',
+      writer: 'unknown',
+      contentBinding: 'invalid',
+      reason: `symlink_escape:${relative(rootReal, artifactReal)}`,
+    };
+  }
+  try {
+    const data = JSON.parse(readFileSync(artifactReal, 'utf8')) as FindingData;
+    const verification = verifyGapLogArtifactBinding(data, normalized);
+    return {
+      trusted: verification.trusted,
+      path: normalized,
+      registryId: 'shared-gap-log-metadata-v1',
+      writer: verification.trusted ? 'gap_log' : 'unknown',
+      contentBinding: verification.trusted ? 'valid' : 'invalid',
+      reason: verification.reason,
+      ...(verification.expectedDigest ? { expectedDigest: verification.expectedDigest } : {}),
+      ...(verification.observedDigest ? { observedDigest: verification.observedDigest } : {}),
+      ...(verification.findingId ? { findingId: verification.findingId } : {}),
+    };
+  } catch {
+    return {
+      trusted: false,
+      path: normalized,
+      registryId: 'shared-gap-log-metadata-v1',
+      writer: 'unknown',
+      contentBinding: 'invalid',
+      reason: 'malformed_or_incomplete_artifact',
+    };
+  }
+}
+
 export function classifyLifecycleArtifact(
   path: string,
   options: LifecycleArtifactClassifyOptions = {},
@@ -797,3 +869,10 @@ export function isAnyLatticeStoryMetadataPath(
 ): boolean {
   return classifyLifecycleArtifact(path, options) !== null;
 }
+import { existsSync, readFileSync, realpathSync } from 'node:fs';
+import { join, relative, resolve, sep } from 'node:path';
+import type { FindingData } from './types.js';
+import {
+  GAP_LOG_ARTIFACT_PATH,
+  verifyGapLogArtifactBinding,
+} from './finding-verify.js';

@@ -20,13 +20,17 @@
  */
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 import { checkScopeContract, validatePaths } from '../core/scope-contract.js';
+import {
+  canonicalizeScopePath,
+  SCOPE_PATH_CANONICALIZER_VERSION,
+} from '../core/scope-path-classifier.js';
 import { createScopeContractHandlers } from '../handlers/scope-contract.js';
 import { runScopeTransitionGate } from '../handlers/phase-gates.js';
 import type { HandlerContext } from '../handlers/context.js';
@@ -122,6 +126,7 @@ try {
   }, null, 2));
   write(root, 'src/allowed.ts', 'export const allowed = 1;\n');
   write(root, 'src/protected.ts', 'export const protectedValue = 1;\n');
+  write(root, 'packages/main/src/core/foo.ts', 'export const foo = 1;\n');
   write(root, 'README.md', 'scope contract smoke\n');
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'init']);
@@ -149,6 +154,57 @@ try {
   git(root, ['add', '.lattice']);
   git(root, ['commit', '-m', 'story metadata']);
   git(root, ['checkout', '-b', `story/${storyId}`]);
+
+  const canonicalArgs = { projectRoot: root, scanRoot: 'packages/main', sourceRoot: 'src' };
+  const canonicalSource = canonicalizeScopePath({ ...canonicalArgs, input: 'core/foo.ts' });
+  assert.equal(canonicalSource.canonicalPath, 'packages/main/src/core/foo.ts');
+  assert.equal(canonicalSource.base, 'source-root');
+  assert.equal(canonicalSource.version, SCOPE_PATH_CANONICALIZER_VERSION);
+  assert.equal(
+    canonicalizeScopePath({ ...canonicalArgs, input: '.\\core\\..\\core\\foo.ts' }).canonicalPath,
+    canonicalSource.canonicalPath,
+    'Windows separators and dot segments converge',
+  );
+  assert.equal(
+    canonicalizeScopePath({ ...canonicalArgs, input: 'packages/main/src/core/foo.ts' }).canonicalPath,
+    canonicalSource.canonicalPath,
+    'repo-root-relative input is idempotent',
+  );
+  assert.throws(() => canonicalizeScopePath({ ...canonicalArgs, input: '/etc/passwd' }), /absolute/);
+  assert.throws(() => canonicalizeScopePath({ ...canonicalArgs, input: 'C:\\Windows\\system.ini' }), /absolute/);
+  assert.throws(() => canonicalizeScopePath({ ...canonicalArgs, input: '../secret' }), /traversal/);
+  assert.throws(() => canonicalizeScopePath({ ...canonicalArgs, input: '%2e%2e/secret' }), /encoded/);
+  write(root, 'shared/x.ts', 'repo\n');
+  write(root, 'packages/main/src/shared/x.ts', 'source\n');
+  assert.throws(
+    () => canonicalizeScopePath({ ...canonicalArgs, input: 'shared/x.ts' }),
+    /ambiguous/,
+    'a spelling valid under both bases is rejected',
+  );
+  rmSync(join(root, 'shared'), { recursive: true, force: true });
+  rmSync(join(root, 'packages/main/src/shared'), { recursive: true, force: true });
+  const outside = mkdtempSync(join(tmpdir(), 'lattice-scope-outside-'));
+  try {
+    symlinkSync(outside, join(root, 'escape'));
+    assert.throws(
+      () => canonicalizeScopePath({ ...canonicalArgs, input: 'escape/file.ts' }),
+      /symlink/,
+      'symlink escape is rejected',
+    );
+  } finally {
+    rmSync(join(root, 'escape'), { force: true });
+    rmSync(outside, { recursive: true, force: true });
+  }
+  symlinkSync(join(root, 'packages/main/src/core'), join(root, 'core-alias'));
+  try {
+    assert.equal(
+      canonicalizeScopePath({ ...canonicalArgs, input: 'core-alias/foo.ts' }).canonicalPath,
+      'packages/main/src/core/foo.ts',
+      'an in-repository symlink converges to the physical repository identity',
+    );
+  } finally {
+    rmSync(join(root, 'core-alias'), { force: true });
+  }
 
   const noContract = run(root, 'scope_contract_check', { storyId, json: true });
   assert.equal(JSON.parse(noContract).status, 'skip', 'no contract should be backward-compatible skip');

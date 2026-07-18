@@ -16,7 +16,12 @@
 import { createHash } from 'crypto';
 import type { StoryStore } from './store.js';
 import type { DisprovenEvidence, Finding, FindingEvidenceState, StoryInfo, StoryEvent } from './types.js';
-import { signFinding } from './finding-verify.js';
+import {
+  GAP_LOG_ARTIFACT_PATH,
+  GAP_LOG_PROVENANCE_SCHEMA,
+  digestGapLogArtifact,
+  signFinding,
+} from './finding-verify.js';
 
 /** Fixed ID of the meta-story (unique container across the repo) */
 export const META_STORY_ID = 'B-META-framework-audit';
@@ -279,6 +284,8 @@ export interface GapFindingResult {
   evidenceState: FindingEvidenceState;
   /** B-f60c CHK-003: true when an existing finding with the same fingerprint was reused. */
   deduped: boolean;
+  contentDigest?: string;
+  bindingStatus: 'valid' | 'legacy-unbound';
 }
 
 /**
@@ -360,6 +367,8 @@ export function appendGapFinding(
       findingId: existing.id,
       evidenceState: existing.evidenceState ?? gap.evidenceState,
       deduped: true,
+      contentDigest: existing.gapLogBinding?.contentDigest,
+      bindingStatus: existing.gapLogBinding ? 'valid' : 'legacy-unbound',
     };
   }
 
@@ -378,11 +387,28 @@ export function appendGapFinding(
     agent: gap.agent || 'lattice-gap-log',
     createdAt: now,
     reviewRound: '',
-    _hash: signFinding(storyId, id, gap.desc, gap.severity, now, ''),
     gapFingerprint: fingerprint,
     ...(gap.files && gap.files.length > 0 ? { files: gap.files } : {}),
   };
   data.findings.push(finding);
+  const binding = {
+    schemaVersion: GAP_LOG_PROVENANCE_SCHEMA,
+    command: 'gap_log' as const,
+    storyId: 'B-META-framework-audit' as const,
+    artifactPath: GAP_LOG_ARTIFACT_PATH,
+    findingId: id,
+    contentDigest: '',
+    createdAt: now,
+  };
+  finding.gapLogBinding = binding;
+  binding.contentDigest = digestGapLogArtifact(data);
+  finding._hash = signFinding(storyId, id, gap.desc, gap.severity, now, '', '', undefined, undefined, undefined, binding);
   store.writeFindings(storyId, data);
-  return { findingId: id, evidenceState: gap.evidenceState, deduped: false };
+  return {
+    findingId: id,
+    evidenceState: gap.evidenceState,
+    deduped: false,
+    contentDigest: binding.contentDigest,
+    bindingStatus: 'valid',
+  };
 }

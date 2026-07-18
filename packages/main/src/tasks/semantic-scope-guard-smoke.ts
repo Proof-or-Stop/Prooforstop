@@ -19,7 +19,8 @@
  *   - [CHK-003] Verify checkSemanticScope / mergeSemanticScopeResult / render
  */
 import { strict as assert } from 'node:assert';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type {
@@ -67,7 +68,12 @@ import { resetConfigCache } from '../core/config.js';
 import { collectReviewerEvidenceState, currentScopeContextForStory, signReviewRun } from '../core/review-run.js';
 import { getGuardFailureReason } from '../core/machine.js';
 import { signFinding, signReviewPass } from '../core/finding-verify.js';
-import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
+import {
+  buildScopeDiffPack,
+  parseUnifiedDiff,
+  SCOPE_ANCHOR_ARTIFACT_VERSION,
+  SCOPE_ANCHOR_PARSER_VERSION,
+} from '../core/scope-diff-pack.js';
 import { createScopeContractHandlers } from '../handlers/scope-contract.js';
 import type { HandlerContext } from '../handlers/context.js';
 
@@ -1083,6 +1089,78 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
   assert.match(warnSummary.nextAction, /scope_contract_acknowledge/, '17f: warn next action names scope_contract_acknowledge');
   assert.match(warnSummary.nextAction, /roll back to DEV/, '17f: warn next action names roll back to DEV when in TEST');
   assert.match(warnSummary.nextAction, /delivery reviewer/, '17f: warn next action mentions delivery reviewer');
+}
+
+// B-0784: parser-backed anchors never select control flow or local variables.
+{
+  const root = mkdtempSync(join(tmpdir(), 'lattice-ast-anchor-'));
+  try {
+    const path = 'src/anchors.ts';
+    mkdirSync(join(root, 'src'), { recursive: true });
+    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+      scanRoot: 'src',
+      rootDir: '.',
+      scopeProtection: { astAnchors: 'enforce', pathCanonicalization: 'off' },
+    }));
+    const source = [
+      'export function outer() {',
+      '  const storyId = "B-x";',
+      '  if (storyId) {',
+      '    return storyId;',
+      '  }',
+      '  function nested() {',
+      '    for (const item of [1]) return item;',
+      '  }',
+      '}',
+      '',
+      'export class Box {',
+      '  constructor() {}',
+      '  method() { while (false) {} }',
+      '}',
+      'export interface Shape { x: number }',
+      'export type Alias = Shape;',
+      '',
+    ].join('\n');
+    writeFileSync(join(root, path), source);
+    const hunkAt = (line: number) => parseUnifiedDiff(root, [
+      `diff --git a/${path} b/${path}`,
+      `+++ b/${path}`,
+      `@@ -${line},1 +${line},1 @@`,
+      '-old',
+      '+new',
+    ].join('\n'))[0];
+    for (const line of [2, 3, 4]) {
+      const hunk = hunkAt(line);
+      assert.equal(hunk.anchor, 'outer', `line ${line}: local const/control flow bind to outer`);
+      assert.equal(hunk.anchorKind, 'function');
+      assert.equal(hunk.anchorParserVersion, SCOPE_ANCHOR_PARSER_VERSION);
+      assert.equal(hunk.anchorArtifactVersion, SCOPE_ANCHOR_ARTIFACT_VERSION);
+    }
+    assert.equal(hunkAt(7).anchor, 'nested', 'nested function is the nearest enclosing declaration');
+    assert.equal(hunkAt(12).anchor, 'constructor');
+    assert.equal(hunkAt(13).anchor, 'method');
+    assert.equal(hunkAt(15).anchor, 'Shape');
+    assert.equal(hunkAt(16).anchor, 'Alias');
+    assert.equal(hunkAt(10).anchorKind, 'file', 'between declarations uses file scope');
+    execFileSync('git', ['init', '-b', 'main'], { cwd: root, stdio: 'ignore' });
+    execFileSync('git', ['config', 'user.email', 'ast@example.test'], { cwd: root });
+    execFileSync('git', ['config', 'user.name', 'AST Smoke'], { cwd: root });
+    execFileSync('git', ['add', '.'], { cwd: root });
+    execFileSync('git', ['commit', '-m', 'base'], { cwd: root, stdio: 'ignore' });
+    writeFileSync(join(root, path), source.replace('function outer', 'function renamedOuter'));
+    const renamed = hunkAt(1);
+    assert.equal(renamed.anchor, 'renamedOuter');
+    assert.equal(renamed.previousAnchor, 'outer', 'rename retains the prior declaration identity');
+    const protectedRename = checkSemanticScope(
+      makeContract({ mode: 'enforce', allowedModify: [path], protectedAnchors: ['outer'] }),
+      makePack([renamed]),
+    );
+    assert.equal(protectedRename.status, 'fail', 'renaming a protected old declaration remains observable and blocked');
+    writeFileSync(join(root, path), 'export function broken( {\n');
+    assert.equal(hunkAt(1).parseFallback, 'typescript_parse_error_fail_closed');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 }
 
 console.log('semantic scope guard smoke passed');

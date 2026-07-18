@@ -20,6 +20,7 @@ import {
   classifyScopePath,
   normalizeScopePath,
   pathMatchesScopePattern,
+  SCOPE_PATH_CANONICALIZER_VERSION,
 } from './scope-path-classifier.js';
 
 // ── Validation ──
@@ -333,10 +334,43 @@ function problemRow(
 export function checkScopeContract(
   contract: ScopeContractData,
   changedFiles: string[],
+  options: { projectRoot?: string } = {},
 ): ScopeCheckResult {
   const violations: ScopeViolation[] = [];
   const warnings: ScopeViolation[] = [];
   const rows: ScopeCheckRow[] = [];
+
+  if (
+    contract.pathCanonicalizerVersion
+    && contract.pathCanonicalizerVersion !== SCOPE_PATH_CANONICALIZER_VERSION
+  ) {
+    const violations = changedFiles.map((path) => ({
+      path,
+      rule: 'out_of_scope' as const,
+      acknowledged: false,
+    }));
+    return {
+      status: contract.mode === 'local' ? 'warn' : 'fail',
+      mode: contract.mode,
+      changedFiles,
+      violations,
+      warnings: [],
+      acknowledgedPaths: [],
+      rows: changedFiles.map((path) => ({
+        id: `scope.out_of_scope:${normalizeScopePath(path)}`,
+        status: contract.mode === 'local' ? 'warn' : 'fail',
+        blocking: contract.mode !== 'local',
+        path,
+        source: path,
+        classifierSource: 'changed-files',
+        category: 'unknown',
+        rule: 'out_of_scope',
+        detail: `Scope path artifact is stale: observed canonicalizer=${contract.pathCanonicalizerVersion}, expected=${SCOPE_PATH_CANONICALIZER_VERSION}.`,
+        nextAction: 'Re-run scope_contract_init_from_plan (or scope_contract_set) to re-attest paths under the current canonicalizer.',
+      })),
+      summary: `Scope gate: ${contract.mode === 'local' ? 'warn' : 'fail'} (path canonicalizer version drift; re-attestation required)`,
+    };
+  }
 
   const allAllowedLists = [
     contract.allowedModify,
@@ -346,7 +380,7 @@ export function checkScopeContract(
   const hasAllowedScope = allAllowedLists.some(l => l.length > 0);
 
   for (const file of changedFiles) {
-    const classification = classifyScopePath(contract, file);
+    const classification = classifyScopePath(contract, file, options);
     const acked = isAcknowledged(file, contract);
 
     if (classification.allowed) {

@@ -233,6 +233,9 @@ export function createGapLogHandlers(ctx: HandlerContext): Record<string, (...ar
         `${verb}: ${result.findingId} ` +
         `(evidenceState=${result.evidenceState}, severity=${args.severity}, category=${args.category}; ` +
         `source: ${srcParts.join(', ')})` +
+        `\nshared metadata: B-META-framework-audit/findings.json | writer: gap_log `
+        + `| contentBinding: ${result.bindingStatus} | digest: ${result.contentDigest ?? '(missing)'} `
+        + `| status: ${result.bindingStatus === 'valid' ? 'PASS' : 'BLOCKED'}` +
         bootstrapHint + downgradeHint + dedupHint
       );
     },

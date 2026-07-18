@@ -5,8 +5,10 @@
  * lives in scope-contract.ts so existing pass/warn/fail behavior stays stable.
  */
 
-import { classifyLifecycleArtifact } from './lifecycle-registry.js';
+import { classifyLifecycleArtifact, classifySharedLifecycleMetadata } from './lifecycle-registry.js';
 import { findRuntimeArtifactEntry } from './runtime-artifact-registry.js';
+import { existsSync, realpathSync } from 'node:fs';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import type {
   ScopeContractData,
   ScopePathCategory,
@@ -14,6 +16,169 @@ import type {
   ScopePathRule,
   ScopePathSource,
 } from './types.js';
+
+export const SCOPE_PATH_CANONICALIZER_VERSION = 'repo-relative-v1' as const;
+
+export interface CanonicalScopePathResult {
+  originalInput: string;
+  canonicalPath: string;
+  base: 'repo-root' | 'source-root';
+  version: typeof SCOPE_PATH_CANONICALIZER_VERSION;
+  rule: 'exact' | 'subtree' | 'glob';
+}
+
+function hasWindowsAbsolutePrefix(value: string): boolean {
+  return /^[A-Za-z]:[\\/]/.test(value) || /^\\\\/.test(value) || /^\/\/[^/]+\/[^/]+/.test(value);
+}
+
+function pathRule(value: string): CanonicalScopePathResult['rule'] {
+  if (/[*?[\]{}]/.test(value)) return 'glob';
+  return value.endsWith('/') ? 'subtree' : 'exact';
+}
+
+function staticPatternPrefix(value: string): string {
+  const index = value.search(/[*?[\]{}]/);
+  return index < 0 ? value : value.slice(0, index);
+}
+
+function nearestExistingPath(path: string): string | null {
+  let candidate = path;
+  while (candidate && candidate !== dirname(candidate)) {
+    if (existsSync(candidate)) return candidate;
+    candidate = dirname(candidate);
+  }
+  return existsSync(candidate) ? candidate : null;
+}
+
+function assertContained(root: string, candidate: string, label: string): void {
+  const rootReal = realpathSync.native(root);
+  const existing = nearestExistingPath(staticPatternPrefix(candidate));
+  if (!existing) throw new Error(`scope path ${label} has no resolvable repository ancestor`);
+  const real = realpathSync.native(existing);
+  if (real !== rootReal && !real.startsWith(`${rootReal}${sep}`)) {
+    throw new Error(`scope path ${label} escapes repository through symlink (${real})`);
+  }
+}
+
+/**
+ * Canonicalize one user/checklist scope path to a repo-root-relative identity.
+ * The configured source root is `<scanRoot>/<rootDir>`. Existing ancestors
+ * decide ambiguous spellings; a path valid below both bases is rejected rather
+ * than guessed. Non-existing paths inherit the nearest existing parent.
+ */
+export function canonicalizeScopePath(args: {
+  projectRoot: string;
+  scanRoot: string;
+  sourceRoot?: string;
+  input: string;
+}): CanonicalScopePathResult {
+  const originalInput = args.input;
+  const blocked = (reason: string, attempted = '(unavailable)', base = 'unresolved'): Error => new Error(
+    `${reason}; input=${JSON.stringify(originalInput)} attempted=${attempted} base=${base} `
+    + `version=${SCOPE_PATH_CANONICALIZER_VERSION} rule=${pathRule(String(originalInput ?? ''))} status=BLOCKED`,
+  );
+  const trimmed = String(originalInput ?? '').trim();
+  if (!trimmed || trimmed.includes('\0')) throw blocked('invalid empty/null scope path');
+  if (isAbsolute(trimmed) || hasWindowsAbsolutePrefix(trimmed)) {
+    throw blocked('absolute scope path is forbidden');
+  }
+  if (/%(?:2e|2f|5c)/i.test(trimmed)) {
+    throw blocked('encoded traversal/separator is forbidden');
+  }
+  const slash = trimmed.replace(/\\/g, '/').replace(/\/+/g, '/');
+  const segments = slash.split('/');
+  const normalizedSegments: string[] = [];
+  for (const segment of segments) {
+    if (!segment || segment === '.') continue;
+    if (segment === '..') {
+      if (normalizedSegments.length === 0) {
+        throw blocked('scope path traversal is forbidden', normalizedSegments.join('/'));
+      }
+      normalizedSegments.pop();
+      continue;
+    }
+    normalizedSegments.push(segment);
+  }
+  const normalized = normalizedSegments.join('/');
+  if (!normalized) throw blocked('scope path resolves to repository root', normalized);
+
+  const projectRoot = realpathSync.native(resolve(args.projectRoot));
+  const configuredSourceRel = [args.scanRoot, args.sourceRoot ?? args.scanRoot]
+    .filter(Boolean)
+    .join('/')
+    .replace(/\\/g, '/')
+    .replace(/\/+/g, '/');
+  const sourceRoot = resolve(projectRoot, configuredSourceRel);
+  try {
+    assertContained(projectRoot, sourceRoot, 'source-root');
+  } catch (error) {
+    throw blocked((error as Error).message, configuredSourceRel, 'source-root');
+  }
+
+  const repoCandidate = resolve(projectRoot, normalized);
+  const sourceCandidate = resolve(sourceRoot, normalized);
+  try {
+    assertContained(projectRoot, repoCandidate, JSON.stringify(originalInput));
+    assertContained(projectRoot, sourceCandidate, JSON.stringify(originalInput));
+  } catch (error) {
+    throw blocked((error as Error).message, normalized);
+  }
+
+  const repoAncestor = nearestExistingPath(staticPatternPrefix(repoCandidate));
+  const sourceAncestor = nearestExistingPath(staticPatternPrefix(sourceCandidate));
+  const repoDirectExists = existsSync(staticPatternPrefix(repoCandidate));
+  const sourceDirectExists = existsSync(staticPatternPrefix(sourceCandidate));
+  const repoSpecific = repoAncestor && realpathSync.native(repoAncestor) !== projectRoot;
+  const sourceRootIdentity = existsSync(sourceRoot) ? realpathSync.native(sourceRoot) : sourceRoot;
+  const sourceSpecific = existsSync(sourceRoot)
+    && sourceAncestor
+    && (realpathSync.native(sourceAncestor) === sourceRootIdentity
+      || realpathSync.native(sourceAncestor).startsWith(`${sourceRootIdentity}${sep}`));
+  const alreadySourcePrefixed = normalized === configuredSourceRel || normalized.startsWith(`${configuredSourceRel}/`);
+  const topLevel = normalized.split('/')[0];
+  const explicitRepoTopLevel = new Set([
+    '.lattice', '.github', 'docs', 'requirements', 'scripts', 'tests', 'test',
+    'specs', 'fixtures', 'packages', 'src',
+  ]).has(topLevel);
+  let base: CanonicalScopePathResult['base'];
+  if (alreadySourcePrefixed || explicitRepoTopLevel) {
+    base = 'repo-root';
+  } else if (repoDirectExists !== sourceDirectExists) {
+    base = repoDirectExists ? 'repo-root' : 'source-root';
+  } else if (repoSpecific && sourceSpecific) {
+    const repoIdentity = realpathSync.native(repoAncestor!);
+    const sourceIdentity = realpathSync.native(sourceAncestor!);
+    if (repoIdentity !== sourceIdentity) {
+      throw blocked(
+        `ambiguous scope path resolves under both repo-root (${relative(projectRoot, repoCandidate)}) `
+        + `and source-root (${relative(projectRoot, sourceCandidate)})`,
+        normalized,
+        'ambiguous',
+      );
+    }
+    base = 'repo-root';
+  } else if (repoSpecific) {
+    base = 'repo-root';
+  } else {
+    base = 'source-root';
+  }
+  const selected = base === 'repo-root' ? repoCandidate : sourceCandidate;
+  const selectedExisting = nearestExistingPath(staticPatternPrefix(selected));
+  const physicalSelected = selectedExisting
+    ? resolve(realpathSync.native(selectedExisting), relative(selectedExisting, selected))
+    : selected;
+  const canonicalPath = relative(projectRoot, physicalSelected).replace(/\\/g, '/');
+  if (!canonicalPath || canonicalPath.startsWith('../') || isAbsolute(canonicalPath)) {
+    throw blocked('canonical scope path escaped repository', canonicalPath, base);
+  }
+  return {
+    originalInput,
+    canonicalPath,
+    base,
+    version: SCOPE_PATH_CANONICALIZER_VERSION,
+    rule: pathRule(slash),
+  };
+}
 
 export function normalizeScopePath(path: string): string {
   return path
@@ -70,8 +235,25 @@ export function classifyScopePath(
     'storyId' | 'allowedModify' | 'allowedCreate' | 'allowedTest' | 'protectedFiles' | 'explicitExcludes'
   >,
   path: string,
+  options: { projectRoot?: string } = {},
 ): ScopePathClassification {
   const normalizedPath = normalizeScopePath(path);
+
+  const shared = options.projectRoot
+    ? classifySharedLifecycleMetadata(options.projectRoot, normalizedPath)
+    : null;
+  if (shared?.trusted) {
+    return classification({
+      path,
+      category: 'lifecycle_artifact',
+      source: 'lifecycle-registry',
+      rule: 'lifecycle_artifact',
+      allowed: true,
+      detail: `Shared metadata: ${shared.path} | writer: ${shared.writer} | contentBinding: ${shared.contentBinding} | status: PASS`,
+      registryId: shared.registryId,
+      hint: 'Only an exact signed official gap_log whole-artifact binding admits shared B-META metadata.',
+    });
+  }
 
   const lifecycle = classifyLifecycleArtifact(normalizedPath, { storyId: contract.storyId });
   if (lifecycle) {

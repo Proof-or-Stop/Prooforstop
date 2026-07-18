@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import { basename, dirname, isAbsolute, join, relative } from 'node:path';
 import { isStoryMetadataPath } from './evidence-freshness.js';
 import { parseGitPorcelainRow, type DirtyWorktreeParsedRow } from './dirty-worktree.js';
+import { classifySharedLifecycleMetadata } from './lifecycle-registry.js';
 
 export const DONE_PREPARE_GENERATED_METADATA_SCHEMA = 'lattice.done-prepare-generated-metadata.v1' as const;
 
@@ -534,7 +535,12 @@ function filterIgnoredRows(root: string, rows: string[], ignoredPaths: readonly 
     const parsed = parseGitPorcelainRow(row);
     if (!parsed) return true;
     const paths = parsedPaths(parsed).map((path) => canonicalStatusPath(root, path));
-    return paths.length === 0 || !paths.every((path) => ignored.has(path));
+    if (paths.length === 0) return true;
+    if (paths.every((path) => ignored.has(path))) return false;
+    // Shared B-META is not path-whitelisted: only the exact current content
+    // with a valid official gap_log binding is non-blocking.
+    if (paths.every((path) => classifySharedLifecycleMetadata(root, path)?.trusted === true)) return false;
+    return true;
   });
 }
 

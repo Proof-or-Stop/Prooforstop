@@ -35,31 +35,33 @@ import type {
   ScopeViolation,
   SemanticScopeGateResult,
 } from './types.js';
+import { pathMatchesScopePattern } from './scope-path-classifier.js';
+import {
+  SCOPE_ANCHOR_ARTIFACT_VERSION,
+  SCOPE_ANCHOR_PARSER_VERSION,
+} from './scope-diff-pack.js';
 
 /** A contract is "semantic" (v2) when it declares any file rule or global protected anchor. */
 export function isSemanticContract(contract: ScopeContractData): boolean {
   return (contract.fileRules?.length ?? 0) > 0 || (contract.protectedAnchors?.length ?? 0) > 0;
 }
 
-function pathMatchesPattern(filePath: string, pattern: string): boolean {
-  if (filePath === pattern) return true;
-  if (filePath.startsWith(pattern.endsWith('/') ? pattern : `${pattern}/`)) return true;
-  const globless = pattern.replace(/\/\*\*?$/, '').replace(/\*$/, '');
-  if (globless !== pattern && filePath.startsWith(globless)) return true;
-  if (pattern.startsWith('*.') && filePath.endsWith(pattern.slice(1))) return true;
-  return false;
-}
-
 function ruleForHunk(rules: readonly FileRule[] | undefined, hunk: ScopeDiffHunk): FileRule | null {
-  return rules?.find((rule) => pathMatchesPattern(hunk.path, rule.path)) ?? null;
+  return rules?.find((rule) => pathMatchesScopePattern(hunk.path, rule.path)) ?? null;
 }
 
 function hunkAnchor(hunk: ScopeDiffHunk): string | undefined {
-  return hunk.anchor ?? hunk.keyPath;
+  return hunk.anchor && !hunk.anchor.startsWith('file:')
+    ? hunk.anchor
+    : hunk.previousAnchor ?? hunk.anchor ?? hunk.keyPath;
+}
+
+function hunkAnchors(hunk: ScopeDiffHunk): string[] {
+  return [...new Set([hunk.anchor, hunk.previousAnchor, hunk.keyPath].filter((value): value is string => Boolean(value)))];
 }
 
 function ackCoversHunk(ack: ScopeContractAcknowledgement, hunk: ScopeDiffHunk): boolean {
-  const pathCovered = ack.paths.some((path) => pathMatchesPattern(hunk.path, path));
+  const pathCovered = ack.paths.some((path) => pathMatchesScopePattern(hunk.path, path));
   if (!pathCovered) return false;
   const digests = new Set([ack.hunkDigest, ...(ack.hunkDigests ?? [])].filter((d): d is string => !!d));
   if (digests.has(hunk.hunkDigest)) return true;
@@ -106,6 +108,10 @@ export function checkSemanticScope(
   const violations: ScopeViolation[] = [];
   const warnings: ScopeViolation[] = [];
   const globalProtected = new Set(contract.protectedAnchors ?? []);
+  const contractVersionDrift = Boolean(
+    (contract.anchorParserVersion && contract.anchorParserVersion !== SCOPE_ANCHOR_PARSER_VERSION)
+    || (contract.anchorArtifactVersion && contract.anchorArtifactVersion !== SCOPE_ANCHOR_ARTIFACT_VERSION),
+  );
 
   for (const hunk of diffPack.hunks) {
     // Story metadata / Proofbound internal files are never semantically gated.
@@ -114,11 +120,32 @@ export function checkSemanticScope(
     if (hunk.path.startsWith('docs/story/') || hunk.path.startsWith('.lattice/')) continue;
 
     const anchor = hunkAnchor(hunk);
+    const anchors = hunkAnchors(hunk);
     const rule = ruleForHunk(contract.fileRules, hunk);
     const acknowledged = isAcknowledged(contract, hunk);
 
+    if (contractVersionDrift) {
+      violations.push(makeViolation(hunk, 'unmatched_anchor', false));
+      continue;
+    }
+
+    const parserVersionDrift = Boolean(
+      hunk.anchorParserVersion
+      && hunk.anchorParserVersion !== SCOPE_ANCHOR_PARSER_VERSION,
+    );
+    const artifactVersionDrift = Boolean(
+      hunk.anchorArtifactVersion
+      && hunk.anchorArtifactVersion !== SCOPE_ANCHOR_ARTIFACT_VERSION,
+    );
+    const parserFailed = hunk.parseFallback === 'typescript_parse_error_fail_closed'
+      || hunk.parseFallback === 'typescript_source_unavailable_fail_closed';
+    if (parserVersionDrift || artifactVersionDrift || parserFailed) {
+      violations.push(makeViolation(hunk, 'unmatched_anchor', false));
+      continue;
+    }
+
     // 1. Global protected anchor — hard block, acknowledgement cannot downgrade.
-    if (anchor && globalProtected.has(anchor)) {
+    if (anchors.some((candidate) => globalProtected.has(candidate))) {
       violations.push(makeViolation(hunk, 'protected_anchor', false));
       continue;
     }
@@ -126,13 +153,13 @@ export function checkSemanticScope(
     if (!rule) continue;
 
     // 2. File-level protected anchor — hard block, acknowledgement cannot downgrade.
-    if (anchor && (rule.protectedAnchors ?? []).includes(anchor)) {
+    if (anchors.some((candidate) => (rule.protectedAnchors ?? []).includes(candidate))) {
       violations.push(makeViolation(hunk, 'protected_anchor', false));
       continue;
     }
 
     // 3. Denied anchor — blocking unless acknowledged.
-    if (anchor && (rule.deniedAnchors ?? []).includes(anchor)) {
+    if (anchors.some((candidate) => (rule.deniedAnchors ?? []).includes(candidate))) {
       (acknowledged ? warnings : violations).push(makeViolation(hunk, 'denied_anchor', acknowledged));
       continue;
     }

@@ -26,6 +26,12 @@ import { StoryStore } from '../core/store.js';
 import { META_STORY_ID, appendGapFinding } from '../core/audit-meta-store.js';
 import { createGapLogHandlers } from '../handlers/gap-log.js';
 import type { FindingData } from '../core/types.js';
+import {
+  GAP_LOG_ARTIFACT_PATH,
+  digestGapLogArtifact,
+  verifyGapLogArtifactBinding,
+} from '../core/finding-verify.js';
+import { classifySharedLifecycleMetadata } from '../core/lifecycle-registry.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
@@ -193,6 +199,49 @@ function assertDefaultWriteIsSuspected(): void {
     assert.equal(findings[0].status, 'open');
     assert.ok((findings[0].uncertaintyReason ?? '').length >= 10, 'suspected finding must carry an uncertaintyReason');
     assert.ok(findings[0]._hash, 'finding must be signed');
+    assert.ok(findings[0].gapLogBinding, 'official gap_log writes a provenance/content binding');
+    const data = readMetaFindings(root);
+    const verified = verifyGapLogArtifactBinding(data);
+    assert.equal(verified.trusted, true, verified.reason);
+    const classified = classifySharedLifecycleMetadata(root, GAP_LOG_ARTIFACT_PATH);
+    assert.equal(classified?.trusted, true, classified?.reason);
+    assert.equal(classified?.writer, 'gap_log');
+    assert.equal(classified?.contentBinding, 'valid');
+
+    const artifact = join(root, GAP_LOG_ARTIFACT_PATH);
+    const tampered = JSON.parse(JSON.stringify(data)) as FindingData;
+    tampered.findings[0].desc = 'direct edit must invalidate whole-artifact binding';
+    writeFileSync(artifact, JSON.stringify(tampered, null, 2));
+    const rejected = classifySharedLifecycleMetadata(root, GAP_LOG_ARTIFACT_PATH);
+    assert.equal(rejected?.trusted, false, 'direct edit is fail-closed');
+    assert.equal(rejected?.reason, 'content_digest_mismatch');
+    const forged = JSON.parse(JSON.stringify(data)) as FindingData;
+    forged.findings[0].desc = 'forged content with recomputed plain digest';
+    forged.findings[0].gapLogBinding!.contentDigest = digestGapLogArtifact(forged);
+    writeFileSync(artifact, JSON.stringify(forged, null, 2));
+    assert.equal(
+      classifySharedLifecycleMetadata(root, GAP_LOG_ARTIFACT_PATH)?.reason,
+      'finding_signature_invalid',
+      'recomputing an unsigned digest cannot forge official gap_log provenance',
+    );
+    const missing = JSON.parse(JSON.stringify(data)) as FindingData;
+    delete missing.findings[0].gapLogBinding;
+    writeFileSync(artifact, JSON.stringify(missing, null, 2));
+    assert.equal(
+      classifySharedLifecycleMetadata(root, GAP_LOG_ARTIFACT_PATH)?.reason,
+      'missing_binding',
+      'legacy/path-only B-META stays untrusted until official re-attestation',
+    );
+    assert.equal(
+      verifyGapLogArtifactBinding(data, '.lattice/story/actives/B-META-other/findings.json').reason,
+      'wrong_artifact_path',
+      'copied provenance is bound to the canonical framework-audit path',
+    );
+    assert.equal(
+      classifySharedLifecycleMetadata(root, '.lattice/story/actives/B-META-framework-audit/unknown.json'),
+      null,
+      'arbitrary B-META path is never admitted by path alone',
+    );
     console.log('✓ gap-log-2: default gap_log writes evidenceState=suspected');
   } finally { rmSync(root, { recursive: true, force: true }); }
 }

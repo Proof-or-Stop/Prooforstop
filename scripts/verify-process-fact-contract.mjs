@@ -4619,6 +4619,8 @@ function assertProcessFactRegistryContract(cliToolNames, policyEntries, configTe
  * The policy doc lives at docs/requirements/decisions/lifecycle-artifact-scope.md.
  */
 async function assertLifecycleArtifactScopePolicy() {
+  const levelRegistry = new Map(parseProcessFactLevelRegistry().map(entry => [entry.name, entry]));
+  const registry = processFactRegistryMap();
   const policyDocPath = 'docs/requirements/decisions/lifecycle-artifact-scope.md';
   const roadmapDocPath = 'docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md';
   const guardDocPath = 'docs/guide-scope-guard.md';
@@ -4680,6 +4682,10 @@ async function assertLifecycleArtifactScopePolicy() {
 
   const scopeContractText = read('packages/main/src/core/scope-contract.ts');
   const scopePathClassifierText = read('packages/main/src/core/scope-path-classifier.ts');
+  const scopeDiffPackText = read('packages/main/src/core/scope-diff-pack.ts');
+  const lifecycleRegistryText = read('packages/main/src/core/lifecycle-registry.ts');
+  const gapLogVerifyText = read('packages/main/src/core/finding-verify.ts');
+  const donePrepareMetadataText = read('packages/main/src/core/done-prepare-generated-metadata.ts');
   if (scopeContractText.includes(`if (file.startsWith('.koala/')) continue;`)) {
     fail('packages/main/src/core/scope-contract.ts: blanket `.koala/` exemption regressed — must use isRuntimeArtifactPath instead');
   }
@@ -4691,6 +4697,42 @@ async function assertLifecycleArtifactScopePolicy() {
   }
   if (!scopePathClassifierText.includes('classifyLifecycleArtifact')) {
     fail('packages/main/src/core/scope-path-classifier.ts: must keep classifyLifecycleArtifact for story metadata');
+  }
+  for (const token of [
+    'SCOPE_PATH_CANONICALIZER_VERSION',
+    'canonicalizeScopePath',
+    'ambiguous scope path',
+    'symlink',
+    'source-root',
+    'repo-root',
+  ]) {
+    assert(scopePathClassifierText.includes(token), `scope path canonicalization contract missing ${token}`);
+  }
+  for (const token of [
+    'SCOPE_ANCHOR_PARSER_VERSION',
+    'SCOPE_ANCHOR_ARTIFACT_VERSION',
+    'ts.createSourceFile',
+    'typescript_parse_error_fail_closed',
+    'file_scope_no_enclosing_declaration',
+  ]) {
+    assert(scopeDiffPackText.includes(token), `AST semantic anchor contract missing ${token}`);
+  }
+  for (const token of ['classifySharedLifecycleMetadata', 'verifyGapLogArtifactBinding', 'shared-gap-log-metadata-v1']) {
+    assert(lifecycleRegistryText.includes(token), `shared B-META classifier contract missing ${token}`);
+  }
+  for (const token of ['GAP_LOG_PROVENANCE_SCHEMA', 'digestGapLogArtifact', 'content_digest_mismatch', 'finding_signature_invalid']) {
+    assert(gapLogVerifyText.includes(token), `gap_log provenance contract missing ${token}`);
+  }
+  assert(donePrepareMetadataText.includes('classifySharedLifecycleMetadata'), 'done_prepare clean-tree must consume shared B-META classifier');
+  for (const runtimeName of [
+    'runtime:canonical_scope_path_gate',
+    'runtime:ast_semantic_anchor_gate',
+    'runtime:shared_gap_log_metadata_gate',
+  ]) {
+    const level = levelRegistry.get(runtimeName);
+    const registryEntry = registry.get(runtimeName);
+    assert(level?.level === 'L4' && level.gateConsumer, `${runtimeName}: L4 gate-consumed fact missing`);
+    assert(registryEntry?.semantics?.includes('gate-evidence'), `${runtimeName}: process registry gate evidence semantic missing`);
   }
 
   const scopeMod = await import(pathToFileURL(join(root, 'packages/main/dist/core/scope-contract.js')).href);

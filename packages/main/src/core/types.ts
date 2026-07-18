@@ -684,6 +684,8 @@ export interface Finding {
    * findings (audit drift / reviewer findings).
    */
   gapFingerprint?: string;
+  /** Signed whole-artifact binding written only by the official gap_log path. */
+  gapLogBinding?: GapLogProvenanceBinding;
   /** leave an evidence chain on auto-resolve, distinct from regular finding_resolve */
   resolvedReason?: string;
   resolvedAt?: string;
@@ -720,6 +722,16 @@ export interface Finding {
    * audit-only — MUST NOT be read by any gate; excluded from the finding signature.
    */
   dismissEvidenceStrength?: 'strong' | 'medium' | 'weak';
+}
+
+export interface GapLogProvenanceBinding {
+  schemaVersion: 'lattice.gap-log-provenance.v1';
+  command: 'gap_log';
+  storyId: 'B-META-framework-audit';
+  artifactPath: string;
+  findingId: string;
+  contentDigest: string;
+  createdAt: string;
 }
 
 export interface FindingData {
@@ -1744,6 +1756,16 @@ export interface ScopeContractData {
   fileRules?: FileRule[];
   /** v2: globally protected anchor names — violations block regardless of file-level rules */
   protectedAnchors?: string[];
+  /** Current persisted path representation; absent means signed legacy v1. */
+  pathCanonicalizerVersion?: string;
+  /** Original caller spellings retained only for repair diagnostics. */
+  originalPathInputs?: Record<string, string>;
+  /** Rollout state at the write boundary; path and AST rollout are independent. */
+  pathCanonicalizationMode?: 'off' | 'warn' | 'enforce';
+  /** Parser/artifact identity used by semantic hunks. */
+  anchorParserVersion?: string;
+  anchorArtifactVersion?: string;
+  astAnchorMode?: 'off' | 'warn' | 'enforce';
 }
 
 export type ScopeGateStatus = 'pass' | 'warn' | 'fail' | 'skip';
@@ -1836,6 +1858,13 @@ export interface ScopeDiffHunk {
   header: string;
   hunkDigest: string;
   anchor?: string;
+  anchorKind?: string;
+  anchorRange?: { start: number; end: number };
+  previousAnchor?: string;
+  previousAnchorKind?: string;
+  previousAnchorRange?: { start: number; end: number };
+  anchorParserVersion?: string;
+  anchorArtifactVersion?: string;
   keyPath?: string;
   parseFallback?: string;
   changeKind?: ChangeKind;
@@ -1846,6 +1875,8 @@ export interface ScopeDiffPack {
   changedFiles: string[];
   hunks: ScopeDiffHunk[];
   generatedAt: string;
+  anchorParserVersion?: string;
+  anchorArtifactVersion?: string;
 }
 
 export interface SemanticScopeGateResult {
