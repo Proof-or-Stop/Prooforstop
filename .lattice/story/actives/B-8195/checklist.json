@@ -177,6 +177,23 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "Focused verification prints PASS for one-shot reuse and separately confirms human, forged, malformed, unrelated, concurrent and writer-failure metadata remain fail-closed.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
       }
     }
   ]
