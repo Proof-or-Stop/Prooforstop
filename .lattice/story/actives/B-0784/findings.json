@@ -548,7 +548,7 @@
       "desc": "BUG-001 static and focused tests pass, but the new story-keyed runtime routing is not adequately covered at its two new boundaries. test:gitroot-cwd-contract proves the five former bare cwd tokens are gone, while existing gap-log smoke only runs with metadataRoot equal to the Git repo and existing wrapper/worktree scope smoke calls scope_contract_check, not the newly changed scope_diff_pack(storyId). No test invokes scope_diff_pack from a wrapper metadata root whose story points at a linked worktree, verifies root dirt is excluded, or asserts the handler rejects a missing storyId. Likewise no gap_log fixture places B-META metadata under a wrapper root with configured Git root and verifies writer+verifier share that repo common-dir/key/HEAD. Add focused production-handler assertions for wrapper→story-worktree scope_diff_pack, missing storyId failure, and wrapper-root B-META append/verify; otherwise the static scan can pass while resolveGitCwd is wired to the wrong authority.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-18T03:57:50.181Z",
@@ -563,7 +563,11 @@
         "packages/main/src/core/finding-verify.ts"
       ],
       "signatureTag": "missing|ts|static-focused-tests",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 671e9d77fe adds production-path wrapper-root to linked story worktree assertions, missing/nonexistent storyId fail-closed coverage, and wrapper B-META writer/classifier parity. Build plus gitroot, scope-contract, semantic-scope, gap-log, process-fact, diff and scope checks pass.",
+      "resolvedAt": "2026-07-18T04:07:02.006Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0784:F-024",
