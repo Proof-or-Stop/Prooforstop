@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { isAbsolute, resolve } from 'node:path';
+import { isAbsolute, relative, resolve } from 'node:path';
 import { loadConfig, type LatticeConfig } from './config.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import type { StoryStore } from './store.js';
@@ -23,7 +23,10 @@ import {
 export const DONE_REQUIRED_EVIDENCE_FILE = 'done-required-evidence.json';
 export const DONE_REQUIRED_EVIDENCE_SCHEMA = 'lattice.done-required-evidence' as const;
 export const DONE_REQUIRED_EVIDENCE_VERSION = 1 as const;
-export const DONE_REQUIRED_COMMAND_SPEC_SCHEMA = 'lattice.command-spec.v1' as const;
+// v2 digests a repo-root-RELATIVE logical cwd (worktree/host portable). v1
+// digested an ABSOLUTE cwd and is still accepted for pre-existing receipts.
+export const DONE_REQUIRED_COMMAND_SPEC_SCHEMA = 'lattice.command-spec.v2' as const;
+export const DONE_REQUIRED_COMMAND_SPEC_SCHEMA_LEGACY_V1 = 'lattice.command-spec.v1' as const;
 
 const SHELL_META_RE = /[;&|<>$()`]/;
 const OUTPUT_TAIL_CHARS = 4000;
@@ -144,7 +147,41 @@ function commandSpecDigest(spec: Omit<DoneRequiredCommandSpecEnvelope, 'schema' 
   return sha256(commandSpecDigestPayload(spec));
 }
 
+/**
+ * Portable (v2) command-spec envelope. The DIGESTED cwd is a repo-root-relative
+ * LOGICAL cwd derived from the command's configured (relative) cwd, so the same
+ * logical command digests identically across worktree/host roots. The physical
+ * absolute workspace path is recorded separately (see CHK-003 `resolvedCwd`) as
+ * NON-digested provenance.
+ */
 export function buildDoneRequiredCommandSpecEnvelope(
+  projectRoot: string,
+  command: ValidationCommand,
+  executed?: Pick<ValidationCommandResult, 'command' | 'args' | 'shell' | 'cwd'>,
+): DoneRequiredCommandSpecEnvelope {
+  const spec = {
+    command: executed?.command ?? command.command,
+    args: [...(executed?.args ?? command.args)],
+    cwd: repoRelativeLogicalCwd(projectRoot, command.cwd),
+    shell: executed ? executed.shell === true : command.shell === true,
+    env: sortedStringRecord(command.env),
+    timeoutMs: resolveCommandTimeoutMs(command),
+  };
+  return {
+    schema: DONE_REQUIRED_COMMAND_SPEC_SCHEMA,
+    digest: commandSpecDigest(spec),
+    ...spec,
+  };
+}
+
+/**
+ * Reconstruct the LEGACY (v1) absolute-cwd envelope for migration-time
+ * verification only. Pre-existing receipts were written with an absolute cwd in
+ * the digest; recomputing the v1 digest lets those receipts keep verifying
+ * without hard-failing legacy evidence. Exported so migration tests can
+ * synthesize a faithful pre-existing v1 receipt.
+ */
+export function buildLegacyAbsoluteCwdCommandSpecEnvelope(
   projectRoot: string,
   command: ValidationCommand,
   executed?: Pick<ValidationCommandResult, 'command' | 'args' | 'shell' | 'cwd'>,
@@ -158,7 +195,7 @@ export function buildDoneRequiredCommandSpecEnvelope(
     timeoutMs: resolveCommandTimeoutMs(command),
   };
   return {
-    schema: DONE_REQUIRED_COMMAND_SPEC_SCHEMA,
+    schema: DONE_REQUIRED_COMMAND_SPEC_SCHEMA_LEGACY_V1,
     digest: commandSpecDigest(spec),
     ...spec,
   };
@@ -329,6 +366,18 @@ function normalizedCommandCwd(projectRoot: string, cwd?: string): string {
   return commandCwd(projectRoot, cwd).replace(/\\/g, '/');
 }
 
+/**
+ * Repo-root-RELATIVE logical cwd for the portable command-spec digest. Anchored
+ * at the workspace root (projectRoot), so a command's configured cwd maps to the
+ * SAME logical value in every worktree/host of the same story ('.' for the root,
+ * 'packages/main' for a subdir). Forward-slash normalized; '.' when equal.
+ */
+function repoRelativeLogicalCwd(projectRoot: string, cwd?: string): string {
+  const absolute = commandCwd(projectRoot, cwd);
+  const rel = relative(projectRoot, absolute).replace(/\\/g, '/');
+  return rel === '' ? '.' : rel;
+}
+
 function outputTail(output: string): string {
   return output.length <= OUTPUT_TAIL_CHARS ? output : output.slice(output.length - OUTPUT_TAIL_CHARS);
 }
@@ -420,26 +469,32 @@ export function validateCommandSpecDigestCoverage(
       continue;
     }
 
-    const expected = buildDoneRequiredCommandSpecEnvelope(projectRoot, command, {
+    const executedShape: Pick<ValidationCommandResult, 'command' | 'args' | 'shell' | 'cwd'> = {
       command: receipt.command,
       args: Array.isArray(receipt.args) ? receipt.args : [],
       ...(receipt.shell ? { shell: true } : {}),
       cwd: receipt.cwd,
-    });
+    };
+    const expectedNew = buildDoneRequiredCommandSpecEnvelope(projectRoot, command, executedShape);
+    const expectedLegacy = buildLegacyAbsoluteCwdCommandSpecEnvelope(projectRoot, command, executedShape);
 
-    const fieldsMatch =
-      commandSpec.schema === DONE_REQUIRED_COMMAND_SPEC_SCHEMA &&
-      commandSpec.command === expected.command &&
+    const matchesEnvelope = (candidate: DoneRequiredCommandSpecEnvelope): boolean =>
+      commandSpec.schema === candidate.schema &&
+      commandSpec.command === candidate.command &&
       Array.isArray(commandSpec.args) &&
-      sameStringArray(commandSpec.args, expected.args) &&
-      commandSpec.cwd === expected.cwd &&
-      commandSpec.shell === expected.shell &&
-      commandSpec.timeoutMs === expected.timeoutMs &&
+      sameStringArray(commandSpec.args, candidate.args) &&
+      commandSpec.cwd === candidate.cwd &&
+      commandSpec.shell === candidate.shell &&
+      commandSpec.timeoutMs === candidate.timeoutMs &&
       Boolean(commandSpec.env) &&
       !Array.isArray(commandSpec.env) &&
-      sameStringRecord(commandSpec.env, expected.env);
-    const digestMatches = commandSpec.digest === expected.digest;
-    if (!fieldsMatch || !digestMatches) {
+      sameStringRecord(commandSpec.env, candidate.env) &&
+      commandSpec.digest === candidate.digest;
+
+    // MIGRATION: accept a receipt whose stored envelope matches EITHER the new
+    // portable v2 relative-cwd digest OR the legacy v1 absolute-cwd digest, so
+    // pre-existing receipts still verify without hard-failing legacy evidence.
+    if (!matchesEnvelope(expectedNew) && !matchesEnvelope(expectedLegacy)) {
       mismatch = true;
       reasons.push(`command-spec-digest-mismatch[${i}]: ${receipt.label}`);
     }
