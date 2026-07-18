@@ -662,7 +662,7 @@
       "desc": ".lattice/story/actives/B-360e/checklist.json CHK-003:adversarial:no-writes — recorded PASS command is not independently reproducible and therefore does not prove the read-only invariant. Exact clean-state replay of `git status --porcelain > before; ...; git status --porcelain > after; cmp before after` returns rc=1: shell redirection creates `before` before the first status (first snapshot contains `?? before`), then creates `after` before the second status (second snapshot additionally contains `?? after`). The evidence note admits an unrecorded precondition that both snapshot files already existed. Replace the command with a self-contained temp-directory/snapshot probe (or explicitly create both ignored temp paths before the first status and clean them safely), then rerun and rebind the evidence. Independent round-16 replay: the other 41/42 recorded commands passed; merged concept smoke also passed structured malformed-token, legacy fragment/empty, shebang, and mixed-language probes, so this finding is isolated to evidence admissibility rather than feature behavior.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-18T12:01:41.607Z",
@@ -670,7 +670,11 @@
       "reviewRunId": "B-360e:RR-048",
       "_hash": "f4a38977d787dfa20568f9f694790058857836def58b153e53c4a2935c5e61e7",
       "signatureTag": "adversarial|unknown|lattice-story-actives",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by replacing only CHK-003:adversarial:no-writes evidence in 5ec2468 with a self-contained probe: it creates two fresh mktemp snapshot files outside the repository, installs EXIT trap cleanup via unlink, captures clean-worktree git status before and after both text and JSON prompt_measurement_report invocations, and requires byte-identical cmp. The exact stored command was independently executed from a clean worktree and passed without precreated repository files or hidden prerequisites.",
+      "resolvedAt": "2026-07-18T12:03:45.852Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
