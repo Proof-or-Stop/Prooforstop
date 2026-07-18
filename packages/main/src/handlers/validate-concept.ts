@@ -248,8 +248,9 @@ function parseDiffGitPaths(input: string): DiffPathCandidate[] {
 function diffFileSources(diff: string): DiffFileSources[] {
   const files: DiffFileSources[] = [];
   const diagnostics: string[] = [];
-  const hasDiffHeaderToken = diff.split('\n').some(line => line.startsWith('diff --git '));
-  if (!hasDiffHeaderToken) {
+  const structuredDiffToken = /^(?:diff --git(?=$|\s)|---(?=$|\s)|\+\+\+(?=$|\s)|@@|(?:rename|copy) (?:from|to)(?=$|\s)|Binary files(?=$|\s)|GIT binary patch(?=$|\s)|(?:index|new file mode|deleted file mode|old mode|new mode|similarity index|dissimilarity index)(?=$|\s))/;
+  const hasStructuredDiffToken = diff.split('\n').some(line => structuredDiffToken.test(line));
+  if (!hasStructuredDiffToken) {
     if (diff.trim() === '') {
       DIFF_SOURCE_DIAGNOSTICS.set(files, diagnostics);
       return files;

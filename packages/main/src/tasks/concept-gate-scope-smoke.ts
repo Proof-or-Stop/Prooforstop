@@ -104,6 +104,34 @@ const malformedPseudoHeader = analyzeDeletedSymbols([
 assert.deepEqual(malformedPseudoHeader.symbols, [], 'presence of a malformed diff header token disables legacy fragment fallback');
 assert.ok(malformedPseudoHeader.diagnostics.some(diagnostic => /diff path:.*closing quote/.test(diagnostic)));
 
+for (const structuredToken of [
+  'diff --git',
+  'diff --git\ta/src/tab.ts\tb/src/tab.ts',
+  '--- a/src/orphan.ts',
+  '+++ b/src/orphan.ts',
+  '@@ -1 +1 @@',
+  'rename from src/orphan.ts',
+  'rename to src/orphan.ts',
+  'copy from src/orphan.ts',
+  'copy to src/orphan.ts',
+  'Binary files a/src/orphan.ts and b/src/orphan.ts differ',
+  'GIT binary patch',
+  'index 1234567..89abcde 100644',
+  'new file mode 100644',
+  'deleted file mode 100644',
+  'old mode 100644',
+  'new mode 100755',
+  'similarity index 100%',
+  'dissimilarity index 100%',
+]) {
+  const analysis = analyzeDeletedSymbols([
+    structuredToken,
+    '-export function structuredTokenMustNotFallback() { return true; }',
+  ].join('\n'));
+  assert.deepEqual(analysis.symbols, [], `${structuredToken} disables legacy headerless fallback`);
+  assert.ok(analysis.diagnostics.length > 0, `${structuredToken} receives a focused pre-header/malformed diagnostic`);
+}
+
 const observedBodyOnly = fileDiff(
   'src/observed.ts',
   [
