@@ -65,7 +65,65 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "From a clean index/worktree and stable HEAD, quorum_submit appends the bounded six-row three-round-by-two-host verdict batch and creates exactly one local commit whose diff contains only that invocation causal delta in the canonical process-events.jsonl; output reports the commit SHA and the worktree is clean afterward.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "The committed six rows retain their signed reviewer-run, round, distinct-host, current materialHash/storyFilesHash, promptDigest and validationDigest bindings, and the assurance evaluator counts a complete 3x2 quorum only after the commit succeeds.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The transaction snapshots entry HEAD, index status, canonical file identity and exact before-bytes; immediately before staging/commit it rechecks HEAD and content and stages only the exact process-events path, never broad-add semantics.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "A repeated identical quorum_submit after the successful commit is idempotent: it does not append another six rows or create a no-op/duplicate commit, and reports the already-satisfied/refused disposition without changing quorum count.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A failed first attempt that fully rolls back can be retried from the restored baseline and then produces one six-row commit, with neither duplicate residue nor stale transaction state.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Any pre-existing dirty/staged source, config, user file, lifecycle metadata, or process-events bytes causes refusal before durable verdict persistence; none of that dirt is staged or committed and no quorum is newly counted.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A foreign append or byte mutation after emission but before commit fails the exact-content/CAS check; rollback removes only the command causal six rows, preserves competing bytes verbatim, and leaves no partial quorum or PASS-equivalent assurance.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "HEAD movement between baseline capture and commit fails closed before commit; the moved HEAD is preserved, no commit is attributed to quorum_submit, and all six generated rows disappear together.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Commit-hook rejection or git commit failure is not bypassed with no-verify; the index is restored and all six generated verdict rows are rolled back atomically, so assurance remains incomplete.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "If rollback itself detects a CAS/content conflict, it must not overwrite or truncate foreign bytes; surface a structured rollback-conflict/infra failure and ensure no subset of the six rows can satisfy the 3x2 gate.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
