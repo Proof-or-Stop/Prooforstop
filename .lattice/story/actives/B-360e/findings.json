@@ -133,7 +133,7 @@
       "desc": "packages/main/src/core/prompt-contracts.ts:178-185 — HIGH: the round-2 canonicalization fix validates hidden/accessor/symbol own fields only for plain objects; arrays return before that validation and still silently discard extra own state. Runtime repros show an array [1] with Symbol(\"hidden\")=2, hidden=2, or an enumerable accessor derived all serialize as [1] (ACCEPTED), so distinct unsupported inputs still collapse to identical canonical bytes/digests. This is the same fail-closed root class as resolved F-002/F-004 and still violates CHK-001 canonical-fail-closed. Validate array own keys/descriptors too, allowing only dense numeric indices plus the intrinsic length data property, and add symbol/string/accessor array probes.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-18T00:18:39.020Z",
@@ -141,7 +141,11 @@
       "reviewRunId": "B-360e:RR-004",
       "_hash": "2db5b7c99cc872aebdbb05addabeee0703e3ffda890f262de0664fffd1faba97",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 29789e7eeb: arrays accept only intrinsic length and exact dense enumerable data indices; symbol, extra string, non-enumerable and accessor own state rejects with focused probes.",
+      "resolvedAt": "2026-07-18T00:22:32.501Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-360e:F-008",
