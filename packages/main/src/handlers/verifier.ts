@@ -31,7 +31,7 @@ import { join, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
-import { autoCommitStoryMetadata, commitValidationReuseMetadataTransaction } from '../core/auto-commit-metadata.js';
+import { commitValidationReuseMetadataTransaction } from '../core/auto-commit-metadata.js';
 import { loadConfig } from '../core/config.js';
 import type { ValidationCommand, ValidationProgressReporter } from '../core/validation-types.js';
 import type { RoutineValidationIdentity, RoutineValidationSourceKind, ValidationCommandResult } from '../core/validation-types.js';
@@ -54,7 +54,7 @@ import { captureEvidenceHashSnapshot, checkEvidenceFreshnessForGit, checkEvidenc
 import { syncClusterResolves } from '../core/cluster-sync.js';
 import { resolveGitCwd, resolveProjectGitCwd, evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
 import { resolveVerificationIntentPolicy, resolveWorkflowPolicy } from '../core/workflow-policy.js';
-import type { ChecklistData, VerificationEvidence } from '../core/types.js';
+import type { ChecklistData, TestEvidenceData, VerificationEvidence } from '../core/types.js';
 import {
   buildRoutineValidationIdentity,
   evaluateRoutineValidationReuse,
@@ -62,7 +62,10 @@ import {
   summarizeRoutineCommandExecution,
   type RoutineValidationReuseEvaluation,
 } from '../core/validation-evidence-reuse.js';
-import { captureDonePrepareGeneratedMetadataTransaction } from '../core/done-prepare-generated-metadata.js';
+import {
+  captureDonePrepareGeneratedMetadataTransaction,
+  rollbackDonePrepareGeneratedMetadataTransaction,
+} from '../core/done-prepare-generated-metadata.js';
 import { normalizeRelPath } from '../core/lattice-paths.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
@@ -812,23 +815,36 @@ function persistStoryValidationEvidence(
   commandResults: ValidationCommandResult[],
   expectedCommandCount: number,
   semanticCommandPass?: boolean,
-): void {
+): any | null {
   const statusPass = result.status === 'pass';
   const allPass = Boolean(result.allPass ?? result.allPassed ?? statusPass);
   const failureKind = validationFailureKindFromResult(result, allPass);
-  const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
-  const headHash = currentHead(gitCwd) ?? result.headSha ?? result.headHash;
-  const materialHash = currentMaterialHash(gitCwd, 'HEAD', ctx.root);
-  const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', ctx.root);
-  ctx.store.writeTestEvidence(storyId, {
+  const persistenceFailure = (reason: string) => ({
+    ...externalResult({
+      provider: 'lattice-verifier-executed-persistence',
+      status: 'fail',
+      failureKind: 'infra_failure',
+      summary: 'Validation result could not persist its canonical evidence transaction',
+      details: ['canonical-validation-persistence-failed', reason],
+      warnings: [],
+      commands: commandResults,
+    }),
+    disposition: 'executed',
+    commandExecutions: commandResults.length,
+  });
+  const evidence = (hashes: {
+    headHash?: string;
+    materialHash?: string;
+    storyFilesHash?: string;
+  } = {}): TestEvidenceData => ({
     command,
     output: JSON.stringify(result),
     result: allPass ? 'PASS' : 'FAIL',
     ...(failureKind ? { failureKind } : {}),
     timestamp: new Date().toISOString(),
-    ...(headHash ? { headHash } : {}),
-    ...(materialHash ? { materialHash } : {}),
-    ...(storyFilesHash ? { storyFilesHash } : {}),
+    ...(hashes.headHash ? { headHash: hashes.headHash } : {}),
+    ...(hashes.materialHash ? { materialHash: hashes.materialHash } : {}),
+    ...(hashes.storyFilesHash ? { storyFilesHash: hashes.storyFilesHash } : {}),
     ...(result.verificationCoverage ? { verificationCoverage: result.verificationCoverage } : {}),
     commandExecution: summarizeRoutineCommandExecution(commandResults, expectedCommandCount, {
       ...(semanticCommandPass !== undefined ? { semanticPass: semanticCommandPass } : {}),
@@ -836,10 +852,83 @@ function persistStoryValidationEvidence(
     disposition: 'executed',
     ...(identity ? { routineValidationIdentity: identity } : {}),
   });
-  autoCommitStoryMetadata(ctx.root, storyId, 'validate', {
+
+  let gitCwd: string;
+  let storyRel: string;
+  let transaction: ReturnType<typeof captureDonePrepareGeneratedMetadataTransaction>;
+  let hashes: { headHash?: string; materialHash?: string; storyFilesHash?: string };
+  try {
+    gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+    hashes = {
+      headHash: currentHead(gitCwd) ?? result.headSha ?? result.headHash,
+      materialHash: currentMaterialHash(gitCwd, 'HEAD', ctx.root),
+      storyFilesHash: currentStoryFilesHash(gitCwd, 'HEAD', ctx.root),
+    };
+    storyRel = normalizeRelPath(relative(
+      realpathSync(gitCwd),
+      realpathSync(ctx.store.storyDirPath(storyId)),
+    ));
+    const managedPaths = [
+      'test-evidence.json',
+      'process-events.jsonl',
+      'closeout-write-receipts.jsonl',
+    ].map((name) => `${storyRel}/${name}`);
+    const preexistingManagedDirty = execFileSync('git', ['status', '--porcelain', '--', ...managedPaths], {
+      cwd: gitCwd,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    if (preexistingManagedDirty) {
+      return persistenceFailure(`canonical metadata was already dirty: ${preexistingManagedDirty}`);
+    }
+    transaction = captureDonePrepareGeneratedMetadataTransaction({
+      root: gitCwd,
+      gitCwd,
+      paths: managedPaths,
+    });
+  } catch (error: any) {
+    const reason = String(error?.stderr || error?.stdout || error?.message || error).trim();
+    // Non-git fake/in-memory stores cannot provide the exact transaction, but
+    // legacy validation-failure consumers still require the underlying FAIL
+    // evidence. Persist only that failure artifact; never use this fallback for
+    // PASS and never append a terminal/receipt without a git-backed boundary.
+    if (!allPass && /not a git repository/i.test(reason)) {
+      try {
+        ctx.store.writeTestEvidence(storyId, evidence());
+      } catch (fallbackError: any) {
+        return persistenceFailure(`${reason}; non-git FAIL evidence fallback failed: ${String(fallbackError?.message || fallbackError)}`);
+      }
+    }
+    return persistenceFailure(reason);
+  }
+
+  try {
+    ctx.store.writeTestEvidence(storyId, evidence(hashes));
+    recordValidationTerminal(ctx, storyId, gitCwd, result, identity);
+  } catch (error: any) {
+    const rollback = rollbackDonePrepareGeneratedMetadataTransaction({
+      root: gitCwd,
+      gitCwd,
+      transaction,
+    });
+    const reason = String(error?.stderr || error?.stdout || error?.message || error).trim();
+    return persistenceFailure(
+      rollback.ok ? reason : `${reason}; rollback failed: ${rollback.errors.join(' | ')}`,
+    );
+  }
+  const commitResult = commitValidationReuseMetadataTransaction({
+    projectRoot: ctx.root,
+    gitCwd,
+    storyId,
+    storyRel,
+    reason: 'validate',
+    transaction,
     closeoutArtifactPaths: ['test-evidence.json'],
   });
-  recordValidationTerminal(ctx, storyId, gitCwd, result, identity);
+  if (!commitResult.ok) {
+    return persistenceFailure(commitResult.reason || 'metadata writer did not create a commit');
+  }
+  return null;
 }
 
 function externalResult(args: {
@@ -917,7 +1006,7 @@ function decorateAndMaybePersistStoryValidation(
     if (!commandResults || expectedCommandCount === undefined) {
       throw new Error('routine validation command execution is required before evidence persistence');
     }
-    persistStoryValidationEvidence(
+    const persistenceFailure = persistStoryValidationEvidence(
       ctx,
       storyId,
       executed,
@@ -927,6 +1016,7 @@ function decorateAndMaybePersistStoryValidation(
       expectedCommandCount,
       semanticCommandPass,
     );
+    if (persistenceFailure) return persistenceFailure;
   }
   return executed;
 }

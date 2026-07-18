@@ -29,8 +29,8 @@
  */
 
 import { execFileSync } from 'child_process';
-import { existsSync, readFileSync, realpathSync } from 'node:fs';
-import { isAbsolute, join, relative, resolve } from 'node:path';
+import { existsSync, mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { reportHealthIssue } from './health.js';
 import {
   classifyGitStatusRows,
@@ -53,9 +53,11 @@ import {
   readCloseoutWriteReceipts,
 } from './closeout-trust.js';
 import {
+  captureDonePrepareGeneratedMetadataTransaction,
   commitImmutableMetadataTree,
   rollbackDonePrepareGeneratedMetadataTransaction,
   type DonePrepareGeneratedMetadataTransaction,
+  type ImmutableMetadataCommitTestHooks,
 } from './done-prepare-generated-metadata.js';
 
 /**
@@ -122,6 +124,209 @@ export interface ValidationReuseMetadataTransactionCommitResult {
   ok: boolean;
   commitSha?: string;
   reason?: string;
+}
+
+export type LifecycleMetadataTransactionKind =
+  | 'test-transition'
+  | 'codex-command-terminal';
+
+export interface LifecycleMetadataTransaction {
+  kind: LifecycleMetadataTransactionKind;
+  headHash: string;
+  storyRel: string;
+  transaction: DonePrepareGeneratedMetadataTransaction;
+}
+
+export function readLifecycleMetadataOutputHashes(args: {
+  root: string;
+  capture: LifecycleMetadataTransaction;
+}): { ok: true; hashes: Map<string, string> } | { ok: false; reason: string } {
+  try {
+    return {
+      ok: true,
+      hashes: new Map(args.capture.transaction.paths.map((path) => [
+        path,
+        rawArtifactDigest(readFileSync(join(args.root, path))),
+      ])),
+    };
+  } catch (error: any) {
+    return {
+      ok: false,
+      reason: `lifecycle metadata output hash read failed: ${String(error?.message || error)}`,
+    };
+  }
+}
+
+function lifecycleMetadataPaths(
+  storyRel: string,
+  kind: LifecycleMetadataTransactionKind,
+): string[] {
+  const prefix = `${normalizeRelPath(storyRel)}/`;
+  const filenames = kind === 'test-transition'
+    ? ['index.json', 'process-events.jsonl', 'process-metrics.json']
+    : ['process-events.jsonl'];
+  return filenames.map((filename) => `${prefix}${filename}`).sort((a, b) => a.localeCompare(b));
+}
+
+/**
+ * Freeze the exact canonical paths owned by one TEST-transition writer.
+ *
+ * The capture refuses any pre-existing worktree/index change on those paths.
+ * This is deliberately not a "trusted dirty metadata" classifier: the caller
+ * receives no authority to adopt prior bytes based on path, event type, or
+ * prose. A later commit is valid only for the exact delta from this clean
+ * baseline.
+ */
+export function captureLifecycleMetadataTransaction(args: {
+  root: string;
+  gitCwd: string;
+  storyId: string;
+  storyRel: string;
+  kind: LifecycleMetadataTransactionKind;
+}): LifecycleMetadataTransaction {
+  assertStoryIdShape(args.storyId);
+  const storyRel = normalizeRelPath(args.storyRel);
+  if (!storyRel || storyRel === '.' || storyRel === '..' || storyRel.startsWith('../') || isAbsolute(storyRel)) {
+    throw new Error(`lifecycle metadata transaction escaped git workspace: ${args.storyRel}`);
+  }
+  if (storyRel !== args.storyId && !storyRel.endsWith(`/${args.storyId}`)) {
+    throw new Error(`lifecycle metadata transaction story path mismatch: ${storyRel} does not end in ${args.storyId}`);
+  }
+  const paths = lifecycleMetadataPaths(storyRel, args.kind);
+  const dirty = execFileSync('git', ['status', '--porcelain=v1', '--', ...paths], {
+    cwd: args.gitCwd,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+  if (dirty) {
+    throw new Error(`canonical metadata was already dirty before ${args.kind}: ${dirty}`);
+  }
+  const headHash = execFileSync('git', ['rev-parse', 'HEAD'], {
+    cwd: args.gitCwd,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+  return {
+    kind: args.kind,
+    headHash,
+    storyRel,
+    transaction: captureDonePrepareGeneratedMetadataTransaction({
+      root: args.root,
+      gitCwd: args.gitCwd,
+      paths,
+    }),
+  };
+}
+
+/**
+ * Atomically install only the bytes produced since a clean lifecycle capture.
+ * The caller supplies hashes recorded immediately after its own write. Hook or
+ * concurrent mutation, HEAD movement, path broadening, or commit failure rolls
+ * the exact managed paths back and never commits adjacent metadata.
+ */
+export function commitLifecycleMetadataTransaction(args: {
+  root: string;
+  gitCwd: string;
+  storyId: string;
+  capture: LifecycleMetadataTransaction;
+  verifiedHashes: Map<string, string>;
+  testHooks?: ImmutableMetadataCommitTestHooks;
+}): ValidationReuseMetadataTransactionCommitResult {
+  const expectedPaths = lifecycleMetadataPaths(args.capture.storyRel, args.capture.kind);
+  const managedPaths = [...args.capture.transaction.paths].sort((a, b) => a.localeCompare(b));
+  const rollback = (reason: string): ValidationReuseMetadataTransactionCommitResult => {
+    const conflicts: string[] = [];
+    const errors: string[] = [];
+    for (const state of args.capture.transaction.states) {
+      try {
+        const absolute = join(args.root, state.path);
+        const current = existsSync(absolute) ? readFileSync(absolute) : null;
+        const currentHash = current === null ? null : rawArtifactDigest(current);
+        const baselineHash = state.worktreeContent === null ? null : rawArtifactDigest(state.worktreeContent);
+        const ownedHash = args.verifiedHashes.get(state.path) ?? null;
+        if (currentHash === baselineHash) {
+          // Already restored or never changed.
+        } else if (ownedHash !== null && currentHash === ownedHash) {
+          if (state.worktreeContent === null) {
+            rmSync(absolute, { force: true });
+          } else {
+            mkdirSync(dirname(absolute), { recursive: true });
+            writeFileSync(absolute, state.worktreeContent);
+          }
+        } else {
+          conflicts.push(`${state.path}: concurrent worktree bytes preserved`);
+        }
+
+        // The lifecycle writer uses an isolated index and never owns mutations
+        // to the real index. Preserve any concurrent real-index change instead
+        // of restoring capture-time entries over another writer.
+        const currentIndex = execFileSync('git', ['ls-files', '--stage', '--', state.path], {
+          cwd: args.gitCwd,
+          encoding: 'utf8',
+          stdio: ['pipe', 'pipe', 'pipe'],
+        }).trim();
+        const baselineIndex = state.indexEntries
+          .map((entry) => `${entry.mode} ${entry.object} ${entry.stage}\t${entry.path}`)
+          .join('\n');
+        if (currentIndex !== baselineIndex) {
+          conflicts.push(`${state.path}: concurrent index state preserved`);
+        }
+      } catch (error: any) {
+        errors.push(`${state.path}: ${String(error?.stderr || error?.stdout || error?.message || error).trim()}`);
+      }
+    }
+    const suffix = [
+      conflicts.length > 0 ? `concurrent divergence preserved: ${conflicts.join(', ')}` : '',
+      errors.length > 0 ? `rollback inspection failed: ${errors.join(' | ')}` : '',
+    ].filter(Boolean).join('; ');
+    return {
+      ok: false,
+      reason: suffix ? `${reason}; ${suffix}` : reason,
+    };
+  };
+  try {
+    if (
+      managedPaths.length !== expectedPaths.length
+      || managedPaths.some((path, index) => normalizeRelPath(path) !== expectedPaths[index])
+    ) return rollback(`lifecycle metadata transaction path set broadened for ${args.capture.kind}`);
+    if (
+      args.verifiedHashes.size !== expectedPaths.length
+      || expectedPaths.some((path) => !args.verifiedHashes.has(path))
+    ) return rollback(`lifecycle metadata transaction hash set incomplete for ${args.capture.kind}`);
+    const currentHead = execFileSync('git', ['rev-parse', 'HEAD'], {
+      cwd: args.gitCwd,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    if (currentHead !== args.capture.headHash) {
+      return rollback(`HEAD changed before ${args.capture.kind} metadata commit CAS`);
+    }
+    const changed = expectedPaths.filter((path) => {
+      const absolute = join(args.root, path);
+      return !existsSync(absolute) || rawArtifactDigest(readFileSync(absolute)) !== args.verifiedHashes.get(path);
+    });
+    if (changed.length > 0) {
+      return rollback(`${args.capture.kind} metadata changed after writer verification: ${changed.join(', ')}`);
+    }
+    const changedPaths = expectedPaths.filter((path) => {
+      const before = args.capture.transaction.states.find((state) => state.path === path)?.worktreeContent ?? null;
+      const beforeHash = before === null ? null : rawArtifactDigest(before);
+      return beforeHash !== args.verifiedHashes.get(path);
+    });
+    if (changedPaths.length === 0) return { ok: true };
+    const committed = commitImmutableMetadataTree({
+      root: args.root,
+      gitCwd: args.gitCwd,
+      paths: changedPaths,
+      verifiedHashes: new Map(changedPaths.map((path) => [path, args.verifiedHashes.get(path)!])),
+      message: `lattice: record ${args.storyId} ${args.capture.kind} metadata`,
+      testHooks: args.testHooks,
+    });
+    if (!committed.ok) return rollback(committed.reason || `${args.capture.kind} immutable metadata commit failed`);
+    return { ok: true, commitSha: committed.commitSha };
+  } catch (error: any) {
+    return rollback(`${args.capture.kind} metadata transaction failed: ${String(error?.stderr || error?.stdout || error?.message || error).trim()}`);
+  }
 }
 
 /**

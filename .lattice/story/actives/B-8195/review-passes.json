@@ -1,0 +1,941 @@
+{
+  "passes": [
+    {
+      "id": "B-8195:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Targeted round-2 docs delta verifies F-001 is fixed: the umbrella plan now treats B-8195 as an independent interposed #7, records its implemented outcome, strict verifier-entry fail-closed boundary and non-goals, and consistently updates landing order, verification matrix, metrics and six-story exit criteria; canonical routine-reuse language remains aligned with the directly relevant writer behavior.",
+      "createdAt": "2026-07-18T11:22:49.145Z",
+      "reviewRound": "2026-07-18T11:21:09.447Z",
+      "reviewRunId": "B-8195:RR-008",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8195/background.md",
+          ".lattice/story/actives/B-8195/checklist.json",
+          ".lattice/story/actives/B-8195/plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "51e62a6a41557dc65869d55929c236e0cbe223f3ba05e78a5c9efc653cbb8fde"
+    },
+    {
+      "id": "B-8195:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted round-2 coverage review confirms F-008 is fixed: all 20 must intents now have substantive direct or regression assertions, including real transition-to-validate zero-command reuse, exact lifecycle path sets, rollback/CAS/content races, both hook caller boundaries, forged/human dirt and repeated idempotence. Focused smoke passed.",
+      "createdAt": "2026-07-18T11:25:36.724Z",
+      "reviewRound": "2026-07-18T11:21:09.447Z",
+      "reviewRunId": "B-8195:RR-007",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "0548df7421e21de1cb4bef40a25fd241da4bf005e89bb5328643a341629e30dc"
+    },
+    {
+      "id": "B-8195:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Targeted round-2 architecture re-review of commit 94a0085 verified F-002/F-003/F-004 are fixed: terminal closeout failures propagate nonzero, rollback compare-restores only writer-owned bytes while preserving concurrency, and canonical terminal closeout follows postCommand hooks. Focused validation-evidence-reuse smoke passed; no remaining concept blocker in the changed delta.",
+      "createdAt": "2026-07-18T11:25:49.931Z",
+      "reviewRound": "2026-07-18T11:21:09.447Z",
+      "reviewRunId": "B-8195:RR-006",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8195/background.md",
+          ".lattice/story/actives/B-8195/checklist.json",
+          ".lattice/story/actives/B-8195/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "416db9fba49a43dde28669ad4dd277d35978ac371242d6c8294c9a5cf8d2f846"
+      },
+      "readDiagnostics": [],
+      "_hash": "3407b32fe5af378effa89bccf3429717926dd5e3aee901f6338b6a09a80de352"
+    },
+    {
+      "id": "B-8195:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Targeted F-009 delta review: structured validate and TEST failures now persist exactly one clean-boundary codex_cli failure row; foreign canonical bytes remain untouched with activity fallback, closeout errors do not recurse, and PASS closeout behavior is unchanged. F-009-only smoke passed.",
+      "createdAt": "2026-07-18T11:53:25.837Z",
+      "reviewRound": "2026-07-18T11:51:11.117Z",
+      "reviewRunId": "B-8195:RR-009",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "db8364217faeaa123ae4151d62bd133aa5f1819d73309584230c9130a17c4d3a"
+    },
+    {
+      "id": "B-8195:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Minimal round-3 concept review of a8f6a4dabf found no blocker. The new canonicalFailure branch records failure only after postCommand hooks through the existing exact one-path transaction, preserves pre-existing/concurrent dirt by falling back to the already-written failed activity audit, and suppresses persistence rethrow only for an already-failed command. Successful PASS closeout retains the unchanged CanonicalTerminalCloseoutError fail-closed path.",
+      "createdAt": "2026-07-18T11:55:09.817Z",
+      "reviewRound": "2026-07-18T11:51:11.117Z",
+      "reviewRunId": "B-8195:RR-010",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "0469921be1e6adb843014133e4007728eb8255b24b83693a833205a3be871ce0"
+    },
+    {
+      "id": "B-8195:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Round-3 minimal delta review found no documentation drift. a8f6a4dabf only gives structured validate/TEST failures one exact-path codex_cli failure audit transaction; it does not convert failure to PASS, trust pre-existing managed dirt, or alter the documented successful post-hook terminal closeout and verifier-entry fail-closed boundaries.",
+      "createdAt": "2026-07-18T11:55:14.021Z",
+      "reviewRound": "2026-07-18T11:51:11.117Z",
+      "reviewRunId": "B-8195:RR-012",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8195/background.md",
+          ".lattice/story/actives/B-8195/checklist.json",
+          ".lattice/story/actives/B-8195/plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "ea8ebdd1e3fc03dae09886366955842294f01845f8f20fe549e062268d64790b"
+    },
+    {
+      "id": "B-8195:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-009-only coverage re-review passes. The focused regression uses the real validate-file CLI failure path, asserts exactly one committed codex_cli result=fail row and clean canonical process-events state, then proves the next invocation executes again rather than reusing failed evidence. Existing human/forged dirty controls retain activity audit fallback and foreign bytes. Focused F-009 command passed.",
+      "createdAt": "2026-07-18T11:55:24.840Z",
+      "reviewRound": "2026-07-18T11:51:11.117Z",
+      "reviewRunId": "B-8195:RR-011",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "6125676456ce56198e5717629083082b23369755774331680b2f33fd41a514c7"
+    },
+    {
+      "id": "B-8195:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Round-4 minimal delta remains consistent with canonical docs. TEST-transition capture now occurs before TEST gates so the same fixed clean-baseline three-path transaction can own the direct verifier validation_terminal emitted inside that invocation; capture is still before any invocation write, rejects pre-entry human/foreign dirt, does not broaden paths, and preserves documented hook/CAS/rollback and failure semantics.",
+      "createdAt": "2026-07-18T12:25:09.298Z",
+      "reviewRound": "2026-07-18T12:23:57.483Z",
+      "reviewRunId": "B-8195:RR-016",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8195/background.md",
+          ".lattice/story/actives/B-8195/checklist.json",
+          ".lattice/story/actives/B-8195/plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "f364bb264bc459ff1f9c10a5a05b3b74e3915f2e4406290d25c839f2d14bac9e"
+    },
+    {
+      "id": "B-8195:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-4 targeted coverage review passes. validate-progress-heartbeat smoke proves direct-handler PASS reaches TEST, persists PASS evidence, and commits validation_terminal plus phase_transition cleanly; its failure case stays REVIEW, persists FAIL/validation_failure evidence and a failure terminal, excludes toPhase TEST, and leaves the exact transaction paths clean. Existing lifecycle transaction and human/forged controls pin clean-entry rejection and exact bounded paths. The repinned retired-authority vocabulary guard also passes.",
+      "createdAt": "2026-07-18T12:29:04.681Z",
+      "reviewRound": "2026-07-18T12:23:57.483Z",
+      "reviewRunId": "B-8195:RR-013",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "39bcd69d872b3f2fc7ec313b712fdeeb66536e4f12f2864cb970953f12b55c4c"
+    },
+    {
+      "id": "B-8195:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Round-5 transaction-timing delta remains accurately covered by canonical docs. Executed validation now closes its own evidence/validation_terminal/receipt transaction first; TEST transition then captures a clean index/process-events/process-metrics boundary for phase and metrics writes. Each layer rejects pre-existing managed dirt at its own entry, preserving causal ownership, exact path bounds, and documented fail-closed semantics.",
+      "createdAt": "2026-07-18T12:45:11.110Z",
+      "reviewRound": "2026-07-18T12:43:58.206Z",
+      "reviewRunId": "B-8195:RR-019",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8195/background.md",
+          ".lattice/story/actives/B-8195/checklist.json",
+          ".lattice/story/actives/B-8195/plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "984818537a071d9e924460890a1e0ceac9025ce15efe1b39c33ef4ebf8195502"
+    },
+    {
+      "id": "B-8195:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Round-5 F-010 re-review passes. The long validation window is outside the TEST phase transaction; executed verifier persistence starts a separate clean exact three-path transaction only after commands complete. Mid-validation foreign process metadata is refused before evidence/terminal writes, preserved uncommitted, returns failure, and cannot manufacture TEST. The focused deterministic F-010 smoke passed.",
+      "createdAt": "2026-07-18T12:45:27.217Z",
+      "reviewRound": "2026-07-18T12:43:58.206Z",
+      "reviewRunId": "B-8195:RR-017",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "199959b771a611a47e1b0d3bf98325ea8b50690ef10feed3ab6e7f9aee815843"
+    },
+    {
+      "id": "B-8195:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-5 targeted branch/timing/outcome matrix passes. Focused commands independently verify story/* direct-handler success, main direct-handler success, mid-validation human append fail-closed with foreign bytes uncommitted and no terminal/phase event, and validation-failure evidence persistence while remaining REVIEW. Existing pre-entry human/forged controls and exact transaction tests remain applicable to the new executed-validation closeout.",
+      "createdAt": "2026-07-18T12:46:19.552Z",
+      "reviewRound": "2026-07-18T12:43:58.206Z",
+      "reviewRunId": "B-8195:RR-018",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "843a9eb8fb4025aa8faa8c955d68418451ad5e2952d0f8a575b1602aed947ca5"
+    },
+    {
+      "id": "B-8195:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Round 5 F-011 delta verified: executed validation owns an exact three-file isolated transaction before the shorter phase transaction, eliminating nested story-branch HEAD movement. Story-branch success, main direct-handler closeout, validation-failure persistence, and foreign mid-validation append controls all pass; no path or event-shape trust was broadened.",
+      "createdAt": "2026-07-18T12:46:26.620Z",
+      "reviewRound": "2026-07-18T12:43:58.206Z",
+      "reviewRunId": "B-8195:RR-020",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "16993c383dae511e05375dca25155674fb04b8d26d4294d7a89b9ceff139f404"
+    },
+    {
+      "id": "B-8195:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Round-6 targeted concept review of 050b177b90 passes. The non-git compatibility branch is gated by !allPass plus an explicit not-a-git-repository diagnostic, writes only FAIL test evidence without hashes, and always returns canonical-validation-persistence-failed; it never reaches recordValidationTerminal, receipt generation, or success. Git-backed paths still require a clean exact three-path capture, rollback partial writes, and commit through the isolated immutable transaction.",
+      "createdAt": "2026-07-18T19:24:33.062Z",
+      "reviewRound": "2026-07-18T19:23:26.499Z",
+      "reviewRunId": "B-8195:RR-021",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "e25100281c9b3f49ab9e51eb9ca5ff419bed027cd16241440be4aed367da6624"
+    },
+    {
+      "id": "B-8195:RP-015",
+      "agent": "lattice-review-docs",
+      "note": "Round-6 failure-classification delta requires no canonical documentation change. Persistence preflight/read/write exceptions now settle as infra_failure; the legacy non-git compatibility path writes only underlying FAIL evidence and still returns persistence failure, never fabricates PASS, terminal, receipt, or reusable command truth. Production git-backed strict-entry and causal transaction semantics remain unchanged.",
+      "createdAt": "2026-07-18T19:24:55.453Z",
+      "reviewRound": "2026-07-18T19:23:26.499Z",
+      "reviewRunId": "B-8195:RR-024",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8195/background.md",
+          ".lattice/story/actives/B-8195/checklist.json",
+          ".lattice/story/actives/B-8195/plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "dbe5608cce2325323e528d4886406d65405a51576b986a4a9966f28add98723f"
+    },
+    {
+      "id": "B-8195:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-6 targeted coverage review passes. Root flow-stability smoke proves the public runValidateGate contract still blocks non-git validation failure and preserves FAIL test evidence. Git-backed focused regressions independently pass story-branch and main success, validation-failure persistence, and mid-validation foreign append fail-closed. Together they cover non-git fallback plus git transaction success/failure/concurrent-dirt paths for 050b177b90.",
+      "createdAt": "2026-07-18T20:04:05.464Z",
+      "reviewRound": "2026-07-18T19:23:26.499Z",
+      "reviewRunId": "B-8195:RR-023",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "3328a77cc2a836b6ca57aa353135a622cd82a0bf5025de70ab4218788bc66e78"
+    },
+    {
+      "id": "B-8195:RP-017",
+      "agent": "lattice-review-quality",
+      "note": "Round 6 verifier preflight review passed: git/path/status/capture failures are converted to structured infra_failure results; post-capture writes roll back on exception; definite assignments are guarded by early-return catch control flow; non-git fallback is regex-narrowed and failure-only; no PASS, terminal, receipt, or foreign dirty bytes gain trust. Focused flow-stability smoke passed.",
+      "createdAt": "2026-07-18T20:06:22.531Z",
+      "reviewRound": "2026-07-18T19:23:26.499Z",
+      "reviewRunId": "B-8195:RR-022",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "7c72209a9dfe15a5f39b3a747a18bd027ecbf741114ab2f08769d27a773804b3"
+    },
+    {
+      "id": "B-8195:RP-018",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-7 incremental coverage review passes. The only material delta synchronizes the process-fact verifier’s pinned cli-engine fingerprint and two verifier writer anchors with already-tested production code. The process-fact contract passes and still asserts the canonical transaction writer, reason validate, and test-evidence closeout path; no test behavior or coverage surface was removed.",
+      "createdAt": "2026-07-18T20:39:37.034Z",
+      "reviewRound": "2026-07-18T20:38:42.890Z",
+      "reviewRunId": "B-8195:RR-025",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "dde76c4814f1680468f32cf258fc3cfa2cf7fdadbc339ab30ffe69e02c4146bc"
+    },
+    {
+      "id": "B-8195:RP-019",
+      "agent": "lattice-review-docs",
+      "note": "Round-7 incremental context reports only scripts/verify-process-fact-contract.mjs changed since docs pass RP-015. Commit 467a247336 merely replaces two stale mechanical source-token assertions for the removed autoCommitStoryMetadata call with the current transaction reason validate token; no runtime writer, gate, artifact, failure classification, user-visible behavior, or canonical promise changed, so no docs update is required.",
+      "createdAt": "2026-07-18T20:39:52.624Z",
+      "reviewRound": "2026-07-18T20:38:42.890Z",
+      "reviewRunId": "B-8195:RR-027",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8195/background.md",
+          ".lattice/story/actives/B-8195/checklist.json",
+          ".lattice/story/actives/B-8195/plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "89cdd1d9c146730e701a41c76c5f6bd8c75cfa5f6c6fdd48698965214df9e235"
+    },
+    {
+      "id": "B-8195:RP-020",
+      "agent": "lattice-review-quality",
+      "note": "Incremental round-8 review of commit 1c969baa1a found F-012 closed: the verifier contract now enforces exactly two canonical writer calls, checks the reuse and executed persistence functions independently, and includes a mutation self-test that fails when the executed writer is removed while reuse remains. The process-fact contract passes.",
+      "createdAt": "2026-07-18T20:49:41.830Z",
+      "reviewRound": "2026-07-18T20:48:38.996Z",
+      "reviewRunId": "B-8195:RR-029",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/verifier.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "27cc2c11ad885d42b6e2e95cf8ba663264ae51f116841f1626cfa79c75b9b5df"
+    },
+    {
+      "id": "B-8195:RP-021",
+      "agent": "lattice-review-docs",
+      "note": "Round-8 incremental context contains only scripts/verify-process-fact-contract.mjs. Commit 1c969baa1a strengthens mechanical locality assertions for the already-documented reuse/executed validation transaction writers and adds a mutation self-test that deletes the executed writer to prove contract bite. It changes no runtime code, artifact schema, gate, failure behavior, output, or canonical product promise; no docs update is required.",
+      "createdAt": "2026-07-18T20:49:52.068Z",
+      "reviewRound": "2026-07-18T20:48:38.996Z",
+      "reviewRunId": "B-8195:RR-030",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8195/background.md",
+          ".lattice/story/actives/B-8195/checklist.json",
+          ".lattice/story/actives/B-8195/plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "803f837cf79db7378e444747c997376f619e126fe0375062f23ccd0de0fdd62b"
+    },
+    {
+      "id": "B-8195:RP-022",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-8 incremental coverage review passes. The new local function-body contract requires both reusedStoryValidationResult and persistStoryValidationEvidence to contain evidence write, validation terminal, canonical transaction writer, validate reason, transaction, and exact test-evidence closeout path; it also requires exactly two writer calls. Its mutation bite removes only the executed writer and proves both the local executed-function check and global two-call check fail while the reuse writer remains. Process-fact contract, F-009 focused reuse smoke, and diff check pass.",
+      "createdAt": "2026-07-18T20:49:57.525Z",
+      "reviewRound": "2026-07-18T20:48:38.996Z",
+      "reviewRunId": "B-8195:RR-028",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "60667d21bdcf393a737ec263361bb0d00f3e99f4647f0225cb172eadfb99a5c0"
+    },
+    {
+      "id": "B-8195:RP-023",
+      "agent": "lattice-review-concept",
+      "note": "Round-8 incremental concept review of 1c969baa1a passes. The contract now requires exactly two validation transaction writer occurrences and separately extracts reusedStoryValidationResult and persistStoryValidationEvidence to require evidence, terminal, transaction, validate reason, and closeout binding in each local body. Its mutation bite deletes the executed writer while reuse remains and asserts both the local executed contract and exact-count contract fail. The process-fact contract command passed.",
+      "createdAt": "2026-07-18T20:50:04.748Z",
+      "reviewRound": "2026-07-18T20:48:38.996Z",
+      "reviewRunId": "B-8195:RR-031",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "f167f44f9b75ca6eea9121667d7a22162c42ac7b3904119b0ce2fe3ed1565f82"
+    },
+    {
+      "id": "B-8195:RP-024",
+      "agent": "lattice-review-concept",
+      "note": "Round-9 post-main-merge targeted review passes. The merge-parent addition is an independent prompt-measurement observation assertion and leaves B-8195 exact-two/local validation persistence contract unchanged. Commit 1ea395a206 correctly moves the pre-commit-hook failure expectation to blockedAt:validate, rejects cleanTree/done/PASS, requires canonical-validation-persistence-failed, and verifies HEAD plus bounded index/worktree rollback and no reuse claim.",
+      "createdAt": "2026-07-18T21:38:45.608Z",
+      "reviewRound": "2026-07-18T21:37:54.145Z",
+      "reviewRunId": "B-8195:RR-032",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "aa1aa81f304feabef2cbafe24ea5d8f46cec4a9146bc0d3a7c4b999f795d642f"
+    },
+    {
+      "id": "B-8195:RP-025",
+      "agent": "lattice-review-quality",
+      "note": "Post-main-merge incremental review passed. The independent prompt-measurement observation assertion is additive and does not alter the validation writer contract. F-012 remains protected by exact two-call enforcement, function-local reuse/executed assertions, and mutation bite. Commit 1ea395a206 precisely expects validate-stage canonical persistence failure, pre-commit error propagation, no PASS, unchanged HEAD, full index/worktree rollback for bounded metadata, and no validation reuse claim.",
+      "createdAt": "2026-07-18T21:38:55.627Z",
+      "reviewRound": "2026-07-18T21:37:54.145Z",
+      "reviewRunId": "B-8195:RR-033",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "6cf593ce289659fab53f4597ff01c55608ff8ec52584d0905f635777dace1ed2"
+    },
+    {
+      "id": "B-8195:RP-026",
+      "agent": "lattice-review-docs",
+      "note": "Round-9 post-main-merge review isolated merge-parent noise. Story commit 1ea395a206 only corrects the done_prepare smoke oracle to expect validation-stage canonical persistence failure and full bounded rollback on pre-commit rejection, matching existing fail-closed docs. The merged main process-fact addition independently asserts an L0 read-only prompt-measurement boundary and does not alter B-8195 runtime/product/document promises. No docs update is required.",
+      "createdAt": "2026-07-18T21:39:26.375Z",
+      "reviewRound": "2026-07-18T21:37:54.145Z",
+      "reviewRunId": "B-8195:RR-035",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8195/background.md",
+          ".lattice/story/actives/B-8195/checklist.json",
+          ".lattice/story/actives/B-8195/plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/handlers/prompt-measurement.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "c263c19c366445fe969039147f4c702a07fc2727b5811a22ce4584cc8e2580ff"
+    },
+    {
+      "id": "B-8195:RP-027",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-9 post-main-merge targeted coverage review passes. The stale done-prepare oracle now expects the actual fail-closed validate stage: BLOCKED at validate, explicitly not cleanTree/done, canonical-validation-persistence-failed with hook diagnostic, and never DONE prepare PASS. It also proves HEAD unchanged, zero staged/unstaged/untracked bounded metadata residue including process-events, and no donePrepareValidationReuse claim. Done-prepare auto-closeout smoke passes; independent main prompt-measurement additions do not alter this story’s validation transaction coverage.",
+      "createdAt": "2026-07-18T21:40:08.548Z",
+      "reviewRound": "2026-07-18T21:37:54.145Z",
+      "reviewRunId": "B-8195:RR-034",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/handlers/prompt-measurement.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "fb2503405324b060dea9a80c0370fdbbe1e8f874d8118aa07690858342d1807f"
+    }
+  ]
+}

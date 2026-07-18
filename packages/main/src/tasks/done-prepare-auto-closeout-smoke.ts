@@ -511,8 +511,6 @@ async function assertUnsafePathRefusesBeforeReuseRecord(): Promise<void> {
 async function assertCommitHookFailureRemainsFailClosed(): Promise<void> {
   const { root, storyId } = setupFixture();
   const oldCwd = process.cwd();
-  const observed: string[] = [];
-  const restoreSpy = installCommandSpy(observed);
   try {
     process.chdir(root);
     const hookPath = join(root, '.git', 'hooks', 'pre-commit');
@@ -523,6 +521,7 @@ async function assertCommitHookFailureRemainsFailClosed(): Promise<void> {
     const safePaths = [
       `.lattice/story/actives/${storyId}/closeout-write-receipts.jsonl`,
       `.lattice/story/actives/${storyId}/done-required-evidence.json`,
+      `.lattice/story/actives/${storyId}/process-events.jsonl`,
       `.lattice/story/actives/${storyId}/test-evidence.json`,
     ];
     const transcript = await withEnv(gitIdentityEnv(), async () => String(await createDonePrepareHandlers(mkCtx(root)).done_prepare({
@@ -535,16 +534,18 @@ async function assertCommitHookFailureRemainsFailClosed(): Promise<void> {
     })));
 
     assert.match(transcript, /^DONE prepare: BLOCKED/, transcript);
-    assert.match(transcript, /^blockedAt: cleanTree$/m);
-    assert.match(transcript, /git status contains path\(s\) outside the safe generated metadata manifest/);
-    assert.match(transcript, /closeout-write-receipts\.jsonl/);
+    assert.match(transcript, /^blockedAt: validate$/m);
+    assert.doesNotMatch(transcript, /^blockedAt: (?:cleanTree|done)$/m);
+    assert.match(transcript, /canonical-validation-persistence-failed/);
+    assert.match(transcript, /git pre-commit hook failed: failing pre-commit/);
+    assert.doesNotMatch(transcript, /^DONE prepare: PASS/m, 'failed canonical validation persistence must never report PASS');
     assert.equal(git(root, ['rev-parse', 'HEAD']), headBefore, 'failed canonical writer commits must not advance HEAD');
     const stagedSafePaths = git(root, ['diff', '--cached', '--name-only', '--', ...safePaths])
       .split('\n')
       .map((line) => line.trim())
       .filter(Boolean)
       .sort();
-    assert.deepEqual(stagedSafePaths, safePaths.slice().sort(), 'failed writer commit leaves only its bounded generated metadata staged');
+    assert.deepEqual(stagedSafePaths, [], 'failed validation persistence must restore the captured index state');
     const unstagedSafePaths = git(root, ['diff', '--name-only', '--', ...safePaths])
       .split('\n')
       .map((line) => line.trim())
@@ -553,12 +554,10 @@ async function assertCommitHookFailureRemainsFailClosed(): Promise<void> {
       .split('\n')
       .map((line) => line.trim())
       .filter(Boolean);
-    assert.deepEqual([...unstagedSafePaths, ...untrackedSafePaths], [], 'no extra unstaged or untracked generated metadata remains');
+    assert.deepEqual([...unstagedSafePaths, ...untrackedSafePaths], [], 'failed validation persistence must restore all bounded generated metadata bytes');
     const evidence = new StoryStore(root).readDoneRequiredEvidence(storyId) as any;
-    assert.equal(evidence.donePrepareValidationReuse, undefined, 'failed writer commits must not mint a validation reuse claim');
-    assert.equal(observed.some((line) => line.includes('git update-index')), false, 'no auto-close transaction starts for an unsafe receipt-ledger dirty set');
+    assert.equal(evidence?.donePrepareValidationReuse, undefined, 'failed writer commits must not mint a validation reuse claim');
   } finally {
-    restoreSpy();
     process.chdir(oldCwd);
     rmSync(root, { recursive: true, force: true });
   }

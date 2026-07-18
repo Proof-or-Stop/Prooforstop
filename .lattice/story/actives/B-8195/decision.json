@@ -1,0 +1,76 @@
+{
+  "principles": [
+    "Causal provenance over path-based trust",
+    "One-shot convergence without rerunning project commands",
+    "Fail closed outside the exact canonical lifecycle transaction"
+  ],
+  "drivers": [
+    "Remove the observed mandatory manual metadata commit and retry",
+    "Preserve canonical PASS receipt integrity and CAS semantics",
+    "Avoid trusting unsigned phase_transition event shape"
+  ],
+  "options": [
+    {
+      "name": "A: transition-owned atomic closeout",
+      "pros": [
+        "The transition knows exactly which lifecycle files it generated",
+        "Verifier can retain strict rejection of every pre-existing dirty path",
+        "No new trust format or migration"
+      ],
+      "cons": [
+        "Adds a canonical metadata commit to TEST transition",
+        "Must prove the commit does not stale review or include unrelated dirt"
+      ]
+    },
+    {
+      "name": "B: receipt-bound reuse transaction admission",
+      "pros": [
+        "Keeps persistence in verifier",
+        "Could combine transition and reuse writes"
+      ],
+      "cons": [
+        "No signed phase_transition receipt exists today",
+        "Adding a proof format would broaden this correction"
+      ]
+    },
+    {
+      "name": "C: permit metadata-only dirty paths generically",
+      "pros": [
+        "Small implementation"
+      ],
+      "cons": [
+        "Unsafe path-only trust",
+        "Would absorb human, forged or unrelated lifecycle metadata"
+      ]
+    }
+  ],
+  "chosen": "A: transition-owned atomic closeout",
+  "rationale": "Scope review confirmed phase_transition is an unsigned JSONL append, so verifier cannot distinguish it safely from forged event-shaped dirt. The transition orchestrator is the causal owner and must atomically close only its freshly generated TEST lifecycle files before returning. The verifier remains unchanged and fail-closed for any dirty state present at validate entry.",
+  "preMortem": [
+    {
+      "scenario": "The transition commit stages unrelated user changes.",
+      "trigger": "It uses the real index or a broad story-directory glob.",
+      "consequence": "Unrelated content is silently committed.",
+      "mitigation": "Use the isolated immutable metadata writer with an exact generated path allowlist and preserve real-index bytes."
+    },
+    {
+      "scenario": "A forged process event becomes trusted by shape.",
+      "trigger": "Implementation checks event type or prose in verifier.",
+      "consequence": "External dirt is adopted into PASS evidence.",
+      "mitigation": "Do not admit pre-existing verifier dirt; trust stays with transition-owned writes only."
+    },
+    {
+      "scenario": "TEST transition metadata commit invalidates current review evidence.",
+      "trigger": "Hashes treat canonical lifecycle metadata as story material or lineage rejects the commit.",
+      "consequence": "One retry is replaced by re-review churn.",
+      "mitigation": "Assert trusted-story-metadata-descendant lineage, unchanged storyFilesHash and fresh reviewer receipts after transition."
+    },
+    {
+      "scenario": "Writer/CAS/hook failure leaves partial metadata or reports TEST success.",
+      "trigger": "Transition state is persisted before commit failure is handled atomically.",
+      "consequence": "Story phase and Git evidence diverge.",
+      "mitigation": "Fail transition loudly, restore exact worktree/index state, and cover concurrent HEAD and hook mutation paths."
+    }
+  ],
+  "timestamp": "2026-07-18T10:28:43.835Z"
+}

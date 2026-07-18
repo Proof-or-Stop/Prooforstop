@@ -40,6 +40,8 @@
  */
 
 import { execFileSync } from 'child_process';
+import { realpathSync } from 'fs';
+import { relative } from 'path';
 import type { HandlerContext } from './context.js';
 import { collectContext, PHASE_TO_EVENT, assertCwdInWorktree } from './context.js';
 import { createStoryActor, getStateName, canSendStoryEventWithoutSnapshotCan } from '../core/machine.js';
@@ -95,6 +97,12 @@ import {
 import { runWithMainWriteLockContext } from '../core/main-write-lock.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
+import {
+  captureLifecycleMetadataTransaction,
+  commitLifecycleMetadataTransaction,
+  readLifecycleMetadataOutputHashes,
+  type LifecycleMetadataTransaction,
+} from '../core/auto-commit-metadata.js';
 
 /** Arguments for one story_advance transition. */
 export interface StoryTransitionArgs {
@@ -599,6 +607,32 @@ async function runStoryTransitionInner(
       guardGateReport += runLegacyReceiptTransitionGate(ctx, args.storyId, 'DONE');
     }
 
+    // Keep the TEST phase transaction short. The direct verifier gate closes
+    // its own evidence/terminal/receipt transaction before returning, so this
+    // clean capture owns only the subsequent phase/index/metrics writes. Any
+    // foreign bytes left by the gate are rejected here rather than adopted.
+    let testTransitionCapture: LifecycleMetadataTransaction | null = null;
+    let transitionGitCwd = '';
+    if (args.phase === 'TEST') {
+      transitionGitCwd = resolveGitCwd({
+        store,
+        storyId: args.storyId,
+        metadataRoot: ctx.root,
+        projectRoot: ctx.root,
+      });
+      const storyRel = relative(
+        realpathSync(transitionGitCwd),
+        realpathSync(store.storyDirPath(args.storyId)),
+      );
+      testTransitionCapture = captureLifecycleMetadataTransaction({
+        root: transitionGitCwd,
+        gitCwd: transitionGitCwd,
+        storyId: args.storyId,
+        storyRel,
+        kind: 'test-transition',
+      });
+    }
+
     // B-0e53: pre-merge mainSha re-check. This point is AFTER the slow
     // runDonePreMergeGate (so it covers that window) and strictly BEFORE
     // store.writeStory persists phase=DONE. If main advanced EXTERNALLY between
@@ -665,12 +699,14 @@ async function runStoryTransitionInner(
       story.currentReviewRound = now;
     }
     store.writeStory(args.storyId, story);
-    const transitionGitCwd = resolveGitCwd({
-      store,
-      storyId: args.storyId,
-      metadataRoot: ctx.root,
-      projectRoot: ctx.root,
-    });
+    if (!transitionGitCwd) {
+      transitionGitCwd = resolveGitCwd({
+        store,
+        storyId: args.storyId,
+        metadataRoot: ctx.root,
+        projectRoot: ctx.root,
+      });
+    }
     store.appendProcessEvent(args.storyId, buildPhaseTransitionProcessEvent({
       storyId: args.storyId,
       fromPhase: oldPhase,
@@ -689,12 +725,37 @@ async function runStoryTransitionInner(
       recomputeProcessMetrics(args.storyId, store, ctx.root);
     }
 
+    const testTransitionOutput = testTransitionCapture
+      ? readLifecycleMetadataOutputHashes({
+        root: transitionGitCwd,
+        capture: testTransitionCapture,
+      })
+      : null;
+
     // onPhaseChange hook — fires after the new phase is persisted.
     await runPhaseChangeHooks(ctx.root, args.storyId, args, oldPhase, newState);
 
     let metadataCommitReport = '';
     if (args.phase === 'REVIEW') {
       metadataCommitReport = commitReviewMetadata(ctx.root, args.storyId, args.phase);
+    } else if (testTransitionCapture && testTransitionOutput) {
+      const committed = commitLifecycleMetadataTransaction({
+        root: transitionGitCwd,
+        gitCwd: transitionGitCwd,
+        storyId: args.storyId,
+        capture: testTransitionCapture,
+        verifiedHashes: testTransitionOutput.ok ? testTransitionOutput.hashes : new Map(),
+      });
+      if (!committed.ok) {
+        throw new Error(
+          `TEST transition canonical metadata closeout failed: ${
+            testTransitionOutput.ok ? '' : `${testTransitionOutput.reason}; `
+          }${committed.reason}`,
+        );
+      }
+      if (committed.commitSha) {
+        metadataCommitReport = `\n✓ lattice metadata auto-committed: lattice: record ${args.storyId} test-transition metadata (${committed.commitSha.slice(0, 7)})`;
+      }
     }
 
     // CHK-002: collect relatedDocs on PLAN→DEV / DONE.
