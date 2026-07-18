@@ -22,6 +22,17 @@ import {
   isBlockingDirty,
 } from '../core/dirty-worktree-gate.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
+import {
+  promptRoleContract,
+  resolvePromptEnvelopeRolloutMode,
+} from '../core/prompt-role-contract-registry.js';
+import { readPromptRegistry, readPromptTemplate } from '../core/prompt-registry.js';
+import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
+import {
+  assembleFullPromptEnvelope,
+  buildFullTaskContext,
+  verifyPromptEnvelopeIntegrity,
+} from '../core/prompt-envelope.js';
 
 function withReviewRunLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
   const lockDir = ctx.store.storyFilePath(storyId, 'review-runs.lock');
@@ -156,6 +167,50 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           return match ? Math.max(max, Number(match[1])) : max;
         }, 0) + 1;
         const reviewRunId = `${args.storyId}:RR-${String(nextNum).padStart(3, '0')}`;
+        const rolloutMode = resolvePromptEnvelopeRolloutMode(
+          lane,
+          loadConfig(workspace.metadataRoot || ctx.root).promptEnvelope,
+        );
+        let envelopeId: string | undefined;
+        if (rolloutMode === 'full-envelope') {
+          const promptEntry = readPromptRegistry().agents.find(entry => entry.agentId === lane);
+          if (!promptEntry) throw new Error(`review_run_start: no canonical prompt registry entry for ${lane}`);
+          const assembly = assembleFullPromptEnvelope({
+            roleContract: promptRoleContract(lane),
+            runtimeContract: BASELINE_RUNTIME_CONTRACT,
+            rolePrompt: readPromptTemplate(promptEntry),
+            taskContext: buildFullTaskContext({
+              story,
+              checklist: store.readChecklist(args.storyId),
+              headHash,
+              materialHash,
+              storyFilesHash,
+              scopeContract: contract,
+            }),
+            dispatchKind: 'review-run',
+            reviewRunId,
+            reviewRound: story.currentReviewRound!,
+            lane,
+            createdAt: startedAt,
+            launcherSpec: { promptHash, reviewedIntentRefs: args.reviewedIntentRefs ?? [] },
+          });
+          const envelopeData = store.readPromptEnvelopes(args.storyId);
+          const existingEnvelope = envelopeData.envelopes.find(candidate => candidate.envelopeId === assembly.envelope.envelopeId);
+          if (existingEnvelope && !verifyPromptEnvelopeIntegrity(existingEnvelope)) {
+            throw new Error(`review_run_start: persisted Prompt Envelope ${existingEnvelope.envelopeId} is invalid`);
+          }
+          if (!existingEnvelope) {
+            envelopeData.envelopes.push(assembly.envelope);
+            store.writePromptEnvelopes(args.storyId, envelopeData);
+          }
+          const persistedEnvelope = store.readPromptEnvelopes(args.storyId).envelopes.find(
+            candidate => candidate.envelopeId === assembly.envelope.envelopeId,
+          );
+          if (!persistedEnvelope || !verifyPromptEnvelopeIntegrity(persistedEnvelope)) {
+            throw new Error(`review_run_start: Prompt Envelope ${assembly.envelope.envelopeId} was not durably persisted`);
+          }
+          envelopeId = assembly.envelope.envelopeId;
+        }
         const run: ReviewRun = {
           reviewRunId,
           storyId: args.storyId,
@@ -167,6 +222,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           materialHash,
           ...(storyFilesHash ? { storyFilesHash } : {}),
           promptHash,
+          ...(envelopeId ? { envelopeId } : {}),
           ...(scopeBinding ? { scopeBinding } : {}),
           workspaceBinding,
           _hash: signReviewRun(
@@ -182,6 +238,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
             scopeBinding?.bindingHash,
             workspaceBinding.bindingHash,
             storyFilesHash,
+            envelopeId,
           ),
         };
         data.runs.push(run);
@@ -192,6 +249,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           || persisted.storyFilesHash !== storyFilesHash
           || persisted.scopeBinding?.bindingHash !== scopeBinding?.bindingHash
           || persisted.workspaceBinding?.bindingHash !== workspaceBinding.bindingHash
+          || persisted.envelopeId !== envelopeId
         ) {
           throw new Error(`review_run_start: ${reviewRunId} was not durably persisted; refusing to continue`);
         }
@@ -199,7 +257,8 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           ? `, scope ${scopeBinding.scopeContractHash?.slice(0, 7)}/${scopeBinding.diffPackHash?.slice(0, 7)}`
           : '';
         const storyHashNote = storyFilesHash ? `, story ${storyFilesHash.slice(0, 7)}` : '';
-        return `Review run ${reviewRunId} started for ${lane} (round ${story.currentReviewRound}, head ${headHash.slice(0, 7)}${storyHashNote}${scopeNote})`;
+        const envelopeNote = envelopeId ? `, envelope ${envelopeId.slice(0, 7)}` : ', legacy-full-context';
+        return `Review run ${reviewRunId} started for ${lane} (round ${story.currentReviewRound}, head ${headHash.slice(0, 7)}${storyHashNote}${scopeNote}${envelopeNote})`;
       });
     },
   };

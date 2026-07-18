@@ -472,7 +472,7 @@ assert.equal(resolveAgentDispatchType('test-case-reviewer').canonicalType, 'veri
 assert.equal(resolveAgentDispatchType('product-reviewer').entry.allowedPhases[0], 'INIT');
 assert.throws(
   () => resolveAgentDispatchType('lattice-review-channel'),
-  /unknown agentType "lattice-review-channel"/,
+  /retired agentType "lattice-review-channel"/,
   'retired prompt remains readable in the prompt registry but cannot be newly dispatched',
 );
 assert.equal(AGENT_DISPATCH_REGISTRY.some(entry => String(entry.canonicalName) === 'implementation-reviewer'), false);

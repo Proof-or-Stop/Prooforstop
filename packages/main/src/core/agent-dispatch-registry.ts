@@ -92,6 +92,9 @@ export const AGENT_DISPATCH_REGISTRY = [
     'lattice-review-quality',
     'lattice-review-behavior',
     'lattice-review-docs',
+    // Retained for read-only historical classification. Runtime dispatch and
+    // evidence eligibility reject it from the Prompt Role Contract registry.
+    'lattice-review-channel',
   ] as const).map((canonicalName) => ({
     canonicalName,
     aliases: [],
@@ -293,7 +296,9 @@ for (const entry of AGENT_DISPATCH_REGISTRY) {
   for (const alias of entry.aliases) byName.set(alias, entry);
 }
 
-export const AGENT_DISPATCH_ACCEPTED_TYPES = Object.freeze([...byName.keys()].sort());
+export const AGENT_DISPATCH_ACCEPTED_TYPES = Object.freeze(
+  [...byName.keys()].filter(name => name !== 'lattice-review-channel').sort(),
+);
 
 /** Resolve one explicit type or the deliberate omitted-type implementer default. */
 export function resolveAgentDispatchType(agentType?: string): ResolvedAgentDispatchType {
@@ -315,10 +320,10 @@ export function resolveAgentDispatchType(agentType?: string): ResolvedAgentDispa
     );
   }
   const entry = byName.get(agentType);
-  if (!entry) {
+  if (!entry || entry.canonicalName === 'lattice-review-channel') {
     throw new AgentDispatchRegistryError(
       'unknown_agent_type',
-      `unknown agentType "${agentType}"; accepted types: ${AGENT_DISPATCH_ACCEPTED_TYPES.join(', ')}`,
+      `${entry ? 'retired' : 'unknown'} agentType "${agentType}"; accepted types: ${AGENT_DISPATCH_ACCEPTED_TYPES.join(', ')}`,
       AGENT_DISPATCH_ACCEPTED_TYPES,
     );
   }
