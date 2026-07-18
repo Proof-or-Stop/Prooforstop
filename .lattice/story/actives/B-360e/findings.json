@@ -346,6 +346,25 @@
       "resolvedAt": "2026-07-18T00:37:18.188Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-360e:F-017",
+      "desc": "packages/main/src/handlers/validate-concept.ts:125 and :372 Extension filtering uses only the diff header's b/new path (DiffFileSources.file = header[2]), so renaming a supported source file to an unsupported extension hides a real deletion. Reproducer: a diff from a/src/removed.ts to b/docs/removed.md deleting `export function realDeletion()` and adding Markdown prose yields analyzeDeletedSymbols(...) = {symbols:[], diagnostics:[]}. The same bypass applies to JS/Python renamed to JSON/Markdown/text. This violates the round-8 requirement that bounded filtering not hide real TS/JS/Python deletions. Track oldPath and newPath separately, parse each side according to its own supported extension/script kind, and add supported-to-unsupported rename probes; malformed supported old/new sides must remain fail closed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-18T09:51:49.885Z",
+      "reviewRound": "2026-07-18T09:50:09.065Z",
+      "reviewRunId": "B-360e:RR-023",
+      "_hash": "742c39123df46fc8c03f21fedf027a3b465f640749312bdaca29652b601ae4f8",
+      "files": [
+        "packages/main/src/handlers/validate-concept.ts",
+        "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
