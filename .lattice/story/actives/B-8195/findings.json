@@ -44,6 +44,21 @@
       "_hash": "63bc2b2e8a59400f8496eb50dff0a4b4e2130014745e31ff9be6632dcbb3647c",
       "signatureTag": "adversarial|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8195:F-004",
+      "desc": "packages/main/src/cli-engine.ts:1382-1411: MEDIUM — the new codex_cli terminal event is committed before postCommand hooks run. A configured postCommand hook that appends canonical process metadata runs afterward and leaves process-events.jsonl dirty even though story_advance/validate exits successfully, so the next mandatory validate can still hit the exact canonical-dirty failure this story claims to eliminate. Move terminal closeout to the true end of the successful command after postCommand hooks, or explicitly close and prove hook output under a bounded writer contract; add a production-entrypoint hook-order regression.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-18T10:57:59.444Z",
+      "reviewRound": "2026-07-18T10:55:37.177Z",
+      "reviewRunId": "B-8195:RR-001",
+      "_hash": "792f3028f6f8d9c24887946ec70c73fe421d60ad16dbb3395027fe427be5c845",
+      "signatureTag": "edge|unknown|packages-main-engine",
+      "signatureTagSource": "auto"
     }
   ]
 }
