@@ -699,13 +699,13 @@
         {
           "intentRef": "CHK-003:adversarial:no-writes",
           "kind": "manual_transcript",
-          "command": "git status --porcelain > before; node bin/lattice.js prompt_measurement_report --format=text >/dev/null; node bin/lattice.js prompt_measurement_report --format=json >/dev/null; git status --porcelain > after; cmp before after",
+          "command": "before=$(mktemp \"${TMPDIR:-/tmp}/b360e-prompt-status-before.XXXXXX\"); after=$(mktemp \"${TMPDIR:-/tmp}/b360e-prompt-status-after.XXXXXX\"); trap 'unlink \"$before\"; unlink \"$after\"' EXIT; git status --porcelain >\"$before\"; node bin/lattice.js prompt_measurement_report --format=text >/dev/null; node bin/lattice.js prompt_measurement_report --format=json >/dev/null; git status --porcelain >\"$after\"; cmp \"$before\" \"$after\"",
           "result": "pass",
-          "note": "Round 16 merged-HEAD rerun: the exact git-status/cmp read-only probe passed after its two snapshot paths existed; both text and JSON report commands preserved repository status.",
-          "headHash": "88be9e82d09b263caba5872198240666b567b0db",
+          "note": "F-031 strong evidence: independently replayed from a clean worktree. Fresh mktemp snapshots were created outside the repository, trap cleanup removed both paths, text and JSON reports ran, and cmp proved git status byte-identical before/after with no precreated files or hidden prerequisites.",
+          "headHash": "ffb5f67cdca7209ad4581d48175c0be6c9e35113",
           "materialHash": "30b4630ba0eca1e217aee2100d782bc885c13d6bedc4487d56169514e3a88798",
           "storyFilesHash": "098739c49b474379ec11fa3c9eb1124735942cb025c6f831dd7be17f1d6df885",
-          "timestamp": "2026-07-18T11:53:23.355Z"
+          "timestamp": "2026-07-18T12:02:59.153Z"
         },
         {
           "intentRef": "CHK-003:adversarial:role-set-fail-closed",
