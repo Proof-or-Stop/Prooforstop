@@ -50,6 +50,7 @@ import {
 import {
   BURN_ALERT_ENV,
   evaluateBurnAlerts,
+  projectBurnAlertEvaluationForOutput,
   renderHostBurnScan,
   resolveBurnAlertThresholds,
   type BurnAlertEvaluation,
@@ -167,7 +168,10 @@ export function createDoctorHandlers(ctx: HandlerContext) {
             sweepCodexSessions({ dir: burnCodexDir, sinceMs }),
             sweepClaudeProjects({ dir: burnClaudeDir, sinceMs }),
           ]);
-          hostBurnScan = evaluateBurnAlerts([...codexRows, ...claudeRows], { nowMs, thresholds: burnThresholds });
+          hostBurnScan = projectBurnAlertEvaluationForOutput(
+            evaluateBurnAlerts([...codexRows, ...claudeRows], { nowMs, thresholds: burnThresholds }),
+            root,
+          );
         } catch {
           // PROBE: the advisory scan must never break doctor; an unreadable
           // store simply reports as zero scanned sessions.

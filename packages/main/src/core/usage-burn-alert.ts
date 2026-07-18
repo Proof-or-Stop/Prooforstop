@@ -29,7 +29,12 @@
  */
 
 import { statSync } from 'node:fs';
-import type { ClaudeUsageTotals, CodexUsageTotals, SweepSessionRow } from './usage-sweep.js';
+import {
+  projectSweepSessionRowForOutput,
+  type ClaudeUsageTotals,
+  type CodexUsageTotals,
+  type SweepSessionRow,
+} from './usage-sweep.js';
 
 // ── Thresholds + env resolver ────────────────────────────────────────────────
 
@@ -146,6 +151,41 @@ export interface BurnAlertEvaluation {
   thresholds: BurnAlertThresholds;
   scanned: number;
   findings: BurnAlertFinding[];
+}
+
+/**
+ * Redact native host ids and transcript locations after internal file probes
+ * have completed but before JSON/text renderers can observe the findings.
+ */
+export function projectBurnAlertEvaluationForOutput(
+  evaluation: BurnAlertEvaluation,
+  projectRoot: string,
+): BurnAlertEvaluation {
+  return {
+    ...evaluation,
+    findings: evaluation.findings.map((finding) => {
+      const projected = projectSweepSessionRowForOutput({
+        host: finding.host,
+        sessionId: finding.sessionId,
+        file: finding.file,
+        cwd: finding.cwd,
+        originator: finding.originLabel,
+        originLabel: finding.originLabel,
+        latticeCwd: false,
+        firstTimestamp: finding.firstTimestamp,
+        lastTimestamp: finding.lastTimestamp,
+        usage: null,
+        storyMentions: [],
+        parseErrors: 0,
+      }, projectRoot);
+      return {
+        ...finding,
+        sessionId: projected.sessionId,
+        file: projected.file,
+        cwd: projected.cwd,
+      };
+    }),
+  };
 }
 
 /**
