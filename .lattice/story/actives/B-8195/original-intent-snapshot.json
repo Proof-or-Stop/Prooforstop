@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-8195",
+  "sourceText": "User requested a RED proving the #7 validation reuse problem, then explicitly instructed to open it, solve it, and continue until DONE.",
+  "normalizedOutcome": "The first mandatory validate after entering TEST reuses the fresh PASS with zero command executions and succeeds without a manual metadata commit or retry, while untrusted dirt remains rejected.",
+  "acceptanceClaim": "A production-path TEST transition followed immediately by validate returns PASS with disposition=reused and commandExecutions=0 in one invocation, leaves canonical metadata clean, and the human/external dirty negative controls still fail closed.",
+  "keyRequirementIds": [
+    "REQ-B8195-ATOMIC-REUSE",
+    "REQ-B8195-FAIL-CLOSED",
+    "REQ-B8195-RED"
+  ],
+  "requestHash": "sha256:bc20524cb14cb07077490de322acb195c08998488d0dba73b8bcadf072e119b1",
+  "createdAt": "2026-07-18T10:22:10.512Z",
+  "updatedAt": "2026-07-18T10:22:10.512Z"
+}
