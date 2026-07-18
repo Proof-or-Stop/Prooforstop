@@ -123,6 +123,21 @@
       "_hash": "28bbc882f11cbf481b83c7120143bef91094014413487dac77d40f7e4c18f2d0",
       "signatureTag": "missing|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8195:F-009",
+      "desc": "packages/main/src/cli-engine.ts:1410-1421 — MEDIUM: the new `canonicalCommandFailure` branch suppresses `writeCodexProcessEvent` entirely for routine validate results with status/allPass failure. These are structured handler failures that historically return without throwing, so they never reach the error-path writer either; the durable `codex_cli` audit row is silently lost, contradicting this function’s documented both-success-and-error choke-point contract. Emit a failure terminal row (and close it safely if a clean canonical boundary is required) rather than skipping the event; add a structured validate-failure assertion.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-18T11:23:30.890Z",
+      "reviewRound": "2026-07-18T11:21:09.447Z",
+      "reviewRunId": "B-8195:RR-005",
+      "_hash": "9a27a4cfbd624644aebeb2bb8202afc1106212fa363b0d67942b2c746d0922db",
+      "signatureTag": "edge|unknown|packages-main-engine",
+      "signatureTagSource": "auto"
     }
   ]
 }
