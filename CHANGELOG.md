@@ -2,6 +2,30 @@
 
 ## Unreleased
 
+## Proofbound 0.3.214 - 2026-07-18
+
+Rolls up CLI versions 0.3.213 and 0.3.214 — three stories landed since v0.3.212.
+The theme is **identity stability**: scope anchors survive file renames and
+reformatting, and task/agent owner identity survives shell boundaries.
+
+**Highlights**
+
+- **Scope path canonicalization + AST semantic anchors (B-0784).** Scope-boundary
+  paths are canonicalized and regex-based semantic anchors are replaced with
+  AST-based anchors. Anchor identities are preserved across file renames, injected
+  readers separate metadata authority from git authority (with story-keyed git cwd
+  resolution and bound reader cwd), and the adversarial convergence matrix for the
+  canonicalization gates is completed.
+- **Owner identity across shell boundaries (B-62b8).** Task-and-agent owner
+  identity no longer degrades when work crosses shell boundaries: the owner session
+  adapter lifecycle is hardened, owner-session renewal works phase-independently,
+  host session tokens are redacted from usage diagnostics via an idempotent
+  projection covering every diagnostic string field, and concept parsing is routed
+  by source language (fixing the Python variant overload).
+- **Role prompt modularization plan (B-7ffc).** The reviewed role prompt
+  modularization plan is promoted into the canonical decisions corpus, and the
+  task-agent owner identity contract is ratified as a decision document.
+
 ## Proofbound 0.3.212 - 2026-07-18
 
 Rolls up CLI versions 0.3.197 through 0.3.212 — fifteen stories landed since v0.3.196.
