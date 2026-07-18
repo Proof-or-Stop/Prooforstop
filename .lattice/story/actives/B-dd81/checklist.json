@@ -248,6 +248,98 @@
           "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
           "packages/main/src/tasks/review-run-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "review-run-envelope-single-binding",
+            "desc": "A legal reviewer flow starts a signed current-round ReviewRun, obtains the trusted full Prompt Envelope for that exact lane/run, and records reviewer pass or verified finding only when Story, role/lane, HEAD, reviewRound, reviewRunId, scope/material hashes and envelopeId all match the same signed run.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "review-gates-consume-envelope-proof",
+            "desc": "REVIEW transition, current-round receipt, review-assurance floor and quorum consumers derive eligibility from structured signed evidence carrying a verified fresh envelopeId; with all active required lanes valid the existing legal flow passes and the process-fact registry declares the same gate semantics.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "retry-identity-semantics-distinguished",
+            "desc": "A new reviewer/dispatch retry creates a distinct signed ReviewRun and new envelope binding, while a provider transport retry within the same recorded attempt preserves the existing usage-ledger attemptId and links every retry observation to that identity without minting a new ReviewRun or double-counting a logical attempt.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "parallel-lane-envelope-isolation",
+            "desc": "Two current-round reviewer lanes may run concurrently, but each lane-scoped signed ReviewRun and envelope remains isolated: passes can aggregate only after independent verification, and neither lane can reuse, overwrite or satisfy the other lanes envelope/run requirement.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "review-run-restart-invalidates-prior-envelope",
+            "desc": "Starting a replacement ReviewRun for the same lane/HEAD/round makes the prior run/envelope ineligible according to the registered recency rule; delayed completion from the superseded run cannot overwrite or accompany the newer run, while historical artifacts remain readable for audit.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "usage-ledger-retry-terminal-accounting",
+            "desc": "Zero, one and multiple provider retries preserve one stable attemptId and deterministic retry sequencing; partial/failure observations cannot masquerade as final usage, exact duplicate delivery is idempotent, conflicting duplicates fail closed, and the final provider-reported component totals remain attributable to the original logical attempt.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "legacy-pass-round-bounded",
+            "desc": "A pre-deployment pass with no Prompt Envelope is explicitly parsed as legacy-full-context only in its original review round under the rollback policy; it cannot be upgraded, copied to a later round, used as incremental proof, or combined with a new envelope field to gain current-format authority.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "envelope-replay-new-head-rejected",
+            "desc": "Capture a valid signed envelope/pass, change the authoritative HEAD including metadata-only and material changes, and replay the old evidence; every gate consumer rejects it with the same stable stale-HEAD reason until a new ReviewRun and envelope are created for the current HEAD.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "envelope-replay-new-round-rejected",
+            "desc": "Capture a valid envelope/pass in review round N, transition through a legitimate re-review to round N+1, and replay or relabel the old artifact; REVIEW gate, assurance floor and quorum all reject it as round-stale and do not count its receipt.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "envelope-replay-other-reviewrun-rejected",
+            "desc": "At identical Story, HEAD, round and role, substitute an envelope or pass from another signed ReviewRun, lane or restarted run, or change only reviewRunId/hash/signature; verification rejects the mismatch before finding/pass persistence and before aggregate gate counting.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "signed-wrapper-content-tamper-rejected",
+            "desc": "A valid outer signature cannot rescue altered envelope payload, assembledPromptDigest, TaskContext, role status, scope/material/storyFiles hash or usage attempt identity; recomputed unsigned hashes, copied signatures and mixed fields from two valid runs are all rejected fail closed.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "gate-paths-share-envelope-verifier",
+            "desc": "Mutation-sensitive contract probes prove machine.ts, review-pass/finding handlers, review assurance, quorum and lifecycle/process-fact registry share one envelope-admissibility predicate or equivalent exhaustive contract; disabling verification in any one consumer makes the focused gate suite fail.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
