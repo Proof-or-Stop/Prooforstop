@@ -1,0 +1,37 @@
+{
+  "task": "Implement the accepted plan Story 1 as additive contract and measurement infrastructure while preserving all 16 current role Prompt outputs byte-for-byte.",
+  "outcome": "Running lattice prompt_measurement_report prints roleCount=16, explicit active/compatibility/retired counts, deterministic bytes/lines/estimated-token/repetition metrics, and known/provider input layers as unavailable where they are not observable; the baseline verifier still reports all 16 agent_prompt output hashes unchanged.",
+  "facts": [
+    "packages/main/src/core/prompt-registry.ts is the package-owned source for exactly 16 prompt template bodies and agent_prompt returns those bodies byte-for-byte.",
+    "docs/requirements/baselines/proof-or-stop-prompt-baseline.json plus scripts/verify-proof-or-stop-prompt-baseline.mjs already freeze all 16 output hashes and bytes.",
+    "AGENT_DISPATCH_REGISTRY already canonicalizes test-intent and test-case-reviewer to verification-intent and keeps product-reviewer as an INIT reviewer, but it is a dispatch authority table rather than a lifecycle status contract.",
+    "The verifier-only ROLE_MATRIX_DEFAULTS currently uses legacy status vocabulary that conflicts with the accepted plan for product-reviewer, implementation-reviewer, test-intent, and test-case-reviewer.",
+    "LOAD_BEARING_LATTICE_PROMPT_SLICE is already byte-identical inside active prompt bodies and can seed the additive RuntimeContract without changing assembled output.",
+    "The usage-ledger bytesCharsEstimator already pins an offline UTF-8 bytes/4 estimator at version 1 and should be reused rather than duplicated."
+  ],
+  "constraints": [
+    "Do not edit packages/main/templates/agents, .claude/agents, or .lattice-codex/agents.",
+    "Do not alter agent_prompt output, current dispatch routing, reviewer gates, or ReviewRun signatures in Story 1.",
+    "PromptMeasurementRecord is the only produced baseline record; PromptEnvelope is a validated schema only and must not be instantiated or persisted.",
+    "Unknown known-dispatch/provider input must be represented as unavailable with a reason, never zero.",
+    "New CLI semantics must be registered in command policy, process fact registry, all-phase/read-only routing, and mechanical verifiers.",
+    "Canonical serialization, line counting, token estimation, path ordering, and repetition algorithms must have explicit versions and deterministic mutation tests."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/prompt-contracts.ts",
+    "packages/main/src/core/prompt-role-contract-registry.ts",
+    "packages/main/src/core/prompt-measurement.ts",
+    "packages/main/src/handlers/prompt-measurement.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/cli/activity-policy.ts",
+    "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "docs/requirements/baselines/role-prompt-measurement-baseline.json"
+  ],
+  "timestamp": "2026-07-17T23:44:51.583Z"
+}

@@ -1,0 +1,107 @@
+{
+  "storyId": "B-360e",
+  "checkedAt": "2026-07-17T23:50:29.327Z",
+  "features": [
+    {
+      "feature": "Story 1 is the first ordered implementation slice and establishes contracts and measurement before any prompt migration",
+      "covered_by": "CHK-001,CHK-002,CHK-003,CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#Story-1"
+    },
+    {
+      "feature": "Define versioned RuntimeContract, RoleContract, PromptMeasurementRecord, PromptEnvelope, usage observation, deterministic canonical serialization and domain-separated digests",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#6.2-6.4"
+    },
+    {
+      "feature": "Freeze exact 16-role lifecycle membership and accepted active/compatibility/retired authority facts without changing legal routing",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#10"
+    },
+    {
+      "feature": "Expose reproducible bytes, LF lines, estimated tokens, repetition and independent assembled/known-dispatch/provider availability layers",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#5.1"
+    },
+    {
+      "feature": "Register prompt_measurement_report as all-phase read-only L0 observation with no lifecycle or review authority",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-360e/understanding.json"
+    },
+    {
+      "feature": "Prove all 16 current agent_prompt outputs, source templates and generated mirror surfaces remain byte/hash identical and preserve the approved baseline",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#Story-1-acceptance"
+    },
+    {
+      "feature": "Do not rewrite packages/main/templates/agents, .claude/agents, or .lattice-codex/agents in Story 1",
+      "covered_by": "CHK-004",
+      "status": "excluded",
+      "excluded_by": "scope-contract protectedFiles/explicitExcludes plus CHK-004 no-diff verification",
+      "source": ".lattice/story/actives/B-360e/scope-contract.json"
+    },
+    {
+      "feature": "Do not instantiate or persist a Story-bound PromptEnvelope or change full/incremental Task Context assembly and ReviewRun/pass gate binding",
+      "covered_by": "CHK-001",
+      "status": "excluded",
+      "excluded_by": "CHK-001 explicit exclusions and Story 1 no-envelope adversarial intent; no assembly/gate paths are allowed by scope contract",
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#6.4"
+    },
+    {
+      "feature": "Do not change dispatch routing, create reviewer authority, delete compatibility assets, or implement retired-channel dispatch rejection in Story 1",
+      "covered_by": "CHK-002",
+      "status": "excluded",
+      "excluded_by": "CHK-002 explicit exclusions and routing-snapshot verification; dispatch/gate paths are outside scope contract",
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#Story-1"
+    },
+    {
+      "feature": "Do not call providers, claim hidden-wrapper coverage, enforce budgets, run A/B replay, or optimize prompt bodies in Story 1",
+      "covered_by": "CHK-003,CHK-004",
+      "status": "excluded",
+      "excluded_by": "CHK-003 and CHK-004 explicit exclusions and no-provider/no-write adversarial intents; these belong to Stories 3, 5, 6, 7 or conditional follow-up",
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#Story-order"
+    },
+    {
+      "feature": "Fail closed on malformed contracts, role membership/status drift, non-canonical values and measurement tampering with deterministic mutation tests",
+      "covered_by": "CHK-001,CHK-002,CHK-003,CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#12"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-360e/background.md",
+      ".lattice/story/actives/B-360e/checklist.json",
+      ".lattice/story/actives/B-360e/decision.json",
+      ".lattice/story/actives/B-360e/scope-contract.json",
+      ".lattice/story/actives/B-360e/understanding.json",
+      "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+      "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 11,
+    "covered": 7,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "97feb0e333f7fbee5ba8bde46a2f4b252a6511aa41492adde0431ff974188afe",
+  "openQuestions": []
+}

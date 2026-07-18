@@ -1,0 +1,1560 @@
+{
+  "command": "lattice validate --story=B-360e --json",
+  "output": "{\"provider\":\"lattice-verifier-reused\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Validation PASS reused (trusted-story-metadata-descendant); commandExecutions=0\",\"details\":[\"disposition=reused existingEvidenceBasis=fresh lineage=trusted-story-metadata-descendant\",\"identityDigest=12a618473df4cc1247c678a699bc3336d12f2a169be27b0b93fa4c63c160cb97\",\"commandExecutions=0\",\"Verification intent coverage: 42/42 covered (0 required missing)\",\"  ✓ prompt-contract-schemas-versioned [happy/must/logic] covered via logic_test — A focused contract smoke imports RuntimeContract, RoleContract, PromptMeasurementRecord, and PromptEnvelope, validates their exact proofbound.*.v1 schema discriminators and required digest/version/binding fields, and also validates the DispatchUsageObservation shape without granting it Story or reviewer authority.\",\"  ✓ prompt-contract-deterministic-algorithms [happy/must/logic] covered via logic_test — The exported contract metadata names and pins the canonical-serialization, UTF-8 byte, LF logical-line, token-estimator, and repetition algorithms/versions; the same structured value and prompt text produce byte-identical canonical bytes, digests, bytes, lines, token estimates, and repetition results across repeated calls.\",\"  ✓ prompt-contract-reuses-estimator [happy/must/logic] covered via logic_test — Token estimation reuses the existing usage-ledger bytesCharsEstimator contract (bytes-chars-heuristic version 1, utf8-bytes) and matches its empty, ASCII, CJK, and emoji results; Story 1 does not fork the estimator formula or mint a competing version.\",\"  ✓ prompt-contract-canonical-order-unicode [edge/must/logic] covered via logic_test — Canonical serialization recursively orders object keys by a pinned ordinal/Unicode-code-point rule independent of insertion order and locale, preserves array order and Unicode scalar content without implicit normalization, and yields identical bytes/digests for insertion-order variants while distinguishing intentionally different Unicode sequences.\",\"  ✓ prompt-contract-lf-byte-boundary [edge/must/logic] covered via logic_test — Tests pin LF logical-line behavior for empty text, one line, trailing LF, multiple LF separators, and CRLF input, while UTF-8 byte measurement remains the raw final text bytes; normalized line semantics and raw-byte/assembled-prompt digests are separate and cannot be substituted for one another.\",\"  ✓ prompt-contract-digest-domains [edge/must/logic] covered via logic_test — Every semantic, render, assembled-prompt, measurement, and envelope/content-address digest is SHA-256 over a documented versioned domain plus canonical bytes; changing only the digest purpose/domain or algorithm/schema version changes the digest, preventing a digest from one field from being replayed as another.\",\"  ✓ prompt-contract-repetition-versioned [edge/must/logic] covered via logic_test — The repetition metric pins normalization, shingle/matching behavior, denominator/empty-input behavior, ordering, and an explicit algorithm version; repeated and no-repetition fixtures have reproducible bounded results and a version change is observable in contract metadata.\",\"  ✓ prompt-contract-canonical-fail-closed [adversarial/must/logic] covered via logic_test — Canonical serialization and digest entry points reject rather than omit/coerce undefined (including nested object/array values), NaN, positive/negative Infinity, unsupported values, sparse/cyclic structures, or otherwise non-canonical input; no invalid value can collapse to null, disappear, or produce an admissible digest.\",\"  ✓ prompt-contract-schema-fail-closed [adversarial/must/logic] covered via logic_test — Mutation probes reject missing required fields, unknown schema/algorithm versions, malformed digest values, invalid status/context/dispatch enums, non-finite or negative measurements, and inconsistent envelope bindings instead of applying permissive defaults.\",\"  ✓ prompt-contract-story1-no-envelope [adversarial/must/logic] covered via logic_test — Repository/runtime probes prove Story 1 defines and validates the PromptEnvelope type/schema only: the measurement report and baseline emit PromptMeasurementRecord sidecars, never instantiate or persist a Story-bound PromptEnvelope, never mint envelopeId/reviewRun authority, and do not alter full/incremental assembly or review-pass gates.\",\"  ✓ role-registry-exact-membership [happy/must/logic] covered via logic_test — The lifecycle registry enumerates exactly the 16 package prompt-registry role IDs with no additions or omissions: implementation-reviewer, lattice-evaluator, lattice-evaluator-cli, lattice-implementer, lattice-review-behavior, lattice-review-channel, lattice-review-concept, lattice-review-delivery, lattice-review-docs, lattice-review-quality, lattice-review-scope-plan, lattice-review-story-init, lattice-review-test-coverage, product-reviewer, test-case-reviewer, and test-intent; each row has an explicit valid lifecycle status and defaultDispatch boolean.\",\"  ✓ role-registry-exact-status-partition [happy/must/logic] covered via logic_test — The exact lifecycle partition is 12 active roles (all exact members other than the three compatibility roles and retired channel), compatibility={implementation-reviewer,test-case-reviewer,test-intent}, retired={lattice-review-channel}; channel is retired with defaultDispatch=false and is excluded from the active count.\",\"  ✓ role-registry-authority-and-replacements [happy/must/cli] covered via logic_test — product-reviewer remains active and its existing INIT-only independent init_check_set authority is unchanged; implementation-reviewer remains compatibility/non-default with migration guidance to the existing quality+behavior combination and does not acquire a new REVIEW lane; test-intent and test-case-reviewer are compatibility/non-default and each declares canonical replacementAgentType=verification-intent.\",\"  ✓ role-registry-order-independent-totality [edge/must/logic] covered via logic_test — Membership comparison is order-independent but exact: sorting the lifecycle registry IDs equals sorting readPromptRegistry().agents IDs, and active+compatibility+retired counts sum to 16 with mutually exclusive membership.\",\"  ✓ role-registry-nonactive-reporting [edge/must/logic] covered via logic_test — Compatibility and retired rows are present in reporting rather than silently dropped; their defaultDispatch values are false, and active-role reporting does not count them.\",\"  ✓ role-registry-alias-routing-unchanged [edge/must/cli] covered via logic_test — Existing dispatch resolution is behaviorally unchanged across canonical types and aliases: test-intent and test-case-reviewer still normalize to verification-intent with the same PLAN/item target, permissions, and prompt builder; product-reviewer retains INIT/story-only authority; no lifecycle metadata creates implementation-reviewer dispatch authority.\",\"  ✓ role-registry-retired-channel-routing-unchanged [edge/must/cli] covered via logic_test — The existing lattice-review-channel dispatch route remains byte/behavior compatible in Story 1 even though lifecycle metadata reports it retired; retirement is descriptive in this baseline Story and does not prematurely implement the later dispatch rejection milestone.\",\"  ✓ role-registry-duplicate-fails-closed [adversarial/must/logic] covered via logic_test — A lifecycle registry definition containing a duplicate role ID fails closed with a typed/explicit validation error rather than deduplicating or choosing one row.\",\"  ✓ role-registry-missing-fails-closed [adversarial/must/logic] covered via logic_test — A lifecycle registry definition missing any one of the 16 package prompt roles fails closed, including compatibility or retired roles; it cannot report a partial registry as valid.\",\"  ✓ role-registry-unknown-fails-closed [adversarial/must/logic] covered via logic_test — A lifecycle registry definition containing an unknown seventeenth role fails closed; prefix similarity, case folding, or an unregistered alias cannot manufacture lifecycle authority.\",\"  ✓ role-registry-invalid-metadata-fails-closed [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/prompt-contract-measurement-smoke.ts) — Invalid lifecycle status, missing defaultDispatch, compatibility rows without required replacement/migration metadata, or retired channel with defaultDispatch=true fail closed rather than being normalized into a permissive state.\",\"  ✓ role-registry-dispatch-snapshot-unchanged [adversarial/must/cli] covered via logic_test — A before/after snapshot of AGENT_DISPATCH_REGISTRY accepted names, aliases, allowed phases, target cardinality, prompt builders, mutation permissions, reviewer lanes, and default lattice-implementer routing is identical; lifecycle registry introduction cannot alter current dispatch routing or evidence authority.\",\"  ✓ CHK-003:happy:text-report [happy/must/cli] covered via manual_transcript — Run prompt_measurement_report in text mode without a Story: output lists exactly the canonical 16 roles plus an aggregate summary, and every role and aggregate exposes bytes, lines, estimatedTokens, and the versioned repetition metric together with the assembled, known-dispatch, and provider-processed input-layer availability boundaries.\",\"  ✓ CHK-003:happy:json-parity [happy/must/cli] covered via manual_transcript — Run prompt_measurement_report in JSON mode: it is machine-parseable and contains the same canonical role set, per-role metrics, aggregate metrics, algorithm/schema versions, layer meanings, and availability states as text mode; recomputing from current agent_prompt outputs reproduces all assembled bytes, lines, estimated-token, digest, and repetition values.\",\"  ✓ CHK-003:happy:sidecar-determinism [happy/must/logic] covered via logic_test — The checked-in role-prompt measurement sidecar uses proofbound.prompt-measurement.v1 PromptMeasurementRecord entries for all 16 roles, records the pinned contract/digest/estimator metadata and aggregate report data without creating PromptEnvelope authority, and two runs from identical inputs produce byte-identical canonical JSON and the same digest.\",\"  ✓ CHK-003:edge:metric-boundaries [edge/must/logic] covered via logic_test — Metric boundary probes cover UTF-8 multibyte content, trailing versus non-trailing newline line counts, deterministic token-estimator rounding, and repeated versus unique normalized content; per-role values and aggregate totals/repetition follow the pinned algorithms with no host-locale or clock-dependent drift.\",\"  ✓ CHK-003:edge:independent-availability [edge/must/logic] covered via logic_test — assembledPromptTokens is always reported as the locally reproducible layer, while knownDispatchInputTokens and providerProcessedInputTokens each carry an independent availability result: observing one layer must not make the other appear observed, and unavailable optional token/cache components are not included in totals.\",\"  ✓ CHK-003:edge:all-phases [edge/must/cli] covered via logic_test — The report is usable without storyId in INIT, INIT_CHECK, PLAN, DEV, REVIEW, TEST, and DONE contexts and returns the same measurement for the same registry inputs; phase, owner, review-run, HEAD, or Story metadata is neither required nor used to mint a Story-bound PromptEnvelope or lifecycle evidence.\",\"  ✓ CHK-003:edge:read-only-policy [edge/must/logic] covered via logic_test — Command catalog, registry, command policy, config, and activity policy classify prompt_measurement_report as a read-only, all-phase command; process-fact registration is exactly L0 observational and cannot be consumed as review, validation, budget-waiver, or lifecycle gate evidence.\",\"  ✓ CHK-003:adversarial:unavailable-not-zero [adversarial/must/cli] covered via manual_transcript — With no observable launcher/provider usage, both text and JSON explicitly report known-dispatch and provider-processed layers as unavailable; they never emit numeric 0, silently omit the availability state, copy assembled estimates into those fields, or imply hidden system-wrapper/cache coverage.\",\"  ✓ CHK-003:adversarial:no-provider-call [adversarial/must/logic] covered via logic_test — Instrument provider and host-launcher call seams to fail if invoked: prompt_measurement_report still succeeds using only local registry/prompt data and makes zero provider, model, network, or dispatch calls.\",\"  ✓ CHK-003:adversarial:no-writes [adversarial/must/cli] covered via manual_transcript — Compare repository material, Story/checklist/review facts, process evidence, runtime artifacts, baseline file, and activity state before and after both output modes: the report performs no writes and does not refresh, accept, or mutate the sidecar baseline.\",\"  ✓ CHK-003:adversarial:role-set-fail-closed [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/prompt-contract-measurement-smoke.ts) — Remove, duplicate, rename, or add a registry role and corrupt a measurement or PromptMeasurementRecord field: generation/verification fails closed instead of silently producing fewer or more than 16 rows, stale aggregate values, a partial sidecar, or a fresh-looking deterministic digest.\",\"  ✓ CHK-003:adversarial:l0-non-authority [adversarial/must/logic] covered via logic_test — Attempt to use the L0 prompt measurement process fact as a reviewer receipt, review pass, validation result, budget approval/waiver, or phase-transition artifact: every gate rejects it while the observational report remains available.\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via manual_transcript — Run the existing Proof-or-Stop baseline verifier in read-only mode and prove the canonical registry still contains exactly the same 16 roles, with every generated agent_prompt byte count and whole-output SHA-256 equal to the pre-Story baseline; the verifier must offer no hash-refresh path and docs/requirements/baselines/proof-or-stop-prompt-baseline.json must remain byte-identical.\",\"  ✓ CHK-004:happy:1 [happy/must/cli] covered via logic_test — Build packages/main, run the focused prompt-contract/measurement smoke, and run scripts/verify-proof-or-stop-prompt-baseline.mjs successfully; two measurements of the same pinned inputs must serialize to byte-identical output with identical aggregate and per-role values.\",\"  ✓ CHK-004:edge:0 [edge/must/logic] covered via logic_test — Assert the role registry has exactly 16 unique canonical role IDs and exact lifecycle metadata for boundary cases: lattice-review-channel is retired and non-default, product-reviewer is active INIT authority, implementation-reviewer is compatibility, and test-intent/test-case-reviewer replace or alias to canonical verification-intent without changing currently legal dispatch behavior.\",\"  ✓ CHK-004:edge:1 [edge/must/cli] covered via manual_transcript — For all 16 roles, compare both source template output and the two generated mirror surfaces against the pre-implementation tree; git diff must be empty for packages/main templates, .lattice-codex/agents, and .claude/agents, including newline and final-byte differences.\",\"  ✓ CHK-004:edge:2 [edge/must/logic] covered via logic_test — Exercise canonical serialization at boundary values (empty optional observations, unavailable known/provider input, multibyte text and newline-sensitive byte/line counts): repeated equivalent input must keep the same digest and measurement, while a semantically relevant contract-field change must change the canonical digest.\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/prompt-contract-measurement-smoke.ts) — Mutation probes must fail closed when any required RuntimeContract, RoleContract, PromptEnvelope, or PromptMeasurementRecord field is absent, when schemaVersion is unknown, or when lifecycle status/replacement/defaultDispatch violates the frozen role policy; no partial registry or permissive fallback is accepted.\",\"  ✓ CHK-004:adversarial:1 [adversarial/must/logic] covered via logic_test — Tampering with canonical contract data, semantic/render/assembled digests, bytes, lines, estimated tokens, repetition values, or unavailable usage markers must be detected by the focused smoke/verifier rather than normalized away or reported as a passing measurement.\",\"  ✓ CHK-004:adversarial:2 [adversarial/must/cli] covered via manual_transcript — A controlled temporary mutation of one of the 16 assembled Prompt outputs must make the baseline verifier fail on exact bytes/hash, and restoring the source must restore PASS; accepting or refreshing the baseline hash to hide that drift is explicitly forbidden and the repository baseline/templates/mirrors must finish with an empty diff.\"],\"warnings\":[],\"timestamp\":\"2026-07-18T19:16:01.810Z\",\"commands\":[],\"disposition\":\"reused\",\"commandExecutions\":0,\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":42,\"reason\":\"verificationIntent entries present (42)\"},\"verificationCoverage\":{\"total\":42,\"required\":42,\"covered\":42,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"prompt-contract-schemas-versioned\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"A focused contract smoke imports RuntimeContract, RoleContract, PromptMeasurementRecord, and PromptEnvelope, validates their exact proofbound.*.v1 schema discriminators and required digest/version/binding fields, and also validates the DispatchUsageObservation shape without granting it Story or reviewer authority.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"prompt-contract-schemas-versioned\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for prompt-contract-schemas-versioned at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.610Z\"}},{\"intentRef\":\"prompt-contract-deterministic-algorithms\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"The exported contract metadata names and pins the canonical-serialization, UTF-8 byte, LF logical-line, token-estimator, and repetition algorithms/versions; the same structured value and prompt text produce byte-identical canonical bytes, digests, bytes, lines, token estimates, and repetition results across repeated calls.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"prompt-contract-deterministic-algorithms\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/prompt-contract-measurement-smoke.js\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for prompt-contract-deterministic-algorithms at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.610Z\"}},{\"intentRef\":\"prompt-contract-reuses-estimator\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Token estimation reuses the existing usage-ledger bytesCharsEstimator contract (bytes-chars-heuristic version 1, utf8-bytes) and matches its empty, ASCII, CJK, and emoji results; Story 1 does not fork the estimator formula or mint a competing version.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"prompt-contract-reuses-estimator\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/prompt-contract-measurement-smoke.js\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for prompt-contract-reuses-estimator at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.610Z\"}},{\"intentRef\":\"prompt-contract-canonical-order-unicode\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Canonical serialization recursively orders object keys by a pinned ordinal/Unicode-code-point rule independent of insertion order and locale, preserves array order and Unicode scalar content without implicit normalization, and yields identical bytes/digests for insertion-order variants while distinguishing intentionally different Unicode sequences.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"prompt-contract-canonical-order-unicode\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/prompt-contract-measurement-smoke.js\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for prompt-contract-canonical-order-unicode at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.610Z\"}},{\"intentRef\":\"prompt-contract-lf-byte-boundary\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Tests pin LF logical-line behavior for empty text, one line, trailing LF, multiple LF separators, and CRLF input, while UTF-8 byte measurement remains the raw final text bytes; normalized line semantics and raw-byte/assembled-prompt digests are separate and cannot be substituted for one another.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"prompt-contract-lf-byte-boundary\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/prompt-contract-measurement-smoke.js\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for prompt-contract-lf-byte-boundary at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.610Z\"}},{\"intentRef\":\"prompt-contract-digest-domains\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Every semantic, render, assembled-prompt, measurement, and envelope/content-address digest is SHA-256 over a documented versioned domain plus canonical bytes; changing only the digest purpose/domain or algorithm/schema version changes the digest, preventing a digest from one field from being replayed as another.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"prompt-contract-digest-domains\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/prompt-contract-measurement-smoke.js\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for prompt-contract-digest-domains at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.610Z\"}},{\"intentRef\":\"prompt-contract-repetition-versioned\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"The repetition metric pins normalization, shingle/matching behavior, denominator/empty-input behavior, ordering, and an explicit algorithm version; repeated and no-repetition fixtures have reproducible bounded results and a version change is observable in contract metadata.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"prompt-contract-repetition-versioned\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/prompt-contract-measurement-smoke.js\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for prompt-contract-repetition-versioned at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.610Z\"}},{\"intentRef\":\"prompt-contract-canonical-fail-closed\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Canonical serialization and digest entry points reject rather than omit/coerce undefined (including nested object/array values), NaN, positive/negative Infinity, unsupported values, sparse/cyclic structures, or otherwise non-canonical input; no invalid value can collapse to null, disappear, or produce an admissible digest.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"prompt-contract-canonical-fail-closed\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/prompt-contract-measurement-smoke.js\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for prompt-contract-canonical-fail-closed at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.610Z\"}},{\"intentRef\":\"prompt-contract-schema-fail-closed\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Mutation probes reject missing required fields, unknown schema/algorithm versions, malformed digest values, invalid status/context/dispatch enums, non-finite or negative measurements, and inconsistent envelope bindings instead of applying permissive defaults.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"prompt-contract-schema-fail-closed\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/prompt-contract-measurement-smoke.js\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for prompt-contract-schema-fail-closed at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.610Z\"}},{\"intentRef\":\"prompt-contract-story1-no-envelope\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Repository/runtime probes prove Story 1 defines and validates the PromptEnvelope type/schema only: the measurement report and baseline emit PromptMeasurementRecord sidecars, never instantiate or persist a Story-bound PromptEnvelope, never mint envelopeId/reviewRun authority, and do not alter full/incremental assembly or review-pass gates.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"prompt-contract-story1-no-envelope\",\"kind\":\"logic_test\",\"command\":\"rg -n \\\"PromptEnvelope\\\" packages/main/src --glob \\\"!core/prompt-contracts.ts\\\" --glob \\\"!tasks/prompt-contract-measurement-smoke.ts\\\"\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for prompt-contract-story1-no-envelope at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.610Z\"}},{\"intentRef\":\"role-registry-exact-membership\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"The lifecycle registry enumerates exactly the 16 package prompt-registry role IDs with no additions or omissions: implementation-reviewer, lattice-evaluator, lattice-evaluator-cli, lattice-implementer, lattice-review-behavior, lattice-review-channel, lattice-review-concept, lattice-review-delivery, lattice-review-docs, lattice-review-quality, lattice-review-scope-plan, lattice-review-story-init, lattice-review-test-coverage, product-reviewer, test-case-reviewer, and test-intent; each row has an explicit valid lifecycle status and defaultDispatch boolean.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"role-registry-exact-membership\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/prompt-contract-measurement-smoke.js\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for role-registry-exact-membership at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.610Z\"}},{\"intentRef\":\"role-registry-exact-status-partition\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"The exact lifecycle partition is 12 active roles (all exact members other than the three compatibility roles and retired channel), compatibility={implementation-reviewer,test-case-reviewer,test-intent}, retired={lattice-review-channel}; channel is retired with defaultDispatch=false and is excluded from the active count.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"role-registry-exact-status-partition\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/prompt-contract-measurement-smoke.js\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for role-registry-exact-status-partition at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.610Z\"}},{\"intentRef\":\"role-registry-authority-and-replacements\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"product-reviewer remains active and its existing INIT-only independent init_check_set authority is unchanged; implementation-reviewer remains compatibility/non-default with migration guidance to the existing quality+behavior combination and does not acquire a new REVIEW lane; test-intent and test-case-reviewer are compatibility/non-default and each declares canonical replacementAgentType=verification-intent.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"role-registry-authority-and-replacements\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/prompt-contract-measurement-smoke.js\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for role-registry-authority-and-replacements at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.610Z\"}},{\"intentRef\":\"role-registry-order-independent-totality\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Membership comparison is order-independent but exact: sorting the lifecycle registry IDs equals sorting readPromptRegistry().agents IDs, and active+compatibility+retired counts sum to 16 with mutually exclusive membership.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"role-registry-order-independent-totality\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/prompt-contract-measurement-smoke.js\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for role-registry-order-independent-totality at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.610Z\"}},{\"intentRef\":\"role-registry-nonactive-reporting\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Compatibility and retired rows are present in reporting rather than silently dropped; their defaultDispatch values are false, and active-role reporting does not count them.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"role-registry-nonactive-reporting\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/prompt-contract-measurement-smoke.js\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for role-registry-nonactive-reporting at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.610Z\"}},{\"intentRef\":\"role-registry-alias-routing-unchanged\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Existing dispatch resolution is behaviorally unchanged across canonical types and aliases: test-intent and test-case-reviewer still normalize to verification-intent with the same PLAN/item target, permissions, and prompt builder; product-reviewer retains INIT/story-only authority; no lifecycle metadata creates implementation-reviewer dispatch authority.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"role-registry-alias-routing-unchanged\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/prompt-contract-measurement-smoke.js\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for role-registry-alias-routing-unchanged at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.610Z\"}},{\"intentRef\":\"role-registry-retired-channel-routing-unchanged\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"The existing lattice-review-channel dispatch route remains byte/behavior compatible in Story 1 even though lifecycle metadata reports it retired; retirement is descriptive in this baseline Story and does not prematurely implement the later dispatch rejection milestone.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"role-registry-retired-channel-routing-unchanged\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/prompt-contract-measurement-smoke.js\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for role-registry-retired-channel-routing-unchanged at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.610Z\"}},{\"intentRef\":\"role-registry-duplicate-fails-closed\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"A lifecycle registry definition containing a duplicate role ID fails closed with a typed/explicit validation error rather than deduplicating or choosing one row.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"role-registry-duplicate-fails-closed\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/prompt-contract-measurement-smoke.js\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for role-registry-duplicate-fails-closed at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.610Z\"}},{\"intentRef\":\"role-registry-missing-fails-closed\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"A lifecycle registry definition missing any one of the 16 package prompt roles fails closed, including compatibility or retired roles; it cannot report a partial registry as valid.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"role-registry-missing-fails-closed\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/prompt-contract-measurement-smoke.js\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for role-registry-missing-fails-closed at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.610Z\"}},{\"intentRef\":\"role-registry-unknown-fails-closed\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"A lifecycle registry definition containing an unknown seventeenth role fails closed; prefix similarity, case folding, or an unregistered alias cannot manufacture lifecycle authority.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"role-registry-unknown-fails-closed\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/prompt-contract-measurement-smoke.js\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for role-registry-unknown-fails-closed at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.610Z\"}},{\"intentRef\":\"role-registry-invalid-metadata-fails-closed\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Invalid lifecycle status, missing defaultDispatch, compatibility rows without required replacement/migration metadata, or retired channel with defaultDispatch=true fail closed rather than being normalized into a permissive state.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"role-registry-invalid-metadata-fails-closed\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/prompt-contract-measurement-smoke.ts\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for role-registry-invalid-metadata-fails-closed at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.611Z\"}},{\"intentRef\":\"role-registry-dispatch-snapshot-unchanged\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"A before/after snapshot of AGENT_DISPATCH_REGISTRY accepted names, aliases, allowed phases, target cardinality, prompt builders, mutation permissions, reviewer lanes, and default lattice-implementer routing is identical; lifecycle registry introduction cannot alter current dispatch routing or evidence authority.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"role-registry-dispatch-snapshot-unchanged\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/prompt-contract-measurement-smoke.js\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for role-registry-dispatch-snapshot-unchanged at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.611Z\"}},{\"intentRef\":\"CHK-003:happy:text-report\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Run prompt_measurement_report in text mode without a Story: output lists exactly the canonical 16 roles plus an aggregate summary, and every role and aggregate exposes bytes, lines, estimatedTokens, and the versioned repetition metric together with the assembled, known-dispatch, and provider-processed input-layer availability boundaries.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:text-report\",\"kind\":\"manual_transcript\",\"command\":\"node bin/lattice.js prompt_measurement_report --format=text\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for CHK-003:happy:text-report at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.611Z\"}},{\"intentRef\":\"CHK-003:happy:json-parity\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Run prompt_measurement_report in JSON mode: it is machine-parseable and contains the same canonical role set, per-role metrics, aggregate metrics, algorithm/schema versions, layer meanings, and availability states as text mode; recomputing from current agent_prompt outputs reproduces all assembled bytes, lines, estimated-token, digest, and repetition values.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:json-parity\",\"kind\":\"manual_transcript\",\"command\":\"node bin/lattice.js prompt_measurement_report --format=json\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for CHK-003:happy:json-parity at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.611Z\"}},{\"intentRef\":\"CHK-003:happy:sidecar-determinism\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"The checked-in role-prompt measurement sidecar uses proofbound.prompt-measurement.v1 PromptMeasurementRecord entries for all 16 roles, records the pinned contract/digest/estimator metadata and aggregate report data without creating PromptEnvelope authority, and two runs from identical inputs produce byte-identical canonical JSON and the same digest.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:sidecar-determinism\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/prompt-contract-measurement-smoke.js\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for CHK-003:happy:sidecar-determinism at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.611Z\"}},{\"intentRef\":\"CHK-003:edge:metric-boundaries\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Metric boundary probes cover UTF-8 multibyte content, trailing versus non-trailing newline line counts, deterministic token-estimator rounding, and repeated versus unique normalized content; per-role values and aggregate totals/repetition follow the pinned algorithms with no host-locale or clock-dependent drift.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:metric-boundaries\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/prompt-contract-measurement-smoke.js\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for CHK-003:edge:metric-boundaries at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.611Z\"}},{\"intentRef\":\"CHK-003:edge:independent-availability\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"assembledPromptTokens is always reported as the locally reproducible layer, while knownDispatchInputTokens and providerProcessedInputTokens each carry an independent availability result: observing one layer must not make the other appear observed, and unavailable optional token/cache components are not included in totals.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:independent-availability\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/prompt-contract-measurement-smoke.js\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for CHK-003:edge:independent-availability at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.611Z\"}},{\"intentRef\":\"CHK-003:edge:all-phases\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"The report is usable without storyId in INIT, INIT_CHECK, PLAN, DEV, REVIEW, TEST, and DONE contexts and returns the same measurement for the same registry inputs; phase, owner, review-run, HEAD, or Story metadata is neither required nor used to mint a Story-bound PromptEnvelope or lifecycle evidence.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:all-phases\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/prompt-contract-measurement-smoke.js\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for CHK-003:edge:all-phases at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.611Z\"}},{\"intentRef\":\"CHK-003:edge:read-only-policy\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Command catalog, registry, command policy, config, and activity policy classify prompt_measurement_report as a read-only, all-phase command; process-fact registration is exactly L0 observational and cannot be consumed as review, validation, budget-waiver, or lifecycle gate evidence.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:read-only-policy\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for CHK-003:edge:read-only-policy at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.611Z\"}},{\"intentRef\":\"CHK-003:adversarial:unavailable-not-zero\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"With no observable launcher/provider usage, both text and JSON explicitly report known-dispatch and provider-processed layers as unavailable; they never emit numeric 0, silently omit the availability state, copy assembled estimates into those fields, or imply hidden system-wrapper/cache coverage.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:unavailable-not-zero\",\"kind\":\"manual_transcript\",\"command\":\"node bin/lattice.js prompt_measurement_report --format=json\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for CHK-003:adversarial:unavailable-not-zero at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.611Z\"}},{\"intentRef\":\"CHK-003:adversarial:no-provider-call\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Instrument provider and host-launcher call seams to fail if invoked: prompt_measurement_report still succeeds using only local registry/prompt data and makes zero provider, model, network, or dispatch calls.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:no-provider-call\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/prompt-contract-measurement-smoke.js\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for CHK-003:adversarial:no-provider-call at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.611Z\"}},{\"intentRef\":\"CHK-003:adversarial:no-writes\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Compare repository material, Story/checklist/review facts, process evidence, runtime artifacts, baseline file, and activity state before and after both output modes: the report performs no writes and does not refresh, accept, or mutate the sidecar baseline.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:no-writes\",\"kind\":\"manual_transcript\",\"command\":\"before=$(mktemp \\\"${TMPDIR:-/tmp}/b360e-prompt-status-before.XXXXXX\\\"); after=$(mktemp \\\"${TMPDIR:-/tmp}/b360e-prompt-status-after.XXXXXX\\\"); trap 'unlink \\\"$before\\\"; unlink \\\"$after\\\"' EXIT; git status --porcelain >\\\"$before\\\"; node bin/lattice.js prompt_measurement_report --format=text >/dev/null; node bin/lattice.js prompt_measurement_report --format=json >/dev/null; git status --porcelain >\\\"$after\\\"; cmp \\\"$before\\\" \\\"$after\\\"\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: external-mktemp no-write probe passed; focused smoke also proved detector sensitivity with an observed temporary repository write and verified finally cleanup restored exact initial status.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.611Z\"}},{\"intentRef\":\"CHK-003:adversarial:role-set-fail-closed\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Remove, duplicate, rename, or add a registry role and corrupt a measurement or PromptMeasurementRecord field: generation/verification fails closed instead of silently producing fewer or more than 16 rows, stale aggregate values, a partial sidecar, or a fresh-looking deterministic digest.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:role-set-fail-closed\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/prompt-contract-measurement-smoke.ts\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for CHK-003:adversarial:role-set-fail-closed at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.611Z\"}},{\"intentRef\":\"CHK-003:adversarial:l0-non-authority\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Attempt to use the L0 prompt measurement process fact as a reviewer receipt, review pass, validation result, budget approval/waiver, or phase-transition artifact: every gate rejects it while the observational report remains available.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:l0-non-authority\",\"kind\":\"logic_test\",\"command\":\"node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for CHK-003:adversarial:l0-non-authority at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.611Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Run the existing Proof-or-Stop baseline verifier in read-only mode and prove the canonical registry still contains exactly the same 16 roles, with every generated agent_prompt byte count and whole-output SHA-256 equal to the pre-Story baseline; the verifier must offer no hash-refresh path and docs/requirements/baselines/proof-or-stop-prompt-baseline.json must remain byte-identical.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node scripts/verify-proof-or-stop-prompt-baseline.mjs\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for CHK-004:happy:0 at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.611Z\"}},{\"intentRef\":\"CHK-004:happy:1\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Build packages/main, run the focused prompt-contract/measurement smoke, and run scripts/verify-proof-or-stop-prompt-baseline.mjs successfully; two measurements of the same pinned inputs must serialize to byte-identical output with identical aggregate and per-role values.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for CHK-004:happy:1 at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.611Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Assert the role registry has exactly 16 unique canonical role IDs and exact lifecycle metadata for boundary cases: lattice-review-channel is retired and non-default, product-reviewer is active INIT authority, implementation-reviewer is compatibility, and test-intent/test-case-reviewer replace or alias to canonical verification-intent without changing currently legal dispatch behavior.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/prompt-contract-measurement-smoke.js\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for CHK-004:edge:0 at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.611Z\"}},{\"intentRef\":\"CHK-004:edge:1\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"For all 16 roles, compare both source template output and the two generated mirror surfaces against the pre-implementation tree; git diff must be empty for packages/main templates, .lattice-codex/agents, and .claude/agents, including newline and final-byte differences.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"git diff --exit-code main -- packages/main/templates/agents .claude/agents .lattice-codex/agents docs/requirements/baselines/proof-or-stop-prompt-baseline.json\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for CHK-004:edge:1 at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.611Z\"}},{\"intentRef\":\"CHK-004:edge:2\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Exercise canonical serialization at boundary values (empty optional observations, unavailable known/provider input, multibyte text and newline-sensitive byte/line counts): repeated equivalent input must keep the same digest and measurement, while a semantically relevant contract-field change must change the canonical digest.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:2\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/prompt-contract-measurement-smoke.js\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for CHK-004:edge:2 at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.611Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Mutation probes must fail closed when any required RuntimeContract, RoleContract, PromptEnvelope, or PromptMeasurementRecord field is absent, when schemaVersion is unknown, or when lifecycle status/replacement/defaultDispatch violates the frozen role policy; no partial registry or permissive fallback is accepted.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/prompt-contract-measurement-smoke.ts\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for CHK-004:adversarial:0 at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.611Z\"}},{\"intentRef\":\"CHK-004:adversarial:1\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Tampering with canonical contract data, semantic/render/assembled digests, bytes, lines, estimated tokens, repetition values, or unavailable usage markers must be detected by the focused smoke/verifier rather than normalized away or reported as a passing measurement.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for CHK-004:adversarial:1 at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.611Z\"}},{\"intentRef\":\"CHK-004:adversarial:2\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"A controlled temporary mutation of one of the 16 assembled Prompt outputs must make the baseline verifier fail on exact bytes/hash, and restoring the source must restore PASS; accepting or refreshing the baseline hash to hide that drift is explicitly forbidden and the repository baseline/templates/mirrors must finish with an empty diff.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:2\",\"kind\":\"manual_transcript\",\"command\":\"node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-baseline-drift\",\"result\":\"pass\",\"note\":\"Round 19 material rerun: exact recorded command passed independently for CHK-004:adversarial:2 at the detector-sensitivity storyFilesHash.\",\"headHash\":\"45f8d4bba23338ebb1e0eb29ce83840644a321d9\",\"materialHash\":\"5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6\",\"storyFilesHash\":\"2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8\",\"timestamp\":\"2026-07-18T15:22:19.611Z\"}}]},\"reuse\":{\"lineage\":\"trusted-story-metadata-descendant\",\"existingEvidenceBasis\":\"fresh\",\"refusalReasons\":[],\"identityDigest\":\"12a618473df4cc1247c678a699bc3336d12f2a169be27b0b93fa4c63c160cb97\"}}",
+  "result": "PASS",
+  "timestamp": "2026-07-18T19:16:02.096Z",
+  "headHash": "6f91afdb267e811c7aa01c8bd7a430c62e7cace2",
+  "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+  "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+  "verificationCoverage": {
+    "total": 42,
+    "required": 42,
+    "covered": 42,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "prompt-contract-schemas-versioned",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "A focused contract smoke imports RuntimeContract, RoleContract, PromptMeasurementRecord, and PromptEnvelope, validates their exact proofbound.*.v1 schema discriminators and required digest/version/binding fields, and also validates the DispatchUsageObservation shape without granting it Story or reviewer authority.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "prompt-contract-schemas-versioned",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for prompt-contract-schemas-versioned at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.610Z"
+        }
+      },
+      {
+        "intentRef": "prompt-contract-deterministic-algorithms",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "The exported contract metadata names and pins the canonical-serialization, UTF-8 byte, LF logical-line, token-estimator, and repetition algorithms/versions; the same structured value and prompt text produce byte-identical canonical bytes, digests, bytes, lines, token estimates, and repetition results across repeated calls.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "prompt-contract-deterministic-algorithms",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for prompt-contract-deterministic-algorithms at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.610Z"
+        }
+      },
+      {
+        "intentRef": "prompt-contract-reuses-estimator",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Token estimation reuses the existing usage-ledger bytesCharsEstimator contract (bytes-chars-heuristic version 1, utf8-bytes) and matches its empty, ASCII, CJK, and emoji results; Story 1 does not fork the estimator formula or mint a competing version.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "prompt-contract-reuses-estimator",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for prompt-contract-reuses-estimator at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.610Z"
+        }
+      },
+      {
+        "intentRef": "prompt-contract-canonical-order-unicode",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Canonical serialization recursively orders object keys by a pinned ordinal/Unicode-code-point rule independent of insertion order and locale, preserves array order and Unicode scalar content without implicit normalization, and yields identical bytes/digests for insertion-order variants while distinguishing intentionally different Unicode sequences.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "prompt-contract-canonical-order-unicode",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for prompt-contract-canonical-order-unicode at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.610Z"
+        }
+      },
+      {
+        "intentRef": "prompt-contract-lf-byte-boundary",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Tests pin LF logical-line behavior for empty text, one line, trailing LF, multiple LF separators, and CRLF input, while UTF-8 byte measurement remains the raw final text bytes; normalized line semantics and raw-byte/assembled-prompt digests are separate and cannot be substituted for one another.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "prompt-contract-lf-byte-boundary",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for prompt-contract-lf-byte-boundary at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.610Z"
+        }
+      },
+      {
+        "intentRef": "prompt-contract-digest-domains",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Every semantic, render, assembled-prompt, measurement, and envelope/content-address digest is SHA-256 over a documented versioned domain plus canonical bytes; changing only the digest purpose/domain or algorithm/schema version changes the digest, preventing a digest from one field from being replayed as another.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "prompt-contract-digest-domains",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for prompt-contract-digest-domains at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.610Z"
+        }
+      },
+      {
+        "intentRef": "prompt-contract-repetition-versioned",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "The repetition metric pins normalization, shingle/matching behavior, denominator/empty-input behavior, ordering, and an explicit algorithm version; repeated and no-repetition fixtures have reproducible bounded results and a version change is observable in contract metadata.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "prompt-contract-repetition-versioned",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for prompt-contract-repetition-versioned at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.610Z"
+        }
+      },
+      {
+        "intentRef": "prompt-contract-canonical-fail-closed",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Canonical serialization and digest entry points reject rather than omit/coerce undefined (including nested object/array values), NaN, positive/negative Infinity, unsupported values, sparse/cyclic structures, or otherwise non-canonical input; no invalid value can collapse to null, disappear, or produce an admissible digest.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "prompt-contract-canonical-fail-closed",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for prompt-contract-canonical-fail-closed at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.610Z"
+        }
+      },
+      {
+        "intentRef": "prompt-contract-schema-fail-closed",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Mutation probes reject missing required fields, unknown schema/algorithm versions, malformed digest values, invalid status/context/dispatch enums, non-finite or negative measurements, and inconsistent envelope bindings instead of applying permissive defaults.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "prompt-contract-schema-fail-closed",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for prompt-contract-schema-fail-closed at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.610Z"
+        }
+      },
+      {
+        "intentRef": "prompt-contract-story1-no-envelope",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Repository/runtime probes prove Story 1 defines and validates the PromptEnvelope type/schema only: the measurement report and baseline emit PromptMeasurementRecord sidecars, never instantiate or persist a Story-bound PromptEnvelope, never mint envelopeId/reviewRun authority, and do not alter full/incremental assembly or review-pass gates.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "prompt-contract-story1-no-envelope",
+          "kind": "logic_test",
+          "command": "rg -n \"PromptEnvelope\" packages/main/src --glob \"!core/prompt-contracts.ts\" --glob \"!tasks/prompt-contract-measurement-smoke.ts\"",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for prompt-contract-story1-no-envelope at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.610Z"
+        }
+      },
+      {
+        "intentRef": "role-registry-exact-membership",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "The lifecycle registry enumerates exactly the 16 package prompt-registry role IDs with no additions or omissions: implementation-reviewer, lattice-evaluator, lattice-evaluator-cli, lattice-implementer, lattice-review-behavior, lattice-review-channel, lattice-review-concept, lattice-review-delivery, lattice-review-docs, lattice-review-quality, lattice-review-scope-plan, lattice-review-story-init, lattice-review-test-coverage, product-reviewer, test-case-reviewer, and test-intent; each row has an explicit valid lifecycle status and defaultDispatch boolean.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "role-registry-exact-membership",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for role-registry-exact-membership at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.610Z"
+        }
+      },
+      {
+        "intentRef": "role-registry-exact-status-partition",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "The exact lifecycle partition is 12 active roles (all exact members other than the three compatibility roles and retired channel), compatibility={implementation-reviewer,test-case-reviewer,test-intent}, retired={lattice-review-channel}; channel is retired with defaultDispatch=false and is excluded from the active count.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "role-registry-exact-status-partition",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for role-registry-exact-status-partition at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.610Z"
+        }
+      },
+      {
+        "intentRef": "role-registry-authority-and-replacements",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "product-reviewer remains active and its existing INIT-only independent init_check_set authority is unchanged; implementation-reviewer remains compatibility/non-default with migration guidance to the existing quality+behavior combination and does not acquire a new REVIEW lane; test-intent and test-case-reviewer are compatibility/non-default and each declares canonical replacementAgentType=verification-intent.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "role-registry-authority-and-replacements",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for role-registry-authority-and-replacements at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.610Z"
+        }
+      },
+      {
+        "intentRef": "role-registry-order-independent-totality",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Membership comparison is order-independent but exact: sorting the lifecycle registry IDs equals sorting readPromptRegistry().agents IDs, and active+compatibility+retired counts sum to 16 with mutually exclusive membership.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "role-registry-order-independent-totality",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for role-registry-order-independent-totality at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.610Z"
+        }
+      },
+      {
+        "intentRef": "role-registry-nonactive-reporting",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Compatibility and retired rows are present in reporting rather than silently dropped; their defaultDispatch values are false, and active-role reporting does not count them.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "role-registry-nonactive-reporting",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for role-registry-nonactive-reporting at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.610Z"
+        }
+      },
+      {
+        "intentRef": "role-registry-alias-routing-unchanged",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Existing dispatch resolution is behaviorally unchanged across canonical types and aliases: test-intent and test-case-reviewer still normalize to verification-intent with the same PLAN/item target, permissions, and prompt builder; product-reviewer retains INIT/story-only authority; no lifecycle metadata creates implementation-reviewer dispatch authority.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "role-registry-alias-routing-unchanged",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for role-registry-alias-routing-unchanged at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.610Z"
+        }
+      },
+      {
+        "intentRef": "role-registry-retired-channel-routing-unchanged",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "The existing lattice-review-channel dispatch route remains byte/behavior compatible in Story 1 even though lifecycle metadata reports it retired; retirement is descriptive in this baseline Story and does not prematurely implement the later dispatch rejection milestone.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "role-registry-retired-channel-routing-unchanged",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for role-registry-retired-channel-routing-unchanged at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.610Z"
+        }
+      },
+      {
+        "intentRef": "role-registry-duplicate-fails-closed",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "A lifecycle registry definition containing a duplicate role ID fails closed with a typed/explicit validation error rather than deduplicating or choosing one row.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "role-registry-duplicate-fails-closed",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for role-registry-duplicate-fails-closed at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.610Z"
+        }
+      },
+      {
+        "intentRef": "role-registry-missing-fails-closed",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "A lifecycle registry definition missing any one of the 16 package prompt roles fails closed, including compatibility or retired roles; it cannot report a partial registry as valid.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "role-registry-missing-fails-closed",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for role-registry-missing-fails-closed at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.610Z"
+        }
+      },
+      {
+        "intentRef": "role-registry-unknown-fails-closed",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "A lifecycle registry definition containing an unknown seventeenth role fails closed; prefix similarity, case folding, or an unregistered alias cannot manufacture lifecycle authority.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "role-registry-unknown-fails-closed",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for role-registry-unknown-fails-closed at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.610Z"
+        }
+      },
+      {
+        "intentRef": "role-registry-invalid-metadata-fails-closed",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Invalid lifecycle status, missing defaultDispatch, compatibility rows without required replacement/migration metadata, or retired channel with defaultDispatch=true fail closed rather than being normalized into a permissive state.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "role-registry-invalid-metadata-fails-closed",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for role-registry-invalid-metadata-fails-closed at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.611Z"
+        }
+      },
+      {
+        "intentRef": "role-registry-dispatch-snapshot-unchanged",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "A before/after snapshot of AGENT_DISPATCH_REGISTRY accepted names, aliases, allowed phases, target cardinality, prompt builders, mutation permissions, reviewer lanes, and default lattice-implementer routing is identical; lifecycle registry introduction cannot alter current dispatch routing or evidence authority.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "role-registry-dispatch-snapshot-unchanged",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for role-registry-dispatch-snapshot-unchanged at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.611Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:text-report",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Run prompt_measurement_report in text mode without a Story: output lists exactly the canonical 16 roles plus an aggregate summary, and every role and aggregate exposes bytes, lines, estimatedTokens, and the versioned repetition metric together with the assembled, known-dispatch, and provider-processed input-layer availability boundaries.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:text-report",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js prompt_measurement_report --format=text",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for CHK-003:happy:text-report at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.611Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:json-parity",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Run prompt_measurement_report in JSON mode: it is machine-parseable and contains the same canonical role set, per-role metrics, aggregate metrics, algorithm/schema versions, layer meanings, and availability states as text mode; recomputing from current agent_prompt outputs reproduces all assembled bytes, lines, estimated-token, digest, and repetition values.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:json-parity",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js prompt_measurement_report --format=json",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for CHK-003:happy:json-parity at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.611Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:sidecar-determinism",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "The checked-in role-prompt measurement sidecar uses proofbound.prompt-measurement.v1 PromptMeasurementRecord entries for all 16 roles, records the pinned contract/digest/estimator metadata and aggregate report data without creating PromptEnvelope authority, and two runs from identical inputs produce byte-identical canonical JSON and the same digest.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:sidecar-determinism",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for CHK-003:happy:sidecar-determinism at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.611Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:metric-boundaries",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Metric boundary probes cover UTF-8 multibyte content, trailing versus non-trailing newline line counts, deterministic token-estimator rounding, and repeated versus unique normalized content; per-role values and aggregate totals/repetition follow the pinned algorithms with no host-locale or clock-dependent drift.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:metric-boundaries",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for CHK-003:edge:metric-boundaries at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.611Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:independent-availability",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "assembledPromptTokens is always reported as the locally reproducible layer, while knownDispatchInputTokens and providerProcessedInputTokens each carry an independent availability result: observing one layer must not make the other appear observed, and unavailable optional token/cache components are not included in totals.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:independent-availability",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for CHK-003:edge:independent-availability at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.611Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:all-phases",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "The report is usable without storyId in INIT, INIT_CHECK, PLAN, DEV, REVIEW, TEST, and DONE contexts and returns the same measurement for the same registry inputs; phase, owner, review-run, HEAD, or Story metadata is neither required nor used to mint a Story-bound PromptEnvelope or lifecycle evidence.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:all-phases",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for CHK-003:edge:all-phases at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.611Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:read-only-policy",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Command catalog, registry, command policy, config, and activity policy classify prompt_measurement_report as a read-only, all-phase command; process-fact registration is exactly L0 observational and cannot be consumed as review, validation, budget-waiver, or lifecycle gate evidence.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:read-only-policy",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for CHK-003:edge:read-only-policy at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.611Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:unavailable-not-zero",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "With no observable launcher/provider usage, both text and JSON explicitly report known-dispatch and provider-processed layers as unavailable; they never emit numeric 0, silently omit the availability state, copy assembled estimates into those fields, or imply hidden system-wrapper/cache coverage.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:unavailable-not-zero",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js prompt_measurement_report --format=json",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for CHK-003:adversarial:unavailable-not-zero at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.611Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:no-provider-call",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Instrument provider and host-launcher call seams to fail if invoked: prompt_measurement_report still succeeds using only local registry/prompt data and makes zero provider, model, network, or dispatch calls.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:no-provider-call",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for CHK-003:adversarial:no-provider-call at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.611Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:no-writes",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Compare repository material, Story/checklist/review facts, process evidence, runtime artifacts, baseline file, and activity state before and after both output modes: the report performs no writes and does not refresh, accept, or mutate the sidecar baseline.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:no-writes",
+          "kind": "manual_transcript",
+          "command": "before=$(mktemp \"${TMPDIR:-/tmp}/b360e-prompt-status-before.XXXXXX\"); after=$(mktemp \"${TMPDIR:-/tmp}/b360e-prompt-status-after.XXXXXX\"); trap 'unlink \"$before\"; unlink \"$after\"' EXIT; git status --porcelain >\"$before\"; node bin/lattice.js prompt_measurement_report --format=text >/dev/null; node bin/lattice.js prompt_measurement_report --format=json >/dev/null; git status --porcelain >\"$after\"; cmp \"$before\" \"$after\"",
+          "result": "pass",
+          "note": "Round 19 material rerun: external-mktemp no-write probe passed; focused smoke also proved detector sensitivity with an observed temporary repository write and verified finally cleanup restored exact initial status.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.611Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:role-set-fail-closed",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Remove, duplicate, rename, or add a registry role and corrupt a measurement or PromptMeasurementRecord field: generation/verification fails closed instead of silently producing fewer or more than 16 rows, stale aggregate values, a partial sidecar, or a fresh-looking deterministic digest.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:role-set-fail-closed",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for CHK-003:adversarial:role-set-fail-closed at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.611Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:l0-non-authority",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Attempt to use the L0 prompt measurement process fact as a reviewer receipt, review pass, validation result, budget approval/waiver, or phase-transition artifact: every gate rejects it while the observational report remains available.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:l0-non-authority",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for CHK-003:adversarial:l0-non-authority at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.611Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "Run the existing Proof-or-Stop baseline verifier in read-only mode and prove the canonical registry still contains exactly the same 16 roles, with every generated agent_prompt byte count and whole-output SHA-256 equal to the pre-Story baseline; the verifier must offer no hash-refresh path and docs/requirements/baselines/proof-or-stop-prompt-baseline.json must remain byte-identical.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for CHK-004:happy:0 at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.611Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:1",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "Build packages/main, run the focused prompt-contract/measurement smoke, and run scripts/verify-proof-or-stop-prompt-baseline.mjs successfully; two measurements of the same pinned inputs must serialize to byte-identical output with identical aggregate and per-role values.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for CHK-004:happy:1 at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.611Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Assert the role registry has exactly 16 unique canonical role IDs and exact lifecycle metadata for boundary cases: lattice-review-channel is retired and non-default, product-reviewer is active INIT authority, implementation-reviewer is compatibility, and test-intent/test-case-reviewer replace or alias to canonical verification-intent without changing currently legal dispatch behavior.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for CHK-004:edge:0 at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.611Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:1",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "For all 16 roles, compare both source template output and the two generated mirror surfaces against the pre-implementation tree; git diff must be empty for packages/main templates, .lattice-codex/agents, and .claude/agents, including newline and final-byte differences.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "manual_transcript",
+          "command": "git diff --exit-code main -- packages/main/templates/agents .claude/agents .lattice-codex/agents docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for CHK-004:edge:1 at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.611Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:2",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Exercise canonical serialization at boundary values (empty optional observations, unavailable known/provider input, multibyte text and newline-sensitive byte/line counts): repeated equivalent input must keep the same digest and measurement, while a semantically relevant contract-field change must change the canonical digest.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for CHK-004:edge:2 at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.611Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "Mutation probes must fail closed when any required RuntimeContract, RoleContract, PromptEnvelope, or PromptMeasurementRecord field is absent, when schemaVersion is unknown, or when lifecycle status/replacement/defaultDispatch violates the frozen role policy; no partial registry or permissive fallback is accepted.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for CHK-004:adversarial:0 at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.611Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:1",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "Tampering with canonical contract data, semantic/render/assembled digests, bytes, lines, estimated tokens, repetition values, or unavailable usage markers must be detected by the focused smoke/verifier rather than normalized away or reported as a passing measurement.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for CHK-004:adversarial:1 at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.611Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:2",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "A controlled temporary mutation of one of the 16 assembled Prompt outputs must make the baseline verifier fail on exact bytes/hash, and restoring the source must restore PASS; accepting or refreshing the baseline hash to hide that drift is explicitly forbidden and the repository baseline/templates/mirrors must finish with an empty diff.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-baseline-drift",
+          "result": "pass",
+          "note": "Round 19 material rerun: exact recorded command passed independently for CHK-004:adversarial:2 at the detector-sensitivity storyFilesHash.",
+          "headHash": "45f8d4bba23338ebb1e0eb29ce83840644a321d9",
+          "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+          "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+          "timestamp": "2026-07-18T15:22:19.611Z"
+        }
+      }
+    ]
+  },
+  "commandExecution": {
+    "schema": "lattice.routine-validation-command-execution",
+    "version": 1,
+    "status": "PASS",
+    "complete": true,
+    "commandCount": 46,
+    "requiredFailureCount": 0,
+    "optionalFailureCount": 0
+  },
+  "disposition": "reused",
+  "routineValidationIdentity": {
+    "schema": "lattice.routine-validation-identity",
+    "version": 1,
+    "source": {
+      "kind": "configured",
+      "inputDigest": "010165c8ce87d72ad89ba5712cf2f3b7d463d84aefc1c53429933b614e4a0d07",
+      "entrypointDigest": null
+    },
+    "commands": [
+      {
+        "label": "configured validate.commands[0]",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 290000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7"
+      },
+      {
+        "label": "configured validate.commands[1]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[2]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[3]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/production-test-seam-guard.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[4]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[5]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-list-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[6]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/review-pass-discard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[7]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/init-window-data-loss-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[8]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-command-timeout-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[9]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-progress-heartbeat-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[10]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-focused-full-layering-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[11]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/main-sync-readiness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[12]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[13]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[14]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/delivery-check-freshness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[15]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-validation-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[16]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-freshness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[17]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-head-drift-proof.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[18]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/artifact-release-ledger-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[19]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/version-bump-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[20]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-decomposition-gate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[21]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-gate-config-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[22]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-wave-advisory-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[23]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[24]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[25]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[26]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-verifier-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[27]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-critic-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[28]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-round-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[29]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/material-hash-large-tree-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[30]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/lifecycle-orchestrate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[31]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/init-preflight-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[32]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/english-early-check-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[33]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/quorum-submit-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[34]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/receipt-bundle-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[35]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/gate-strength-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[36]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/product-capability-release-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[37]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/product-capability-release-red-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[38]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/playbook-capability-lineage-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[39]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-release-invariants-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[40]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/story-files-hash-batch-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[41]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-release-backfill-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[42]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-candidate-exposure-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[43]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-candidate-promotion-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[44]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[45]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/experience-pack-arm-switch-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-360e",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c56851b07a4fd4f6ef9bea7d002f45782bac07ca912832153a7ac9e9e270af6f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      }
+    ],
+    "invocation": {
+      "full": null,
+      "focus": null,
+      "profile": "strict"
+    },
+    "verificationPolicyDigest": "0ac0fc9ad47ea5865fc44889859a239b56b0e2d63994048fe68327bcb2fd0848",
+    "runtime": {
+      "platform": "darwin",
+      "arch": "arm64",
+      "node": "v22.13.0"
+    },
+    "digest": "12a618473df4cc1247c678a699bc3336d12f2a169be27b0b93fa4c63c160cb97"
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "storyId": "B-360e",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/cli/activity-policy.ts",
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/prompt-contracts.ts",
+    "packages/main/src/core/prompt-role-contract-registry.ts",
+    "packages/main/src/core/prompt-measurement.ts",
+    "packages/main/src/handlers/prompt-measurement.ts",
+    "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+    "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+  ],
+  "protectedFiles": [
+    "packages/main/templates/agents",
+    ".claude/agents",
+    ".lattice-codex/agents",
+    "docs/requirements/baselines/proof-or-stop-prompt-baseline.json"
+  ],
+  "explicitExcludes": [
+    "packages/main/templates/agents",
+    ".claude/agents",
+    ".lattice-codex/agents"
+  ],
+  "scopeChangeReason": "Re-attest the existing Story 1 PLAN file scope under repo-relative-v1 after merging current main; no product scope expansion.",
+  "acknowledgements": [
+    {
+      "actor": "lattice-implementer",
+      "reason": "Required merge-main convergence only: these paths carry current main concept-gate and process-fact behavior needed to preserve compatibility; they do not expand B-360e product scope.",
+      "timestamp": "2026-07-18T11:54:27.116Z",
+      "paths": [
+        "packages/main/src/handlers/validate-concept.ts",
+        "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/validate-concept.ts",
+        "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "6147ffb9acb490cc17729b38edf59ea60b6730f0",
+      "materialHash": "30b4630ba0eca1e217aee2100d782bc885c13d6bedc4487d56169514e3a88798"
+    }
+  ],
+  "createdAt": "2026-07-17T23:49:12.563Z",
+  "updatedAt": "2026-07-18T11:54:27.116Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/registry.ts": "packages/main/src/registry.ts",
+    "packages/main/src/core/command-policy.ts": "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
+    "packages/main/src/cli/activity-policy.ts": "packages/main/src/cli/activity-policy.ts",
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "packages/main/src/core/prompt-contracts.ts": "packages/main/src/core/prompt-contracts.ts",
+    "packages/main/src/core/prompt-role-contract-registry.ts": "packages/main/src/core/prompt-role-contract-registry.ts",
+    "packages/main/src/core/prompt-measurement.ts": "packages/main/src/core/prompt-measurement.ts",
+    "packages/main/src/handlers/prompt-measurement.ts": "packages/main/src/handlers/prompt-measurement.ts",
+    "docs/requirements/baselines/role-prompt-measurement-baseline.json": "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+    "packages/main/src/tasks/prompt-contract-measurement-smoke.ts": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+    "packages/main/src/handlers/validate-concept.ts": "packages/main/src/handlers/validate-concept.ts",
+    "packages/main/src/tasks/concept-gate-scope-smoke.ts": "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs"
+  }
+}

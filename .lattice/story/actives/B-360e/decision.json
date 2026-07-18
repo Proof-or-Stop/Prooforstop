@@ -1,0 +1,87 @@
+{
+  "principles": [
+    "Preserve current Prompt behavior before optimizing it.",
+    "Use one canonical structured source for role lifecycle facts and derive reports from it.",
+    "Report only observable costs and label unknown layers unavailable.",
+    "Every new deterministic fact needs a version, fail-closed validator, and mutation test."
+  ],
+  "drivers": [
+    "All 16 agent_prompt outputs must remain byte-identical in Story 1.",
+    "Later Stories need stable RuntimeContract, RoleContract, PromptEnvelope, and PromptMeasurementRecord shapes.",
+    "Current dispatch and verifier matrices expose useful facts but do not provide the accepted active/compatibility/retired contract.",
+    "A user-visible read-only report is needed without provider calls or Story authority."
+  ],
+  "options": [
+    {
+      "name": "A: additive typed contracts, canonical lifecycle registry, and read-only measurement report",
+      "pros": [
+        "Keeps all Prompt bytes and runtime dispatch behavior unchanged",
+        "Creates a reusable single source for later assembly Stories",
+        "Makes observability boundaries and algorithms explicit"
+      ],
+      "cons": [
+        "Temporarily carries sidecar metadata alongside legacy Prompt bodies",
+        "Adds a new read-only CLI surface and verifier wiring"
+      ]
+    },
+    {
+      "name": "B: immediately rewrite Prompt templates around the new contracts",
+      "pros": [
+        "Could reduce Prompt size sooner",
+        "Avoids a temporary dual representation"
+      ],
+      "cons": [
+        "Violates Story 1 no-output-drift acceptance",
+        "Mixes migration with baseline establishment",
+        "Makes regressions impossible to attribute cleanly"
+      ]
+    },
+    {
+      "name": "C: add types only and keep measurement inside the existing verifier",
+      "pros": [
+        "Smallest code diff",
+        "No new CLI command"
+      ],
+      "cons": [
+        "Users cannot inspect the baseline directly",
+        "No canonical sidecar/report for later A/B comparison",
+        "Lifecycle status remains hidden in test-only code"
+      ]
+    }
+  ],
+  "chosen": "A: additive typed contracts, canonical lifecycle registry, and read-only measurement report",
+  "rationale": "Option A is the only design that satisfies the accepted Story 1 boundary: it produces stable contract and measurement truth while leaving all existing assembled Prompt bytes and legal behavior untouched. It also replaces verifier-only status prose with a reusable canonical registry instead of creating another hidden audit table.",
+  "preMortem": [
+    {
+      "scenario": "A role status is recorded differently from current accepted authority.",
+      "trigger": "The new registry copies the old verifier-only labels without reconciling product-reviewer, legacy aliases, implementation-reviewer, or channel retirement.",
+      "consequence": "Later migration and gate filtering consume a false role matrix.",
+      "mitigation": "Freeze exact 16-role membership and explicit high-value assertions for channel/product/implementation/test aliases; mutation tests reject missing or altered rows."
+    },
+    {
+      "scenario": "Measurement appears to reduce cost by treating unknown provider input as zero.",
+      "trigger": "Optional numeric fields default to 0 in report aggregation.",
+      "consequence": "Baseline and later A/B claims overstate commercial savings.",
+      "mitigation": "Use a discriminated reported/unavailable layer type; aggregation never synthesizes a numeric provider total when unavailable."
+    },
+    {
+      "scenario": "Adding contracts accidentally changes current Prompt output.",
+      "trigger": "agent_prompt begins rendering RuntimeContract/RoleContract in Story 1 or template files are regenerated.",
+      "consequence": "The required 16 output hashes drift before an attributable migration Story.",
+      "mitigation": "Keep agent_prompt untouched, exclude all template/mirror paths, and run the existing proof-or-stop baseline plus before/after output hash assertions."
+    },
+    {
+      "scenario": "Canonical digests differ by key order, line ending, path order, or locale.",
+      "trigger": "Plain JSON.stringify, locale-dependent sort, or newline normalization is used inconsistently.",
+      "consequence": "Later envelope and baseline records become non-reproducible across hosts.",
+      "mitigation": "Pin recursive key ordering, ordinal role/path ordering, raw UTF-8 byte counting, LF line-count semantics, and versioned mutation probes."
+    },
+    {
+      "scenario": "The read-only measurement command is accidentally classified as a workflow fact or writer.",
+      "trigger": "Command catalog is added without synchronized command policy/process-fact/activity routing.",
+      "consequence": "It may write activity state, be phase-restricted, or be misused as gate evidence.",
+      "mitigation": "Register it explicitly as all-phase read-only L0 diagnostic with no evidence authority and verify process-fact contract coverage."
+    }
+  ],
+  "timestamp": "2026-07-17T23:45:14.519Z"
+}

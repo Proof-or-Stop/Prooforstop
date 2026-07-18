@@ -19,6 +19,7 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'capability_list',
   'capability_probe',
   'agent_prompt',
+  'prompt_measurement_report',
   'baseline_run',
   'baseline_suite',
   'baseline_suite_report',
