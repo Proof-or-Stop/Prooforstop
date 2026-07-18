@@ -130,7 +130,7 @@
       "desc": "docs/requirements/decisions/owner-session-contract-execution-plan.md:54-73,290-298,445-456 promise that lifecycle events consume the opaque shared canonical resolver and never persist raw host task/session tokens, but packages/main/src/cli-engine.ts:1132-1135 and 1191-1195 still write process.env.LATTICE_ACTIVITY_SESSION directly into both the activity log and story process-events; packages/main/src/init-assets.ts:360-365 populates that variable from raw CODEX_SESSION_ID/OPENAI_SESSION_ID/TERM_SESSION_ID. HIGH: an ordinary Codex launch can therefore leak a raw host token into logs/story metadata and retains a second session source of truth outside the resolver, while the guardrail does not match LATTICE_ACTIVITY_SESSION. Route both event writers through getSessionIdentity()/the opaque canonical id, preserve source/provider only as diagnostics, and add a sentinel regression proving raw native values never reach either artifact.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-17T23:31:35.350Z",
@@ -177,7 +177,11 @@
         "packages/main/src/tasks/owner-session-guardrail.ts"
       ],
       "signatureTag": "doc-code-drift|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by a2f141b9ec + f8e4687440 + d9cd4249a1 + 63c23a3c68: activity/process writers use opaque shared identity and doctor/usage_sweep outward projection redacts every string field across text/JSON/alert/out. Real sentinel suites and docs review pass.",
+      "resolvedAt": "2026-07-18T00:36:25.314Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-62b8:F-009",
