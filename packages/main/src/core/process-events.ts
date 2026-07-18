@@ -3,17 +3,38 @@
  * Each story gets a process-events.jsonl file for telemetry events.
  */
 
-import { existsSync, readFileSync, appendFileSync, mkdirSync } from 'fs';
+import { existsSync, readFileSync, appendFileSync, mkdirSync, statSync } from 'fs';
 import { join, dirname } from 'path';
 import type { ProcessEvent } from './types.js';
+import { withMkdirLock } from './mkdir-lock.js';
 
 const FILENAME = 'process-events.jsonl';
 
-export function appendProcessEvent(storyDir: string, event: Omit<ProcessEvent, 'timestamp'>): void {
+export interface ProcessEventAppendIdentity {
+  filePath: string;
+  start: number;
+  end: number;
+  eventBytes: Buffer;
+}
+
+export function appendProcessEvent(
+  storyDir: string,
+  event: Omit<ProcessEvent, 'timestamp'>,
+): ProcessEventAppendIdentity {
   const filePath = join(storyDir, FILENAME);
   mkdirSync(dirname(filePath), { recursive: true });
-  const full = { ...event, timestamp: new Date().toISOString() } as ProcessEvent;
-  appendFileSync(filePath, JSON.stringify(full) + '\n', 'utf-8');
+  return withMkdirLock(join(storyDir, '.process-events-append.lock'), () => {
+    const start = existsSync(filePath) ? statSync(filePath).size : 0;
+    const full = { ...event, timestamp: new Date().toISOString() } as ProcessEvent;
+    const eventBytes = Buffer.from(`${JSON.stringify(full)}\n`);
+    appendFileSync(filePath, eventBytes);
+    return {
+      filePath,
+      start,
+      end: start + eventBytes.length,
+      eventBytes,
+    };
+  }, { label: 'process-events append' });
 }
 
 export function readProcessEvents(storyDir: string): ProcessEvent[] {

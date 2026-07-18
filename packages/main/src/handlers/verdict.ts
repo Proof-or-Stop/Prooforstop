@@ -4,17 +4,22 @@ import {
   submitVerdict,
   summarizeVerdictRuns,
   summarizeVerdicts,
+  type HostVerdict,
   type VerdictDecision,
   type VerdictMode,
   type VerdictRunDiagnostics,
   type VerdictRunSummary,
   type VerdictSummary,
 } from '../core/verdicts.js';
+import type { ProcessEventAppendIdentity } from '../core/process-events.js';
 import { currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { deriveHostVerdictBindings } from '../core/host-verdict-bindings.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
+import { LATTICE_DIR } from '../core/lattice-paths.js';
 import { withValidationExecutionLock } from '../core/validation-execution-lock.js';
 import { assessStoredValidationPassAdmissibility } from './phase-gates.js';
+import { existsSync, readFileSync, rmSync } from 'node:fs';
+import { join } from 'node:path';
 
 export type FormatArgs = { json?: boolean; format?: 'text' | 'json' };
 
@@ -166,7 +171,23 @@ async function submitWithDerivedBindings(ctx: HandlerContext, args: SubmitArgs) 
   });
 }
 
-export function submitLocalVerdict(ctx: HandlerContext, mode: VerdictMode, args: SubmitArgs) {
+export interface LocalVerdictOutputIdentity {
+  processEvent: ProcessEventAppendIdentity;
+  verdictJson: {
+    filePath: string;
+    bytes: Buffer;
+  };
+}
+
+export interface LocalVerdictWriteResult {
+  verdict: HostVerdict;
+  outputIdentity: LocalVerdictOutputIdentity;
+}
+
+function writeVerdict(ctx: HandlerContext, mode: VerdictMode, args: SubmitArgs): {
+  verdict: HostVerdict;
+  outputIdentity?: LocalVerdictOutputIdentity;
+} {
   const missingBindingFields = mode === 'local' && args.storyId && args.decision === 'pass'
     ? ['materialDigest', 'validationDigest', 'promptDigest'].filter((field) => {
       if (field === 'materialDigest') return !args.materialDigest;
@@ -187,24 +208,61 @@ export function submitLocalVerdict(ctx: HandlerContext, mode: VerdictMode, args:
     ? currentStoryFilesHash(ctx.root, 'HEAD', ctx.root)
     : undefined;
   const verdict = submitVerdict(ctx.root, { ...args, ...(computedStoryFilesHash ? { storyFilesHash: computedStoryFilesHash } : {}), mode });
+  const verdictJson = {
+    filePath: join(
+      ctx.root,
+      LATTICE_DIR,
+      mode === 'authority' ? 'authority-verdicts' : 'autopilot-verdicts',
+      verdict.storyId || verdict.jobId || 'global',
+      `${verdict.verdictId}.json`,
+    ),
+    bytes: Buffer.from(`${JSON.stringify(verdict, null, 2)}\n`),
+  };
   if (mode === 'local' && verdict.storyId) {
-    ctx.store.appendProcessEvent(verdict.storyId, {
-      type: 'host_verdict',
-      mode,
-      verdictId: verdict.verdictId,
-      runId: verdict.runId,
-      hostId: verdict.hostId,
-      provider: verdict.provider,
-      sessionId: verdict.sessionId,
-      keyId: verdict.keyId,
-      decision: verdict.decision,
-      materialDigest: verdict.materialDigest,
-      ...(verdict.storyFilesHash ? { storyFilesHash: verdict.storyFilesHash } : {}),
-      validationDigest: verdict.validationDigest,
-      promptDigest: verdict.promptDigest,
-    });
+    try {
+      const processEvent = ctx.store.appendProcessEvent(verdict.storyId, {
+        type: 'host_verdict',
+        mode,
+        verdictId: verdict.verdictId,
+        runId: verdict.runId,
+        hostId: verdict.hostId,
+        provider: verdict.provider,
+        sessionId: verdict.sessionId,
+        keyId: verdict.keyId,
+        decision: verdict.decision,
+        materialDigest: verdict.materialDigest,
+        ...(verdict.storyFilesHash ? { storyFilesHash: verdict.storyFilesHash } : {}),
+        validationDigest: verdict.validationDigest,
+        promptDigest: verdict.promptDigest,
+      });
+      return { verdict, outputIdentity: { processEvent, verdictJson } };
+    } catch (error) {
+      try {
+        if (existsSync(verdictJson.filePath) && readFileSync(verdictJson.filePath).equals(verdictJson.bytes)) {
+          rmSync(verdictJson.filePath);
+        }
+      } catch {
+        // Preserve a concurrently changed/unreadable verdict file and retain the writer failure.
+      }
+      throw error;
+    }
   }
-  return verdict;
+  return { verdict };
+}
+
+export function submitLocalVerdict(ctx: HandlerContext, mode: VerdictMode, args: SubmitArgs): HostVerdict {
+  return writeVerdict(ctx, mode, args).verdict;
+}
+
+export function submitLocalVerdictWithOutputIdentity(
+  ctx: HandlerContext,
+  args: SubmitArgs,
+): LocalVerdictWriteResult {
+  const written = writeVerdict(ctx, 'local', args);
+  if (!written.outputIdentity) {
+    throw new Error('local verdict writer did not return its exact output identity');
+  }
+  return { verdict: written.verdict, outputIdentity: written.outputIdentity };
 }
 
 export function createVerdictHandlers(ctx: HandlerContext) {
