@@ -1,9 +1,9 @@
 {
   "storyId": "B-0784",
-  "changes": "Scope contracts now persist one versioned repo-root path identity, TypeScript semantic scope uses parser-backed current/previous declaration anchors across edits, deletions and renames, and official B-META gap_log metadata is accepted only through a tamper-evident append ledger shared by scope, prewrite, guard-session and done_prepare consumers.",
+  "changes": "Scope contracts now persist one versioned repo-root path identity, TypeScript semantic scope uses parser-backed current/previous declaration anchors across edits, deletions and renames, and official B-META gap_log metadata is accepted only through a tamper-evident append ledger shared by scope, prewrite, guard-session and done_prepare consumers. Wrapper metadata/config roots are now explicitly separated from story-keyed Git worktree authority.",
   "usage": "Use scope_contract_set/init_from_plan normally; source-root inputs such as core/foo.ts canonicalize to packages/main/src/core/foo.ts. Semantic gates automatically bind declaration identities, and gap_log remains the only supported writer for trusted B-META framework findings.",
   "expectedOutcome": "The terminal prints: input: core/foo.ts | canonical: packages/main/src/core/foo.ts | rule: allowed_modify | status: PASS, while semantic-anchor and B-META provenance smoke checks also pass.",
-  "actualTranscript": "Live smoke exited 0 and printed the exact canonical path PASS line, followed by semantic scope guard smoke passed and gap-log full provenance, consumer parity, legacy genesis, and diagnostic matrix PASS.",
+  "actualTranscript": "Live smoke exited 0 and printed the exact canonical path PASS line, followed by semantic scope guard smoke passed and gap-log full provenance, wrapper/worktree authority, consumer parity, legacy genesis, and diagnostic matrix PASS.",
   "outcomeDiff": "No user-visible difference: actual output matched the expected canonical path line and both additional safety checks passed.",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
@@ -12,7 +12,7 @@
     "skipped": []
   },
   "limitations": "The B-META ledger provides cooperative local tamper evidence and canonical-command causal lineage; without an external secret or OS trust boundary it does not claim authentication against a same-UID actor that can rewrite Git history.",
-  "pitfalls": "Five targeted review rounds exposed partial coverage and adjacent rename/deletion/glob/provenance cases; the final matrix covers them explicitly. The first TEST transition left an active validate child after its parent channel exited, and one 0-command reuse attempt saw pre-existing Lattice metadata dirt; the existing process was monitored, generated metadata was persisted, and the next clean-entry reuse converged without re-running commands.",
+  "pitfalls": "Nine targeted review rounds progressively closed glob, rename/deletion, provenance, wrapper-root and test-authority gaps. Root full-suite diagnosis found BUG-001: five new Git reads bypassed resolveGitCwd; the fix then separated metadata/config root from story-keyed Git cwd and added real wrapper-to-worktree regressions. One routine validate legitimately reran 46 commands after story-owned changes; after 37 evidence bindings were refreshed, later validates reused with commandExecutions=0. A known pre-existing process-events dirty edge caused one infra-only reuse refusal, resolved by persisting generated metadata and retrying cleanly without command rerun.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -27,19 +27,19 @@
       "durationMs": 483058
     },
     "DEV": {
-      "count": 5,
-      "durationMs": 4112521
+      "count": 9,
+      "durationMs": 5078051
     },
     "REVIEW": {
-      "count": 5,
-      "durationMs": 1763575
+      "count": 9,
+      "durationMs": 2871560
     },
     "TEST": {
-      "count": 1,
-      "durationMs": 246652
+      "count": 2,
+      "durationMs": 1391317
     }
   },
-  "totalDurationMs": 6843463,
+  "totalDurationMs": 10061643,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -47,10 +47,10 @@
     "cumulativePassedCases": 0
   },
   "bugStats": {
-    "found": 0,
-    "fixed": 0,
+    "found": 1,
+    "fixed": 1,
     "open": 0
   },
   "createdAt": "2026-07-18T03:32:09.857Z",
-  "updatedAt": "2026-07-18T03:32:09.857Z"
+  "updatedAt": "2026-07-18T04:25:48.037Z"
 }
