@@ -23,6 +23,91 @@
           "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
           "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "full-envelope-contract-complete",
+            "desc": "A focused contract test constructs a valid Story-aware TaskContext and PromptEnvelope using the versioned Story 1 primitives, validates every required discriminator, digest, role, Story, HEAD, reviewRound, reviewRunId, knownExecutionEnvironment, assembledPromptDigest, estimator-version, and contextMode field, and proves contextMode is exactly full for every Story 2 envelope.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "full-envelope-content-address-reproducible",
+            "desc": "Two trusted assemblies from the same canonical Runtime Contract, Role Contract, Task Context, known execution environment, Story, HEAD, review round, ReviewRun and final prompt bytes produce byte-identical canonical envelope material and the same envelopeId; independently recomputing the documented content-address digest yields that exact ID.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "task-context-authoritative-facts",
+            "desc": "TaskContext is assembled from authoritative Story state and exposes the exact current Story identity, checklist/scope facts, HEAD, review round and signed ReviewRun reference needed by the role, while known execution environment is separately versioned and digest-bound rather than embedded as unverifiable prose.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "full-only-no-incremental-fields",
+            "desc": "Schema and runtime probes reject Story 2 envelopes that claim incremental mode or carry priorPassRef, eligibility, impact-policy, changed/impacted-file delta, incremental-context, escalation, or other Story 4 fields; no empty/default incremental structure is silently accepted.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "task-context-canonical-order-boundaries",
+            "desc": "Insertion-order variants of semantically identical TaskContext and known-environment objects produce the same digests, while changing array order where order is semantic, an empty-versus-missing field, Unicode content, repository-relative POSIX path, or final prompt byte changes the appropriate digest and envelopeId.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "known-environment-source-and-version",
+            "desc": "Known execution environment records only values obtained by the trusted runtime source with explicit schema/version and digest; absent optional observations remain explicitly unavailable, and unknown required runtime facts, unsupported versions, absolute-host-path leakage, or caller-asserted replacements fail closed.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "envelope-role-contract-coherence",
+            "desc": "The selected roleId, role status, Runtime/Role semantic and render digests, rendered role prompt, TaskContext and final assembled prompt are mutually coherent; a Role Contract or render from another role cannot be paired with an otherwise valid envelope.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "envelope-single-field-tamper-rejected",
+            "desc": "Mutation probes independently alter Story ID, HEAD, reviewRound, reviewRunId, roleId, environment digest, TaskContext digest, contract digest, assembledPromptDigest, estimator version, contextMode and envelopeId; every mutation is rejected with a stable machine-readable reason before it can become gate evidence.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "envelope-canonical-invalid-input-rejected",
+            "desc": "Envelope creation and verification reject unknown fields/versions, malformed digests, duplicate or non-canonical keys, undefined/non-finite/sparse/cyclic/accessor/proxy values, invalid enum/status combinations and inconsistent nested digests rather than omitting, coercing or reserializing them into an admissible identity.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "envelope-id-substitution-domain-separated",
+            "desc": "A valid semanticDigest, renderDigest, TaskContext digest, assembledPromptDigest, ReviewRun hash, material hash or envelopeId from another digest domain cannot be substituted for envelopeId or any sibling field, even when all values have valid SHA-256 shape.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "untrusted-envelope-constructor-inaccessible",
+            "desc": "Public handler and registry probes prove there is one trusted assembly path and no exported request field, alternate constructor, cached sidecar or deserialization path that lets main/implementer supply precomputed TaskContext, known environment, final prompt bytes, envelope bindings or envelopeId as authoritative input.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
