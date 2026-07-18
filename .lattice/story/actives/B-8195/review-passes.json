@@ -893,6 +893,49 @@
         "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
       },
       "_hash": "c263c19c366445fe969039147f4c702a07fc2727b5811a22ce4584cc8e2580ff"
+    },
+    {
+      "id": "B-8195:RP-027",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-9 post-main-merge targeted coverage review passes. The stale done-prepare oracle now expects the actual fail-closed validate stage: BLOCKED at validate, explicitly not cleanTree/done, canonical-validation-persistence-failed with hook diagnostic, and never DONE prepare PASS. It also proves HEAD unchanged, zero staged/unstaged/untracked bounded metadata residue including process-events, and no donePrepareValidationReuse claim. Done-prepare auto-closeout smoke passes; independent main prompt-measurement additions do not alter this story’s validation transaction coverage.",
+      "createdAt": "2026-07-18T21:40:08.548Z",
+      "reviewRound": "2026-07-18T21:37:54.145Z",
+      "reviewRunId": "B-8195:RR-034",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/handlers/prompt-measurement.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "fb2503405324b060dea9a80c0370fdbbe1e8f874d8118aa07690858342d1807f"
     }
   ]
 }
