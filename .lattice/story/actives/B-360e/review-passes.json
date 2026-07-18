@@ -772,6 +772,37 @@
       },
       "readDiagnostics": [],
       "_hash": "ffffb3c5e6e611b61f90a0d616ce94ce1f8d656a7116645ccec0ff268a40d97a"
+    },
+    {
+      "id": "B-360e:RP-024",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-17 test-coverage PASS. Replayed the repaired CHK-003:adversarial:no-writes mktemp command in a newly created detached worktree whose initial and final git status were both empty; fresh snapshot files lived outside the repository, required no precreation, were trap-cleaned, and text/JSON prompt reports left status byte-identical. This closes F-031 without a hidden prerequisite. Combined with round-16 independent replay of the unchanged story material, all 42 recorded evidence commands have now been exercised: the prior 41 remained passing and the repaired 42nd passes cleanly. Fresh build, prompt contract/measurement smoke, merged concept-gate smoke (strict structured malformed matrix plus legacy fragment/empty, shebang and mixed-language semantics), baseline mutation probes, exact 16-role baseline, process-fact contract, and protected prompt zero-drift checks all pass. Checklist is 4/4 done with 42/42 passing evidence bound to storyFilesHash 098739c; no open findings remain.",
+      "createdAt": "2026-07-18T12:07:46.644Z",
+      "reviewRound": "2026-07-18T12:03:30.904Z",
+      "reviewRunId": "B-360e:RR-053",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-360e/background.md",
+          ".lattice/story/actives/B-360e/plan.md",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-360e/checklist.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8ad7c791f4aa04debd3bc53d35596834e66bde02818a9bb57a4884549e112b0a"
     }
   ]
 }
