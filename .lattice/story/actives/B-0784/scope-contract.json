@@ -18,7 +18,8 @@
     "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/core/process-fact-registry.ts",
     "packages/main/src/core/audit-meta-store.ts",
-    "packages/main/src/core/finding-verify.ts"
+    "packages/main/src/core/finding-verify.ts",
+    "packages/main/src/core/review-scope-binding.ts"
   ],
   "allowedCreate": [],
   "allowedTest": [
@@ -35,5 +36,34 @@
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
   "acknowledgements": [],
   "createdAt": "2026-07-18T01:44:56.548Z",
-  "updatedAt": "2026-07-18T01:51:54.524Z"
+  "updatedAt": "2026-07-18T02:05:02.139Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/handlers/scope-contract.ts": "packages/main/src/handlers/scope-contract.ts",
+    "packages/main/src/core/scope-contract.ts": "packages/main/src/core/scope-contract.ts",
+    "packages/main/src/core/scope-path-classifier.ts": "packages/main/src/core/scope-path-classifier.ts",
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
+    "packages/main/src/core/store.ts": "packages/main/src/core/store.ts",
+    "packages/main/src/core/scope-diff-pack.ts": "packages/main/src/core/scope-diff-pack.ts",
+    "packages/main/src/core/semantic-scope-gate.ts": "packages/main/src/core/semantic-scope-gate.ts",
+    "packages/main/src/core/lifecycle-registry.ts": "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/core/done-prepare-generated-metadata.ts": "packages/main/src/core/done-prepare-generated-metadata.ts",
+    "packages/main/src/handlers/gap-log.ts": "packages/main/src/handlers/gap-log.ts",
+    "packages/main/src/handlers/finding.ts": "packages/main/src/handlers/finding.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/audit-meta-store.ts": "packages/main/src/core/audit-meta-store.ts",
+    "packages/main/src/core/finding-verify.ts": "packages/main/src/core/finding-verify.ts",
+    "packages/main/src/core/review-scope-binding.ts": "packages/main/src/core/review-scope-binding.ts",
+    "packages/main/src/tasks/scope-contract-smoke.ts": "packages/main/src/tasks/scope-contract-smoke.ts",
+    "packages/main/src/tasks/scope-contract-plan-scope-smoke.ts": "packages/main/src/tasks/scope-contract-plan-scope-smoke.ts",
+    "packages/main/src/tasks/semantic-scope-guard-smoke.ts": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+    "packages/main/src/tasks/concept-gate-scope-smoke.ts": "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+    "packages/main/src/tasks/gap-log-smoke.ts": "packages/main/src/tasks/gap-log-smoke.ts",
+    "packages/main/src/tasks/closeout-trust-smoke.ts": "packages/main/src/tasks/closeout-trust-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs"
+  }
 }

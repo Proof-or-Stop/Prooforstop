@@ -79,7 +79,117 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/scope-contract-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/scope-contract-smoke.js && node packages/main/dist/tasks/scope-contract-plan-scope-smoke.js",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: versioned source/repo canonicalization, Windows/dot normalization, ambiguity/absolute/traversal/encoded/symlink rejection, persistence diagnostics, and legacy/rollout behavior are covered.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/scope-contract-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/scope-contract-smoke.js && node packages/main/dist/tasks/scope-contract-plan-scope-smoke.js",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: versioned source/repo canonicalization, Windows/dot normalization, ambiguity/absolute/traversal/encoded/symlink rejection, persistence diagnostics, and legacy/rollout behavior are covered.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/scope-contract-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/scope-contract-smoke.js && node packages/main/dist/tasks/scope-contract-plan-scope-smoke.js",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: versioned source/repo canonicalization, Windows/dot normalization, ambiguity/absolute/traversal/encoded/symlink rejection, persistence diagnostics, and legacy/rollout behavior are covered.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/scope-contract-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/scope-contract-smoke.js && node packages/main/dist/tasks/scope-contract-plan-scope-smoke.js",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: versioned source/repo canonicalization, Windows/dot normalization, ambiguity/absolute/traversal/encoded/symlink rejection, persistence diagnostics, and legacy/rollout behavior are covered.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/scope-contract-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/scope-contract-smoke.js && node packages/main/dist/tasks/scope-contract-plan-scope-smoke.js",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: versioned source/repo canonicalization, Windows/dot normalization, ambiguity/absolute/traversal/encoded/symlink rejection, persistence diagnostics, and legacy/rollout behavior are covered.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/scope-contract-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/scope-contract-smoke.js && node packages/main/dist/tasks/scope-contract-plan-scope-smoke.js",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: versioned source/repo canonicalization, Windows/dot normalization, ambiguity/absolute/traversal/encoded/symlink rejection, persistence diagnostics, and legacy/rollout behavior are covered.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/scope-contract-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/scope-contract-smoke.js && node packages/main/dist/tasks/scope-contract-plan-scope-smoke.js",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: versioned source/repo canonicalization, Windows/dot normalization, ambiguity/absolute/traversal/encoded/symlink rejection, persistence diagnostics, and legacy/rollout behavior are covered.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/scope-contract-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/scope-contract-smoke.js && node packages/main/dist/tasks/scope-contract-plan-scope-smoke.js",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: versioned source/repo canonicalization, Windows/dot normalization, ambiguity/absolute/traversal/encoded/symlink rejection, persistence diagnostics, and legacy/rollout behavior are covered.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/scope-contract-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/scope-contract-smoke.js && node packages/main/dist/tasks/scope-contract-plan-scope-smoke.js",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: versioned source/repo canonicalization, Windows/dot normalization, ambiguity/absolute/traversal/encoded/symlink rejection, persistence diagnostics, and legacy/rollout behavior are covered.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -159,7 +269,117 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/semantic-scope-guard-smoke.js",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: TypeScript AST enclosing declarations, control-flow/local-variable exclusion, file fallback, parser/version fail-closed behavior, and prior-anchor rename/protected detection are covered.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/semantic-scope-guard-smoke.js",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: TypeScript AST enclosing declarations, control-flow/local-variable exclusion, file fallback, parser/version fail-closed behavior, and prior-anchor rename/protected detection are covered.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/semantic-scope-guard-smoke.js",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: TypeScript AST enclosing declarations, control-flow/local-variable exclusion, file fallback, parser/version fail-closed behavior, and prior-anchor rename/protected detection are covered.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/semantic-scope-guard-smoke.js",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: TypeScript AST enclosing declarations, control-flow/local-variable exclusion, file fallback, parser/version fail-closed behavior, and prior-anchor rename/protected detection are covered.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/semantic-scope-guard-smoke.js",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: TypeScript AST enclosing declarations, control-flow/local-variable exclusion, file fallback, parser/version fail-closed behavior, and prior-anchor rename/protected detection are covered.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/semantic-scope-guard-smoke.js",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: TypeScript AST enclosing declarations, control-flow/local-variable exclusion, file fallback, parser/version fail-closed behavior, and prior-anchor rename/protected detection are covered.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/semantic-scope-guard-smoke.js",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: TypeScript AST enclosing declarations, control-flow/local-variable exclusion, file fallback, parser/version fail-closed behavior, and prior-anchor rename/protected detection are covered.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/semantic-scope-guard-smoke.js",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: TypeScript AST enclosing declarations, control-flow/local-variable exclusion, file fallback, parser/version fail-closed behavior, and prior-anchor rename/protected detection are covered.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/semantic-scope-guard-smoke.js",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: TypeScript AST enclosing declarations, control-flow/local-variable exclusion, file fallback, parser/version fail-closed behavior, and prior-anchor rename/protected detection are covered.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -242,7 +462,117 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/gap-log-smoke.js && node packages/main/dist/tasks/closeout-trust-smoke.js",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: official gap_log whole-artifact binding, exact path/story/command identity, direct edit/digest forgery/missing/copied provenance rejection, shared scope classification, and closeout compatibility are covered.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/gap-log-smoke.js && node packages/main/dist/tasks/closeout-trust-smoke.js",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: official gap_log whole-artifact binding, exact path/story/command identity, direct edit/digest forgery/missing/copied provenance rejection, shared scope classification, and closeout compatibility are covered.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/gap-log-smoke.js && node packages/main/dist/tasks/closeout-trust-smoke.js",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: official gap_log whole-artifact binding, exact path/story/command identity, direct edit/digest forgery/missing/copied provenance rejection, shared scope classification, and closeout compatibility are covered.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/gap-log-smoke.js && node packages/main/dist/tasks/closeout-trust-smoke.js",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: official gap_log whole-artifact binding, exact path/story/command identity, direct edit/digest forgery/missing/copied provenance rejection, shared scope classification, and closeout compatibility are covered.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/gap-log-smoke.js && node packages/main/dist/tasks/closeout-trust-smoke.js",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: official gap_log whole-artifact binding, exact path/story/command identity, direct edit/digest forgery/missing/copied provenance rejection, shared scope classification, and closeout compatibility are covered.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/gap-log-smoke.js && node packages/main/dist/tasks/closeout-trust-smoke.js",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: official gap_log whole-artifact binding, exact path/story/command identity, direct edit/digest forgery/missing/copied provenance rejection, shared scope classification, and closeout compatibility are covered.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/gap-log-smoke.js && node packages/main/dist/tasks/closeout-trust-smoke.js",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: official gap_log whole-artifact binding, exact path/story/command identity, direct edit/digest forgery/missing/copied provenance rejection, shared scope classification, and closeout compatibility are covered.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/gap-log-smoke.js && node packages/main/dist/tasks/closeout-trust-smoke.js",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: official gap_log whole-artifact binding, exact path/story/command identity, direct edit/digest forgery/missing/copied provenance rejection, shared scope classification, and closeout compatibility are covered.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/gap-log-smoke.js && node packages/main/dist/tasks/closeout-trust-smoke.js",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: official gap_log whole-artifact binding, exact path/story/command identity, direct edit/digest forgery/missing/copied provenance rejection, shared scope classification, and closeout compatibility are covered.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -325,7 +655,129 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/scope-contract-smoke.js && node packages/main/dist/tasks/scope-contract-plan-scope-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node packages/main/dist/tasks/gap-log-smoke.js && node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: the focused canonical-path, AST-anchor, provenance migration/adversarial matrix and all three new L4 process-fact contracts are verified.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "integration_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/scope-contract-smoke.js && node packages/main/dist/tasks/scope-contract-plan-scope-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node packages/main/dist/tasks/gap-log-smoke.js && node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: the focused canonical-path, AST-anchor, provenance migration/adversarial matrix and all three new L4 process-fact contracts are verified.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "integration_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/scope-contract-smoke.js && node packages/main/dist/tasks/scope-contract-plan-scope-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node packages/main/dist/tasks/gap-log-smoke.js && node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: the focused canonical-path, AST-anchor, provenance migration/adversarial matrix and all three new L4 process-fact contracts are verified.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:3",
+          "kind": "integration_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/scope-contract-smoke.js && node packages/main/dist/tasks/scope-contract-plan-scope-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node packages/main/dist/tasks/gap-log-smoke.js && node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: the focused canonical-path, AST-anchor, provenance migration/adversarial matrix and all three new L4 process-fact contracts are verified.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/scope-contract-smoke.js && node packages/main/dist/tasks/scope-contract-plan-scope-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node packages/main/dist/tasks/gap-log-smoke.js && node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: the focused canonical-path, AST-anchor, provenance migration/adversarial matrix and all three new L4 process-fact contracts are verified.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "integration_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/scope-contract-smoke.js && node packages/main/dist/tasks/scope-contract-plan-scope-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node packages/main/dist/tasks/gap-log-smoke.js && node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: the focused canonical-path, AST-anchor, provenance migration/adversarial matrix and all three new L4 process-fact contracts are verified.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:2",
+          "kind": "integration_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/scope-contract-smoke.js && node packages/main/dist/tasks/scope-contract-plan-scope-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node packages/main/dist/tasks/gap-log-smoke.js && node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: the focused canonical-path, AST-anchor, provenance migration/adversarial matrix and all three new L4 process-fact contracts are verified.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/scope-contract-smoke.js && node packages/main/dist/tasks/scope-contract-plan-scope-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node packages/main/dist/tasks/gap-log-smoke.js && node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: the focused canonical-path, AST-anchor, provenance migration/adversarial matrix and all three new L4 process-fact contracts are verified.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "integration_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/scope-contract-smoke.js && node packages/main/dist/tasks/scope-contract-plan-scope-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node packages/main/dist/tasks/gap-log-smoke.js && node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: the focused canonical-path, AST-anchor, provenance migration/adversarial matrix and all three new L4 process-fact contracts are verified.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "integration_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/scope-contract-smoke.js && node packages/main/dist/tasks/scope-contract-plan-scope-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && node packages/main/dist/tasks/gap-log-smoke.js && node packages/main/dist/tasks/closeout-trust-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check",
+          "result": "pass",
+          "note": "PASS at implementation commit 01590a312a: the focused canonical-path, AST-anchor, provenance migration/adversarial matrix and all three new L4 process-fact contracts are verified.",
+          "headHash": "01590a312abe5872d81f5fee71eca567e21c41db",
+          "materialHash": "9963258c8e791cca61b1bf89a28d7a2f924dee1e8b709f3d1c32cae0be94adae",
+          "storyFilesHash": "9687fcc8d5fbd0ad5ba0c55556d8e283037a7844377526b3892125816c134be5",
+          "timestamp": "2026-07-18T02:09:12.131Z"
+        }
+      ]
     }
   ]
 }
