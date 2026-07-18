@@ -511,6 +511,22 @@ try {
     assert.equal(verdictFileCount(root), beforeVerdicts, 'same-material refusal writes no verdict files');
   });
 
+  check('same-material duplicate refusal survives deletion of the ignored verdict cache', () => {
+    withFreshFixture((fixture) => {
+      recordReviewerPasses(fixture.registry);
+      fixture.registry.get('quorum_submit')!(quorumArgs());
+      const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
+      const beforeEvents = hostVerdictEventCount(fixture.store);
+      rmSync(join(fixture.root, '.lattice', 'autopilot-verdicts', STORY_ID), { recursive: true, force: true });
+      assert.throws(
+        () => fixture.registry.get('quorum_submit')!(quorumArgs()),
+        /quorum_submit refuses: verdicts already exist for runId/,
+      );
+      assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead);
+      assert.equal(hostVerdictEventCount(fixture.store), beforeEvents);
+    });
+  });
+
   check('allows a fresh quorum after a material change', () => {
     // A real material change (new commit) yields a different materialDigest, so the guard
     // does not collide and a fresh quorum is allowed for the same runIds.
@@ -609,6 +625,70 @@ try {
       const after = readFileSync(processEvents, 'utf8');
       assert.match(after, /preserve-foreign-append/);
       assert.doesNotMatch(after, /"type":"host_verdict"/);
+    });
+  });
+
+  check('same-verdictId mutation of a gate-consumed field is refused and rolled back', () => {
+    withFreshFixture((fixture) => {
+      recordReviewerPasses(fixture.registry);
+      const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
+      const processEvents = join(fixture.store.storyDirPath(STORY_ID), 'process-events.jsonl');
+      const handler = createQuorumSubmitHandlers(fixture.ctx, {
+        afterVerdictWrite: ({ emittedCount }) => {
+          if (emittedCount !== 6) return;
+          const lines = readFileSync(processEvents, 'utf8').trimEnd().split('\n');
+          const forged = JSON.parse(lines.at(-1)!) as Record<string, unknown>;
+          forged.decision = 'fail';
+          lines[lines.length - 1] = JSON.stringify(forged);
+          writeFileSync(processEvents, `${lines.join('\n')}\n`, 'utf8');
+        },
+      }).quorum_submit;
+      assert.throws(() => handler(quorumArgs()), /exact canonical host_verdict bytes/);
+      assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead);
+      assert.equal(hostVerdictEventCount(fixture.store), 0);
+      assert.equal(verdictFileCount(fixture.root), 0);
+    });
+  });
+
+  check('rollback preserves a concurrently changed verdict JSON with the same verdictId', () => {
+    withFreshFixture((fixture) => {
+      recordReviewerPasses(fixture.registry);
+      let changedPath = '';
+      let changedBytes = Buffer.alloc(0);
+      const handler = createQuorumSubmitHandlers(fixture.ctx, {
+        afterVerdictWrite: ({ verdictId, emittedCount }) => {
+          if (emittedCount !== 6) return;
+          changedPath = join(fixture.root, '.lattice', 'autopilot-verdicts', STORY_ID, `${verdictId}.json`);
+          const value = JSON.parse(readFileSync(changedPath, 'utf8')) as Record<string, unknown>;
+          value.note = 'foreign concurrent replacement with same verdictId';
+          changedBytes = Buffer.from(`${JSON.stringify(value, null, 2)}\n`);
+          writeFileSync(changedPath, changedBytes);
+        },
+        metadataCommit: {
+          beforeAdd: () => { throw new Error('force rollback after verdict-file mutation'); },
+        },
+      }).quorum_submit;
+      assert.throws(() => handler(quorumArgs()), /rollback conflicts preserved.*verdict bytes changed/s);
+      assert.ok(changedPath);
+      assert.deepEqual(readFileSync(changedPath), changedBytes);
+      assert.equal(hostVerdictEventCount(fixture.store), 0);
+    });
+  });
+
+  check('rollback preserves non-UTF8 blank and unterminated foreign suffix bytes exactly', () => {
+    withFreshFixture((fixture) => {
+      recordReviewerPasses(fixture.registry);
+      const processEvents = join(fixture.store.storyDirPath(STORY_ID), 'process-events.jsonl');
+      const baseline = readFileSync(processEvents);
+      const foreign = Buffer.from([0x0a, 0x0a, 0xff, 0x00, 0x7b, 0x7d]);
+      const handler = createQuorumSubmitHandlers(fixture.ctx, {
+        metadataCommit: {
+          afterAddBeforeCommit: () => appendFileSync(processEvents, foreign),
+        },
+      }).quorum_submit;
+      assert.throws(() => handler(quorumArgs()), /atomic closeout failed/);
+      assert.deepEqual(readFileSync(processEvents), Buffer.concat([baseline, foreign]));
+      assert.equal(verdictFileCount(fixture.root), 0);
     });
   });
 
