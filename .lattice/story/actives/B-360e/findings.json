@@ -303,6 +303,21 @@
       "resolvedAt": "2026-07-18T00:32:01.595Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-360e:F-015",
+      "desc": "packages/main/src/core/prompt-role-contract-registry.ts:322 and packages/main/src/core/prompt-measurement.ts:87-154,175-183 — HIGH: PROMPT_ROLE_CONTRACTS freezes only the outer array; every exported RoleContract row and nested policy array remains mutable, and report generation never re-runs validatePromptRoleContracts. Runtime repro: Object.isFrozen(PROMPT_ROLE_CONTRACTS[0]) is false; changing the first compatibility row status to retired makes generatePromptMeasurementReport emit partition 12/2/2, and verifyPromptMeasurementReport accepts it because recomputation consumes the same corrupted singleton. This violates CHK-002 exact frozen 12/3/1 lifecycle registry and CHK-003 fail-closed reporting. Deep-freeze each contract and nested array before export and/or validate the registry at report consumption; add direct mutation probes showing writes throw/fail and a corrupted supplied registry cannot yield an accepted report.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-18T00:34:02.430Z",
+      "reviewRound": "2026-07-18T00:31:48.438Z",
+      "reviewRunId": "B-360e:RR-013",
+      "_hash": "7a5ec3e43ba1a4071b0cb99194109a1a4f6112f8eeee8b288aada4c55011e9b9",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
