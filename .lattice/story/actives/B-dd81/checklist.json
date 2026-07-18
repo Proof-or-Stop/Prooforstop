@@ -135,6 +135,91 @@
           "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
           "scripts/verify-proof-or-stop-prompt-baseline.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "agent-prompt-story-full-assembly",
+            "desc": "For each supported active role, agent_prompt invoked with the required Story and trusted review target inputs returns contextMode=full, the exact canonical assembled Prompt bytes, a validated TaskContext, known-environment digest, envelopeId and all inspectable Story/HEAD/round/ReviewRun bindings from the CLI-owned assembly path.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "agent-prompt-role-only-byte-zero-drift",
+            "desc": "For all 16 frozen Story 1 role IDs and compatibility aliases where invocation remains legal, the role-only or legacy-full-context path returns prompt bytes byte-identical to the frozen Story 1 baseline; adding Story 2 changes no role-only output hash, length, line ending or trailing newline.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "agent-prompt-repeatable-json-contract",
+            "desc": "Repeated JSON-mode calls at unchanged authoritative state return schema-valid, deterministically ordered response fields and the same prompt digest/envelopeId, and the final prompt bytes independently hash to assembledPromptDigest; human-readable mode presents the same identity without becoming a second parser contract.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "agent-prompt-storyless-legacy-boundary",
+            "desc": "A call without Story-aware inputs follows the explicitly documented role-only legacy behavior and mints no fake Story, HEAD, round, ReviewRun or envelope; a partially supplied Story-aware target fails with a stable missing-binding reason rather than falling back silently.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "agent-prompt-worktree-authority-resolution",
+            "desc": "Invocation from repository root, the Story worktree, and an unrelated cwd with explicit root resolves the same authoritative Story worktree/HEAD and registered prompt assets; global/local template version skew, missing tracked assets or ambiguous Story worktrees fail closed instead of assembling from whichever file is found first.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "agent-prompt-target-cardinality-role-status",
+            "desc": "The command enforces registry-defined role and target cardinality before assembly: unknown, retired, wrong-phase, wrong-item/finding/cluster, extra target, and compatibility-without-explicit-invocation cases receive stable rejection or migration guidance and mint no envelope.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "agent-prompt-no-provider-or-evidence-side-effect",
+            "desc": "Full assembly is local and deterministic: it performs no provider call, usage fabrication, reviewer-pass/finding/review-run/lifecycle mutation or aggregate-evidence write; activity/process observation, if required by policy, is the only bounded side effect and cannot count as gate evidence.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "agent-prompt-rejects-caller-envelope-fields",
+            "desc": "CLI schema/runtime mutation probes reject every caller-supplied envelope or assembly component, including envelopeId, PromptEnvelope, TaskContext, final/partial prompt, Runtime/Role Contract bytes or digests, environment facts/digest, HEAD, reviewRound, reviewRun hash and assembledPromptDigest, rather than ignoring or merging the field.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "agent-prompt-rejects-prompt-splicing",
+            "desc": "Attempts to inject prefix/suffix/system/developer text, duplicate role sections, custom path/content, encoded JSON blobs, response-file arguments, unknown flags, prototype keys or shell-shaped values cannot alter the returned prompt/envelope and fail with a stable validation reason before trusted assembly.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "agent-prompt-no-untrusted-handler-bypass",
+            "desc": "Direct handler and registry probes prove main/implementer cannot bypass CLI validation by calling an alternate exported handler, passing a structurally typed forged object, selecting a cached envelope, or invoking an unregistered command alias; all public paths converge on the same trusted builder and command policy.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "agent-prompt-role-only-drift-detector-sensitive",
+            "desc": "The zero-drift proof is mutation-sensitive: a controlled one-byte change to any frozen role template, assembly separator/order, newline normalization or alias routing makes the baseline verifier fail and identify the affected role, then the untouched repository passes all 16 exact comparisons.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
