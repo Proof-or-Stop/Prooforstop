@@ -597,6 +597,47 @@
         "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
       },
       "_hash": "7c72209a9dfe15a5f39b3a747a18bd027ecbf741114ab2f08769d27a773804b3"
+    },
+    {
+      "id": "B-8195:RP-018",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-7 incremental coverage review passes. The only material delta synchronizes the process-fact verifier’s pinned cli-engine fingerprint and two verifier writer anchors with already-tested production code. The process-fact contract passes and still asserts the canonical transaction writer, reason validate, and test-evidence closeout path; no test behavior or coverage surface was removed.",
+      "createdAt": "2026-07-18T20:39:37.034Z",
+      "reviewRound": "2026-07-18T20:38:42.890Z",
+      "reviewRunId": "B-8195:RR-025",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "dde76c4814f1680468f32cf258fc3cfa2cf7fdadbc339ab30ffe69e02c4146bc"
     }
   ]
 }
