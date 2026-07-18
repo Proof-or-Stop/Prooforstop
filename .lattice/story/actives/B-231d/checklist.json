@@ -73,11 +73,18 @@
             "priority": "must"
           }
         ],
-        "edge": [],
+        "edge": [
+          {
+            "id": "CHK-002:edge:0",
+            "desc": "legacy old-shape receipt still verifies under the versioned migration.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
         "adversarial": [
           {
             "id": "CHK-002:adversarial:0",
-            "desc": "genuinely different commands still digest differently; legacy old-shape receipts still verify under the migration.",
+            "desc": "genuinely different commands still digest differently.",
             "type": "cli",
             "priority": "must"
           }
