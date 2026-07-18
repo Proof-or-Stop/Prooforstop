@@ -4,7 +4,7 @@
   "title": "Make quorum_submit close host-verdict metadata atomically",
   "description": "A clean REVIEW worktree becomes dirty after quorum_submit appends six host_verdict rows without committing them. Subsequent long validation can execute every command and then fail canonical persistence. Add a committed RED production-path harness, then atomically close only the quorum-owned verdict delta with complete rollback and fail-closed behavior.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "DEV",
   "priority": "high",
   "riskSignals": [
     {
@@ -56,6 +56,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-07-18T22:40:29.487Z",
+      "branch": "story/B-6ed2",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-18T22:46:39.381Z",
       "branch": "story/B-6ed2",
       "user": "Harmonygo",
       "sessionId": "codex-wa-final",
