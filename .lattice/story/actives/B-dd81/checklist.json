@@ -731,7 +731,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-18T20:40:32.439Z",
-      "endTime": "2026-07-18T20:43:29.456Z",
+      "endTime": "2026-07-18T20:46:08.757Z",
       "userSees": "Role flags can roll back to legacy-full-context safely, while compatibility-only or retired-role receipts visibly fail REVIEW, assurance-floor and quorum readiness checks.",
       "files": {
         "modify": [
@@ -855,145 +855,145 @@
         {
           "intentRef": "role-eligibility-canonical-registry",
           "kind": "integration_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Canonical 16-role status partition, per-role rollout/rollback, retired dispatch rejection, compatibility evidence exclusion, shared REVIEW/assurance/quorum filters, lifecycle artifacts, and process-fact registry contract passed.",
-          "headHash": "dfb160f43450d75b8f36d6de5f9cda006691cc56",
+          "note": "Final-head full Story 2 verification suite passed: build, full-envelope and 16-role zero-drift contracts, signed ReviewRun/Pass binding, usage retry identity, freshness, assurance/quorum, lifecycle, and process-fact registry.",
+          "headHash": "e19460213284dc6f31b1c003932d44a5af0148dc",
           "materialHash": "2a825b9e12479a7e74df0d0ee1d8cd03e9e3323231863a21e7b6d02cc087f9db",
           "storyFilesHash": "9341d18de526fcbe46aadaaed635198354b9547e61e83467374c988ee4d15c95",
-          "timestamp": "2026-07-18T20:43:29.781Z"
+          "timestamp": "2026-07-18T20:46:09.052Z"
         },
         {
           "intentRef": "per-role-full-feature-flag-independent",
           "kind": "integration_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Canonical 16-role status partition, per-role rollout/rollback, retired dispatch rejection, compatibility evidence exclusion, shared REVIEW/assurance/quorum filters, lifecycle artifacts, and process-fact registry contract passed.",
-          "headHash": "dfb160f43450d75b8f36d6de5f9cda006691cc56",
+          "note": "Final-head full Story 2 verification suite passed: build, full-envelope and 16-role zero-drift contracts, signed ReviewRun/Pass binding, usage retry identity, freshness, assurance/quorum, lifecycle, and process-fact registry.",
+          "headHash": "e19460213284dc6f31b1c003932d44a5af0148dc",
           "materialHash": "2a825b9e12479a7e74df0d0ee1d8cd03e9e3323231863a21e7b6d02cc087f9db",
           "storyFilesHash": "9341d18de526fcbe46aadaaed635198354b9547e61e83467374c988ee4d15c95",
-          "timestamp": "2026-07-18T20:43:30.092Z"
+          "timestamp": "2026-07-18T20:46:09.366Z"
         },
         {
           "intentRef": "per-role-legacy-rollback-exact",
           "kind": "integration_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Canonical 16-role status partition, per-role rollout/rollback, retired dispatch rejection, compatibility evidence exclusion, shared REVIEW/assurance/quorum filters, lifecycle artifacts, and process-fact registry contract passed.",
-          "headHash": "dfb160f43450d75b8f36d6de5f9cda006691cc56",
+          "note": "Final-head full Story 2 verification suite passed: build, full-envelope and 16-role zero-drift contracts, signed ReviewRun/Pass binding, usage retry identity, freshness, assurance/quorum, lifecycle, and process-fact registry.",
+          "headHash": "e19460213284dc6f31b1c003932d44a5af0148dc",
           "materialHash": "2a825b9e12479a7e74df0d0ee1d8cd03e9e3323231863a21e7b6d02cc087f9db",
           "storyFilesHash": "9341d18de526fcbe46aadaaed635198354b9547e61e83467374c988ee4d15c95",
-          "timestamp": "2026-07-18T20:43:30.428Z"
+          "timestamp": "2026-07-18T20:46:09.660Z"
         },
         {
           "intentRef": "mixed-rollout-deterministic-routing",
           "kind": "integration_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Canonical 16-role status partition, per-role rollout/rollback, retired dispatch rejection, compatibility evidence exclusion, shared REVIEW/assurance/quorum filters, lifecycle artifacts, and process-fact registry contract passed.",
-          "headHash": "dfb160f43450d75b8f36d6de5f9cda006691cc56",
+          "note": "Final-head full Story 2 verification suite passed: build, full-envelope and 16-role zero-drift contracts, signed ReviewRun/Pass binding, usage retry identity, freshness, assurance/quorum, lifecycle, and process-fact registry.",
+          "headHash": "e19460213284dc6f31b1c003932d44a5af0148dc",
           "materialHash": "2a825b9e12479a7e74df0d0ee1d8cd03e9e3323231863a21e7b6d02cc087f9db",
           "storyFilesHash": "9341d18de526fcbe46aadaaed635198354b9547e61e83467374c988ee4d15c95",
-          "timestamp": "2026-07-18T20:43:30.725Z"
+          "timestamp": "2026-07-18T20:46:09.954Z"
         },
         {
           "intentRef": "compatibility-alias-status-preserved",
           "kind": "integration_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Canonical 16-role status partition, per-role rollout/rollback, retired dispatch rejection, compatibility evidence exclusion, shared REVIEW/assurance/quorum filters, lifecycle artifacts, and process-fact registry contract passed.",
-          "headHash": "dfb160f43450d75b8f36d6de5f9cda006691cc56",
+          "note": "Final-head full Story 2 verification suite passed: build, full-envelope and 16-role zero-drift contracts, signed ReviewRun/Pass binding, usage retry identity, freshness, assurance/quorum, lifecycle, and process-fact registry.",
+          "headHash": "e19460213284dc6f31b1c003932d44a5af0148dc",
           "materialHash": "2a825b9e12479a7e74df0d0ee1d8cd03e9e3323231863a21e7b6d02cc087f9db",
           "storyFilesHash": "9341d18de526fcbe46aadaaed635198354b9547e61e83467374c988ee4d15c95",
-          "timestamp": "2026-07-18T20:43:31.033Z"
+          "timestamp": "2026-07-18T20:46:10.249Z"
         },
         {
           "intentRef": "legacy-pass-read-original-round-only",
           "kind": "integration_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Canonical 16-role status partition, per-role rollout/rollback, retired dispatch rejection, compatibility evidence exclusion, shared REVIEW/assurance/quorum filters, lifecycle artifacts, and process-fact registry contract passed.",
-          "headHash": "dfb160f43450d75b8f36d6de5f9cda006691cc56",
+          "note": "Final-head full Story 2 verification suite passed: build, full-envelope and 16-role zero-drift contracts, signed ReviewRun/Pass binding, usage retry identity, freshness, assurance/quorum, lifecycle, and process-fact registry.",
+          "headHash": "e19460213284dc6f31b1c003932d44a5af0148dc",
           "materialHash": "2a825b9e12479a7e74df0d0ee1d8cd03e9e3323231863a21e7b6d02cc087f9db",
           "storyFilesHash": "9341d18de526fcbe46aadaaed635198354b9547e61e83467374c988ee4d15c95",
-          "timestamp": "2026-07-18T20:43:31.366Z"
+          "timestamp": "2026-07-18T20:46:10.535Z"
         },
         {
           "intentRef": "retired-history-readonly-no-new-proof",
           "kind": "integration_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Canonical 16-role status partition, per-role rollout/rollback, retired dispatch rejection, compatibility evidence exclusion, shared REVIEW/assurance/quorum filters, lifecycle artifacts, and process-fact registry contract passed.",
-          "headHash": "dfb160f43450d75b8f36d6de5f9cda006691cc56",
+          "note": "Final-head full Story 2 verification suite passed: build, full-envelope and 16-role zero-drift contracts, signed ReviewRun/Pass binding, usage retry identity, freshness, assurance/quorum, lifecycle, and process-fact registry.",
+          "headHash": "e19460213284dc6f31b1c003932d44a5af0148dc",
           "materialHash": "2a825b9e12479a7e74df0d0ee1d8cd03e9e3323231863a21e7b6d02cc087f9db",
           "storyFilesHash": "9341d18de526fcbe46aadaaed635198354b9547e61e83467374c988ee4d15c95",
-          "timestamp": "2026-07-18T20:43:31.868Z"
+          "timestamp": "2026-07-18T20:46:10.819Z"
         },
         {
           "intentRef": "compatibility-only-review-gate-blocked",
           "kind": "integration_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Canonical 16-role status partition, per-role rollout/rollback, retired dispatch rejection, compatibility evidence exclusion, shared REVIEW/assurance/quorum filters, lifecycle artifacts, and process-fact registry contract passed.",
-          "headHash": "dfb160f43450d75b8f36d6de5f9cda006691cc56",
+          "note": "Final-head full Story 2 verification suite passed: build, full-envelope and 16-role zero-drift contracts, signed ReviewRun/Pass binding, usage retry identity, freshness, assurance/quorum, lifecycle, and process-fact registry.",
+          "headHash": "e19460213284dc6f31b1c003932d44a5af0148dc",
           "materialHash": "2a825b9e12479a7e74df0d0ee1d8cd03e9e3323231863a21e7b6d02cc087f9db",
           "storyFilesHash": "9341d18de526fcbe46aadaaed635198354b9547e61e83467374c988ee4d15c95",
-          "timestamp": "2026-07-18T20:43:32.249Z"
+          "timestamp": "2026-07-18T20:46:11.143Z"
         },
         {
           "intentRef": "compatibility-only-assurance-floor-blocked",
           "kind": "integration_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Canonical 16-role status partition, per-role rollout/rollback, retired dispatch rejection, compatibility evidence exclusion, shared REVIEW/assurance/quorum filters, lifecycle artifacts, and process-fact registry contract passed.",
-          "headHash": "dfb160f43450d75b8f36d6de5f9cda006691cc56",
+          "note": "Final-head full Story 2 verification suite passed: build, full-envelope and 16-role zero-drift contracts, signed ReviewRun/Pass binding, usage retry identity, freshness, assurance/quorum, lifecycle, and process-fact registry.",
+          "headHash": "e19460213284dc6f31b1c003932d44a5af0148dc",
           "materialHash": "2a825b9e12479a7e74df0d0ee1d8cd03e9e3323231863a21e7b6d02cc087f9db",
           "storyFilesHash": "9341d18de526fcbe46aadaaed635198354b9547e61e83467374c988ee4d15c95",
-          "timestamp": "2026-07-18T20:43:32.590Z"
+          "timestamp": "2026-07-18T20:46:11.455Z"
         },
         {
           "intentRef": "compatibility-only-quorum-blocked",
           "kind": "integration_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Canonical 16-role status partition, per-role rollout/rollback, retired dispatch rejection, compatibility evidence exclusion, shared REVIEW/assurance/quorum filters, lifecycle artifacts, and process-fact registry contract passed.",
-          "headHash": "dfb160f43450d75b8f36d6de5f9cda006691cc56",
+          "note": "Final-head full Story 2 verification suite passed: build, full-envelope and 16-role zero-drift contracts, signed ReviewRun/Pass binding, usage retry identity, freshness, assurance/quorum, lifecycle, and process-fact registry.",
+          "headHash": "e19460213284dc6f31b1c003932d44a5af0148dc",
           "materialHash": "2a825b9e12479a7e74df0d0ee1d8cd03e9e3323231863a21e7b6d02cc087f9db",
           "storyFilesHash": "9341d18de526fcbe46aadaaed635198354b9547e61e83467374c988ee4d15c95",
-          "timestamp": "2026-07-18T20:43:32.934Z"
+          "timestamp": "2026-07-18T20:46:11.749Z"
         },
         {
           "intentRef": "role-status-feature-flag-tamper-fails",
           "kind": "integration_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Canonical 16-role status partition, per-role rollout/rollback, retired dispatch rejection, compatibility evidence exclusion, shared REVIEW/assurance/quorum filters, lifecycle artifacts, and process-fact registry contract passed.",
-          "headHash": "dfb160f43450d75b8f36d6de5f9cda006691cc56",
+          "note": "Final-head full Story 2 verification suite passed: build, full-envelope and 16-role zero-drift contracts, signed ReviewRun/Pass binding, usage retry identity, freshness, assurance/quorum, lifecycle, and process-fact registry.",
+          "headHash": "e19460213284dc6f31b1c003932d44a5af0148dc",
           "materialHash": "2a825b9e12479a7e74df0d0ee1d8cd03e9e3323231863a21e7b6d02cc087f9db",
           "storyFilesHash": "9341d18de526fcbe46aadaaed635198354b9547e61e83467374c988ee4d15c95",
-          "timestamp": "2026-07-18T20:43:33.249Z"
+          "timestamp": "2026-07-18T20:46:12.054Z"
         },
         {
           "intentRef": "all-gate-consumers-share-role-filter",
           "kind": "integration_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Canonical 16-role status partition, per-role rollout/rollback, retired dispatch rejection, compatibility evidence exclusion, shared REVIEW/assurance/quorum filters, lifecycle artifacts, and process-fact registry contract passed.",
-          "headHash": "dfb160f43450d75b8f36d6de5f9cda006691cc56",
+          "note": "Final-head full Story 2 verification suite passed: build, full-envelope and 16-role zero-drift contracts, signed ReviewRun/Pass binding, usage retry identity, freshness, assurance/quorum, lifecycle, and process-fact registry.",
+          "headHash": "e19460213284dc6f31b1c003932d44a5af0148dc",
           "materialHash": "2a825b9e12479a7e74df0d0ee1d8cd03e9e3323231863a21e7b6d02cc087f9db",
           "storyFilesHash": "9341d18de526fcbe46aadaaed635198354b9547e61e83467374c988ee4d15c95",
-          "timestamp": "2026-07-18T20:43:33.540Z"
+          "timestamp": "2026-07-18T20:46:12.325Z"
         },
         {
           "intentRef": "rollback-never-downgrades-gates",
           "kind": "integration_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Canonical 16-role status partition, per-role rollout/rollback, retired dispatch rejection, compatibility evidence exclusion, shared REVIEW/assurance/quorum filters, lifecycle artifacts, and process-fact registry contract passed.",
-          "headHash": "dfb160f43450d75b8f36d6de5f9cda006691cc56",
+          "note": "Final-head full Story 2 verification suite passed: build, full-envelope and 16-role zero-drift contracts, signed ReviewRun/Pass binding, usage retry identity, freshness, assurance/quorum, lifecycle, and process-fact registry.",
+          "headHash": "e19460213284dc6f31b1c003932d44a5af0148dc",
           "materialHash": "2a825b9e12479a7e74df0d0ee1d8cd03e9e3323231863a21e7b6d02cc087f9db",
           "storyFilesHash": "9341d18de526fcbe46aadaaed635198354b9547e61e83467374c988ee4d15c95",
-          "timestamp": "2026-07-18T20:43:33.844Z"
+          "timestamp": "2026-07-18T20:46:12.603Z"
         }
       ]
     }
