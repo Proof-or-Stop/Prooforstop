@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#workstream-a-done-required-validation-convergence"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-18T10:34:17.428Z",
-      "endTime": null,
+      "endTime": "2026-07-18T10:54:08.213Z",
       "verificationIntent": {
         "happy": [
           {
@@ -52,7 +52,69 @@
         "test": [
           "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "Commit 1f66c4c749 persisted the production REVIEW→TEST→validate RED and printed status=fail, failureKind=infra_failure, canonical-pass-persistence-failed, commandExecutions=0 before the fix.",
+          "headHash": "f2bb3538fe2016f85f91f0cd62851328758a2e59",
+          "materialHash": "a7555c26a41ea1cddaef41cb79334ffb3838ef8c330204ea41725ac9e584c9ce",
+          "storyFilesHash": "c8fa6e034be74a109ec9723dfdc6e2eb7e9fd00d2bd3f01ae1f492699ea75c92",
+          "timestamp": "2026-07-18T10:54:08.609Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "The fixture keeps its counter under the OS temp directory and asserts the project-command count stays at one.",
+          "headHash": "f2bb3538fe2016f85f91f0cd62851328758a2e59",
+          "materialHash": "a7555c26a41ea1cddaef41cb79334ffb3838ef8c330204ea41725ac9e584c9ce",
+          "storyFilesHash": "c8fa6e034be74a109ec9723dfdc6e2eb7e9fd00d2bd3f01ae1f492699ea75c92",
+          "timestamp": "2026-07-18T10:54:08.957Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "The fixture asserts a clean canonical baseline before transition and inspects exact post-transition canonical status.",
+          "headHash": "f2bb3538fe2016f85f91f0cd62851328758a2e59",
+          "materialHash": "a7555c26a41ea1cddaef41cb79334ffb3838ef8c330204ea41725ac9e584c9ce",
+          "storyFilesHash": "c8fa6e034be74a109ec9723dfdc6e2eb7e9fd00d2bd3f01ae1f492699ea75c92",
+          "timestamp": "2026-07-18T10:54:09.248Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "Human-authored and forged codex_cli process-event deltas remain byte-identical after fail-closed rejection.",
+          "headHash": "f2bb3538fe2016f85f91f0cd62851328758a2e59",
+          "materialHash": "a7555c26a41ea1cddaef41cb79334ffb3838ef8c330204ea41725ac9e584c9ce",
+          "storyFilesHash": "c8fa6e034be74a109ec9723dfdc6e2eb7e9fd00d2bd3f01ae1f492699ea75c92",
+          "timestamp": "2026-07-18T10:54:09.535Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "The RED/green fixture independently counts commands and rejects any hidden execution or false PASS.",
+          "headHash": "f2bb3538fe2016f85f91f0cd62851328758a2e59",
+          "materialHash": "a7555c26a41ea1cddaef41cb79334ffb3838ef8c330204ea41725ac9e584c9ce",
+          "storyFilesHash": "c8fa6e034be74a109ec9723dfdc6e2eb7e9fd00d2bd3f01ae1f492699ea75c92",
+          "timestamp": "2026-07-18T10:54:09.825Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
