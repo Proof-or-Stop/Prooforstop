@@ -514,6 +514,25 @@
       "_hash": "a5e02b81bb92ac57ac461978acb90c60f95f3d2d5150d69e05a31339b299acc8",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-360e:F-025",
+      "desc": "packages/main/src/tasks/concept-gate-scope-smoke.ts:243-372 — HIGH: malformed metadata coverage validates pair/count/path consistency but omits section ordering and /dev/null hunk directionality. Independent repros show (1) matching copy metadata appended after hunk content suppresses a real deletion, (2) --- /dev/null with a removed declaration, and (3) +++ /dev/null with an added declaration all return symbols=[] and diagnostics=[]. Add late copy/rename/side-header probes plus null-old removed/context and null-new added/context probes; enforce metadata→side headers→hunks/content ordering and reject impossible /dev/null content before validCopy or source classification can suppress declarations.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-18T10:14:55.869Z",
+      "reviewRound": "2026-07-18T10:11:26.305Z",
+      "reviewRunId": "B-360e:RR-033",
+      "_hash": "095df192f917f951daed4a98dff675a89d22b874a04b09e91ca95968ab31f910",
+      "files": [
+        "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+        "packages/main/src/handlers/validate-concept.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
