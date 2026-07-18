@@ -203,7 +203,7 @@
       "desc": "The new shared B-META classifier is not wired into every declared scope-gate consumer. evaluatePathAgainstContract calls classifyScopePath without projectRoot, and detectGuardViolations calls checkScopeContract without projectRoot, so prewrite_guard_check/native hooks and guard sessions can never recognize a valid official B-META artifact even though post-diff REVIEW/TEST checks do. This creates contradictory gate decisions for the same exact path/content and contradicts the L4 fact that names prewrite as a consumer. Thread projectRoot through both production handler paths (while keeping pure-call compatibility explicit) and add parity tests for valid and tampered B-META across prewrite, guard-session, post-diff, and done_prepare.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-18T02:14:56.073Z",
@@ -219,7 +219,11 @@
         "packages/main/src/core/process-fact-levels.ts"
       ],
       "signatureTag": "missing|ts|shared-meta-classifier",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "4106eb3531 threads projectRoot through prewrite core/handler and guard-session core/handler so all live consumers use the same configured source-root canonical classifier. build and prewrite/semantic smokes pass.",
+      "resolvedAt": "2026-07-18T02:37:54.683Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0784:F-010",
