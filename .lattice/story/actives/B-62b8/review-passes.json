@@ -132,6 +132,29 @@
         "scanEscalationReason": null
       },
       "_hash": "892bf2732bf773f7adae0ddf8bc94c4f4f5fd3584ff834b93cfa1ffd0ddfbbac"
+    },
+    {
+      "id": "B-62b8:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "PASS bounded round-4 F-014 re-review. Shared projection is applied after internal scan/stat and before every doctor and usage_sweep text/JSON/out/alert surface. usage-burn-alert smoke passed 23 checks across real-shaped Codex/Claude plus agy owner identity. Live doctor JSON no longer contains current CODEX_THREAD_ID and renders opaque session ids/transcript locators. No new blocker.",
+      "createdAt": "2026-07-18T00:29:32.533Z",
+      "reviewRound": "2026-07-18T00:27:35.045Z",
+      "reviewRunId": "B-62b8:RR-013",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "555d6a795ddce1255bf2225cca74580a400b1f07a819bdcfed199a3f663bf5b5"
     }
   ]
 }
