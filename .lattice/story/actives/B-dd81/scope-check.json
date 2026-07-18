@@ -1,6 +1,6 @@
 {
   "storyId": "B-dd81",
-  "checkedAt": "2026-07-18T20:18:20.726Z",
+  "checkedAt": "2026-07-18T20:22:55.750Z",
   "features": [
     {
       "feature": "Canonical full Task Context, known execution environment digest, and content-addressed full Prompt Envelope are defined without incremental behavior",
@@ -10,101 +10,94 @@
       "source": ".lattice/story/actives/B-dd81/plan.md#CHK-001"
     },
     {
-      "feature": "Envelope identity is deterministic over semantic material and explicitly excludes envelopeId and createdAt from the digest domain",
+      "feature": "Envelope identity is deterministic over semantic material and excludes envelopeId and createdAt from its digest domain",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-dd81/plan.md"
     },
     {
-      "feature": "Story-aware agent_prompt performs trusted in-process full assembly, rejects caller authority fields, and preserves all no-Story role bytes",
+      "feature": "dispatchKind separates audit-only story-dispatch envelopes from signed-authority review-run envelopes with kind-specific required fields",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-dd81/checklist.json#CHK-001"
+    },
+    {
+      "feature": "Story-aware agent_prompt performs trusted full assembly, rejects caller authority fields, persists append-only audit, and preserves no-Story role bytes",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-dd81/plan.md#CHK-002"
     },
     {
-      "feature": "Story-dispatch envelopes are append-only audit artifacts and cannot mint reviewer evidence; only ReviewRun signs envelopeId into gate-consumed evidence",
+      "feature": "Only ReviewRun signs envelopeId and story-dispatch audit cannot mint reviewer evidence",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-dd81/plan.md#CHK-002"
+      "source": ".lattice/story/actives/B-dd81/milestone-ledger.json#M2"
     },
     {
-      "feature": "ReviewRun and reviewer pass bind the same fresh envelope to Story, HEAD, material/storyFiles, round, lane and ReviewRun with stable replay rejection",
+      "feature": "ReviewRun/pass/gates bind one fresh review-run envelope and reject genuine drift or cross-run field substitution",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-dd81/plan.md#CHK-003"
+      "source": ".lattice/story/actives/B-dd81/milestone-ledger.json#M3"
     },
     {
-      "feature": "Compatibility and retired evidence cannot satisfy REVIEW, assurance-floor, active receipt, forced-review parsing, or quorum consumers",
-      "covered_by": "CHK-004",
+      "feature": "Provider retry preserves ledgerCallId and mints a fresh attemptId per execution attempt",
+      "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-dd81/plan.md#CHK-004"
+      "source": ".lattice/story/actives/B-dd81/checklist.json#CHK-003"
     },
     {
-      "feature": "Per-role full-envelope feature flags, bounded legacy-full-context pass reading, and exact rollback preserve in-flight compatibility without loosening gates",
+      "feature": "A material/scope-fresh non-latest pass remains admissible and open older findings stay surfaced",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-dd81/checklist.json#CHK-003"
+    },
+    {
+      "feature": "Compatibility/retired evidence cannot satisfy REVIEW, assurance-floor, active receipt, forced parsing, or quorum; role flags and rollback stay gate-safe",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-dd81/milestone-ledger.json#M4"
     },
     {
-      "feature": "Prompt Envelope and role-eligibility gate facts are registered in lifecycle/process registries and protected by verifier tests",
-      "covered_by": "CHK-004",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-dd81/plan.md#CHK-004"
-    },
-    {
-      "feature": "Story-dispatch and review-run Envelope variants have coherent required bindings",
-      "covered_by": "CHK-001",
+      "feature": "agent_prompt Story-aware verification uses the canonical dispatchKind literals and does not claim a reviewer-authority request path unavailable to its role/storyId/format-only schema",
+      "covered_by": "CHK-002",
       "status": "drift",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-dd81/checklist.json verification intents full-envelope-contract-complete and agent-prompt-story-full-assembly"
-    },
-    {
-      "feature": "Provider retry preserves the existing usage-ledger identity contract",
-      "covered_by": "CHK-003",
-      "status": "drift",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-dd81/checklist.json verification intents retry-identity-semantics-distinguished and usage-ledger-retry-terminal-accounting"
-    },
-    {
-      "feature": "Same-round non-latest ReviewRun evidence follows the accepted id-recency contract",
-      "covered_by": "CHK-003",
-      "status": "drift",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-dd81/checklist.json verification intent review-run-restart-invalidates-prior-envelope and milestone-ledger M3"
+      "source": ".lattice/story/actives/B-dd81/checklist.json verification intent agent-prompt-story-full-assembly"
     },
     {
       "feature": "Incremental prompt selection and impact classification",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Reserved for ordered Story 4 and explicitly excluded by B-dd81 scope boundary",
+      "excluded_by": "Reserved for Story 4 and explicitly excluded",
       "source": ".lattice/story/actives/B-dd81/scope-boundary.json"
     },
     {
-      "feature": "Historical A/B replay and production-isolated experiment harness",
+      "feature": "Historical A/B replay and experiment harness",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Reserved for ordered Story 3 and explicitly excluded by B-dd81 scope boundary",
+      "excluded_by": "Reserved for Story 3 and explicitly excluded",
       "source": ".lattice/story/actives/B-dd81/scope-boundary.json"
     },
     {
       "feature": "Prompt budget warn/enforce policy",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Reserved for Story 7/conditional follow-up and explicitly excluded by B-dd81 scope boundary",
+      "excluded_by": "Reserved for Story 7/conditional follow-up",
       "source": ".lattice/story/actives/B-dd81/scope-boundary.json"
     },
     {
       "feature": "Provider pricing or cache optimization",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Not part of Story 2; later measurement work owns provider usage/cache analysis",
+      "excluded_by": "Later measurement scope",
       "source": ".lattice/story/actives/B-dd81/scope-boundary.json"
     },
     {
@@ -121,58 +114,38 @@
       ".lattice/story/actives/B-dd81/checklist.json",
       ".lattice/story/actives/B-dd81/decision.json",
       ".lattice/story/actives/B-dd81/execution-boundary.json",
+      ".lattice/story/actives/B-dd81/intent-collision.json",
       ".lattice/story/actives/B-dd81/milestone-ledger.json",
       ".lattice/story/actives/B-dd81/plan.md",
       ".lattice/story/actives/B-dd81/scope-boundary.json",
       ".lattice/story/actives/B-dd81/understanding.json",
       "docs/requirements/decisions/review-run-binding-race.md",
       "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+      "packages/main/src/core/prompt-contracts.ts",
       "packages/main/src/tasks/usage-ledger-smoke.ts"
     ],
     "filesTriagedByName": [],
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 16,
-    "covered": 8,
+    "total": 15,
+    "covered": 9,
     "excluded": 5,
     "gaps": 0,
     "orphanSuspect": 0,
-    "drift": 3
+    "drift": 1
   },
   "reviewRound": "",
-  "_hash": "1b6df9f6c04079c87e5a43b9432db0b8fdec0a9d90b1550607927a6982d6e137",
+  "_hash": "ae1e8567dfeb2ecf821fd7030457fd766ad023754968c74e8f7485ed9a9d1028",
   "openQuestions": [
     {
-      "id": "OQ-004",
-      "q": "Should Story-dispatch Envelope omit reviewRunId/reviewRound while review-run Envelope requires them?",
-      "evidence": "The updated plan correctly makes agent_prompt Story-dispatch audit-only and accepts only role/storyId/format, but CHK-001 full-envelope-contract-complete requires reviewRunId for every Story 2 envelope and CHK-002 agent-prompt-story-full-assembly promises ReviewRun bindings. These cannot both hold for an audit-only story-dispatch Envelope.",
+      "id": "OQ-007",
+      "q": "Should agent-prompt-story-full-assembly verify only dispatchKind=story-dispatch, leaving dispatchKind=review-run entirely to CHK-003/review_run_start?",
+      "evidence": "The updated plan and existing PromptEnvelope contract define dispatchKind as story-dispatch|review-run; CHK-002 says agent_prompt accepts only role/storyId/format and returns story-dispatch. The updated intent instead asserts dispatchKind=audit and says reviewer-authority requests resolve through agent_prompt, introducing an invalid discriminator and a request path the plan forbids.",
       "sourcePointers": [
         ".lattice/story/actives/B-dd81/plan.md#CHK-002",
-        ".lattice/story/actives/B-dd81/checklist.json#CHK-001",
-        ".lattice/story/actives/B-dd81/checklist.json#CHK-002"
-      ]
-    },
-    {
-      "id": "OQ-005",
-      "q": "Does a provider retry mint a fresh attemptId under the stable ledgerCallId, or preserve one attemptId?",
-      "evidence": "Current runtime smoke and the updated plan/understanding/decision say mintRetryAttempt keeps ledgerCallId and creates a fresh attemptId, while CHK-003 context/userSees and two verification intents require a stable existing attemptId. Operational rules say current runtime facts override stale planning prose.",
-      "sourcePointers": [
-        "packages/main/src/tasks/usage-ledger-smoke.ts:368",
-        ".lattice/story/actives/B-dd81/plan.md#CHK-003",
-        ".lattice/story/actives/B-dd81/understanding.json",
-        ".lattice/story/actives/B-dd81/checklist.json#CHK-003"
-      ]
-    },
-    {
-      "id": "OQ-006",
-      "q": "Should a newer same-lane ReviewRun invalidate an older same-round pass solely by ID recency?",
-      "evidence": "CHK-003 review-run-restart-invalidates-prior-envelope and milestone M3 say yes, but the accepted review-run-binding-race decision and current flow-stability smoke require a non-latest pass to remain admissible when material and scope are fresh; only cross-run substitution or true freshness drift should fail.",
-      "sourcePointers": [
-        "docs/requirements/decisions/review-run-binding-race.md",
-        "packages/main/src/tasks/flow-stability-smoke.ts:1455",
-        ".lattice/story/actives/B-dd81/checklist.json#CHK-003",
-        ".lattice/story/actives/B-dd81/milestone-ledger.json#M3"
+        ".lattice/story/actives/B-dd81/checklist.json#CHK-002",
+        "packages/main/src/core/prompt-contracts.ts#PromptEnvelope"
       ]
     }
   ]
