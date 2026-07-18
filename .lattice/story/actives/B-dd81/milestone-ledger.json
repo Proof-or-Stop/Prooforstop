@@ -2,13 +2,13 @@
   "schemaVersion": "proofstory.milestone_ledger.v1",
   "storyId": "B-dd81",
   "state": "confirmed",
-  "ledgerHash": "sha256:284cddeb43254d4cd5d2f9c3aa61c7726106a243ee6ffd161aafb56367e2c2ec",
+  "ledgerHash": "sha256:52476042548e5d6404a3fcc7384ef1fccb8171a7f655d319cddf73ef26e99a0b",
   "milestones": [
     {
       "id": "M1",
       "sourceRequirementId": "story2.full-context-contracts",
       "claim": "Versioned full Task Context and content-addressed Prompt Envelope contracts exist and select full only.",
-      "doneMeans": "A deterministic envelope can be recomputed and verified from canonical Story facts and known environment, while tampering or incremental requests fail closed.",
+      "doneMeans": "A deterministic dispatch-kind envelope can be recomputed from canonical authoritative facts; story-dispatch forbids reviewer authority, review-run requires it, and tampering or incremental requests fail closed.",
       "requiredEvidence": [
         "logic_test",
         "adversarial_test"
@@ -30,7 +30,7 @@
       "id": "M2",
       "sourceRequirementId": "story2.trusted-agent-prompt",
       "claim": "Story-aware full Prompt assembly is owned by the trusted agent_prompt CLI path.",
-      "doneMeans": "The CLI prints the canonical full Prompt and audit envelope for a Story, rejects caller-spliced authority fields, and leaves role-only output byte-identical.",
+      "doneMeans": "The CLI prints the canonical full Prompt and audit envelope for a Story, rejects caller-spliced authority fields, cannot mint reviewer evidence, and leaves role-only output byte-identical.",
       "requiredEvidence": [
         "cli_transcript",
         "logic_test",
@@ -52,8 +52,8 @@
     {
       "id": "M3",
       "sourceRequirementId": "story2.signed-envelope-gates",
-      "claim": "ReviewRun, reviewer pass and lifecycle gates consume one fresh signed envelope binding.",
-      "doneMeans": "Fresh evidence passes; replay across HEAD, round or ReviewRun is rejected with stable reasons; retry preserves ledger call identity and creates a fresh provider attempt ID.",
+      "claim": "ReviewRun, reviewer pass and lifecycle gates consume one fresh signed envelope binding without revoking still-fresh non-latest runs by recency alone.",
+      "doneMeans": "Fresh evidence passes; true HEAD, material, scope or round drift and cross-run field substitution are rejected with stable reasons; material/scope-fresh non-latest passes remain admissible; retry preserves ledgerCallId and creates a fresh attemptId.",
       "requiredEvidence": [
         "integration_test",
         "replay_test",
@@ -101,10 +101,10 @@
     }
   ],
   "createdAt": "2026-07-18T20:10:32.535Z",
-  "updatedAt": "2026-07-18T20:15:45.108Z",
+  "updatedAt": "2026-07-18T20:21:51.133Z",
   "acceptedIntentBinding": {
     "intentCollisionId": "IC-20260718201033",
-    "acceptedInterpretationHash": "sha256:0fb8f77abbab8d7651f5872b5de98cece04bfa8e0cc9d0af1a3ad78c09b54eb2",
-    "acceptedAt": "2026-07-18T20:15:45.108Z"
+    "acceptedInterpretationHash": "sha256:8435dcd0aa0af09888e2824bf138cf804de15baea87b07762756881d4e1f35bf",
+    "acceptedAt": "2026-07-18T20:21:51.133Z"
   }
 }
