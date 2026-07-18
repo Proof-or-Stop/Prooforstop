@@ -127,7 +127,7 @@
       "desc": "Required rollout/migration coverage is recorded PASS but is not exercised. CHK-001 happy:2/edge:2, CHK-002 edge:2, and CHK-004 happy:3/edge:0 require independent path/AST off-warn-enforce combinations, legacy signed artifact rollback without rewrite, forward re-enable, and missing/legacy/current/future version outcomes. The focused tests contain only one explicit config combination (astAnchors=enforce, pathCanonicalization=off) and never assert the writer/read/gate behavior for the remaining combinations or version drift. Add a table-driven production-entry matrix that snapshots signed artifact bytes across rollback, proves the two flags are independent, and asserts exact accept/stale/re-attest outcomes before marking those intents PASS.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-18T02:14:53.806Z",
@@ -143,7 +143,11 @@
         "packages/main/src/core/semantic-scope-gate.ts"
       ],
       "signatureTag": "missing|ts|required-rollout-migration",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "4106eb3531 implements and documents independent off/warn/enforce readers for path and AST artifacts: off preserves legacy, warn diagnoses without rewrite, enforce rejects missing/future versions. Focused smokes cover the matrix and byte preservation.",
+      "resolvedAt": "2026-07-18T02:37:51.499Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0784:F-007",
