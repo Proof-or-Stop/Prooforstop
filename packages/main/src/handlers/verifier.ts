@@ -31,7 +31,7 @@ import { join, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
-import { autoCommitStoryMetadata, commitValidationReuseMetadataTransaction } from '../core/auto-commit-metadata.js';
+import { commitValidationReuseMetadataTransaction } from '../core/auto-commit-metadata.js';
 import { loadConfig } from '../core/config.js';
 import type { ValidationCommand, ValidationProgressReporter } from '../core/validation-types.js';
 import type { RoutineValidationIdentity, RoutineValidationSourceKind, ValidationCommandResult } from '../core/validation-types.js';
@@ -812,7 +812,7 @@ function persistStoryValidationEvidence(
   commandResults: ValidationCommandResult[],
   expectedCommandCount: number,
   semanticCommandPass?: boolean,
-): void {
+): any | null {
   const statusPass = result.status === 'pass';
   const allPass = Boolean(result.allPass ?? result.allPassed ?? statusPass);
   const failureKind = validationFailureKindFromResult(result, allPass);
@@ -820,6 +820,41 @@ function persistStoryValidationEvidence(
   const headHash = currentHead(gitCwd) ?? result.headSha ?? result.headHash;
   const materialHash = currentMaterialHash(gitCwd, 'HEAD', ctx.root);
   const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', ctx.root);
+  const storyRel = normalizeRelPath(relative(
+    realpathSync(gitCwd),
+    realpathSync(ctx.store.storyDirPath(storyId)),
+  ));
+  const managedPaths = [
+    'test-evidence.json',
+    'process-events.jsonl',
+    'closeout-write-receipts.jsonl',
+  ].map((name) => `${storyRel}/${name}`);
+  const preexistingManagedDirty = execFileSync('git', ['status', '--porcelain', '--', ...managedPaths], {
+    cwd: gitCwd,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+  const persistenceFailure = (reason: string) => ({
+    ...externalResult({
+      provider: 'lattice-verifier-executed-persistence',
+      status: 'fail',
+      failureKind: 'infra_failure',
+      summary: 'Validation result could not persist its canonical evidence transaction',
+      details: ['canonical-validation-persistence-failed', reason],
+      warnings: [],
+      commands: commandResults,
+    }),
+    disposition: 'executed',
+    commandExecutions: commandResults.length,
+  });
+  if (preexistingManagedDirty) {
+    return persistenceFailure(`canonical metadata was already dirty: ${preexistingManagedDirty}`);
+  }
+  const transaction = captureDonePrepareGeneratedMetadataTransaction({
+    root: gitCwd,
+    gitCwd,
+    paths: managedPaths,
+  });
   ctx.store.writeTestEvidence(storyId, {
     command,
     output: JSON.stringify(result),
@@ -837,9 +872,19 @@ function persistStoryValidationEvidence(
     ...(identity ? { routineValidationIdentity: identity } : {}),
   });
   recordValidationTerminal(ctx, storyId, gitCwd, result, identity);
-  autoCommitStoryMetadata(ctx.root, storyId, 'validate', {
+  const commitResult = commitValidationReuseMetadataTransaction({
+    projectRoot: ctx.root,
+    gitCwd,
+    storyId,
+    storyRel,
+    reason: 'validate',
+    transaction,
     closeoutArtifactPaths: ['test-evidence.json'],
   });
+  if (!commitResult.ok) {
+    return persistenceFailure(commitResult.reason || 'metadata writer did not create a commit');
+  }
+  return null;
 }
 
 function externalResult(args: {
@@ -917,7 +962,7 @@ function decorateAndMaybePersistStoryValidation(
     if (!commandResults || expectedCommandCount === undefined) {
       throw new Error('routine validation command execution is required before evidence persistence');
     }
-    persistStoryValidationEvidence(
+    const persistenceFailure = persistStoryValidationEvidence(
       ctx,
       storyId,
       executed,
@@ -927,6 +972,7 @@ function decorateAndMaybePersistStoryValidation(
       expectedCommandCount,
       semanticCommandPass,
     );
+    if (persistenceFailure) return persistenceFailure;
   }
   return executed;
 }

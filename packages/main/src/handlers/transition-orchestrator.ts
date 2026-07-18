@@ -555,33 +555,6 @@ async function runStoryTransitionInner(
       throw resolveGuardFailure(actor, args.storyId, store, args.phase, ctx.root);
     }
 
-    // A TEST transition owns only the exact canonical lifecycle files generated
-    // anywhere inside this invocation, including validation_terminal emitted by
-    // the direct verifier gate before the phase mutation. Capture the fixed
-    // three-path boundary while clean before any TEST gate can write; this still
-    // rejects every pre-entry human/foreign delta rather than adopting it.
-    let testTransitionCapture: LifecycleMetadataTransaction | null = null;
-    let transitionGitCwd = '';
-    if (args.phase === 'TEST') {
-      transitionGitCwd = resolveGitCwd({
-        store,
-        storyId: args.storyId,
-        metadataRoot: ctx.root,
-        projectRoot: ctx.root,
-      });
-      const storyRel = relative(
-        realpathSync(transitionGitCwd),
-        realpathSync(store.storyDirPath(args.storyId)),
-      );
-      testTransitionCapture = captureLifecycleMetadataTransaction({
-        root: transitionGitCwd,
-        gitCwd: transitionGitCwd,
-        storyId: args.storyId,
-        storyRel,
-        kind: 'test-transition',
-      });
-    }
-
     let scopeGateReport = '';
     let guardGateReport = runtimeGateReport;
     if (args.phase === 'REVIEW' || args.phase === 'TEST' || args.phase === 'DONE') {
@@ -632,6 +605,32 @@ async function runStoryTransitionInner(
       // the real gitRoot on wrapper-root layouts instead of the bare ctx.root.
       doneRenderedChecklist = await runDonePreMergeGate(args.storyId, store, ctx.root, actor, doneGitCwd);
       guardGateReport += runLegacyReceiptTransitionGate(ctx, args.storyId, 'DONE');
+    }
+
+    // Keep the TEST phase transaction short. The direct verifier gate closes
+    // its own evidence/terminal/receipt transaction before returning, so this
+    // clean capture owns only the subsequent phase/index/metrics writes. Any
+    // foreign bytes left by the gate are rejected here rather than adopted.
+    let testTransitionCapture: LifecycleMetadataTransaction | null = null;
+    let transitionGitCwd = '';
+    if (args.phase === 'TEST') {
+      transitionGitCwd = resolveGitCwd({
+        store,
+        storyId: args.storyId,
+        metadataRoot: ctx.root,
+        projectRoot: ctx.root,
+      });
+      const storyRel = relative(
+        realpathSync(transitionGitCwd),
+        realpathSync(store.storyDirPath(args.storyId)),
+      );
+      testTransitionCapture = captureLifecycleMetadataTransaction({
+        root: transitionGitCwd,
+        gitCwd: transitionGitCwd,
+        storyId: args.storyId,
+        storyRel,
+        kind: 'test-transition',
+      });
     }
 
     // B-0e53: pre-merge mainSha re-check. This point is AFTER the slow

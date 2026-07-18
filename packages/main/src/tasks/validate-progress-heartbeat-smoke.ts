@@ -598,6 +598,28 @@ async function assertStoryAdvanceReceivesHeartbeat(): Promise<void> {
   }
 }
 
+async function assertMainDirectHandlerClosesTerminal(): Promise<void> {
+  const { root, storyId } = setupStoryAdvanceFixture();
+  try {
+    configureRoutineValidate(root, 0);
+    const result = await runCli(
+      root,
+      ['story_advance', JSON.stringify({ storyId, phase: 'TEST' })],
+      NON_MAX_HARNESS_CEILING_MS,
+    );
+    assert.equal(result.status, 0,
+      `main-branch direct verifier terminal must close independently:\n${result.stderr}\n${result.stdout}`);
+    const processEventsRel = `.lattice/story/actives/${storyId}/process-events.jsonl`;
+    assert.equal(gitOutput(root, ['status', '--porcelain=v1', '--', processEventsRel]), '');
+    const committedEvents = gitOutput(root, ['show', `HEAD:${processEventsRel}`]);
+    assert.match(committedEvents, /"type":"validation_terminal"/);
+    assert.match(committedEvents, /"type":"phase_transition"/);
+    assert.equal(new StoryStore(root).readStory(storyId).phase, 'TEST');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 async function assertMidValidationForeignAppendFailsClosed(): Promise<void> {
   const { root, storyId, started } = setupStoryAdvanceFixture();
   try {
@@ -622,8 +644,13 @@ async function assertMidValidationForeignAppendFailsClosed(): Promise<void> {
     const result = await run;
     assert.notEqual(result.status, 0,
       'mid-validation foreign canonical append must fail closed instead of joining the TEST transaction');
-    assert.equal(readFileSync(processEventsPath, 'utf8'), foreignLine,
-      'foreign bytes must be preserved exactly while invocation-owned terminal/transition bytes roll back');
+    const preservedEvents = readFileSync(processEventsPath, 'utf8');
+    assert.ok(preservedEvents.startsWith(foreignLine),
+      'foreign bytes must remain the exact prefix when the validator appends its dirty-gate audit');
+    assert.match(preservedEvents, /"type":"dirty_gate_audit"/,
+      'existing validation side-effect diagnostics remain preserved after fail-closed persistence');
+    assert.doesNotMatch(preservedEvents, /"type":"validation_terminal"|"type":"phase_transition"/,
+      'rejected persistence must append neither a validation terminal nor TEST transition');
     assert.match(gitOutput(root, ['status', '--porcelain=v1', '--', processEventsRel]), /^\?\?/,
       'foreign event must remain visible and uncommitted for human recovery');
     assert.throws(
@@ -729,6 +756,16 @@ void (async () => {
       console.log('validate-progress-heartbeat F-010 foreign-append PASS');
       return;
     }
+    if (process.env.VALIDATE_HEARTBEAT_FAILURE_ONLY === '1') {
+      await assertFailedStoryAdvancePreservesValidationEvidence();
+      console.log('validate-progress-heartbeat validation-failure persistence PASS');
+      return;
+    }
+    if (process.env.VALIDATE_HEARTBEAT_MAIN_ONLY === '1') {
+      await assertMainDirectHandlerClosesTerminal();
+      console.log('validate-progress-heartbeat main direct-handler PASS');
+      return;
+    }
     const result = await runValidate(root);
     if (result.status !== 0) {
       assertRedBaseline(result, started, finished);
@@ -738,6 +775,7 @@ void (async () => {
     const finishText = readFileSync(finished, 'utf8').trim();
     assert.match(startText, /^started \d+$/);
     assert.match(finishText, /^finished \d+$/);
+    await assertMainDirectHandlerClosesTerminal();
     await assertStoryAdvanceReceivesHeartbeat();
     await assertMidValidationForeignAppendFailsClosed();
     await assertFailedStoryAdvancePreservesValidationEvidence();
