@@ -96,7 +96,7 @@
       "desc": "packages/main/src/handlers/quorum-submit.ts:493-535,588-595 and packages/main/src/tasks/quorum-submit-smoke.ts:775-859 — HIGH: owned rows/files are registered only after each submitLocalVerdict returns and captureOwnedVerdictOutput succeeds. If a foreign append occurs after row 1 is captured (afterVerdictWrite emittedCount=1), row 2 is then written after that foreign suffix; its capture sees foreign+row2 and throws, but rollback receives only row1/file1, leaving the generated row2 and ignored verdict JSON behind. This violates the all-emitted-rows rollback guarantee and makes the next retry refuse on dirty metadata. Existing foreign-suffix tests inject only after all six rows are registered. Add a between-row concurrency regression and ensure every write is rollback-owned even when post-write capture rejects (or verify the exact boundary before each next write and safely identify the just-written output on failure).",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-18T23:22:34.755Z",
@@ -104,7 +104,11 @@
       "reviewRunId": "B-6ed2:RR-005",
       "_hash": "df280e7649ea51bcc79e2d523069b6ee04235395a2a8002226a6e85714cadc2f",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "rootCause: the next verdict was written before checking whether bytes diverged after the prior captured row. fix: assertExactQuorumAppend now runs before every next submit; owned records use absolute offsets. reproTest: focused quorum-submit-smoke between-row foreign append preserves foreign bytes, writes no second row, removes all verdict JSON, and embedded identical-row binary remains byte-exact. verification: npm build PASS and focused quorum smoke PASS 30/30 at 67b0e2da64.",
+      "resolvedAt": "2026-07-18T23:38:28.281Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-6ed2:F-007",
