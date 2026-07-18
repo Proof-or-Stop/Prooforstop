@@ -575,6 +575,28 @@
         "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
       },
       "_hash": "3328a77cc2a836b6ca57aa353135a622cd82a0bf5025de70ab4218788bc66e78"
+    },
+    {
+      "id": "B-8195:RP-017",
+      "agent": "lattice-review-quality",
+      "note": "Round 6 verifier preflight review passed: git/path/status/capture failures are converted to structured infra_failure results; post-capture writes roll back on exception; definite assignments are guarded by early-return catch control flow; non-git fallback is regex-narrowed and failure-only; no PASS, terminal, receipt, or foreign dirty bytes gain trust. Focused flow-stability smoke passed.",
+      "createdAt": "2026-07-18T20:06:22.531Z",
+      "reviewRound": "2026-07-18T19:23:26.499Z",
+      "reviewRunId": "B-8195:RR-022",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "7c72209a9dfe15a5f39b3a747a18bd027ecbf741114ab2f08769d27a773804b3"
     }
   ]
 }
