@@ -274,7 +274,7 @@
       "desc": "packages/main/src/core/owner-session-adapters.ts:71 — explicit unsupported provider does not fail closed: normalizeProvider returns null for any unrecognized nonblank LATTICE_OWNER_SESSION_ADAPTER_PROVIDER, then detectProvider falls through to host-specific session variables and can relabel the session as a supported host. Repro after build: resolveSessionIdentity({LATTICE_SESSION_ID:\"sess-x\",LATTICE_OWNER_SESSION_ADAPTER_PROVIDER:\"gemini\",CODEX_THREAD_ID:\"codex-thread-x\"}, ...) returns hostProvider=codex, so full-envelope dispatch can mint Codex-bound reviewer provenance despite the explicit unsupported provider. Preserve absent-provider inference, but distinguish an explicitly invalid provider and reject it before fallback; add a mixed-env chain regression, since current tests clear all competing host variables. Severity high: this violates the gate-consumed unsupported-provider fail-closed contract.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-18T23:28:34.724Z",
@@ -286,7 +286,11 @@
         "packages/main/src/tasks/quorum-submit-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in f816e3239b: explicit nonblank unsupported provider remains unknown and cannot fall through to Codex/Claude environment inference; absent provider retains intended inference. Mixed-env direct and dispatch-to-ReviewRun-to-gate regressions pass, quorum 22/22, owner-session/lease and process verifier pass.",
+      "resolvedAt": "2026-07-18T23:43:30.337Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
