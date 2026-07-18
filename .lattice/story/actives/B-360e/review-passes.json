@@ -826,6 +826,29 @@
         "scanEscalationReason": null
       },
       "_hash": "c37f51c1174c26dd31bc6da021623f23d9bd54362188280b1227cc5ccf92f4d5"
+    },
+    {
+      "id": "B-360e:RP-026",
+      "agent": "lattice-review-concept",
+      "note": "Round-18 concept review passed. baf064ba10 is a minimal test-only change: it adds one real-CLI regression to the existing focused smoke, snapshots git status into an OS temp directory, runs both text and JSON prompt_measurement_report modes with no stdout artifact in the repo, compares before/after status byte-for-byte, and removes the temp directory in finally. No handler, policy, Prompt template, baseline, or concept-parser semantics changed. Build and the expanded prompt smoke pass; independent CLI JSON validates exactly 16 records and honest unavailable provider/dispatch layers; concept smoke and raw concept gate pass; the 16-role Proof-or-Stop baseline and protected Prompt zero-diff checks pass. evidence_inspect reports all 42 checklist refs fresh at current materialHash 74572022; only prior routine test-evidence remains expectedly stale for TEST.",
+      "createdAt": "2026-07-18T12:49:34.900Z",
+      "reviewRound": "2026-07-18T12:46:15.092Z",
+      "reviewRunId": "B-360e:RR-055",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "44ed185ec5f6eb07916db76d9a27078b575d07d5194c3e24b228127e620df71d"
     }
   ]
 }
