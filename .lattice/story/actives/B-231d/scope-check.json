@@ -1,6 +1,6 @@
 {
   "storyId": "B-231d",
-  "checkedAt": "2026-07-18T23:10:38.480Z",
+  "checkedAt": "2026-07-18T23:18:12.506Z",
   "features": [
     {
       "feature": "Derive validation lock identity from a canonical shared root (git common dir / metadata root) so every worktree/host of the same story shares one lock",
@@ -34,14 +34,14 @@
       "feature": "W0.1 pre-existing defect: dev_finish writes phase directly, bypassing runStoryTransition/gates entirely (even logs wrong event type)",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Owned by sibling story B-d877 (its CHK-001 routes dev_finish/dev_merge through runStoryTransition), per the Workstream-0 table in decisions/repro-first-gate-enforce-execution-plan.md; deliberately out of scope for B-231d (W0.2+W0.4 only). Confirmed against B-d877's checklist.json CHK-001.",
+      "excluded_by": "Per the Workstream-0 table in decisions/repro-first-gate-enforce-execution-plan.md ('Each is a small, independently testable story'), and this story's own scope-boundary.json confirmationNote ('User authorized the W0 portability story split'), W0.1 is owned by sibling story B-d877 ('Route dev_finish and dev_merge through runStoryTransition and mutex same-owner transitions'). Verified against B-d877 index.json title/description, which explicitly names dev_finish/dev_merge routing through runStoryTransition. Correction to a prior round's claim: B-d877 is still phase INIT_CHECK with a single generic checklist item (CHK-001 'Implement fix for reproduced failure', no per-defect breakdown yet) -- there is no verbatim CHK-001/CHK-002 split to point to yet inside B-d877's checklist.json. This exclusion rests on B-d877's story-level title/description ownership, not on a verbatim per-item CHK match.",
       "source": "decisions:repro-first-gate-enforce-execution-plan.md"
     },
     {
       "feature": "W0.3 pre-existing defect: owner lease is not a mutex for same-owner concurrent commands (non-atomic bypass consumption / review-round minting can double-fire)",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Owned by sibling story B-d877 (its CHK-002 adds a per-story transition lock serializing same-owner concurrent transitions), per the Workstream-0 table in decisions/repro-first-gate-enforce-execution-plan.md; deliberately out of scope for B-231d (W0.2+W0.4 only). Confirmed against B-d877's checklist.json CHK-002.",
+      "excluded_by": "Per the Workstream-0 table in decisions/repro-first-gate-enforce-execution-plan.md ('Each is a small, independently testable story'), and this story's own scope-boundary.json confirmationNote ('User authorized the W0 portability story split'), W0.3 is owned by sibling story B-d877 ('Route dev_finish and dev_merge through runStoryTransition and mutex same-owner transitions'). Verified against B-d877 index.json title/description, which explicitly names mutex-ing same-owner concurrent transitions. Correction to a prior round's claim: B-d877 is still phase INIT_CHECK with a single generic checklist item (CHK-001 'Implement fix for reproduced failure', no per-defect breakdown yet) -- there is no verbatim CHK-001/CHK-002 split to point to yet inside B-d877's checklist.json. This exclusion rests on B-d877's story-level title/description ownership, not on a verbatim per-item CHK match.",
       "source": "decisions:repro-first-gate-enforce-execution-plan.md"
     },
     {
@@ -191,7 +191,7 @@
       "docs/requirements/decisions/verification-context-pack.md",
       "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
     ],
-    "scanEscalationReason": "candidate ambiguity + explicit reviewer escalation: this worktree (story/B-231d) is behind main by 2 commits and is currently MISSING docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md on disk (added to main at 23600eb563, after this worktree's branch point). That file is the sole authoritative source for the Workstream-0 table resolving OQ-1/OQ-2 and for classifying W0.1/W0.3 as owned-by-sibling-story. Rather than guess from the local (stale) directory listing, I read its full content directly from `main` via `git show main:docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md` and cross-verified the W0.1/W0.3 ownership claim against sibling story B-d877's checklist.json (CHK-001/CHK-002 wording matches verbatim). All 119 other *.md files physically present in this worktree's docs/requirements/decisions/ were enumerated per the standard glob and triaged by name (2 of the previously-read candidates from the prior round remain in filesReadFully)."
+    "scanEscalationReason": "candidate ambiguity: this worktree (story/B-231d) is behind main by commits and is missing docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md on disk (present on main at 23600eb563). That file is the sole authoritative source for the Workstream-0 table (W0.1/W0.3/W0.4 defect enumeration) that grounds the W0.1/W0.3 exclusion decision and for the OQ-2 'S1 orchestrator routing' question. Rather than guess from the local (stale) directory listing, I read its full content directly from main via `git show main:docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md`, independently re-verified the W0.1/W0.3 sibling-story-ownership claim against B-d877's live index.json and checklist.json (found and corrected a factual error carried over from a prior round: B-d877 does not yet have a verbatim CHK-001/CHK-002 split, only one generic checklist item at INIT_CHECK phase), and independently confirmed 'S1 orchestrator routing' does not appear anywhere in that file (OQ-2 is a genuine unresolved contradiction, not resolved by me). All 119 *.md files physically present in this worktree's docs/requirements/decisions/ were enumerated via the standard glob; 2 of them were additionally read in full this round (review-run-start-signed-workspace-resolution-execution-plan.md and lattice-midflight-story-repair-and-gitroot-worktree-plan.md) because they are the direct evidentiary basis for OQ-1 (signed-workspace-resolver reuse principle vs CHK-001's git-common-dir choice); the remaining 117 were triaged by filename only."
   },
   "summary": {
     "total": 9,
@@ -202,7 +202,7 @@
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "dcc356ea839dd56f9524625e8cb8d38e343273423b934dbe8de75d95f6765e38",
+  "_hash": "1183cf53059aa5fed64638cc36183ae1d527e730bb546986f94eafa87c019289",
   "openQuestions": [
     {
       "id": "OQ-1",
