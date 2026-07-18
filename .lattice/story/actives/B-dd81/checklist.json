@@ -62,7 +62,23 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "A fresh reviewer pass succeeds only with the matching envelope; replay against a new HEAD, round or ReviewRun is rejected, while a provider retry retains its existing usage-ledger attempt ID."
+      "userSees": "A fresh reviewer pass succeeds only with the matching envelope; replay against a new HEAD, round or ReviewRun is rejected, while a provider retry retains its existing usage-ledger attempt ID.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/core/machine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-004",
