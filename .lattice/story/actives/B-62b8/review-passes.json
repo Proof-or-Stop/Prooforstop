@@ -271,6 +271,26 @@
       },
       "readDiagnostics": [],
       "_hash": "8e03bdf9b5e25e5b357ba82ff3e92e5640d6f7895caed24aaced692cf6232d7d"
+    },
+    {
+      "id": "B-62b8:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "PASS bounded round-5 re-attestation for 63c23a3c68. Projection idempotence requires both canonical opaque id and exact host-bound opaque locator, so raw sess-shaped inputs remain re-projected. Row/report/burn double projection is deep-stable; all sentinel routes remain redacted. usage-burn-alert smoke passed 24 checks and live doctor still omits current CODEX_THREAD_ID while retaining an opaque locator. No semantic regression or blocker.",
+      "createdAt": "2026-07-18T00:35:37.463Z",
+      "reviewRound": "2026-07-18T00:33:52.557Z",
+      "reviewRunId": "B-62b8:RR-019",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ca39752ff5bf93c20d81ae1bdca0d2b06a256c7a9c411099a93f12b6d37216c4"
     }
   ]
 }
