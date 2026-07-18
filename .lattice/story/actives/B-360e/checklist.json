@@ -186,11 +186,11 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
-          "note": "Final smoke rejects symbol-keyed, non-enumerable, accessor, undefined, sparse, cyclic, non-finite, and unsupported canonical inputs.",
-          "headHash": "29789e7eeba3e962df06899fa13ce5ccc564d7a9",
+          "note": "Dense arrays accept only intrinsic length plus exact enumerable data indices; symbol, extra string, non-enumerable extra/index, accessor extra/index, malformed index, sparse and unsupported values all reject.",
+          "headHash": "90815f81116da0bff4ec15ef076cf6586c56d001",
           "materialHash": "4c3ed2c48cea8d387d17f1805fbb45e6219fb59d5ef26377dc0f7b3ae64655ad",
           "storyFilesHash": "a56a0b7c4d3afa98f5f0d887b66523cffebf84305a024b813d5e9f4241c747b8",
-          "timestamp": "2026-07-18T00:22:12.724Z"
+          "timestamp": "2026-07-18T00:22:13.841Z"
         },
         {
           "intentRef": "prompt-contract-schema-fail-closed",
@@ -449,11 +449,11 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
-          "note": "Exact frozen compatibility replacementAgentType and migrationHint mutations reject.",
-          "headHash": "29789e7eeba3e962df06899fa13ce5ccc564d7a9",
+          "note": "Every policy-derived RoleContract field is compared to exact ROLE_POLICIES data and semanticDigest is recomputed; active defaultDispatch, responsibility, array policy, replacement, migrationHint and digest drift reject.",
+          "headHash": "90815f81116da0bff4ec15ef076cf6586c56d001",
           "materialHash": "4c3ed2c48cea8d387d17f1805fbb45e6219fb59d5ef26377dc0f7b3ae64655ad",
           "storyFilesHash": "a56a0b7c4d3afa98f5f0d887b66523cffebf84305a024b813d5e9f4241c747b8",
-          "timestamp": "2026-07-18T00:22:12.724Z"
+          "timestamp": "2026-07-18T00:22:13.841Z"
         },
         {
           "intentRef": "role-registry-dispatch-snapshot-unchanged",
@@ -868,22 +868,22 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
-          "note": "Required-key deletion matrix and exact role replacement mutation probes fail closed.",
-          "headHash": "29789e7eeba3e962df06899fa13ce5ccc564d7a9",
+          "note": "Final mutation matrix covers array own-state disappearance and complete per-role semantic policy drift fail-closed behavior.",
+          "headHash": "90815f81116da0bff4ec15ef076cf6586c56d001",
           "materialHash": "4c3ed2c48cea8d387d17f1805fbb45e6219fb59d5ef26377dc0f7b3ae64655ad",
           "storyFilesHash": "a56a0b7c4d3afa98f5f0d887b66523cffebf84305a024b813d5e9f4241c747b8",
-          "timestamp": "2026-07-18T00:22:12.724Z"
+          "timestamp": "2026-07-18T00:22:13.841Z"
         },
         {
           "intentRef": "CHK-004:adversarial:1",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
-          "note": "Canonical disappearance classes, malformed optional digests, role replacement drift, and report tampering are rejected.",
-          "headHash": "29789e7eeba3e962df06899fa13ce5ccc564d7a9",
+          "note": "Array symbol/extra/non-enumerable/accessor/malformed/sparse inputs and active default/responsibility/policy-array/semanticDigest mutations are detected; prompt baseline remains unchanged.",
+          "headHash": "90815f81116da0bff4ec15ef076cf6586c56d001",
           "materialHash": "4c3ed2c48cea8d387d17f1805fbb45e6219fb59d5ef26377dc0f7b3ae64655ad",
           "storyFilesHash": "a56a0b7c4d3afa98f5f0d887b66523cffebf84305a024b813d5e9f4241c747b8",
-          "timestamp": "2026-07-18T00:22:12.724Z"
+          "timestamp": "2026-07-18T00:22:13.841Z"
         },
         {
           "intentRef": "CHK-004:adversarial:2",
