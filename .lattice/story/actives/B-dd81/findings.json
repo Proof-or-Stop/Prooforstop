@@ -219,6 +219,28 @@
       "resolvedAt": "2026-07-18T22:54:07.861Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-dd81:F-011",
+      "desc": "packages/main/src/handlers/story-dispatch.ts:61-62 [HIGH] The selected-host provenance fix still silently classifies every non-Claude session as Codex. OwnerSessionHostProvider explicitly supports antigravity/agy, fake and unknown (packages/main/src/core/owner-session-adapters.ts:4-9,54-60), while PromptHost only contains claude/codex. Therefore a full-envelope dispatch executed by an Antigravity/agy reviewer records hostRenderHost=codex; review_run_start signs that value and the gate later recomputes the same Codex identity, so the proof is internally consistent but does not identify the actual reviewer host/render. The new tests call Claude/Codex identity directly or exercise the default Codex path and do not cover session-to-host selection. This violates the F-010 selected/current-host provenance outcome. Map supported providers explicitly and fail closed for unsupported/unknown hosts, or add a real Antigravity host render identity, then add dispatch-to-review_run_start-to-gate tests for antigravity and unknown/fake rather than silently aliasing them to Codex.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-18T23:00:50.439Z",
+      "reviewRound": "2026-07-18T22:53:28.493Z",
+      "reviewRunId": "B-dd81:RR-011",
+      "_hash": "3f15fa1efe8e87901b947f93f0ec7d9dc748bd31b5f9c2b1b8e132e6c595d32a",
+      "files": [
+        "packages/main/src/handlers/story-dispatch.ts",
+        "packages/main/src/core/owner-session-adapters.ts",
+        "packages/main/src/core/prompt-registry.ts",
+        "packages/main/src/tasks/quorum-submit-smoke.ts",
+        "packages/main/src/tasks/codex-registry-mode-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
