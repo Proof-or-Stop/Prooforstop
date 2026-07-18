@@ -21,16 +21,23 @@
         "happy": [
           {
             "id": "CHK-001:happy:0",
-            "desc": "dev_finish on a completed DEV story routes through runStoryTransition: phase becomes REVIEW, a currentReviewRound is minted, and a phase_transition process-event with toPhase=REVIEW is appended.",
+            "desc": "dev_finish on a completed DEV story routes through runStoryTransition: phase=REVIEW, currentReviewRound minted, phase_transition event toPhase=REVIEW.",
             "type": "cli",
             "priority": "must"
           }
         ],
-        "edge": [],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "dev_merge also routes through runStoryTransition (second bypass door closed).",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
         "adversarial": [
           {
             "id": "CHK-001:adversarial:0",
-            "desc": "dev_merge (the second registered bypass door) also routes through the orchestrator and does not write phase directly.",
+            "desc": "neither handler writes story.phase directly; no TEST-mislabeled event is produced.",
             "type": "cli",
             "priority": "must"
           }
