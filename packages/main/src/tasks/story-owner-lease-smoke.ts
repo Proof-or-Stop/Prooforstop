@@ -240,7 +240,8 @@ try {
       },
       inA,
     );
-    assert.equal(rUnknownProvider.sessionSource, 'derived-ppid', 'an unvalidated provider label falls through safely');
+    assert.equal(rUnknownProvider.sessionSource, 'host-adapter', 'an explicit unvalidated provider remains visible at the adapter boundary');
+    assert.equal(rUnknownProvider.hostProvider, 'unknown', 'an explicit unvalidated provider never aliases to a supported host');
     const rConflictingAliases = resolveSessionIdentity(
       {
         LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'codex',

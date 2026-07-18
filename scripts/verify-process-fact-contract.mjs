@@ -5578,6 +5578,15 @@ const inventory = [
     name: 'review_run_start',
     files: [
       {
+        relPath: 'packages/main/src/core/owner-session-adapters.ts',
+        patterns: [
+          'explicitProvider',
+          "return normalizeProvider(explicitProvider) ?? 'unknown'",
+          'CODEX_THREAD_ID',
+          'CLAUDE_CODE_SESSION_ID',
+        ],
+      },
+      {
         relPath: 'packages/main/src/handlers/story-dispatch.ts',
         patterns: [
           'reviewerPromptHostForProvider',

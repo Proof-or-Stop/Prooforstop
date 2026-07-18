@@ -69,8 +69,11 @@ function normalizeProvider(value: string | undefined): OwnerSessionHostProvider 
 }
 
 function detectProvider(env: OwnerSessionEnv): OwnerSessionHostProvider | null {
-  return normalizeProvider(env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER)
-    ?? normalizeProvider(env.LATTICE_ACTIVITY_SOURCE)
+  const explicitProvider = trimToNull(env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER);
+  if (explicitProvider !== null) {
+    return normalizeProvider(explicitProvider) ?? 'unknown';
+  }
+  return normalizeProvider(env.LATTICE_ACTIVITY_SOURCE)
     ?? (trimToNull(env.CLAUDE_CODE_SESSION_ID) || trimToNull(env.CLAUDE_SESSION_ID) ? 'claude-code' : null)
     ?? (trimToNull(env.CODEX_THREAD_ID) || trimToNull(env.CODEX_SESSION_ID) || trimToNull(env.OPENAI_SESSION_ID) ? 'codex' : null)
     ?? (trimToNull(env.ANTIGRAVITY_SESSION_ID) || trimToNull(env.AGY_SESSION_ID) ? 'antigravity' : null);

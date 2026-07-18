@@ -19,7 +19,7 @@ import {
 } from '../core/host-verdict-bindings.js';
 import { evaluateReviewAssuranceFloor } from '../core/review-assurance-floor.js';
 import { canPassReviewGuard, type StoryMachineContext } from '../core/machine.js';
-import { resetSessionIdForTest } from '../core/owner-session.js';
+import { resetSessionIdForTest, resolveSessionIdentity } from '../core/owner-session.js';
 import { computePromptEnvelopeId } from '../core/prompt-envelope.js';
 import { PROMPT_ENVELOPE_ROLLOUT_VERSION } from '../core/prompt-role-contract-registry.js';
 import { readPromptRegistry, renderPromptEntryForHost, type PromptHost } from '../core/prompt-registry.js';
@@ -226,11 +226,16 @@ const SESSION_ENV_KEYS = [
   'AGY_SESSION_ID',
 ] as const;
 
-function withSessionProvider<T>(provider: string | undefined, fn: () => T): T {
+function withSessionProvider<T>(
+  provider: string | undefined,
+  fn: () => T,
+  competingEnv: Record<string, string> = {},
+): T {
   const previous = Object.fromEntries(SESSION_ENV_KEYS.map(key => [key, process.env[key]]));
   for (const key of SESSION_ENV_KEYS) delete process.env[key];
   process.env.LATTICE_SESSION_ID = `sess-quorum-${provider ?? 'absent'}`;
   if (provider !== undefined) process.env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER = provider;
+  for (const [key, value] of Object.entries(competingEnv)) process.env[key] = value;
   resetSessionIdForTest();
   try {
     return fn();
@@ -291,13 +296,51 @@ try {
     }
   });
 
+  check('explicit invalid provider wins over competing host inference while true absence still infers', () => {
+    const inputs = { hostname: 'quorum-smoke-host', root, ppid: 4242 };
+    for (const competingEnv of [
+      { CODEX_THREAD_ID: 'competing-codex-thread' },
+      { CLAUDE_CODE_SESSION_ID: 'competing-claude-session' },
+    ]) {
+      const invalid = resolveSessionIdentity({
+        LATTICE_SESSION_ID: 'sess-explicit-invalid',
+        LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'gemini',
+        ...competingEnv,
+      }, inputs);
+      assert.equal(invalid.hostProvider, 'unknown', 'explicit invalid provider cannot fall through to competing host variables');
+      assert.equal(invalid.sessionSource, 'explicit-env');
+    }
+    const absentCodex = resolveSessionIdentity({
+      LATTICE_SESSION_ID: 'sess-absent-codex',
+      CODEX_THREAD_ID: 'inferred-codex-thread',
+    }, inputs);
+    assert.equal(absentCodex.hostProvider, 'codex', 'absent explicit provider preserves Codex inference');
+    const absentClaude = resolveSessionIdentity({
+      LATTICE_SESSION_ID: 'sess-absent-claude',
+      CLAUDE_CODE_SESSION_ID: 'inferred-claude-session',
+    }, inputs);
+    assert.equal(absentClaude.hostProvider, 'claude-code', 'absent explicit provider preserves Claude inference');
+  });
+
   check('unsupported session providers cannot enter the dispatch-to-review-run-to-gate chain', () => {
     const cases = [
-      { provider: 'agy', diagnostic: 'antigravity' },
-      { provider: 'antigravity', diagnostic: 'antigravity' },
-      { provider: 'fake', diagnostic: 'fake' },
-      { provider: 'unknown', diagnostic: 'unknown' },
-      { provider: undefined, diagnostic: 'absent' },
+      { label: 'agy', provider: 'agy', diagnostic: 'antigravity', competingEnv: {} },
+      { label: 'antigravity', provider: 'antigravity', diagnostic: 'antigravity', competingEnv: {} },
+      { label: 'fake', provider: 'fake', diagnostic: 'fake', competingEnv: {} },
+      { label: 'unknown', provider: 'unknown', diagnostic: 'unknown', competingEnv: {} },
+      { label: 'absent', provider: undefined, diagnostic: 'absent', competingEnv: {} },
+      {
+        label: 'explicit gemini with competing Codex env',
+        provider: 'gemini',
+        diagnostic: 'unknown',
+        competingEnv: { CODEX_THREAD_ID: 'competing-codex-thread' },
+      },
+      {
+        label: 'explicit gemini with competing Claude env',
+        provider: 'gemini',
+        diagnostic: 'unknown',
+        competingEnv: { CLAUDE_CODE_SESSION_ID: 'competing-claude-session' },
+      },
     ] as const;
     const primaryCwd = process.cwd();
     for (const testCase of cases) {
@@ -312,12 +355,12 @@ try {
           assert.throws(
             () => dispatch({ storyId: STORY_ID, agentType: 'lattice-review-quality' }),
             new RegExp(`unsupported session host provider "${testCase.diagnostic}"`),
-            `${testCase.provider ?? 'absent'} dispatch fails closed`,
+            `${testCase.label} dispatch fails closed`,
           );
           assert.throws(
             () => start({ storyId: STORY_ID, agent: 'lattice-review-quality' }),
             /no trusted story-review dispatch binding/,
-            `${testCase.provider ?? 'absent'} cannot start a review run without supported dispatch provenance`,
+            `${testCase.label} cannot start a review run without supported dispatch provenance`,
           );
           assert.equal(
             canPassReviewGuard({
@@ -327,11 +370,18 @@ try {
               gitCwd: unsupported.root,
             }),
             false,
-            `${testCase.provider ?? 'absent'} cannot satisfy the REVIEW gate`,
+            `${testCase.label} cannot satisfy the REVIEW gate`,
+          );
+          assert.equal(
+            unsupported.store.readProcessEvents(STORY_ID).filter(
+              event => event.type === 'dispatch' && event.targetKind === 'story-review',
+            ).length,
+            0,
+            `${testCase.label} fails before dispatch provenance is persisted`,
           );
           assert.equal(unsupported.store.readReviewRuns(STORY_ID).runs.length, 0);
           assert.equal(unsupported.store.readPromptEnvelopes(STORY_ID).envelopes.length, 0);
-        });
+        }, testCase.competingEnv);
       } finally {
         process.chdir(primaryCwd);
         rmSync(unsupported.root, { recursive: true, force: true });
