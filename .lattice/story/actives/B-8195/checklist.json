@@ -67,12 +67,12 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "When the immediately preceding authorized TEST lifecycle flow creates canonical managed metadata, fresh-PASS reuse persists that exact admissible delta together with the reused PASS evidence in one isolated compare-and-swap closeout transaction, then returns PASS with disposition reused and commandExecutions=0 without an operator commit.",
+            "desc": "The authorized TEST transition snapshots a clean entry baseline, emits its own canonical phase/process-metrics metadata, verifies the exact post-write delta against that baseline, and atomically closes only those transition-generated files before returning; the subsequent verifier starts from a clean tree and independently persists the fresh reused PASS with disposition reused and commandExecutions=0.",
             "type": "logic",
             "priority": "must"
           },
           {
-            "desc": "Trust is established by a causal canonical-writer proof bound to the lifecycle invocation, story identity, entry HEAD/baseline, exact generated path set and content/digest (or equivalent existing signed writer receipt), not by path allowlisting, event prose, event type, filename, or merely observing that a file is metadata-only.",
+            "desc": "The admission boundary is transition-local and causal: the transition proves exactly what it generated from its entry baseline and closes only that delta. The verifier receives no receipt or generalized permission to accept dirty metadata; any dirt present when validate begins, including canonical-looking event prose or allowed-path content, remains untrusted and rejected.",
             "type": "logic",
             "priority": "must"
           }
