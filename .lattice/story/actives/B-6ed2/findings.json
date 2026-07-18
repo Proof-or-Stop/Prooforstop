@@ -14,6 +14,21 @@
       "_hash": "057c2c3156faa20f3c99cce35ca9a331839ace84b15fe714526a639021e70523",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6ed2:F-002",
+      "desc": "packages/main/src/tasks/quorum-submit-smoke.ts:106-134,357-399 — HIGH coverage gap: the 27-intent evidence marks CHK-001 happy:0/happy:1/edge:0/adversarial:0/adversarial:2 and CHK-003 happy:0/adversarial:0 as covered by this smoke, but the smoke creates a synthetic temp repository with synthetic PASS evidence and invokes registry.get(\"quorum_submit\") directly; it never invokes the worktree-local CLI, never runs the validation persistence path, never demonstrates the historical validation refusal/no-false-PASS boundary, and never proves the harness rejects a direct-handler-only shortcut. The only post-quorum check at lines 390-399 calls captureLifecycleMetadataTransaction and expects success after GREEN. The sole pre-dirty case at lines 579-592 is an untracked user file, not the separately required pre-dirty process-events plus staged/source/lifecycle cases. Thus several MUST intents are contradicted or only narratively attested while checklist evidence claims executable coverage. Add a bounded production-entry integration that runs node bin/lattice.js quorum_submit in a real fixture/worktree and exercises the validation persistence refusal on the RED implementation (or bind a concrete immutable historical receipt), plus the explicitly required pre-dirty categories; keep the existing fast handler matrix for fault injection.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-18T22:44:32.594Z",
+      "reviewRound": "2026-07-18T22:40:29.487Z",
+      "reviewRunId": "B-6ed2:RR-002",
+      "_hash": "0fa67b1d3fed7bfeb0e556cb1d071627e997e9ca367a72a1ca24e4e2a0ad9218",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
