@@ -1,0 +1,60 @@
+{
+  "storyId": "B-62b8",
+  "checkedAt": "2026-07-18T01:24:45.886Z",
+  "headHash": "88abf0fb38047b8d053487947f5ea25ea97d6532",
+  "materialHash": "ecc7c101e97ea12f34fb3f091ea6cad0b29c32766d5d5ac607b13c7df9edafd4",
+  "storyFilesHash": "fde0c9c50326741d3206c4dcfd9bbe37bc79df31d6d1ef0e058924fb44629ad6",
+  "reviewRound": "2026-07-18T01:14:08.901Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+      "promise": "Same task-and-role owner identity remains stable across shell and PPID boundaries, while a different task or role remains a foreign owner.",
+      "status": "verified",
+      "verifiedBy": "bounded delivery review of canonical contract, current owner-session resolver diff, focused integration evidence, and fresh validation",
+      "evidence": "Fresh routine validation PASS at material ecc7c101 with 46/46 commands and 41/41 intents; owner-session smoke covers cross-PPID continuity plus task/role isolation."
+    },
+    {
+      "docPath": "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+      "promise": "When no safe composite identity exists, derived-ppid remains visibly degraded and diagnostics recommend LATTICE_SESSION_ID or a supported adapter without exposing raw host tokens.",
+      "status": "verified",
+      "verifiedBy": "bounded source/test review and real-output transcript inspection",
+      "evidence": "owner-session smoke asserts degraded warning before mutation; doctor/session/usage projection tests assert opaque output and raw Codex/Claude token absence across text, JSON, alert, and --out surfaces."
+    },
+    {
+      "docPath": "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+      "promise": "Existing foreign active/stale lease rejection and explicit takeover guidance remain unchanged.",
+      "status": "verified",
+      "verifiedBy": "bounded lease diff and regression evidence review",
+      "evidence": "story-owner-lease smoke retains active rejection, stale --takeover, forceTakeover, audit-event, and no-silent-transfer cases; live session_brief transcript exits 0 on the established owner path."
+    },
+    {
+      "docPath": "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+      "promise": "The contract was ratified by distinct Codex and Antigravity host reviews before runtime implementation, with local-assurance-only boundaries.",
+      "status": "verified",
+      "verifiedBy": "verification-evidence and git-history binding audit",
+      "evidence": "CHK-004 records distinct Codex and Antigravity PASS reviewers over document commit d1a20ee with exact document/material bindings and explicit non-Authority disclaimers; no runtime implementation preceded ratification."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Fresh canonical lattice validate PASS at 2026-07-18T01:21:42Z: commandExecution complete=true, commandCount=46, requiredFailureCount=0, optionalFailureCount=0, verification coverage 41/41."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Post-runtime real Codex and real Antigravity/agy R5 evidence passed stable host-adapter identity across PPID-changing direct/nested invocations, distinct provider/session provenance, and raw-token non-disclosure; local assurance only."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Live-smoke transcript captured project-local session_brief with exitCode=0 and current owner identity; independent focused smoke evidence covers foreign owner rejection, stale/active takeover guidance, and derived-ppid negative behavior."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "PASS: promised owner-session outcome is bound to current source/docs, fresh 46-command validation, 41/41 intent coverage, live smoke, distinct real-host R5 evidence, and 20 resolved findings. No TODO/FIXME additions were found. The three acknowledged scope paths are justified: B-META is official gap_log shared metadata preserved outside implementation; retired-authority-vocabulary-guard-smoke.ts and verify-process-fact-contract.mjs are the exact paired structural-fingerprint repins required by legitimate cli-engine/bin wrapper changes, with no allowlist broadening."
+  },
+  "_hash": "80acabe4c4ca9d7214113e8384cbcd841009987bc11fb5cfe4d2cc5b493e8651"
+}
