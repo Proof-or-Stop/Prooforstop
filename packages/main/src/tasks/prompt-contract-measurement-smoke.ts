@@ -132,6 +132,50 @@ ownMethodArray.map = () => {
 rejects(() => canonicalJsonStringify(ownMethodArray), /extra array field/);
 assert.equal(ownMapCalled, false, 'canonical serializer must not invoke a candidate-owned array method');
 assert.equal(canonicalJsonStringify([1, { b: 2, a: 1 }]), '[1,{"a":1,"b":2}]');
+let plainProxyTrapCount = 0;
+const plainProxy = new Proxy({ a: 1 }, {
+  ownKeys(target) {
+    plainProxyTrapCount += 1;
+    return Reflect.ownKeys(target);
+  },
+  getOwnPropertyDescriptor(target, key) {
+    plainProxyTrapCount += 1;
+    return Reflect.getOwnPropertyDescriptor(target, key);
+  },
+  getPrototypeOf(target) {
+    plainProxyTrapCount += 1;
+    return Reflect.getPrototypeOf(target);
+  },
+});
+rejects(() => canonicalJsonStringify(plainProxy), /must not be a Proxy/);
+assert.equal(plainProxyTrapCount, 0, 'plain-object Proxy traps must not run');
+let arrayProxyTrapCount = 0;
+const statefulArrayProxy = new Proxy([1], {
+  ownKeys(target) {
+    arrayProxyTrapCount += 1;
+    return Reflect.ownKeys(target);
+  },
+  getOwnPropertyDescriptor(target, key) {
+    arrayProxyTrapCount += 1;
+    const descriptor = Reflect.getOwnPropertyDescriptor(target, key);
+    if (key === '0' && descriptor && 'value' in descriptor) descriptor.value = arrayProxyTrapCount;
+    return descriptor;
+  },
+  getPrototypeOf(target) {
+    arrayProxyTrapCount += 1;
+    return Reflect.getPrototypeOf(target);
+  },
+  has(target, key) {
+    arrayProxyTrapCount += 1;
+    return Reflect.has(target, key);
+  },
+});
+rejects(() => canonicalJsonStringify(statefulArrayProxy), /must not be a Proxy/);
+assert.equal(arrayProxyTrapCount, 0, 'array Proxy traps must not run');
+const revokedProxyHandle = Proxy.revocable({ a: 1 }, {});
+revokedProxyHandle.revoke();
+rejects(() => canonicalJsonStringify(revokedProxyHandle.proxy), /must not be a Proxy/);
+assert.equal(canonicalJsonStringify({ a: [1, 2] }), '{"a":[1,2]}');
 
 assert.equal(promptUtf8Bytes('ASCII'), 5);
 assert.equal(promptUtf8Bytes('中'), 3);

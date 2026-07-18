@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { types as utilTypes } from 'node:util';
 
 import {
   BYTES_CHARS_ESTIMATOR_NAME,
@@ -171,6 +172,9 @@ export function canonicalJsonStringify(value: unknown): string {
     }
     if (typeof candidate !== 'object') {
       throw new PromptContractValidationError(`${path} contains unsupported ${typeof candidate}`);
+    }
+    if (utilTypes.isProxy(candidate)) {
+      throw new PromptContractValidationError(`${path} must not be a Proxy`);
     }
     if (ancestors.has(candidate)) throw new PromptContractValidationError(`${path} is cyclic`);
     ancestors.add(candidate);
