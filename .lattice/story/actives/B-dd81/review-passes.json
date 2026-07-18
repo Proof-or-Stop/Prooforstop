@@ -212,6 +212,50 @@
         "scanEscalationReason": null
       },
       "_hash": "ab0e3111358729df25bef93fd711a9770f5665007fed9fda6b31a3592e9419bd"
+    },
+    {
+      "id": "B-dd81:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Round 7 quality re-review after F013: explicit nonblank unsupported provider is preserved as unknown ahead of Codex/Claude inference; absent provider inference remains intact; rejection occurs before story-review dispatch provenance, ReviewRun, or Prompt Envelope persistence. Build, quorum-submit 22/22, story-owner-lease smoke, and process-fact contract all pass.",
+      "createdAt": "2026-07-18T23:51:03.417Z",
+      "reviewRound": "2026-07-18T23:43:17.744Z",
+      "reviewRunId": "B-dd81:RR-019",
+      "writerSessionId": "sess-cf9f057ddbaef1074fbda1b96368648b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-dd81/background.md",
+          ".lattice/story/actives/B-dd81/plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/owner-session.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-dd81/checklist.json",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "0b00ae586930afd8310856dfd777837eb6748e3eda6c7081416082618ba5d3c9"
+      },
+      "readDiagnostics": [],
+      "_hash": "017677c345fd8baf6d2537d81e0c4cf1d936004ef88d17e5f1d7b3aac83f8f82"
     }
   ]
 }
