@@ -23,6 +23,59 @@
           "packages/main/src/tasks/scope-contract-smoke.ts",
           "packages/main/src/tasks/scope-contract-plan-scope-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Source-root-relative core/foo.ts and repo-root-relative packages/main/src/core/foo.ts canonicalize to the same persisted repo-root-relative path, and exact-file versus declared-subtree matching keeps its existing semantics.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "POSIX dot segments and Windows separators normalize deterministically (for example ./core/../core/foo.ts and core\\foo.ts) without changing the canonical repo-root-relative identity.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "With path canonicalization enabled, newly written scope artifacts carry the canonical path and schema/version identity, while rollback mode can read a previously signed legacy artifact without rewriting or silently re-signing its history.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Inputs already canonical remain idempotent, source-root and repo-root bases are distinguished explicitly, and an input valid under more than one plausible base is rejected as ambiguous rather than guessed.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "A symlink that resolves inside the permitted repository boundary is compared by its canonical repository identity, while path-prefix collisions such as src/core2 versus src/core do not count as subtree matches.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Legacy, missing, or changed path-canonicalizer versions are surfaced as migration/stale or re-attestation outcomes according to policy; the independent path rollout flag does not alter AST-anchor rollout state.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Absolute POSIX/Windows paths, drive/UNC paths, traversal above the repository or configured source root, and symlink escapes are rejected fail-closed at both write and compare boundaries.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Crafted separator, case/prefix, dot-segment, encoded traversal, or mismatched-base inputs cannot expand allowedModify/files.modify scope or turn an out-of-scope file into an exact/subtree match.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Failure output identifies original input, attempted canonical form or rejection reason, selected base, canonicalizer version, and matching rule so operators can repair the contract without bypassing it.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
