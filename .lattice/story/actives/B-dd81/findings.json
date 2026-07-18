@@ -191,6 +191,26 @@
       "_hash": "90431d9542b2d321ba19ac376903e303ff4f086100e1c1bf136ee8b49075a394",
       "signatureTag": "missing|unknown|lattice-story-actives",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-dd81:F-010",
+      "desc": "packages/main/src/core/prompt-role-contract-registry.ts:59-81 and packages/main/src/handlers/story-dispatch.ts:738-742 [HIGH] full-envelope reviewer dispatch is unusable in the supported default runtime-owned/global-thin and Codex registry modes. reviewerHostRenderIdentity always calls assertExactHostAsset on projectRoot/.claude/agents/<role>.md before it checks Codex promptMode, even though runtime-owned default intentionally has no project prompt assets, thin Codex omits .lattice-codex/agents, and Claude role bodies are global content-free shims that fetch the package registry. Minimal reproduction against the built module with a temp root containing only .lattice-codex/lattice.json {promptMode:registry} returns missing Claude reviewer prompt asset. Because story-dispatch calls this function before saving the dispatch binding, enabling any role as full-envelope prevents dispatch/review_run_start entirely on the default deployment shape; the current smoke covers registry-mode adapter checks but never calls this new identity/dispatch path. Resolve host asset identity by the configured/current host mode: bind package-registry renders for thin/runtime-owned modes and require local mirrors only for explicit full-asset mode, without making one host depend on another host project-local files; add thin/global-thin full-envelope dispatch + review-run + gate regression coverage.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-18T22:33:24.207Z",
+      "reviewRound": "2026-07-18T22:27:24.332Z",
+      "reviewRunId": "B-dd81:RR-010",
+      "_hash": "1c4532854aef0148c59fb156ea9caf171fa4236f41b67b5698a027d6af151b93",
+      "files": [
+        "packages/main/src/core/prompt-role-contract-registry.ts",
+        "packages/main/src/handlers/story-dispatch.ts",
+        "packages/main/src/tasks/codex-registry-mode-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
