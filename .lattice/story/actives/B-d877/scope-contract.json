@@ -1,0 +1,28 @@
+{
+  "storyId": "B-d877",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/story-transition-lock.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/transition-integrity-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-18T23:51:45.763Z",
+  "updatedAt": "2026-07-18T23:51:45.763Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/handlers/worktree.ts": "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts": "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/core/story-transition-lock.ts": "packages/main/src/core/story-transition-lock.ts",
+    "packages/main/src/tasks/transition-integrity-smoke.ts": "packages/main/src/tasks/transition-integrity-smoke.ts"
+  }
+}
