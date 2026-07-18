@@ -380,6 +380,21 @@
       "resolvedAt": "2026-07-18T00:59:53.258Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-62b8:F-019",
+      "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:1419 and scripts/verify-process-fact-contract.mjs:955 — HIGH: 0fc143ac00 correctly repins cli-engine to independently recomputed canonical AST hash 966ee4…, but the required retired-authority smoke still fails because this story also changed bin/lattice-codex.js and its exact benign-loader fingerprint remains the stale 9ad446… instead of current canonical 4df693…. Repro after successful build: retired-authority-vocabulary-guard-smoke reports `bin/lattice-codex.js:30 unapproved non-literal dynamic module load`; process-fact contract separately PASSes because it mirrors the same stale literal rather than exercising the guard. Repin that wrapper in both exact maps after reviewing its pathToFileURL(localLattice).href call; do not broaden the file/anchor/argument allowlist.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-18T01:10:55.191Z",
+      "reviewRound": "2026-07-18T01:08:09.314Z",
+      "reviewRunId": "B-62b8:RR-029",
+      "_hash": "10b1f211b18bd5d098db46c0213c3ca9596ba83933f28ecde777a8dcd2d6e3c3",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
