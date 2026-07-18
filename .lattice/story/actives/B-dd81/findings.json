@@ -268,6 +268,25 @@
       "resolvedAt": "2026-07-18T23:23:51.126Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-dd81:F-013",
+      "desc": "packages/main/src/core/owner-session-adapters.ts:71 — explicit unsupported provider does not fail closed: normalizeProvider returns null for any unrecognized nonblank LATTICE_OWNER_SESSION_ADAPTER_PROVIDER, then detectProvider falls through to host-specific session variables and can relabel the session as a supported host. Repro after build: resolveSessionIdentity({LATTICE_SESSION_ID:\"sess-x\",LATTICE_OWNER_SESSION_ADAPTER_PROVIDER:\"gemini\",CODEX_THREAD_ID:\"codex-thread-x\"}, ...) returns hostProvider=codex, so full-envelope dispatch can mint Codex-bound reviewer provenance despite the explicit unsupported provider. Preserve absent-provider inference, but distinguish an explicitly invalid provider and reject it before fallback; add a mixed-env chain regression, since current tests clear all competing host variables. Severity high: this violates the gate-consumed unsupported-provider fail-closed contract.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-18T23:28:34.724Z",
+      "reviewRound": "2026-07-18T23:23:40.222Z",
+      "reviewRunId": "B-dd81:RR-016",
+      "_hash": "fe807d42d12e012f2b70494260a316cd3b18e3410155645a260500bac366f6f9",
+      "files": [
+        "packages/main/src/core/owner-session-adapters.ts",
+        "packages/main/src/tasks/quorum-submit-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
