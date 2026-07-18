@@ -499,6 +499,21 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-360e:F-024",
+      "desc": "packages/main/src/handlers/validate-concept.ts:254-312,359-394 — HIGH: the metadata state machine still accepts contradictory /dev/null sections that can suppress deletions. Repros all return symbols=[] and diagnostics=[]: (1) authoritative header `a/src/victim.ts -> b/src/addition.ts` with `--- /dev/null`; (2) an addition (`--- /dev/null`, `+++ b/src/victim.ts`) containing a removed `-export function suppressed...` line; and (3) a deletion (`+++ /dev/null`) containing added lines. Because oldSourcePath=/dev/null skips old declaration analysis, malformed input can silently reclassify a deletion as an addition. Enforce /dev/null header consistency (the authoritative old/new paths must denote the same surviving file for add/delete) and hunk directionality (null old side cannot have removed/context old content; null new side cannot have added/context new content), with focused suppression probes.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-18T10:13:28.105Z",
+      "reviewRound": "2026-07-18T10:11:26.305Z",
+      "reviewRunId": "B-360e:RR-031",
+      "_hash": "a5e02b81bb92ac57ac461978acb90c60f95f3d2d5150d69e05a31339b299acc8",
+      "signatureTag": "adversarial|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
