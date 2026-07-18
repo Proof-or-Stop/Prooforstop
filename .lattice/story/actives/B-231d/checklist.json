@@ -56,7 +56,26 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:0",
+            "desc": "buildDoneRequiredCommandSpecEnvelope produces the same digest for the same logical command under two different worktree roots.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:0",
+            "desc": "genuinely different commands still digest differently; legacy old-shape receipts still verify under the migration.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
