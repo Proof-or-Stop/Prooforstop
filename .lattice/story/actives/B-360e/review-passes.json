@@ -803,6 +803,29 @@
         "scanEscalationReason": null
       },
       "_hash": "8ad7c791f4aa04debd3bc53d35596834e66bde02818a9bb57a4884549e112b0a"
+    },
+    {
+      "id": "B-360e:RP-025",
+      "agent": "lattice-review-concept",
+      "note": "Fresh stable-HEAD confirmation of round-17 concept review. No non-Story-metadata files changed since RP-022; current storyFilesHash remains 098739c4. Concept gate scope smoke and raw full-diff validate --concept pass again, and the checklist contains exactly 42/42 passing evidence records with one consistent materialHash and storyFilesHash. Round-17 F-031 evidence repair, merged concept semantics, Prompt zero-drift, process verifier, and baseline conclusions therefore remain unchanged; this pass rebinds concept evidence to the current diffPack after parallel reviewer metadata settled.",
+      "createdAt": "2026-07-18T12:08:50.426Z",
+      "reviewRound": "2026-07-18T12:03:30.904Z",
+      "reviewRunId": "B-360e:RR-054",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c37f51c1174c26dd31bc6da021623f23d9bd54362188280b1227cc5ccf92f4d5"
     }
   ]
 }
