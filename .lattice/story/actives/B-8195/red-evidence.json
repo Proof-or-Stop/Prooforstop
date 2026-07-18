@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-8195",
+  "records": [
+    {
+      "id": "RED-20260718102212",
+      "trigger": "Fresh PASS reuse reaches commandExecutions=0 but returns infra_failure when canonical process-events metadata is dirty after the lifecycle transition.",
+      "acceptanceTargetRef": "REQ-B8195-ATOMIC-REUSE",
+      "baselineHeadHash": "7d8aca4b0507a931a399b1c4ab89b9ed6717865d",
+      "baselineMaterialHash": "740b2cdf3ff9f1d8d859fb562ef1fc0fb2f0a23ed7cc47800b623bffabe47737",
+      "observedFailure": "Provider lattice-verifier-reuse-persistence returned status=fail, failureKind=infra_failure and canonical-pass-persistence-failed for process-events.jsonl even though the reuse log reported commandExecutions=0.",
+      "failingCommand": "node /tmp/proofbound-validate-reuse-red.mjs",
+      "expectedGreenCommand": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+      "greenRelation": {
+        "targetRef": "REQ-B8195-ATOMIC-REUSE",
+        "relation": "regression_to_green",
+        "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js"
+      },
+      "note": "The temporary isolated harness is the accepted pre-story RED. CHK-001 will persist the same production-path failure inside the repository before the implementation changes.",
+      "createdAt": "2026-07-18T10:22:12.398Z"
+    }
+  ],
+  "createdAt": "2026-07-18T10:22:12.398Z",
+  "updatedAt": "2026-07-18T10:22:12.398Z"
+}

@@ -857,7 +857,7 @@ function assertCloseoutTrustBoundary() {
     '458d8aeaf36286e2ca0cafe968c2e9559d46e57e6920ca9581ea58ee38b77887',
     '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844',
     'd6ca0a50fd24368b13817065278e2ca4d59d38983dc21a79322f9997de497e9e',
-    '966ee4cc3c3af7427588ffab6f03bfdcfc92995a3481eeff66f2218d72702861',
+    '57e34467adfc091cfe86ae9defbe7cb0606283f33f168aa148124dd100f41c89',
     '20149fa438b1ec78fc9c9713eb3cc4a890bc58a1d82e7a5fa0d588e9c4e7ee91',
     '518890b58fd8e369488721d66d954f9589a049a42066635f42c057227788ae45',
     'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83',
@@ -2372,6 +2372,116 @@ function extractBalancedBlock(text, openIndex, openChar, closeChar, label) {
 
   fail(`${label} block should close`);
   return '';
+}
+
+function findBalancedCloseIndex(text, openIndex, openChar, closeChar) {
+  let depth = 0;
+  let inString = false;
+  let quote = '';
+  let escaped = false;
+
+  for (let index = openIndex; index < text.length; index += 1) {
+    const char = text[index];
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (inString) {
+      if (char === '\\') escaped = true;
+      else if (char === quote) inString = false;
+      continue;
+    }
+    if (char === '"' || char === "'" || char === '`') {
+      inString = true;
+      quote = char;
+      continue;
+    }
+    if (char === openChar) depth += 1;
+    else if (char === closeChar) {
+      depth -= 1;
+      if (depth === 0) return index;
+    }
+  }
+  return -1;
+}
+
+function extractNamedFunctionBody(text, functionName) {
+  const declaration = new RegExp(`\\bfunction\\s+${functionName}\\s*\\(`).exec(text);
+  if (!declaration) return null;
+  const paramsStart = text.indexOf('(', declaration.index);
+  const paramsEnd = findBalancedCloseIndex(text, paramsStart, '(', ')');
+  if (paramsEnd < 0) return null;
+  const bodyStart = text.indexOf('{', paramsEnd);
+  if (bodyStart < 0) return null;
+  const bodyEnd = findBalancedCloseIndex(text, bodyStart, '{', '}');
+  if (bodyEnd < 0) return null;
+  return text.slice(bodyStart + 1, bodyEnd);
+}
+
+function validationPersistenceTransactionIssues(verifierText) {
+  const issues = [];
+  const writerCallCount = [...verifierText.matchAll(/\bcommitValidationReuseMetadataTransaction\s*\(/g)].length;
+  if (writerCallCount !== 2) {
+    issues.push(`verifier must contain exactly two canonical validation transaction writer calls; found ${writerCallCount}`);
+  }
+
+  const localContracts = [
+    {
+      functionName: 'reusedStoryValidationResult',
+      evidenceWriter: 'args.ctx.store.writeTestEvidence',
+    },
+    {
+      functionName: 'persistStoryValidationEvidence',
+      evidenceWriter: 'ctx.store.writeTestEvidence',
+    },
+  ];
+  for (const contract of localContracts) {
+    const body = extractNamedFunctionBody(verifierText, contract.functionName);
+    if (!body) {
+      issues.push(`verifier must declare ${contract.functionName}`);
+      continue;
+    }
+    for (const token of [
+      contract.evidenceWriter,
+      'recordValidationTerminal',
+      'commitValidationReuseMetadataTransaction',
+      "reason: 'validate'",
+      'transaction',
+      "closeoutArtifactPaths: ['test-evidence.json']",
+    ]) {
+      if (!body.includes(token)) {
+        issues.push(`${contract.functionName} must locally bind canonical validation persistence token "${token}"`);
+      }
+    }
+  }
+  return issues;
+}
+
+function assertValidationPersistenceTransactionContract() {
+  const verifierPath = 'packages/main/src/handlers/verifier.ts';
+  const verifierText = read(verifierPath);
+  for (const issue of validationPersistenceTransactionIssues(verifierText)) {
+    fail(`${verifierPath}: ${issue}`);
+  }
+
+  const executedBody = extractNamedFunctionBody(verifierText, 'persistStoryValidationEvidence');
+  assert(Boolean(executedBody), 'validation persistence contract self-test requires the executed-validation function');
+  if (!executedBody) return;
+  const mutatedExecutedBody = executedBody.replace(
+    'commitValidationReuseMetadataTransaction',
+    'removedValidationTransactionWriter',
+  );
+  assert(
+    mutatedExecutedBody !== executedBody,
+    'validation persistence contract self-test must remove the executed-validation writer',
+  );
+  const mutatedVerifier = verifierText.replace(executedBody, mutatedExecutedBody);
+  const mutationIssues = validationPersistenceTransactionIssues(mutatedVerifier);
+  assert(
+    mutationIssues.some(issue => issue.includes('persistStoryValidationEvidence'))
+      && mutationIssues.some(issue => issue.includes('exactly two')),
+    'validation persistence contract bite must fail when executed persistence is deleted while reuse persistence remains',
+  );
 }
 
 function extractExportedObjectBody(text, exportName, relPath) {
@@ -5454,7 +5564,7 @@ const inventory = [
           "disposition: 'reused'",
           'canonical-pass-persistence-failed',
           'commitValidationReuseMetadataTransaction',
-          "autoCommitStoryMetadata(ctx.root, storyId, 'validate'",
+          "reason: 'validate'",
           "closeoutArtifactPaths: ['test-evidence.json']",
         ],
       },
@@ -5783,7 +5893,7 @@ const inventory = [
           "disposition: 'reused'",
           'canonical-pass-persistence-failed',
           'commitValidationReuseMetadataTransaction',
-          "autoCommitStoryMetadata(ctx.root, storyId, 'validate'",
+          "reason: 'validate'",
           "closeoutArtifactPaths: ['test-evidence.json']",
         ],
       },
@@ -5883,6 +5993,7 @@ assertPromptEvidenceBoundaries(promptMap);
 assertProofStoryProgressiveBoundary();
 assertProofStoryGateConsumedFacts();
 assertCloseoutTrustBoundary();
+assertValidationPersistenceTransactionContract();
 assertProcessFactCommandInventory();
 await assertLifecycleArtifactScopePolicy();
 assertStrengtheningRoadmapGovernanceLedger();

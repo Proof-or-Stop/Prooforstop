@@ -1,0 +1,1137 @@
+{
+  "command": "lattice validate --story=B-8195 --json",
+  "output": "{\"provider\":\"lattice-verifier-reused\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Validation PASS reused (trusted-story-metadata-descendant); commandExecutions=0\",\"details\":[\"disposition=reused existingEvidenceBasis=fresh lineage=trusted-story-metadata-descendant\",\"identityDigest=cc8728ddf62059206069ab91a8084d692dc1fbd77e338a4ad2176673faf2a958\",\"commandExecutions=0\",\"Verification intent coverage: 20/20 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/validation-evidence-reuse-smoke.ts) — A production-path regression harness drives the local worktree CLI through a real REVIEW-to-TEST story_advance followed immediately by mandatory validate, without an intervening git add/commit, and on the current implementation proves validation selected the fresh PASS (disposition reused, commandExecutions=0) but returned infra_failure solely with canonical-pass-persistence-failed naming lifecycle-generated process-events metadata; the harness is committed while still RED before the production fix.\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/validation-evidence-reuse-smoke.ts) — The RED fixture isolates counters and scratch artifacts outside the fixture repository and asserts no configured validation command executed, so repository pollution by the harness cannot masquerade as the product failure.\",\"  ✓ CHK-001:edge:1 [edge/must/logic] covered via logic_test (packages/main/src/tasks/validation-evidence-reuse-smoke.ts) — The fixture records the exact pre-validate git status and the post-failure dirty rows, demonstrating the offending managed metadata was absent on command entry and was created by the authorized TEST transition rather than pre-existing dirt.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via integration_test (packages/main/src/tasks/validation-evidence-reuse-smoke.ts) — A negative control with a pre-existing direct or human-authored managed-metadata modification is refused before reuse persistence and is never reclassified as trusted merely because its path or event type resembles canonical lifecycle output.\",\"  ✓ CHK-001:adversarial:1 [adversarial/must/cli] covered via integration_test (packages/main/src/tasks/validation-evidence-reuse-smoke.ts) — The regression fails if the product invokes any full validation command, silently commits arbitrary dirt, or reports PASS despite a persistence failure; only the exact zero-command infra_failure signature qualifies as the intended pre-fix RED.\",\"  ✓ CHK-002:happy:0 [happy/must/logic] covered via integration_test (packages/main/src/tasks/validation-evidence-reuse-smoke.ts) — The authorized TEST transition snapshots a clean entry baseline, emits its own canonical phase/process-metrics metadata, verifies the exact post-write delta against that baseline, and atomically closes only those transition-generated files before returning; the subsequent verifier starts from a clean tree and independently persists the fresh reused PASS with disposition reused and commandExecutions=0.\",\"  ✓ CHK-002:happy:1 [happy/must/logic] covered via logic_test (packages/main/src/core/auto-commit-metadata.ts) — The admission boundary is transition-local and causal: the transition proves exactly what it generated from its entry baseline and closes only that delta. The verifier receives no receipt or generalized permission to accept dirty metadata; any dirt present when validate begins, including canonical-looking event prose or allowed-path content, remains untrusted and rejected.\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/core/auto-commit-metadata.ts) — An authorized lifecycle invocation that produces no admissible metadata still reuses normally, while one that produces a strict subset or multiple canonical rows admits only the causally proven exact paths and leaves no partial transaction state.\",\"  ✓ CHK-002:edge:1 [edge/must/logic] covered via logic_test (packages/main/src/core/auto-commit-metadata.ts) — The transaction rechecks HEAD, managed-path delta and proof freshness immediately before persistence; any concurrent HEAD or content movement aborts without writing a PASS receipt or committing another writer’s changes.\",\"  ✓ CHK-002:edge:2 [edge/must/logic] covered via integration_test (packages/main/src/tasks/validation-evidence-reuse-smoke.ts) — A closeout/CAS writer error or interrupted commit rolls back or leaves a classified recoverable failure with no false PASS, no partially staged/committed trusted metadata and no lost pre-existing user changes.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via integration_test (packages/main/src/tasks/validation-evidence-reuse-smoke.ts) — Direct edits, pre-existing human_confirmation rows, forged event-shaped JSON, copied/replayed canonical receipts, wrong-story or wrong-HEAD proofs, malformed/truncated receipts, path aliases and unproven additional managed files remain inadmissible even when their text and paths imitate an authorized lifecycle writer.\",\"  ✓ CHK-002:adversarial:1 [adversarial/must/logic] covered via integration_test (packages/main/src/tasks/validation-evidence-reuse-smoke.ts) — Source, configuration, command-entry, hook, untracked, symlink-resolved or unrelated dirty paths can never join the metadata transaction; detection fails closed to execution/refusal rather than laundering them into a reused PASS.\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/validate-progress-heartbeat-smoke.ts) — From a clean fixture with a fully bound fresh PASS, the real local CLI performs story_advance into TEST and the immediately following mandatory validate succeeds in that single invocation with status PASS, disposition reused, commandExecutions=0, no canonical-pass-persistence-failed diagnostic and a clean final worktree.\",\"  ✓ CHK-003:happy:1 [happy/must/cli] covered via manual_transcript (packages/main/src/tasks/validation-evidence-reuse-smoke.ts) — Both human-readable and JSON output explicitly distinguish the successful reused path from executed, skipped, timed-out and failed validation, and the resulting fresh evidence remains bound to the current story/material/command-set identity.\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via integration_test (packages/main/src/tasks/validate-progress-heartbeat-smoke.ts) — Repeating validate after the one-shot convergence is idempotent: it remains a zero-command reused PASS, does not duplicate lifecycle facts or receipts, and leaves HEAD/worktree stable except for explicitly canonical idempotent bookkeeping.\",\"  ✓ CHK-003:edge:1 [edge/must/logic] covered via logic_test (packages/main/src/tasks/validation-evidence-reuse-smoke.ts) — A stale or mismatched material hash, story-files hash, focus, ordered command-set hash, policy/binding or non-trusted HEAD lineage does not take the reuse shortcut and follows the existing execute-or-refuse behavior without fabricating PASS.\",\"  ✓ CHK-003:edge:2 [edge/must/cli] covered via integration_test (packages/main/src/tasks/validation-evidence-reuse-smoke.ts) — The integration suite proves the production entrypoint/worktree runtime is used and counts command executions independently, preventing a global/old CLI or mocked helper-only test from producing a false green.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via integration_test (packages/main/src/tasks/validate-progress-heartbeat-smoke.ts) — A table-driven matrix rejects pre-entry human/direct edits, forged canonical-looking events, replayed wrong-invocation proofs, malformed/truncated receipts and unrelated source/config/command-entry dirt; every case asserts commandExecutions, exit classification, unchanged user content and absence of a new PASS receipt.\",\"  ✓ CHK-003:adversarial:1 [adversarial/must/logic] covered via integration_test (packages/main/src/tasks/validate-progress-heartbeat-smoke.ts) — Deterministically injected concurrent HEAD/content movement between admission and CAS causes a classified infra failure or safe retry, never a reused PASS and never loss/commit of the competing change.\",\"  ✓ CHK-003:adversarial:2 [adversarial/must/logic] covered via integration_test (packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts) — Injected staging, commit, persistence-hook and cleanup failures settle once, release locks/resources, preserve diagnostic causality, roll back framework-owned partial state where possible and never require or recommend an identical blind rerun as proof of success.\"],\"warnings\":[],\"timestamp\":\"2026-07-18T22:07:14.391Z\",\"commands\":[],\"disposition\":\"reused\",\"commandExecutions\":0,\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":20,\"reason\":\"verificationIntent entries present (20)\"},\"verificationCoverage\":{\"total\":20,\"required\":20,\"covered\":20,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"A production-path regression harness drives the local worktree CLI through a real REVIEW-to-TEST story_advance followed immediately by mandatory validate, without an intervening git add/commit, and on the current implementation proves validation selected the fresh PASS (disposition reused, commandExecutions=0) but returned infra_failure solely with canonical-pass-persistence-failed naming lifecycle-generated process-events metadata; the harness is committed while still RED before the production fix.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/validation-evidence-reuse-smoke.ts\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js\",\"result\":\"pass\",\"note\":\"Commit 1f66c4c749 persisted the production REVIEW→TEST→validate RED and printed status=fail, failureKind=infra_failure, canonical-pass-persistence-failed, commandExecutions=0 before the fix.\",\"headHash\":\"08bb841f1d44ef7f081ccb7a1d865d604462680c\",\"materialHash\":\"ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6\",\"storyFilesHash\":\"1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a\",\"timestamp\":\"2026-07-18T21:37:22.355Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"The RED fixture isolates counters and scratch artifacts outside the fixture repository and asserts no configured validation command executed, so repository pollution by the harness cannot masquerade as the product failure.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/validation-evidence-reuse-smoke.ts\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js\",\"result\":\"pass\",\"note\":\"The fixture keeps its counter under the OS temp directory and asserts the project-command count stays at one.\",\"headHash\":\"08bb841f1d44ef7f081ccb7a1d865d604462680c\",\"materialHash\":\"ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6\",\"storyFilesHash\":\"1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a\",\"timestamp\":\"2026-07-18T21:37:22.355Z\"}},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"The fixture records the exact pre-validate git status and the post-failure dirty rows, demonstrating the offending managed metadata was absent on command entry and was created by the authorized TEST transition rather than pre-existing dirt.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:1\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/validation-evidence-reuse-smoke.ts\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js\",\"result\":\"pass\",\"note\":\"The fixture asserts a clean canonical baseline before transition and inspects exact post-transition canonical status.\",\"headHash\":\"08bb841f1d44ef7f081ccb7a1d865d604462680c\",\"materialHash\":\"ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6\",\"storyFilesHash\":\"1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a\",\"timestamp\":\"2026-07-18T21:37:22.355Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"A negative control with a pre-existing direct or human-authored managed-metadata modification is refused before reuse persistence and is never reclassified as trusted merely because its path or event type resembles canonical lifecycle output.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/validation-evidence-reuse-smoke.ts\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js\",\"result\":\"pass\",\"note\":\"Human-authored and forged codex_cli process-event deltas remain byte-identical after fail-closed rejection.\",\"headHash\":\"08bb841f1d44ef7f081ccb7a1d865d604462680c\",\"materialHash\":\"ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6\",\"storyFilesHash\":\"1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a\",\"timestamp\":\"2026-07-18T21:37:22.355Z\"}},{\"intentRef\":\"CHK-001:adversarial:1\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"The regression fails if the product invokes any full validation command, silently commits arbitrary dirt, or reports PASS despite a persistence failure; only the exact zero-command infra_failure signature qualifies as the intended pre-fix RED.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:1\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/validation-evidence-reuse-smoke.ts\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js\",\"result\":\"pass\",\"note\":\"The RED/green fixture independently counts commands and rejects any hidden execution or false PASS.\",\"headHash\":\"08bb841f1d44ef7f081ccb7a1d865d604462680c\",\"materialHash\":\"ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6\",\"storyFilesHash\":\"1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a\",\"timestamp\":\"2026-07-18T21:37:22.355Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"The authorized TEST transition snapshots a clean entry baseline, emits its own canonical phase/process-metrics metadata, verifies the exact post-write delta against that baseline, and atomically closes only those transition-generated files before returning; the subsequent verifier starts from a clean tree and independently persists the fresh reused PASS with disposition reused and commandExecutions=0.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/validation-evidence-reuse-smoke.ts\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js\",\"result\":\"pass\",\"note\":\"Real TEST transition captures and atomically closes its exact index/process-events/process-metrics changed subset; immediate validate is reused PASS.\",\"headHash\":\"08bb841f1d44ef7f081ccb7a1d865d604462680c\",\"materialHash\":\"ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6\",\"storyFilesHash\":\"1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a\",\"timestamp\":\"2026-07-18T21:37:22.355Z\"}},{\"intentRef\":\"CHK-002:happy:1\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"The admission boundary is transition-local and causal: the transition proves exactly what it generated from its entry baseline and closes only that delta. The verifier receives no receipt or generalized permission to accept dirty metadata; any dirt present when validate begins, including canonical-looking event prose or allowed-path content, remains untrusted and rejected.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:1\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/auto-commit-metadata.ts\",\"command\":\"git diff --check\",\"result\":\"pass\",\"note\":\"Verifier dirty rejection is unchanged; lifecycle and CLI writers use clean-baseline exact-path transactions only.\",\"headHash\":\"08bb841f1d44ef7f081ccb7a1d865d604462680c\",\"materialHash\":\"ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6\",\"storyFilesHash\":\"1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a\",\"timestamp\":\"2026-07-18T21:37:22.355Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"An authorized lifecycle invocation that produces no admissible metadata still reuses normally, while one that produces a strict subset or multiple canonical rows admits only the causally proven exact paths and leaves no partial transaction state.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/auto-commit-metadata.ts\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js\",\"result\":\"pass\",\"note\":\"Transaction derives the strict changed subset from baseline while verifying hashes for the entire bounded path set.\",\"headHash\":\"08bb841f1d44ef7f081ccb7a1d865d604462680c\",\"materialHash\":\"ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6\",\"storyFilesHash\":\"1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a\",\"timestamp\":\"2026-07-18T21:37:22.355Z\"}},{\"intentRef\":\"CHK-002:edge:1\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"The transaction rechecks HEAD, managed-path delta and proof freshness immediately before persistence; any concurrent HEAD or content movement aborts without writing a PASS receipt or committing another writer’s changes.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:1\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/auto-commit-metadata.ts\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js\",\"result\":\"pass\",\"note\":\"Captured HEAD is rechecked and immutable metadata commit uses old-HEAD CAS.\",\"headHash\":\"08bb841f1d44ef7f081ccb7a1d865d604462680c\",\"materialHash\":\"ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6\",\"storyFilesHash\":\"1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a\",\"timestamp\":\"2026-07-18T21:37:22.355Z\"}},{\"intentRef\":\"CHK-002:edge:2\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"A closeout/CAS writer error or interrupted commit rolls back or leaves a classified recoverable failure with no false PASS, no partially staged/committed trusted metadata and no lost pre-existing user changes.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:2\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/validation-evidence-reuse-smoke.ts\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js\",\"result\":\"pass\",\"note\":\"Existing isolated writer hook/CAS/receipt failures restore managed index/worktree state and never publish PASS.\",\"headHash\":\"08bb841f1d44ef7f081ccb7a1d865d604462680c\",\"materialHash\":\"ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6\",\"storyFilesHash\":\"1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a\",\"timestamp\":\"2026-07-18T21:37:22.355Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Direct edits, pre-existing human_confirmation rows, forged event-shaped JSON, copied/replayed canonical receipts, wrong-story or wrong-HEAD proofs, malformed/truncated receipts, path aliases and unproven additional managed files remain inadmissible even when their text and paths imitate an authorized lifecycle writer.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/validation-evidence-reuse-smoke.ts\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js\",\"result\":\"pass\",\"note\":\"Direct human_confirmation and forged canonical-looking codex_cli rows are rejected without rewrite or commit.\",\"headHash\":\"08bb841f1d44ef7f081ccb7a1d865d604462680c\",\"materialHash\":\"ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6\",\"storyFilesHash\":\"1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a\",\"timestamp\":\"2026-07-18T21:37:22.355Z\"}},{\"intentRef\":\"CHK-002:adversarial:1\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Source, configuration, command-entry, hook, untracked, symlink-resolved or unrelated dirty paths can never join the metadata transaction; detection fails closed to execution/refusal rather than laundering them into a reused PASS.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:1\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/validation-evidence-reuse-smoke.ts\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js\",\"result\":\"pass\",\"note\":\"Exact transaction path sets are derived from writer kind and story path; unrelated staged/source mutations remain outside commits.\",\"headHash\":\"08bb841f1d44ef7f081ccb7a1d865d604462680c\",\"materialHash\":\"ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6\",\"storyFilesHash\":\"1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a\",\"timestamp\":\"2026-07-18T21:37:22.355Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"From a clean fixture with a fully bound fresh PASS, the real local CLI performs story_advance into TEST and the immediately following mandatory validate succeeds in that single invocation with status PASS, disposition reused, commandExecutions=0, no canonical-pass-persistence-failed diagnostic and a clean final worktree.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/validate-progress-heartbeat-smoke.ts\",\"command\":\"node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js\",\"result\":\"pass\",\"note\":\"Full smoke passed main/direct-handler and real story/* TEST transitions with executed validation evidence+terminal+receipt closed independently before the short outer phase transaction.\",\"headHash\":\"08bb841f1d44ef7f081ccb7a1d865d604462680c\",\"materialHash\":\"ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6\",\"storyFilesHash\":\"1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a\",\"timestamp\":\"2026-07-18T21:37:22.355Z\"}},{\"intentRef\":\"CHK-003:happy:1\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Both human-readable and JSON output explicitly distinguish the successful reused path from executed, skipped, timed-out and failed validation, and the resulting fresh evidence remains bound to the current story/material/command-set identity.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:1\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/tasks/validation-evidence-reuse-smoke.ts\",\"command\":\"node packages/main/dist/tasks/validation-evidence-reuse-smoke.js\",\"result\":\"pass\",\"note\":\"JSON and terminal log distinguish reused zero-command PASS and retain current identity/evidence bindings.\",\"headHash\":\"08bb841f1d44ef7f081ccb7a1d865d604462680c\",\"materialHash\":\"ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6\",\"storyFilesHash\":\"1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a\",\"timestamp\":\"2026-07-18T21:37:22.355Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Repeating validate after the one-shot convergence is idempotent: it remains a zero-command reused PASS, does not duplicate lifecycle facts or receipts, and leaves HEAD/worktree stable except for explicitly canonical idempotent bookkeeping.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/validate-progress-heartbeat-smoke.ts\",\"command\":\"env VALIDATE_HEARTBEAT_FAILURE_ONLY=1 node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js\",\"result\":\"pass\",\"note\":\"Validation failure remains in REVIEW, persists FAIL evidence and validation_terminal through the short exact transaction, emits no TEST transition and leaves no canonical residue.\",\"headHash\":\"08bb841f1d44ef7f081ccb7a1d865d604462680c\",\"materialHash\":\"ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6\",\"storyFilesHash\":\"1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a\",\"timestamp\":\"2026-07-18T21:37:22.355Z\"}},{\"intentRef\":\"CHK-003:edge:1\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"A stale or mismatched material hash, story-files hash, focus, ordered command-set hash, policy/binding or non-trusted HEAD lineage does not take the reuse shortcut and follows the existing execute-or-refuse behavior without fabricating PASS.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:1\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/validation-evidence-reuse-smoke.ts\",\"command\":\"node packages/main/dist/tasks/validation-evidence-reuse-smoke.js\",\"result\":\"pass\",\"note\":\"Existing identity/material/story-files/focus/lineage refusal matrix remains green.\",\"headHash\":\"08bb841f1d44ef7f081ccb7a1d865d604462680c\",\"materialHash\":\"ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6\",\"storyFilesHash\":\"1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a\",\"timestamp\":\"2026-07-18T21:37:22.355Z\"}},{\"intentRef\":\"CHK-003:edge:2\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"The integration suite proves the production entrypoint/worktree runtime is used and counts command executions independently, preventing a global/old CLI or mocked helper-only test from producing a false green.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:2\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/validation-evidence-reuse-smoke.ts\",\"command\":\"node packages/main/dist/tasks/validation-evidence-reuse-smoke.js\",\"result\":\"pass\",\"note\":\"Fixture resolves cli.js from the built worktree and independently counts actual project command entry.\",\"headHash\":\"08bb841f1d44ef7f081ccb7a1d865d604462680c\",\"materialHash\":\"ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6\",\"storyFilesHash\":\"1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a\",\"timestamp\":\"2026-07-18T21:37:22.357Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"A table-driven matrix rejects pre-entry human/direct edits, forged canonical-looking events, replayed wrong-invocation proofs, malformed/truncated receipts and unrelated source/config/command-entry dirt; every case asserts commandExecutions, exit classification, unchanged user content and absence of a new PASS receipt.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/validate-progress-heartbeat-smoke.ts\",\"command\":\"env VALIDATE_HEARTBEAT_F010_ONLY=1 node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js\",\"result\":\"pass\",\"note\":\"Deterministic mid-validation human append is preserved and uncommitted; persistence returns infra failure without validation_terminal or phase_transition adoption.\",\"headHash\":\"08bb841f1d44ef7f081ccb7a1d865d604462680c\",\"materialHash\":\"ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6\",\"storyFilesHash\":\"1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a\",\"timestamp\":\"2026-07-18T21:37:22.357Z\"}},{\"intentRef\":\"CHK-003:adversarial:1\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Deterministically injected concurrent HEAD/content movement between admission and CAS causes a classified infra failure or safe retry, never a reused PASS and never loss/commit of the competing change.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:1\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/validate-progress-heartbeat-smoke.ts\",\"command\":\"env VALIDATE_HEARTBEAT_F011_ONLY=1 node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js\",\"result\":\"pass\",\"note\":\"Real story/* nested verifier commit no longer invalidates the later outer transaction because capture begins only after the independently committed validation terminal.\",\"headHash\":\"08bb841f1d44ef7f081ccb7a1d865d604462680c\",\"materialHash\":\"ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6\",\"storyFilesHash\":\"1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a\",\"timestamp\":\"2026-07-18T21:37:22.357Z\"}},{\"intentRef\":\"CHK-003:adversarial:2\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Injected staging, commit, persistence-hook and cleanup failures settle once, release locks/resources, preserve diagnostic causality, roll back framework-owned partial state where possible and never require or recommend an identical blind rerun as proof of success.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:2\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts\",\"command\":\"node packages/main/dist/tasks/done-prepare-auto-closeout-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check\",\"result\":\"pass\",\"note\":\"Done-prepare human metadata fail-closed control, process-fact contract, build, and diff check all pass; writer failures use isolated rollback primitive.\",\"headHash\":\"08bb841f1d44ef7f081ccb7a1d865d604462680c\",\"materialHash\":\"ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6\",\"storyFilesHash\":\"1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a\",\"timestamp\":\"2026-07-18T21:37:22.357Z\"}}]},\"reuse\":{\"lineage\":\"trusted-story-metadata-descendant\",\"existingEvidenceBasis\":\"fresh\",\"refusalReasons\":[],\"identityDigest\":\"cc8728ddf62059206069ab91a8084d692dc1fbd77e338a4ad2176673faf2a958\"}}",
+  "result": "PASS",
+  "timestamp": "2026-07-18T22:07:14.893Z",
+  "headHash": "165b6b1d168ebce58e917f965a7baddcd2b52306",
+  "materialHash": "ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6",
+  "storyFilesHash": "1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a",
+  "verificationCoverage": {
+    "total": 20,
+    "required": 20,
+    "covered": 20,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "A production-path regression harness drives the local worktree CLI through a real REVIEW-to-TEST story_advance followed immediately by mandatory validate, without an intervening git add/commit, and on the current implementation proves validation selected the fresh PASS (disposition reused, commandExecutions=0) but returned infra_failure solely with canonical-pass-persistence-failed naming lifecycle-generated process-events metadata; the harness is committed while still RED before the production fix.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "Commit 1f66c4c749 persisted the production REVIEW→TEST→validate RED and printed status=fail, failureKind=infra_failure, canonical-pass-persistence-failed, commandExecutions=0 before the fix.",
+          "headHash": "08bb841f1d44ef7f081ccb7a1d865d604462680c",
+          "materialHash": "ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6",
+          "storyFilesHash": "1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a",
+          "timestamp": "2026-07-18T21:37:22.355Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "The RED fixture isolates counters and scratch artifacts outside the fixture repository and asserts no configured validation command executed, so repository pollution by the harness cannot masquerade as the product failure.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "The fixture keeps its counter under the OS temp directory and asserts the project-command count stays at one.",
+          "headHash": "08bb841f1d44ef7f081ccb7a1d865d604462680c",
+          "materialHash": "ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6",
+          "storyFilesHash": "1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a",
+          "timestamp": "2026-07-18T21:37:22.355Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:1",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "The fixture records the exact pre-validate git status and the post-failure dirty rows, demonstrating the offending managed metadata was absent on command entry and was created by the authorized TEST transition rather than pre-existing dirt.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "The fixture asserts a clean canonical baseline before transition and inspects exact post-transition canonical status.",
+          "headHash": "08bb841f1d44ef7f081ccb7a1d865d604462680c",
+          "materialHash": "ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6",
+          "storyFilesHash": "1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a",
+          "timestamp": "2026-07-18T21:37:22.355Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "A negative control with a pre-existing direct or human-authored managed-metadata modification is refused before reuse persistence and is never reclassified as trusted merely because its path or event type resembles canonical lifecycle output.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "Human-authored and forged codex_cli process-event deltas remain byte-identical after fail-closed rejection.",
+          "headHash": "08bb841f1d44ef7f081ccb7a1d865d604462680c",
+          "materialHash": "ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6",
+          "storyFilesHash": "1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a",
+          "timestamp": "2026-07-18T21:37:22.355Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:1",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "The regression fails if the product invokes any full validation command, silently commits arbitrary dirt, or reports PASS despite a persistence failure; only the exact zero-command infra_failure signature qualifies as the intended pre-fix RED.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "The RED/green fixture independently counts commands and rejects any hidden execution or false PASS.",
+          "headHash": "08bb841f1d44ef7f081ccb7a1d865d604462680c",
+          "materialHash": "ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6",
+          "storyFilesHash": "1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a",
+          "timestamp": "2026-07-18T21:37:22.355Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "The authorized TEST transition snapshots a clean entry baseline, emits its own canonical phase/process-metrics metadata, verifies the exact post-write delta against that baseline, and atomically closes only those transition-generated files before returning; the subsequent verifier starts from a clean tree and independently persists the fresh reused PASS with disposition reused and commandExecutions=0.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "Real TEST transition captures and atomically closes its exact index/process-events/process-metrics changed subset; immediate validate is reused PASS.",
+          "headHash": "08bb841f1d44ef7f081ccb7a1d865d604462680c",
+          "materialHash": "ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6",
+          "storyFilesHash": "1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a",
+          "timestamp": "2026-07-18T21:37:22.355Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:1",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "The admission boundary is transition-local and causal: the transition proves exactly what it generated from its entry baseline and closes only that delta. The verifier receives no receipt or generalized permission to accept dirty metadata; any dirt present when validate begins, including canonical-looking event prose or allowed-path content, remains untrusted and rejected.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/auto-commit-metadata.ts",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Verifier dirty rejection is unchanged; lifecycle and CLI writers use clean-baseline exact-path transactions only.",
+          "headHash": "08bb841f1d44ef7f081ccb7a1d865d604462680c",
+          "materialHash": "ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6",
+          "storyFilesHash": "1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a",
+          "timestamp": "2026-07-18T21:37:22.355Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "An authorized lifecycle invocation that produces no admissible metadata still reuses normally, while one that produces a strict subset or multiple canonical rows admits only the causally proven exact paths and leaves no partial transaction state.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/auto-commit-metadata.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "Transaction derives the strict changed subset from baseline while verifying hashes for the entire bounded path set.",
+          "headHash": "08bb841f1d44ef7f081ccb7a1d865d604462680c",
+          "materialHash": "ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6",
+          "storyFilesHash": "1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a",
+          "timestamp": "2026-07-18T21:37:22.355Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:1",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "The transaction rechecks HEAD, managed-path delta and proof freshness immediately before persistence; any concurrent HEAD or content movement aborts without writing a PASS receipt or committing another writer’s changes.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/auto-commit-metadata.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "Captured HEAD is rechecked and immutable metadata commit uses old-HEAD CAS.",
+          "headHash": "08bb841f1d44ef7f081ccb7a1d865d604462680c",
+          "materialHash": "ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6",
+          "storyFilesHash": "1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a",
+          "timestamp": "2026-07-18T21:37:22.355Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:2",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "A closeout/CAS writer error or interrupted commit rolls back or leaves a classified recoverable failure with no false PASS, no partially staged/committed trusted metadata and no lost pre-existing user changes.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "Existing isolated writer hook/CAS/receipt failures restore managed index/worktree state and never publish PASS.",
+          "headHash": "08bb841f1d44ef7f081ccb7a1d865d604462680c",
+          "materialHash": "ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6",
+          "storyFilesHash": "1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a",
+          "timestamp": "2026-07-18T21:37:22.355Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Direct edits, pre-existing human_confirmation rows, forged event-shaped JSON, copied/replayed canonical receipts, wrong-story or wrong-HEAD proofs, malformed/truncated receipts, path aliases and unproven additional managed files remain inadmissible even when their text and paths imitate an authorized lifecycle writer.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "Direct human_confirmation and forged canonical-looking codex_cli rows are rejected without rewrite or commit.",
+          "headHash": "08bb841f1d44ef7f081ccb7a1d865d604462680c",
+          "materialHash": "ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6",
+          "storyFilesHash": "1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a",
+          "timestamp": "2026-07-18T21:37:22.355Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:1",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Source, configuration, command-entry, hook, untracked, symlink-resolved or unrelated dirty paths can never join the metadata transaction; detection fails closed to execution/refusal rather than laundering them into a reused PASS.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "Exact transaction path sets are derived from writer kind and story path; unrelated staged/source mutations remain outside commits.",
+          "headHash": "08bb841f1d44ef7f081ccb7a1d865d604462680c",
+          "materialHash": "ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6",
+          "storyFilesHash": "1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a",
+          "timestamp": "2026-07-18T21:37:22.355Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "From a clean fixture with a fully bound fresh PASS, the real local CLI performs story_advance into TEST and the immediately following mandatory validate succeeds in that single invocation with status PASS, disposition reused, commandExecutions=0, no canonical-pass-persistence-failed diagnostic and a clean final worktree.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Full smoke passed main/direct-handler and real story/* TEST transitions with executed validation evidence+terminal+receipt closed independently before the short outer phase transaction.",
+          "headHash": "08bb841f1d44ef7f081ccb7a1d865d604462680c",
+          "materialHash": "ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6",
+          "storyFilesHash": "1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a",
+          "timestamp": "2026-07-18T21:37:22.355Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:1",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Both human-readable and JSON output explicitly distinguish the successful reused path from executed, skipped, timed-out and failed validation, and the resulting fresh evidence remains bound to the current story/material/command-set identity.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "JSON and terminal log distinguish reused zero-command PASS and retain current identity/evidence bindings.",
+          "headHash": "08bb841f1d44ef7f081ccb7a1d865d604462680c",
+          "materialHash": "ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6",
+          "storyFilesHash": "1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a",
+          "timestamp": "2026-07-18T21:37:22.355Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Repeating validate after the one-shot convergence is idempotent: it remains a zero-command reused PASS, does not duplicate lifecycle facts or receipts, and leaves HEAD/worktree stable except for explicitly canonical idempotent bookkeeping.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "command": "env VALIDATE_HEARTBEAT_FAILURE_ONLY=1 node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Validation failure remains in REVIEW, persists FAIL evidence and validation_terminal through the short exact transaction, emits no TEST transition and leaves no canonical residue.",
+          "headHash": "08bb841f1d44ef7f081ccb7a1d865d604462680c",
+          "materialHash": "ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6",
+          "storyFilesHash": "1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a",
+          "timestamp": "2026-07-18T21:37:22.355Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:1",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "A stale or mismatched material hash, story-files hash, focus, ordered command-set hash, policy/binding or non-trusted HEAD lineage does not take the reuse shortcut and follows the existing execute-or-refuse behavior without fabricating PASS.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "Existing identity/material/story-files/focus/lineage refusal matrix remains green.",
+          "headHash": "08bb841f1d44ef7f081ccb7a1d865d604462680c",
+          "materialHash": "ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6",
+          "storyFilesHash": "1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a",
+          "timestamp": "2026-07-18T21:37:22.355Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:2",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "The integration suite proves the production entrypoint/worktree runtime is used and counts command executions independently, preventing a global/old CLI or mocked helper-only test from producing a false green.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "Fixture resolves cli.js from the built worktree and independently counts actual project command entry.",
+          "headHash": "08bb841f1d44ef7f081ccb7a1d865d604462680c",
+          "materialHash": "ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6",
+          "storyFilesHash": "1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a",
+          "timestamp": "2026-07-18T21:37:22.357Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "A table-driven matrix rejects pre-entry human/direct edits, forged canonical-looking events, replayed wrong-invocation proofs, malformed/truncated receipts and unrelated source/config/command-entry dirt; every case asserts commandExecutions, exit classification, unchanged user content and absence of a new PASS receipt.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "command": "env VALIDATE_HEARTBEAT_F010_ONLY=1 node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Deterministic mid-validation human append is preserved and uncommitted; persistence returns infra failure without validation_terminal or phase_transition adoption.",
+          "headHash": "08bb841f1d44ef7f081ccb7a1d865d604462680c",
+          "materialHash": "ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6",
+          "storyFilesHash": "1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a",
+          "timestamp": "2026-07-18T21:37:22.357Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:1",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Deterministically injected concurrent HEAD/content movement between admission and CAS causes a classified infra failure or safe retry, never a reused PASS and never loss/commit of the competing change.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "command": "env VALIDATE_HEARTBEAT_F011_ONLY=1 node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Real story/* nested verifier commit no longer invalidates the later outer transaction because capture begins only after the independently committed validation terminal.",
+          "headHash": "08bb841f1d44ef7f081ccb7a1d865d604462680c",
+          "materialHash": "ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6",
+          "storyFilesHash": "1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a",
+          "timestamp": "2026-07-18T21:37:22.357Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:2",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Injected staging, commit, persistence-hook and cleanup failures settle once, release locks/resources, preserve diagnostic causality, roll back framework-owned partial state where possible and never require or recommend an identical blind rerun as proof of success.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "command": "node packages/main/dist/tasks/done-prepare-auto-closeout-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check",
+          "result": "pass",
+          "note": "Done-prepare human metadata fail-closed control, process-fact contract, build, and diff check all pass; writer failures use isolated rollback primitive.",
+          "headHash": "08bb841f1d44ef7f081ccb7a1d865d604462680c",
+          "materialHash": "ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6",
+          "storyFilesHash": "1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a",
+          "timestamp": "2026-07-18T21:37:22.357Z"
+        }
+      }
+    ]
+  },
+  "commandExecution": {
+    "schema": "lattice.routine-validation-command-execution",
+    "version": 1,
+    "status": "PASS",
+    "complete": true,
+    "commandCount": 46,
+    "requiredFailureCount": 0,
+    "optionalFailureCount": 0
+  },
+  "disposition": "reused",
+  "routineValidationIdentity": {
+    "schema": "lattice.routine-validation-identity",
+    "version": 1,
+    "source": {
+      "kind": "configured",
+      "inputDigest": "010165c8ce87d72ad89ba5712cf2f3b7d463d84aefc1c53429933b614e4a0d07",
+      "entrypointDigest": null
+    },
+    "commands": [
+      {
+        "label": "configured validate.commands[0]",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 290000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7"
+      },
+      {
+        "label": "configured validate.commands[1]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[2]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[3]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/production-test-seam-guard.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[4]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[5]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-list-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[6]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/review-pass-discard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[7]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/init-window-data-loss-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[8]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-command-timeout-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[9]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-progress-heartbeat-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[10]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-focused-full-layering-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[11]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/main-sync-readiness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[12]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[13]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[14]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/delivery-check-freshness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[15]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-validation-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[16]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-freshness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[17]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-head-drift-proof.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[18]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/artifact-release-ledger-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[19]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/version-bump-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[20]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-decomposition-gate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[21]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-gate-config-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[22]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-wave-advisory-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[23]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[24]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[25]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[26]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-verifier-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[27]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-critic-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[28]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-round-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[29]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/material-hash-large-tree-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[30]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/lifecycle-orchestrate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[31]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/init-preflight-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[32]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/english-early-check-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[33]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/quorum-submit-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[34]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/receipt-bundle-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[35]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/gate-strength-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[36]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/product-capability-release-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[37]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/product-capability-release-red-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[38]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/playbook-capability-lineage-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[39]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-release-invariants-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[40]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/story-files-hash-batch-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[41]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-release-backfill-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[42]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-candidate-exposure-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[43]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-candidate-promotion-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[44]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      },
+      {
+        "label": "configured validate.commands[45]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/experience-pack-arm-switch-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8195",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a9901ac574e3664062a4f8ff4169bb8b4cf0fa43f177f13e136fccd06177b172",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc"
+      }
+    ],
+    "invocation": {
+      "full": null,
+      "focus": null,
+      "profile": "strict"
+    },
+    "verificationPolicyDigest": "62108ce6a73feb8dd85202bdc86270733cdf9df289feccd9187021e02fa73d72",
+    "runtime": {
+      "platform": "darwin",
+      "arch": "arm64",
+      "node": "v22.13.0"
+    },
+    "digest": "cc8728ddf62059206069ab91a8084d692dc1fbd77e338a4ad2176673faf2a958"
+  }
+}

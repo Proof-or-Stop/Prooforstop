@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-6ed2",
+  "allowedCommands": [
+    "git diff --check",
+    "git log *",
+    "git status --short",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*quorum*smoke.js",
+    "node packages/main/dist/tasks/*validation*smoke.js",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "Lattice CLI"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+    "packages/main/src/core/auto-commit-metadata.ts",
+    "packages/main/src/core/done-prepare-generated-metadata.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/handlers/quorum-submit.ts",
+    "packages/main/src/handlers/verdict.ts",
+    "packages/main/src/tasks/quorum-submit-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git clean *",
+    "git push *",
+    "git reset --hard*",
+    "npm publish*"
+  ],
+  "excludedTools": [
+    "destructive workspace cleanup",
+    "remote publication"
+  ],
+  "excludedPaths": [
+    ".git/hooks",
+    "docs/story",
+    "node_modules",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "codex-wa-final",
+  "confirmationNote": "Focused RED-first correctness fix. No remote writes, destructive cleanup, heap tuning, or unrelated host-verdict redesign.",
+  "createdAt": "2026-07-18T22:12:27.117Z",
+  "updatedAt": "2026-07-18T22:12:27.117Z",
+  "_hash": "e4bfaa2fdaf340b83a6e83f570a386c201dfbf29706f06abb855183d58e95c18"
+}

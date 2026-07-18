@@ -1,0 +1,1477 @@
+{
+  "schemaVersion": "proofbound.candidate-spec-set.v1",
+  "storyId": "B-8195",
+  "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987",
+  "seedDigest": "a9793e40e432ebe904abd36343c3041b660c58c216f054943ba92f0dd5905acb",
+  "promptDigests": [],
+  "mode": "shadow",
+  "candidates": [
+    {
+      "path": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+      "contentHash": "7869744a034d9167b52989866eb52d4d22da7b197506a6f7108020cb4d8e7a9e",
+      "score": 679,
+      "reasons": [
+        {
+          "kind": "related-doc",
+          "term": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "source": "checklist[0].relatedDocs",
+          "points": 100
+        },
+        {
+          "kind": "related-doc",
+          "term": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "source": "checklist[1].relatedDocs",
+          "points": 100
+        },
+        {
+          "kind": "related-doc",
+          "term": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "source": "checklist[2].relatedDocs",
+          "points": 100
+        },
+        {
+          "kind": "related-doc",
+          "term": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "source": "relatedDocs[0]",
+          "points": 100
+        },
+        {
+          "kind": "related-doc",
+          "term": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "source": "relatedDocs[1]",
+          "points": 100
+        },
+        {
+          "kind": "related-doc",
+          "term": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "source": "relatedDocs[2]",
+          "points": 100
+        },
+        {
+          "kind": "path",
+          "term": "converge",
+          "source": "converge",
+          "points": 20
+        },
+        {
+          "kind": "path",
+          "term": "convergence",
+          "source": "convergence",
+          "points": 20
+        },
+        {
+          "kind": "heading",
+          "term": "boundaries",
+          "source": "boundaries",
+          "points": 15
+        },
+        {
+          "kind": "body",
+          "term": "handlers",
+          "source": "handlers",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "security",
+          "source": "security",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "trusted",
+          "source": "trusted",
+          "points": 8
+        }
+      ]
+    },
+    {
+      "path": "packages/main/src/core/auto-commit-metadata.ts",
+      "contentHash": "823b154760658bd774f1ca485beccee7f62bfb548c997ffc3a02742658a806b7",
+      "score": 100,
+      "reasons": [
+        {
+          "kind": "exact-path",
+          "term": "packages/main/src/core/auto-commit-metadata.ts",
+          "source": "exactPaths[2]",
+          "points": 100
+        }
+      ]
+    },
+    {
+      "path": "packages/main/src/core/done-prepare-generated-metadata.ts",
+      "contentHash": "ec1b86f798a3d44ce7928626c6b69212cf019b7642c23894c645be2d77a73621",
+      "score": 100,
+      "reasons": [
+        {
+          "kind": "exact-path",
+          "term": "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "source": "exactPaths[1]",
+          "points": 100
+        }
+      ]
+    },
+    {
+      "path": "packages/main/src/core/process-fact-levels.ts",
+      "contentHash": "52eec261f12e36adc1e3dc0b6fc1e22c6fbd548fe8094d7b392cb0858a861151",
+      "score": 100,
+      "reasons": [
+        {
+          "kind": "exact-path",
+          "term": "packages/main/src/core/process-fact-levels.ts",
+          "source": "exactPaths[5]",
+          "points": 100
+        }
+      ]
+    },
+    {
+      "path": "packages/main/src/core/process-fact-registry.ts",
+      "contentHash": "9b24afcf5e17c4055f097524f6beeea522390c35fb50324ee2da370a7a68bb81",
+      "score": 100,
+      "reasons": [
+        {
+          "kind": "registry-ref",
+          "term": "packages/main/src/core/process-fact-registry.ts",
+          "source": "exactPaths[6]",
+          "points": 100
+        }
+      ]
+    },
+    {
+      "path": "packages/main/src/handlers/verifier.ts",
+      "contentHash": "5d25ce6b4d9e3ca001cc78d69c580008727541a542765768f27370596593e4a1",
+      "score": 100,
+      "reasons": [
+        {
+          "kind": "exact-path",
+          "term": "packages/main/src/handlers/verifier.ts",
+          "source": "exactPaths[0]",
+          "points": 100
+        }
+      ]
+    },
+    {
+      "path": "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+      "contentHash": "d1ecd9ec9e97381586547b7412033ffe89ee5182b90a5b715d4fca3ca399ad6e",
+      "score": 100,
+      "reasons": [
+        {
+          "kind": "exact-path",
+          "term": "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "source": "exactPaths[4]",
+          "points": 100
+        }
+      ]
+    },
+    {
+      "path": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+      "contentHash": "28b1c0f641215d5f431c1d7233b7ee97715a26d3b71fa4fa3791e35a09092873",
+      "score": 100,
+      "reasons": [
+        {
+          "kind": "exact-path",
+          "term": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "source": "exactPaths[3]",
+          "points": 100
+        }
+      ]
+    },
+    {
+      "path": "scripts/verify-process-fact-contract.mjs",
+      "contentHash": "a32ffb954548a0857eee1ff775815525a12d2682fcf48c13b18a6bcc2383aaf0",
+      "score": 100,
+      "reasons": [
+        {
+          "kind": "exact-path",
+          "term": "scripts/verify-process-fact-contract.mjs",
+          "source": "exactPaths[7]",
+          "points": 100
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+      "contentHash": "43327d7a24c1cdd09f3e8db5bc64e62cbdc1f603c48c28af25cf95ebd7f2ecaf",
+      "score": 70,
+      "reasons": [
+        {
+          "kind": "heading",
+          "term": "converge",
+          "source": "converge",
+          "points": 15
+        },
+        {
+          "kind": "heading",
+          "term": "convergence",
+          "source": "convergence",
+          "points": 15
+        },
+        {
+          "kind": "body",
+          "term": "boundaries",
+          "source": "boundaries",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "emergency",
+          "source": "emergency",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "handlers",
+          "source": "handlers",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "scripts",
+          "source": "scripts",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "trusted",
+          "source": "trusted",
+          "points": 8
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/lattice-authority-live-integration.md",
+      "contentHash": "3fa21aa2bd4634863233226ef2d5a52e04aa412571fcb0375140e09ae518153f",
+      "score": 64,
+      "reasons": [
+        {
+          "kind": "body",
+          "term": "boundaries",
+          "source": "boundaries",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "converge",
+          "source": "converge",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "convergence",
+          "source": "convergence",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "credentials",
+          "source": "credentials",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "handlers",
+          "source": "handlers",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "scripts",
+          "source": "scripts",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "security",
+          "source": "security",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "trusted",
+          "source": "trusted",
+          "points": 8
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+      "contentHash": "e4ea88f68e41b0732489dd361f2f23b72903abc0f8f9e32f501a74f052e87ec1",
+      "score": 64,
+      "reasons": [
+        {
+          "kind": "body",
+          "term": "atomically",
+          "source": "atomically",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "boundaries",
+          "source": "boundaries",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "converge",
+          "source": "converge",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "convergence",
+          "source": "convergence",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "emergency",
+          "source": "emergency",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "handlers",
+          "source": "handlers",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "scripts",
+          "source": "scripts",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "trusted",
+          "source": "trusted",
+          "points": 8
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "contentHash": "666bf393e015e5e98a8f44e63118d8f249df824b361eff9768c02aa3e59dd62e",
+      "score": 62,
+      "reasons": [
+        {
+          "kind": "heading",
+          "term": "converge",
+          "source": "converge",
+          "points": 15
+        },
+        {
+          "kind": "heading",
+          "term": "convergence",
+          "source": "convergence",
+          "points": 15
+        },
+        {
+          "kind": "body",
+          "term": "boundaries",
+          "source": "boundaries",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "handlers",
+          "source": "handlers",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "scripts",
+          "source": "scripts",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "trusted",
+          "source": "trusted",
+          "points": 8
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "contentHash": "131b7f1f60e4402f29aa15cdfd08ce47faffd7e1d04a5ae4d69bb76515882ddd",
+      "score": 54,
+      "reasons": [
+        {
+          "kind": "heading",
+          "term": "converge",
+          "source": "converge",
+          "points": 15
+        },
+        {
+          "kind": "heading",
+          "term": "convergence",
+          "source": "convergence",
+          "points": 15
+        },
+        {
+          "kind": "body",
+          "term": "boundaries",
+          "source": "boundaries",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "handlers",
+          "source": "handlers",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "trusted",
+          "source": "trusted",
+          "points": 8
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+      "contentHash": "df8590d3139c3c51e37a4e71f80e4bf92197564b9a45a6e7ee01e7312edc8c51",
+      "score": 54,
+      "reasons": [
+        {
+          "kind": "heading",
+          "term": "converge",
+          "source": "converge",
+          "points": 15
+        },
+        {
+          "kind": "heading",
+          "term": "convergence",
+          "source": "convergence",
+          "points": 15
+        },
+        {
+          "kind": "body",
+          "term": "boundaries",
+          "source": "boundaries",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "scripts",
+          "source": "scripts",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "trusted",
+          "source": "trusted",
+          "points": 8
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/cc-learnings.md",
+      "contentHash": "87e90902982779e02ef6aebf18e4a5f23d9c1e328fb5ce5cfd97f2dddf39dacc",
+      "score": 48,
+      "reasons": [
+        {
+          "kind": "body",
+          "term": "boundaries",
+          "source": "boundaries",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "converge",
+          "source": "converge",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "convergence",
+          "source": "convergence",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "handlers",
+          "source": "handlers",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "scripts",
+          "source": "scripts",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "security",
+          "source": "security",
+          "points": 8
+        }
+      ]
+    },
+    {
+      "path": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "contentHash": "8ef59fb3700cf5f3dc1e4e3573df389a33272a50e3f7ad993507aa697475be25",
+      "score": 48,
+      "reasons": [
+        {
+          "kind": "body",
+          "term": "boundaries",
+          "source": "boundaries",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "emergency",
+          "source": "emergency",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "handlers",
+          "source": "handlers",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "scripts",
+          "source": "scripts",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "security",
+          "source": "security",
+          "points": 8
+        },
+        {
+          "kind": "body",
+          "term": "trusted",
+          "source": "trusted",
+          "points": 8
+        }
+      ]
+    }
+  ],
+  "candidateSpecSet": [
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+    "packages/main/src/core/auto-commit-metadata.ts",
+    "packages/main/src/core/done-prepare-generated-metadata.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+    "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+    "docs/requirements/decisions/lattice-authority-live-integration.md",
+    "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+    "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+    "docs/requirements/decisions/cc-learnings.md",
+    "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+  ],
+  "candidateBasis": {
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md": [
+      {
+        "kind": "related-doc",
+        "term": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+        "source": "checklist[0].relatedDocs",
+        "points": 100
+      },
+      {
+        "kind": "related-doc",
+        "term": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+        "source": "checklist[1].relatedDocs",
+        "points": 100
+      },
+      {
+        "kind": "related-doc",
+        "term": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+        "source": "checklist[2].relatedDocs",
+        "points": 100
+      },
+      {
+        "kind": "related-doc",
+        "term": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+        "source": "relatedDocs[0]",
+        "points": 100
+      },
+      {
+        "kind": "related-doc",
+        "term": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+        "source": "relatedDocs[1]",
+        "points": 100
+      },
+      {
+        "kind": "related-doc",
+        "term": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+        "source": "relatedDocs[2]",
+        "points": 100
+      },
+      {
+        "kind": "path",
+        "term": "converge",
+        "source": "converge",
+        "points": 20
+      },
+      {
+        "kind": "path",
+        "term": "convergence",
+        "source": "convergence",
+        "points": 20
+      },
+      {
+        "kind": "heading",
+        "term": "boundaries",
+        "source": "boundaries",
+        "points": 15
+      },
+      {
+        "kind": "body",
+        "term": "handlers",
+        "source": "handlers",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "security",
+        "source": "security",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "trusted",
+        "source": "trusted",
+        "points": 8
+      }
+    ],
+    "packages/main/src/core/auto-commit-metadata.ts": [
+      {
+        "kind": "exact-path",
+        "term": "packages/main/src/core/auto-commit-metadata.ts",
+        "source": "exactPaths[2]",
+        "points": 100
+      }
+    ],
+    "packages/main/src/core/done-prepare-generated-metadata.ts": [
+      {
+        "kind": "exact-path",
+        "term": "packages/main/src/core/done-prepare-generated-metadata.ts",
+        "source": "exactPaths[1]",
+        "points": 100
+      }
+    ],
+    "packages/main/src/core/process-fact-levels.ts": [
+      {
+        "kind": "exact-path",
+        "term": "packages/main/src/core/process-fact-levels.ts",
+        "source": "exactPaths[5]",
+        "points": 100
+      }
+    ],
+    "packages/main/src/core/process-fact-registry.ts": [
+      {
+        "kind": "registry-ref",
+        "term": "packages/main/src/core/process-fact-registry.ts",
+        "source": "exactPaths[6]",
+        "points": 100
+      }
+    ],
+    "packages/main/src/handlers/verifier.ts": [
+      {
+        "kind": "exact-path",
+        "term": "packages/main/src/handlers/verifier.ts",
+        "source": "exactPaths[0]",
+        "points": 100
+      }
+    ],
+    "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts": [
+      {
+        "kind": "exact-path",
+        "term": "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+        "source": "exactPaths[4]",
+        "points": 100
+      }
+    ],
+    "packages/main/src/tasks/validation-evidence-reuse-smoke.ts": [
+      {
+        "kind": "exact-path",
+        "term": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+        "source": "exactPaths[3]",
+        "points": 100
+      }
+    ],
+    "scripts/verify-process-fact-contract.mjs": [
+      {
+        "kind": "exact-path",
+        "term": "scripts/verify-process-fact-contract.mjs",
+        "source": "exactPaths[7]",
+        "points": 100
+      }
+    ],
+    "docs/requirements/decisions/done-full-test-gate-execution-plan.md": [
+      {
+        "kind": "heading",
+        "term": "converge",
+        "source": "converge",
+        "points": 15
+      },
+      {
+        "kind": "heading",
+        "term": "convergence",
+        "source": "convergence",
+        "points": 15
+      },
+      {
+        "kind": "body",
+        "term": "boundaries",
+        "source": "boundaries",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "emergency",
+        "source": "emergency",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "handlers",
+        "source": "handlers",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "scripts",
+        "source": "scripts",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "trusted",
+        "source": "trusted",
+        "points": 8
+      }
+    ],
+    "docs/requirements/decisions/lattice-authority-live-integration.md": [
+      {
+        "kind": "body",
+        "term": "boundaries",
+        "source": "boundaries",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "converge",
+        "source": "converge",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "convergence",
+        "source": "convergence",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "credentials",
+        "source": "credentials",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "handlers",
+        "source": "handlers",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "scripts",
+        "source": "scripts",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "security",
+        "source": "security",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "trusted",
+        "source": "trusted",
+        "points": 8
+      }
+    ],
+    "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md": [
+      {
+        "kind": "body",
+        "term": "atomically",
+        "source": "atomically",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "boundaries",
+        "source": "boundaries",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "converge",
+        "source": "converge",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "convergence",
+        "source": "convergence",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "emergency",
+        "source": "emergency",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "handlers",
+        "source": "handlers",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "scripts",
+        "source": "scripts",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "trusted",
+        "source": "trusted",
+        "points": 8
+      }
+    ],
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md": [
+      {
+        "kind": "heading",
+        "term": "converge",
+        "source": "converge",
+        "points": 15
+      },
+      {
+        "kind": "heading",
+        "term": "convergence",
+        "source": "convergence",
+        "points": 15
+      },
+      {
+        "kind": "body",
+        "term": "boundaries",
+        "source": "boundaries",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "handlers",
+        "source": "handlers",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "scripts",
+        "source": "scripts",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "trusted",
+        "source": "trusted",
+        "points": 8
+      }
+    ],
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md": [
+      {
+        "kind": "heading",
+        "term": "converge",
+        "source": "converge",
+        "points": 15
+      },
+      {
+        "kind": "heading",
+        "term": "convergence",
+        "source": "convergence",
+        "points": 15
+      },
+      {
+        "kind": "body",
+        "term": "boundaries",
+        "source": "boundaries",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "handlers",
+        "source": "handlers",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "trusted",
+        "source": "trusted",
+        "points": 8
+      }
+    ],
+    "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md": [
+      {
+        "kind": "heading",
+        "term": "converge",
+        "source": "converge",
+        "points": 15
+      },
+      {
+        "kind": "heading",
+        "term": "convergence",
+        "source": "convergence",
+        "points": 15
+      },
+      {
+        "kind": "body",
+        "term": "boundaries",
+        "source": "boundaries",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "scripts",
+        "source": "scripts",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "trusted",
+        "source": "trusted",
+        "points": 8
+      }
+    ],
+    "docs/requirements/decisions/cc-learnings.md": [
+      {
+        "kind": "body",
+        "term": "boundaries",
+        "source": "boundaries",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "converge",
+        "source": "converge",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "convergence",
+        "source": "convergence",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "handlers",
+        "source": "handlers",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "scripts",
+        "source": "scripts",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "security",
+        "source": "security",
+        "points": 8
+      }
+    ],
+    "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md": [
+      {
+        "kind": "body",
+        "term": "boundaries",
+        "source": "boundaries",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "emergency",
+        "source": "emergency",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "handlers",
+        "source": "handlers",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "scripts",
+        "source": "scripts",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "security",
+        "source": "security",
+        "points": 8
+      },
+      {
+        "kind": "body",
+        "term": "trusted",
+        "source": "trusted",
+        "points": 8
+      }
+    ]
+  },
+  "queryGroups": [
+    [
+      "handlers"
+    ],
+    [
+      "scripts"
+    ],
+    [
+      "converge"
+    ],
+    [
+      "trusted"
+    ],
+    [
+      "credentials"
+    ],
+    [
+      "emergency"
+    ],
+    [
+      "security"
+    ],
+    [
+      "atomically"
+    ],
+    [
+      "boundaries"
+    ],
+    [
+      "convergence"
+    ]
+  ],
+  "queryFiltering": {
+    "maxDocumentFrequencyRatio": 0.4,
+    "filteredTerms": [
+      {
+        "term": "across",
+        "documentCount": 51,
+        "documentFrequencyRatio": 0.4214876033057851,
+        "reason": "overbroad"
+      },
+      {
+        "term": "after",
+        "documentCount": 93,
+        "documentFrequencyRatio": 0.768595041322314,
+        "reason": "overbroad"
+      },
+      {
+        "term": "and",
+        "documentCount": 121,
+        "documentFrequencyRatio": 1,
+        "reason": "overbroad"
+      },
+      {
+        "term": "auto commit metadata ts",
+        "documentCount": 0,
+        "documentFrequencyRatio": 0,
+        "reason": "zero_hits"
+      },
+      {
+        "term": "because",
+        "documentCount": 71,
+        "documentFrequencyRatio": 0.5867768595041323,
+        "reason": "overbroad"
+      },
+      {
+        "term": "but",
+        "documentCount": 105,
+        "documentFrequencyRatio": 0.8677685950413223,
+        "reason": "overbroad"
+      },
+      {
+        "term": "can",
+        "documentCount": 116,
+        "documentFrequencyRatio": 0.9586776859504132,
+        "reason": "overbroad"
+      },
+      {
+        "term": "canonical",
+        "documentCount": 68,
+        "documentFrequencyRatio": 0.5619834710743802,
+        "reason": "overbroad"
+      },
+      {
+        "term": "canonical pass persistence failed",
+        "documentCount": 0,
+        "documentFrequencyRatio": 0,
+        "reason": "zero_hits"
+      },
+      {
+        "term": "command executions",
+        "documentCount": 0,
+        "documentFrequencyRatio": 0,
+        "reason": "zero_hits"
+      },
+      {
+        "term": "commit",
+        "documentCount": 60,
+        "documentFrequencyRatio": 0.49586776859504134,
+        "reason": "overbroad"
+      },
+      {
+        "term": "core",
+        "documentCount": 83,
+        "documentFrequencyRatio": 0.6859504132231405,
+        "reason": "overbroad"
+      },
+      {
+        "term": "done prepare auto closeout smoke ts",
+        "documentCount": 0,
+        "documentFrequencyRatio": 0,
+        "reason": "zero_hits"
+      },
+      {
+        "term": "done prepare generated metadata ts",
+        "documentCount": 0,
+        "documentFrequencyRatio": 0,
+        "reason": "zero_hits"
+      },
+      {
+        "term": "event",
+        "documentCount": 67,
+        "documentFrequencyRatio": 0.5537190082644629,
+        "reason": "overbroad"
+      },
+      {
+        "term": "exact",
+        "documentCount": 80,
+        "documentFrequencyRatio": 0.6611570247933884,
+        "reason": "overbroad"
+      },
+      {
+        "term": "failure",
+        "documentCount": 74,
+        "documentFrequencyRatio": 0.6115702479338843,
+        "reason": "overbroad"
+      },
+      {
+        "term": "first",
+        "documentCount": 83,
+        "documentFrequencyRatio": 0.6859504132231405,
+        "reason": "overbroad"
+      },
+      {
+        "term": "fix",
+        "documentCount": 100,
+        "documentFrequencyRatio": 0.8264462809917356,
+        "reason": "overbroad"
+      },
+      {
+        "term": "for",
+        "documentCount": 119,
+        "documentFrequencyRatio": 0.9834710743801653,
+        "reason": "overbroad"
+      },
+      {
+        "term": "fresh",
+        "documentCount": 84,
+        "documentFrequencyRatio": 0.6942148760330579,
+        "reason": "overbroad"
+      },
+      {
+        "term": "human",
+        "documentCount": 53,
+        "documentFrequencyRatio": 0.4380165289256198,
+        "reason": "overbroad"
+      },
+      {
+        "term": "instead",
+        "documentCount": 63,
+        "documentFrequencyRatio": 0.5206611570247934,
+        "reason": "overbroad"
+      },
+      {
+        "term": "lifecycle",
+        "documentCount": 87,
+        "documentFrequencyRatio": 0.71900826446281,
+        "reason": "overbroad"
+      },
+      {
+        "term": "main",
+        "documentCount": 116,
+        "documentFrequencyRatio": 0.9586776859504132,
+        "reason": "overbroad"
+      },
+      {
+        "term": "make",
+        "documentCount": 77,
+        "documentFrequencyRatio": 0.6363636363636364,
+        "reason": "overbroad"
+      },
+      {
+        "term": "metadata",
+        "documentCount": 74,
+        "documentFrequencyRatio": 0.6115702479338843,
+        "reason": "overbroad"
+      },
+      {
+        "term": "next",
+        "documentCount": 55,
+        "documentFrequencyRatio": 0.45454545454545453,
+        "reason": "overbroad"
+      },
+      {
+        "term": "one shot",
+        "documentCount": 0,
+        "documentFrequencyRatio": 0,
+        "reason": "zero_hits"
+      },
+      {
+        "term": "only",
+        "documentCount": 117,
+        "documentFrequencyRatio": 0.9669421487603306,
+        "reason": "overbroad"
+      },
+      {
+        "term": "packages",
+        "documentCount": 69,
+        "documentFrequencyRatio": 0.5702479338842975,
+        "reason": "overbroad"
+      },
+      {
+        "term": "pass",
+        "documentCount": 106,
+        "documentFrequencyRatio": 0.8760330578512396,
+        "reason": "overbroad"
+      },
+      {
+        "term": "pre existing",
+        "documentCount": 0,
+        "documentFrequencyRatio": 0,
+        "reason": "zero_hits"
+      },
+      {
+        "term": "process",
+        "documentCount": 71,
+        "documentFrequencyRatio": 0.5867768595041323,
+        "reason": "overbroad"
+      },
+      {
+        "term": "process events jsonl",
+        "documentCount": 0,
+        "documentFrequencyRatio": 0,
+        "reason": "zero_hits"
+      },
+      {
+        "term": "process fact levels ts",
+        "documentCount": 0,
+        "documentFrequencyRatio": 0,
+        "reason": "zero_hits"
+      },
+      {
+        "term": "process fact registry ts",
+        "documentCount": 0,
+        "documentFrequencyRatio": 0,
+        "reason": "zero_hits"
+      },
+      {
+        "term": "production",
+        "documentCount": 81,
+        "documentFrequencyRatio": 0.6694214876033058,
+        "reason": "overbroad"
+      },
+      {
+        "term": "red",
+        "documentCount": 120,
+        "documentFrequencyRatio": 0.9917355371900827,
+        "reason": "overbroad"
+      },
+      {
+        "term": "remain",
+        "documentCount": 100,
+        "documentFrequencyRatio": 0.8264462809917356,
+        "reason": "overbroad"
+      },
+      {
+        "term": "reports",
+        "documentCount": 67,
+        "documentFrequencyRatio": 0.5537190082644629,
+        "reason": "overbroad"
+      },
+      {
+        "term": "reuse",
+        "documentCount": 49,
+        "documentFrequencyRatio": 0.4049586776859504,
+        "reason": "overbroad"
+      },
+      {
+        "term": "same flow",
+        "documentCount": 0,
+        "documentFrequencyRatio": 0,
+        "reason": "zero_hits"
+      },
+      {
+        "term": "src",
+        "documentCount": 62,
+        "documentFrequencyRatio": 0.512396694214876,
+        "reason": "overbroad"
+      },
+      {
+        "term": "state",
+        "documentCount": 100,
+        "documentFrequencyRatio": 0.8264462809917356,
+        "reason": "overbroad"
+      },
+      {
+        "term": "such",
+        "documentCount": 62,
+        "documentFrequencyRatio": 0.512396694214876,
+        "reason": "overbroad"
+      },
+      {
+        "term": "tasks",
+        "documentCount": 59,
+        "documentFrequencyRatio": 0.48760330578512395,
+        "reason": "overbroad"
+      },
+      {
+        "term": "test",
+        "documentCount": 114,
+        "documentFrequencyRatio": 0.9421487603305785,
+        "reason": "overbroad"
+      },
+      {
+        "term": "the",
+        "documentCount": 119,
+        "documentFrequencyRatio": 0.9834710743801653,
+        "reason": "overbroad"
+      },
+      {
+        "term": "validate",
+        "documentCount": 90,
+        "documentFrequencyRatio": 0.743801652892562,
+        "reason": "overbroad"
+      },
+      {
+        "term": "validation",
+        "documentCount": 90,
+        "documentFrequencyRatio": 0.743801652892562,
+        "reason": "overbroad"
+      },
+      {
+        "term": "validation evidence reuse smoke ts",
+        "documentCount": 0,
+        "documentFrequencyRatio": 0,
+        "reason": "zero_hits"
+      },
+      {
+        "term": "verification",
+        "documentCount": 96,
+        "documentFrequencyRatio": 0.7933884297520661,
+        "reason": "overbroad"
+      },
+      {
+        "term": "verifier ts",
+        "documentCount": 0,
+        "documentFrequencyRatio": 0,
+        "reason": "zero_hits"
+      },
+      {
+        "term": "verify",
+        "documentCount": 76,
+        "documentFrequencyRatio": 0.628099173553719,
+        "reason": "overbroad"
+      },
+      {
+        "term": "verify process fact contract mjs",
+        "documentCount": 0,
+        "documentFrequencyRatio": 0,
+        "reason": "zero_hits"
+      },
+      {
+        "term": "while",
+        "documentCount": 72,
+        "documentFrequencyRatio": 0.5950413223140496,
+        "reason": "overbroad"
+      },
+      {
+        "term": "workflow",
+        "documentCount": 56,
+        "documentFrequencyRatio": 0.4628099173553719,
+        "reason": "overbroad"
+      },
+      {
+        "term": "writer failure",
+        "documentCount": 0,
+        "documentFrequencyRatio": 0,
+        "reason": "zero_hits"
+      },
+      {
+        "term": "writes",
+        "documentCount": 60,
+        "documentFrequencyRatio": 0.49586776859504134,
+        "reason": "overbroad"
+      },
+      {
+        "term": "zero command",
+        "documentCount": 0,
+        "documentFrequencyRatio": 0,
+        "reason": "zero_hits"
+      }
+    ]
+  },
+  "queryTruncation": [],
+  "protectedRouting": {
+    "selectedPaths": [
+      "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+      "packages/main/src/core/auto-commit-metadata.ts",
+      "packages/main/src/core/done-prepare-generated-metadata.ts",
+      "packages/main/src/core/process-fact-levels.ts",
+      "packages/main/src/core/process-fact-registry.ts",
+      "packages/main/src/handlers/verifier.ts",
+      "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+      "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+      "scripts/verify-process-fact-contract.mjs"
+    ],
+    "missing": [],
+    "ordinaryBudget": 8,
+    "protectedCount": 9,
+    "exceedsOrdinaryBudget": true
+  },
+  "rankingPolicy": {
+    "minRankingAffectingCutoffScore": 15
+  },
+  "budgets": {
+    "candidates": 8,
+    "queryGroups": 10,
+    "rawHitsPerGroup": 50
+  },
+  "ambiguitySignals": [],
+  "requiresEscalation": true,
+  "escalationReasons": [
+    "high_risk_structured_signal"
+  ],
+  "fullScan": false,
+  "scanEscalationReason": null,
+  "storyInputDigest": "019609ff77050de9027c66a99ee54ea86ac3fa0fd6fa36afbf997abe4a7fc78c",
+  "headHash": "7d8aca4b0507a931a399b1c4ab89b9ed6717865d",
+  "materialHash": "740b2cdf3ff9f1d8d859fb562ef1fc0fb2f0a23ed7cc47800b623bffabe47737",
+  "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "artifactDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68"
+}

@@ -1,0 +1,43 @@
+{
+  "storyId": "B-6ed2",
+  "name": "quorum-submit-atomic-metadata-closeout",
+  "title": "Make quorum_submit close host-verdict metadata atomically",
+  "description": "A clean REVIEW worktree becomes dirty after quorum_submit appends six host_verdict rows without committing them. Subsequent long validation can execute every command and then fail canonical persistence. Add a committed RED production-path harness, then atomically close only the quorum-owned verdict delta with complete rollback and fail-closed behavior.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-07-18T22:11:10.175Z",
+  "startedAt": "2026-07-18T22:11:10.175Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-18T22:11:10.975Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-18T22:12:39.210Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-6ed2",
+    "branch": "story/B-6ed2",
+    "createdAt": "2026-07-18T22:12:34.658Z"
+  }
+}
