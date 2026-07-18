@@ -584,6 +584,28 @@
       ],
       "signatureTag": "adversarial|ts|git-cwd-config-root-conflation",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-0784:F-025",
+      "desc": "Official B-META provenance still diverges between writer and consumers in wrapper-root layouts. appendGapFinding now resolves a Git cwd and returned bindingStatus=valid in a temp wrapper root with gitRoot=repo, but classifySharedLifecycleMetadata still calls verifyGapLogArtifactBinding(..., root, root), treating the non-Git metadata root as Git cwd; the immediately unchanged official artifact was classified trusted=false reason=malformed_or_incomplete_artifact. done_prepare and scope/prewrite consumers call that classifier, so canonical official B-META dirt remains blocking despite a valid writer receipt. Additionally appendGapFinding resolves workspace using its mutable storyId parameter while the ledger schema/path/storyId are hardcoded B-META-framework-audit; provenance resolution must assert/use META_STORY_ID, never caller-selected story identity. Thread the separately resolved canonical Git cwd through shared classifier and all consumers, keep artifact reads rooted at metadataRoot, fail closed with the actual resolution reason, and add official writer→classifier→scope/prewrite/done_prepare wrapper-root parity plus noncanonical storyId rejection tests.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-18T03:58:10.990Z",
+      "reviewRound": "2026-07-18T03:54:58.258Z",
+      "reviewRunId": "B-0784:RR-016",
+      "_hash": "bfb708dde92349adab83a563c6d62493a93baf8876619329cf37fd1b1b7c562c",
+      "files": [
+        "packages/main/src/core/audit-meta-store.ts",
+        "packages/main/src/core/finding-verify.ts",
+        "packages/main/src/core/lifecycle-registry.ts",
+        "packages/main/src/core/done-prepare-generated-metadata.ts",
+        "packages/main/src/core/scope-path-classifier.ts"
+      ],
+      "signatureTag": "adversarial|ts|meta-git-cwd-consumer-divergence",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
