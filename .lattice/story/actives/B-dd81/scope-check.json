@@ -1,0 +1,166 @@
+{
+  "storyId": "B-dd81",
+  "checkedAt": "2026-07-18T20:13:33.750Z",
+  "features": [
+    {
+      "feature": "Canonical full Task Context, known execution environment digest, and content-addressed full Prompt Envelope are defined without incremental behavior",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-2可信-full-context-装配与-envelope"
+    },
+    {
+      "feature": "Story-aware agent_prompt performs trusted in-process full-context assembly and rejects caller-supplied context, mode, hashes, round, ReviewRun, or envelope payload",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-dd81/understanding.json"
+    },
+    {
+      "feature": "Role-only/no-Story agent_prompt and all 16 protected Prompt bodies remain byte-identical",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-dd81/understanding.json"
+    },
+    {
+      "feature": "ReviewRun and reviewer pass bind the same fresh envelope to Story, HEAD, material/storyFiles, round and ReviewRun, with stable replay rejection",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-2可信-full-context-装配与-envelope"
+    },
+    {
+      "feature": "A reviewer redispatch creates a new ReviewRun while provider retry preserves the usage-ledger ledgerCallId/attempt identity contract and does not move attempt authority into Envelope",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-dd81/decision.json"
+    },
+    {
+      "feature": "Compatibility and retired evidence cannot satisfy REVIEW, assurance-floor, active receipt, or quorum consumers",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-dd81/scope-boundary.json"
+    },
+    {
+      "feature": "Per-role full-context feature flags, bounded legacy-full-context pass reading, and explicit rollback verification preserve in-flight compatibility",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-2可信-full-context-装配与-envelope"
+    },
+    {
+      "feature": "New envelope and eligibility gate facts are registered in the process-fact registry and verifier",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#装配信任边界"
+    },
+    {
+      "feature": "Non-ReviewRun Story-dispatch full envelopes are durably recorded as prompt audit artifacts while remaining incapable of minting reviewer evidence",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#prompt-envelope"
+    },
+    {
+      "feature": "agent_prompt Story-aware output returns a standalone signed envelope",
+      "covered_by": "CHK-002",
+      "status": "drift",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-dd81/checklist.json CHK-002 userSees"
+    },
+    {
+      "feature": "Incremental prompt selection and impact classification",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Reserved for ordered Story 4 and explicitly excluded by B-dd81 scope boundary",
+      "source": ".lattice/story/actives/B-dd81/scope-boundary.json"
+    },
+    {
+      "feature": "Historical A/B replay and production-isolated experiment harness",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Reserved for ordered Story 3 and explicitly excluded by B-dd81 scope boundary",
+      "source": ".lattice/story/actives/B-dd81/scope-boundary.json"
+    },
+    {
+      "feature": "Prompt budget warn/enforce policy",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Reserved for Story 7/conditional follow-up and explicitly excluded by B-dd81 scope boundary",
+      "source": ".lattice/story/actives/B-dd81/scope-boundary.json"
+    },
+    {
+      "feature": "Provider pricing or cache optimization",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Not part of Story 2; provider usage observation belongs to later measurement work",
+      "source": ".lattice/story/actives/B-dd81/scope-boundary.json"
+    },
+    {
+      "feature": "Remote deployment or release publishing",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Local Story execution only",
+      "source": ".lattice/story/actives/B-dd81/execution-boundary.json"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-dd81/background.md",
+      ".lattice/story/actives/B-dd81/checklist.json",
+      ".lattice/story/actives/B-dd81/decision.json",
+      ".lattice/story/actives/B-dd81/execution-boundary.json",
+      ".lattice/story/actives/B-dd81/scope-boundary.json",
+      ".lattice/story/actives/B-dd81/understanding.json",
+      "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 15,
+    "covered": 8,
+    "excluded": 5,
+    "gaps": 1,
+    "orphanSuspect": 0,
+    "drift": 1
+  },
+  "reviewRound": "",
+  "_hash": "3c09d8353ba21b0e63f9b2c0d78ab875be011f9b5eee2ef1c89649d7bae9e1b0",
+  "openQuestions": [
+    {
+      "id": "OQ-001",
+      "q": "Does CHK-002 mean the Story-dispatch envelope itself gains a new signature authority, or only that review-run envelopes are authenticated through the signed ReviewRun?",
+      "evidence": "The canonical plan says REVIEW Envelope belongs to the existing signed ReviewRun and that story-dispatch produces audit only, while CHK-002 userSees promises a signed envelope. A standalone signer would create the alternate authority the decision explicitly avoids.",
+      "sourcePointers": [
+        ".lattice/story/actives/B-dd81/checklist.json#CHK-002",
+        ".lattice/story/actives/B-dd81/decision.json",
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#prompt-envelope"
+      ]
+    },
+    {
+      "id": "OQ-002",
+      "q": "Which exact fields participate in envelopeId so repeated assembly over identical Story facts is deterministic despite createdAt?",
+      "evidence": "The outcome promises a deterministic reproducible envelope ID, while PromptEnvelope includes createdAt and the checklist does not state whether time is excluded, normalized, or part of identity.",
+      "sourcePointers": [
+        ".lattice/story/actives/B-dd81/understanding.json",
+        "packages/main/src/core/prompt-contracts.ts#PromptEnvelope",
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#prompt-envelope"
+      ]
+    },
+    {
+      "id": "OQ-003",
+      "q": "Where is the required plan.md artifact or its explicit replacement?",
+      "evidence": "The dispatched scope-plan reviewer contract requires .lattice/story/actives/B-dd81/plan.md, but the artifact is absent; only understanding, decision and checklist are present.",
+      "sourcePointers": [
+        ".lattice/story/actives/B-dd81/plan.md",
+        ".lattice/story/actives/B-dd81/understanding.json",
+        ".lattice/story/actives/B-dd81/decision.json"
+      ]
+    }
+  ]
+}
