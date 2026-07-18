@@ -25,6 +25,7 @@ interface StoredOwnerSessionToken {
   boundaryHash: string;
   token: string;
   createdAt: string;
+  lastUsedAt?: string;
   expiresAt: string;
 }
 
@@ -104,7 +105,7 @@ function readStoredToken(
   agentOrRoleIdentity: string,
   boundary: string,
   nowMs: number,
-): string | null {
+): StoredOwnerSessionToken | null {
   const parsed = parseStoredToken(path);
   if (
     parsed !== null
@@ -115,9 +116,19 @@ function readStoredToken(
     && parsed.boundaryHash === hashSegment(boundary)
     && tokenExpiryMs(parsed) > nowMs
   ) {
-    return parsed.token!.trim();
+    return parsed as StoredOwnerSessionToken;
   }
   return null;
+}
+
+function writeStoredTokenAtomic(path: string, record: StoredOwnerSessionToken): void {
+  const tempPath = `${path}.tmp-${process.pid}-${randomBytes(6).toString('hex')}`;
+  try {
+    writeFileSync(tempPath, `${JSON.stringify(record, null, 2)}\n`, { encoding: 'utf8', flag: 'wx' });
+    renameSync(tempPath, path);
+  } finally {
+    rmSync(tempPath, { force: true });
+  }
 }
 
 function sleepSync(ms: number): void {
@@ -323,33 +334,12 @@ export function readOrCreateOwnerSessionToken(
   if (!Number.isFinite(nowMs)) {
     throw new Error('readOrCreateOwnerSessionToken: now() must return a valid ISO timestamp');
   }
-  const existing = readStoredToken(
-    path,
-    normalizedProvider,
-    trimmedTaskIdentity,
-    trimmedAgentOrRoleIdentity,
-    trimmedBoundary,
-    nowMs,
-  );
-  if (existing !== null) return existing;
-
-  const token = `sess-${randomBytes(16).toString('hex')}`;
-  const record: StoredOwnerSessionToken = {
-    schemaVersion: 'lattice.owner_session_token.v2',
-    provider: normalizedProvider,
-    taskHash: hashSegment(trimmedTaskIdentity),
-    agentOrRoleHash: hashSegment(trimmedAgentOrRoleIdentity),
-    boundaryHash: hashSegment(trimmedBoundary),
-    token,
-    createdAt: nowIso,
-    expiresAt: new Date(nowMs + OWNER_SESSION_TOKEN_TTL_MS).toISOString(),
-  };
   const providerDir = join(projectRoot, OWNER_SESSION_TOKEN_DIR, hashSegment(normalizedProvider));
   mkdirSync(providerDir, { recursive: true });
   const lockPath = `${path}.lock`;
   acquireTokenLock(lockPath);
   try {
-    const raced = readStoredToken(
+    const existing = readStoredToken(
       path,
       normalizedProvider,
       trimmedTaskIdentity,
@@ -357,15 +347,28 @@ export function readOrCreateOwnerSessionToken(
       trimmedBoundary,
       nowMs,
     );
-    if (raced !== null) return raced;
-    if (existsSync(path)) rmSync(path, { force: true });
-    const tempPath = `${path}.tmp-${process.pid}-${randomBytes(6).toString('hex')}`;
-    try {
-      writeFileSync(tempPath, `${JSON.stringify(record, null, 2)}\n`, { encoding: 'utf8', flag: 'wx' });
-      renameSync(tempPath, path);
-    } finally {
-      rmSync(tempPath, { force: true });
+    if (existing !== null) {
+      writeStoredTokenAtomic(path, {
+        ...existing,
+        token: existing.token.trim(),
+        lastUsedAt: nowIso,
+        expiresAt: new Date(nowMs + OWNER_SESSION_TOKEN_TTL_MS).toISOString(),
+      });
+      return existing.token.trim();
     }
+    if (existsSync(path)) rmSync(path, { force: true });
+    const token = `sess-${randomBytes(16).toString('hex')}`;
+    writeStoredTokenAtomic(path, {
+      schemaVersion: 'lattice.owner_session_token.v2',
+      provider: normalizedProvider,
+      taskHash: hashSegment(trimmedTaskIdentity),
+      agentOrRoleHash: hashSegment(trimmedAgentOrRoleIdentity),
+      boundaryHash: hashSegment(trimmedBoundary),
+      token,
+      createdAt: nowIso,
+      lastUsedAt: nowIso,
+      expiresAt: new Date(nowMs + OWNER_SESSION_TOKEN_TTL_MS).toISOString(),
+    });
     return token;
   } finally {
     releaseTokenLock(lockPath);

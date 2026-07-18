@@ -121,6 +121,29 @@ if (ownerSessionChildMode === 'token') {
   process.stdout.write(`${token}\n`);
   process.exit(0);
 }
+if (ownerSessionChildMode === 'lease-gate') {
+  const childRoot = process.env.LATTICE_OWNER_SESSION_SMOKE_ROOT || process.cwd();
+  const storyId = process.env.LATTICE_OWNER_SESSION_SMOKE_STORY || 'B-child-gate';
+  const store = new StoryStore(childRoot);
+  const storyDir = store.storyDirPath(storyId);
+  mkdirSync(storyDir, { recursive: true });
+  try {
+    enforceStoryOwnerLeaseGate(
+      'checklist_update',
+      { storyId },
+      store,
+      {
+        storyId,
+        phase: process.env.LATTICE_OWNER_SESSION_SMOKE_PHASE || 'REVIEW',
+      },
+      childRoot,
+    );
+    process.stdout.write(`${JSON.stringify({ ok: true, lease: readOwnerLease(storyDir) })}\n`);
+  } catch (error) {
+    process.stdout.write(`${JSON.stringify({ ok: false, error: (error as Error).message })}\n`);
+  }
+  process.exit(0);
+}
 
 const projectRoot = join(new URL('../../../..', import.meta.url).pathname);
 const root = join(tmpdir(), `lattice-story-owner-lease-smoke-${process.pid}-${Date.now()}`);
@@ -409,26 +432,76 @@ try {
     assert.equal(repairedCorrupt.sessionSource, 'generated-token', 'corrupt final record is repaired and resolution converges');
     assert.notEqual(repairedCorrupt.sessionId, generatedRawSafe.sessionId, 'corrupt token material is replaced rather than trusted');
 
-    // Expiry and scope-owned deletion are bounded: deleting task A cannot
-    // remove or reuse task B's token.
-    const expiryStart = Date.now() - OWNER_SESSION_TOKEN_TTL_MS - 1;
+    // Active same-scope use slides expiry under the scope lock, so a task that
+    // remains active across its original absolute TTL never rotates owner id.
+    // A truly idle record still expires and is replaced.
+    const lifecycleRoot = join(root, 'token-lifecycle');
+    mkdirSync(lifecycleRoot, { recursive: true });
+    const expiryStart = Date.parse('2026-06-01T00:00:00.000Z');
     const expiryA = readOrCreateOwnerSessionToken(
-      root,
+      lifecycleRoot,
       'codex',
       'expiry-task',
       'implementer',
       'expiry-boundary',
       () => new Date(expiryStart).toISOString(),
     );
-    const expiryB = readOrCreateOwnerSessionToken(
-      root,
+    const renewedBeforeOriginalExpiry = readOrCreateOwnerSessionToken(
+      lifecycleRoot,
       'codex',
       'expiry-task',
       'implementer',
       'expiry-boundary',
-      () => new Date(expiryStart + OWNER_SESSION_TOKEN_TTL_MS + 1).toISOString(),
+      () => new Date(expiryStart + OWNER_SESSION_TOKEN_TTL_MS - 1_000).toISOString(),
     );
-    assert.notEqual(expiryA, expiryB, 'expired generated token is replaced atomically');
+    const renewedAfterOriginalExpiry = readOrCreateOwnerSessionToken(
+      lifecycleRoot,
+      'codex',
+      'expiry-task',
+      'implementer',
+      'expiry-boundary',
+      () => new Date(expiryStart + OWNER_SESSION_TOKEN_TTL_MS + 1_000).toISOString(),
+    );
+    assert.equal(renewedBeforeOriginalExpiry, expiryA, 'active use before the original expiry preserves the token');
+    assert.equal(renewedAfterOriginalExpiry, expiryA, 'renewed token remains stable after its original absolute expiry');
+    const idleExpiryMs = expiryStart + (2 * OWNER_SESSION_TOKEN_TTL_MS) + 2_000;
+    const activeSibling = readOrCreateOwnerSessionToken(
+      lifecycleRoot,
+      'codex',
+      'active-sibling-task',
+      'implementer',
+      'expiry-boundary',
+      () => new Date(idleExpiryMs - 1_000).toISOString(),
+    );
+    const idleHealth = scanOwnerSessionTokenStore(lifecycleRoot, idleExpiryMs);
+    assert.equal(idleHealth.expired, 1, 'a token with no use for a full TTL is reported truly idle/expired');
+    assert.equal(idleHealth.healthy, 1, 'a recently used sibling scope remains healthy');
+    const idleRepair = repairOwnerSessionTokenStore(lifecycleRoot, idleExpiryMs);
+    assert.equal(idleRepair.removedExpired, 1, 'doctor repair removes the truly idle token');
+    assert.equal(
+      readOrCreateOwnerSessionToken(
+        lifecycleRoot,
+        'codex',
+        'active-sibling-task',
+        'implementer',
+        'expiry-boundary',
+        () => new Date(idleExpiryMs).toISOString(),
+      ),
+      activeSibling,
+      'idle cleanup is scope-isolated and preserves an active sibling token',
+    );
+    const replacedAfterIdle = readOrCreateOwnerSessionToken(
+      lifecycleRoot,
+      'codex',
+      'expiry-task',
+      'implementer',
+      'expiry-boundary',
+      () => new Date(idleExpiryMs).toISOString(),
+    );
+    assert.notEqual(replacedAfterIdle, expiryA, 'a truly idle generated token is replaced atomically');
+
+    // Scope-owned deletion is bounded: deleting task A cannot remove or reuse
+    // task B's token.
     const scopeA = readOrCreateOwnerSessionToken(root, 'codex', 'scope-task-a', 'implementer', 'scope-boundary');
     const scopeB = readOrCreateOwnerSessionToken(root, 'codex', 'scope-task-b', 'implementer', 'scope-boundary');
     assert.equal(
@@ -446,12 +519,9 @@ try {
       scopeA,
       'removed scope A receives a fresh token and cannot reuse deleted material',
     );
-    const storeHealth = scanOwnerSessionTokenStore(root);
+    const storeHealth = scanOwnerSessionTokenStore(root, Date.parse('2026-06-20T12:30:01.000Z'));
     assert.equal(storeHealth.corrupt, 0, 'token-store health scan reports no corrupt records after bounded repair');
-    assert.ok(storeHealth.expired >= 1, 'token-store health scan enumerates expired records without exposing their dimensions');
-    const storeRepair = repairOwnerSessionTokenStore(root);
-    assert.ok(storeRepair.removedExpired >= 1, 'doctor repair primitive removes expired records');
-    assert.equal(storeRepair.health.needsRepair, false, 'doctor repair primitive converges to a healthy token store');
+    assert.equal(storeHealth.expired, 0, 'active and freshly repaired scoped tokens remain healthy');
 
     // Spawned provider children receive truthful task + role dimensions rather
     // than the parent owner's canonical id. Only an explicitly allowlisted
@@ -499,6 +569,24 @@ try {
       },
     );
     assert.equal(deniedExplicitChildEnv.LATTICE_SESSION_ID, undefined, 'denylist wins an allowlist conflict for LATTICE_SESSION_ID');
+    const paddedDeniedExplicitChildEnv = buildCanonicalHostRuntimeEnv(
+      {
+        ...dispatchPolicy,
+        envAllowlist: [' LATTICE_SESSION_ID '],
+        envDenylist: ['  LATTICE_SESSION_ID  '],
+      },
+      'codex',
+      {
+        taskIdentity: 'dispatch:task-red',
+        agentOrRoleIdentity: 'reviewer',
+        adapterBoundary: 'dispatch-boundary-red',
+      },
+    );
+    assert.equal(
+      paddedDeniedExplicitChildEnv.LATTICE_SESSION_ID,
+      undefined,
+      'canonical trim is shared by allow/deny names and a whitespace-padded deny still wins',
+    );
     if (savedExplicit === undefined) delete process.env.LATTICE_SESSION_ID;
     else process.env.LATTICE_SESSION_ID = savedExplicit;
 
@@ -751,27 +839,70 @@ try {
     assert.ok(doctorOutput.includes('"hostProvider": "codex"'), 'real doctor JSON reports Codex provider');
     assert.equal(doctorOutput.includes(cliSentinel), false, 'real doctor output redacts CODEX_THREAD_ID');
 
-    const degradedEnv = cleanChildEnv();
-    delete degradedEnv.LATTICE_OWNER_SESSION_SMOKE_CHILD_MODE;
-    const degradedMutation = spawnSync(
-      process.execPath,
-      [
-        'bin/lattice.js',
-        'checklist_update',
-        JSON.stringify({ storyId: 'B-62b8', itemId: 'CHK-001', status: 'done' }),
-      ],
-      {
-        cwd: projectRoot,
-        env: degradedEnv,
-        encoding: 'utf8',
-        timeout: 30_000,
-      },
-    );
-    assert.notEqual(degradedMutation.status, 0, 'derived-ppid foreign mutation remains blocked');
-    const mutationStderr = String(degradedMutation.stderr);
-    const warningIndex = mutationStderr.indexOf('session identity degraded: derived-ppid');
-    const errorIndex = mutationStderr.indexOf('Error:');
-    assert.ok(warningIndex >= 0 && errorIndex > warningIndex, 'real mutation prints degraded guidance before the foreign-owner error');
+    const runLeaseGateChild = (
+      env: NodeJS.ProcessEnv,
+      nested: boolean,
+    ): { result: { ok: boolean; lease?: ReturnType<typeof readOwnerLease>; error?: string }; stderr: string } => {
+      const child = nested
+        ? spawnSync('/bin/sh', ['-c', '"$OWNER_NODE" "$OWNER_CHILD"'], {
+          env: { ...env, OWNER_NODE: process.execPath, OWNER_CHILD: childFile },
+          encoding: 'utf8',
+          timeout: 10_000,
+        })
+        : spawnSync(process.execPath, [childFile], { env, encoding: 'utf8', timeout: 10_000 });
+      assert.equal(child.status, 0, `lease-gate child exits cleanly: ${child.stderr}`);
+      return {
+        result: JSON.parse(String(child.stdout).trim()),
+        stderr: String(child.stderr),
+      };
+    };
+
+    // The integration proof uses an isolated temporary story and calls the
+    // owner gate directly. It therefore stays valid regardless of the live
+    // B-62b8 phase while still exercising two independent OS processes.
+    for (const phase of ['REVIEW', 'TEST']) {
+      const phaseRoot = join(root, `child-lease-gate-${phase.toLowerCase()}`);
+      const phaseStory = `B-child-${phase.toLowerCase()}`;
+      const compositeEnv = {
+        ...cleanChildEnv(),
+        LATTICE_OWNER_SESSION_SMOKE_CHILD_MODE: 'lease-gate',
+        LATTICE_OWNER_SESSION_SMOKE_ROOT: phaseRoot,
+        LATTICE_OWNER_SESSION_SMOKE_STORY: phaseStory,
+        LATTICE_OWNER_SESSION_SMOKE_PHASE: phase,
+        CODEX_THREAD_ID: `child-owner-${phase.toLowerCase()}`,
+        LATTICE_AGENT: 'main',
+      };
+      const acquired = runLeaseGateChild(compositeEnv, false);
+      assert.equal(acquired.result.ok, true, `${phase}: first independent process acquires the owner lease`);
+      assert.equal(acquired.result.lease?.sessionSource, 'host-adapter', `${phase}: acquired lease records host-adapter identity`);
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 20);
+      const refreshed = runLeaseGateChild(compositeEnv, true);
+      assert.equal(refreshed.result.ok, true, `${phase}: nested independent process refreshes the same owner lease`);
+      assert.equal(
+        refreshed.result.lease?.sessionId,
+        acquired.result.lease?.sessionId,
+        `${phase}: same task+role composite converges to one owner across processes`,
+      );
+      assert.ok(
+        Date.parse(refreshed.result.lease?.heartbeatAt || '') > Date.parse(acquired.result.lease?.heartbeatAt || ''),
+        `${phase}: second process advances the shared lease heartbeat`,
+      );
+
+      const degradedEnv = cleanChildEnv();
+      Object.assign(degradedEnv, {
+        LATTICE_OWNER_SESSION_SMOKE_CHILD_MODE: 'lease-gate',
+        LATTICE_OWNER_SESSION_SMOKE_ROOT: phaseRoot,
+        LATTICE_OWNER_SESSION_SMOKE_STORY: phaseStory,
+        LATTICE_OWNER_SESSION_SMOKE_PHASE: phase,
+      });
+      const degradedMutation = runLeaseGateChild(degradedEnv, false);
+      assert.equal(degradedMutation.result.ok, false, `${phase}: derived-ppid foreign mutation remains blocked by the owner gate`);
+      assert.ok(degradedMutation.result.error?.includes('owner-gated'), `${phase}: owner-gate error reaches the child result`);
+      assert.ok(
+        degradedMutation.stderr.includes('session identity degraded: derived-ppid'),
+        `${phase}: degraded guidance is emitted before the owner gate rejects the mutation`,
+      );
+    }
   }
 
   // ── 2. acquire — schema-complete lease at the canonical path ─────────────

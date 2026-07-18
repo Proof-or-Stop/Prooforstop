@@ -245,8 +245,10 @@ Rules:
   so two roles or tasks in the same worktree never collide.
 - Define storage ownership and cleanup at that same boundary. A token owned by
   one adapter task-and-role pair must not be reused or deleted by another pair.
-- Persisted fallback records expire seven days after creation. Resolution
-  replaces an expired record under the same scope lock; `doctor` reports
+- Persisted fallback records expire after seven days without a successful
+  same-scope use. Every successful read renews `lastUsedAt` and `expiresAt`
+  under the same scope lock without rotating the token. Resolution replaces a
+  truly idle expired record under that lock; `doctor` reports
   healthy/expired/corrupt/orphan-lock/orphan-temp counts and `doctor --repair`
   removes only expired, corrupt, or abandoned store artifacts.
 - Publish through a bounded per-scope lock and atomic temporary-file rename so

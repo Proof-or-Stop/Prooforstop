@@ -1679,8 +1679,10 @@ export function buildCanonicalHostRuntimeEnv(
   },
 ): NodeJS.ProcessEnv {
   const env = buildRequiredCommandEnv(policy) as NodeJS.ProcessEnv;
-  const deliberateOverride = policy.envAllowlist.includes('LATTICE_SESSION_ID')
-    && !policy.envDenylist.includes('LATTICE_SESSION_ID')
+  const allowedEnvNames = new Set(policy.envAllowlist.map(name => name.trim()).filter(Boolean));
+  const deniedEnvNames = new Set(policy.envDenylist.map(name => name.trim()).filter(Boolean));
+  const deliberateOverride = allowedEnvNames.has('LATTICE_SESSION_ID')
+    && !deniedEnvNames.has('LATTICE_SESSION_ID')
     ? process.env.LATTICE_SESSION_ID?.trim()
     : undefined;
   if (deliberateOverride) {
