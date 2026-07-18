@@ -241,6 +241,25 @@
       ],
       "signatureTag": "edge|ts|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-dd81:F-012",
+      "desc": "quality-cleanup: packages/main/src/tasks/quorum-submit-smoke.ts:114-125,444-469 hard-codes a Codex-only full-asset fixture while the exercised dispatch path selects the host from ambient session identity. Repro on the built current HEAD: LATTICE_OWNER_SESSION_ADAPTER_PROVIDER=claude-code LATTICE_OWNER_SESSION_ADAPTER_TASK=quality-host-probe LATTICE_OWNER_SESSION_ADAPTER_AGENT=lattice-review-quality node packages/main/dist/tasks/quorum-submit-smoke.js fails at recordReviewerPasses with missing .claude/agents/lattice-review-concept.md. The default Codex run passes 18/18, so this supported-host regression is environment-dependent and the selected-host end-to-end assertion does not actually cover Claude. Make the fixture explicitly select/materialize the host under test (or parameterize both Claude and Codex) and isolate it from ambient provider state.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-18T23:02:38.649Z",
+      "reviewRound": "2026-07-18T22:53:28.493Z",
+      "reviewRunId": "B-dd81:RR-013",
+      "_hash": "cee4cb3c96be22fae1ac6b56c37f2f79cfbcbf8969023776ae5bb90de7f46cbb",
+      "files": [
+        "packages/main/src/tasks/quorum-submit-smoke.ts",
+        "packages/main/src/handlers/story-dispatch.ts"
+      ],
+      "signatureTag": "edge|ts|quality-cleanup-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
