@@ -179,7 +179,7 @@
       "desc": "The AST smoke does not cover the required adversarial/declaration matrix although all related intents are marked PASS. Added assertions cover a simple function/nested function/class constructor/method/interface/type, one rename, and malformed parse, but omit enum/namespace, overload and overload-count loss, anonymous/default exports, computed methods, decorators/multiline declarations, deletion, anchor-kind mismatch, multiple hunks, for-in/while-do/switch/catch/try, and diagnostics/remediation fields required by CHK-002 happy:1/edge:0-1/adversarial:0-2 and CHK-004 happy:1/edge:1-2. Expand semantic-scope-guard-smoke through parseUnifiedDiff/checkSemanticScope production paths and bind evidence only to cases actually asserted.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-18T02:14:55.981Z",
@@ -192,7 +192,11 @@
         "packages/main/src/core/semantic-scope-gate.ts"
       ],
       "signatureTag": "missing|ts|smoke-cover-required",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "4106eb3531 expands parser-backed coverage for control flow, locals, nested functions, constructors, methods, classes, interface/type, top-level and same-line variable declarations, arrow variables, rename/deletion, multi-declaration spans, file fallback, and parse failure.",
+      "resolvedAt": "2026-07-18T02:37:53.606Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0784:F-009",
