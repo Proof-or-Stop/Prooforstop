@@ -321,10 +321,13 @@
       "q": "Which existing signed or canonical-writer proof makes a phase_transition/process-metrics delta causally admissible? If none exists, the chosen fallback requires a transition-owned proof producer, but transition-orchestrator or an equivalent writer-receipt module is absent from the checklist file mappings.",
       "evidence": "The transition currently appends an unsigned phase_transition JSONL row after writing story state; event shape and hashes alone cannot satisfy the plan prohibition on event-shape trust. The decision says to fall back to transition-owned closeout when no adequate proof primitive exists.",
       "sourcePointers": [
-        "packages/main/src/handlers/transition-orchestrator.ts:392",
         "packages/main/src/handlers/transition-orchestrator.ts:674",
-        ".lattice/story/actives/B-8195/decision.json"
-      ]
+        "packages/main/src/handlers/verifier.ts:690",
+        "packages/main/src/core/auto-commit-metadata.ts:134",
+        "CHK-002"
+      ],
+      "resolution": "Because phase_transition is unsigned, verifier adoption is rejected as unsafe. The chosen design is transition-owned closeout in transition-orchestrator.ts using the existing exact-path isolated metadata writer; verifier keeps rejecting every pre-existing dirty managed path.",
+      "resolvedAt": "2026-07-18T10:28:46.847Z"
     }
   ]
 }
