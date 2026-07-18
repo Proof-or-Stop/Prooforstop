@@ -331,4 +331,4 @@ const checkedInBaseline = readFileSync(PROMPT_MEASUREMENT_BASELINE_PATH, 'utf8')
 assert.equal(checkedInBaseline, canonicalPromptMeasurementReportJson(reportA));
 assert.doesNotMatch(checkedInBaseline, /prompt-envelope|envelopeId|reviewRunId/i);
 
-console.log('prompt-contract-measurement-smoke CHK-001/CHK-002/CHK-003 PASS');
+console.log('prompt-contract-measurement-smoke CHK-001/CHK-002/CHK-003/CHK-004 PASS');

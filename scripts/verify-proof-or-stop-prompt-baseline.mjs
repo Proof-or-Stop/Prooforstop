@@ -13,6 +13,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const BUILT_REGISTRY_PATH = join(ROOT, 'packages/main/dist/core/prompt-registry.js');
+const BUILT_PROMPT_MEASUREMENT_PATH = join(ROOT, 'packages/main/dist/core/prompt-measurement.js');
 const CLI_PATH = join(ROOT, 'bin/lattice.js');
 const BASELINE_PATH = join(
   ROOT,
@@ -21,6 +22,10 @@ const BASELINE_PATH = join(
 const MATRIX_PATH = join(
   ROOT,
   'docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md',
+);
+const PROMPT_MEASUREMENT_BASELINE_PATH = join(
+  ROOT,
+  'docs/requirements/baselines/role-prompt-measurement-baseline.json',
 );
 const EXPECTED_ROLE_COUNT = 16;
 const SCHEMA_VERSION = 'proof-or-stop.prompt-baseline.v7';
@@ -1894,6 +1899,55 @@ async function loadBuiltRegistry() {
   return registryModule;
 }
 
+async function verifyPromptMeasurementSidecar(failures) {
+  if (!existsSync(BUILT_PROMPT_MEASUREMENT_PATH)) {
+    failures.push('built prompt measurement module is missing; run packages/main build');
+    return;
+  }
+  if (!existsSync(PROMPT_MEASUREMENT_BASELINE_PATH)) {
+    failures.push('role-prompt measurement sidecar is missing');
+    return;
+  }
+  const measurementModule = await import(
+    `${pathToFileURL(BUILT_PROMPT_MEASUREMENT_PATH).href}?v=${Date.now()}`
+  );
+  const current = measurementModule.generatePromptMeasurementReport();
+  const canonicalCurrent = measurementModule.canonicalPromptMeasurementReportJson(current);
+  const checkedIn = readFileSync(PROMPT_MEASUREMENT_BASELINE_PATH, 'utf8');
+  if (checkedIn !== canonicalCurrent) {
+    failures.push('role-prompt measurement sidecar differs from the deterministic current report');
+  }
+  try {
+    measurementModule.verifyPromptMeasurementReport(JSON.parse(checkedIn));
+  } catch (error) {
+    failures.push(`role-prompt measurement sidecar validation failed: ${error instanceof Error ? error.message : String(error)}`);
+  }
+  if (current.records?.length !== EXPECTED_ROLE_COUNT) {
+    failures.push(`role-prompt measurement sidecar expected ${EXPECTED_ROLE_COUNT} records, got ${current.records?.length ?? 'missing'}`);
+  }
+  if (
+    current.aggregate?.activeRoleCount !== 12 ||
+    current.aggregate?.compatibilityRoleCount !== 3 ||
+    current.aggregate?.retiredRoleCount !== 1
+  ) {
+    failures.push('role-prompt measurement sidecar lifecycle partition must remain 12 active / 3 compatibility / 1 retired');
+  }
+  for (const [index, record] of (current.records ?? []).entries()) {
+    if (record.schemaVersion !== 'proofbound.prompt-measurement.v1') {
+      failures.push(`role-prompt measurement record ${index} has unsupported schema`);
+    }
+    if (record.knownDispatchInputTokens?.availability !== 'unavailable') {
+      failures.push(`role-prompt measurement record ${record.roleId ?? index} must keep no-Story known-dispatch input unavailable`);
+    }
+    if (record.providerProcessedInputTokens?.availability !== 'unavailable') {
+      failures.push(`role-prompt measurement record ${record.roleId ?? index} must keep no-provider processed input unavailable`);
+    }
+  }
+  if (/prompt-envelope|envelopeId|reviewRunId/i.test(checkedIn)) {
+    failures.push('role-prompt measurement sidecar must not instantiate PromptEnvelope or ReviewRun authority');
+  }
+}
+
 async function collectCurrentPromptState() {
   const { readPromptRegistry, readPromptTemplate } = await loadBuiltRegistry();
   const snapshot = readPromptRegistry();
@@ -3129,6 +3183,7 @@ async function verifyBaseline() {
   );
   verifyNoUnregisteredDirectStoryWrite(current, baseline, failures);
   verifyDirectStoryClassifierProbes(failures);
+  await verifyPromptMeasurementSidecar(failures);
 
   if (failures.length > 0) {
     console.error('FAIL proof-or-stop prompt baseline');
@@ -3149,6 +3204,7 @@ async function verifyBaseline() {
   console.log('PASS proof-or-stop prompt baseline: direct story-file findings classified');
   console.log(`INFO proof-or-stop prompt baseline: story-reference scanner diagnostics audit ${DIRECT_STORY_REFERENCE_ALLOWLIST.length} exact references inside manifest-approved prompt bodies`);
   console.log('PASS proof-or-stop prompt baseline: direct story-write diagnostics have 1 exact registered INIT write');
+  console.log('PASS proof-or-stop prompt baseline: deterministic 16-role PromptMeasurementRecord sidecar verified without refresh authority');
 }
 
 if (PROBE_DIRECT_STORY_CLASSIFIER) {
