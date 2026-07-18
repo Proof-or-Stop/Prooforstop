@@ -1,0 +1,44 @@
+{
+  "passes": [
+    {
+      "id": "B-6ed2:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Docs pass: both changed decision documents accurately describe the implemented clean-baseline, exact rounds x 2 event delta, single immutable metadata commit with normal hooks and HEAD CAS, whole-batch rollback, concurrent-byte preservation, and local non-Authority boundary. Direct handler and process-fact registry diffs match; focused process-fact contract passes.",
+      "createdAt": "2026-07-18T22:42:38.001Z",
+      "reviewRound": "2026-07-18T22:40:29.487Z",
+      "reviewRunId": "B-6ed2:RR-003",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "381632f66a4a475a00b843b6b07faea5d7db30fd6193e2039f890a628b78f83d"
+      },
+      "readDiagnostics": [],
+      "_hash": "6a5310bb4a900aad6111068afc2d14a89989a523975051e47242db4d248352eb"
+    }
+  ]
+}
