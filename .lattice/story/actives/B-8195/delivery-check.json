@@ -1,53 +1,53 @@
 {
   "storyId": "B-8195",
-  "checkedAt": "2026-07-18T20:22:02.050Z",
-  "headHash": "c3dba4543c60a359867b62f499283c0c35001c18",
-  "materialHash": "97a299839a501088c606e446f288a73150a1d9dd649be37e7a3eb2bbcc593f83",
-  "storyFilesHash": "7f5d8ff787fe5ada7b76548829a9c0e3ca7b327918f01ee8bf4a9cec66842c9f",
-  "reviewRound": "2026-07-18T19:23:26.499Z",
+  "checkedAt": "2026-07-18T21:11:24.759Z",
+  "headHash": "c560992dcdc62aae035652aca1a26c40362c411f",
+  "materialHash": "ffa0207d34a4c452c683618a8e1c29c6a47a0f92b5beb65517b1011e77c82e3f",
+  "storyFilesHash": "7950b9c8c5d86b5b4f83c7e1ce09dae6bd2be8f3b3e8182559b79274f6976e08",
+  "reviewRound": "2026-07-18T20:48:38.996Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
       "docPath": "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
       "promise": "A fresh eligible PASS after REVIEW-to-TEST is persisted and returned as a clean zero-command reused validation without weakening dirty-state admission.",
       "status": "verified",
-      "verifiedBy": "Fresh local production CLI transcript plus verifier-only delta review",
-      "evidence": "Fresh transcript captured 2026-07-18T20:18:17.318Z at materialHash 97a299839a50 exits 0 with provider=lattice-verifier-reused, status=pass, disposition=reused and commandExecutions=0; 050b177b90 does not alter reuse admission."
+      "verifiedBy": "Fresh production CLI transcript, formal 46-command validation and F-012 incremental contract review",
+      "evidence": "At materialHash ffa0207d34a4 and storyFilesHash 7950b9c8c5d8, formal validation records complete PASS for 46/46 commands; fresh transcript exits 0 with reused PASS and commandExecutions=0 in 8.7 seconds."
     },
     {
       "docPath": "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
       "promise": "Lifecycle and CLI writers close only their causally generated bounded metadata and fail closed for human/forged dirt, hooks, races and writer failure.",
       "status": "verified",
-      "verifiedBy": "Prior signed adversarial evidence plus incremental verifier persistence audit",
-      "evidence": "050b177b90 adds classified preflight/write failure handling and rollback; its non-git compatibility fallback writes only FAIL evidence and never permits PASS or terminal/receipt fabrication. Existing CHK-002/003 adversarial bindings remain current at materialHash 97a299839a50."
+      "verifiedBy": "Prior signed adversarial evidence plus F-012 exact local writer contract",
+      "evidence": "F-012 commit 1c969baa1a strengthens the process-fact contract to require exactly two transaction writer calls, locally bound in reusedStoryValidationResult and persistStoryValidationEvidence, and includes a mutation bite that fails if executed persistence is removed while reuse remains."
     },
     {
       "docPath": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
       "promise": "B-8195 interposed #7 delivers one-shot routine-validation closeout before host/candidate routing work, without changing DONE-required, routing, dispatch, owner or scope-anchor policy.",
       "status": "met",
-      "verifiedBy": "Incremental scope and current binding review",
-      "evidence": "Latest material delta is verifier-only commit 050b177b90; no routing, dispatch, owner, scope-anchor or DONE-required policy file changed. Current routine validate remains zero-command reused PASS."
+      "verifiedBy": "Incremental reverse-scan of the only product delta",
+      "evidence": "The only product delta since the prior delivery signature is scripts/verify-process-fact-contract.mjs contract strengthening; no runtime or documentation promise changed."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "Historical RED remains preserved by commit 1f66c4c749. The current live-smoke expected field still quotes that intentionally historical RED; it is a known nonblocking selector wording issue, not the current product expectation."
+      "transcript": "Historical pre-fix RED remains preserved. The live-smoke expected selector still quotes this historical RED wording; it remains a documented nonblocking selector mismatch, not the current delivery expectation."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "Fresh production CLI transcript at current materialHash 97a299839a50: validate exits 0 and reports Validation PASS reused (trusted-story-metadata-descendant), disposition=reused, commandExecutions=0."
+      "transcript": "Formal routine validation executed all 46 configured commands successfully; REVIEW-to-TEST then recognized trusted metadata lineage and did not redundantly rerun the suite."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "Fresh transcript completed in 9.2 seconds with 20/20 coverage and zero project command executions. Incremental audit confirms 050b177b90 only classifies persistence preflight/write failures and preserves fail-closed PASS handling."
+      "transcript": "Fresh local validate transcript captured 2026-07-18T21:10:36.954Z at materialHash ffa0207d34a4 exits 0 and reports Validation PASS reused, disposition=reused, commandExecutions=0 in 8.7 seconds with 20/20 coverage."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Incremental delivery re-attestation passes. The verifier-only material change preserves all promises and improves classified failure behavior; current bindings and fresh live transcript are green. Historical RED wording in the transcript expected selector remains explicitly documented as nonblocking."
+    "summary": "Final incremental delivery re-attestation passes. F-012 strengthens the exact two-writer/function-local process-fact contract without changing product behavior or documentation promises; current formal and live evidence are green and identity-bound. Historical RED expected-selector wording remains explicitly nonblocking."
   },
-  "_hash": "242f189c69a0e110f3e0b96e141727348f502c5052399da9c11b0696bb3587cd"
+  "_hash": "64232483bb918d9a556ac8ca41ccb0b26a26c5727c18bc4f6d3b3e578fb04ed7"
 }
