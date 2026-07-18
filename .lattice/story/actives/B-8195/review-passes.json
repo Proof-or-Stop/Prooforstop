@@ -144,6 +144,28 @@
         "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
       },
       "_hash": "db8364217faeaa123ae4151d62bd133aa5f1819d73309584230c9130a17c4d3a"
+    },
+    {
+      "id": "B-8195:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Minimal round-3 concept review of a8f6a4dabf found no blocker. The new canonicalFailure branch records failure only after postCommand hooks through the existing exact one-path transaction, preserves pre-existing/concurrent dirt by falling back to the already-written failed activity audit, and suppresses persistence rethrow only for an already-failed command. Successful PASS closeout retains the unchanged CanonicalTerminalCloseoutError fail-closed path.",
+      "createdAt": "2026-07-18T11:55:09.817Z",
+      "reviewRound": "2026-07-18T11:51:11.117Z",
+      "reviewRunId": "B-8195:RR-010",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "0469921be1e6adb843014133e4007728eb8255b24b83693a833205a3be871ce0"
     }
   ]
 }
