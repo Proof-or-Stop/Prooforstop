@@ -210,6 +210,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
             launcherSpec: {
               reviewedIntentRefs: args.reviewedIntentRefs ?? [],
               dispatchBindingDigest: dispatchBinding.binding.dispatchBindingDigest,
+              hostRenderHost: dispatchBinding.binding.hostRenderHost,
             },
           });
           withMkdirLock(store.storyFilePath(args.storyId, 'prompt-envelopes.lock'), () => {
