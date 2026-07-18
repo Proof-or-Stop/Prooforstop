@@ -542,6 +542,28 @@
       "resolvedAt": "2026-07-18T03:16:00.873Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0784:F-023",
+      "desc": "BUG-001 static and focused tests pass, but the new story-keyed runtime routing is not adequately covered at its two new boundaries. test:gitroot-cwd-contract proves the five former bare cwd tokens are gone, while existing gap-log smoke only runs with metadataRoot equal to the Git repo and existing wrapper/worktree scope smoke calls scope_contract_check, not the newly changed scope_diff_pack(storyId). No test invokes scope_diff_pack from a wrapper metadata root whose story points at a linked worktree, verifies root dirt is excluded, or asserts the handler rejects a missing storyId. Likewise no gap_log fixture places B-META metadata under a wrapper root with configured Git root and verifies writer+verifier share that repo common-dir/key/HEAD. Add focused production-handler assertions for wrapper→story-worktree scope_diff_pack, missing storyId failure, and wrapper-root B-META append/verify; otherwise the static scan can pass while resolveGitCwd is wired to the wrong authority.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-18T03:57:50.181Z",
+      "reviewRound": "2026-07-18T03:54:58.258Z",
+      "reviewRunId": "B-0784:RR-018",
+      "_hash": "705aefe3a8d53faccbc83fb395c628bd7ef36d2e471ffa2bb1df0302e06054d7",
+      "files": [
+        "packages/main/src/tasks/scope-contract-smoke.ts",
+        "packages/main/src/tasks/gap-log-smoke.ts",
+        "packages/main/src/handlers/scope-contract.ts",
+        "packages/main/src/core/audit-meta-store.ts",
+        "packages/main/src/core/finding-verify.ts"
+      ],
+      "signatureTag": "missing|ts|static-focused-tests",
+      "signatureTagSource": "auto"
     }
   ]
 }
