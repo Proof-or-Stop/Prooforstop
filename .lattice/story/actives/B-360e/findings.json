@@ -5,7 +5,7 @@
       "desc": "packages/main/src/core/prompt-contracts.ts:396-416 — MEDIUM: validatePromptEnvelope treats every optional field as merely nonblank, so digest-bearing fields such as toolPolicyDigest and systemInstructionDigest accept arbitrary strings. Runtime reproduction with toolPolicyDigest=\"not-a-digest\" prints MALFORMED_OPTIONAL_DIGEST_ACCEPTED. This contradicts CHK-001 adversarial schema intent requiring malformed digest values to fail closed and leaves the foundational Story-2 envelope schema permissive before it becomes gate-bound. Split optional digest fields from optional text/reference fields and validate each digest with requireDigest; add mutation probes for all optional digest-bearing fields.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-18T00:10:50.037Z",
@@ -13,7 +13,11 @@
       "reviewRunId": "B-360e:RR-001",
       "_hash": "6576b20de728e69de0502010a91c0e2f69df8df61a96035f65a224da5dabc94f",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 973f9ce95a: PromptEnvelope optional material/storyFiles/policy/tool/system digest fields now use requireDigest; focused smoke mutates every optional digest and requires explicit rejection.",
+      "resolvedAt": "2026-07-18T00:16:06.517Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-360e:F-002",
