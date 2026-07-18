@@ -244,7 +244,7 @@
       "desc": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts:89-109 — HIGH: the expanded array mutation matrix still omits Array subclasses/custom prototypes and prototype-dispatched map behavior. Independent repro against current dist shows an Array subclass overriding map serializes as invalid [MALICIOUS], while an Array with a custom prototype carrying hidden inherited state serializes as [1]. Because packages/main/src/core/prompt-contracts.ts invokes candidate.map and does not restrict the array prototype, CHK-001 canonical-fail-closed remains uncovered. Add subclass, overridden-map, and custom-prototype probes and require ordinary Array.prototype (or intrinsic index iteration) before refreshing evidence.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-18T00:25:33.730Z",
@@ -256,7 +256,11 @@
         "packages/main/src/core/prompt-contracts.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 181771de4b: smoke proves malicious subclass map and candidate-owned map are never invoked, custom inherited state rejects, and ordinary dense arrays serialize deterministically.",
+      "resolvedAt": "2026-07-18T00:27:32.260Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
