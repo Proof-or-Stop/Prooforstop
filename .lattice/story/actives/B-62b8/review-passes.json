@@ -380,6 +380,26 @@
         "scanEscalationReason": null
       },
       "_hash": "28b9ba94f558ad43f59fa365638b3d7192ecdbaa3e2bf54d2e7dee2dc939acb2"
+    },
+    {
+      "id": "B-62b8:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "PASS: targeted Round 7 re-review confirms F-017 same-count overload replacement now reports the removed overload while unchanged reordered overloads remain non-findings; F-018 routes .pyi/.pyw through Python deletion analysis. The dedicated concept-gate smoke and an independent dist-level exact repro both pass. Prior residual-local assessment remains intact: activityFor is superseded by activityForEntrypoint; nativeAdapterSession/redactRef no longer exist, and generic candidate occurrences are unrelated live locals.",
+      "createdAt": "2026-07-18T01:00:19.598Z",
+      "reviewRound": "2026-07-18T00:58:51.193Z",
+      "reviewRunId": "B-62b8:RR-025",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "63284184678e7a6f681fa1b390c08874a0b8306ee6cb199da80ad34325776177"
     }
   ]
 }
