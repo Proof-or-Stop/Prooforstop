@@ -181,6 +181,37 @@
         "scanEscalationReason": null
       },
       "_hash": "2224490438b2154bd4a918361901f98080b871f5cdb6bba21f4661062cf89871"
+    },
+    {
+      "id": "B-dd81:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage review PASS after F013: 47/47 verificationIntent refs have unique current passing evidence bound to storyFilesHash 8079b0f. Independent build and regressions passed quorum-submit 22/22, owner-session guardrail, full story-owner-lease smoke, and process-fact contract/inventory (409 entries). Coverage directly proves explicit unsupported mixed-env provider precedence, true-absence host inference, full dispatch-to-ReviewRun-to-REVIEW-gate fail-closed rejection with no persisted provenance, Claude/Codex thin aliases, full selected-host drift, replay/tamper, owner/reviewer lease separation, and 3x2 quorum semantics.",
+      "createdAt": "2026-07-18T23:50:30.921Z",
+      "reviewRound": "2026-07-18T23:43:17.744Z",
+      "reviewRunId": "B-dd81:RR-018",
+      "writerSessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-dd81/background.md",
+          ".lattice/story/actives/B-dd81/checklist.json",
+          ".lattice/story/actives/B-dd81/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/owner-session-guardrail.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ab0e3111358729df25bef93fd711a9770f5665007fed9fda6b31a3592e9419bd"
     }
   ]
 }
