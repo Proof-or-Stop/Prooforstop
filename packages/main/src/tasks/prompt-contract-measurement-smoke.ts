@@ -210,6 +210,32 @@ rejects(() => validateDispatchUsageObservation({
   providerUsageStatus: 'unavailable',
   providerProcessedInputTokens: 0,
 }), /unavailable provider usage/);
+validateDispatchUsageObservation({
+  envelopeId: digest,
+  assembledPromptTokens: 20,
+  providerUsageStatus: 'reported',
+  providerProcessedInputTokens: 18,
+  uncachedInputTokens: 10,
+  cacheReadInputTokens: 5,
+  cacheCreationInputTokens: 3,
+});
+rejects(() => validateDispatchUsageObservation({
+  envelopeId: digest,
+  assembledPromptTokens: 20,
+  providerUsageStatus: 'reported',
+  providerProcessedInputTokens: 17,
+  uncachedInputTokens: 10,
+  cacheReadInputTokens: 5,
+  cacheCreationInputTokens: 3,
+}), /providerProcessedInputTokens must equal/);
+// Optional provider components remain independently representable when the
+// provider does not expose the complete accounting breakdown.
+validateDispatchUsageObservation({
+  envelopeId: digest,
+  assembledPromptTokens: 20,
+  providerUsageStatus: 'reported',
+  providerProcessedInputTokens: 18,
+});
 
 const packageRoleIds = readPromptRegistry().agents.map(entry => entry.agentId).sort();
 assert.equal(PROMPT_ROLE_CONTRACTS.length, 16);

@@ -433,5 +433,26 @@ export function validateDispatchUsageObservation(value: unknown): asserts value 
     for (const key of ['providerProcessedInputTokens', 'uncachedInputTokens', 'cacheReadInputTokens', 'cacheCreationInputTokens']) {
       if (record[key] !== undefined) throw new PromptContractValidationError(`unavailable provider usage cannot include ${key}`);
     }
+  } else {
+    // Provider components are intentionally optional because some providers
+    // report only a subset. When the processed total and all three components
+    // are present, however, the documented accounting identity is mechanical.
+    const providerFields = [
+      'providerProcessedInputTokens',
+      'uncachedInputTokens',
+      'cacheReadInputTokens',
+      'cacheCreationInputTokens',
+    ] as const;
+    if (providerFields.every(key => record[key] !== undefined)) {
+      const componentTotal =
+        (record.uncachedInputTokens as number) +
+        (record.cacheReadInputTokens as number) +
+        (record.cacheCreationInputTokens as number);
+      if (record.providerProcessedInputTokens !== componentTotal) {
+        throw new PromptContractValidationError(
+          'reported provider usage is inconsistent: when all optional input fields are present, providerProcessedInputTokens must equal uncachedInputTokens + cacheReadInputTokens + cacheCreationInputTokens',
+        );
+      }
+    }
   }
 }
