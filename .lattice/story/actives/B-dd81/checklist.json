@@ -371,6 +371,105 @@
           "packages/main/src/tasks/review-assurance-floor-smoke.ts",
           "packages/main/src/tasks/quorum-submit-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "role-eligibility-canonical-registry",
+            "desc": "Story 1 exact 16-role registry and 12 active, 3 compatibility, 1 retired partition remain the sole eligibility source; active phase/lane-appropriate roles can use trusted full envelopes, compatibility roles require explicit legacy invocation plus migration hint, and lattice-review-channel new dispatch is rejected as retired.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "per-role-full-feature-flag-independent",
+            "desc": "Every eligible role has an independently addressable, versioned full-envelope feature flag whose default preserves the documented legacy assembled behavior until that role is enabled; enabling one role changes only its Story-aware assembly path and leaves all other roles byte-identical and behaviorally unchanged.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "per-role-legacy-rollback-exact",
+            "desc": "For every eligible migrated role, enable trusted full, capture its behavior, roll back only that role to legacy-full-context, and prove the returned prompt bytes/hash and legal dispatch behavior exactly match the frozen pre-migration baseline while existing authorization and gate predicates remain equally strict.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "mixed-rollout-deterministic-routing",
+            "desc": "A mixed matrix of enabled and rolled-back roles routes deterministically from the canonical role registry with no global fallback, order dependence or alias leakage; repeated restart/config reload preserves the same per-role state and exact assembled bytes.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "compatibility-alias-status-preserved",
+            "desc": "test-intent and test-case-reviewer normalize to canonical verification-intent for migration guidance without being reclassified as active/default dispatch or gaining independent reviewer authority; implementation-reviewer remains compatibility and cannot become a third REVIEW authority.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "legacy-pass-read-original-round-only",
+            "desc": "Legacy no-envelope artifacts remain readable as legacy-full-context under their recorded contract/role status only in the original round, retain historical attribution, and are excluded from new-format/incremental reuse; rolling a role forward then back does not retroactively relabel either legacy or envelope-bound evidence.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "retired-history-readonly-no-new-proof",
+            "desc": "Historical lattice-review-channel artifacts can be parsed read-only under their recorded contract version for audit, but new dispatch, pass, finding, receipt, ReviewRun or envelope creation is rejected and no replay can refresh them into current evidence.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "compatibility-only-review-gate-blocked",
+            "desc": "With otherwise clean current Story state but only current-round signed passes/findings/receipts from implementation-reviewer, test-intent and test-case-reviewer, REVIEW to TEST remains blocked with a stable missing-active-lane reason; advisory visibility does not turn compatibility evidence into required proof.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "compatibility-only-assurance-floor-blocked",
+            "desc": "A review-assurance-floor fixture containing valid signatures, fresh HEAD/round/ReviewRun/envelope IDs and sufficient numeric counts exclusively from compatibility or retired roles still reports zero eligible active-lane evidence and cannot satisfy the floor.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "compatibility-only-quorum-blocked",
+            "desc": "quorum_submit and receipt collectors reject a numerically sufficient 3x2 or multi-host set when eligible evidence comes only from compatibility/retired roles, mixed sets count only active eligible lanes, duplicate aliases do not increase cardinality, and stable diagnostics name the excluded role statuses.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "role-status-feature-flag-tamper-fails",
+            "desc": "Unknown role IDs, unsupported flag versions/values, compatibility or retired roles forced to enabled/default, alias cycles, missing replacement, duplicate registry rows, config prototype keys and direct environment/CLI overrides fail closed and cannot mint an envelope or change gate eligibility.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "all-gate-consumers-share-role-filter",
+            "desc": "Mutation-sensitive process-fact tests prove reviewer-list, receipt collection, machine REVIEW guard, review-assurance floor, quorum, dispatch classifier, lifecycle registry and process-fact registry consume the same canonical role-status eligibility; removing the filter from any one path causes focused tests to fail.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "rollback-never-downgrades-gates",
+            "desc": "For each role and for an all-roles rollback, compare REVIEW guard, current-round receipt, assurance-floor, quorum, owner/reviewer authority and signature/freshness outcomes before enablement, while enabled and after rollback; rollback may change assembly format only and never accepts evidence that either modern mode or the pre-migration gate rejected.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
       }
     }
   ]
