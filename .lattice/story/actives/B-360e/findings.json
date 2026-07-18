@@ -89,7 +89,7 @@
       "desc": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts:100-205 and 327-335 — HIGH: the focused smoke never deletes a required field from RuntimeContract, RoleContract, PromptMeasurementRecord, or PromptEnvelope. It tests unknown/invalid values, but the must adversarial intent and recorded evidence explicitly claim missing required fields fail closed. A regression that stops requiring one field could therefore pass this suite. Add representative required-key deletion probes for all four schemas (ideally table-driven) and rerun the bound evidence.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-18T00:11:28.529Z",
@@ -100,7 +100,11 @@
         "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 973f9ce95a: table-driven deletion probes remove every required key from RuntimeContract, RoleContract, PromptMeasurementRecord, and PromptEnvelope and require fail-closed rejection.",
+      "resolvedAt": "2026-07-18T00:16:09.559Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-360e:F-006",
