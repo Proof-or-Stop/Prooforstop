@@ -1,0 +1,92 @@
+{
+  "storyId": "B-0784",
+  "checkedAt": "2026-07-18T03:35:21.941Z",
+  "headHash": "2f8e3d41d4e757322fea7a52de450dd4e8041586",
+  "materialHash": "36eb243a7534bd90e2bd7e916824134fe46598a36e707b08f23d87ce0b7a5d8a",
+  "storyFilesHash": "057fa6f5c0be0511aed695977fe963e60b77b766872bde3b942078b00342fe03",
+  "reviewRound": "2026-07-18T03:15:34.899Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-0784/plan.md#CHK-001",
+      "promise": "Source-root core/foo.ts is persisted and compared as packages/main/src/core/foo.ts with original/canonical/base/version/rule diagnostics and fail-closed unsafe-input handling.",
+      "status": "verified",
+      "verifiedBy": "declared diff plus source/assertion reverse scan",
+      "evidence": "scope-path-classifier.ts canonicalizeScopePath resolves repo/source bases, normalizes Windows/dot input, rejects absolute/traversal/encoded/ambiguous/symlink escapes, and scope-contract.ts renders canonical diagnostics; scope-contract-smoke.ts asserts each case."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-0784/plan.md#CHK-002",
+      "promise": "TypeScript semantic scope uses versioned parser-backed enclosing declarations; control flow and local const never replace the enclosing function, while protected rename/delete remains observable and blocked.",
+      "status": "verified",
+      "verifiedBy": "declared diff plus source/assertion reverse scan",
+      "evidence": "scope-diff-pack.ts uses TypeScript AST over actual changed spans and reads main-side previous source; semantic-scope-gate.ts evaluates current and previous anchors fail-closed; semantic-scope-guard-smoke.ts asserts control flow exclusion, protected multi-anchor edits, rename, whole-file deletion, missing rename source, parser failure, and version drift."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-0784/plan.md#CHK-003",
+      "promise": "Official B-META gap_log metadata is shared only with valid canonical-writer whole-artifact provenance, while forged, copied, stale, direct-edited, symlinked, or unknown metadata is blocked.",
+      "status": "verified",
+      "verifiedBy": "declared diff plus source/assertion reverse scan",
+      "evidence": "audit-meta-store.ts appends HMAC-linked receipts from gap_log; finding-verify.ts verifies sequence, previous hash, pre/post artifact digests, canonical identities and current whole artifact; lifecycle-registry.ts exposes the shared classifier consumed by scope/prewrite/guard/done_prepare. gap-log-smoke.ts asserts mutation, replay, direct edit, symlink alias, unknown path and consumer parity negatives."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-0784/plan.md#CHK-004",
+      "promise": "Focused verification covers the canonical-path, AST-anchor and provenance migration/adversarial matrix with actionable diagnostics.",
+      "status": "verified",
+      "verifiedBy": "fresh live-smoke status plus declared test assertion reverse scan",
+      "evidence": "live_smoke_transcript reports a present-fresh successful artifact; scope-contract-smoke.ts, semantic-scope-guard-smoke.ts and gap-log-smoke.ts contain substantive assertions for the promised matrix and diagnostics, and scripts/verify-process-fact-contract.mjs binds all three new L4 facts."
+    },
+    {
+      "docPath": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#10",
+      "promise": "One shared exact/subtree/glob grammar is used across write and gate boundaries and malformed deny rules fail closed.",
+      "status": "verified",
+      "verifiedBy": "documentation diff mapped to implementation and tests",
+      "evidence": "scope-path-classifier.ts implements exact/subtree plus *, **, ?, classes and brace alternatives; scope-contract-smoke.ts asserts valid forms and a malformed-glob matrix at write and legacy enforce boundaries."
+    },
+    {
+      "docPath": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#10.3",
+      "promise": "Unified-diff context is excluded from changed spans, every touched current/previous declaration is retained, and deletion or rename cannot hide a protected declaration.",
+      "status": "verified",
+      "verifiedBy": "documentation diff mapped to implementation and tests",
+      "evidence": "scope-diff-pack.ts splits true added/deleted blocks and preserves previous-source anchors including +++ /dev/null; semantic-scope-gate.ts evaluates all anchors; semantic-scope-guard-smoke.ts asserts separated changes, multi-anchor protection, deletion and real git rename cases."
+    },
+    {
+      "docPath": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#10.3-rollout",
+      "promise": "Path and AST migrations have independent off/warn/enforce modes; rollback reads legacy signed bytes without rewriting and re-enable writes current versions.",
+      "status": "verified",
+      "verifiedBy": "documentation diff mapped to production config and cartesian tests",
+      "evidence": "config.ts exposes independent flags; handlers and gates consume them separately; semantic-scope-guard-smoke.ts covers the 3x3 production-entry matrix and persisted-byte off/warn/enforce/re-enable sequence."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lifecycle-artifact-scope.md#classifier-outputs",
+      "promise": "Canonical B-META findings and ledger are trusted only when a contiguous HMAC receipt chain names gap_log and binds the current whole artifact; this is cooperative tamper evidence, not same-UID authorization.",
+      "status": "verified",
+      "verifiedBy": "documentation diff mapped to provenance implementation and adversarial tests",
+      "evidence": "finding-verify.ts uses a git-common-dir key, HMAC verification, chain and whole-artifact digest checks; lifecycle-registry.ts rejects missing/malformed/symlink aliases; gap-log-smoke.ts covers valid chain, forged receipt fields, replay, content substitution and legacy genesis."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Fresh live-smoke artifact is present and successful; reverse-scanned scope-contract-smoke assertions cover source/repo canonical convergence, Windows and dot normalization, glob parity, ambiguity, absolute/traversal/encoded input, prefix safety, internal symlink identity, escape rejection, diagnostics, and legacy rollout without mutation."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Reverse-scanned semantic-scope-guard-smoke assertions cover function/nested function/method/constructor/class/interface/type/top-level/file anchors, control-flow and local-variable exclusion, actual changed spans, parser failure, protected later anchors, old-name rename protection, whole-file deletion, missing rename side and copy fail-closed behavior."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Fresh live-smoke artifact records successful provenance checks; reverse-scanned gap-log-smoke assertions cover two-receipt chain continuity, HMAC-bound writer/story/path/content identities, replay and substitution rejection, direct edit diagnostics, symlink aliases, unknown paths, legacy genesis, and shared scope/prewrite/guard/done_prepare parity."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Declared focused test files contain substantive assertions for the 3x3 independent rollout matrix, persisted-byte rollback/re-enable behavior, migration/version diagnostics, adversarial path/AST/provenance cases and three L4 process-fact registry bindings; no empty test shells were found."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Eight delivery promises are mapped to concrete production code and assertion-bearing focused tests. Fresh live-smoke evidence records successful user-facing canonical-path and safety-smoke output; edge coverage includes unsafe paths, parser/version drift, protected rename/deletion, forged provenance, replay, direct edit, symlink alias and rollback without mutation. No unresolved production TODO/FIXME/HACK additions were found."
+  },
+  "_hash": "9a543770166b01e6a7fbdbbb2f2a4e2fc1c6a771247c8868e719b825f807690b"
+}
