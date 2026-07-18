@@ -440,7 +440,7 @@
       "desc": "packages/main/src/handlers/validate-concept.ts:250 Path parsing is still not fail-closed on internally inconsistent diff metadata. The parser silently overwrites `diff --git` paths with `---`/`+++` or copy/rename metadata without cross-checking them, and treats any single `copy from` or `copy to` line as a complete copy. Two reproducers both return symbols=[], diagnostics=[] while deleting a supported TypeScript declaration: (1) header a/src/deleted.ts b/src/deleted.ts followed by `--- a/docs/not-source.md`, which changes the old side to an ignored extension; (2) header old.ts/new.ts with only `copy from old.ts`, which sets copy=true and suppresses the old declaration side. This violates malformed-input fail-closed and permits a truncated/inconsistent patch to hide true deletion. Track header, side-marker, and copy/rename paths separately; require consistent pairs and matching operation metadata before committing a section, otherwise emit a focused diagnostic. Add mismatch and incomplete copy/rename self-check probes.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-18T10:06:51.322Z",
@@ -452,7 +452,11 @@
         "packages/main/src/tasks/concept-gate-scope-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in d636c516d4: decoded diff --git paths remain authoritative; ---/+++ are validated instead of silently overwriting, with bounded /dev/null addition/deletion semantics. Rename/copy metadata is pair-complete, unique, mutually exclusive, header-matched, and invalid copy metadata cannot suppress old declarations.",
+      "resolvedAt": "2026-07-18T10:11:39.596Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-360e:F-022",
