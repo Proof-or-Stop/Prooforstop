@@ -176,15 +176,16 @@ export function canonicalJsonStringify(value: unknown): string {
     ancestors.add(candidate);
     try {
       if (Array.isArray(candidate)) {
+        if (Object.getPrototypeOf(candidate) !== Array.prototype) {
+          throw new PromptContractValidationError(`${path} must use the ordinary Array prototype`);
+        }
         for (let index = 0; index < candidate.length; index += 1) {
           if (!Object.prototype.hasOwnProperty.call(candidate, index)) {
             throw new PromptContractValidationError(`${path}[${index}] is sparse`);
           }
         }
-        const expectedKeys = new Set([
-          ...Array.from({ length: candidate.length }, (_, index) => String(index)),
-          'length',
-        ]);
+        const expectedKeys = new Set<string>(['length']);
+        for (let index = 0; index < candidate.length; index += 1) expectedKeys.add(String(index));
         for (const key of Reflect.ownKeys(candidate)) {
           if (typeof key !== 'string') {
             throw new PromptContractValidationError(`${path} contains an unsupported symbol-keyed array field`);
@@ -204,7 +205,13 @@ export function canonicalJsonStringify(value: unknown): string {
             throw new PromptContractValidationError(`${path}[${key}] is a non-enumerable array index`);
           }
         }
-        return `[${candidate.map((item, index) => encode(item, `${path}[${index}]`)).join(',')}]`;
+        let encoded = '[';
+        for (let index = 0; index < candidate.length; index += 1) {
+          if (index > 0) encoded += ',';
+          const descriptor = Object.getOwnPropertyDescriptor(candidate, String(index))!;
+          encoded += encode(descriptor.value, `${path}[${index}]`);
+        }
+        return `${encoded}]`;
       }
       const prototype = Object.getPrototypeOf(candidate);
       if (prototype !== Object.prototype && prototype !== null) {

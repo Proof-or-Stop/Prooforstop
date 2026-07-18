@@ -107,6 +107,31 @@ rejects(() => canonicalJsonStringify(accessorIndexArray), /array accessor field/
 const malformedIndexArray = [1] as unknown[] & Record<string, unknown>;
 malformedIndexArray['01'] = 2;
 rejects(() => canonicalJsonStringify(malformedIndexArray), /extra array field/);
+let maliciousMapCalled = false;
+class MaliciousArray extends Array<unknown> {
+  override map(): never[] {
+    maliciousMapCalled = true;
+    return [];
+  }
+}
+const subclassArray = new MaliciousArray();
+subclassArray[0] = 1;
+rejects(() => canonicalJsonStringify(subclassArray), /ordinary Array prototype/);
+assert.equal(maliciousMapCalled, false, 'canonical serializer must not invoke an array subclass method');
+const customPrototypeArray = [1];
+const customArrayPrototype = Object.create(Array.prototype) as Record<string, unknown>;
+Object.defineProperty(customArrayPrototype, 'hiddenInheritedState', { value: 2, enumerable: false });
+Object.setPrototypeOf(customPrototypeArray, customArrayPrototype);
+rejects(() => canonicalJsonStringify(customPrototypeArray), /ordinary Array prototype/);
+let ownMapCalled = false;
+const ownMethodArray = [1] as unknown[] & { map: () => never[] };
+ownMethodArray.map = () => {
+  ownMapCalled = true;
+  return [];
+};
+rejects(() => canonicalJsonStringify(ownMethodArray), /extra array field/);
+assert.equal(ownMapCalled, false, 'canonical serializer must not invoke a candidate-owned array method');
+assert.equal(canonicalJsonStringify([1, { b: 2, a: 1 }]), '[1,{"a":1,"b":2}]');
 
 assert.equal(promptUtf8Bytes('ASCII'), 5);
 assert.equal(promptUtf8Bytes('中'), 3);
