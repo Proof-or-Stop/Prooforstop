@@ -8,6 +8,7 @@ function fileDiff(path: string, oldSource: string, newSource: string): string {
     `diff --git a/${path} b/${path}`,
     `--- a/${path}`,
     `+++ b/${path}`,
+    '@@ -1 +1 @@',
     ...oldSource.split('\n').map((line) => `-${line}`),
     ...newSource.split('\n').map((line) => `+${line}`),
   ].join('\n');
@@ -18,6 +19,7 @@ function renamedFileDiff(oldPath: string, newPath: string, oldSource: string, ne
     `diff --git a/${oldPath} b/${newPath}`,
     `--- a/${oldPath}`,
     `+++ b/${newPath}`,
+    '@@ -1 +1 @@',
     ...oldSource.split('\n').map((line) => `-${line}`),
     ...newSource.split('\n').map((line) => `+${line}`),
   ].join('\n');
@@ -29,6 +31,7 @@ function devNullDiff(path: string, side: 'addition' | 'deletion', source: string
     `diff --git a/${path} b/${path}`,
     deleting ? `--- a/${path}` : '--- /dev/null',
     deleting ? '+++ /dev/null' : `+++ b/${path}`,
+    '@@ -1 +1 @@',
     ...source.split('\n').map((line) => `${deleting ? '-' : '+'}${line}`),
   ].join('\n');
 }
@@ -211,8 +214,6 @@ const pureCopy = [
   'similarity index 100%',
   'copy from src/original.ts',
   'copy to src/copied.ts',
-  '@@ -1 +1 @@',
-  ' export function survivingOriginal() { return true; }',
 ].join('\n');
 assert.deepEqual(scanDeletedSymbols(pureCopy), [], 'a pure copy is an addition while the original declaration survives');
 
@@ -220,8 +221,6 @@ const quotedMetadataCopy = [
   'diff --git "a/src/original\\tfile.ts" "b/src/copied\\tfile.ts"',
   'copy from "src/original\\tfile.ts"',
   'copy to "src/copied\\tfile.ts"',
-  '@@ -1 +1 @@',
-  ' export function survivingQuotedCopySource() { return true; }',
 ].join('\n');
 assert.deepEqual(scanDeletedSymbols(quotedMetadataCopy), [], 'C-quoted copy metadata paths retain copy-as-addition semantics');
 
@@ -250,6 +249,7 @@ for (const [name, diff, diagnosticPattern, expectedSymbols = []] of [
       'diff --git a/src/authority.ts b/src/authority.ts',
       '--- a/src/other.ts',
       '+++ b/src/authority.ts',
+      '@@ -1 +1 @@',
       '-export function sideMismatchDeletion() { return true; }',
     ].join('\n'),
     /--- path .* does not match authoritative old path/,
@@ -260,6 +260,9 @@ for (const [name, diff, diagnosticPattern, expectedSymbols = []] of [
     [
       'diff --git a/src/copy-source.ts b/src/copy-target.ts',
       'copy from src/copy-source.ts',
+      '--- a/src/copy-source.ts',
+      '+++ b/src/copy-target.ts',
+      '@@ -1 +1 @@',
       '-export function loneCopyMustNotSuppress() { return true; }',
     ].join('\n'),
     /copy metadata must contain exactly one from\/to pair/,
@@ -272,6 +275,9 @@ for (const [name, diff, diagnosticPattern, expectedSymbols = []] of [
       'copy from src/copy-source.ts',
       'copy from src/copy-source.ts',
       'copy to src/copy-target.ts',
+      '--- a/src/copy-source.ts',
+      '+++ b/src/copy-target.ts',
+      '@@ -1 +1 @@',
       '-export function duplicateCopyMustNotSuppress() { return true; }',
     ].join('\n'),
     /copy metadata must contain exactly one from\/to pair/,
@@ -303,6 +309,9 @@ for (const [name, diff, diagnosticPattern, expectedSymbols = []] of [
       'copy to src/target.ts',
       'rename from src/source.ts',
       'rename to src/target.ts',
+      '--- a/src/source.ts',
+      '+++ b/src/target.ts',
+      '@@ -1 +1 @@',
       '-export function conflictingCopyMustNotSuppress() { return true; }',
     ].join('\n'),
     /rename and copy metadata are mutually exclusive/,
@@ -314,6 +323,9 @@ for (const [name, diff, diagnosticPattern, expectedSymbols = []] of [
       'diff --git a/src/source.ts b/src/target.ts',
       'copy from src/different.ts',
       'copy to src/target.ts',
+      '--- a/src/source.ts',
+      '+++ b/src/target.ts',
+      '@@ -1 +1 @@',
       '-export function mismatchedCopyMustNotSuppress() { return true; }',
     ].join('\n'),
     /copy metadata paths do not match diff header/,
@@ -336,6 +348,7 @@ for (const [name, diff, diagnosticPattern, expectedSymbols = []] of [
       'copy to src/target.ts',
       '--- a/src/source.ts',
       '+++ /dev/null',
+      '@@ -1 +1 @@',
       '-export function devNullCopyMustNotSuppress() { return true; }',
     ].join('\n'),
     /rename\/copy metadata cannot be combined with \/dev\/null/,
@@ -367,6 +380,127 @@ for (const validNoHunkMetadata of [
   assert.deepEqual(analysis.diagnostics, [], 'valid no-hunk copy/rename metadata remains accepted');
 }
 
+for (const [name, diff, diagnosticPattern] of [
+  [
+    'copy metadata after side headers',
+    [
+      'diff --git a/src/source.ts b/src/target.ts',
+      '--- a/src/source.ts',
+      '+++ b/src/target.ts',
+      'copy from src/source.ts',
+      'copy to src/target.ts',
+      '@@ -1 +1 @@',
+      '-export function lateCopyMetadata() { return true; }',
+    ].join('\n'),
+    /copy metadata must appear before side headers and hunks/,
+  ],
+  [
+    'rename metadata after hunk content',
+    [
+      'diff --git a/src/source.ts b/src/target.ts',
+      '--- a/src/source.ts',
+      '+++ b/src/target.ts',
+      '@@ -1 +1 @@',
+      ' export function contextLine() { return true; }',
+      'rename from src/source.ts',
+      'rename to src/target.ts',
+    ].join('\n'),
+    /rename metadata must appear before side headers and hunks/,
+  ],
+  [
+    'removed content outside hunk',
+    [
+      'diff --git a/src/source.ts b/src/source.ts',
+      '--- a/src/source.ts',
+      '+++ b/src/source.ts',
+      '-export function outsideHunk() { return true; }',
+    ].join('\n'),
+    /removed content is only valid inside an @@ hunk/,
+  ],
+  [
+    'reversed side headers',
+    [
+      'diff --git a/src/source.ts b/src/source.ts',
+      '+++ b/src/source.ts',
+      '--- a/src/source.ts',
+      '+++ b/src/source.ts',
+      '@@ -1 +1 @@',
+    ].join('\n'),
+    /\+\+\+ side header must follow exactly one --- side header/,
+  ],
+  [
+    'duplicate side headers',
+    [
+      'diff --git a/src/source.ts b/src/source.ts',
+      '--- a/src/source.ts',
+      '--- a/src/source.ts',
+      '+++ b/src/source.ts',
+      '@@ -1 +1 @@',
+    ].join('\n'),
+    /--- side header is reversed, duplicated, or appears after patch content/,
+  ],
+  [
+    'hunk before side headers',
+    [
+      'diff --git a/src/source.ts b/src/source.ts',
+      '@@ -1 +1 @@',
+      '--- a/src/source.ts',
+      '+++ b/src/source.ts',
+      '@@ -1 +1 @@',
+    ].join('\n'),
+    /@@ hunk must follow a complete ---\/\+\+\+ side-header pair/,
+  ],
+  [
+    'addition with removed content',
+    [
+      'diff --git a/src/added.ts b/src/added.ts',
+      '--- /dev/null',
+      '+++ b/src/added.ts',
+      '@@ -0 +1 @@',
+      '-export function impossibleRemoval() { return true; }',
+      '+export function realAddition() { return true; }',
+    ].join('\n'),
+    /addition patch cannot contain removed content/,
+  ],
+  [
+    'deletion with added content',
+    [
+      'diff --git a/src/deleted.ts b/src/deleted.ts',
+      '--- a/src/deleted.ts',
+      '+++ /dev/null',
+      '@@ -1 +0 @@',
+      '-export function realDeletion() { return true; }',
+      '+export function impossibleAddition() { return true; }',
+    ].join('\n'),
+    /deletion patch cannot contain added content/,
+  ],
+  [
+    'addition header identity mismatch',
+    [
+      'diff --git a/src/old-name.ts b/src/new-name.ts',
+      '--- /dev/null',
+      '+++ b/src/new-name.ts',
+      '@@ -0 +1 @@',
+      '+export function mismatchedAddition() { return true; }',
+    ].join('\n'),
+    /\/dev\/null patch header identities must describe the same path/,
+  ],
+] as const) {
+  const analysis = analyzeDeletedSymbols(diff);
+  assert.ok(
+    analysis.diagnostics.some((diagnostic) => diagnosticPattern.test(diagnostic)),
+    `${name} must fail closed with an ordering/direction diagnostic`,
+  );
+}
+
+const validBinaryDiff = analyzeDeletedSymbols([
+  'diff --git a/assets/data.bin b/assets/data.bin',
+  'index 1234567..89abcde 100644',
+  'Binary files a/assets/data.bin and b/assets/data.bin differ',
+].join('\n'));
+assert.deepEqual(validBinaryDiff.symbols, []);
+assert.deepEqual(validBinaryDiff.diagnostics, [], 'binary diff behavior remains non-textual and diagnostic-free');
+
 for (const [oldToken, newToken, symbol] of [
   ['"a/src/\\303\\251.ts"', '"b/src/\\303\\251.ts"', 'unicodeQuotedDeletion'],
   ['"a/src/tab\\tname.ts"', '"b/src/tab\\tname.ts"', 'tabQuotedDeletion'],
@@ -379,6 +513,7 @@ for (const [oldToken, newToken, symbol] of [
     `diff --git ${oldToken} ${newToken}`,
     `--- ${oldToken}`,
     '+++ /dev/null',
+    '@@ -1 +0 @@',
     `-export function ${symbol}() { return true; }`,
   ].join('\n');
   const analysis = analyzeDeletedSymbols(quotedPathDeletion);

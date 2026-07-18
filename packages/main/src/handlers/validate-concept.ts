@@ -249,6 +249,11 @@ function diffFileSources(diff: string): DiffFileSources[] {
     copyFrom: string[];
     copyTo: string[];
     metadataMalformed: boolean;
+    phase: 'metadata' | 'old-side' | 'side-pair' | 'hunk' | 'binary';
+    hunkCount: number;
+    removedContentCount: number;
+    addedContentCount: number;
+    sawPatchContent: boolean;
   } | null = null;
   let invalidSection = false;
   const flush = () => {
@@ -298,6 +303,28 @@ function diffFileSources(diff: string): DiffFileSources[] {
     ) {
       metadataDiagnostics.push('rename/copy metadata cannot be combined with /dev/null patch sides');
     }
+    if (
+      current.oldSideHeaders.length === 1
+      && current.newSideHeaders.length === 1
+      && current.hunkCount === 0
+      && current.phase !== 'binary'
+    ) {
+      metadataDiagnostics.push('patch side headers must be followed by at least one @@ hunk');
+    }
+    if (
+      (current.oldSourcePath === '/dev/null' || current.newSourcePath === '/dev/null')
+      && current.oldPath !== current.newPath
+    ) {
+      metadataDiagnostics.push(
+        `/dev/null patch header identities must describe the same path (${current.oldPath} vs ${current.newPath})`,
+      );
+    }
+    if (current.oldSourcePath === '/dev/null' && current.removedContentCount > 0) {
+      metadataDiagnostics.push('addition patch cannot contain removed content');
+    }
+    if (current.newSourcePath === '/dev/null' && current.addedContentCount > 0) {
+      metadataDiagnostics.push('deletion patch cannot contain added content');
+    }
     diagnostics.push(...metadataDiagnostics.map(message => `diff metadata: ${message}`));
     const validCopy = hasCopy
       && !hasRename
@@ -329,6 +356,11 @@ function diffFileSources(diff: string): DiffFileSources[] {
           copyFrom: [],
           copyTo: [],
           metadataMalformed: false,
+          phase: 'metadata',
+          hunkCount: 0,
+          removedContentCount: 0,
+          addedContentCount: 0,
+          sawPatchContent: false,
         };
         invalidSection = false;
       } catch (error) {
@@ -340,57 +372,126 @@ function diffFileSources(diff: string): DiffFileSources[] {
     }
     if (!current) {
       if (invalidSection) continue;
-      current = {
-        oldPath: '__fragment__.ts',
-        newPath: '__fragment__.ts',
-        oldSourcePath: '__fragment__.ts',
-        newSourcePath: '__fragment__.ts',
-        oldLines: [],
-        newLines: [],
-        oldSideHeaders: [],
-        newSideHeaders: [],
-        renameFrom: [],
-        renameTo: [],
-        copyFrom: [],
-        copyTo: [],
-        metadataMalformed: false,
-      };
+      if (line.trim() !== '') {
+        diagnostics.push('diff section: content appeared before an authoritative diff --git header');
+        invalidSection = true;
+      }
+      continue;
     }
     try {
       if (line.startsWith('@@')) {
+        if (current.phase !== 'side-pair' && current.phase !== 'hunk') {
+          diagnostics.push('diff ordering: @@ hunk must follow a complete ---/+++ side-header pair');
+          current.metadataMalformed = true;
+          continue;
+        }
+        current.phase = 'hunk';
+        current.hunkCount += 1;
         current.oldLines.push('');
         current.newLines.push('');
       } else if (line.startsWith('--- ')) {
+        if (current.phase !== 'metadata' || current.sawPatchContent || current.oldSideHeaders.length > 0) {
+          diagnostics.push('diff ordering: --- side header is reversed, duplicated, or appears after patch content');
+          current.metadataMalformed = true;
+          continue;
+        }
         const path = stripGitSidePrefix(parseSingleGitPath(line.slice(4)), 'a/');
         current.oldSideHeaders.push(path);
         if (path !== '/dev/null' && path !== current.oldPath) {
-          throw new Error(`--- path ${path} does not match authoritative old path ${current.oldPath}`);
+          diagnostics.push(`diff path: --- path ${path} does not match authoritative old path ${current.oldPath}`);
+          current.metadataMalformed = true;
+        } else {
+          current.oldSourcePath = path;
         }
-        current.oldSourcePath = path;
+        current.phase = 'old-side';
       } else if (line.startsWith('+++ ')) {
+        if (current.phase !== 'old-side' || current.sawPatchContent || current.newSideHeaders.length > 0) {
+          diagnostics.push('diff ordering: +++ side header must follow exactly one --- side header');
+          current.metadataMalformed = true;
+          continue;
+        }
         const path = stripGitSidePrefix(parseSingleGitPath(line.slice(4)), 'b/');
         current.newSideHeaders.push(path);
         if (path !== '/dev/null' && path !== current.newPath) {
-          throw new Error(`+++ path ${path} does not match authoritative new path ${current.newPath}`);
+          diagnostics.push(`diff path: +++ path ${path} does not match authoritative new path ${current.newPath}`);
+          current.metadataMalformed = true;
+        } else {
+          current.newSourcePath = path;
         }
-        current.newSourcePath = path;
+        current.phase = 'side-pair';
       } else if (line.startsWith('rename from ')) {
+        if (current.phase !== 'metadata' || current.sawPatchContent) {
+          diagnostics.push('diff ordering: rename metadata must appear before side headers and hunks');
+          current.metadataMalformed = true;
+          continue;
+        }
         current.renameFrom.push(parseSingleGitPath(line.slice('rename from '.length)));
       } else if (line.startsWith('rename to ')) {
+        if (current.phase !== 'metadata' || current.sawPatchContent) {
+          diagnostics.push('diff ordering: rename metadata must appear before side headers and hunks');
+          current.metadataMalformed = true;
+          continue;
+        }
         current.renameTo.push(parseSingleGitPath(line.slice('rename to '.length)));
       } else if (line.startsWith('copy from ')) {
+        if (current.phase !== 'metadata' || current.sawPatchContent) {
+          diagnostics.push('diff ordering: copy metadata must appear before side headers and hunks');
+          current.metadataMalformed = true;
+          continue;
+        }
         current.copyFrom.push(parseSingleGitPath(line.slice('copy from '.length)));
       } else if (line.startsWith('copy to ')) {
+        if (current.phase !== 'metadata' || current.sawPatchContent) {
+          diagnostics.push('diff ordering: copy metadata must appear before side headers and hunks');
+          current.metadataMalformed = true;
+          continue;
+        }
         current.copyTo.push(parseSingleGitPath(line.slice('copy to '.length)));
       } else if (line.startsWith('\\ No newline')) {
+        if (current.phase !== 'hunk') {
+          diagnostics.push('diff ordering: no-newline marker must appear inside a hunk');
+          current.metadataMalformed = true;
+        }
         continue;
       } else if (line.startsWith('-')) {
+        current.sawPatchContent = true;
+        if (current.phase !== 'hunk') {
+          diagnostics.push('diff ordering: removed content is only valid inside an @@ hunk');
+          current.metadataMalformed = true;
+          continue;
+        }
         current.oldLines.push(line.slice(1));
+        current.removedContentCount += 1;
       } else if (line.startsWith('+')) {
+        current.sawPatchContent = true;
+        if (current.phase !== 'hunk') {
+          diagnostics.push('diff ordering: added content is only valid inside an @@ hunk');
+          current.metadataMalformed = true;
+          continue;
+        }
         current.newLines.push(line.slice(1));
+        current.addedContentCount += 1;
       } else if (line.startsWith(' ')) {
+        current.sawPatchContent = true;
+        if (current.phase !== 'hunk') {
+          diagnostics.push('diff ordering: context content is only valid inside an @@ hunk');
+          current.metadataMalformed = true;
+          continue;
+        }
         current.oldLines.push(line.slice(1));
         current.newLines.push(line.slice(1));
+      } else if (/^(?:Binary files .* differ|GIT binary patch)$/.test(line)) {
+        if (current.phase !== 'metadata') {
+          diagnostics.push('diff ordering: binary marker must appear before textual side headers or hunks');
+          current.metadataMalformed = true;
+        } else {
+          current.phase = 'binary';
+        }
+      } else if (/^(?:old mode|new mode|deleted file mode|new file mode|similarity index|dissimilarity index|index)\b/.test(line)) {
+        if (current.phase !== 'metadata' || current.sawPatchContent) {
+          diagnostics.push('diff ordering: mode/index/similarity metadata must appear before side headers and hunks');
+          current.metadataMalformed = true;
+        }
       }
     } catch (error) {
       diagnostics.push(`diff path: ${error instanceof Error ? error.message : String(error)}`);
