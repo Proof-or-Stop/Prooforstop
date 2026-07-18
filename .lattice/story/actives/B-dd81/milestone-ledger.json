@@ -2,7 +2,7 @@
   "schemaVersion": "proofstory.milestone_ledger.v1",
   "storyId": "B-dd81",
   "state": "confirmed",
-  "ledgerHash": "sha256:48e40599586625a46a195aaa1f7c6299455f3c2a24f185878eb3ab3cdafaea6d",
+  "ledgerHash": "sha256:284cddeb43254d4cd5d2f9c3aa61c7726106a243ee6ffd161aafb56367e2c2ec",
   "milestones": [
     {
       "id": "M1",
@@ -16,14 +16,21 @@
       "checklistRefs": [
         "CHK-001"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "full-envelope-contract-complete",
+        "full-envelope-content-address-reproducible",
+        "task-context-authoritative-facts",
+        "full-only-no-incremental-fields",
+        "envelope-single-field-tamper-rejected",
+        "envelope-id-substitution-domain-separated"
+      ],
       "status": "covered"
     },
     {
       "id": "M2",
       "sourceRequirementId": "story2.trusted-agent-prompt",
       "claim": "Story-aware full Prompt assembly is owned by the trusted agent_prompt CLI path.",
-      "doneMeans": "The CLI prints the canonical full Prompt and envelope for a Story, rejects caller-spliced authority fields, and leaves role-only output byte-identical.",
+      "doneMeans": "The CLI prints the canonical full Prompt and audit envelope for a Story, rejects caller-spliced authority fields, and leaves role-only output byte-identical.",
       "requiredEvidence": [
         "cli_transcript",
         "logic_test",
@@ -32,7 +39,14 @@
       "checklistRefs": [
         "CHK-002"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "agent-prompt-story-full-assembly",
+        "agent-prompt-role-only-byte-zero-drift",
+        "agent-prompt-repeatable-json-contract",
+        "agent-prompt-rejects-caller-envelope-fields",
+        "agent-prompt-rejects-prompt-splicing",
+        "agent-prompt-no-provider-or-evidence-side-effect"
+      ],
       "status": "covered"
     },
     {
@@ -48,7 +62,16 @@
       "checklistRefs": [
         "CHK-003"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "review-run-envelope-single-binding",
+        "review-gates-consume-envelope-proof",
+        "retry-identity-semantics-distinguished",
+        "review-run-restart-invalidates-prior-envelope",
+        "envelope-replay-new-head-rejected",
+        "envelope-replay-new-round-rejected",
+        "envelope-replay-other-reviewrun-rejected",
+        "gate-paths-share-envelope-verifier"
+      ],
       "status": "covered"
     },
     {
@@ -64,15 +87,24 @@
       "checklistRefs": [
         "CHK-004"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "role-eligibility-canonical-registry",
+        "per-role-full-feature-flag-independent",
+        "per-role-legacy-rollback-exact",
+        "compatibility-only-review-gate-blocked",
+        "compatibility-only-assurance-floor-blocked",
+        "compatibility-only-quorum-blocked",
+        "all-gate-consumers-share-role-filter",
+        "rollback-never-downgrades-gates"
+      ],
       "status": "covered"
     }
   ],
   "createdAt": "2026-07-18T20:10:32.535Z",
-  "updatedAt": "2026-07-18T20:10:33.772Z",
+  "updatedAt": "2026-07-18T20:15:45.108Z",
   "acceptedIntentBinding": {
     "intentCollisionId": "IC-20260718201033",
-    "acceptedInterpretationHash": "sha256:24348c4f8d20e52033fff72b16d8a8820ae39795837619b542623ee7c521fb7f",
-    "acceptedAt": "2026-07-18T20:10:33.772Z"
+    "acceptedInterpretationHash": "sha256:0fb8f77abbab8d7651f5872b5de98cece04bfa8e0cc9d0af1a3ad78c09b54eb2",
+    "acceptedAt": "2026-07-18T20:15:45.108Z"
   }
 }

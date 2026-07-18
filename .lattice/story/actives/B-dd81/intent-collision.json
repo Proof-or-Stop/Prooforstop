@@ -4,11 +4,11 @@
   "id": "IC-20260718201033",
   "decision": "pass",
   "status": "accepted",
-  "acceptedInterpretation": "Story 2 delivers exactly four coupled full-context outcomes: trusted contracts, trusted CLI assembly, signed fresh review binding, and role-eligibility/legacy rollback. Incremental selection, replay experiments and budgets remain later Stories.",
-  "acceptedInterpretationHash": "sha256:24348c4f8d20e52033fff72b16d8a8820ae39795837619b542623ee7c521fb7f",
-  "notes": "Candidate milestone ledger maps one-to-one to CHK-001..004 and preserves the ordered decision document without scope expansion.",
-  "ledgerHashBeforeDecision": "sha256:48e40599586625a46a195aaa1f7c6299455f3c2a24f185878eb3ab3cdafaea6d",
-  "confirmedLedgerHash": "sha256:48e40599586625a46a195aaa1f7c6299455f3c2a24f185878eb3ab3cdafaea6d",
+  "acceptedInterpretation": "The confirmed ledger covers four full-context outcomes with explicit verificationIntent mappings. Story-dispatch envelopes are deterministic audit artifacts; only ReviewRun signs envelopeId into reviewer authority. createdAt is provenance outside the semantic envelopeId digest.",
+  "acceptedInterpretationHash": "sha256:0fb8f77abbab8d7651f5872b5de98cece04bfa8e0cc9d0af1a3ad78c09b54eb2",
+  "notes": "Re-confirmed after verification-intent completion and scope-review clarifications; no incremental, A/B or budget behavior added.",
+  "ledgerHashBeforeDecision": "sha256:284cddeb43254d4cd5d2f9c3aa61c7726106a243ee6ffd161aafb56367e2c2ec",
+  "confirmedLedgerHash": "sha256:284cddeb43254d4cd5d2f9c3aa61c7726106a243ee6ffd161aafb56367e2c2ec",
   "createdAt": "2026-07-18T20:10:33.772Z",
-  "updatedAt": "2026-07-18T20:10:33.772Z"
+  "updatedAt": "2026-07-18T20:15:45.107Z"
 }
