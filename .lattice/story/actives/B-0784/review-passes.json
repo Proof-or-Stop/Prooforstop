@@ -273,6 +273,24 @@
         "scanEscalationReason": null
       },
       "_hash": "4eaf8d1c2c66916208010323f0202e939cbaa812e02e41104138052193d6daee"
+    },
+    {
+      "id": "B-0784:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "PASS incremental review of test-only commit 88e43cc818. The injected-reader assertion is non-tautological: expected authority is the constructed linked story worktree, while observed cwd is supplied by production runScopeGate; metadata wrapper root and inner main repo are explicitly rejected. Only scope-contract-smoke.ts changed under packages/main/src, with no production delta. Focused scope smoke and git diff-check passed; no broad, full-suite, validate, or lifecycle commands run.",
+      "createdAt": "2026-07-18T04:16:22.638Z",
+      "reviewRound": "2026-07-18T04:14:57.758Z",
+      "reviewRunId": "B-0784:RR-027",
+      "writerSessionId": "b0784-review-quality-fresh",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "68de2d2a4622c6b3b5aa85e05f337de399d714866a28906597dc4389f2678435"
     }
   ]
 }
