@@ -482,6 +482,39 @@
           "materialHash": "97a299839a501088c606e446f288a73150a1d9dd649be37e7a3eb2bbcc593f83",
           "storyFilesHash": "7f5d8ff787fe5ada7b76548829a9c0e3ca7b327918f01ee8bf4a9cec66842c9f",
           "timestamp": "2026-07-18T19:22:42.911Z"
+        },
+        {
+          "intentRef": "B-8195:process-fact-contract-sync",
+          "kind": "logic_test",
+          "command": "NODE_OPTIONS=--max-old-space-size=3072 npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Process-fact contract verifies the canonical validation metadata transaction writer, validate reason, closeout artifact binding, and current retired-authority fingerprint.",
+          "headHash": "467a247336aab6371573095ac33e4921308ca8e5",
+          "materialHash": "347cfb2109382505126449578a841c9fff644a77a941919d0062ade6e98b2639",
+          "storyFilesHash": "8fd19c086e0dc234c3a7636603c5ee0245f2dee4c6e7d4ec30276271e6a66c5e",
+          "timestamp": "2026-07-18T20:38:14.797Z"
+        },
+        {
+          "intentRef": "B-8195:contract-retired-fingerprint",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Retired-authority guard passes with the synchronized cli-engine structural fingerprint.",
+          "headHash": "467a247336aab6371573095ac33e4921308ca8e5",
+          "materialHash": "347cfb2109382505126449578a841c9fff644a77a941919d0062ade6e98b2639",
+          "storyFilesHash": "8fd19c086e0dc234c3a7636603c5ee0245f2dee4c6e7d4ec30276271e6a66c5e",
+          "timestamp": "2026-07-18T20:38:14.797Z"
+        },
+        {
+          "intentRef": "B-8195:contract-validation-transaction",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "Validation reuse smoke passes canonical three-file isolated transaction, rollback, fail-closed persistence, and zero-command fresh-PASS reuse scenarios.",
+          "headHash": "467a247336aab6371573095ac33e4921308ca8e5",
+          "materialHash": "347cfb2109382505126449578a841c9fff644a77a941919d0062ade6e98b2639",
+          "storyFilesHash": "8fd19c086e0dc234c3a7636603c5ee0245f2dee4c6e7d4ec30276271e6a66c5e",
+          "timestamp": "2026-07-18T20:38:14.797Z"
         }
       ]
     }
