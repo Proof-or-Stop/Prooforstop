@@ -639,7 +639,7 @@
       "desc": "packages/main/src/tasks/concept-gate-scope-smoke.ts:79-105 — HIGH: headerless fallback coverage rejects one malformed quoted `diff --git ` header but omits other structured-header forms. Independent repros show bare `diff --git`, tab-separated `diff --git\\t...`, and orphan `---`/`+++`/`@@` headers all fall back to __fragment__.ts, report deleted symbols, and emit diagnostics=[]. Add bare/tab/whitespace diff-token and orphan side/hunk header probes; fallback must be limited to truly headerless +/- fragments, while any malformed structured diff marker fails closed with a focused diagnostic.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-18T11:11:39.334Z",
@@ -651,7 +651,11 @@
         "packages/main/src/handlers/validate-concept.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in f959a28ba9: legacy __fragment__.ts fallback is enabled only when the entire input contains no structured diff control token. Bare/tab diff headers, orphan side/hunk/rename/copy/binary/index/mode/similarity tokens disable fallback and receive fail-closed diagnostics; pure headerless +/-/context and empty input remain compatible. Exact gitroot and concept smoke regressions plus full checks pass.",
+      "resolvedAt": "2026-07-18T11:15:08.862Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
