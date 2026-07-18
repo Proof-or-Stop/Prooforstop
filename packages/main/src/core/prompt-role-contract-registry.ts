@@ -269,6 +269,19 @@ export function validatePromptRoleContracts(contracts: readonly unknown[], expec
     throw new PromptRoleContractRegistryError(`invalid role partition active=${active} compatibility=${compatibility} retired=${retired}`);
   }
   const byId = new Map(contracts.map(contract => [(contract as RoleContract).roleId, contract as RoleContract]));
+  for (const roleId of expectedRoleIds) {
+    const row = byId.get(roleId)!;
+    const policy = ROLE_POLICIES[roleId];
+    if (!policy) throw new PromptRoleContractRegistryError(`missing frozen role policy "${roleId}"`);
+    if (
+      row.replacementAgentType !== policy.replacementAgentType ||
+      row.migrationHint !== policy.migrationHint
+    ) {
+      throw new PromptRoleContractRegistryError(
+        `${roleId} replacementAgentType/migrationHint differs from the frozen role policy`,
+      );
+    }
+  }
   if (byId.get('lattice-review-channel')?.status !== 'retired' || byId.get('lattice-review-channel')?.defaultDispatch !== false) {
     throw new PromptRoleContractRegistryError('lattice-review-channel must be retired and non-default');
   }

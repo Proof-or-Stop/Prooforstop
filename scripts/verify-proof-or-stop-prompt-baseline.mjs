@@ -3,13 +3,17 @@
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import {
+  cpSync,
   existsSync,
+  mkdtempSync,
   mkdirSync,
   readFileSync,
+  rmSync,
   writeFileSync,
 } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { tmpdir } from 'node:os';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const BUILT_REGISTRY_PATH = join(ROOT, 'packages/main/dist/core/prompt-registry.js');
@@ -1948,15 +1952,21 @@ async function verifyPromptMeasurementSidecar(failures) {
   }
 }
 
-async function collectCurrentPromptState() {
+async function collectCurrentPromptState({
+  templateDir,
+  promptOutputCollector,
+  canonicalizeTemplateRelPath = false,
+} = {}) {
   const { readPromptRegistry, readPromptTemplate } = await loadBuiltRegistry();
-  const snapshot = readPromptRegistry();
+  const snapshot = readPromptRegistry(templateDir);
   const roleEntries = [];
   const agentPromptOutputs = [];
 
   for (const entry of snapshot.agents) {
     const content = readPromptTemplate(entry);
-    const stdout = runAgentPrompt(entry.agentId);
+    const stdout = promptOutputCollector
+      ? promptOutputCollector(entry, content)
+      : runAgentPrompt(entry.agentId);
     const stdoutText = stdout.toString('utf8');
     const normalized = normalizeCliPrint(stdoutText);
     if (normalized !== content) {
@@ -1965,7 +1975,9 @@ async function collectCurrentPromptState() {
     roleEntries.push({
       role: entry.agentId,
       file: entry.file,
-      relPath: entry.relPath,
+      relPath: canonicalizeTemplateRelPath
+        ? `templates/agents/${entry.file}`
+        : entry.relPath,
       templateHash: entry.templateHash,
       bytes: entry.bytes,
       lines: countLines(content),
@@ -2406,6 +2418,91 @@ function verifyBaselineDriftProbes(current, failures) {
         );
       }
     }
+  }
+}
+
+function buildMechanicalSnapshotFromCollected(reference, promptState) {
+  return {
+    ...structuredClone(reference),
+    registry: {
+      ...structuredClone(reference.registry),
+      schemaVersion: promptState.snapshot.schemaVersion,
+      source: promptState.snapshot.source,
+      agentCount: promptState.snapshot.agentCount,
+      materialHash: promptState.snapshot.materialHash,
+      roles: promptState.roleEntries.map(({ content: _content, ...entry }) => entry),
+    },
+    agentPrompt: {
+      ...structuredClone(reference.agentPrompt),
+      outputs: promptState.agentPromptOutputs,
+    },
+  };
+}
+
+/**
+ * Exercise the same registry/source + assembled-output collection boundary as
+ * normal verification, but against an isolated temporary copy. The repository
+ * prompt tree is never modified. Restoration is mandatory in finally, and the
+ * restored copy must pass the normal mechanical comparisons again.
+ */
+async function verifyRealPromptCollectionBoundaryProbe(current, failures) {
+  const sourceTemplateDir = join(ROOT, 'packages/main/templates/agents');
+  const probeRoot = mkdtempSync(join(tmpdir(), 'proofbound-prompt-baseline-probe-'));
+  const probeTemplateDir = join(probeRoot, 'agents');
+  const collectProbeState = () => collectCurrentPromptState({
+    templateDir: probeTemplateDir,
+    canonicalizeTemplateRelPath: true,
+    promptOutputCollector: (_entry, content) => Buffer.from(`${content}\n`, 'utf8'),
+  });
+
+  try {
+    cpSync(sourceTemplateDir, probeTemplateDir, { recursive: true });
+    const pristineState = await collectProbeState();
+    const pristine = buildMechanicalSnapshotFromCollected(current, pristineState);
+    const pristineFailures = [];
+    verifyRegistry(pristine, current, pristineFailures);
+    verifyAgentPromptOutputs(pristine, current, pristineFailures);
+    if (pristineFailures.length > 0) {
+      failures.push(`real collection boundary probe: pristine isolated copy did not pass: ${JSON.stringify(pristineFailures)}`);
+      return;
+    }
+
+    const target = join(probeTemplateDir, pristineState.snapshot.agents[0].file);
+    const original = readFileSync(target, 'utf8');
+    try {
+      writeFileSync(target, `${original}\n<!-- isolated assembled prompt drift probe -->`, 'utf8');
+      const mutatedState = await collectProbeState();
+      const mutated = buildMechanicalSnapshotFromCollected(current, mutatedState);
+      const mutationFailures = [];
+      verifyRegistry(mutated, current, mutationFailures);
+      verifyAgentPromptOutputs(mutated, current, mutationFailures);
+      const expectedFragments = [
+        'registry materialHash',
+        `registry ${pristineState.snapshot.agents[0].agentId}.templateHash`,
+        `agent_prompt ${pristineState.snapshot.agents[0].agentId}.sha256`,
+        `agent_prompt ${pristineState.snapshot.agents[0].agentId}.bytes`,
+      ];
+      for (const fragment of expectedFragments) {
+        if (!mutationFailures.some(failure => failure.includes(fragment))) {
+          failures.push(
+            `real collection boundary probe: isolated source/output mutation was not rejected for ${fragment}; got ${JSON.stringify(mutationFailures)}`,
+          );
+        }
+      }
+    } finally {
+      writeFileSync(target, original, 'utf8');
+    }
+
+    const restoredState = await collectProbeState();
+    const restored = buildMechanicalSnapshotFromCollected(current, restoredState);
+    const restoredFailures = [];
+    verifyRegistry(restored, current, restoredFailures);
+    verifyAgentPromptOutputs(restored, current, restoredFailures);
+    if (restoredFailures.length > 0) {
+      failures.push(`real collection boundary probe: restored isolated copy did not pass: ${JSON.stringify(restoredFailures)}`);
+    }
+  } finally {
+    rmSync(probeRoot, { recursive: true, force: true });
   }
 }
 
@@ -3108,6 +3205,7 @@ async function runBaselineDriftProbeCommand() {
   const current = await collectCurrentBaseline();
   const failures = [];
   verifyBaselineDriftProbes(current, failures);
+  await verifyRealPromptCollectionBoundaryProbe(current, failures);
   verifyAgentPromptCommandProbes(failures);
   if (failures.length > 0) {
     console.error('FAIL baseline mechanical drift probes');
@@ -3115,7 +3213,7 @@ async function runBaselineDriftProbeCommand() {
     process.exit(1);
   }
   console.log(
-    'PASS baseline mechanical drift probes: 10 registry/template/role-count/role-identity/agent_prompt snapshot mutations plus unknown-role command rejected',
+    'PASS baseline mechanical drift probes: 10 snapshot mutations plus isolated real source/assembled collection mutation→failure→restore→pass and unknown-role command rejected',
   );
 }
 
@@ -3152,6 +3250,7 @@ async function verifyBaseline() {
   verifyRegistry(current, baseline, failures);
   verifyAgentPromptOutputs(current, baseline, failures);
   verifyBaselineDriftProbes(current, failures);
+  await verifyRealPromptCollectionBoundaryProbe(current, failures);
   verifyAgentPromptCommandProbes(failures);
   verifyMatrix(current, baseline, failures);
   verifyRoleMatrixAudit(current, baseline, failures);
@@ -3195,7 +3294,7 @@ async function verifyBaseline() {
   console.log('PASS proof-or-stop prompt baseline: roleCount=16 registry hashes verified');
   console.log('PASS proof-or-stop prompt baseline: roleCount=16 registry snapshot integrity verified');
   console.log('PASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 16 roles');
-  console.log('PASS proof-or-stop prompt baseline: 10 baseline mechanical drift mutations and unknown-role agent_prompt command rejected');
+  console.log('PASS proof-or-stop prompt baseline: 10 snapshot mutations plus isolated real source/assembled collection mutation→failure→restore→pass and unknown-role command rejected');
   console.log('PASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for 16 roles');
   console.log('PASS proof-or-stop prompt baseline: role matrix field/Markdown/role-count/missing-row drift rejected');
   console.log('INFO proof-or-stop prompt baseline: all human-authored role-matrix semantics remain reviewer-audited');

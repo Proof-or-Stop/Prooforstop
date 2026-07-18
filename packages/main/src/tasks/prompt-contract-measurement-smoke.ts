@@ -77,6 +77,15 @@ rejects(() => canonicalJsonStringify(sparse), /sparse/);
 const cyclic: Record<string, unknown> = {};
 cyclic.self = cyclic;
 rejects(() => canonicalJsonStringify(cyclic), /cyclic/);
+const symbolKeyed = { a: 1 } as Record<PropertyKey, unknown>;
+symbolKeyed[Symbol('hidden')] = 2;
+rejects(() => canonicalJsonStringify(symbolKeyed), /symbol-keyed/);
+const nonEnumerable = { a: 1 };
+Object.defineProperty(nonEnumerable, 'hidden', { value: 2, enumerable: false });
+rejects(() => canonicalJsonStringify(nonEnumerable), /non-enumerable/);
+const accessor = { a: 1 };
+Object.defineProperty(accessor, 'derived', { get: () => 2, enumerable: true });
+rejects(() => canonicalJsonStringify(accessor), /accessor/);
 
 assert.equal(promptUtf8Bytes('ASCII'), 5);
 assert.equal(promptUtf8Bytes('中'), 3);
@@ -118,6 +127,11 @@ const runtimeContract = {
   renderDigest: digest,
 };
 validateRuntimeContract(runtimeContract);
+for (const requiredKey of Object.keys(runtimeContract)) {
+  const missing = { ...runtimeContract } as Record<string, unknown>;
+  delete missing[requiredKey];
+  rejects(() => validateRuntimeContract(missing), /required/);
+}
 rejects(() => validateRuntimeContract({ ...runtimeContract, schemaVersion: 'v2' }), /unsupported/);
 rejects(() => validateRuntimeContract({ ...runtimeContract, renderDigest: 'bad' }), /SHA-256/);
 rejects(() => validateRuntimeContract({ ...runtimeContract, extra: true }), /unknown/);
@@ -138,6 +152,11 @@ const roleContract = {
   renderDigest: digest,
 };
 validateRoleContract(roleContract);
+for (const requiredKey of Object.keys(roleContract)) {
+  const missing = { ...roleContract } as Record<string, unknown>;
+  delete missing[requiredKey];
+  rejects(() => validateRoleContract(missing), /required/);
+}
 rejects(() => validateRoleContract({ ...roleContract, status: 'unknown' }), /status/);
 rejects(() => validateRoleContract({ ...roleContract, status: 'compatibility', defaultDispatch: false }), /replacement/);
 
@@ -162,6 +181,11 @@ const measurement = {
   providerProcessedInputTokens: { availability: 'unavailable', reason: 'not called' },
 };
 validatePromptMeasurementRecord(measurement);
+for (const requiredKey of Object.keys(measurement)) {
+  const missing = { ...measurement } as Record<string, unknown>;
+  delete missing[requiredKey];
+  rejects(() => validatePromptMeasurementRecord(missing), /required/);
+}
 rejects(() => validatePromptMeasurementRecord({ ...measurement, bytes: -1 }), /nonnegative/);
 rejects(() => validatePromptMeasurementRecord({ ...measurement, assembledPromptTokens: { availability: 'available', tokens: 0, source: 'local' } }), /inconsistent/);
 
@@ -195,6 +219,32 @@ const envelope = {
   tokenEstimatorVersion: PROMPT_CONTRACT_ALGORITHMS.tokenEstimator,
 };
 validatePromptEnvelope(envelope);
+for (const requiredKey of Object.keys(envelope)) {
+  const missing = { ...envelope } as Record<string, unknown>;
+  delete missing[requiredKey];
+  rejects(() => validatePromptEnvelope(missing), /required/);
+}
+const envelopeWithOptionalDigests = {
+  ...envelope,
+  materialHash: digest,
+  storyFilesHash: digest,
+  policyHash: digest,
+  toolPolicyDigest: digest,
+  systemInstructionDigest: digest,
+};
+validatePromptEnvelope(envelopeWithOptionalDigests);
+for (const optionalDigestKey of [
+  'materialHash',
+  'storyFilesHash',
+  'policyHash',
+  'toolPolicyDigest',
+  'systemInstructionDigest',
+] as const) {
+  rejects(
+    () => validatePromptEnvelope({ ...envelopeWithOptionalDigests, [optionalDigestKey]: 'not-a-digest' }),
+    new RegExp(`PromptEnvelope\\.${optionalDigestKey} must be a lowercase SHA-256 digest`),
+  );
+}
 rejects(() => validatePromptEnvelope({ ...envelope, contextMode: 'incremental' }), /inconsistent/);
 rejects(() => validatePromptEnvelope({ ...envelope, dispatchKind: 'review-run' }), /reviewRunId/);
 rejects(() => validatePromptEnvelope({ ...envelope, bytes: Number.NaN }), /nonnegative/);
@@ -303,6 +353,22 @@ rejects(
       : contract
   ), packageRoleIds),
   /retired/,
+);
+rejects(
+  () => validatePromptRoleContracts(PROMPT_ROLE_CONTRACTS.map(contract =>
+    contract.roleId === 'test-intent'
+      ? { ...contract, replacementAgentType: 'lattice-review-quality' }
+      : contract
+  ), packageRoleIds),
+  /frozen role policy/,
+);
+rejects(
+  () => validatePromptRoleContracts(PROMPT_ROLE_CONTRACTS.map(contract =>
+    contract.roleId === 'implementation-reviewer'
+      ? { ...contract, migrationHint: 'Use only lattice-review-quality.' }
+      : contract
+  ), packageRoleIds),
+  /frozen role policy/,
 );
 
 const reportA = generatePromptMeasurementReport();

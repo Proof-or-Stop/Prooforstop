@@ -188,7 +188,20 @@ export function canonicalJsonStringify(value: unknown): string {
         throw new PromptContractValidationError(`${path} must be a plain object`);
       }
       const record = candidate as Record<string, unknown>;
-      const keys = Object.keys(record).sort(compareCodePoints);
+      const ownKeys = Reflect.ownKeys(record);
+      for (const key of ownKeys) {
+        if (typeof key !== 'string') {
+          throw new PromptContractValidationError(`${path} contains an unsupported symbol-keyed own field`);
+        }
+        const descriptor = Object.getOwnPropertyDescriptor(record, key)!;
+        if (!descriptor.enumerable) {
+          throw new PromptContractValidationError(`${path}.${key} is a non-enumerable own field`);
+        }
+        if (!Object.prototype.hasOwnProperty.call(descriptor, 'value')) {
+          throw new PromptContractValidationError(`${path}.${key} is an unsupported accessor field`);
+        }
+      }
+      const keys = (ownKeys as string[]).sort(compareCodePoints);
       return `{${keys.map(key => `${JSON.stringify(key)}:${encode(record[key], `${path}.${key}`)}`).join(',')}}`;
     } finally {
       ancestors.delete(candidate);
@@ -413,7 +426,14 @@ export function validatePromptEnvelope(value: unknown): asserts value is PromptE
     throw new PromptContractValidationError('story-dispatch PromptEnvelope cannot carry review authority');
   }
   if (record.contextMode === 'incremental') requireNonblank(record.priorPassRef, 'PromptEnvelope.priorPassRef');
-  for (const key of optional.filter(key => record[key] !== undefined)) requireNonblank(record[key], `PromptEnvelope.${key}`);
+  const optionalDigests = ['materialHash', 'storyFilesHash', 'policyHash', 'toolPolicyDigest', 'systemInstructionDigest'];
+  for (const key of optionalDigests.filter(key => record[key] !== undefined)) {
+    requireDigest(record[key], `PromptEnvelope.${key}`);
+  }
+  const optionalText = ['priorPassRef', 'freshnessClassification', 'requestedModelId'];
+  for (const key of optionalText.filter(key => record[key] !== undefined)) {
+    requireNonblank(record[key], `PromptEnvelope.${key}`);
+  }
 }
 
 export function validateDispatchUsageObservation(value: unknown): asserts value is DispatchUsageObservation {
