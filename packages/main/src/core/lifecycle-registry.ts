@@ -325,6 +325,7 @@ export const LIFECYCLE_ARTIFACTS = [
   'delivery-check.json',
   'review-runs.json',
   'findings.json',
+  'gap-log-provenance.jsonl',
   'review-passes.json',
   'draft-check.json',
   'summary.json',
@@ -726,16 +727,16 @@ export interface SharedLifecycleMetadataClassification {
 }
 
 /**
- * The B-META findings path is shared only when the exact current content is
- * covered by the latest signed official gap_log whole-artifact binding.
- * Merely matching the path is never sufficient.
+ * The B-META findings and provenance-ledger paths are shared only when the
+ * complete canonical-writer receipt chain is valid and its head covers the
+ * exact current findings content. Merely matching either path is insufficient.
  */
 export function classifySharedLifecycleMetadata(
   root: string,
   path: string,
 ): SharedLifecycleMetadataClassification | null {
   const normalized = normalizeArtifactPath(path);
-  if (normalized !== GAP_LOG_ARTIFACT_PATH) return null;
+  if (normalized !== GAP_LOG_ARTIFACT_PATH && normalized !== GAP_LOG_PROVENANCE_LEDGER_PATH) return null;
   const rootReal = realpathSync.native(resolve(root));
   const absolute = join(rootReal, normalized);
   if (!existsSync(absolute)) {
@@ -760,8 +761,13 @@ export function classifySharedLifecycleMetadata(
     };
   }
   try {
-    const data = JSON.parse(readFileSync(artifactReal, 'utf8')) as FindingData;
-    const verification = verifyGapLogArtifactBinding(data, normalized);
+    const findingsAbsolute = join(rootReal, GAP_LOG_ARTIFACT_PATH);
+    const findingsReal = realpathSync.native(findingsAbsolute);
+    if (findingsReal !== rootReal && !findingsReal.startsWith(`${rootReal}${sep}`)) {
+      throw new Error('findings symlink escape');
+    }
+    const data = JSON.parse(readFileSync(findingsReal, 'utf8')) as FindingData;
+    const verification = verifyGapLogArtifactBinding(data, GAP_LOG_ARTIFACT_PATH, root);
     return {
       trusted: verification.trusted,
       path: normalized,
@@ -874,5 +880,6 @@ import { join, relative, resolve, sep } from 'node:path';
 import type { FindingData } from './types.js';
 import {
   GAP_LOG_ARTIFACT_PATH,
+  GAP_LOG_PROVENANCE_LEDGER_PATH,
   verifyGapLogArtifactBinding,
 } from './finding-verify.js';

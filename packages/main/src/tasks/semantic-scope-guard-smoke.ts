@@ -1091,6 +1091,31 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
   assert.match(warnSummary.nextAction, /delivery reviewer/, '17f: warn next action mentions delivery reviewer');
 }
 
+// B-0784: AST rollout is independent and versioned.
+{
+  const legacySemantic = makeContract({
+    mode: 'enforce',
+    allowedModify: ['src/a.ts'],
+    fileRules: [{ path: 'src/a.ts', allowedAnchors: ['fn'] }],
+  });
+  const basePack = makePack([makeHunk('src/a.ts', { anchor: 'fn' })]);
+  assert.equal(
+    checkSemanticScope(legacySemantic, { ...basePack, astAnchorMode: 'off' }).status,
+    'skip',
+    'AST rollout off preserves path-only behavior',
+  );
+  assert.equal(
+    checkSemanticScope(legacySemantic, { ...basePack, astAnchorMode: 'warn' }).status,
+    'warn',
+    'AST rollout warn diagnoses missing parser/artifact versions without blocking',
+  );
+  assert.equal(
+    checkSemanticScope(legacySemantic, { ...basePack, astAnchorMode: 'enforce' }).status,
+    'fail',
+    'AST rollout enforce fails closed on missing parser/artifact versions',
+  );
+}
+
 // B-0784: parser-backed anchors never select control flow or local variables.
 {
   const root = mkdtempSync(join(tmpdir(), 'lattice-ast-anchor-'));
@@ -1119,6 +1144,8 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
       '}',
       'export interface Shape { x: number }',
       'export type Alias = Shape;',
+      'const localTop = 1, secondTop = 2;',
+      'const arrowTop = () => 1;',
       '',
     ].join('\n');
     writeFileSync(join(root, path), source);
@@ -1141,7 +1168,54 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
     assert.equal(hunkAt(13).anchor, 'method');
     assert.equal(hunkAt(15).anchor, 'Shape');
     assert.equal(hunkAt(16).anchor, 'Alias');
+    assert.deepEqual(
+      hunkAt(17).anchors?.map((anchor) => anchor.name),
+      ['localTop', 'secondTop'],
+      'same-line top-level declarations are all retained',
+    );
+    assert.equal(hunkAt(18).anchor, 'arrowTop', 'top-level arrow variables retain their declaration name');
     assert.equal(hunkAt(10).anchorKind, 'file', 'between declarations uses file scope');
+    const separatedChanges = parseUnifiedDiff(root, [
+      `diff --git a/${path} b/${path}`,
+      `+++ b/${path}`,
+      '@@ -1,13 +1,13 @@',
+      ' export function outer() {',
+      '-  const storyId = "old";',
+      '+  const storyId = "B-x";',
+      '   if (storyId) {',
+      '     return storyId;',
+      '   }',
+      '   function nested() {',
+      '     for (const item of [1]) return item;',
+      '   }',
+      ' }',
+      ' ',
+      ' export class Box {',
+      '   constructor() {}',
+      '-  method() { while (true) {} }',
+      '+  method() { while (false) {} }',
+    ].join('\n'));
+    assert.equal(separatedChanges.length, 2, 'unified context separates two actual changed spans');
+    assert.deepEqual(
+      separatedChanges.map((hunk) => hunk.anchor),
+      ['outer', 'method'],
+      'unchanged context declarations are not misreported as changed anchors',
+    );
+    const wholeFileReplacement = parseUnifiedDiff(root, [
+      `diff --git a/${path} b/${path}`,
+      `+++ b/${path}`,
+      '@@ -1,18 +1,18 @@',
+      ...source.trimEnd().split('\n').map((line) => `-${line}`),
+      ...source.trimEnd().split('\n').map((line) => `+${line}`),
+    ].join('\n'))[0];
+    const touchedNames = new Set(wholeFileReplacement.anchors?.map((anchor) => anchor.name));
+    assert.ok(touchedNames.has('outer') && touchedNames.has('Shape') && touchedNames.has('Alias'),
+      'one changed span records every declaration it touches');
+    const multiProtected = checkSemanticScope(
+      makeContract({ mode: 'enforce', allowedModify: [path], protectedAnchors: ['Shape'] }),
+      makePack([wholeFileReplacement]),
+    );
+    assert.equal(multiProtected.status, 'fail', 'a later protected declaration cannot hide behind the first anchor');
     execFileSync('git', ['init', '-b', 'main'], { cwd: root, stdio: 'ignore' });
     execFileSync('git', ['config', 'user.email', 'ast@example.test'], { cwd: root });
     execFileSync('git', ['config', 'user.name', 'AST Smoke'], { cwd: root });

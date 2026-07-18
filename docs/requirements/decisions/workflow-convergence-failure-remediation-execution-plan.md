@@ -463,6 +463,13 @@ Canonicalization must:
 - record original input when useful for diagnostics;
 - version legacy read/migration behavior.
 
+The shipped matcher uses one shared glob grammar at write, prewrite, guard, and
+lifecycle-check boundaries: exact/subtree plus `*`, `**`, `?`, character
+classes, and brace alternatives. Invalid glob syntax fails closed. Every live
+consumer supplies the project root, so source-root declarations and git
+repo-root paths converge identically rather than only in the explicit
+`scope_contract_check` command.
+
 The gate must compare canonical paths on both sides. It must not indefinitely
 accept multiple ambiguous bases by trial and error.
 
@@ -474,6 +481,13 @@ Use the TypeScript parser/AST to select the nearest enclosing declaration:
 - class/interface/type declaration;
 - top-level variable declaration when it is the intended declaration;
 - explicit file/module fallback.
+
+Unified-diff context is not treated as changed source. The diff pack splits
+each hunk into its actual added/deleted spans, records all declarations touched
+by each span (including previous-source declarations for deletions/renames),
+and the semantic gate evaluates every touched declaration. A protected or
+denied declaration therefore cannot hide behind the first declaration in a
+multi-declaration hunk.
 
 Control-flow nodes (`if`, `for`, `while`, `switch`, `catch`) and local variables
 must not replace their enclosing function/method anchor. Regex keyword exclusion
@@ -505,7 +519,12 @@ real protected anchor.
 
 Path canonicalization and AST anchors need independent rollout flags. Existing
 signed artifacts remain readable through versioned readers; rollback does not
-rewrite them in place.
+rewrite them in place. `off` preserves the signed legacy representation and
+path-only behavior. `warn` interprets known legacy path artifacts in memory and
+emits migration/re-attestation diagnostics without rewriting bytes; AST version
+drift is advisory. `enforce` requires current path, parser, and anchor-artifact
+versions and fails closed on missing/future versions or parser failure. The
+path and AST flags are evaluated independently.
 
 ## 11. Story Slicing and Landing Order
 
@@ -576,6 +595,9 @@ Record before/after values where the subsystem supports them:
   takeover rate;
 - original/canonical path, parser version, chosen anchor, false-positive fixture,
   genuine violation, and stale-evidence classification.
+- rollout mode and artifact version, actual changed-span count, every touched
+  current/previous declaration, glob rule, acknowledgement canonicalization,
+  and B-META provenance-chain rejection reason.
 
 The program is complete only when all five stories are DONE, their canonical
 subsystem documents reflect shipped behavior, no open high/critical finding

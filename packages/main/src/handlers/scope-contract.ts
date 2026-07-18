@@ -350,7 +350,8 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
       hunkDigests?: string[];
     }): string {
       if (!args.storyId) throw new Error('storyId is required');
-      const paths = validatePaths(args.paths, 'paths');
+      const canonicalAckPaths = canonicalPaths(args.paths, 'paths');
+      const paths = canonicalAckPaths.values ?? [];
       if (paths.length === 0) throw new Error('paths must be a non-empty array');
       const reason = (args.reason ?? '').trim();
       if (reason.length < 20) {
@@ -404,6 +405,10 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
       const updated: ScopeContractData = {
         ...contract,
         acknowledgements: [...contract.acknowledgements, ack],
+        originalPathInputs: {
+          ...(contract.originalPathInputs ?? {}),
+          ...canonicalAckPaths.originals,
+        },
         updatedAt: new Date().toISOString(),
       };
       store.writeScopeContract(args.storyId, updated);

@@ -38,6 +38,8 @@ export function digestScopeDiffPack(pack: Omit<ScopeDiffPack, 'diffPackHash'>): 
       previousAnchor: h.previousAnchor,
       previousAnchorKind: h.previousAnchorKind,
       previousAnchorRange: h.previousAnchorRange,
+      anchors: h.anchors,
+      previousAnchors: h.previousAnchors,
       anchorParserVersion: h.anchorParserVersion,
       anchorArtifactVersion: h.anchorArtifactVersion,
       keyPath: h.keyPath,
@@ -104,17 +106,28 @@ function declarationKind(node: ts.Node): string | undefined {
   if (ts.isTypeAliasDeclaration(node)) return 'type';
   if (ts.isEnumDeclaration(node)) return 'enum';
   if (ts.isModuleDeclaration(node)) return 'module';
-  if (ts.isVariableStatement(node) && node.parent && ts.isSourceFile(node.parent)
-      && node.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword)) return 'exported-variable';
+  if (
+    ts.isVariableDeclaration(node)
+    && ts.isVariableDeclarationList(node.parent)
+    && ts.isVariableStatement(node.parent.parent)
+    && ts.isSourceFile(node.parent.parent.parent)
+  ) return 'top-level-variable';
   return undefined;
 }
 
-function parserBackedAnchor(
+function isDescendantOf(node: ts.Node, ancestor: ts.Node): boolean {
+  for (let current = node.parent; current; current = current.parent) {
+    if (current === ancestor) return true;
+  }
+  return false;
+}
+
+function parserBackedAnchors(
   sourceText: string,
   path: string,
   lineNumber: number,
   lineCount: number,
-): { anchor?: AstAnchor; parseFallback?: string } {
+): { anchors: AstAnchor[]; parseFallback?: string } {
   const scriptKind = /\.tsx$/.test(path)
     ? ts.ScriptKind.TSX
     : /\.jsx$/.test(path)
@@ -124,38 +137,51 @@ function parserBackedAnchor(
         : ts.ScriptKind.TS;
   const source = ts.createSourceFile(path, sourceText, ts.ScriptTarget.Latest, true, scriptKind);
   const parseDiagnostics = (source as ts.SourceFile & { parseDiagnostics?: readonly ts.Diagnostic[] }).parseDiagnostics ?? [];
-  if (parseDiagnostics.length > 0) return { parseFallback: 'typescript_parse_error_fail_closed' };
-  const safeLine = Math.max(0, Math.min(lineNumber - 1, source.getLineStarts().length - 1));
-  const start = source.getPositionOfLineAndCharacter(safeLine, 0);
-  const endLine = Math.max(safeLine, Math.min(safeLine + Math.max(lineCount, 1) - 1, source.getLineStarts().length - 1));
-  const end = endLine + 1 < source.getLineStarts().length
-    ? source.getLineStarts()[endLine + 1] - 1
-    : source.end;
-  let best: ts.Node | undefined;
-  const visit = (node: ts.Node): void => {
-    if (node.getFullStart() > start || node.end < end) return;
-    if (node.getStart(source) <= end && node.end >= start && declarationKind(node) && nodeName(node, source)) best = node;
-    ts.forEachChild(node, visit);
-  };
-  visit(source);
-  if (!best) {
-    return {
-      anchor: {
-        name: `file:${path}`,
-        kind: 'file',
-        range: { start: 1, end: source.getLineStarts().length },
-      },
-      parseFallback: 'file_scope_no_enclosing_declaration',
+  if (parseDiagnostics.length > 0) return { anchors: [], parseFallback: 'typescript_parse_error_fail_closed' };
+  const lineStarts = source.getLineStarts();
+  const firstLine = Math.max(0, Math.min(lineNumber - 1, lineStarts.length - 1));
+  const lastLine = Math.max(firstLine, Math.min(firstLine + Math.max(lineCount, 1) - 1, lineStarts.length - 1));
+  const anchors: AstAnchor[] = [];
+  for (let line = firstLine; line <= lastLine; line++) {
+    const start = lineStarts[line];
+    const end = line + 1 < lineStarts.length ? lineStarts[line + 1] - 1 : source.end;
+    const candidates: ts.Node[] = [];
+    const visit = (node: ts.Node): void => {
+      if (node.getFullStart() > end || node.end < start) return;
+      if (node.getStart(source) <= end && node.end >= start && declarationKind(node) && nodeName(node, source)) {
+        candidates.push(node);
+      }
+      ts.forEachChild(node, visit);
     };
+    visit(source);
+    const nearest = candidates.filter((candidate) => (
+      !candidates.some((other) => other !== candidate && isDescendantOf(other, candidate))
+    ));
+    for (const node of nearest) {
+      const anchor: AstAnchor = {
+        name: nodeName(node, source)!,
+        kind: declarationKind(node)!,
+        range: {
+          start: source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1,
+          end: source.getLineAndCharacterOfPosition(node.end).line + 1,
+        },
+      };
+      if (!anchors.some((candidate) => (
+        candidate.name === anchor.name
+        && candidate.kind === anchor.kind
+        && candidate.range.start === anchor.range.start
+        && candidate.range.end === anchor.range.end
+      ))) anchors.push(anchor);
+    }
   }
-  const startLine = source.getLineAndCharacterOfPosition(best.getStart(source)).line + 1;
-  const endDeclLine = source.getLineAndCharacterOfPosition(best.end).line + 1;
+  if (anchors.length > 0) return { anchors };
   return {
-    anchor: {
-      name: nodeName(best, source)!,
-      kind: declarationKind(best)!,
-      range: { start: startLine, end: endDeclLine },
-    },
+    anchors: [{
+      name: `file:${path}`,
+      kind: 'file',
+      range: { start: 1, end: lineStarts.length },
+    }],
+    parseFallback: 'file_scope_no_enclosing_declaration',
   };
 }
 
@@ -181,6 +207,61 @@ function readBaseSource(projectRoot: string, path: string): string | undefined {
   }
 }
 
+interface ChangedBlock {
+  oldStart: number;
+  oldLines: number;
+  newStart: number;
+  newLines: number;
+  body: string[];
+}
+
+function changedBlocks(
+  range: NonNullable<ReturnType<typeof parseHunkHeader>>,
+  body: string[],
+): ChangedBlock[] {
+  const blocks: ChangedBlock[] = [];
+  let oldLine = range.oldStart;
+  let newLine = range.newStart;
+  let active: { old: number[]; next: number[]; body: string[] } | null = null;
+  const flush = (): void => {
+    if (!active) return;
+    blocks.push({
+      oldStart: active.old[0] ?? oldLine,
+      oldLines: active.old.length,
+      newStart: active.next[0] ?? newLine,
+      newLines: active.next.length,
+      body: active.body,
+    });
+    active = null;
+  };
+  for (const line of body) {
+    if (line.startsWith('\\ No newline')) continue;
+    if (line.startsWith('+') && !line.startsWith('+++')) {
+      active ??= { old: [], next: [], body: [] };
+      active.next.push(newLine++);
+      active.body.push(line);
+      continue;
+    }
+    if (line.startsWith('-') && !line.startsWith('---')) {
+      active ??= { old: [], next: [], body: [] };
+      active.old.push(oldLine++);
+      active.body.push(line);
+      continue;
+    }
+    flush();
+    oldLine++;
+    newLine++;
+  }
+  flush();
+  return blocks.length > 0 ? blocks : [{
+    oldStart: range.oldStart,
+    oldLines: 0,
+    newStart: range.newStart,
+    newLines: 0,
+    body: [],
+  }];
+}
+
 export function parseUnifiedDiff(projectRoot: string, diffText: string): ScopeDiffHunk[] {
   const hunks: ScopeDiffHunk[] = [];
   let currentPath = '';
@@ -190,73 +271,63 @@ export function parseUnifiedDiff(projectRoot: string, diffText: string): ScopeDi
 
   function flush(): void {
     if (!currentPath || !currentHeader || !currentRange) return;
+    const blocks = changedBlocks(currentRange, currentBody);
     const sourcePath = join(projectRoot, currentPath);
     const isTsLike = /\.(ts|tsx|js|jsx|mts|mjs|cts|cjs)$/.test(currentPath);
     const isPackageJson = currentPath.endsWith('package.json') || currentPath.endsWith('.json');
-    let anchor: string | undefined;
-    let anchorKind: string | undefined;
-    let anchorRange: { start: number; end: number } | undefined;
-    let previousAnchor: string | undefined;
-    let previousAnchorKind: string | undefined;
-    let previousAnchorRange: { start: number; end: number } | undefined;
-    let keyPath: string | undefined;
-    let parseFallback: string | undefined;
-    if (isTsLike) {
-      const currentSourceExists = existsSync(sourcePath);
-      if (currentSourceExists) {
-        const parsed = parserBackedAnchor(
-          readFileSync(sourcePath, 'utf8'),
-          currentPath,
-          currentRange.newStart,
-          currentRange.newLines,
-        );
-        anchor = parsed.anchor?.name;
-        anchorKind = parsed.anchor?.kind;
-        anchorRange = parsed.anchor?.range;
-        parseFallback = parsed.parseFallback;
+    const currentSource = isTsLike && existsSync(sourcePath) ? readFileSync(sourcePath, 'utf8') : undefined;
+    const baseSource = isTsLike ? readBaseSource(projectRoot, currentPath) : undefined;
+    for (const [blockIndex, block] of blocks.entries()) {
+      let anchors: AstAnchor[] = [];
+      let previousAnchors: AstAnchor[] = [];
+      let keyPath: string | undefined;
+      let parseFallback: string | undefined;
+      if (isTsLike) {
+        if (currentSource !== undefined && block.newLines > 0) {
+          const parsed = parserBackedAnchors(currentSource, currentPath, block.newStart, block.newLines);
+          anchors = parsed.anchors;
+          parseFallback = parsed.parseFallback;
+        }
+        if (baseSource !== undefined && block.oldLines > 0) {
+          const previous = parserBackedAnchors(baseSource, currentPath, block.oldStart, block.oldLines);
+          previousAnchors = previous.anchors;
+          parseFallback ??= previous.parseFallback;
+        }
+        if (currentSource === undefined && previousAnchors.length > 0) parseFallback = 'deleted_source_uses_previous_declaration';
+        if (anchors.length === 0 && previousAnchors.length === 0 && !parseFallback) parseFallback = 'typescript_source_unavailable_fail_closed';
+      } else if (isPackageJson) {
+        keyPath = inferPackageKeyPath(block.body);
+        if (!keyPath) parseFallback = 'no_json_key_detected';
+      } else {
+        parseFallback = 'unsupported_file_type';
       }
-      const baseSource = readBaseSource(projectRoot, currentPath);
-      if (baseSource !== undefined) {
-        const previous = parserBackedAnchor(
-          baseSource,
-          currentPath,
-          currentRange.oldStart,
-          currentRange.oldLines,
-        );
-        previousAnchor = previous.anchor?.name;
-        previousAnchorKind = previous.anchor?.kind;
-        previousAnchorRange = previous.anchor?.range;
-      }
-      if (!currentSourceExists && !anchor && previousAnchor) parseFallback = 'deleted_source_uses_previous_declaration';
-      if (!anchor && !previousAnchor && !parseFallback) parseFallback = 'typescript_source_unavailable_fail_closed';
-    } else if (isPackageJson) {
-      keyPath = inferPackageKeyPath(currentBody);
-      if (!keyPath) parseFallback = 'no_json_key_detected';
-    } else {
-      parseFallback = 'unsupported_file_type';
+      const anchor = anchors[0];
+      const previousAnchor = previousAnchors[0];
+      hunks.push({
+        path: currentPath,
+        oldStart: block.oldStart,
+        oldLines: block.oldLines,
+        newStart: block.newStart,
+        newLines: block.newLines,
+        header: `${currentHeader} [changed-span:${blockIndex + 1}/${blocks.length}]`,
+        ...(anchor ? { anchor: anchor.name, anchorKind: anchor.kind, anchorRange: anchor.range } : {}),
+        ...(previousAnchor ? {
+          previousAnchor: previousAnchor.name,
+          previousAnchorKind: previousAnchor.kind,
+          previousAnchorRange: previousAnchor.range,
+        } : {}),
+        ...(anchors.length > 0 ? { anchors } : {}),
+        ...(previousAnchors.length > 0 ? { previousAnchors } : {}),
+        ...(isTsLike ? {
+          anchorParserVersion: SCOPE_ANCHOR_PARSER_VERSION,
+          anchorArtifactVersion: SCOPE_ANCHOR_ARTIFACT_VERSION,
+        } : {}),
+        keyPath,
+        parseFallback,
+        changeKind: inferChangeKind(block.body),
+        hunkDigest: hashHunk(currentPath, `${currentHeader}:${blockIndex}`, block.body),
+      });
     }
-    hunks.push({
-      path: currentPath,
-      oldStart: currentRange.oldStart,
-      oldLines: currentRange.oldLines,
-      newStart: currentRange.newStart,
-      newLines: currentRange.newLines,
-      header: currentHeader,
-      anchor,
-      ...(anchorKind ? { anchorKind } : {}),
-      ...(anchorRange ? { anchorRange } : {}),
-      ...(previousAnchor ? { previousAnchor } : {}),
-      ...(previousAnchorKind ? { previousAnchorKind } : {}),
-      ...(previousAnchorRange ? { previousAnchorRange } : {}),
-      ...(isTsLike ? {
-        anchorParserVersion: SCOPE_ANCHOR_PARSER_VERSION,
-        anchorArtifactVersion: SCOPE_ANCHOR_ARTIFACT_VERSION,
-      } : {}),
-      keyPath,
-      parseFallback,
-      changeKind: inferChangeKind(currentBody),
-      hunkDigest: hashHunk(currentPath, currentHeader, currentBody),
-    });
   }
 
   for (const line of diffText.split(/\r?\n/)) {
@@ -308,9 +379,11 @@ export function buildScopeDiffPack(projectRoot: string, now = new Date().toISOSt
       ? parseUnifiedDiff(projectRoot, readUnifiedDiff(projectRoot)).map((hunk) => ({
         ...hunk,
         anchor: undefined,
+        anchors: undefined,
         anchorKind: undefined,
         anchorRange: undefined,
         previousAnchor: undefined,
+        previousAnchors: undefined,
         previousAnchorKind: undefined,
         previousAnchorRange: undefined,
         anchorParserVersion: undefined,
@@ -323,6 +396,7 @@ export function buildScopeDiffPack(projectRoot: string, now = new Date().toISOSt
       anchorParserVersion: SCOPE_ANCHOR_PARSER_VERSION,
       anchorArtifactVersion: SCOPE_ANCHOR_ARTIFACT_VERSION,
     } : {}),
+    astAnchorMode: astMode,
   };
   return {
     ...packWithoutHash,

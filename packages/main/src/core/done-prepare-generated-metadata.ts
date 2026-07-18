@@ -528,9 +528,12 @@ export function buildDonePrepareGeneratedMetadataManifest(args: {
   };
 }
 
-function filterIgnoredRows(root: string, rows: string[], ignoredPaths: readonly string[] = []): string[] {
+export function filterDonePrepareTrustedMetadataRows(
+  root: string,
+  rows: string[],
+  ignoredPaths: readonly string[] = [],
+): string[] {
   const ignored = new Set(ignoredPaths.map(normalizeRelPath));
-  if (ignored.size === 0) return rows;
   return rows.filter((row) => {
     const parsed = parseGitPorcelainRow(row);
     if (!parsed) return true;
@@ -820,7 +823,7 @@ export function commitDonePrepareGeneratedMetadata(args: {
     beforeCasUpdate?: (oldHead: string, targetRef: string) => void;
   };
 }): DonePrepareGeneratedMetadataCommitResult {
-  const rows = filterIgnoredRows(args.root, gitStatusRowsForDonePrepareGeneratedMetadata(args.gitCwd), args.ignoredPaths);
+  const rows = filterDonePrepareTrustedMetadataRows(args.root, gitStatusRowsForDonePrepareGeneratedMetadata(args.gitCwd), args.ignoredPaths);
   const manifest = buildDonePrepareGeneratedMetadataManifest({
     root: args.root,
     storyId: args.storyId,

@@ -19,7 +19,13 @@
     "packages/main/src/core/process-fact-registry.ts",
     "packages/main/src/core/audit-meta-store.ts",
     "packages/main/src/core/finding-verify.ts",
-    "packages/main/src/core/review-scope-binding.ts"
+    "packages/main/src/core/review-scope-binding.ts",
+    "packages/main/src/core/prewrite-guard.ts",
+    "packages/main/src/handlers/prewrite-guard.ts",
+    "packages/main/src/core/guard-session.ts",
+    "packages/main/src/handlers/guard-session.ts",
+    "docs/requirements/decisions/lifecycle-artifact-scope.md",
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
   ],
   "allowedCreate": [],
   "allowedTest": [
@@ -29,14 +35,17 @@
     "packages/main/src/tasks/concept-gate-scope-smoke.ts",
     "packages/main/src/tasks/gap-log-smoke.ts",
     "packages/main/src/tasks/closeout-trust-smoke.ts",
+    "packages/main/src/tasks/prewrite-guard-smoke.ts",
     "scripts/verify-process-fact-contract.mjs"
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "scopeChangeReason": "REVIEW findings F-003/F-009 require minimal truth-source synchronization and shared B-META classifier parity in native prewrite/guard-session consumers; prewrite smoke is the bounded parity test.",
   "acknowledgements": [],
   "createdAt": "2026-07-18T01:44:56.548Z",
-  "updatedAt": "2026-07-18T02:05:02.139Z",
+  "updatedAt": "2026-07-18T02:16:25.815Z",
+  "fileRules": [],
+  "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -64,6 +73,13 @@
     "packages/main/src/tasks/concept-gate-scope-smoke.ts": "packages/main/src/tasks/concept-gate-scope-smoke.ts",
     "packages/main/src/tasks/gap-log-smoke.ts": "packages/main/src/tasks/gap-log-smoke.ts",
     "packages/main/src/tasks/closeout-trust-smoke.ts": "packages/main/src/tasks/closeout-trust-smoke.ts",
-    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs"
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/core/prewrite-guard.ts": "packages/main/src/core/prewrite-guard.ts",
+    "packages/main/src/handlers/prewrite-guard.ts": "packages/main/src/handlers/prewrite-guard.ts",
+    "packages/main/src/core/guard-session.ts": "packages/main/src/core/guard-session.ts",
+    "packages/main/src/handlers/guard-session.ts": "packages/main/src/handlers/guard-session.ts",
+    "docs/requirements/decisions/lifecycle-artifact-scope.md": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+    "packages/main/src/tasks/prewrite-guard-smoke.ts": "packages/main/src/tasks/prewrite-guard-smoke.ts"
   }
 }

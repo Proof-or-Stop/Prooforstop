@@ -199,6 +199,7 @@ export function createPrewriteGuardHandlers(ctx: HandlerContext): Record<string,
         contractError,
         resolutionError,
         noDecisionReason,
+        projectRoot: root,
       });
 
       if (args.json) return JSON.stringify(result, null, 2);

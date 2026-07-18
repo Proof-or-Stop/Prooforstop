@@ -13,14 +13,21 @@
  * All functions are pure functions, decoupled from file I/O via injected StoryStore instances.
  */
 
-import { createHash } from 'crypto';
+import { createHash, createHmac, randomBytes } from 'crypto';
+import { execFileSync } from 'node:child_process';
+import { appendFileSync, chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, isAbsolute, join, resolve } from 'node:path';
 import type { StoryStore } from './store.js';
 import type { DisprovenEvidence, Finding, FindingEvidenceState, StoryInfo, StoryEvent } from './types.js';
 import {
   GAP_LOG_ARTIFACT_PATH,
+  GAP_LOG_PROVENANCE_LEDGER_PATH,
   GAP_LOG_PROVENANCE_SCHEMA,
   digestGapLogArtifact,
+  readGapLogProvenanceLedger,
   signFinding,
+  verifyGapLogArtifactBinding,
+  type GapLogProvenanceReceipt,
 } from './finding-verify.js';
 
 /** Fixed ID of the meta-story (unique container across the repo) */
@@ -288,6 +295,96 @@ export interface GapFindingResult {
   bindingStatus: 'valid' | 'legacy-unbound';
 }
 
+function gitCommonDir(root: string): string {
+  const raw = execFileSync('git', ['rev-parse', '--git-common-dir'], {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+  return isAbsolute(raw) ? raw : resolve(root, raw);
+}
+
+function provenanceKey(root: string): Buffer {
+  const path = join(gitCommonDir(root), 'lattice-gap-log-provenance.key');
+  if (!existsSync(path)) {
+    mkdirSync(dirname(path), { recursive: true });
+    try {
+      writeFileSync(path, randomBytes(32), { flag: 'wx', mode: 0o600 });
+    } catch (error: any) {
+      if (error?.code !== 'EEXIST') throw error;
+    }
+  }
+  chmodSync(path, 0o600);
+  return readFileSync(path);
+}
+
+function headArtifactDigest(root: string): string | null {
+  try {
+    const text = execFileSync('git', ['show', `HEAD:${GAP_LOG_ARTIFACT_PATH}`], {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    return digestGapLogArtifact(JSON.parse(text));
+  } catch {
+    return null;
+  }
+}
+
+function assertGapLogHistoryExtendable(root: string, data: import('./types.js').FindingData): void {
+  const receipts = readGapLogProvenanceLedger(root);
+  if (receipts.length > 0) {
+    const verified = verifyGapLogArtifactBinding(data, GAP_LOG_ARTIFACT_PATH, root);
+    if (!verified.trusted) {
+      throw new Error(
+        `gap_log: existing provenance chain is not extendable (${verified.reason}); `
+        + `expected=${verified.expectedDigest ?? '(none)'} observed=${verified.observedDigest ?? '(none)'}`,
+      );
+    }
+    return;
+  }
+  const currentDigest = digestGapLogArtifact(data);
+  const committedDigest = headArtifactDigest(root);
+  if (data.findings.length > 0 && committedDigest !== currentDigest) {
+    throw new Error(
+      'gap_log: legacy B-META findings require an unchanged committed HEAD artifact before provenance migration; '
+      + `current=${currentDigest} HEAD=${committedDigest ?? '(missing)'}`,
+    );
+  }
+}
+
+function appendGapLogReceipt(args: {
+  root: string;
+  finding: Finding;
+  preArtifactDigest: string;
+  postArtifactDigest: string;
+}): GapLogProvenanceReceipt {
+  const existing = readGapLogProvenanceLedger(args.root);
+  const unsigned: Omit<GapLogProvenanceReceipt, 'integrityHash'> = {
+    schemaVersion: GAP_LOG_PROVENANCE_SCHEMA,
+    sequence: existing.length + 1,
+    previousIntegrityHash: existing.at(-1)?.integrityHash ?? '',
+    artifactPath: GAP_LOG_ARTIFACT_PATH,
+    ledgerPath: GAP_LOG_PROVENANCE_LEDGER_PATH,
+    storyId: 'B-META-framework-audit',
+    writerCommand: 'gap_log',
+    findingId: args.finding.id,
+    gapFingerprint: args.finding.gapFingerprint!,
+    preArtifactDigest: args.preArtifactDigest,
+    postArtifactDigest: args.postArtifactDigest,
+    parentHead: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: args.root, encoding: 'utf8' }).trim(),
+    timestamp: args.finding.createdAt!,
+  };
+  const integrityHash = createHmac('sha256', provenanceKey(args.root))
+    .update(JSON.stringify(unsigned))
+    .digest('hex');
+  const receipt = { ...unsigned, integrityHash };
+  const path = join(args.root, GAP_LOG_PROVENANCE_LEDGER_PATH);
+  mkdirSync(dirname(path), { recursive: true });
+  appendFileSync(path, `${JSON.stringify(receipt)}\n`, { encoding: 'utf8', mode: 0o600 });
+  return receipt;
+}
+
 /**
  * B-f60c CHK-003: compute the gap_log idempotency fingerprint.
  *
@@ -335,15 +432,18 @@ export function gapFingerprint(input: {
     String(input.observedOutput ?? '').trim(),
     String(input.analysisNote ?? '').trim(),
   ];
-  return createHash('sha256').update(parts.join(' ')).digest('hex');
+  return createHash('sha256').update(parts.join('\0')).digest('hex');
 }
 
 export function appendGapFinding(
   store: StoryStore,
   gap: GapFindingInput,
   storyId: string = META_STORY_ID,
+  options: { projectRoot?: string } = {},
 ): GapFindingResult {
   const data = store.readFindings(storyId);
+  if (options.projectRoot) assertGapLogHistoryExtendable(options.projectRoot, data);
+  const preArtifactDigest = digestGapLogArtifact(data);
 
   // B-f60c CHK-003: idempotency — a gap with an identical fingerprint that is
   // still an OPEN finding is treated as the same canonical gap; re-logging it
@@ -363,12 +463,15 @@ export function appendGapFinding(
     f => f.gapFingerprint === fingerprint && f.status === 'open',
   );
   if (existing) {
+    const provenance = options.projectRoot
+      ? verifyGapLogArtifactBinding(data, GAP_LOG_ARTIFACT_PATH, options.projectRoot)
+      : null;
     return {
       findingId: existing.id,
       evidenceState: existing.evidenceState ?? gap.evidenceState,
       deduped: true,
-      contentDigest: existing.gapLogBinding?.contentDigest,
-      bindingStatus: existing.gapLogBinding ? 'valid' : 'legacy-unbound',
+      contentDigest: provenance?.observedDigest,
+      bindingStatus: provenance?.trusted ? 'valid' : 'legacy-unbound',
     };
   }
 
@@ -391,24 +494,17 @@ export function appendGapFinding(
     ...(gap.files && gap.files.length > 0 ? { files: gap.files } : {}),
   };
   data.findings.push(finding);
-  const binding = {
-    schemaVersion: GAP_LOG_PROVENANCE_SCHEMA,
-    command: 'gap_log' as const,
-    storyId: 'B-META-framework-audit' as const,
-    artifactPath: GAP_LOG_ARTIFACT_PATH,
-    findingId: id,
-    contentDigest: '',
-    createdAt: now,
-  };
-  finding.gapLogBinding = binding;
-  binding.contentDigest = digestGapLogArtifact(data);
-  finding._hash = signFinding(storyId, id, gap.desc, gap.severity, now, '', '', undefined, undefined, undefined, binding);
+  finding._hash = signFinding(storyId, id, gap.desc, gap.severity, now, '');
   store.writeFindings(storyId, data);
+  const postArtifactDigest = digestGapLogArtifact(data);
+  const receipt = options.projectRoot
+    ? appendGapLogReceipt({ root: options.projectRoot, finding, preArtifactDigest, postArtifactDigest })
+    : null;
   return {
     findingId: id,
     evidenceState: gap.evidenceState,
     deduped: false,
-    contentDigest: binding.contentDigest,
-    bindingStatus: 'valid',
+    contentDigest: receipt?.postArtifactDigest,
+    bindingStatus: receipt ? 'valid' : 'legacy-unbound',
   };
 }

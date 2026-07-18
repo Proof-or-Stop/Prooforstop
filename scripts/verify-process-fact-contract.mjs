@@ -4720,10 +4720,11 @@ async function assertLifecycleArtifactScopePolicy() {
   for (const token of ['classifySharedLifecycleMetadata', 'verifyGapLogArtifactBinding', 'shared-gap-log-metadata-v1']) {
     assert(lifecycleRegistryText.includes(token), `shared B-META classifier contract missing ${token}`);
   }
-  for (const token of ['GAP_LOG_PROVENANCE_SCHEMA', 'digestGapLogArtifact', 'content_digest_mismatch', 'finding_signature_invalid']) {
+  for (const token of ['GAP_LOG_PROVENANCE_SCHEMA', 'GAP_LOG_PROVENANCE_LEDGER_PATH', 'createHmac', 'digestGapLogArtifact', 'content_digest_mismatch', 'finding_signature_invalid']) {
     assert(gapLogVerifyText.includes(token), `gap_log provenance contract missing ${token}`);
   }
   assert(donePrepareMetadataText.includes('classifySharedLifecycleMetadata'), 'done_prepare clean-tree must consume shared B-META classifier');
+  assert(donePrepareMetadataText.includes('filterDonePrepareTrustedMetadataRows'), 'done_prepare must expose the production shared-metadata row filter for contract testing');
   for (const runtimeName of [
     'runtime:canonical_scope_path_gate',
     'runtime:ast_semantic_anchor_gate',

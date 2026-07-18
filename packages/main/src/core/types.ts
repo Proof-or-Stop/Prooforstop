@@ -1863,6 +1863,8 @@ export interface ScopeDiffHunk {
   previousAnchor?: string;
   previousAnchorKind?: string;
   previousAnchorRange?: { start: number; end: number };
+  anchors?: ScopeDeclarationAnchor[];
+  previousAnchors?: ScopeDeclarationAnchor[];
   anchorParserVersion?: string;
   anchorArtifactVersion?: string;
   keyPath?: string;
@@ -1877,6 +1879,13 @@ export interface ScopeDiffPack {
   generatedAt: string;
   anchorParserVersion?: string;
   anchorArtifactVersion?: string;
+  astAnchorMode?: 'off' | 'warn' | 'enforce';
+}
+
+export interface ScopeDeclarationAnchor {
+  name: string;
+  kind: string;
+  range: { start: number; end: number };
 }
 
 export interface SemanticScopeGateResult {

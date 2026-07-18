@@ -188,15 +188,75 @@ export function normalizeScopePath(path: string): string {
     .replace(/\/+$/, '');
 }
 
+function globFragment(pattern: string): string | null {
+  let out = '';
+  for (let index = 0; index < pattern.length; index++) {
+    const char = pattern[index];
+    if (char === '*') {
+      if (pattern[index + 1] === '*') {
+        index++;
+        if (pattern[index + 1] === '/') {
+          index++;
+          out += '(?:[^/]+/)*';
+        } else {
+          out += '.*';
+        }
+      } else {
+        out += '[^/]*';
+      }
+      continue;
+    }
+    if (char === '?') {
+      out += '[^/]';
+      continue;
+    }
+    if (char === '[') {
+      const close = pattern.indexOf(']', index + 1);
+      if (close < 0) return null;
+      let body = pattern.slice(index + 1, close);
+      if (!body || body.includes('/')) return null;
+      if (body.startsWith('!')) body = `^${body.slice(1)}`;
+      out += `[${body.replace(/\\/g, '\\\\')}]`;
+      index = close;
+      continue;
+    }
+    if (char === '{') {
+      const close = pattern.indexOf('}', index + 1);
+      if (close < 0) return null;
+      const alternatives = pattern.slice(index + 1, close).split(',');
+      if (alternatives.length < 2 || alternatives.some((entry) => !entry || /[{}]/.test(entry))) return null;
+      const rendered = alternatives.map(globFragment);
+      if (rendered.some((entry) => entry === null)) return null;
+      out += `(?:${rendered.join('|')})`;
+      index = close;
+      continue;
+    }
+    if ('\\.^$+()|'.includes(char)) out += `\\${char}`;
+    else out += char;
+  }
+  return out;
+}
+
+export function scopeGlobRegex(pattern: string): RegExp | null {
+  const normalized = normalizeScopePath(pattern);
+  const fragment = globFragment(normalized);
+  if (fragment === null) return null;
+  try {
+    return new RegExp(`^${fragment}$`);
+  } catch {
+    return null;
+  }
+}
+
 export function pathMatchesScopePattern(filePath: string, pattern: string): boolean {
   const normalizedFile = normalizeScopePath(filePath);
   const normalizedPattern = normalizeScopePath(pattern);
   if (!normalizedFile || !normalizedPattern) return false;
+  if (/[*?[\]{}]/.test(normalizedPattern)) {
+    return scopeGlobRegex(normalizedPattern)?.test(normalizedFile) ?? false;
+  }
   if (normalizedFile === normalizedPattern) return true;
   if (normalizedFile.startsWith(normalizedPattern.endsWith('/') ? normalizedPattern : `${normalizedPattern}/`)) return true;
-  const globless = normalizedPattern.replace(/\/\*\*?$/, '').replace(/\*$/, '');
-  if (globless !== normalizedPattern && normalizedFile.startsWith(globless)) return true;
-  if (normalizedPattern.startsWith('*.') && normalizedFile.endsWith(normalizedPattern.slice(1))) return true;
   return false;
 }
 
@@ -252,6 +312,18 @@ export function classifyScopePath(
       detail: `Shared metadata: ${shared.path} | writer: ${shared.writer} | contentBinding: ${shared.contentBinding} | status: PASS`,
       registryId: shared.registryId,
       hint: 'Only an exact signed official gap_log whole-artifact binding admits shared B-META metadata.',
+    });
+  }
+  if (shared) {
+    return classification({
+      path,
+      category: 'unknown',
+      source: 'lifecycle-registry',
+      rule: 'out_of_scope',
+      allowed: false,
+      detail: `Untrusted shared metadata: ${shared.path} | reason: ${shared.reason} | status: FAIL`,
+      registryId: shared.registryId,
+      hint: 'Repair or re-attest the canonical gap_log provenance chain; a lifecycle filename alone cannot admit shared B-META metadata.',
     });
   }
 

@@ -51,13 +51,22 @@ function ruleForHunk(rules: readonly FileRule[] | undefined, hunk: ScopeDiffHunk
 }
 
 function hunkAnchor(hunk: ScopeDiffHunk): string | undefined {
-  return hunk.anchor && !hunk.anchor.startsWith('file:')
-    ? hunk.anchor
-    : hunk.previousAnchor ?? hunk.anchor ?? hunk.keyPath;
+  return hunk.anchors?.[0]?.name
+    ?? hunk.previousAnchors?.[0]?.name
+    ?? (hunk.anchor && !hunk.anchor.startsWith('file:') ? hunk.anchor : undefined)
+    ?? hunk.previousAnchor
+    ?? hunk.anchor
+    ?? hunk.keyPath;
 }
 
 function hunkAnchors(hunk: ScopeDiffHunk): string[] {
-  return [...new Set([hunk.anchor, hunk.previousAnchor, hunk.keyPath].filter((value): value is string => Boolean(value)))];
+  return [...new Set([
+    ...(hunk.anchors ?? []).map((anchor) => anchor.name),
+    ...(hunk.previousAnchors ?? []).map((anchor) => anchor.name),
+    hunk.anchor,
+    hunk.previousAnchor,
+    hunk.keyPath,
+  ].filter((value): value is string => Boolean(value)))];
 }
 
 function ackCoversHunk(ack: ScopeContractAcknowledgement, hunk: ScopeDiffHunk): boolean {
@@ -104,14 +113,23 @@ export function checkSemanticScope(
       summary: 'Semantic scope gate: skip (v1 path-only contract)',
     };
   }
+  if (diffPack.astAnchorMode === 'off') {
+    return {
+      status: 'skip',
+      violations: [],
+      warnings: [],
+      summary: 'Semantic scope gate: skip (AST anchor rollout off; legacy path-only behavior preserved)',
+    };
+  }
 
   const violations: ScopeViolation[] = [];
   const warnings: ScopeViolation[] = [];
   const globalProtected = new Set(contract.protectedAnchors ?? []);
-  const contractVersionDrift = Boolean(
-    (contract.anchorParserVersion && contract.anchorParserVersion !== SCOPE_ANCHOR_PARSER_VERSION)
-    || (contract.anchorArtifactVersion && contract.anchorArtifactVersion !== SCOPE_ANCHOR_ARTIFACT_VERSION),
+  const contractVersionDrift = diffPack.astAnchorMode !== undefined && (
+    contract.anchorParserVersion !== SCOPE_ANCHOR_PARSER_VERSION
+    || contract.anchorArtifactVersion !== SCOPE_ANCHOR_ARTIFACT_VERSION
   );
+  const rolloutWarn = diffPack.astAnchorMode === 'warn';
 
   for (const hunk of diffPack.hunks) {
     // Story metadata / Proofbound internal files are never semantically gated.
@@ -121,11 +139,12 @@ export function checkSemanticScope(
 
     const anchor = hunkAnchor(hunk);
     const anchors = hunkAnchors(hunk);
+    const declarationAnchors = anchors.filter((candidate) => !candidate.startsWith('file:'));
     const rule = ruleForHunk(contract.fileRules, hunk);
     const acknowledged = isAcknowledged(contract, hunk);
 
     if (contractVersionDrift) {
-      violations.push(makeViolation(hunk, 'unmatched_anchor', false));
+      (rolloutWarn ? warnings : violations).push(makeViolation(hunk, 'unmatched_anchor', false));
       continue;
     }
 
@@ -139,7 +158,11 @@ export function checkSemanticScope(
     );
     const parserFailed = hunk.parseFallback === 'typescript_parse_error_fail_closed'
       || hunk.parseFallback === 'typescript_source_unavailable_fail_closed';
-    if (parserVersionDrift || artifactVersionDrift || parserFailed) {
+    if (parserVersionDrift || artifactVersionDrift) {
+      (rolloutWarn ? warnings : violations).push(makeViolation(hunk, 'unmatched_anchor', false));
+      continue;
+    }
+    if (parserFailed) {
       violations.push(makeViolation(hunk, 'unmatched_anchor', false));
       continue;
     }
@@ -173,7 +196,10 @@ export function checkSemanticScope(
     // 5. Restrictive allowedAnchors — any anchor outside the allowlist (or an
     //    unparseable hunk with no anchor) is out-of-intent; blocking unless ack'd.
     if (rule.allowedAnchors && rule.allowedAnchors.length > 0) {
-      if (!anchor || !rule.allowedAnchors.includes(anchor)) {
+      if (
+        declarationAnchors.length === 0
+        || declarationAnchors.some((candidate) => !rule.allowedAnchors!.includes(candidate))
+      ) {
         (acknowledged ? warnings : violations).push(makeViolation(hunk, 'unmatched_anchor', acknowledged));
       }
     }
@@ -184,7 +210,10 @@ export function checkSemanticScope(
 
   let status: ScopeGateStatus;
   let blockingCount = 0;
-  if (contract.mode === 'local') {
+  if (contractVersionDrift && !rolloutWarn && violations.length > 0) {
+    blockingCount = violations.length;
+    status = 'fail';
+  } else if (contract.mode === 'local') {
     status = concerns > 0 ? 'warn' : 'pass';
   } else if (contract.mode === 'shadow') {
     // Only protected anchors block in shadow; everything else is advisory.

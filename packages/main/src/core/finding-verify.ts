@@ -2,7 +2,10 @@
  * Finding integrity: sign & verify (shared between handlers and machine guards)
  */
 
-import { createHash } from 'crypto';
+import { createHash, createHmac, timingSafeEqual } from 'crypto';
+import { execFileSync } from 'node:child_process';
+import { existsSync, readFileSync } from 'node:fs';
+import { isAbsolute, join, resolve } from 'node:path';
 import type {
   FindingData,
   GapLogProvenanceBinding,
@@ -136,20 +139,73 @@ export function verifyFinding(
 
 export const GAP_LOG_PROVENANCE_SCHEMA = 'lattice.gap-log-provenance.v1' as const;
 export const GAP_LOG_ARTIFACT_PATH = '.lattice/story/actives/B-META-framework-audit/findings.json' as const;
+export const GAP_LOG_PROVENANCE_LEDGER_PATH = '.lattice/story/actives/B-META-framework-audit/gap-log-provenance.jsonl' as const;
+
+export interface GapLogProvenanceReceipt {
+  schemaVersion: typeof GAP_LOG_PROVENANCE_SCHEMA;
+  sequence: number;
+  previousIntegrityHash: string;
+  artifactPath: typeof GAP_LOG_ARTIFACT_PATH;
+  ledgerPath: typeof GAP_LOG_PROVENANCE_LEDGER_PATH;
+  storyId: 'B-META-framework-audit';
+  writerCommand: 'gap_log';
+  findingId: string;
+  gapFingerprint: string;
+  preArtifactDigest: string;
+  postArtifactDigest: string;
+  parentHead: string;
+  timestamp: string;
+  integrityHash: string;
+}
 
 /** Canonical whole-file semantic digest; binding/hash fields are excluded to avoid circularity. */
 export function digestGapLogArtifact(data: FindingData): string {
-  let bindingOwner = -1;
-  for (let index = 0; index < data.findings.length; index++) {
-    if (data.findings[index].gapLogBinding) bindingOwner = index;
+  return digestCanonicalJson(data);
+}
+
+function gitCommonDir(root: string): string {
+  const raw = execFileSync('git', ['rev-parse', '--git-common-dir'], {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+  return isAbsolute(raw) ? raw : resolve(root, raw);
+}
+
+function receiptKeyPath(root: string): string {
+  return join(gitCommonDir(root), 'lattice-gap-log-provenance.key');
+}
+
+function receiptPayload(receipt: Omit<GapLogProvenanceReceipt, 'integrityHash'>): string {
+  return JSON.stringify(receipt);
+}
+
+function expectedReceiptHash(root: string, receipt: Omit<GapLogProvenanceReceipt, 'integrityHash'>): string | null {
+  const keyPath = receiptKeyPath(root);
+  if (!existsSync(keyPath)) return null;
+  return createHmac('sha256', readFileSync(keyPath)).update(receiptPayload(receipt)).digest('hex');
+}
+
+function committedArtifactDigest(root: string, commit: string): string | null {
+  try {
+    const text = execFileSync('git', ['show', `${commit}:${GAP_LOG_ARTIFACT_PATH}`], {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    return digestGapLogArtifact(JSON.parse(text) as FindingData);
+  } catch {
+    return null;
   }
-  return digestCanonicalJson({
-    findings: data.findings.map((finding, index) => {
-      if (index !== bindingOwner) return finding;
-      const { _hash: _signature, gapLogBinding: _binding, ...boundFinding } = finding;
-      return boundFinding;
-    }),
-  });
+}
+
+export function readGapLogProvenanceLedger(root: string): GapLogProvenanceReceipt[] {
+  const path = join(root, GAP_LOG_PROVENANCE_LEDGER_PATH);
+  if (!existsSync(path)) return [];
+  return readFileSync(path, 'utf8')
+    .split('\n')
+    .filter(Boolean)
+    .map((line) => JSON.parse(line) as GapLogProvenanceReceipt);
 }
 
 export interface GapLogArtifactVerification {
@@ -169,43 +225,72 @@ export interface GapLogArtifactVerification {
 export function verifyGapLogArtifactBinding(
   data: FindingData,
   artifactPath: string = GAP_LOG_ARTIFACT_PATH,
+  projectRoot?: string,
 ): GapLogArtifactVerification {
   if (artifactPath.replace(/\\/g, '/').replace(/^\.\//, '') !== GAP_LOG_ARTIFACT_PATH) {
     return { trusted: false, reason: 'wrong_artifact_path' };
   }
-  const bound = data.findings.filter((finding) => finding.gapLogBinding);
-  const latest = bound[bound.length - 1];
-  if (!latest?.gapLogBinding) return { trusted: false, reason: 'missing_binding' };
-  const binding = latest.gapLogBinding;
-  if (
-    binding.schemaVersion !== GAP_LOG_PROVENANCE_SCHEMA
-    || binding.command !== 'gap_log'
-    || binding.storyId !== 'B-META-framework-audit'
-    || binding.artifactPath !== GAP_LOG_ARTIFACT_PATH
-    || binding.findingId !== latest.id
-    || binding.createdAt !== latest.createdAt
-  ) {
-    return { trusted: false, reason: 'invalid_binding_shape', findingId: latest.id };
+  if (!projectRoot) return { trusted: false, reason: 'missing_binding' };
+  let receipts: GapLogProvenanceReceipt[];
+  try {
+    receipts = readGapLogProvenanceLedger(projectRoot);
+  } catch {
+    return { trusted: false, reason: 'invalid_binding_shape' };
   }
+  if (receipts.length === 0) return { trusted: false, reason: 'missing_binding' };
+  let previous = '';
+  let priorPost = receipts[0].preArtifactDigest;
+  const firstCommittedDigest = committedArtifactDigest(projectRoot, receipts[0].parentHead);
+  const canonicalEmptyDigest = digestGapLogArtifact({ findings: [] });
+  if (
+    firstCommittedDigest !== receipts[0].preArtifactDigest
+    && receipts[0].preArtifactDigest !== canonicalEmptyDigest
+  ) {
+    return { trusted: false, reason: 'invalid_binding_shape', findingId: receipts[0].findingId };
+  }
+  for (let index = 0; index < receipts.length; index++) {
+    const receipt = receipts[index];
+    const { integrityHash, ...unsigned } = receipt;
+    const expected = expectedReceiptHash(projectRoot, unsigned);
+    const authentic = expected && /^[a-f0-9]{64}$/.test(integrityHash)
+      && timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(integrityHash, 'hex'));
+    if (
+      !authentic
+      || receipt.schemaVersion !== GAP_LOG_PROVENANCE_SCHEMA
+      || receipt.sequence !== index + 1
+      || receipt.previousIntegrityHash !== previous
+      || receipt.preArtifactDigest !== priorPost
+      || receipt.artifactPath !== GAP_LOG_ARTIFACT_PATH
+      || receipt.ledgerPath !== GAP_LOG_PROVENANCE_LEDGER_PATH
+      || receipt.storyId !== 'B-META-framework-audit'
+      || receipt.writerCommand !== 'gap_log'
+      || !/^[a-f0-9]{40,64}$/.test(receipt.parentHead)
+      || !Number.isFinite(Date.parse(receipt.timestamp))
+    ) return { trusted: false, reason: 'invalid_binding_shape', findingId: receipt.findingId };
+    previous = integrityHash;
+    priorPost = receipt.postArtifactDigest;
+  }
+  const latest = receipts[receipts.length - 1];
   const expectedDigest = digestGapLogArtifact(data);
-  if (binding.contentDigest !== expectedDigest) {
+  if (latest.postArtifactDigest !== expectedDigest) {
     return {
       trusted: false,
       reason: 'content_digest_mismatch',
       expectedDigest,
-      observedDigest: binding.contentDigest,
-      findingId: latest.id,
+      observedDigest: latest.postArtifactDigest,
+      findingId: latest.findingId,
     };
   }
-  if (!verifyFinding('B-META-framework-audit', latest)) {
-    return { trusted: false, reason: 'finding_signature_invalid', expectedDigest, observedDigest: binding.contentDigest, findingId: latest.id };
+  const finding = data.findings.find((candidate) => candidate.id === latest.findingId);
+  if (!finding || finding.gapFingerprint !== latest.gapFingerprint) {
+    return { trusted: false, reason: 'finding_signature_invalid', expectedDigest, observedDigest: latest.postArtifactDigest, findingId: latest.findingId };
   }
   return {
     trusted: true,
     reason: 'valid_official_gap_log_binding',
     expectedDigest,
-    observedDigest: binding.contentDigest,
-    findingId: latest.id,
+    observedDigest: latest.postArtifactDigest,
+    findingId: latest.findingId,
   };
 }
 

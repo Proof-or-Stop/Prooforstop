@@ -25,10 +25,11 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
-import type { ChecklistData, StoryInfo } from '../core/types.js';
+import type { ChecklistData, ScopeContractData, StoryInfo } from '../core/types.js';
 import { checkScopeContract, validatePaths } from '../core/scope-contract.js';
 import {
   canonicalizeScopePath,
+  pathMatchesScopePattern,
   SCOPE_PATH_CANONICALIZER_VERSION,
 } from '../core/scope-path-classifier.js';
 import { createScopeContractHandlers } from '../handlers/scope-contract.js';
@@ -174,6 +175,14 @@ try {
   assert.throws(() => canonicalizeScopePath({ ...canonicalArgs, input: 'C:\\Windows\\system.ini' }), /absolute/);
   assert.throws(() => canonicalizeScopePath({ ...canonicalArgs, input: '../secret' }), /traversal/);
   assert.throws(() => canonicalizeScopePath({ ...canonicalArgs, input: '%2e%2e/secret' }), /encoded/);
+  assert.equal(pathMatchesScopePattern('src/core/a.ts', 'src/**/*.ts'), true, '** matches nested files');
+  assert.equal(pathMatchesScopePattern('src/a.ts', 'src/**/*.ts'), true, '** matches zero directory segments');
+  assert.equal(pathMatchesScopePattern('src/a1.ts', 'src/a?.ts'), true, '? matches exactly one character');
+  assert.equal(pathMatchesScopePattern('src/a.ts', 'src/[ab].ts'), true, 'character classes are supported');
+  assert.equal(pathMatchesScopePattern('src/c.ts', 'src/[!ab].ts'), true, 'negated character classes are supported');
+  assert.equal(pathMatchesScopePattern('src/a.ts', 'src/{a,b}.ts'), true, 'brace alternatives are supported');
+  assert.equal(pathMatchesScopePattern('src/c.ts', 'src/{a,b}.ts'), false, 'brace alternatives do not overmatch');
+  assert.equal(pathMatchesScopePattern('src/a.ts', 'src/[ab.ts'), false, 'invalid glob grammar fails closed');
   write(root, 'shared/x.ts', 'repo\n');
   write(root, 'packages/main/src/shared/x.ts', 'source\n');
   assert.throws(
@@ -213,6 +222,35 @@ try {
   const invalid = run(root, 'scope_contract_set', { storyId, mode: 'strict' }, true);
   assert.match(invalid, /Invalid option|mode|strict/, 'invalid mode should be rejected');
   assert.throws(() => validatePaths(['../secret'], 'allowedModify'), /unsafe relative path/, 'unsafe paths are rejected by core validation');
+  const legacyContract: ScopeContractData = {
+    storyId: 'B-legacy',
+    mode: 'enforce',
+    allowedModify: ['src/allowed.ts'],
+    allowedCreate: [],
+    allowedTest: [],
+    protectedFiles: [],
+    explicitExcludes: [],
+    acknowledgements: [],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  const legacyBytes = JSON.stringify(legacyContract);
+  assert.equal(
+    checkScopeContract({ ...legacyContract, pathCanonicalizationMode: 'off' }, ['src/allowed.ts']).status,
+    'pass',
+    'path rollout off preserves legacy interpretation',
+  );
+  assert.equal(
+    checkScopeContract({ ...legacyContract, pathCanonicalizationMode: 'warn' }, ['src/allowed.ts']).status,
+    'warn',
+    'path rollout warn reads legacy artifacts with a migration advisory',
+  );
+  assert.equal(
+    checkScopeContract({ ...legacyContract, pathCanonicalizationMode: 'enforce' }, ['src/allowed.ts']).status,
+    'fail',
+    'path rollout enforce rejects a missing canonicalizer version',
+  );
+  assert.equal(JSON.stringify(legacyContract), legacyBytes, 'versioned readers never rewrite signed legacy bytes in place');
 
   const set = run(root, 'scope_contract_set', {
     storyId,
@@ -268,6 +306,28 @@ try {
     blocking: false,
     action: /review|acknowledged|visible/i,
   });
+  run(root, 'scope_contract_acknowledge', {
+    storyId,
+    paths: ['core/future.ts'],
+    actor: 'scope-contract-smoke',
+    reason: 'Verify acknowledgement paths use the same canonical source-root mapping.',
+  });
+  const ackContract = store.readScopeContract(storyId)!;
+  assert.deepEqual(
+    ackContract.acknowledgements.at(-1)?.paths,
+    ['packages/main/src/core/future.ts'],
+    'acknowledgement paths cannot bypass canonicalization with source-relative spelling',
+  );
+  assert.match(
+    run(root, 'scope_contract_acknowledge', {
+      storyId,
+      paths: ['../escape.ts'],
+      actor: 'scope-contract-smoke',
+      reason: 'Traversal must remain rejected at acknowledgement boundary.',
+    }, true),
+    /unsafe|traversal/,
+    'acknowledgement rejects traversal instead of recording a bypass',
+  );
 
   const waveContract = {
     storyId,
@@ -560,6 +620,8 @@ try {
       protectedFiles: [],
       explicitExcludes: [],
       acknowledgements: [],
+      pathCanonicalizerVersion: SCOPE_PATH_CANONICALIZER_VERSION,
+      pathCanonicalizationMode: 'enforce',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });

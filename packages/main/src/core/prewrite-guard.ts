@@ -156,6 +156,7 @@ function isAcknowledged(filePath: string, contract: ScopeContractData): boolean 
 export function evaluatePathAgainstContract(
   normalizedPath: string,
   contract: ScopeContractData,
+  projectRoot?: string,
 ): PrewriteViolation | null {
   const allAllowedLists: string[][] = [
     contract.allowedModify,
@@ -164,8 +165,11 @@ export function evaluatePathAgainstContract(
   ];
   const hasAllowedScope = allAllowedLists.some(l => l.length > 0);
 
-  const classification = classifyScopePath(contract, normalizedPath);
+  const classification = classifyScopePath(contract, normalizedPath, { projectRoot });
   if (classification.allowed) return null;
+  if (classification.registryId === 'shared-gap-log-metadata-v1') {
+    return { path: normalizedPath, rule: 'out_of_scope' };
+  }
   if (classification.category === 'protected') return { path: normalizedPath, rule: 'protected' };
   if (classification.category === 'excluded') return { path: normalizedPath, rule: 'excluded' };
 
@@ -211,6 +215,8 @@ export interface PrewriteGuardInput {
   resolutionError?: string;
   /** Optional reason to render when no contract/context should be treated as an allow/no-decision. */
   noDecisionReason?: string;
+  /** Project root used by the shared canonical path classifier. */
+  projectRoot?: string;
 }
 
 /**
@@ -263,7 +269,7 @@ export function runPrewriteGuardCheck(input: PrewriteGuardInput): PrewriteGuardR
 
   const violations: PrewriteViolation[] = [];
   for (const p of normalizedPaths) {
-    const v = evaluatePathAgainstContract(p, contract);
+    const v = evaluatePathAgainstContract(p, contract, input.projectRoot);
     if (v) violations.push(v);
   }
 

@@ -199,7 +199,7 @@ export function createGapLogHandlers(ctx: HandlerContext): Record<string, (...ar
           ...(ev.observedOutput ? { observedOutput: ev.observedOutput } : {}),
           ...(ev.analysisNote ? { analysisNote: ev.analysisNote } : {}),
           agent: args.agent || process.env.LATTICE_AGENT || 'lattice-gap-log',
-        });
+        }, META_STORY_ID, { projectRoot: ctx.root });
         return { created: ensured.created, result: appended };
       }, {
         // gap_log is a sub-second critical section. Concurrent callers must
