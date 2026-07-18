@@ -1,96 +1,110 @@
 {
   "storyId": "B-dd81",
-  "checkedAt": "2026-07-18T20:24:38.260Z",
+  "checkedAt": "2026-07-18T22:47:05.457Z",
   "features": [
     {
-      "feature": "Canonical full Task Context, known execution environment digest, and content-addressed full Prompt Envelope are defined without incremental behavior",
+      "feature": "Canonical full Task Context, known execution environment digest, and content-addressed full Prompt Envelope remain full-only",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-dd81/plan.md#CHK-001"
     },
     {
-      "feature": "Envelope identity is deterministic over semantic material and excludes envelopeId and createdAt from its digest domain",
+      "feature": "Envelope identity remains deterministic with story-dispatch audit and review-run authority discriminated by dispatchKind",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-dd81/plan.md"
+      "source": ".lattice/story/actives/B-dd81/plan.md#CHK-001"
     },
     {
-      "feature": "dispatchKind separates audit-only story-dispatch from signed-authority review-run with kind-specific required fields",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-dd81/checklist.json#CHK-001"
-    },
-    {
-      "feature": "Story-aware agent_prompt produces only story-dispatch, rejects reviewer-authority/caller fields, persists append-only audit, and preserves no-Story bytes",
+      "feature": "Story-aware agent_prompt performs trusted full assembly, rejects caller authority fields, and preserves no-Story bytes",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-dd81/checklist.json verification intent agent-prompt-story-full-assembly"
+      "source": ".lattice/story/actives/B-dd81/plan.md#CHK-002"
     },
     {
-      "feature": "Only ReviewRun signs envelopeId and story-dispatch audit cannot mint reviewer evidence",
+      "feature": "Story-dispatch audit cannot mint reviewer evidence and only ReviewRun signs envelopeId",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-dd81/milestone-ledger.json#M2"
     },
     {
-      "feature": "ReviewRun/pass/gates bind one fresh review-run envelope and reject genuine drift or cross-run field substitution",
+      "feature": "ReviewRun/pass gates bind a fresh review-run envelope and reject genuine drift or cross-run substitution",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-dd81/milestone-ledger.json#M3"
     },
     {
-      "feature": "Provider retry preserves ledgerCallId and mints a fresh attemptId per execution attempt",
+      "feature": "Provider retry preserves ledgerCallId and uses fresh attemptId per execution attempt",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-dd81/checklist.json#CHK-003"
+      "source": ".lattice/story/actives/B-dd81/plan.md#CHK-003"
     },
     {
-      "feature": "A material/scope-fresh non-latest pass remains admissible and older open findings stay surfaced",
+      "feature": "Material/scope-fresh non-latest passes remain admissible while older open findings stay visible",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-dd81/checklist.json#CHK-003"
+      "source": ".lattice/story/actives/B-dd81/plan.md#CHK-003"
     },
     {
-      "feature": "Compatibility/retired evidence cannot satisfy REVIEW, assurance-floor, active receipt, forced parsing, or quorum",
-      "covered_by": "CHK-004",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-dd81/milestone-ledger.json#M4"
-    },
-    {
-      "feature": "Per-role full-envelope flags and bounded legacy-full-context rollback preserve exact bytes without loosening gates",
+      "feature": "Compatibility/retired evidence is rejected at ReviewRun, REVIEW, and quorum/receipt admission boundaries",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-dd81/plan.md#CHK-004"
     },
     {
+      "feature": "Assurance floor consumes only admissible signed host-verdict rounds emitted after canonical role+Envelope admission, so compatibility/retired-only raw evidence cannot satisfy the floor",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-dd81/checklist.json verification intent compatibility-only-assurance-floor-blocked"
+    },
+    {
+      "feature": "Mutation-sensitive verification covers the indirect quorum-to-signed-host-verdict-to-assurance-floor architecture without requiring the floor to reparse raw roles",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-dd81/checklist.json verification intent all-gate-consumers-share-role-filter"
+    },
+    {
+      "feature": "Mode-aware selected-host render identity binds runtime-owned/thin package registry or the selected explicit full-asset host without requiring unrelated host assets",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "packages/main/src/core/prompt-role-contract-registry.ts and packages/main/src/handlers/review-run.ts"
+    },
+    {
+      "feature": "Per-role full-envelope flags and legacy-full-context rollback remain exact and gate-safe",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-dd81/milestone-ledger.json#M4"
+    },
+    {
       "feature": "Incremental prompt selection and impact classification",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Reserved for Story 4 and explicitly excluded",
+      "excluded_by": "F010 changes only full-envelope selected-host provenance; incremental remains reserved for Story 4",
       "source": ".lattice/story/actives/B-dd81/scope-boundary.json"
     },
     {
       "feature": "Historical A/B replay and experiment harness",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Reserved for Story 3 and explicitly excluded",
+      "excluded_by": "F010 adds no experiment or replay behavior; reserved for Story 3",
       "source": ".lattice/story/actives/B-dd81/scope-boundary.json"
     },
     {
       "feature": "Prompt budget warn/enforce policy",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Reserved for Story 7/conditional follow-up",
+      "excluded_by": "F010 adds no budget behavior; reserved for Story 7/conditional follow-up",
       "source": ".lattice/story/actives/B-dd81/scope-boundary.json"
     },
     {
@@ -114,28 +128,25 @@
       ".lattice/story/actives/B-dd81/checklist.json",
       ".lattice/story/actives/B-dd81/decision.json",
       ".lattice/story/actives/B-dd81/execution-boundary.json",
-      ".lattice/story/actives/B-dd81/intent-collision.json",
       ".lattice/story/actives/B-dd81/milestone-ledger.json",
       ".lattice/story/actives/B-dd81/plan.md",
       ".lattice/story/actives/B-dd81/scope-boundary.json",
       ".lattice/story/actives/B-dd81/understanding.json",
       "docs/requirements/decisions/review-run-binding-race.md",
-      "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
-      "packages/main/src/core/prompt-contracts.ts",
-      "packages/main/src/tasks/usage-ledger-smoke.ts"
+      "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
     ],
     "filesTriagedByName": [],
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 15,
-    "covered": 10,
+    "total": 17,
+    "covered": 12,
     "excluded": 5,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "",
-  "_hash": "0b927f2033a16217c6194475c95e797cae90367ecca40833ab57ecb3501f995a",
+  "reviewRound": "2026-07-18T22:27:24.332Z",
+  "_hash": "67cc87194c6147021f6455c3229f5ac6561c0f35e629122750443adeb51c7cd4",
   "openQuestions": []
 }
