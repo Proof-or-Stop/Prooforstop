@@ -119,7 +119,7 @@
       "desc": "packages/main/src/tasks/review-assurance-floor-smoke.ts:458-479 does not test the must intent compatibility-only-assurance-floor-blocked. The fixture includes a valid canonical host verdict and asserts report.ok=true; compatibility/retired rows are only injected as findings, so the test proves they do not raise failureSignals, not that compatibility-only review evidence cannot satisfy the assurance floor. Production evaluateReviewAssuranceFloor consumes findings plus host-verdict process events and never reads ReviewRun/ReviewPass/PromptEnvelope, while process-fact-levels.ts still declares Prompt Envelope and role eligibility as direct assurance-floor gate consumers. Either make the floor consume and verify structured eligible reviewer/envelope provenance, or narrow the declared contract/intent to the actual indirect quorum boundary and add a test that fails if that boundary is bypassed. The current passing test cannot validate the promised gate fact.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-18T21:55:29.972Z",
@@ -133,7 +133,11 @@
         "packages/main/src/core/process-fact-registry.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 958f22535c and verified again after main merge: assurance floor consumes independent signed host-verdict REVIEW/review-pass proof; host-verdict is no longer a handoff alias; compatibility-only receipts cannot create quorum or floor rounds. Assurance 18, storyHash 14, quorum 17, proof-admissibility/hardening and process-fact verifier pass.",
+      "resolvedAt": "2026-07-18T22:27:51.094Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-dd81:F-007",
