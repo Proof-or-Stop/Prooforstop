@@ -158,6 +158,21 @@
       ],
       "signatureTag": "doc-code-drift|md|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-62b8:F-009",
+      "desc": "packages/main/src/core/owner-session-token-store.ts:72-77,100-120 and 321-345 impose an absolute seven-day expiry from createdAt and never refresh last-use/expiry for an active task-role pair. Repro on current build: resolve one generated token at 2026-01-01, reuse at 2026-01-07T23:59:59 (same), then resolve at 2026-01-08T00:00:01 (different). WHY: a still-active long-running task silently rotates its owner identity and can be rejected by its own fresh owner lease, recreating the exact cross-invocation self-lock this story fixes. Make cleanup idle-based or otherwise prove an actively used pair cannot rotate while it can still own/refresh a lease; retain bounded cleanup for genuinely abandoned scopes and add the expiry-boundary regression.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-18T00:01:43.167Z",
+      "reviewRound": "2026-07-17T23:59:25.126Z",
+      "reviewRunId": "B-62b8:RR-005",
+      "_hash": "4ef4f833caaa41cec425cdde5afa6ba8f69d5897f5d3c78a7dd9dd8e14b03228",
+      "signatureTag": "edge|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
