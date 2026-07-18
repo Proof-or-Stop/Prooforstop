@@ -4,7 +4,7 @@
   "title": "Make validation lock identity and command-spec digest portable across worktrees and hosts",
   "description": "validationExecutionLockPath (validation-execution-lock.ts:116) joins projectRoot so two linked worktrees of the same story mint different locks, breaking cross-host serialization; buildDoneRequiredCommandSpecEnvelope (done-required-validation.ts:85) embeds an absolute cwd in the spec digest, so identical logical commands mismatch across roots. Derive the lock root from the shared git common dir / canonical metadata root, and digest a repo-relative logical cwd (recording the physical workspace separately as provenance) with a versioned receipt-envelope migration.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "riskSignals": [
     {
@@ -24,6 +24,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-914926b570855757be6f38bf38ee81fc",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-18T22:48:52.805Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-914926b570855757be6f38bf38ee81fc",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-231d",
+    "branch": "story/B-231d",
+    "createdAt": "2026-07-18T22:48:44.932Z"
+  }
 }
