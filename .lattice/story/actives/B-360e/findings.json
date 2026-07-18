@@ -463,7 +463,7 @@
       "desc": "packages/main/src/tasks/concept-gate-scope-smoke.ts:206-294 — HIGH: copy/rename/quoted-path coverage omits internally inconsistent or incomplete diff metadata. Independent repros show (1) diff --git old path src/deleted.ts overwritten by --- a/docs/not-source.md and (2) a lone copy from without copy to both hide a supported TypeScript deletion with symbols=[] and diagnostics=[]. This leaves malformed-input fail-closed bypassable. Add header-vs-side-marker mismatch, incomplete copy from/to, incomplete rename from/to, and operation-path mismatch probes; parser must validate complete consistent metadata before suppressing an old side or changing source classification.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-18T10:08:23.121Z",
@@ -475,7 +475,11 @@
         "packages/main/src/handlers/validate-concept.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in d636c516d4 with fail-closed probes for side-header mismatch, lone/duplicate copy and rename sides, copy+rename conflict, metadata/header mismatch, /dev/null conflicts, plus valid no-hunk pure copy/rename and normal hunk behavior. Full concept/prompt/proof/process checks pass.",
+      "resolvedAt": "2026-07-18T10:11:41.151Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
