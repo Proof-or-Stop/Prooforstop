@@ -8,6 +8,8 @@
     "packages/main/src/cli-engine.ts",
     "packages/main/src/handlers/verifier.ts",
     "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
     "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/core/process-fact-registry.ts",
     "scripts/verify-process-fact-contract.mjs",
@@ -18,14 +20,18 @@
   "allowedTest": [
     "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
     "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
     "scripts/verify-process-fact-contract.mjs"
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Production-path RED proved cli-engine.ts and verifier.ts are required exact canonical terminal writer touchpoints; checklist mapping was updated before REVIEW.",
+  "scopeChangeReason": "Root validation exposed the vocabulary fingerprint positive-control update and direct-handler validation terminal persistence regression; both focused smoke files are now explicitly required.",
   "acknowledgements": [],
   "createdAt": "2026-07-18T10:34:07.198Z",
-  "updatedAt": "2026-07-18T10:54:56.064Z",
+  "updatedAt": "2026-07-18T12:08:39.563Z",
+  "fileRules": [],
+  "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -39,6 +45,8 @@
     "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
     "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
     "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
-    "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md": "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+    "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md": "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
   }
 }

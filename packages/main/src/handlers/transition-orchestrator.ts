@@ -555,6 +555,33 @@ async function runStoryTransitionInner(
       throw resolveGuardFailure(actor, args.storyId, store, args.phase, ctx.root);
     }
 
+    // A TEST transition owns only the exact canonical lifecycle files generated
+    // anywhere inside this invocation, including validation_terminal emitted by
+    // the direct verifier gate before the phase mutation. Capture the fixed
+    // three-path boundary while clean before any TEST gate can write; this still
+    // rejects every pre-entry human/foreign delta rather than adopting it.
+    let testTransitionCapture: LifecycleMetadataTransaction | null = null;
+    let transitionGitCwd = '';
+    if (args.phase === 'TEST') {
+      transitionGitCwd = resolveGitCwd({
+        store,
+        storyId: args.storyId,
+        metadataRoot: ctx.root,
+        projectRoot: ctx.root,
+      });
+      const storyRel = relative(
+        realpathSync(transitionGitCwd),
+        realpathSync(store.storyDirPath(args.storyId)),
+      );
+      testTransitionCapture = captureLifecycleMetadataTransaction({
+        root: transitionGitCwd,
+        gitCwd: transitionGitCwd,
+        storyId: args.storyId,
+        storyRel,
+        kind: 'test-transition',
+      });
+    }
+
     let scopeGateReport = '';
     let guardGateReport = runtimeGateReport;
     if (args.phase === 'REVIEW' || args.phase === 'TEST' || args.phase === 'DONE') {
@@ -655,31 +682,6 @@ async function runStoryTransitionInner(
         })),
       };
       store.writeChecklist(args.storyId, checklist);
-    }
-
-    // A TEST transition owns only the exact canonical lifecycle files it is
-    // about to generate. Capture them while clean before the first write; the
-    // verifier remains strict and never adopts dirty metadata at validate entry.
-    let testTransitionCapture: LifecycleMetadataTransaction | null = null;
-    let transitionGitCwd = '';
-    if (args.phase === 'TEST') {
-      transitionGitCwd = resolveGitCwd({
-        store,
-        storyId: args.storyId,
-        metadataRoot: ctx.root,
-        projectRoot: ctx.root,
-      });
-      const storyRel = relative(
-        realpathSync(transitionGitCwd),
-        realpathSync(store.storyDirPath(args.storyId)),
-      );
-      testTransitionCapture = captureLifecycleMetadataTransaction({
-        root: transitionGitCwd,
-        gitCwd: transitionGitCwd,
-        storyId: args.storyId,
-        storyRel,
-        kind: 'test-transition',
-      });
     }
 
     // Persist state
