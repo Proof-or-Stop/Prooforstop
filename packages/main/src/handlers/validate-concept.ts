@@ -238,19 +238,77 @@ function diffFileSources(diff: string): DiffFileSources[] {
   let current: {
     oldPath: string;
     newPath: string;
+    oldSourcePath: string;
+    newSourcePath: string;
     oldLines: string[];
     newLines: string[];
-    copy: boolean;
+    oldSideHeaders: string[];
+    newSideHeaders: string[];
+    renameFrom: string[];
+    renameTo: string[];
+    copyFrom: string[];
+    copyTo: string[];
+    metadataMalformed: boolean;
   } | null = null;
   let invalidSection = false;
   const flush = () => {
     if (!current) return;
+    const metadataDiagnostics: string[] = [];
+    const hasRename = current.renameFrom.length > 0 || current.renameTo.length > 0;
+    const hasCopy = current.copyFrom.length > 0 || current.copyTo.length > 0;
+    if (hasRename && hasCopy) {
+      metadataDiagnostics.push('rename and copy metadata are mutually exclusive');
+    }
+    const validateMetadataPair = (
+      kind: 'rename' | 'copy',
+      from: string[],
+      to: string[],
+    ) => {
+      if (from.length !== 1 || to.length !== 1) {
+        metadataDiagnostics.push(
+          `${kind} metadata must contain exactly one from/to pair (from=${from.length}, to=${to.length})`,
+        );
+        return;
+      }
+      if (from[0] !== current!.oldPath || to[0] !== current!.newPath) {
+        metadataDiagnostics.push(
+          `${kind} metadata paths do not match diff header (${from[0]} -> ${to[0]} vs ${current!.oldPath} -> ${current!.newPath})`,
+        );
+      }
+    };
+    if (hasRename) validateMetadataPair('rename', current.renameFrom, current.renameTo);
+    if (hasCopy) validateMetadataPair('copy', current.copyFrom, current.copyTo);
+    if (current.oldSideHeaders.length !== current.newSideHeaders.length) {
+      metadataDiagnostics.push('patch side headers must contain a complete ---/+++ pair');
+    }
+    if (current.oldSideHeaders.length > 1 || current.newSideHeaders.length > 1) {
+      metadataDiagnostics.push(
+        `patch side headers may appear at most once (old=${current.oldSideHeaders.length}, new=${current.newSideHeaders.length})`,
+      );
+    }
+    if (
+      current.oldSourcePath === '/dev/null'
+      && current.newSourcePath === '/dev/null'
+    ) {
+      metadataDiagnostics.push('both patch sides cannot be /dev/null');
+    }
+    if (
+      (hasRename || hasCopy)
+      && (current.oldSourcePath === '/dev/null' || current.newSourcePath === '/dev/null')
+    ) {
+      metadataDiagnostics.push('rename/copy metadata cannot be combined with /dev/null patch sides');
+    }
+    diagnostics.push(...metadataDiagnostics.map(message => `diff metadata: ${message}`));
+    const validCopy = hasCopy
+      && !hasRename
+      && !current.metadataMalformed
+      && metadataDiagnostics.length === 0;
     files.push({
-      oldPath: current.oldPath,
-      newPath: current.newPath,
+      oldPath: current.oldSourcePath,
+      newPath: current.newSourcePath,
       oldSource: current.oldLines.join('\n'),
       newSource: current.newLines.join('\n'),
-      copy: current.copy,
+      copy: validCopy,
     });
   };
   for (const line of diff.split('\n')) {
@@ -258,7 +316,20 @@ function diffFileSources(diff: string): DiffFileSources[] {
       flush();
       try {
         const paths = parseDiffGitPaths(line.slice('diff --git '.length));
-        current = { ...paths, oldLines: [], newLines: [], copy: false };
+        current = {
+          ...paths,
+          oldSourcePath: paths.oldPath,
+          newSourcePath: paths.newPath,
+          oldLines: [],
+          newLines: [],
+          oldSideHeaders: [],
+          newSideHeaders: [],
+          renameFrom: [],
+          renameTo: [],
+          copyFrom: [],
+          copyTo: [],
+          metadataMalformed: false,
+        };
         invalidSection = false;
       } catch (error) {
         diagnostics.push(`diff path: ${error instanceof Error ? error.message : String(error)}`);
@@ -272,9 +343,17 @@ function diffFileSources(diff: string): DiffFileSources[] {
       current = {
         oldPath: '__fragment__.ts',
         newPath: '__fragment__.ts',
+        oldSourcePath: '__fragment__.ts',
+        newSourcePath: '__fragment__.ts',
         oldLines: [],
         newLines: [],
-        copy: false,
+        oldSideHeaders: [],
+        newSideHeaders: [],
+        renameFrom: [],
+        renameTo: [],
+        copyFrom: [],
+        copyTo: [],
+        metadataMalformed: false,
       };
     }
     try {
@@ -282,19 +361,27 @@ function diffFileSources(diff: string): DiffFileSources[] {
         current.oldLines.push('');
         current.newLines.push('');
       } else if (line.startsWith('--- ')) {
-        current.oldPath = stripGitSidePrefix(parseSingleGitPath(line.slice(4)), 'a/');
+        const path = stripGitSidePrefix(parseSingleGitPath(line.slice(4)), 'a/');
+        current.oldSideHeaders.push(path);
+        if (path !== '/dev/null' && path !== current.oldPath) {
+          throw new Error(`--- path ${path} does not match authoritative old path ${current.oldPath}`);
+        }
+        current.oldSourcePath = path;
       } else if (line.startsWith('+++ ')) {
-        current.newPath = stripGitSidePrefix(parseSingleGitPath(line.slice(4)), 'b/');
+        const path = stripGitSidePrefix(parseSingleGitPath(line.slice(4)), 'b/');
+        current.newSideHeaders.push(path);
+        if (path !== '/dev/null' && path !== current.newPath) {
+          throw new Error(`+++ path ${path} does not match authoritative new path ${current.newPath}`);
+        }
+        current.newSourcePath = path;
       } else if (line.startsWith('rename from ')) {
-        current.oldPath = parseSingleGitPath(line.slice('rename from '.length));
+        current.renameFrom.push(parseSingleGitPath(line.slice('rename from '.length)));
       } else if (line.startsWith('rename to ')) {
-        current.newPath = parseSingleGitPath(line.slice('rename to '.length));
+        current.renameTo.push(parseSingleGitPath(line.slice('rename to '.length)));
       } else if (line.startsWith('copy from ')) {
-        current.oldPath = parseSingleGitPath(line.slice('copy from '.length));
-        current.copy = true;
+        current.copyFrom.push(parseSingleGitPath(line.slice('copy from '.length)));
       } else if (line.startsWith('copy to ')) {
-        current.newPath = parseSingleGitPath(line.slice('copy to '.length));
-        current.copy = true;
+        current.copyTo.push(parseSingleGitPath(line.slice('copy to '.length)));
       } else if (line.startsWith('\\ No newline')) {
         continue;
       } else if (line.startsWith('-')) {
@@ -307,8 +394,7 @@ function diffFileSources(diff: string): DiffFileSources[] {
       }
     } catch (error) {
       diagnostics.push(`diff path: ${error instanceof Error ? error.message : String(error)}`);
-      invalidSection = true;
-      current = null;
+      current.metadataMalformed = true;
     }
   }
   flush();

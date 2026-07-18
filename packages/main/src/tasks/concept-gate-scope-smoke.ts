@@ -243,6 +243,130 @@ const metadataRename = metadataDiff(
 );
 assert.deepEqual(scanDeletedSymbols(metadataRename), ['renamedByMetadata'], 'rename metadata retains path-bound deletion semantics');
 
+for (const [name, diff, diagnosticPattern, expectedSymbols = []] of [
+  [
+    'header-side mismatch',
+    [
+      'diff --git a/src/authority.ts b/src/authority.ts',
+      '--- a/src/other.ts',
+      '+++ b/src/authority.ts',
+      '-export function sideMismatchDeletion() { return true; }',
+    ].join('\n'),
+    /--- path .* does not match authoritative old path/,
+    ['sideMismatchDeletion'],
+  ],
+  [
+    'lone copy from',
+    [
+      'diff --git a/src/copy-source.ts b/src/copy-target.ts',
+      'copy from src/copy-source.ts',
+      '-export function loneCopyMustNotSuppress() { return true; }',
+    ].join('\n'),
+    /copy metadata must contain exactly one from\/to pair/,
+    ['loneCopyMustNotSuppress'],
+  ],
+  [
+    'duplicate copy side',
+    [
+      'diff --git a/src/copy-source.ts b/src/copy-target.ts',
+      'copy from src/copy-source.ts',
+      'copy from src/copy-source.ts',
+      'copy to src/copy-target.ts',
+      '-export function duplicateCopyMustNotSuppress() { return true; }',
+    ].join('\n'),
+    /copy metadata must contain exactly one from\/to pair/,
+    ['duplicateCopyMustNotSuppress'],
+  ],
+  [
+    'lone rename to',
+    [
+      'diff --git a/src/rename-source.ts b/src/rename-target.ts',
+      'rename to src/rename-target.ts',
+    ].join('\n'),
+    /rename metadata must contain exactly one from\/to pair/,
+  ],
+  [
+    'duplicate rename side',
+    [
+      'diff --git a/src/rename-source.ts b/src/rename-target.ts',
+      'rename from src/rename-source.ts',
+      'rename to src/rename-target.ts',
+      'rename to src/rename-target.ts',
+    ].join('\n'),
+    /rename metadata must contain exactly one from\/to pair/,
+  ],
+  [
+    'copy and rename conflict',
+    [
+      'diff --git a/src/source.ts b/src/target.ts',
+      'copy from src/source.ts',
+      'copy to src/target.ts',
+      'rename from src/source.ts',
+      'rename to src/target.ts',
+      '-export function conflictingCopyMustNotSuppress() { return true; }',
+    ].join('\n'),
+    /rename and copy metadata are mutually exclusive/,
+    ['conflictingCopyMustNotSuppress'],
+  ],
+  [
+    'metadata-header mismatch',
+    [
+      'diff --git a/src/source.ts b/src/target.ts',
+      'copy from src/different.ts',
+      'copy to src/target.ts',
+      '-export function mismatchedCopyMustNotSuppress() { return true; }',
+    ].join('\n'),
+    /copy metadata paths do not match diff header/,
+    ['mismatchedCopyMustNotSuppress'],
+  ],
+  [
+    'both sides dev-null',
+    [
+      'diff --git a/src/source.ts b/src/target.ts',
+      '--- /dev/null',
+      '+++ /dev/null',
+    ].join('\n'),
+    /both patch sides cannot be \/dev\/null/,
+  ],
+  [
+    'copy combined with dev-null',
+    [
+      'diff --git a/src/source.ts b/src/target.ts',
+      'copy from src/source.ts',
+      'copy to src/target.ts',
+      '--- a/src/source.ts',
+      '+++ /dev/null',
+      '-export function devNullCopyMustNotSuppress() { return true; }',
+    ].join('\n'),
+    /rename\/copy metadata cannot be combined with \/dev\/null/,
+    ['devNullCopyMustNotSuppress'],
+  ],
+] as const) {
+  const analysis = analyzeDeletedSymbols(diff);
+  assert.ok(
+    analysis.diagnostics.some((diagnostic) => diagnosticPattern.test(diagnostic)),
+    `${name} must produce focused fail-closed diagnostics`,
+  );
+  assert.deepEqual(analysis.symbols, [...expectedSymbols], `${name} must not silently suppress old declarations`);
+}
+
+for (const validNoHunkMetadata of [
+  [
+    'diff --git a/src/pure-copy.ts b/src/pure-copy-target.ts',
+    'copy from src/pure-copy.ts',
+    'copy to src/pure-copy-target.ts',
+  ].join('\n'),
+  [
+    'diff --git a/src/pure-rename.ts b/src/pure-rename-target.ts',
+    'rename from src/pure-rename.ts',
+    'rename to src/pure-rename-target.ts',
+  ].join('\n'),
+]) {
+  const analysis = analyzeDeletedSymbols(validNoHunkMetadata);
+  assert.deepEqual(analysis.symbols, []);
+  assert.deepEqual(analysis.diagnostics, [], 'valid no-hunk copy/rename metadata remains accepted');
+}
+
 for (const [oldToken, newToken, symbol] of [
   ['"a/src/\\303\\251.ts"', '"b/src/\\303\\251.ts"', 'unicodeQuotedDeletion'],
   ['"a/src/tab\\tname.ts"', '"b/src/tab\\tname.ts"', 'tabQuotedDeletion'],
