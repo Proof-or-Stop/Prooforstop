@@ -49,6 +49,27 @@
         "scanEscalationReason": null
       },
       "_hash": "4bb698d5e658c211deccc658c950c0dc6e7c72f31591c35ba70205b48095cd9e"
+    },
+    {
+      "id": "B-0784:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-4 incremental coverage PASS for ee1329cef8. The focused smoke creates real Git repositories and exercises pure staged git mv, staged rename plus declaration rename through buildScopeDiffPack, protected previous-anchor enforcement through checkSemanticScope, and missing target/previous source fail-closed diagnostics through parseUnifiedDiff plus the semantic gate. Assertions bind changedFiles/hunks/current and previous anchors/status/rule/detail/remediation, so this is production-path semantic coverage rather than helper-only setup. Build and semantic-scope-guard-smoke pass; no broader suite was run.",
+      "createdAt": "2026-07-18T03:09:48.438Z",
+      "reviewRound": "2026-07-18T03:08:11.701Z",
+      "reviewRunId": "B-0784:RR-011",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/semantic-scope-gate.ts",
+          "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "53bfc7dabe58c5804f181551150d057b23869dbba582c273251c9adbc2554c60"
     }
   ]
 }
