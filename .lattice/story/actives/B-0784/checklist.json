@@ -86,7 +86,20 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Focused scope verification reports PASS for canonical paths, AST anchors, migration/rollback, and official metadata provenance while printing actionable original/canonical/version/rule diagnostics.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/scope-contract-smoke.ts",
+          "packages/main/src/tasks/scope-contract-plan-scope-smoke.ts",
+          "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "packages/main/src/tasks/gap-log-smoke.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      }
     }
   ]
 }
