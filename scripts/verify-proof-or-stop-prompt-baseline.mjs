@@ -1952,7 +1952,7 @@ async function verifyPromptMeasurementSidecar(failures) {
   }
 }
 
-async function collectCurrentPromptState({
+async function collectPromptStateFromSource({
   templateDir,
   promptOutputCollector,
   canonicalizeTemplateRelPath = false,
@@ -1992,6 +1992,10 @@ async function collectCurrentPromptState({
   }
 
   return { snapshot, roleEntries, agentPromptOutputs };
+}
+
+async function collectCurrentPromptState() {
+  return collectPromptStateFromSource();
 }
 
 function buildCurrentBaseline({ snapshot, roleEntries, agentPromptOutputs }) {
@@ -2449,7 +2453,7 @@ async function verifyRealPromptCollectionBoundaryProbe(current, failures) {
   const sourceTemplateDir = join(ROOT, 'packages/main/templates/agents');
   const probeRoot = mkdtempSync(join(tmpdir(), 'proofbound-prompt-baseline-probe-'));
   const probeTemplateDir = join(probeRoot, 'agents');
-  const collectProbeState = () => collectCurrentPromptState({
+  const collectProbeState = () => collectPromptStateFromSource({
     templateDir: probeTemplateDir,
     canonicalizeTemplateRelPath: true,
     promptOutputCollector: (_entry, content) => Buffer.from(`${content}\n`, 'utf8'),
