@@ -76,6 +76,29 @@
       },
       "readDiagnostics": [],
       "_hash": "910dc7c6d86157e80f428b084beea67b2f70865af0ab3b880c4dbb69a7328dbf"
+    },
+    {
+      "id": "B-6ed2:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-2 targeted coverage re-review PASS. F-002 is fixed: the bounded smoke now drives the current worktree dist through a fixture-local bin/lattice.js production CLI; separately refuses process-events, staged-source, lifecycle-metadata, and untracked-user dirt; binds historical RED ffedfb4eb3 and runs one bounded validation command that returns status=fail, allPass=false, failureKind=infra_failure, disposition=executed, commandExecutions=1 while retaining original FAIL and exact dirty bytes with no false PASS. Fast direct-handler seams remain for foreign append, gate-field tamper, verdict JSON ownership, binary rollback, hook failure/retry, HEAD CAS and rollback conflict. Focused smoke passed 27/27; all 27 must intent refs have PASS evidence and no missing mapping.",
+      "createdAt": "2026-07-18T23:21:30.392Z",
+      "reviewRound": "2026-07-18T23:16:21.943Z",
+      "reviewRunId": "B-6ed2:RR-006",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "085d9ad8404197f2b270e76234f25b6ca28f46a207c08e7ef0d4566500c9b056"
     }
   ]
 }
