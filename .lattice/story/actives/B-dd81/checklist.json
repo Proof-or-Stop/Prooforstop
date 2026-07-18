@@ -354,7 +354,7 @@
           "headHash": "b4efda425cd43b8fe8aed9b76fb4d9e88ff16804",
           "materialHash": "02876eb87c8e1ee84686b39e2ee050087b3322a1fd35a7d2b88160415cbec50c",
           "storyFilesHash": "82d096aa62ffe75ad4f6bfc98c1dab4ff1d242a56970d008513ec7992f8af6d6",
-          "timestamp": "2026-07-18T21:48:59.200Z"
+          "timestamp": "2026-07-18T22:02:44.461Z"
         },
         {
           "intentRef": "agent-prompt-story-full-assembly",
@@ -365,18 +365,7 @@
           "headHash": "b4efda425cd43b8fe8aed9b76fb4d9e88ff16804",
           "materialHash": "02876eb87c8e1ee84686b39e2ee050087b3322a1fd35a7d2b88160415cbec50c",
           "storyFilesHash": "82d096aa62ffe75ad4f6bfc98c1dab4ff1d242a56970d008513ec7992f8af6d6",
-          "timestamp": "2026-07-18T21:48:59.200Z"
-        },
-        {
-          "intentRef": "agent-prompt-story-full-assembly",
-          "kind": "integration_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
-          "result": "pass",
-          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
-          "headHash": "75f937812b1b04d0dff2e8cb69fc3278363b2b34",
-          "materialHash": "ade9ee15a544cd4427be48813cfe14615a55a0a187301f2281b5eb0cbd05d5b3",
-          "storyFilesHash": "1b35eb0abdf2c22c53da5b36f1823435ad6390149a476ce7ff5c8c8004da98a4",
-          "timestamp": "2026-07-18T20:52:27.870Z"
+          "timestamp": "2026-07-18T22:02:44.814Z"
         },
         {
           "intentRef": "agent-prompt-role-only-byte-zero-drift",
@@ -387,7 +376,7 @@
           "headHash": "b4efda425cd43b8fe8aed9b76fb4d9e88ff16804",
           "materialHash": "02876eb87c8e1ee84686b39e2ee050087b3322a1fd35a7d2b88160415cbec50c",
           "storyFilesHash": "82d096aa62ffe75ad4f6bfc98c1dab4ff1d242a56970d008513ec7992f8af6d6",
-          "timestamp": "2026-07-18T21:48:59.200Z"
+          "timestamp": "2026-07-18T22:02:45.268Z"
         },
         {
           "intentRef": "agent-prompt-repeatable-json-contract",
@@ -398,7 +387,7 @@
           "headHash": "b4efda425cd43b8fe8aed9b76fb4d9e88ff16804",
           "materialHash": "02876eb87c8e1ee84686b39e2ee050087b3322a1fd35a7d2b88160415cbec50c",
           "storyFilesHash": "82d096aa62ffe75ad4f6bfc98c1dab4ff1d242a56970d008513ec7992f8af6d6",
-          "timestamp": "2026-07-18T21:48:59.200Z"
+          "timestamp": "2026-07-18T22:02:45.731Z"
         },
         {
           "intentRef": "agent-prompt-storyless-legacy-boundary",
@@ -409,7 +398,7 @@
           "headHash": "b4efda425cd43b8fe8aed9b76fb4d9e88ff16804",
           "materialHash": "02876eb87c8e1ee84686b39e2ee050087b3322a1fd35a7d2b88160415cbec50c",
           "storyFilesHash": "82d096aa62ffe75ad4f6bfc98c1dab4ff1d242a56970d008513ec7992f8af6d6",
-          "timestamp": "2026-07-18T21:48:59.200Z"
+          "timestamp": "2026-07-18T22:02:46.144Z"
         },
         {
           "intentRef": "agent-prompt-worktree-authority-resolution",
@@ -420,7 +409,7 @@
           "headHash": "b4efda425cd43b8fe8aed9b76fb4d9e88ff16804",
           "materialHash": "02876eb87c8e1ee84686b39e2ee050087b3322a1fd35a7d2b88160415cbec50c",
           "storyFilesHash": "82d096aa62ffe75ad4f6bfc98c1dab4ff1d242a56970d008513ec7992f8af6d6",
-          "timestamp": "2026-07-18T21:48:59.200Z"
+          "timestamp": "2026-07-18T22:02:46.443Z"
         },
         {
           "intentRef": "agent-prompt-target-cardinality-role-status",
@@ -431,7 +420,7 @@
           "headHash": "b4efda425cd43b8fe8aed9b76fb4d9e88ff16804",
           "materialHash": "02876eb87c8e1ee84686b39e2ee050087b3322a1fd35a7d2b88160415cbec50c",
           "storyFilesHash": "82d096aa62ffe75ad4f6bfc98c1dab4ff1d242a56970d008513ec7992f8af6d6",
-          "timestamp": "2026-07-18T21:48:59.200Z"
+          "timestamp": "2026-07-18T22:02:46.859Z"
         },
         {
           "intentRef": "agent-prompt-no-provider-or-evidence-side-effect",
@@ -442,7 +431,7 @@
           "headHash": "b4efda425cd43b8fe8aed9b76fb4d9e88ff16804",
           "materialHash": "02876eb87c8e1ee84686b39e2ee050087b3322a1fd35a7d2b88160415cbec50c",
           "storyFilesHash": "82d096aa62ffe75ad4f6bfc98c1dab4ff1d242a56970d008513ec7992f8af6d6",
-          "timestamp": "2026-07-18T21:48:59.200Z"
+          "timestamp": "2026-07-18T22:02:47.185Z"
         },
         {
           "intentRef": "agent-prompt-rejects-caller-envelope-fields",
@@ -453,7 +442,7 @@
           "headHash": "b4efda425cd43b8fe8aed9b76fb4d9e88ff16804",
           "materialHash": "02876eb87c8e1ee84686b39e2ee050087b3322a1fd35a7d2b88160415cbec50c",
           "storyFilesHash": "82d096aa62ffe75ad4f6bfc98c1dab4ff1d242a56970d008513ec7992f8af6d6",
-          "timestamp": "2026-07-18T21:48:59.200Z"
+          "timestamp": "2026-07-18T22:02:47.576Z"
         },
         {
           "intentRef": "agent-prompt-rejects-prompt-splicing",
@@ -464,7 +453,7 @@
           "headHash": "b4efda425cd43b8fe8aed9b76fb4d9e88ff16804",
           "materialHash": "02876eb87c8e1ee84686b39e2ee050087b3322a1fd35a7d2b88160415cbec50c",
           "storyFilesHash": "82d096aa62ffe75ad4f6bfc98c1dab4ff1d242a56970d008513ec7992f8af6d6",
-          "timestamp": "2026-07-18T21:48:59.200Z"
+          "timestamp": "2026-07-18T22:02:47.934Z"
         },
         {
           "intentRef": "agent-prompt-role-only-drift-detector-sensitive",
@@ -475,7 +464,7 @@
           "headHash": "b4efda425cd43b8fe8aed9b76fb4d9e88ff16804",
           "materialHash": "02876eb87c8e1ee84686b39e2ee050087b3322a1fd35a7d2b88160415cbec50c",
           "storyFilesHash": "82d096aa62ffe75ad4f6bfc98c1dab4ff1d242a56970d008513ec7992f8af6d6",
-          "timestamp": "2026-07-18T21:48:59.200Z"
+          "timestamp": "2026-07-18T22:02:48.246Z"
         }
       ]
     },

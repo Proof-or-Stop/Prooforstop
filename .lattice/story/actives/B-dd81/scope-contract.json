@@ -25,7 +25,25 @@
     "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/core/process-fact-registry.ts",
     "packages/main/src/core/lifecycle-registry.ts",
-    "scripts/verify-process-fact-contract.mjs"
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/src/init-assets.ts",
+    "packages/main/templates/agents/lattice-review-concept.md",
+    "packages/main/templates/agents/lattice-review-quality.md",
+    "packages/main/templates/agents/lattice-review-test-coverage.md",
+    "packages/main/templates/agents/lattice-review-behavior.md",
+    "packages/main/templates/agents/lattice-review-docs.md",
+    ".claude/agents/lattice-review-concept.md",
+    ".claude/agents/lattice-review-quality.md",
+    ".claude/agents/lattice-review-test-coverage.md",
+    ".claude/agents/lattice-review-behavior.md",
+    ".claude/agents/lattice-review-docs.md",
+    ".lattice-codex/agents/lattice-review-concept.md",
+    ".lattice-codex/agents/lattice-review-quality.md",
+    ".lattice-codex/agents/lattice-review-test-coverage.md",
+    ".lattice-codex/agents/lattice-review-behavior.md",
+    ".lattice-codex/agents/lattice-review-docs.md"
   ],
   "allowedCreate": [
     "packages/main/src/core/prompt-envelope.ts"
@@ -36,16 +54,18 @@
     "scripts/verify-proof-or-stop-prompt-baseline.mjs",
     "packages/main/src/tasks/review-run-smoke.ts",
     "packages/main/src/tasks/review-assurance-floor-smoke.ts",
-    "packages/main/src/tasks/quorum-submit-smoke.ts"
+    "packages/main/src/tasks/quorum-submit-smoke.ts",
+    "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts"
   ],
   "protectedFiles": [
     "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
   ],
   "explicitExcludes": [],
-  "scopeChangeReason": "Initialize enforce-mode scope from the reviewed four-checklist implementation plan; the canonical ordered decision document is protected from accidental implementation edits.",
+  "scopeChangeReason": "Expand only to resolve verified F-008 host-render drift and F-006 real assurance consumer coverage: bind story-dispatch and actual Codex/Claude reviewer assets to the canonical package render, enforce adapter identity, and add mutation-sensitive adapter/flow tests. No incremental, A/B, budget or release scope.",
   "acknowledgements": [],
   "createdAt": "2026-07-18T20:25:02.600Z",
-  "updatedAt": "2026-07-18T20:25:02.600Z",
+  "updatedAt": "2026-07-18T22:01:36.396Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -80,6 +100,26 @@
     "packages/main/src/tasks/review-run-smoke.ts": "packages/main/src/tasks/review-run-smoke.ts",
     "packages/main/src/tasks/review-assurance-floor-smoke.ts": "packages/main/src/tasks/review-assurance-floor-smoke.ts",
     "packages/main/src/tasks/quorum-submit-smoke.ts": "packages/main/src/tasks/quorum-submit-smoke.ts",
-    "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+    "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+    "packages/main/src/handlers/story-dispatch.ts": "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/core/codex-adapter-checks.ts": "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/src/init-assets.ts": "packages/main/src/init-assets.ts",
+    "packages/main/templates/agents/lattice-review-concept.md": "packages/main/templates/agents/lattice-review-concept.md",
+    "packages/main/templates/agents/lattice-review-quality.md": "packages/main/templates/agents/lattice-review-quality.md",
+    "packages/main/templates/agents/lattice-review-test-coverage.md": "packages/main/templates/agents/lattice-review-test-coverage.md",
+    "packages/main/templates/agents/lattice-review-behavior.md": "packages/main/templates/agents/lattice-review-behavior.md",
+    "packages/main/templates/agents/lattice-review-docs.md": "packages/main/templates/agents/lattice-review-docs.md",
+    ".claude/agents/lattice-review-concept.md": ".claude/agents/lattice-review-concept.md",
+    ".claude/agents/lattice-review-quality.md": ".claude/agents/lattice-review-quality.md",
+    ".claude/agents/lattice-review-test-coverage.md": ".claude/agents/lattice-review-test-coverage.md",
+    ".claude/agents/lattice-review-behavior.md": ".claude/agents/lattice-review-behavior.md",
+    ".claude/agents/lattice-review-docs.md": ".claude/agents/lattice-review-docs.md",
+    ".lattice-codex/agents/lattice-review-concept.md": ".lattice-codex/agents/lattice-review-concept.md",
+    ".lattice-codex/agents/lattice-review-quality.md": ".lattice-codex/agents/lattice-review-quality.md",
+    ".lattice-codex/agents/lattice-review-test-coverage.md": ".lattice-codex/agents/lattice-review-test-coverage.md",
+    ".lattice-codex/agents/lattice-review-behavior.md": ".lattice-codex/agents/lattice-review-behavior.md",
+    ".lattice-codex/agents/lattice-review-docs.md": ".lattice-codex/agents/lattice-review-docs.md",
+    "packages/main/src/tasks/codex-registry-mode-smoke.ts": "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts"
   }
 }
