@@ -120,7 +120,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Calling agent_prompt for a Story returns the canonical full Prompt and signed envelope; attempts to provide or splice a caller-built envelope are rejected with a stable reason.",
+      "userSees": "Calling agent_prompt for a Story returns the canonical full Prompt plus a deterministic content-addressed audit Envelope; caller-built authority fields are rejected, and only a reviewer ReviewRun can sign that envelopeId into gate-consumed evidence.",
       "files": {
         "modify": [
           "packages/main/src/handlers/agent-prompt.ts",
