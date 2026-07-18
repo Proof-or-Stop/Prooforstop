@@ -23,6 +23,8 @@ import {
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
 import { createAgentPromptHandlers, findRoleEntry } from '../handlers/agent-prompt.js';
 import { readPromptTemplate } from '../core/prompt-registry.js';
+import { isReviewerAgent, resolveReviewRunLane } from '../core/review-run.js';
+import { parseForceReviewers } from '../handlers/reviewer-list.js';
 
 const role = promptRoleContract('lattice-review-quality');
 const taskContext: FullTaskContext = {
@@ -102,6 +104,18 @@ assert.throws(() => resolvePromptEnvelopeRolloutMode(role.roleId, {
   version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
   roles: { unknown: 'full-envelope' },
 }), /unknown role/);
+assert.equal(isReviewerAgent('implementation-reviewer'), false);
+assert.equal(isReviewerAgent('test-intent'), false);
+assert.equal(isReviewerAgent('test-case-reviewer'), false);
+assert.equal(isReviewerAgent('lattice-review-channel'), false);
+assert.throws(
+  () => resolveReviewRunLane('lattice-review-channel'),
+  /retired or not eligible/,
+);
+assert.throws(
+  () => parseForceReviewers('channel'),
+  /not supported by review_run_start/,
+);
 
 const tempRoot = mkdtempSync(join(tmpdir(), 'proofbound-agent-prompt-envelope-'));
 try {

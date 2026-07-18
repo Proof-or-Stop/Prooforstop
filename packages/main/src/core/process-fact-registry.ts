@@ -17,6 +17,7 @@ export type ProcessFactKind =
   | 'validation-status'
   | 'review-run'
   | 'review-pass'
+  | 'prompt-envelope'
   | 'finding'
   | 'flow-policy'
   | 'host-availability-probe'
@@ -41,6 +42,7 @@ export type ProcessFactSemantic =
   | 'normalization-policy'
   | 'review-run'
   | 'review-pass'
+  | 'prompt-envelope'
   | 'reviewer-lane'
   | 'runtime-behavior'
   | 'schema-contract'
@@ -105,6 +107,7 @@ export const PROCESS_FACT_KIND_BY_COMMAND: Record<string, ProcessFactKind> = {
 };
 
 export const PROCESS_FACT_REQUIRED_SEMANTICS = {
+  agent_prompt: ['artifact', 'prompt-envelope', 'schema-contract'],
   validate: ['validation-status', 'validation-result', 'gate-evidence'],
   done_required_validate: ['schema-contract', 'execution-evidence', 'validation-result', 'gate-evidence'],
   test_add: ['test-evidence', 'validation-result'],
@@ -112,8 +115,8 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   verification_evidence_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   verification_evidence_batch_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   verification_evidence_refresh_stale: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
-  review_run_start: ['review-run', 'schema-contract', 'workspace-binding', 'gate-evidence'],
-  review_pass_set: ['review-pass', 'no-blocker-evidence', 'gate-evidence'],
+  review_run_start: ['review-run', 'prompt-envelope', 'schema-contract', 'workspace-binding', 'gate-evidence'],
+  review_pass_set: ['review-pass', 'prompt-envelope', 'no-blocker-evidence', 'gate-evidence'],
   review_loop_start: ['blocker-state', 'schema-contract', 'gate-evidence'],
   review_loop_iteration_add: ['blocker-state', 'schema-contract', 'gate-evidence'],
   review_loop_close: ['blocker-state', 'schema-contract', 'gate-evidence'],
@@ -160,6 +163,8 @@ export const PROCESS_FACT_RUNTIME_SEMANTICS = {
   'runtime:review_escalation_done_gate': ['runtime-behavior', 'host-verdict', 'host-availability', 'gate-evidence'],
   'runtime:review_assurance_floor_done_gate': ['runtime-behavior', 'host-verdict', 'host-availability', 'gate-evidence'],
   'runtime:review_run_story_files_hash_gate': ['runtime-behavior', 'freshness-policy', 'workspace-binding', 'review-run', 'gate-evidence'],
+  'runtime:prompt_envelope_review_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'freshness-policy', 'review-run', 'review-pass', 'gate-evidence'],
+  'runtime:prompt_role_evidence_eligibility_gate': ['runtime-behavior', 'schema-contract', 'reviewer-lane', 'gate-evidence'],
   'runtime:story_files_hash_freshness_gate': ['runtime-behavior', 'freshness-policy', 'workspace-binding', 'verification-evidence', 'review-run', 'host-verdict', 'gate-evidence'],
   'runtime:repro_first_story_intake_preflight': ['runtime-behavior', 'schema-contract', 'workspace-binding', 'gate-evidence'],
   'runtime:proof_admissibility_gate_diagnostic': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
@@ -175,6 +180,13 @@ export const PROCESS_FACT_RUNTIME_SEMANTICS = {
 } as const satisfies Record<string, readonly ProcessFactSemantic[]>;
 
 export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifactRef> = {
+  agent_prompt: {
+    name: 'prompt-envelopes.json',
+    path: 'prompt-envelopes.json',
+    signed: false,
+    producerCommand: 'agent_prompt/review_run_start',
+    consumerGate: 'audit-only for story-dispatch; review-run envelopeId is consumed through the signed ReviewRun by REVIEW, assurance-floor, and quorum gates',
+  },
   closeout_write_receipt: {
     name: 'closeout-write-receipts.jsonl',
     path: 'closeout-write-receipts.jsonl',
@@ -377,7 +389,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'review-runs.json',
     path: 'review-runs.json',
     signed: true,
-    signature: 'signReviewRun/verifyReviewRun; ReviewRun.storyFilesHash and workspaceBinding.bindingHash are folded into new review-run signatures and compared to current story signed workspace resolution by REVIEW consumers',
+    signature: 'signReviewRun/verifyReviewRun; ReviewRun.storyFilesHash, workspaceBinding.bindingHash, and optional Prompt Envelope envelopeId are folded into new review-run signatures and compared to current story signed workspace resolution by REVIEW consumers',
     producerCommand: 'review_run_start',
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
   },
@@ -385,7 +397,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'review-passes.json',
     path: 'review-passes.json',
     signed: true,
-    signature: 'signReviewPass/verifyReviewPass; reviewRunId-inclusive records do not fall back to legacy signatures; writerSessionId-inclusive records bind writer session provenance (writerSessionId + sessionSource + provenanceFlag, absent flag canonicalized to empty) in a versioned domain with no legacy fallback (B-3b05)',
+    signature: 'signReviewPass/verifyReviewPass; envelope-bound records use the versioned envelopeId-inclusive domain, reviewRunId-inclusive records do not fall back to legacy signatures, and writerSessionId-inclusive records bind writer session provenance',
     producerCommand: 'review_pass_set',
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
   },
@@ -735,14 +747,6 @@ export const PROCESS_FACT_REVIEWER_LANE_DEFINITIONS = [
     reviewerLane: 'lattice-review-docs',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.review_pass_set,
     rationale: 'Docs reviewer records docs drift findings or no-blocker evidence.',
-  },
-  {
-    name: 'reviewer-lane:lattice-review-channel',
-    producer: 'lattice-review-channel',
-    consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
-    reviewerLane: 'lattice-review-channel',
-    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.review_pass_set,
-    rationale: 'Retired compatibility reviewer lane still uses signed findings/review-pass evidence when invoked.',
   },
   {
     name: 'reviewer-lane:lattice-review-delivery',
@@ -1109,9 +1113,19 @@ export const PROCESS_FACT_ARTIFACTS = [
     rationale: 'Delivery-check signature is consumed by DONE. Its docsPromises use the shared total delivery-promise outcome normalizer: contradictions fail closed, explicit unverified stays unresolved, and only missing-status legacy rows use bounded inference. The signature folds in storyFilesHash: whole-tree materialHash drift with a matching signed storyFilesHash downgrades to a mandatory re-attestation advisory (delivery_check_drift_advisory), while a story-owned change or missing storyFilesHash stays strict stale.',
   },
   {
+    name: 'artifact:prompt-envelopes.json',
+    kind: 'artifact',
+    semantics: ['artifact', 'prompt-envelope', 'schema-contract'],
+    level: 'L1',
+    producer: 'handlers/agent-prompt + handlers/review-run',
+    consumerGate: 'story-dispatch rows are audit-only; review-run rows are verified through signed ReviewRun envelopeId by REVIEW, assurance-floor, and quorum gates',
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.agent_prompt,
+    rationale: 'Content-addressed full Prompt Envelopes are append-only. createdAt is provenance outside the envelopeId digest; story-dispatch cannot carry reviewer authority.',
+  },
+  {
     name: 'artifact:review-runs.json',
     kind: 'signed-artifact',
-    semantics: ['artifact', 'signed-artifact', 'gate-evidence', 'review-run', 'schema-contract', 'workspace-binding', 'freshness-policy'],
+    semantics: ['artifact', 'signed-artifact', 'gate-evidence', 'review-run', 'prompt-envelope', 'schema-contract', 'workspace-binding', 'freshness-policy'],
     level: 'L4',
     producer: 'handlers/review-run',
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
@@ -1131,7 +1145,7 @@ export const PROCESS_FACT_ARTIFACTS = [
   {
     name: 'artifact:review-passes.json',
     kind: 'signed-artifact',
-    semantics: ['artifact', 'signed-artifact', 'gate-evidence', 'review-pass', 'no-blocker-evidence'],
+    semantics: ['artifact', 'signed-artifact', 'gate-evidence', 'review-pass', 'prompt-envelope', 'no-blocker-evidence'],
     level: 'L4',
     producer: 'handlers/finding',
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
