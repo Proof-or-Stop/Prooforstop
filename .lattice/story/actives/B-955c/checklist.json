@@ -1,0 +1,68 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define the normative Evidence Environment architecture and ownership boundary",
+      "context": "Establish one source of truth for execution, observation, receipt normalization, admissibility, and gate ownership without creating parallel evidence storage or lifecycle gates.",
+      "relatedDocs": [
+        "docs/evidence/evidence-platform-architecture.md",
+        "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+        "docs/requirements/decisions/project-vision.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement the generic Environment Descriptor, Invocation Request, and Receipt contracts",
+      "context": "Extend the existing claim-admissibility/evidence architecture with host-neutral typed identities, execution boundaries, reproducibility and trust metadata while preserving backward compatibility.",
+      "relatedDocs": [
+        "docs/evidence/evidence-platform-architecture.md",
+        "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Provide executable and receipt-reading reference adapter paths",
+      "context": "Demonstrate that one contract covers an active local-command environment and a read-receipt-only scientific environment without allowing adapters to control lifecycle state.",
+      "relatedDocs": [
+        "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+        "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add fail-closed environment adapter conformance tests",
+      "context": "Mechanically reject unknown versions, subject or invocation mismatches, stale or unsafe receipts, checker errors, forbidden execution, and direct completion authority.",
+      "relatedDocs": [
+        "docs/evidence/evidence-platform-architecture.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Publish the paper-facing abstraction and calibrated support claims",
+      "context": "Explain Agent proposes, Environment observes or executes, Evidence Platform binds, Admissibility evaluates, Gate decides; label current reference implementation separately from future Lean, biology, PINN and deployment integrations.",
+      "relatedDocs": [
+        "README.md",
+        "docs/requirements/NAV.md",
+        "docs/requirements/decisions/project-vision.md",
+        "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+        "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
