@@ -47,12 +47,17 @@ import {
   DEFAULT_BURN_ALERT_THRESHOLDS,
   burnInputTokensOf,
   evaluateBurnAlerts,
+  projectBurnAlertEvaluationForOutput,
   renderHostBurnScan,
   renderSweepAlertSection,
   resolveBurnAlertThresholds,
   type BurnAlertThresholds,
 } from '../core/usage-burn-alert.js';
-import { sweepCodexSessions, type SweepSessionRow } from '../core/usage-sweep.js';
+import {
+  projectSweepSessionRowForOutput,
+  sweepCodexSessions,
+  type SweepSessionRow,
+} from '../core/usage-sweep.js';
 import { StoryStore } from '../core/store.js';
 import { createDoctorHandlers } from '../handlers/doctor.js';
 import {
@@ -140,12 +145,19 @@ function codexRollout(opts: {
   firstTs: string;
   inputTokens: number | null;
   pad?: number;
+  originator?: string;
+  source?: string;
 }): string[] {
   const lines = [
     JSON.stringify({
       timestamp: opts.firstTs,
       type: 'session_meta',
-      payload: { id: opts.id, cwd: opts.cwd, originator: 'Codex Desktop', source: 'desktop' },
+      payload: {
+        id: opts.id,
+        cwd: opts.cwd,
+        originator: opts.originator ?? 'Codex Desktop',
+        source: opts.source ?? 'desktop',
+      },
     }),
   ];
   if (opts.inputTokens !== null) {
@@ -285,9 +297,11 @@ async function main(): Promise<void> {
       cwd: `/tmp/codex/${codexNativeSentinel}`,
       firstTs: iso(NOW - 10 * DAY),
       inputTokens: 250_000_000,
+      originator: `Codex Desktop ${codexNativeSentinel}`,
+      source: `desktop/${codexNativeSentinel}`,
     }),
   );
-  writeJsonl(join(nativeSentinelClaudeDir, 'proj-native', `${claudeNativeSentinel}.jsonl`), [
+  writeJsonl(join(nativeSentinelClaudeDir, `proj-${claudeNativeSentinel}`, `${claudeNativeSentinel}.jsonl`), [
     JSON.stringify({
       type: 'assistant',
       timestamp: iso(NOW - 120_000),
@@ -561,6 +575,34 @@ async function main(): Promise<void> {
       assert.equal(JSON.stringify(identity).includes(sentinel), false, `${provider} owner identity never serializes the raw native candidate`);
       assert.match(identity.sessionId, /^sess-[a-f0-9]{32}$/, `${provider} retains a useful opaque canonical identity`);
     }
+  });
+
+  await checkAsync('outward projection: every Sweep/Burn string field is redacted, including originLabel and timestamps', () => {
+    const taintedRow = row({
+      host: 'codex',
+      sessionId: codexNativeSentinel,
+      file: `/native/${codexNativeSentinel}.jsonl`,
+      cwd: `/cwd/${codexNativeSentinel}`,
+      originator: `origin/${codexNativeSentinel}`,
+      originLabel: `codex-desktop/${codexNativeSentinel}` as any,
+      firstTimestamp: `first/${codexNativeSentinel}`,
+      lastTimestamp: `last/${codexNativeSentinel}`,
+      storyMentions: [`B-0014/${codexNativeSentinel}`],
+      usage: codexUsage(250_000_000),
+    });
+    const projectedRow = projectSweepSessionRowForOutput(taintedRow, root);
+    assert.equal(JSON.stringify(projectedRow).includes(codexNativeSentinel), false, 'SweepSessionRow projection covers every outward string field');
+
+    const projectedBurn = projectBurnAlertEvaluationForOutput(
+      evaluateBurnAlerts([taintedRow], {
+        nowMs: NOW,
+        thresholds: T,
+        fileSizeOf: () => 0,
+      }),
+      root,
+    );
+    const burnSerialized = `${JSON.stringify(projectedBurn)}\n${renderHostBurnScan(projectedBurn, { disabled: false }).join('\n')}`;
+    assert.equal(burnSerialized.includes(codexNativeSentinel), false, 'Burn finding JSON/text redacts a tainted originLabel and timestamp fields');
   });
 
   await checkAsync('doctor: clean stores print the ✓ line; RECENT_HOURS=0 prints disabled and skips scanning', async () => {

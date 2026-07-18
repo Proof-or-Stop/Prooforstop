@@ -92,13 +92,13 @@ function ownerSessionProvider(host: SweepHost): 'codex' | 'claude-code' {
   return host === 'codex' ? 'codex' : 'claude-code';
 }
 
-function redactNativeSessionMaterial(
-  value: string | null,
+function redactNativeSessionMaterial<T extends string | null>(
+  value: T,
   nativeSessionId: string,
   opaqueSessionId: string,
-): string | null {
+): T {
   if (value === null || nativeSessionId.length === 0) return value;
-  return value.split(nativeSessionId).join(opaqueSessionId);
+  return value.split(nativeSessionId).join(opaqueSessionId) as T;
 }
 
 /**
@@ -122,6 +122,11 @@ export function projectSweepSessionRowForOutput(
     file: `<${row.host}-transcript>/${opaqueSessionId}.jsonl`,
     cwd: redactNativeSessionMaterial(row.cwd, row.sessionId, opaqueSessionId),
     originator: redactNativeSessionMaterial(row.originator, row.sessionId, opaqueSessionId),
+    originLabel: redactNativeSessionMaterial(row.originLabel, row.sessionId, opaqueSessionId),
+    firstTimestamp: redactNativeSessionMaterial(row.firstTimestamp, row.sessionId, opaqueSessionId),
+    lastTimestamp: redactNativeSessionMaterial(row.lastTimestamp, row.sessionId, opaqueSessionId),
+    storyMentions: row.storyMentions.map(value =>
+      redactNativeSessionMaterial(value, row.sessionId, opaqueSessionId)),
   };
 }
 

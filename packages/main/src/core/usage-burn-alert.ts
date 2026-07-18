@@ -183,6 +183,9 @@ export function projectBurnAlertEvaluationForOutput(
         sessionId: projected.sessionId,
         file: projected.file,
         cwd: projected.cwd,
+        originLabel: projected.originLabel,
+        firstTimestamp: projected.firstTimestamp,
+        lastTimestamp: projected.lastTimestamp,
       };
     }),
   };
