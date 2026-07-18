@@ -383,6 +383,25 @@
       ],
       "signatureTag": "adversarial|ts|meta-ledger-still",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0784:F-017",
+      "desc": "Multi-anchor enforcement now blocks correctly, but violation evidence reports the first declaration rather than the declaration that violated the rule. semantic-scope-gate checks anchors.some(globalProtected/file protected/denied) and then makeViolation calls hunkAnchor, which always chooses anchors[0]. In the added whole-file test where Shape is protected after outer, the gate fails but the rendered violation names outer, so diagnostics misidentify the protected anchor and recovery/audit evidence is misleading. Pass the matched offending anchor into makeViolation and add an assertion that the violation anchor is Shape (and similarly for denied/unmatched multi-anchor cases).",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-18T02:40:50.421Z",
+      "reviewRound": "2026-07-18T02:37:22.053Z",
+      "reviewRunId": "B-0784:RR-004",
+      "_hash": "dbe86173b0d59d4fc1b23a1c18bfac07ce90d51e060fb2f89dd999db146bd2b3",
+      "files": [
+        "packages/main/src/core/semantic-scope-gate.ts",
+        "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|multi-anchor-enforcement",
+      "signatureTagSource": "auto"
     }
   ]
 }
