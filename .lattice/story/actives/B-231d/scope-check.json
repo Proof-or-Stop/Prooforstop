@@ -211,7 +211,9 @@
       "sourcePointers": [
         "packages/main/src/core/story-signed-workspace-resolution.ts",
         "CHK-001"
-      ]
+      ],
+      "resolution": "Reuse resolveStorySignedWorkspace for the story gitRoot, then derive the SHARED lock root via git rev-parse --git-common-dir from that gitRoot. Complementary, not a duplicate: resolveStorySignedWorkspace returns a per-worktree gitRoot (differs per linked worktree); git-common-dir returns the SAME path for all linked worktrees (verified: main/.worktrees/B-231d/.worktrees/B-956f all resolve to /Users/jek/Documents/Work/proofbound/.git). We keep the existing resolver as the single gitRoot entry point and add only the common-dir derivation step.",
+      "resolvedAt": "2026-07-18T23:22:52.083Z"
     },
     {
       "id": "OQ-2",
