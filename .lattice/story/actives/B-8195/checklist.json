@@ -537,6 +537,39 @@
           "materialHash": "ffa0207d34a4c452c683618a8e1c29c6a47a0f92b5beb65517b1011e77c82e3f",
           "storyFilesHash": "7950b9c8c5d86b5b4f83c7e1ce09dae6bd2be8f3b3e8182559b79274f6976e08",
           "timestamp": "2026-07-18T20:48:13.818Z"
+        },
+        {
+          "intentRef": "B-8195:post-merge-done-prepare-hook-fail-closed",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/done-prepare-auto-closeout-smoke.js",
+          "result": "pass",
+          "note": "Post-main-merge regression now asserts pre-commit rejection blocks at validate, never cleanTree/done/PASS, reports canonical validation persistence failure, preserves HEAD, and restores index plus bounded metadata bytes.",
+          "headHash": "1ea395a20668e9c9fc21db1467a1ec4c00bc72d8",
+          "materialHash": "ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6",
+          "storyFilesHash": "1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a",
+          "timestamp": "2026-07-18T21:37:10.164Z"
+        },
+        {
+          "intentRef": "B-8195:post-merge-contract-regression",
+          "kind": "logic_test",
+          "command": "NODE_OPTIONS=--max-old-space-size=3072 npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Process-fact contract remains green after the focused expectation correction.",
+          "headHash": "1ea395a20668e9c9fc21db1467a1ec4c00bc72d8",
+          "materialHash": "ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6",
+          "storyFilesHash": "1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a",
+          "timestamp": "2026-07-18T21:37:10.164Z"
+        },
+        {
+          "intentRef": "B-8195:post-merge-validation-reuse-regression",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "result": "pass",
+          "note": "Canonical validation transaction, rollback, hook failure, and zero-command reuse regression remains green.",
+          "headHash": "1ea395a20668e9c9fc21db1467a1ec4c00bc72d8",
+          "materialHash": "ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6",
+          "storyFilesHash": "1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a",
+          "timestamp": "2026-07-18T21:37:10.164Z"
         }
       ]
     }
