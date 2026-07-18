@@ -816,7 +816,7 @@
           },
           {
             "id": "compatibility-only-assurance-floor-blocked",
-            "desc": "A review-assurance-floor fixture containing valid signatures, fresh HEAD/round/ReviewRun/envelope IDs and sufficient numeric counts exclusively from compatibility or retired roles still reports zero eligible active-lane evidence and cannot satisfy the floor.",
+            "desc": "A fixture supplies numerically sufficient, fresh and correctly signed reviewer-role/Envelope evidence exclusively from compatibility or retired roles. The canonical quorum/receipt collector eligibility boundary rejects or excludes it and therefore emits no admissible signed host-verdict round; the assurance floor, which consumes only admissible signed host-verdict proof rather than raw role evidence, remains unsatisfied.",
             "type": "cli",
             "requiredIn": "strict",
             "priority": "must"
@@ -837,7 +837,7 @@
           },
           {
             "id": "all-gate-consumers-share-role-filter",
-            "desc": "Mutation-sensitive process-fact tests prove reviewer-list, receipt collection, machine REVIEW guard, review-assurance floor, quorum, dispatch classifier, lifecycle registry and process-fact registry consume the same canonical role-status eligibility; removing the filter from any one path causes focused tests to fail.",
+            "desc": "Mutation-sensitive tests prove direct reviewer evidence consumers, including ReviewRun creation, reviewer/receipt collection, REVIEW guard and quorum, apply the same canonical role+Envelope eligibility, and quorum emits signed host-verdict proof only after that admission check. Assurance floor verifies and consumes admissible host-verdict rounds instead of parsing raw role evidence; removing a direct filter or allowing forged/inadmissible host-verdict proof to count makes the focused boundary tests fail.",
             "type": "logic",
             "requiredIn": "strict",
             "priority": "must"
