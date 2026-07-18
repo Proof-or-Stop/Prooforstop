@@ -422,6 +422,26 @@
       ],
       "signatureTag": "adversarial|ts|invalid-deny-glob-fails-open",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-0784:F-019",
+      "desc": "Whole-file deletion bypasses AST protected-anchor enforcement. parseUnifiedDiff sets currentPath only for lines beginning +++ b/. A real Git deletion uses --- a/src/a.ts followed by +++ /dev/null, so currentPath remains empty and flush emits no hunk. Minimal real-git repro for deleting a file containing export function critical() printed the normal deleted-file diff and parseUnifiedDiff(...)=[]; consequently an allowed path can delete a globally/file-level protected declaration without semantic-scope seeing previousAnchor. The existing rename test is not deletion coverage. Preserve the old path from diff --git/--- a when the new side is /dev/null, then parse the old source from main and add a real Git whole-file deletion smoke proving previousAnchors contains critical and checkSemanticScope fails for protectedAnchors=[critical].",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-18T02:41:50.745Z",
+      "reviewRound": "2026-07-18T02:37:22.053Z",
+      "reviewRunId": "B-0784:RR-006",
+      "_hash": "7836e5d8a73830eb3f91da3405e1726923dfa3c1eedf968f1137a29c86b0e117",
+      "files": [
+        "packages/main/src/core/scope-diff-pack.ts",
+        "packages/main/src/core/semantic-scope-gate.ts",
+        "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|deleted-file-dev-null-anchor-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
