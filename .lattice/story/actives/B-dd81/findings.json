@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-dd81:F-001",
+      "desc": "packages/main/src/handlers/review-run.ts:117,175-214,262-263 [high] review_run_start independently assembles and persists a review-run Prompt Envelope after the reviewer is already running, but returns only the run/envelope IDs and never delivers assembly.prompt. Its signed ReviewRun.promptHash remains optional caller-controlled input and is only folded into launcherSpecDigest, not required to equal the envelope assembledPromptDigest. agent_prompt can emit only a story-dispatch audit Envelope, so no trusted path proves that the review-run Envelope was the Prompt actually received by the reviewer. A pass can therefore satisfy the new gate while binding a canonical prompt that was never model input, violating the decision contract that the same process that sends the Prompt must calculate/record it. Integrate reviewer dispatch with review-run assembly or otherwise mechanically bind and deliver the exact assembled bytes before accepting pass evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-18T21:28:28.913Z",
+      "reviewRound": "2026-07-18T21:26:11.737Z",
+      "reviewRunId": "B-dd81:RR-001",
+      "_hash": "e415a86aff1880e6328782a15cdca10e56b9f9072244433420502de2b7827594",
+      "signatureTag": "missing|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
