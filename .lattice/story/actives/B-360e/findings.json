@@ -486,7 +486,7 @@
       "desc": "packages/main/src/handlers/validate-concept.ts:350 Mode metadata is checked for pair/count/path consistency but not for legal ordering. A malformed patch can append a fully matching `copy from`/`copy to` pair after the `---/+++`, hunk header, and deletion/addition lines; flush then considers it validCopy and suppresses the already reconstructed old side. Reproducer deleting `hiddenLateCopy()` from source.ts, adding replacement(), then appending matching copy metadata returns symbols=[], diagnostics=[]. The equivalent late rename still reports the deletion, demonstrating a copy-specific bypass. Enforce the Git section state machine: copy/rename metadata must appear before patch side headers/hunks/content, side headers before hunks, and no mode/path metadata after content; late metadata must emit a focused diagnostic and must never set validCopy. Add late-copy/late-rename/late-side-header probes.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-18T10:13:20.737Z",
@@ -498,7 +498,11 @@
         "packages/main/src/tasks/concept-gate-scope-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 786cf10c8c: explicit per-file diff state enforces metadata, side-header, hunk, and content ordering; invalid late/conflicting metadata never enables copy suppression. Addition/deletion /dev/null direction, header identity, and forbidden content are fail-closed. Focused ordering/direction, valid no-hunk copy/rename, multi-source, and binary behavior probes pass with full validation.",
+      "resolvedAt": "2026-07-18T10:18:57.088Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-360e:F-024",
