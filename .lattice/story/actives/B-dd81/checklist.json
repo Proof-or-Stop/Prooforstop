@@ -28,21 +28,21 @@
         "happy": [
           {
             "id": "full-envelope-contract-complete",
-            "desc": "A focused contract test constructs a valid Story-aware TaskContext and PromptEnvelope using the versioned Story 1 primitives, validates every required discriminator, digest, role, Story, HEAD, reviewRound, reviewRunId, knownExecutionEnvironment, assembledPromptDigest, estimator-version, and contextMode field, and proves contextMode is exactly full for every Story 2 envelope.",
+            "desc": "A focused contract test constructs valid audit story-dispatch and reviewer-authority TaskContext/PromptEnvelope variants using a dispatchKind discriminated union. Both validate required common schema/digest/role/Story/HEAD/environment/prompt fields and contextMode=full; audit envelopes explicitly omit reviewRound/reviewRunId and are non-authoritative, while reviewer-authority envelopes require and validate both bindings.",
             "type": "logic",
             "requiredIn": "balanced",
             "priority": "must"
           },
           {
             "id": "full-envelope-content-address-reproducible",
-            "desc": "Two trusted assemblies from the same canonical Runtime Contract, Role Contract, Task Context, known execution environment, Story, HEAD, review round, ReviewRun and final prompt bytes produce byte-identical canonical envelope material and the same envelopeId; independently recomputing the documented content-address digest yields that exact ID.",
+            "desc": "Two trusted assemblies with the same dispatchKind and canonical Runtime Contract, Role Contract, Task Context, known execution environment, Story, HEAD and final prompt bytes produce byte-identical envelope material and envelopeId; reviewer-authority reproducibility additionally requires the same round/ReviewRun, while audit story-dispatch identity is reproducible without inventing either field.",
             "type": "logic",
             "requiredIn": "balanced",
             "priority": "must"
           },
           {
             "id": "task-context-authoritative-facts",
-            "desc": "TaskContext is assembled from authoritative Story state and exposes the exact current Story identity, checklist/scope facts, HEAD, review round and signed ReviewRun reference needed by the role, while known execution environment is separately versioned and digest-bound rather than embedded as unverifiable prose.",
+            "desc": "TaskContext is assembled from authoritative Story state and exposes exact Story/checklist/scope/HEAD facts while known execution environment is separately versioned and digest-bound. dispatchKind controls authority: audit story-dispatch carries no round/ReviewRun and cannot mint reviewer evidence; reviewer-authority carries the exact signed current-round ReviewRun reference required by the reviewer flow.",
             "type": "cli",
             "requiredIn": "balanced",
             "priority": "must"
@@ -81,7 +81,7 @@
         "adversarial": [
           {
             "id": "envelope-single-field-tamper-rejected",
-            "desc": "Mutation probes independently alter Story ID, HEAD, reviewRound, reviewRunId, roleId, environment digest, TaskContext digest, contract digest, assembledPromptDigest, estimator version, contextMode and envelopeId; every mutation is rejected with a stable machine-readable reason before it can become gate evidence.",
+            "desc": "Mutation probes alter common Story, HEAD, role, environment, TaskContext, contract, prompt, estimator, contextMode, dispatchKind and envelopeId fields, plus reviewer-authority reviewRound/reviewRunId. Missing or mismatched required fields fail stably; adding reviewer bindings to an audit envelope cannot upgrade it or make it admissible as reviewer evidence.",
             "type": "cli",
             "requiredIn": "strict",
             "priority": "must"
