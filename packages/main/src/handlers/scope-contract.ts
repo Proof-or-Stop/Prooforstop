@@ -465,11 +465,17 @@ export function runScopeGate(
 ): import('../core/types.js').ScopeCheckResult | null {
   const contract = store.readScopeContract(storyId);
   if (!contract) return null;
-  const projectRoot = gitCwd ?? metadataRoot;
-  if (gitReader) return checkScopeContract(contract, gitReader(projectRoot), { projectRoot });
-  const diffPack = buildScopeDiffPack(metadataRoot, undefined, projectRoot);
+  const resolvedGitCwd = gitCwd ?? metadataRoot;
+  if (gitReader) {
+    return checkScopeContract(
+      contract,
+      gitReader(resolvedGitCwd),
+      { projectRoot: metadataRoot, gitCwd: resolvedGitCwd },
+    );
+  }
+  const diffPack = buildScopeDiffPack(metadataRoot, undefined, resolvedGitCwd);
   return mergeSemanticScopeResult(
-    checkScopeContract(contract, diffPack.changedFiles, { projectRoot: metadataRoot, gitCwd: projectRoot }),
+    checkScopeContract(contract, diffPack.changedFiles, { projectRoot: metadataRoot, gitCwd: resolvedGitCwd }),
     checkSemanticScope(contract, diffPack),
   );
 }

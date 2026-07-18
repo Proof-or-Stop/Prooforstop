@@ -34,7 +34,7 @@ import {
   scopeGlobRegex,
   SCOPE_PATH_CANONICALIZER_VERSION,
 } from '../core/scope-path-classifier.js';
-import { createScopeContractHandlers } from '../handlers/scope-contract.js';
+import { createScopeContractHandlers, runScopeGate } from '../handlers/scope-contract.js';
 import { runScopeTransitionGate } from '../handlers/phase-gates.js';
 import type { HandlerContext } from '../handlers/context.js';
 
@@ -802,6 +802,19 @@ try {
         createdAt: new Date().toISOString(),
       },
     });
+    wrapperStore.writeScopeContract('B-wrap', {
+      storyId: 'B-wrap',
+      mode: 'enforce',
+      allowedModify: ['src/allowed.ts'],
+      allowedCreate: [],
+      allowedTest: [],
+      protectedFiles: [],
+      explicitExcludes: [],
+      acknowledgements: [],
+      pathCanonicalizationMode: 'off',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
     write(storyWorktree, 'src/allowed.ts', 'export function allowed() { return 2; }\n');
     write(innerRepo, 'src/root-dirt.ts', 'export const rootDirt = true;\n');
 
@@ -814,6 +827,11 @@ try {
     assert.equal(wrapperPack.astAnchorMode, 'off', 'wrapper metadata config controls AST rollout');
     assert.equal(wrapperPack.hunks[0]?.anchor, undefined);
     assert.equal(wrapperPack.hunks[0]?.parseFallback, 'ast_anchor_rollout_off_legacy_history_preserved');
+    assert.equal(
+      runScopeGate('B-wrap', wrapperStore, wrapperRoot, () => ['src/allowed.ts'], storyWorktree)?.status,
+      'pass',
+      'injected-reader runScopeGate honors wrapper pathCanonicalization=off instead of inner-repo defaults',
+    );
     assert.throws(
       () => wrapperHandlers.scope_diff_pack({ storyId: 'B-NONEXISTENT', json: true }),
       /does not exist/,
