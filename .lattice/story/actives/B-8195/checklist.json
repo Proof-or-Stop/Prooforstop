@@ -354,14 +354,14 @@
         {
           "intentRef": "CHK-003:happy:0",
           "kind": "integration_test",
-          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
           "result": "pass",
-          "note": "Production local CLI prints status=pass, disposition=reused, commandExecutions=0 immediately after REVIEW→TEST and leaves exact canonical paths clean.",
-          "headHash": "20db11e4f3c56ba7d2b8cc60d6bebbaaf65374c1",
-          "materialHash": "df5b7dd16b13ab006afc50a8508ad75d08f7ead96d716c1b5ee320fd21cad9d2",
-          "storyFilesHash": "714355e8f80b3f8eef44f2e4b30046d1308ef2b3ed597a7a5207dfbeef8879e2",
-          "timestamp": "2026-07-18T12:23:22.914Z"
+          "note": "Full smoke passed main/direct-handler and real story/* TEST transitions with executed validation evidence+terminal+receipt closed independently before the short outer phase transaction.",
+          "headHash": "0bcbebed93ea63d7a5cb114ec7e2dfd18df4edb7",
+          "materialHash": "7c00f20486109bf9f9c1f17ee28fd7ed963940412888fc417c8f56120d40cd0a",
+          "storyFilesHash": "2ec94ce651f96cc48e9f0b2ecd2a380d34c306a6a40930c9cbf755500e74c121",
+          "timestamp": "2026-07-18T12:42:53.066Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -378,14 +378,14 @@
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "integration_test",
-          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
-          "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "command": "env VALIDATE_HEARTBEAT_FAILURE_ONLY=1 node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
           "result": "pass",
-          "note": "A second unchanged validate is asserted reused with commandExecutions=0 and the external counter remains one.",
-          "headHash": "20db11e4f3c56ba7d2b8cc60d6bebbaaf65374c1",
-          "materialHash": "df5b7dd16b13ab006afc50a8508ad75d08f7ead96d716c1b5ee320fd21cad9d2",
-          "storyFilesHash": "714355e8f80b3f8eef44f2e4b30046d1308ef2b3ed597a7a5207dfbeef8879e2",
-          "timestamp": "2026-07-18T12:23:22.914Z"
+          "note": "Validation failure remains in REVIEW, persists FAIL evidence and validation_terminal through the short exact transaction, emits no TEST transition and leaves no canonical residue.",
+          "headHash": "0bcbebed93ea63d7a5cb114ec7e2dfd18df4edb7",
+          "materialHash": "7c00f20486109bf9f9c1f17ee28fd7ed963940412888fc417c8f56120d40cd0a",
+          "storyFilesHash": "2ec94ce651f96cc48e9f0b2ecd2a380d34c306a6a40930c9cbf755500e74c121",
+          "timestamp": "2026-07-18T12:42:53.066Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -414,26 +414,26 @@
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "integration_test",
-          "file": "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
-          "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "command": "env VALIDATE_HEARTBEAT_F010_ONLY=1 node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
           "result": "pass",
-          "note": "Human and forged codex_cli rows are byte-preserved and rejected; existing malformed receipt and unrelated dirt matrix remains green.",
-          "headHash": "20db11e4f3c56ba7d2b8cc60d6bebbaaf65374c1",
-          "materialHash": "df5b7dd16b13ab006afc50a8508ad75d08f7ead96d716c1b5ee320fd21cad9d2",
-          "storyFilesHash": "714355e8f80b3f8eef44f2e4b30046d1308ef2b3ed597a7a5207dfbeef8879e2",
-          "timestamp": "2026-07-18T12:23:22.914Z"
+          "note": "Deterministic mid-validation human append is preserved and uncommitted; persistence returns infra failure without validation_terminal or phase_transition adoption.",
+          "headHash": "0bcbebed93ea63d7a5cb114ec7e2dfd18df4edb7",
+          "materialHash": "7c00f20486109bf9f9c1f17ee28fd7ed963940412888fc417c8f56120d40cd0a",
+          "storyFilesHash": "2ec94ce651f96cc48e9f0b2ecd2a380d34c306a6a40930c9cbf755500e74c121",
+          "timestamp": "2026-07-18T12:42:53.066Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
-          "kind": "logic_test",
-          "file": "packages/main/src/core/auto-commit-metadata.ts",
-          "command": "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "command": "env VALIDATE_HEARTBEAT_F011_ONLY=1 node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
           "result": "pass",
-          "note": "HEAD is checked against capture before immutable old-HEAD CAS; existing concurrent-head regression remains green.",
-          "headHash": "20db11e4f3c56ba7d2b8cc60d6bebbaaf65374c1",
-          "materialHash": "df5b7dd16b13ab006afc50a8508ad75d08f7ead96d716c1b5ee320fd21cad9d2",
-          "storyFilesHash": "714355e8f80b3f8eef44f2e4b30046d1308ef2b3ed597a7a5207dfbeef8879e2",
-          "timestamp": "2026-07-18T12:23:22.914Z"
+          "note": "Real story/* nested verifier commit no longer invalidates the later outer transaction because capture begins only after the independently committed validation terminal.",
+          "headHash": "0bcbebed93ea63d7a5cb114ec7e2dfd18df4edb7",
+          "materialHash": "7c00f20486109bf9f9c1f17ee28fd7ed963940412888fc417c8f56120d40cd0a",
+          "storyFilesHash": "2ec94ce651f96cc48e9f0b2ecd2a380d34c306a6a40930c9cbf755500e74c121",
+          "timestamp": "2026-07-18T12:42:53.066Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
