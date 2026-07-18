@@ -215,6 +215,78 @@
         "bindingHash": "77e1caf95dbee8de2ad36c3fa55d9f296722cc8c80621acb2058663fd5fe4150"
       },
       "_hash": "7b8b76b8103f5962c484099f7b781621ee068f03df8d7e35cd87862df8b86b8c"
+    },
+    {
+      "reviewRunId": "B-6ed2:RR-004",
+      "storyId": "B-6ed2",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-07-18T22:40:29.487Z",
+      "startedAt": "2026-07-18T22:43:17.674Z",
+      "headHash": "96d8fffe1aad6afef1d2ae9a52a33a2ff3f928ae",
+      "materialHash": "4224e1712ac63b6699a3f7c49713d041ec2ccefa985d064b4a2e51e17bef8959",
+      "storyFilesHash": "e3da6ea08864425d485a9e6cd829b642f930d62de812b3e150786cdaa399f9b3",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "fcf154f28f985d1889d8268d54e066252a29c05b11f441f809c7f3786221f4c4",
+        "compositeScopeDigest": "94fcf3f04b05b955ec7ffa819cd91040c3b27ce4de4c36c6a1d44626149661e0",
+        "diffPackHash": "4f7f7d29868b448beab160242abb84b4aff510ca8cf59c5a853953e700edd072",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1e19b457feda574f10abc7e28ff6e64b07ced249895343b859d912a25624d4ea",
+          "1eab119c6538396702cbdc7898a9aa819022f60ece965c7557e3ee1c2fe6e823",
+          "1f81f344ee858f4dba3846ed98dbb872613a2ed0ac4c6b8bed6098cb4c49d301",
+          "244f548970d35e4cf2613c74d8a2bb891bfce7e4137e9b899f098e6950c4930a",
+          "26b8b268a8173bda19c6193f098ca3602e6ada62370fe57cef7a4a8d71aa148d",
+          "42b03f504cc32396daae749d4f78ce6d38103389d926684e69158819176884d4",
+          "480e278855d73afec4b5e5d75e3a470e060ed744f97fdcfbc06d3efb5d4a5199",
+          "5037ee43f65098309654e377888bf759769fc04c5a02cf652a249d78f9fa8258",
+          "68dfbb134f9ac7dd587ffdfde692f3d2256cc92a36d513205ae8bf025b03194a",
+          "6b127507cfee00856a1ea42bba0b83e8e9db736ff40db1a3a4de6eed66474ce6",
+          "91bbd6d789f1f013600658736c1c1a819e0511f0283c21ba1925ec79a225cd23",
+          "9f3ef25f606dbedf4da02cdb1d22f2f638c69d4ebdb57802f0b6ee82a4036493",
+          "9fa796f158df9236163f91cf87f73b692e3785b0779360818c1375ad4075b8b6",
+          "a003a09aab0dddca6035a0e9eaf6c9212dcbe683d8e19f5245d29229e4aed38c",
+          "a64c0654dca7b8226a71898c18bd0f2120c32b68c7934f6c3cc114dee77e0f4e",
+          "ab739afac330c3df363071b467ebc84d8729306b59d1cecf56b8ea446c690f7b",
+          "b005b7e6ca5def53f20248a3a3accd8742c73b99e81ea416b333ac9ed41701db",
+          "b2c0b426b39cbdd0285bb7d384224b312875d751774beff3155011d5acce4ec4",
+          "b3eb1824982adcb3001488ea1204c42ac3922c8ff851fdd72d12fa7003019fc9",
+          "b56302f196801e90cf03b38db578cd38eb6dd8eef3161a1d9c1f884774d6eebe",
+          "b633f5a7c327b0550306ef2192a27e9924dacaa696a34554294ad2cec6e55b28",
+          "c53424a0272c3573633def47af997f036eca884e2c46f70249cb8e6e84e792d6",
+          "c668446d7d260362de4d2389d9d19f987add764d494647c741d5e22afc1b9b07",
+          "d7ce0b7fe29b49b4312650fbd8f31a2354366f851d50bb351c4d1450160faa74",
+          "db155414b21b11f66914e29945c79d5f8ab40d4426fed8fce64871a77078abab",
+          "e3a4b1cfdb586d6bc8cabd48576e2ba7d56054f3c86af2914a08f99833b59380",
+          "ec059173e87f16a7955a7f3767b2d1a454e58d971d4390b9aab3f1e69beec64a",
+          "ec370634c5b76f66ef7db2e03fe752a067886533e56205ad1ee8721bb314eaf4"
+        ],
+        "bindingHash": "1fb9d5f789578c13e3bb9b206b3d173ff210176a2bca4abec4bb4239d9b6be12"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-6ed2",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-6ed2",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-6ed2",
+        "workspaceMode": "story-worktree",
+        "headHash": "96d8fffe1aad6afef1d2ae9a52a33a2ff3f928ae",
+        "materialHash": "4224e1712ac63b6699a3f7c49713d041ec2ccefa985d064b4a2e51e17bef8959",
+        "storyFilesHash": "e3da6ea08864425d485a9e6cd829b642f930d62de812b3e150786cdaa399f9b3",
+        "bindingHash": "642b07916768d842617ce6a27caa7fe86896a87bf512709104993518a4cd4870"
+      },
+      "_hash": "f44bd793cee39ea7ca2775c1b4e21a297c2a36a1651a90b76eed830c1261668c"
     }
   ]
 }
