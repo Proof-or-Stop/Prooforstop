@@ -15,6 +15,8 @@ import {
   type RuntimeContract,
 } from './prompt-contracts.js';
 import { LATTICE_CLI_VERSION } from './lattice-brand.js';
+import type { ChecklistData, ScopeContractData, StoryInfo } from './types.js';
+import { digestScopeContract } from './guard-session.js';
 
 export const PROMPT_ENVELOPE_ASSEMBLER_VERSION = 'proofbound.full-context-assembler.v1';
 export const PROMPT_DISPATCH_PROTOCOL_VERSION = 'proofbound.prompt-dispatch.v1';
@@ -41,6 +43,39 @@ export interface FullPromptAssembly {
   taskContext: FullTaskContext;
   knownExecutionEnvironment: KnownExecutionEnvironment;
   envelope: PromptEnvelope;
+}
+
+export function buildFullTaskContext(args: {
+  story: StoryInfo;
+  checklist: ChecklistData;
+  headHash: string;
+  materialHash?: string;
+  storyFilesHash?: string;
+  scopeContract?: ScopeContractData | null;
+}): FullTaskContext {
+  const context: FullTaskContext = {
+    schemaVersion: 'proofbound.full-task-context.v1',
+    storyId: args.story.storyId,
+    title: args.story.title,
+    description: args.story.description,
+    phase: args.story.phase,
+    priority: args.story.priority,
+    checklist: [...args.checklist.items]
+      .sort((left, right) => left.id.localeCompare(right.id))
+      .map(item => ({
+        id: item.id,
+        title: item.title,
+        status: item.status,
+        ...(item.context?.trim() ? { context: item.context } : {}),
+        ...(item.userSees?.trim() ? { userSees: item.userSees } : {}),
+      })),
+    headHash: args.headHash,
+    ...(args.materialHash ? { materialHash: args.materialHash } : {}),
+    ...(args.storyFilesHash ? { storyFilesHash: args.storyFilesHash } : {}),
+    ...(args.scopeContract ? { scopeContractDigest: digestScopeContract(args.scopeContract) } : {}),
+  };
+  validateFullTaskContext(context);
+  return context;
 }
 
 export function captureKnownExecutionEnvironment(): KnownExecutionEnvironment {

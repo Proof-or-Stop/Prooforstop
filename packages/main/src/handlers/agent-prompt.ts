@@ -21,6 +21,21 @@ import {
   readPromptTemplate,
   type PromptRegistryEntry,
 } from '../core/prompt-registry.js';
+import type { HandlerContext } from './context.js';
+import { loadConfig } from '../core/config.js';
+import {
+  promptRoleContract,
+  resolvePromptEnvelopeRolloutMode,
+} from '../core/prompt-role-contract-registry.js';
+import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
+import {
+  assembleFullPromptEnvelope,
+  buildFullTaskContext,
+  verifyPromptEnvelopeIntegrity,
+} from '../core/prompt-envelope.js';
+import { captureReviewRunSnapshot } from '../core/review-run.js';
+import { canonicalJsonStringify } from '../core/prompt-contracts.js';
+import { withMkdirLock } from '../core/mkdir-lock.js';
 
 /**
  * Resolve the registry entry for a role name. Roles are the template basenames
@@ -36,9 +51,28 @@ export function listAvailableRoles(templateDir?: string): string[] {
   return readPromptRegistry(templateDir).agents.map(entry => entry.agentId);
 }
 
-export function createAgentPromptHandlers(): Record<string, (...args: any[]) => any> {
+function validateAgentPromptArgs(args: unknown): asserts args is { role?: string; storyId?: string; format?: 'text' | 'json' } {
+  if (!args || typeof args !== 'object' || Array.isArray(args) || Object.getPrototypeOf(args) !== Object.prototype) {
+    throw new Error('agent_prompt: arguments must be a plain object');
+  }
+  const record = args as Record<string, unknown>;
+  for (const key of Object.keys(record)) {
+    if (!['role', 'storyId', 'format'].includes(key)) {
+      throw new Error(`agent_prompt: unsupported caller-controlled field "${key}"`);
+    }
+  }
+  if (record.storyId !== undefined && (typeof record.storyId !== 'string' || record.storyId.trim().length === 0)) {
+    throw new Error('agent_prompt: storyId must be a nonblank string');
+  }
+  if (record.format !== undefined && !['text', 'json'].includes(record.format as string)) {
+    throw new Error('agent_prompt: format must be text or json');
+  }
+}
+
+export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
-    agent_prompt(args: { role?: string } = {}): string {
+    agent_prompt(args: { role?: string; storyId?: string; format?: 'text' | 'json' } = {}): string {
+      validateAgentPromptArgs(args);
       // Runtime re-validation (Handler 编码约定): reject blank/missing role even
       // though the Zod schema declares a min-length constraint.
       const role = (args.role ?? '').trim();
@@ -57,10 +91,72 @@ export function createAgentPromptHandlers(): Record<string, (...args: any[]) => 
         );
       }
 
+      const rolePrompt = readPromptTemplate(entry);
+      if (!args.storyId || !ctx) return rolePrompt;
+
+      const mode = resolvePromptEnvelopeRolloutMode(
+        role,
+        loadConfig(ctx.root).promptEnvelope,
+      );
+      // Rollback is exact: a disabled role follows the original no-Story path
+      // even when a host still supplies storyId/format during rollout.
+      if (mode === 'legacy-full-context') return rolePrompt;
+
+      const storyId = args.storyId.trim();
+      const story = ctx.store.readStory(storyId);
+      const checklist = ctx.store.readChecklist(storyId);
+      const snapshot = captureReviewRunSnapshot(ctx.root, { storyId, storyPhase: story.phase }, ctx.root);
+      const taskContext = buildFullTaskContext({
+        story,
+        checklist,
+        ...snapshot,
+        scopeContract: ctx.store.readScopeContract(storyId),
+      });
+      const assembly = assembleFullPromptEnvelope({
+        roleContract: promptRoleContract(role),
+        runtimeContract: BASELINE_RUNTIME_CONTRACT,
+        rolePrompt,
+        taskContext,
+        dispatchKind: 'story-dispatch',
+        createdAt: new Date().toISOString(),
+      });
+      const lockDir = ctx.store.storyFilePath(storyId, 'prompt-envelopes.lock');
+      const envelope = withMkdirLock(lockDir, () => {
+        const data = ctx.store.readPromptEnvelopes(storyId);
+        const existing = data.envelopes.find(candidate => candidate.envelopeId === assembly.envelope.envelopeId);
+        if (existing) {
+          if (!verifyPromptEnvelopeIntegrity(existing)) {
+            throw new Error(`agent_prompt: persisted envelope ${existing.envelopeId} failed integrity verification`);
+          }
+          return existing;
+        }
+        data.envelopes.push(assembly.envelope);
+        ctx.store.writePromptEnvelopes(storyId, data);
+        const persisted = ctx.store.readPromptEnvelopes(storyId).envelopes.find(
+          candidate => candidate.envelopeId === assembly.envelope.envelopeId,
+        );
+        if (!persisted || !verifyPromptEnvelopeIntegrity(persisted)) {
+          throw new Error(`agent_prompt: envelope ${assembly.envelope.envelopeId} was not durably persisted`);
+        }
+        return persisted;
+      }, { label: 'prompt-envelopes metadata' });
+      if (args.format === 'json') {
+        return canonicalJsonStringify({
+          schemaVersion: 'proofbound.agent-prompt-response.v1',
+          mode,
+          auditOnly: true,
+          canMintReviewEvidence: false,
+          prompt: assembly.prompt,
+          taskContext: assembly.taskContext,
+          knownExecutionEnvironment: assembly.knownExecutionEnvironment,
+          envelope,
+        });
+      }
+
       // Return the canonical body byte-for-byte from the registry (the same
       // source the Codex manifest resolves via readPromptTemplate). No host
       // transform is applied — this is the single neutral content source.
-      return readPromptTemplate(entry);
+      return assembly.prompt;
     },
   };
 }

@@ -1,4 +1,8 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
 
 import {
   assembleFullPromptEnvelope,
@@ -17,6 +21,8 @@ import {
   resolvePromptEnvelopeRolloutMode,
 } from '../core/prompt-role-contract-registry.js';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
+import { createAgentPromptHandlers, findRoleEntry } from '../handlers/agent-prompt.js';
+import { readPromptTemplate } from '../core/prompt-registry.js';
 
 const role = promptRoleContract('lattice-review-quality');
 const taskContext: FullTaskContext = {
@@ -96,5 +102,78 @@ assert.throws(() => resolvePromptEnvelopeRolloutMode(role.roleId, {
   version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
   roles: { unknown: 'full-envelope' },
 }), /unknown role/);
+
+const tempRoot = mkdtempSync(join(tmpdir(), 'proofbound-agent-prompt-envelope-'));
+try {
+  writeFileSync(join(tempRoot, 'lattice.config.json'), JSON.stringify({
+    scanRoot: '.',
+    testsDir: 'tests',
+    fixturesDir: 'tests/fixtures',
+    storyDir: '.lattice/story/actives',
+    requirementsDir: 'docs/requirements',
+    storyPrefix: 'B',
+    flows: { defaults: {}, patterns: [] },
+    promptEnvelope: {
+      version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+      roles: { 'lattice-review-quality': 'full-envelope' },
+    },
+  }));
+  execFileSync('git', ['init', '-q'], { cwd: tempRoot });
+  execFileSync('git', ['config', 'user.email', 'prompt@example.invalid'], { cwd: tempRoot });
+  execFileSync('git', ['config', 'user.name', 'Prompt Smoke'], { cwd: tempRoot });
+  execFileSync('git', ['add', 'lattice.config.json'], { cwd: tempRoot });
+  execFileSync('git', ['commit', '-qm', 'initial'], { cwd: tempRoot });
+  const persisted: typeof first.envelope[] = [];
+  const fakeStore = {
+    readStory: () => ({
+      storyId: 'B-envelope',
+      title: 'Trusted CLI envelope',
+      description: 'Trusted handler assembly',
+      phase: 'DEV',
+      priority: 'high',
+    }),
+    readChecklist: () => ({ items: [{ id: 'CHK-001', title: 'Assemble', status: 'done' }] }),
+    readScopeContract: () => null,
+    storyFilePath: (_storyId: string, file: string) => {
+      const dir = join(tempRoot, '.lattice', 'story', 'actives', 'B-envelope');
+      mkdirSync(dir, { recursive: true });
+      return join(dir, file);
+    },
+    readPromptEnvelopes: () => ({ envelopes: persisted }),
+    writePromptEnvelopes: (_storyId: string, data: { envelopes: typeof persisted }) => {
+      persisted.splice(0, persisted.length, ...data.envelopes);
+    },
+  };
+  const handlers = createAgentPromptHandlers({ root: tempRoot, scanRoot: tempRoot, store: fakeStore as never });
+  const response = JSON.parse(handlers.agent_prompt({
+    role: 'lattice-review-quality',
+    storyId: 'B-envelope',
+    format: 'json',
+  }));
+  assert.equal(response.auditOnly, true);
+  assert.equal(response.canMintReviewEvidence, false);
+  assert.equal(response.envelope.dispatchKind, 'story-dispatch');
+  assert.equal(persisted.length, 1);
+  const response2 = JSON.parse(handlers.agent_prompt({
+    role: 'lattice-review-quality',
+    storyId: 'B-envelope',
+    format: 'json',
+  }));
+  assert.equal(response2.envelope.envelopeId, response.envelope.envelopeId);
+  assert.equal(persisted.length, 1, 'content-addressed repeat is idempotent');
+  assert.throws(
+    () => handlers.agent_prompt({ role: 'lattice-review-quality', storyId: 'B-envelope', envelopeId: 'forged' }),
+    /unsupported caller-controlled field/,
+  );
+  const legacyEntry = findRoleEntry('lattice-implementer')!;
+  const legacyBody = readPromptTemplate(legacyEntry);
+  assert.equal(
+    handlers.agent_prompt({ role: 'lattice-implementer', storyId: 'B-envelope', format: 'json' }),
+    legacyBody,
+    'per-role rollback preserves exact legacy bytes even when Story args remain',
+  );
+} finally {
+  rmSync(tempRoot, { recursive: true, force: true });
+}
 
 console.log('prompt full-context envelope smoke: PASS');

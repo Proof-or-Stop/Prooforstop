@@ -158,6 +158,10 @@ export interface PromptEnvelope {
   tokenEstimatorVersion: string;
 }
 
+export interface PromptEnvelopeData {
+  envelopes: PromptEnvelope[];
+}
+
 export interface DispatchUsageObservation {
   envelopeId: string;
   reviewRunId?: string;
