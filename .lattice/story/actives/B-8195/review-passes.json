@@ -804,6 +804,28 @@
         "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
       },
       "_hash": "f167f44f9b75ca6eea9121667d7a22162c42ac7b3904119b0ce2fe3ed1565f82"
+    },
+    {
+      "id": "B-8195:RP-024",
+      "agent": "lattice-review-concept",
+      "note": "Round-9 post-main-merge targeted review passes. The merge-parent addition is an independent prompt-measurement observation assertion and leaves B-8195 exact-two/local validation persistence contract unchanged. Commit 1ea395a206 correctly moves the pre-commit-hook failure expectation to blockedAt:validate, rejects cleanTree/done/PASS, requires canonical-validation-persistence-failed, and verifies HEAD plus bounded index/worktree rollback and no reuse claim.",
+      "createdAt": "2026-07-18T21:38:45.608Z",
+      "reviewRound": "2026-07-18T21:37:54.145Z",
+      "reviewRunId": "B-8195:RR-032",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "aa1aa81f304feabef2cbafe24ea5d8f46cec4a9146bc0d3a7c4b999f795d642f"
     }
   ]
 }
