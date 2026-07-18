@@ -1,0 +1,71 @@
+{
+  "storyId": "B-360e",
+  "checkedAt": "2026-07-18T10:52:39.058Z",
+  "headHash": "696cf6c0a0d607a93c011ea3203ee8dc599608a9",
+  "materialHash": "6fdede4e77dbae1423f1621602b77b4a10157e3368a85fe3336e3baf5c75c29e",
+  "storyFilesHash": "21e6ed97b47c55f060bc59c281bcaa249849395248c229517170b32f980a9ac4",
+  "reviewRound": "2026-07-18T10:26:24.765Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#Story-1",
+      "promise": "Define versioned Runtime Contract, Role Contract, Prompt Envelope, and PromptMeasurementRecord structures without instantiating a Story-bound envelope or changing existing assembled prompt bodies.",
+      "status": "verified",
+      "verifiedBy": "Source review plus prompt-contract-measurement smoke and protected-path diff",
+      "evidence": "prompt-contracts.ts defines fail-closed v1 schemas and pinned algorithms; focused smoke PASS; no PromptEnvelope producer exists; protected templates, Claude/Codex mirrors, and approved proof-or-stop baseline have empty diffs."
+    },
+    {
+      "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#Story-1",
+      "promise": "Freeze exactly 16 roles as 12 active, 3 compatibility, and 1 retired while preserving product-reviewer, implementation-reviewer, legacy verification aliases, and lattice-review-channel lifecycle facts.",
+      "status": "verified",
+      "verifiedBy": "Registry source inspection, deterministic report, and mutation smoke",
+      "evidence": "Report shows roles=16 active=12 compatibility=3 retired=1; channel is retired/non-default; product-reviewer active; implementation-reviewer compatibility; test-intent and test-case-reviewer replace to verification-intent; invalid/partial/mutated rows fail closed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#Story-1",
+      "promise": "Expose deterministic bytes, lines, estimated tokens, repetition, assembled input, known dispatch input, and provider-processed input measurements with honest availability boundaries.",
+      "status": "verified",
+      "verifiedBy": "Real CLI JSON/text execution and checked-in sidecar comparison",
+      "evidence": "prompt_measurement_report exits 0 in JSON and text modes; digest b634c584353dce13e035c827bc1e4f9b42e769ce7862806db290f797f4d1cf2d; aggregate 158715 bytes, 2777 logical lines, 39685 estimated tokens, repetition 0.41064871481028153; assembled is available while no-Story known-dispatch and no-provider layers are explicitly unavailable with reasons."
+    },
+    {
+      "docPath": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+      "promise": "All 16 existing agent_prompt outputs remain byte-identical and hash-identical; drift probes reject mutations without a self-authorizing refresh.",
+      "status": "verified",
+      "verifiedBy": "Independent 16-role CLI replay and proof-or-stop verifier",
+      "evidence": "Independent replay checked all 16 stdout outputs with zero hash/byte mismatches; verifier PASS includes exact outputs plus mutation-failure-restore proof; package prompt registry body is 1 byte/line lower per role only because CLI stdout adds its display newline."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-360e/scope-contract.json",
+      "promise": "The human-authorized bounded concept-gate repair remains fail-closed and does not hide real deleted declarations.",
+      "status": "verified",
+      "verifiedBy": "Focused concept-gate smoke, routine validation, and current scope contract",
+      "evidence": "concept-gate-scope-smoke PASS; scope contract records the bounded handler/test extension; 46-command routine validation PASS; all 28 review findings resolved and no unresolved TODO markers found in changed implementation."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm build and prompt-contract-measurement smoke PASS; deterministic canonical serialization, domain-separated digests, UTF-8 bytes, LF lines, estimator reuse, repetition, provider accounting equality, malformed fields, proxies, sparse/cyclic/unsupported inputs are covered."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Live prompt_measurement_report reports exactly 16 roles with active=12 compatibility=3 retired=1; registry source and focused mutation tests verify exact replacements, migration hints, non-default compatibility/retired rows, uniqueness, totality, and deep-frozen consumption."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node bin/lattice.js prompt_measurement_report --format=json and --format=text both exit 0; JSON matches deterministic sidecar and text exposes per-role plus aggregate metrics and explicit unavailable reasons. Live smoke transcript is successful and bound to current material hash."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "scripts/verify-proof-or-stop-prompt-baseline.mjs PASS; independent loop replayed all 16 agent_prompt commands with zero SHA-256 or byte mismatches; process-fact verifier PASS; protected paths show no diff; lattice validate records 46/46 commands and 42/42 required verification intents covered."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery promises are met on current Story material: 4/4 checklist items done, 42/42 must intents covered, 46-command validation PASS, 16/16 prompt outputs unchanged, live CLI report works, 28/28 findings resolved, and no delivery blocker remains."
+  },
+  "_hash": "a3a6ad245ff085332ab3b2d2f66eca59a123f4d8e7793258626784e454fdd75c"
+}
