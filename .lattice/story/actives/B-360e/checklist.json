@@ -231,7 +231,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-17T23:57:41.402Z",
-      "endTime": "2026-07-17T23:58:46.353Z",
+      "endTime": "2026-07-18T00:04:18.156Z",
       "files": {
         "modify": [],
         "create": [
@@ -337,134 +337,134 @@
         {
           "intentRef": "role-registry-exact-membership",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
-          "note": "Exact sorted membership equals all 16 package prompt role IDs at commit 42a7c00d16.",
-          "headHash": "42a7c00d166a14c838f5def6de2a61fc8488687b",
-          "materialHash": "bfd4ae6d28a396edf360baf13aa28422f870a0bbab45816ca0faeb88b415a7cf",
-          "storyFilesHash": "4d5edd8ecea3e6e9074deb7bf89a7f1ce7068a72b72802f0ab5bfc1d58b1fcdb",
-          "timestamp": "2026-07-17T23:58:46.627Z"
+          "note": "Final-material exact 16-role package membership passes.",
+          "headHash": "fd248098e4b37ea3b9cb444742cc4f4c48a2f7c6",
+          "materialHash": "5dad12dce4ee8b2b00d085a7d544faf51277620a908111cc5d45b31cc79f0146",
+          "storyFilesHash": "14c38cd5c3c28ffb71b710e2e984f32178423943f16414c317160a585b754b43",
+          "timestamp": "2026-07-18T00:04:18.388Z"
         },
         {
           "intentRef": "role-registry-exact-status-partition",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
-          "note": "Exact 12 active, 3 compatibility, 1 retired partition asserted.",
-          "headHash": "42a7c00d166a14c838f5def6de2a61fc8488687b",
-          "materialHash": "bfd4ae6d28a396edf360baf13aa28422f870a0bbab45816ca0faeb88b415a7cf",
-          "storyFilesHash": "4d5edd8ecea3e6e9074deb7bf89a7f1ce7068a72b72802f0ab5bfc1d58b1fcdb",
-          "timestamp": "2026-07-17T23:58:46.833Z"
+          "note": "Final-material 12/3/1 partition passes.",
+          "headHash": "fd248098e4b37ea3b9cb444742cc4f4c48a2f7c6",
+          "materialHash": "5dad12dce4ee8b2b00d085a7d544faf51277620a908111cc5d45b31cc79f0146",
+          "storyFilesHash": "14c38cd5c3c28ffb71b710e2e984f32178423943f16414c317160a585b754b43",
+          "timestamp": "2026-07-18T00:04:18.543Z"
         },
         {
           "intentRef": "role-registry-authority-and-replacements",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
-          "note": "Product INIT authority, compatibility replacements, migration hints, and absence of new implementation-reviewer lane asserted.",
-          "headHash": "42a7c00d166a14c838f5def6de2a61fc8488687b",
-          "materialHash": "bfd4ae6d28a396edf360baf13aa28422f870a0bbab45816ca0faeb88b415a7cf",
-          "storyFilesHash": "4d5edd8ecea3e6e9074deb7bf89a7f1ce7068a72b72802f0ab5bfc1d58b1fcdb",
-          "timestamp": "2026-07-17T23:58:46.987Z"
+          "note": "Final-material authority and replacement assertions pass.",
+          "headHash": "fd248098e4b37ea3b9cb444742cc4f4c48a2f7c6",
+          "materialHash": "5dad12dce4ee8b2b00d085a7d544faf51277620a908111cc5d45b31cc79f0146",
+          "storyFilesHash": "14c38cd5c3c28ffb71b710e2e984f32178423943f16414c317160a585b754b43",
+          "timestamp": "2026-07-18T00:04:18.693Z"
         },
         {
           "intentRef": "role-registry-order-independent-totality",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
-          "note": "Order-independent exact membership and mutually exclusive totals asserted.",
-          "headHash": "42a7c00d166a14c838f5def6de2a61fc8488687b",
-          "materialHash": "bfd4ae6d28a396edf360baf13aa28422f870a0bbab45816ca0faeb88b415a7cf",
-          "storyFilesHash": "4d5edd8ecea3e6e9074deb7bf89a7f1ce7068a72b72802f0ab5bfc1d58b1fcdb",
-          "timestamp": "2026-07-17T23:58:47.137Z"
+          "note": "Final-material totality and order-independent membership pass.",
+          "headHash": "fd248098e4b37ea3b9cb444742cc4f4c48a2f7c6",
+          "materialHash": "5dad12dce4ee8b2b00d085a7d544faf51277620a908111cc5d45b31cc79f0146",
+          "storyFilesHash": "14c38cd5c3c28ffb71b710e2e984f32178423943f16414c317160a585b754b43",
+          "timestamp": "2026-07-18T00:04:18.838Z"
         },
         {
           "intentRef": "role-registry-nonactive-reporting",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
-          "note": "All compatibility/retired rows remain visible and non-default.",
-          "headHash": "42a7c00d166a14c838f5def6de2a61fc8488687b",
-          "materialHash": "bfd4ae6d28a396edf360baf13aa28422f870a0bbab45816ca0faeb88b415a7cf",
-          "storyFilesHash": "4d5edd8ecea3e6e9074deb7bf89a7f1ce7068a72b72802f0ab5bfc1d58b1fcdb",
-          "timestamp": "2026-07-17T23:58:47.294Z"
+          "note": "Final-material nonactive rows remain visible/non-default.",
+          "headHash": "fd248098e4b37ea3b9cb444742cc4f4c48a2f7c6",
+          "materialHash": "5dad12dce4ee8b2b00d085a7d544faf51277620a908111cc5d45b31cc79f0146",
+          "storyFilesHash": "14c38cd5c3c28ffb71b710e2e984f32178423943f16414c317160a585b754b43",
+          "timestamp": "2026-07-18T00:04:18.984Z"
         },
         {
           "intentRef": "role-registry-alias-routing-unchanged",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
-          "note": "Existing test aliases resolve to verification-intent and product reviewer remains INIT-only.",
-          "headHash": "42a7c00d166a14c838f5def6de2a61fc8488687b",
-          "materialHash": "bfd4ae6d28a396edf360baf13aa28422f870a0bbab45816ca0faeb88b415a7cf",
-          "storyFilesHash": "4d5edd8ecea3e6e9074deb7bf89a7f1ce7068a72b72802f0ab5bfc1d58b1fcdb",
-          "timestamp": "2026-07-17T23:58:47.454Z"
+          "note": "Final-material aliases and product INIT authority unchanged.",
+          "headHash": "fd248098e4b37ea3b9cb444742cc4f4c48a2f7c6",
+          "materialHash": "5dad12dce4ee8b2b00d085a7d544faf51277620a908111cc5d45b31cc79f0146",
+          "storyFilesHash": "14c38cd5c3c28ffb71b710e2e984f32178423943f16414c317160a585b754b43",
+          "timestamp": "2026-07-18T00:04:19.131Z"
         },
         {
           "intentRef": "role-registry-retired-channel-routing-unchanged",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
-          "note": "Descriptive retirement leaves existing channel REVIEW dispatch entry unchanged in Story 1.",
-          "headHash": "42a7c00d166a14c838f5def6de2a61fc8488687b",
-          "materialHash": "bfd4ae6d28a396edf360baf13aa28422f870a0bbab45816ca0faeb88b415a7cf",
-          "storyFilesHash": "4d5edd8ecea3e6e9074deb7bf89a7f1ce7068a72b72802f0ab5bfc1d58b1fcdb",
-          "timestamp": "2026-07-17T23:58:47.624Z"
+          "note": "Final-material descriptive retirement leaves current dispatch unchanged.",
+          "headHash": "fd248098e4b37ea3b9cb444742cc4f4c48a2f7c6",
+          "materialHash": "5dad12dce4ee8b2b00d085a7d544faf51277620a908111cc5d45b31cc79f0146",
+          "storyFilesHash": "14c38cd5c3c28ffb71b710e2e984f32178423943f16414c317160a585b754b43",
+          "timestamp": "2026-07-18T00:04:19.276Z"
         },
         {
           "intentRef": "role-registry-duplicate-fails-closed",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
-          "note": "Duplicate contract mutation rejects explicitly.",
-          "headHash": "42a7c00d166a14c838f5def6de2a61fc8488687b",
-          "materialHash": "bfd4ae6d28a396edf360baf13aa28422f870a0bbab45816ca0faeb88b415a7cf",
-          "storyFilesHash": "4d5edd8ecea3e6e9074deb7bf89a7f1ce7068a72b72802f0ab5bfc1d58b1fcdb",
-          "timestamp": "2026-07-17T23:58:47.793Z"
+          "note": "Final-material duplicate probe rejects.",
+          "headHash": "fd248098e4b37ea3b9cb444742cc4f4c48a2f7c6",
+          "materialHash": "5dad12dce4ee8b2b00d085a7d544faf51277620a908111cc5d45b31cc79f0146",
+          "storyFilesHash": "14c38cd5c3c28ffb71b710e2e984f32178423943f16414c317160a585b754b43",
+          "timestamp": "2026-07-18T00:04:19.482Z"
         },
         {
           "intentRef": "role-registry-missing-fails-closed",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
-          "note": "Missing policy and contract mutation probes reject.",
-          "headHash": "42a7c00d166a14c838f5def6de2a61fc8488687b",
-          "materialHash": "bfd4ae6d28a396edf360baf13aa28422f870a0bbab45816ca0faeb88b415a7cf",
-          "storyFilesHash": "4d5edd8ecea3e6e9074deb7bf89a7f1ce7068a72b72802f0ab5bfc1d58b1fcdb",
-          "timestamp": "2026-07-17T23:58:48.014Z"
+          "note": "Final-material missing-role probes reject.",
+          "headHash": "fd248098e4b37ea3b9cb444742cc4f4c48a2f7c6",
+          "materialHash": "5dad12dce4ee8b2b00d085a7d544faf51277620a908111cc5d45b31cc79f0146",
+          "storyFilesHash": "14c38cd5c3c28ffb71b710e2e984f32178423943f16414c317160a585b754b43",
+          "timestamp": "2026-07-18T00:04:19.651Z"
         },
         {
           "intentRef": "role-registry-unknown-fails-closed",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
-          "note": "Unknown policy and synthetic role probes reject.",
-          "headHash": "42a7c00d166a14c838f5def6de2a61fc8488687b",
-          "materialHash": "bfd4ae6d28a396edf360baf13aa28422f870a0bbab45816ca0faeb88b415a7cf",
-          "storyFilesHash": "4d5edd8ecea3e6e9074deb7bf89a7f1ce7068a72b72802f0ab5bfc1d58b1fcdb",
-          "timestamp": "2026-07-17T23:58:48.167Z"
+          "note": "Final-material unknown-role probes reject.",
+          "headHash": "fd248098e4b37ea3b9cb444742cc4f4c48a2f7c6",
+          "materialHash": "5dad12dce4ee8b2b00d085a7d544faf51277620a908111cc5d45b31cc79f0146",
+          "storyFilesHash": "14c38cd5c3c28ffb71b710e2e984f32178423943f16414c317160a585b754b43",
+          "timestamp": "2026-07-18T00:04:19.798Z"
         },
         {
           "intentRef": "role-registry-invalid-metadata-fails-closed",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
-          "note": "Schema validator and retired default-dispatch mutation reject invalid metadata.",
-          "headHash": "42a7c00d166a14c838f5def6de2a61fc8488687b",
-          "materialHash": "bfd4ae6d28a396edf360baf13aa28422f870a0bbab45816ca0faeb88b415a7cf",
-          "storyFilesHash": "4d5edd8ecea3e6e9074deb7bf89a7f1ce7068a72b72802f0ab5bfc1d58b1fcdb",
-          "timestamp": "2026-07-17T23:58:48.319Z"
+          "note": "Final-material invalid metadata probes reject.",
+          "headHash": "fd248098e4b37ea3b9cb444742cc4f4c48a2f7c6",
+          "materialHash": "5dad12dce4ee8b2b00d085a7d544faf51277620a908111cc5d45b31cc79f0146",
+          "storyFilesHash": "14c38cd5c3c28ffb71b710e2e984f32178423943f16414c317160a585b754b43",
+          "timestamp": "2026-07-18T00:04:19.944Z"
         },
         {
           "intentRef": "role-registry-dispatch-snapshot-unchanged",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
-          "note": "Canonical serialized AGENT_DISPATCH_REGISTRY is identical before/after lifecycle contract construction.",
-          "headHash": "42a7c00d166a14c838f5def6de2a61fc8488687b",
-          "materialHash": "bfd4ae6d28a396edf360baf13aa28422f870a0bbab45816ca0faeb88b415a7cf",
-          "storyFilesHash": "4d5edd8ecea3e6e9074deb7bf89a7f1ce7068a72b72802f0ab5bfc1d58b1fcdb",
-          "timestamp": "2026-07-17T23:58:48.504Z"
+          "note": "Final-material AGENT_DISPATCH_REGISTRY before/after snapshot remains identical.",
+          "headHash": "fd248098e4b37ea3b9cb444742cc4f4c48a2f7c6",
+          "materialHash": "5dad12dce4ee8b2b00d085a7d544faf51277620a908111cc5d45b31cc79f0146",
+          "storyFilesHash": "14c38cd5c3c28ffb71b710e2e984f32178423943f16414c317160a585b754b43",
+          "timestamp": "2026-07-18T00:04:20.090Z"
         }
       ]
     },
