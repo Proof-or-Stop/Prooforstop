@@ -113,6 +113,40 @@ const overloadRemoval = fileDiff(
 );
 assert.deepEqual(scanDeletedSymbols(overloadRemoval), ['overload'], 'one removed overload cannot be hidden by a same-name survivor');
 
+const overloadReplacement = fileDiff(
+  'src/overload-replacement.ts',
+  [
+    'export function overload(value: string): string;',
+    'export function overload(value: number): number;',
+    'export function overload(value: string | number): string | number { return value; }',
+  ].join('\n'),
+  [
+    'export function overload(value: boolean): boolean;',
+    'export function overload(value: number): number;',
+    'export function overload(value: boolean | number): boolean | number { return value; }',
+  ].join('\n'),
+);
+assert.deepEqual(
+  scanDeletedSymbols(overloadReplacement),
+  ['overload'],
+  'same-count overload replacement detects the removed declaration signature',
+);
+
+const reorderedOverloads = fileDiff(
+  'src/overload-reordered.ts',
+  [
+    'export function overload(value: string): string;',
+    'export function overload(value: number): number;',
+    'export function overload(value: string | number): string | number { return value; }',
+  ].join('\n'),
+  [
+    'export function overload(value: number): number;',
+    'export function overload(value: string): string;',
+    'export function overload(value: string | number): string | number { return value; }',
+  ].join('\n'),
+);
+assert.deepEqual(scanDeletedSymbols(reorderedOverloads), [], 'unchanged overload signatures pair regardless of declaration order');
+
 const crossFile = [
   fileDiff('src/a.ts', 'export function shared(value: string): string { return value; }', ''),
   fileDiff(
@@ -163,6 +197,19 @@ const pythonScope = fileDiff(
   ].join('\n'),
 );
 assert.deepEqual(scanDeletedSymbols(pythonScope), ['shared'], 'Python file/scope identity prevents same-name cancellation');
+
+for (const extension of ['pyi', 'pyw']) {
+  const pythonVariantDeletion = fileDiff(
+    `src/python-variant.${extension}`,
+    ['def removed(value: str) -> str:', '    return value'].join('\n'),
+    '',
+  );
+  assert.deepEqual(
+    scanDeletedSymbols(pythonVariantDeletion),
+    ['removed'],
+    `.${extension} files use Python declaration analysis`,
+  );
+}
 
 const multilinePythonDeletion = fileDiff(
   'src/multiline.py',

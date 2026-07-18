@@ -206,6 +206,15 @@ function declarationName(node: ts.NamedDeclaration, source: ts.SourceFile): stri
   return text || null;
 }
 
+function tsDeclarationContinuityKey(
+  base: string,
+  node: ts.SignatureDeclarationBase,
+  source: ts.SourceFile,
+  declarationOnly: boolean,
+): string {
+  return declarationOnly ? `${base}|signature|${normalizedTsSignature(node, source)}` : base;
+}
+
 function collectTsDeclarations(file: string, sourceText: string): { declarations: DeclarationIdentity[]; diagnostics: string[] } {
   const kind = /\.tsx$/i.test(file)
     ? ts.ScriptKind.TSX
@@ -225,9 +234,10 @@ function collectTsDeclarations(file: string, sourceText: string): { declarations
     let childScope = scope;
     const exported = hasTsModifier(node, ts.SyntaxKind.ExportKeyword) ? 'export' : 'local';
     if (ts.isFunctionDeclaration(node) && node.name) {
+      const base = `${file}|${scope.join('.') || '<module>'}|function|${node.name.text}`;
       declarations.push({
         name: node.name.text,
-        continuityKey: `${file}|${scope.join('.') || '<module>'}|function|${node.name.text}`,
+        continuityKey: tsDeclarationContinuityKey(base, node, source, node.body === undefined),
         key: `${file}|${scope.join('.') || '<module>'}|function|${node.name.text}|${exported}|${normalizedTsSignature(node, source)}`,
       });
       childScope = [...scope, node.name.text];
@@ -248,16 +258,23 @@ function collectTsDeclarations(file: string, sourceText: string): { declarations
       childScope = [...scope, node.name.text];
     } else if (ts.isMethodDeclaration(node) || ts.isMethodSignature(node)) {
       const name = declarationName(node, source);
+      const base = `${file}|${scope.join('.') || '<module>'}|method|${name}`;
       if (name) declarations.push({
         name,
-        continuityKey: `${file}|${scope.join('.') || '<module>'}|method|${name}`,
+        continuityKey: tsDeclarationContinuityKey(
+          base,
+          node,
+          source,
+          ts.isMethodSignature(node) || node.body === undefined,
+        ),
         key: `${file}|${scope.join('.') || '<module>'}|method|${name}|${normalizedTsSignature(node, source)}`,
       });
       if (name) childScope = [...scope, name];
     } else if (ts.isConstructorDeclaration(node)) {
+      const base = `${file}|${scope.join('.') || '<module>'}|constructor|constructor`;
       declarations.push({
         name: 'constructor',
-        continuityKey: `${file}|${scope.join('.') || '<module>'}|constructor|constructor`,
+        continuityKey: tsDeclarationContinuityKey(base, node, source, node.body === undefined),
         key: `${file}|${scope.join('.') || '<module>'}|constructor|constructor|${normalizedTsSignature(node, source)}`,
       });
       childScope = [...scope, 'constructor'];
@@ -368,7 +385,7 @@ export function analyzeDeletedSymbols(diff: string): DeletedSymbolAnalysis {
   const added = new Map<string, number>();
   const diagnostics: string[] = [];
   for (const file of diffFileSources(diff)) {
-    const python = /\.py$/i.test(file.file);
+    const python = /\.py(?:i|w)?$/i.test(file.file);
     const typeScriptFamily = /\.(?:js|jsx|ts|tsx|mjs|cjs|mts|cts)$/i.test(file.file);
     // Declaration analysis is language-routed. Story metadata, JSON/JSONL,
     // Markdown, manifests, and every other unsupported extension are not
