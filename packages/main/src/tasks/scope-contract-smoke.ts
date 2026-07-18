@@ -828,7 +828,12 @@ try {
     assert.equal(wrapperPack.hunks[0]?.anchor, undefined);
     assert.equal(wrapperPack.hunks[0]?.parseFallback, 'ast_anchor_rollout_off_legacy_history_preserved');
     assert.equal(
-      runScopeGate('B-wrap', wrapperStore, wrapperRoot, () => ['src/allowed.ts'], storyWorktree)?.status,
+      runScopeGate('B-wrap', wrapperStore, wrapperRoot, (cwd) => {
+        assert.equal(cwd, storyWorktree, 'injected reader receives the resolved story worktree');
+        assert.notEqual(cwd, wrapperRoot, 'injected reader never receives the metadata wrapper root');
+        assert.notEqual(cwd, innerRepo, 'injected reader never receives the main inner repo');
+        return ['src/allowed.ts'];
+      }, storyWorktree)?.status,
       'pass',
       'injected-reader runScopeGate honors wrapper pathCanonicalization=off instead of inner-repo defaults',
     );
