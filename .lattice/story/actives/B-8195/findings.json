@@ -89,6 +89,21 @@
       "_hash": "aea6f8f9892dcb08a1a05b7c9dad4106652ff12c2bd80864180dd601d598a042",
       "signatureTag": "adversarial|unknown|packages-main-engine",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8195:F-007",
+      "desc": "packages/main/src/core/auto-commit-metadata.ts:234-253 — MEDIUM: `commitLifecycleMetadataTransaction` promises rollback on every commit/concurrency failure, but the HEAD read and managed-file digest reads execute outside its try/catch. A git read failure or filesystem race throws past `rollback`, leaving the transition/terminal bytes dirty and bypassing the function's classified `{ok:false}` contract. Enclose all post-write verification in the rollback guard and add a deterministic injected read/CAS failure test for this lifecycle-specific writer.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-18T10:59:33.692Z",
+      "reviewRound": "2026-07-18T10:55:37.177Z",
+      "reviewRunId": "B-8195:RR-002",
+      "_hash": "008b1a5c321a7bb93d32892d89d15c2dd336e44b0d3d92efab8dd80c19ca7086",
+      "signatureTag": "edge|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
