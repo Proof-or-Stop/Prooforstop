@@ -10,7 +10,20 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "The full-context response exposes a deterministic envelope ID and canonical Task Context whose Story, HEAD, round and ReviewRun fields can be inspected and reproduced."
+      "userSees": "The full-context response exposes a deterministic envelope ID and canonical Task Context whose Story, HEAD, round and ReviewRun fields can be inspected and reproduced.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts"
+        ],
+        "create": [
+          "packages/main/src/core/prompt-envelope.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-002",
