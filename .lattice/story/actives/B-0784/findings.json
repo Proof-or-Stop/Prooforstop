@@ -322,6 +322,26 @@
       ],
       "signatureTag": "missing|ts|resolved-partially-assertions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0784:F-014",
+      "desc": "F-008 was marked fixed without covering most cases named in the finding. 4106eb3531 adds top-level variables, separated changed spans, and a multi-declaration protected case, but semantic-scope-guard-smoke still has no enum/namespace/module, overload or overload-count loss, anonymous/default export, computed method, decorator/multiline signature, deletion, anchor-kind mismatch, for-in/do/switch/catch/try matrix, or assertions for the required diagnostic declaration range/version/rule/remediation fields. The focused smoke passes, but CHK-002 happy:1/edge:0-1/adversarial:0-2 and CHK-004 happy:1/edge:1-2 remain broader than its assertions. Add the omitted parser-backed cases through parseUnifiedDiff/checkSemanticScope, preferably table-driven, before refreshing their PASS evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-18T02:40:37.894Z",
+      "reviewRound": "2026-07-18T02:37:22.053Z",
+      "reviewRunId": "B-0784:RR-005",
+      "_hash": "6ac030f8ed754a8c87df767c40f4e0b84901bba83960d868dfa503b40a137506",
+      "files": [
+        "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+        "packages/main/src/core/scope-diff-pack.ts",
+        "packages/main/src/core/semantic-scope-gate.ts"
+      ],
+      "signatureTag": "missing|ts|marked-fixed-without",
+      "signatureTagSource": "auto"
     }
   ]
 }
