@@ -211,6 +211,28 @@
       ],
       "signatureTag": "edge|ts|advertised-warn-mode",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0784:F-011",
+      "desc": "The B-META evidence overclaims the end-to-end trust matrix. The new gap-log block proves one official write plus direct edit, recomputed digest, missing binding, wrong artifact path, and unknown filename; closeout-trust-smoke was not changed and does not exercise classifySharedLifecycleMetadata or a B-META gap artifact. CHK-003 happy:1-2/edge:0-2/adversarial:0-2 and CHK-004 happy:2/adversarial:1 require an unrelated story done_prepare/cleanTree consumer, repeated official atomic update invalidating the prior binding, stale/wrong command or story identity, replay/content substitution, symlink/path alias, canonical serialization mutation, and actionable diagnostics with expected/observed provenance details. Add focused production-consumer tests for those cases; otherwise the 9 PASS evidence bindings are not supported.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-18T02:14:57.927Z",
+      "reviewRound": "2026-07-18T02:10:28.512Z",
+      "reviewRunId": "B-0784:RR-003",
+      "_hash": "fedc42cd69b8c3bcb03299098062e9b2d327d93e67eff3603280c3f29f3f06d3",
+      "files": [
+        "packages/main/src/tasks/gap-log-smoke.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts",
+        "packages/main/src/core/lifecycle-registry.ts",
+        "packages/main/src/core/done-prepare-generated-metadata.ts",
+        "packages/main/src/core/finding-verify.ts"
+      ],
+      "signatureTag": "missing|ts|meta-evidence-overclaims",
+      "signatureTagSource": "auto"
     }
   ]
 }
