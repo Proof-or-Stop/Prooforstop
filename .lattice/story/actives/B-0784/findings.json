@@ -332,7 +332,7 @@
       "desc": "F-008 was marked fixed without covering most cases named in the finding. 4106eb3531 adds top-level variables, separated changed spans, and a multi-declaration protected case, but semantic-scope-guard-smoke still has no enum/namespace/module, overload or overload-count loss, anonymous/default export, computed method, decorator/multiline signature, deletion, anchor-kind mismatch, for-in/do/switch/catch/try matrix, or assertions for the required diagnostic declaration range/version/rule/remediation fields. The focused smoke passes, but CHK-002 happy:1/edge:0-1/adversarial:0-2 and CHK-004 happy:1/edge:1-2 remain broader than its assertions. Add the omitted parser-backed cases through parseUnifiedDiff/checkSemanticScope, preferably table-driven, before refreshing their PASS evidence.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-18T02:40:37.894Z",
@@ -345,7 +345,11 @@
         "packages/main/src/core/semantic-scope-gate.ts"
       ],
       "signatureTag": "missing|ts|marked-fixed-without",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by f1e5eb927b. packages/main/src/tasks/semantic-scope-guard-smoke.ts table-drives function/method/constructor/class/interface/type/module/namespace/enum/overload/default-export/computed/decorator anchors; excludes if/for/while/switch/catch/local const; covers add/modify/delete/rename, kind mismatch, parser/version/diagnostic failures, and multi-anchor reporting of the actual violating anchor. Verified PASS with build + semantic-scope-guard-smoke.",
+      "resolvedAt": "2026-07-18T03:01:18.168Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0784:F-015",
