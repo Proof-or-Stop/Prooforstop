@@ -4,7 +4,8 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { dirname, join, relative } from 'node:path';
+import { captureLifecycleMetadataTransaction } from '../core/auto-commit-metadata.js';
 import { canonicalDigest } from '../core/authority-signing.js';
 import { resetConfigCache } from '../core/config.js';
 import { currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
@@ -328,6 +329,7 @@ try {
     recordReviewerPasses(registry);
     const handler = registry.get('quorum_submit');
     assert.ok(handler, 'quorum_submit handler is registered');
+    const beforeHead = git(root, ['rev-parse', 'HEAD']);
     result = handler({
       storyId: STORY_ID,
       hostA: 'claude-host',
@@ -343,6 +345,29 @@ try {
     assert.equal(result.verdictIds.length, 6);
     assert.deepEqual(result.runIds, [`${STORY_ID}-q-r1`, `${STORY_ID}-q-r2`, `${STORY_ID}-q-r3`]);
     assert.equal(listVerdicts(root, 'local', STORY_ID).length, 6);
+    const afterHead = git(root, ['rev-parse', 'HEAD']);
+    assert.notEqual(afterHead, beforeHead, 'quorum_submit atomically commits its six host_verdict rows');
+    const storyRel = relative(root, store.storyDirPath(STORY_ID)).replace(/\\/g, '/');
+    assert.equal(
+      git(root, ['status', '--porcelain=v1', '--', `${storyRel}/process-events.jsonl`]),
+      '',
+      'quorum_submit leaves canonical process-events metadata clean',
+    );
+    assert.deepEqual(
+      git(root, ['diff-tree', '--no-commit-id', '--name-only', '-r', afterHead]).split('\n').filter(Boolean),
+      [`${storyRel}/process-events.jsonl`],
+      'the quorum closeout commit contains only the exact host_verdict event file',
+    );
+    assert.doesNotThrow(
+      () => captureLifecycleMetadataTransaction({
+        root,
+        gitCwd: root,
+        storyId: STORY_ID,
+        storyRel,
+        kind: 'codex-command-terminal',
+      }),
+      'a following canonical validation writer can capture clean metadata instead of refusing pre-dirty process-events',
+    );
   });
 
   check('review_escalation_status and review assurance floor report complete voluntary 3x2 rounds', () => {
