@@ -550,6 +550,28 @@
       },
       "readDiagnostics": [],
       "_hash": "3ea1ffd0053889806dc7e7f904338db0ac1f4203eb563b5da3dea940bf12eaad"
+    },
+    {
+      "id": "B-360e:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Round-15 concept review passed. Independently verified f959a28ba9 resolves F-029/F-030: 19 structured-token variants, including bare/tab/vertical-whitespace diff headers, orphan side/hunk headers, rename/copy, binary, index, mode and similarity metadata, all produce diagnostics, no fragment-derived symbols, and final checkConcept status=fail. Legacy headerless deletion/addition/context fragments and source text merely containing header-like strings remain diagnostic-free and preserve expected symbol extraction. TypeScript build, concept-gate-scope smoke, and raw full-Story validate --concept all pass; existing delimiter, binary, ordering and parser strictness regressions remain green.",
+      "createdAt": "2026-07-18T11:17:11.640Z",
+      "reviewRound": "2026-07-18T11:14:50.842Z",
+      "reviewRunId": "B-360e:RR-044",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "216c46ed4ad29d4d3dffe4cbad81d22517e16b2f06f9643f13ba841ff9332492"
     }
   ]
 }
