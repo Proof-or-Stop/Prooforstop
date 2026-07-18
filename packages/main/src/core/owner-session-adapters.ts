@@ -54,10 +54,17 @@ function trimToNull(value: string | undefined): string | null {
 function normalizeProvider(value: string | undefined): OwnerSessionHostProvider | null {
   const normalized = trimToNull(value)?.toLowerCase();
   if (!normalized) return null;
-  if (normalized === 'claude' || normalized === 'claude-code' || normalized === 'claude_code') return 'claude-code';
-  if (normalized === 'codex') return 'codex';
+  if (
+    normalized === 'claude'
+    || normalized === 'claude-code'
+    || normalized === 'claude_code'
+    || normalized === 'claude-cli'
+    || normalized === 'claude_cli'
+  ) return 'claude-code';
+  if (normalized === 'codex' || normalized === 'codex-cli' || normalized === 'codex_cli') return 'codex';
   if (normalized === 'antigravity' || normalized === 'agy') return 'antigravity';
   if (normalized === 'fake') return 'fake';
+  if (normalized === 'unknown') return 'unknown';
   return null;
 }
 

@@ -41,6 +41,7 @@ import {
   resolvePromptEnvelopeRolloutMode,
 } from '../core/prompt-role-contract-registry.js';
 import { getSessionIdentity } from '../core/owner-session.js';
+import type { OwnerSessionHostProvider } from '../core/owner-session-adapters.js';
 import type { PromptHost } from '../core/prompt-registry.js';
 
 // B-45ed CHK-008: agent-type → background injection strategy mapping table
@@ -58,8 +59,28 @@ const AGENT_BG_POLICY: Record<string, BackgroundPolicy> = {
 
 const IMPLEMENTER_COMMIT_AUTHOR = 'lattice-implementer <lattice-implementer@noreply.local>';
 
+type ReviewerPromptProvider = OwnerSessionHostProvider | 'claude-cli' | 'codex-cli';
+
+export function reviewerPromptHostForProvider(
+  provider: ReviewerPromptProvider | undefined,
+): PromptHost {
+  switch (provider) {
+    case 'claude-code':
+    case 'claude-cli':
+      return 'claude';
+    case 'codex':
+    case 'codex-cli':
+      return 'codex';
+    default:
+      throw new Error(
+        `full-envelope reviewer dispatch: unsupported session host provider "${provider ?? 'absent'}"; `
+        + 'supported providers: claude-code | claude-cli | codex | codex-cli',
+      );
+  }
+}
+
 function currentReviewerPromptHost(): PromptHost {
-  return getSessionIdentity().hostProvider === 'claude-code' ? 'claude' : 'codex';
+  return reviewerPromptHostForProvider(getSessionIdentity().hostProvider);
 }
 
 /** Resolve agentType → injection strategy; unknown agentType downgrades to required (safest). */

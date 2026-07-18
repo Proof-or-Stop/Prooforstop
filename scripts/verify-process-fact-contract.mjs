@@ -5578,6 +5578,17 @@ const inventory = [
     name: 'review_run_start',
     files: [
       {
+        relPath: 'packages/main/src/handlers/story-dispatch.ts',
+        patterns: [
+          'reviewerPromptHostForProvider',
+          'currentReviewerPromptHost',
+          'unsupported session host provider',
+          'hostRenderHost',
+          'hostRenderIdentityDigest',
+          'dispatchBindingDigest',
+        ],
+      },
+      {
         relPath: 'packages/main/src/handlers/review-run.ts',
         patterns: ['review_run_start', 'resolveReviewRunLane', 'captureReviewRunSnapshot', 'buildReviewRunWorkspaceBinding', 'verifyCurrentReviewerDispatchBinding', 'dispatchPrompt', 'hostRenderHost', 'hostRenderIdentityDigest', 'workspaceBinding', 'signReviewRun', 'writeReviewRuns', 'Review run'],
       },
