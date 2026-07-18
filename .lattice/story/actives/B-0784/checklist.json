@@ -88,7 +88,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Semantic scope output selects the enclosing function or method with an anchor parser version; if/loop/local-const edits no longer appear as declaration anchors.",
+      "userSees": "The terminal prints: \"anchor: function resumeBreakerState | anchorParserVersion: ts-ast-v1 | status: PASS\" and never reports \"anchor: if\" or a local const.",
       "files": {
         "modify": [
           "packages/main/src/core/scope-diff-pack.ts",
