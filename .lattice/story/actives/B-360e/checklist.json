@@ -447,13 +447,14 @@
         {
           "intentRef": "role-registry-invalid-metadata-fails-closed",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "file": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
-          "note": "Every policy-derived RoleContract field is compared to exact ROLE_POLICIES data and semanticDigest is recomputed; active defaultDispatch, responsibility, array policy, replacement, migrationHint and digest drift reject.",
-          "headHash": "0913871be035fd4e2f34eba4969de1465c53c12c",
+          "note": "The exported registry is deeply frozen at the collection, row, and nested-array levels. A child process verifies strict-mode status and nested-array mutations throw or leave values unchanged, and a corrupted foreign clone is rejected by validatePromptRoleContracts.",
+          "headHash": "9bb461c77ebbfee4bded17e4bc2c6e12389d1283",
           "materialHash": "a6aa4206d4c25153c63aebddb23c7c0cdad1ae69fa439d26b535b62258fe0de6",
           "storyFilesHash": "fe996b17335a3479278f8563c27355248a97fd7f8ceeb6bebb0f1c2d8e1367a2",
-          "timestamp": "2026-07-18T00:36:45.256Z"
+          "timestamp": "2026-07-18T00:37:00.285Z"
         },
         {
           "intentRef": "role-registry-dispatch-snapshot-unchanged",
@@ -709,13 +710,14 @@
         {
           "intentRef": "CHK-003:adversarial:role-set-fail-closed",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "file": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
-          "note": "Final-material role/report corruption probes reject.",
-          "headHash": "0913871be035fd4e2f34eba4969de1465c53c12c",
+          "note": "Report generation revalidates PROMPT_ROLE_CONTRACTS against current prompt registry IDs before consumption. Child-process semantic-digest mutation cannot alter the singleton, foreign corruption fails closed, and the report remains 12 active / 3 legacy / 1 retired.",
+          "headHash": "9bb461c77ebbfee4bded17e4bc2c6e12389d1283",
           "materialHash": "a6aa4206d4c25153c63aebddb23c7c0cdad1ae69fa439d26b535b62258fe0de6",
           "storyFilesHash": "fe996b17335a3479278f8563c27355248a97fd7f8ceeb6bebb0f1c2d8e1367a2",
-          "timestamp": "2026-07-18T00:36:45.256Z"
+          "timestamp": "2026-07-18T00:37:00.285Z"
         },
         {
           "intentRef": "CHK-003:adversarial:l0-non-authority",
@@ -866,13 +868,14 @@
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "file": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Final mutation matrix covers array own-state disappearance and complete per-role semantic policy drift fail-closed behavior.",
-          "headHash": "0913871be035fd4e2f34eba4969de1465c53c12c",
+          "note": "Deep-freeze and consumption-time validation probes pass while canonical prompts and baseline stay untouched; aggregate role partition remains 12/3/1 and corrupted cloned contracts are rejected.",
+          "headHash": "9bb461c77ebbfee4bded17e4bc2c6e12389d1283",
           "materialHash": "a6aa4206d4c25153c63aebddb23c7c0cdad1ae69fa439d26b535b62258fe0de6",
           "storyFilesHash": "fe996b17335a3479278f8563c27355248a97fd7f8ceeb6bebb0f1c2d8e1367a2",
-          "timestamp": "2026-07-18T00:36:45.256Z"
+          "timestamp": "2026-07-18T00:37:00.285Z"
         },
         {
           "intentRef": "CHK-004:adversarial:1",
