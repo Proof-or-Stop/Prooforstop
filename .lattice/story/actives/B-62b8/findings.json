@@ -342,6 +342,21 @@
       "resolvedAt": "2026-07-18T00:36:29.697Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-62b8:F-017",
+      "desc": "packages/main/src/handlers/validate-concept.ts:227-232 and 366-397 pair TypeScript function declarations only by file/scope/kind/name count, so removing one overload while adding a different overload at the same name and keeping the declaration count unchanged is silently treated as continuity. Current-build repro: old overloads string+number+implementation, new overloads boolean+number+implementation => scanDeletedSymbols returns [] even though the string overload was removed. WHY: the round-6 contract requires true overload removal to remain detected; the existing smoke only covers count-decreasing removal and misses same-count replacement. Preserve name-level continuity for declarations with bodies, but match bodyless overload signatures by normalized signature/multiset so removed overloads cannot be canceled by newly added signatures; add the same-count replacement regression.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-18T00:56:07.203Z",
+      "reviewRound": "2026-07-18T00:53:30.666Z",
+      "reviewRunId": "B-62b8:RR-021",
+      "_hash": "e81249652b27fb4898f0890ece9eb5a7ec2e54e8f65938fbe892c0e37efa3665",
+      "signatureTag": "edge|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
