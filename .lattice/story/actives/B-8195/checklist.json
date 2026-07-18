@@ -43,7 +43,7 @@
           }
         ]
       },
-      "userSees": "RED test reports the current failure: reuse selected commandExecutions=0 but validate returns infra_failure because canonical process-events metadata is dirty.",
+      "userSees": "The RED terminal prints \"status=fail\", \"failureKind=infra_failure\", \"canonical-pass-persistence-failed\", and \"commandExecutions=0\" for the current implementation.",
       "files": {
         "modify": [
           "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
