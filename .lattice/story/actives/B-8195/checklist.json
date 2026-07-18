@@ -277,9 +277,9 @@
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#acceptance",
         "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-18T10:54:18.215Z",
-      "endTime": "2026-07-18T12:43:10.621Z",
+      "endTime": "2026-07-18T19:22:48.760Z",
       "verificationIntent": {
         "happy": [
           {
@@ -531,6 +531,15 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Root flow-stability regression requires structured handling of non-git persistence preflight failures while preserving validation-failure gate semantics."
+    },
+    {
+      "timestamp": "2026-07-18T19:22:48.760Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Non-git persistence preflight/capture errors are structured, validation-failure gate semantics and FAIL evidence are restored, and focused regressions pass."
     }
   ]
 }
