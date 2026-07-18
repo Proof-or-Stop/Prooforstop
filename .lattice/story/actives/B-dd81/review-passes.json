@@ -256,6 +256,38 @@
       },
       "readDiagnostics": [],
       "_hash": "017677c345fd8baf6d2537d81e0c4cf1d936004ef88d17e5f1d7b3aac83f8f82"
+    },
+    {
+      "id": "B-dd81:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review confirms F013: an explicit invalid provider remains unknown despite competing Codex or Claude environment variables and fails before any dispatch provenance, ReviewRun or Envelope is persisted, while truly absent provider input retains supported host inference.",
+      "createdAt": "2026-07-18T23:51:09.822Z",
+      "reviewRound": "2026-07-18T23:43:17.744Z",
+      "reviewRunId": "B-dd81:RR-017",
+      "writerSessionId": "sess-bbc70cb6a16008e97230e79f211800a2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-dd81/background.md",
+          ".lattice/story/actives/B-dd81/plan.md",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-dd81/checklist.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/owner-session.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8990b3f18e7603a6e0a581aa9c49cd7ea4daec8d91c7ec0f607b29ee7c0dc579"
     }
   ]
 }
