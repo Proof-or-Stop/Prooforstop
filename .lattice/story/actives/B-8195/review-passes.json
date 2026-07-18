@@ -122,6 +122,28 @@
       },
       "readDiagnostics": [],
       "_hash": "3407b32fe5af378effa89bccf3429717926dd5e3aee901f6338b6a09a80de352"
+    },
+    {
+      "id": "B-8195:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Targeted F-009 delta review: structured validate and TEST failures now persist exactly one clean-boundary codex_cli failure row; foreign canonical bytes remain untouched with activity fallback, closeout errors do not recurse, and PASS closeout behavior is unchanged. F-009-only smoke passed.",
+      "createdAt": "2026-07-18T11:53:25.837Z",
+      "reviewRound": "2026-07-18T11:51:11.117Z",
+      "reviewRunId": "B-8195:RR-009",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "db8364217faeaa123ae4151d62bd133aa5f1819d73309584230c9130a17c4d3a"
     }
   ]
 }
