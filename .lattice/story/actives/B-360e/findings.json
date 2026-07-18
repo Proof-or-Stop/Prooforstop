@@ -570,7 +570,7 @@
       "desc": "packages/main/src/handlers/validate-concept.ts:458 Binary sections are accepted diagnostic-free for every path, including supported declaration-bearing extensions. A `.ts`, `.js`, or `.py` file replaced by binary content—or a binary deletion reported as `Binary files a/src/deleted.ts and /dev/null differ`—returns symbols=[], diagnostics=[], so all prior source declarations disappear without concept review. The current smoke only proves `.bin` remains ignored and misses this supported-source boundary. For any binary section whose authoritative old or new path has a supported TS/JS/Python extension, fail closed with a focused diagnostic (especially replacement/deletion and `/dev/null` direction); retain diagnostic-free behavior only for unsupported binary assets. Add supported-source binary replace/delete/add/rename/copy probes.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-18T10:20:55.914Z",
@@ -582,7 +582,11 @@
         "packages/main/src/tasks/concept-gate-scope-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 3d9cabef8d: unquoted diff headers enumerate every b/ delimiter candidate and resolve only through side-header, rename/copy, null-identity, or exact-symmetry corroboration; unresolved/ambiguous headers fail closed. Binary markers now fail closed for any supported TS/JS/Python authoritative or metadata endpoint, while unsupported binaries remain ignored. Full path-ambiguity and binary add/replace/delete/rename/copy probes pass.",
+      "resolvedAt": "2026-07-18T10:26:38.470Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-360e:F-028",
