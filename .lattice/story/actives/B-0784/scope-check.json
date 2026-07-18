@@ -1,6 +1,6 @@
 {
   "storyId": "B-0784",
-  "checkedAt": "2026-07-18T01:48:19.698Z",
+  "checkedAt": "2026-07-18T01:49:19.880Z",
   "features": [
     {
       "feature": "Persist new scope-contract paths in one explicit versioned repo-root-relative identity",
@@ -24,9 +24,9 @@
       "source": "decisions:decisions/workflow-convergence-failure-remediation-execution-plan.md"
     },
     {
-      "feature": "Implement an independently configurable path-canonicalization rollout/rollback control and a versioned legacy reader that preserves signed history without rewriting it; the declared file scope currently omits the config/CLI schema and shared artifact-read boundary needed to make this end-to-end",
-      "covered_by": null,
-      "status": "gap",
+      "feature": "Implement an independently configurable path-canonicalization rollout/rollback control and a versioned legacy reader that preserves signed history without rewriting it",
+      "covered_by": "CHK-001",
+      "status": "covered",
       "excluded_by": null,
       "source": "decisions:decisions/workflow-convergence-failure-remediation-execution-plan.md"
     },
@@ -52,9 +52,9 @@
       "source": "decisions:decisions/workflow-convergence-failure-remediation-execution-plan.md"
     },
     {
-      "feature": "Implement an AST-anchor rollout switch independent of path rollout and make parser/schema-version drift stale or require re-attestation while rollback reads historical signed anchors without reinterpretation; the declared file scope has no configuration/CLI control boundary",
-      "covered_by": null,
-      "status": "gap",
+      "feature": "Implement an AST-anchor rollout switch independent of path rollout and make parser/schema-version drift stale or require re-attestation while rollback reads historical signed anchors without reinterpretation",
+      "covered_by": "CHK-002",
+      "status": "covered",
       "excluded_by": null,
       "source": "decisions:decisions/workflow-convergence-failure-remediation-execution-plan.md"
     },
@@ -236,13 +236,13 @@
   },
   "summary": {
     "total": 15,
-    "covered": 13,
+    "covered": 15,
     "excluded": 0,
-    "gaps": 2,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "2d22ae27797c37f58112d1d6109dca598d9a6f8d19ea30a87085a477af4597b9",
+  "_hash": "5a80b1e4e6bcfec4029d7a17e9b5c44ac4df3f380957281ea1e30e44dfd2f715",
   "openQuestions": []
 }
