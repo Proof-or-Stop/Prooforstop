@@ -70,16 +70,23 @@
         "happy": [
           {
             "id": "CHK-002:happy:0",
-            "desc": "Two concurrent same-owner DEV->REVIEW transitions for the same story produce exactly one currentReviewRound and one phase_transition event.",
+            "desc": "two concurrent same-owner DEV->REVIEW transitions produce exactly one currentReviewRound and one phase_transition event.",
             "type": "cli",
             "priority": "must"
           }
         ],
-        "edge": [],
+        "edge": [
+          {
+            "id": "CHK-002:edge:0",
+            "desc": "the losing transition observes the committed post-transition state, not a stale re-mint.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
         "adversarial": [
           {
             "id": "CHK-002:adversarial:0",
-            "desc": "The losing concurrent transition observes the committed post-transition state and does not re-mint a second review round.",
+            "desc": "a transition that throws mid-critical-section releases the lock (no deadlock); DONE still uses only the main write lock.",
             "type": "cli",
             "priority": "must"
           }
