@@ -411,6 +411,21 @@
       ],
       "signatureTag": "edge|ts|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-360e:F-020",
+      "desc": "packages/main/src/handlers/validate-concept.ts:154-186 — MEDIUM: diff path parsing handles only unquoted `diff --git a/... b/...` and unquoted `--- a/...`/`+++ b/...` headers. Git default core.quotePath emits C-quoted headers for non-ASCII/control-character paths (for example `\"a/src/\\344\\270\\255.ts\"`). Those header lines fall into the synthetic __fragment__.ts source; the path octal escapes are parsed as TypeScript and produce bogus `Octal escape sequences are not allowed` diagnostics. Repro with an otherwise valid deletion of `unicodePathDeletion` returns the symbol plus three diagnostics, so the concept gate falsely blocks legitimate source changes under Unicode filenames. Parse/decode Git C-quoted path tokens for diff/side headers (while preserving /dev/null), and add default-quoted Unicode plus tab/quote path probes proving correct side identity and zero diagnostics.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-18T09:57:04.140Z",
+      "reviewRound": "2026-07-18T09:55:07.480Z",
+      "reviewRunId": "B-360e:RR-025",
+      "_hash": "ac9faf50aa71a62ae4f5fd9ed608e4724e42d82d01754b68a100510a96d81436",
+      "signatureTag": "edge|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
