@@ -134,6 +134,21 @@
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-dd81:F-007",
+      "desc": "B-dd81 verification evidence is not fully fresh: checklist CHK-002 contains two rows for intent agent-prompt-story-full-assembly. The current row is bound to b4efda425c/storyFilesHash 82d096aa, but the older duplicate integration_test row remains bound to 75f937812b/storyFilesHash 1b35eb0a. session_brief reports exactly 1 stale verification intent after the round-2 refresh. Remove or replace the obsolete duplicate through the checklist evidence command path and confirm slim/full coverage reports 47 intent refs with no stale rows before TEST.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-18T21:55:41.411Z",
+      "reviewRound": "2026-07-18T21:50:02.147Z",
+      "reviewRunId": "B-dd81:RR-005",
+      "_hash": "c8b95dc620ad6f4012500df46e0dc036178dfbd2c2cafdf9554d5fc39b69adf1",
+      "signatureTag": "missing|unknown|dd81-verification-evidence",
+      "signatureTagSource": "auto"
     }
   ]
 }
