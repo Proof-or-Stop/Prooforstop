@@ -286,7 +286,7 @@
       "desc": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts:61-134 — HIGH: canonical fail-closed/determinism coverage omits Proxy-wrapped arrays and objects. Independent repro against current dist uses an array Proxy with a stateful getOwnPropertyDescriptor trap; canonicalJsonStringify of the unchanged proxy returns [3] then [6]. The candidate traversal consumes proxy traps into admissible canonical bytes, so CHK-001 deterministic-algorithm and canonical-fail-closed intents remain uncovered. Reject Proxy inputs before traversal and add array/object Proxy probes, including stateful descriptor/ownKeys traps, proving no proxy yields an admissible digest.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-18T00:30:05.922Z",
@@ -298,7 +298,11 @@
         "packages/main/src/core/prompt-contracts.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 04e9e4385d: smoke covers instrumented plain-object and stateful array Proxies with zero traps invoked, revoked Proxy rejection, and unchanged normal plain inputs.",
+      "resolvedAt": "2026-07-18T00:32:01.595Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
