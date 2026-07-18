@@ -58,7 +58,26 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:0",
+            "desc": "Two concurrent same-owner DEV->REVIEW transitions for the same story produce exactly one currentReviewRound and one phase_transition event.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:0",
+            "desc": "The losing concurrent transition observes the committed post-transition state and does not re-mint a second review round.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ],
   "auditLog": [
