@@ -39,6 +39,128 @@ function cliPath(): string {
   return join(resolve(dirname(fileURLToPath(import.meta.url)), '..'), 'cli.js');
 }
 
+function assertReviewToTestTransitionLeavesExactReuseRed(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-validation-reuse-transition-red-'));
+  const counterPath = join(tmpdir(), `lattice-validation-reuse-transition-red-${process.pid}-${Date.now()}.log`);
+  const storyId = 'B-reuse-transition-red';
+  try {
+    writeFileSync(join(root, '.gitignore'), [
+      '.lattice/activity.jsonl',
+      '.lattice/locks/',
+      '',
+    ].join('\n'), 'utf8');
+    writeFileSync(join(root, 'probe.mjs'), [
+      "import { appendFileSync } from 'node:fs';",
+      "appendFileSync(process.env.VALIDATION_REUSE_SMOKE_COUNTER, 'run\\n');",
+      "console.log('transition reuse probe PASS');",
+      '',
+    ].join('\n'), 'utf8');
+    writeFileSync(join(root, 'source.ts'), 'export const transitionReuse = true;\n', 'utf8');
+    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+      scanRoot: '.',
+      rootDir: '.',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      workflow: { profile: 'light' },
+      validate: {
+        commands: [{
+          label: 'transition reuse probe',
+          command: process.execPath,
+          args: ['probe.mjs'],
+          timeoutMs: 10_000,
+        }],
+      },
+    }, null, 2), 'utf8');
+    git(root, ['init']);
+    git(root, ['checkout', '-b', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+
+    const now = '2026-07-18T00:00:00.000Z';
+    const store = new StoryStore(root);
+    store.writeStory(storyId, {
+      storyId,
+      name: 'reuse-transition-red',
+      title: 'reuse transition RED',
+      description: 'Proves the real REVIEW to TEST transition leaves canonical metadata that blocks immediate reuse.',
+      type: 'bug',
+      phase: 'REVIEW',
+      priority: 'medium',
+      createdAt: now,
+      startedAt: now,
+      endedAt: null,
+      riskSignals: [],
+      currentReviewRound: now,
+      events: [{ phase: 'REVIEW', action: 'advance', timestamp: now }],
+    });
+    store.writeChecklist(storyId, { items: [{
+      id: 'CHK-001',
+      title: 'transition reuse RED',
+      context: 'No required intents keeps current coverage complete.',
+      status: 'done',
+      startTime: now,
+      endTime: now,
+    }] });
+    git(root, ['add', '.lattice']);
+    git(root, ['commit', '-m', 'seed story metadata']);
+
+    const runCli = (args: string[]) => spawnSync(process.execPath, [cliPath(), ...args], {
+      cwd: root,
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        LATTICE_PROJECT_ROOT: root,
+        LATTICE_SESSION_ID: 'validation-reuse-transition-red',
+        LATTICE_ACTIVITY_SOURCE: 'codex',
+        VALIDATION_REUSE_SMOKE_COUNTER: counterPath,
+      },
+    });
+    const first = runCli(['validate', `--story=${storyId}`, '--json']);
+    assert.equal(first.status, 0, `${first.stdout}\n${first.stderr}`);
+    assert.match(`${first.stdout}\n${first.stderr}`, /"disposition":"executed"/);
+    assert.match(`${first.stdout}\n${first.stderr}`, /"commandExecutions":1/);
+    assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, 1);
+
+    // Establish the deliberately clean command-entry baseline. The regression
+    // begins with the following authorized TEST transition, not with residue
+    // from the command that seeded the reusable PASS.
+    const seededDirty = git(root, ['status', '--porcelain=v1', '--untracked-files=all']);
+    assert.match(seededDirty, /process-events\.jsonl/, 'Codex command telemetry must participate in the production-path fixture');
+    git(root, ['add', '.lattice']);
+    git(root, ['commit', '-m', 'establish clean fresh PASS baseline']);
+    assert.equal(git(root, ['status', '--porcelain=v1', '--untracked-files=all']), '');
+
+    const advance = runCli(['story_advance', JSON.stringify({ storyId, phase: 'TEST' })]);
+    assert.equal(advance.status, 0, `${advance.stdout}\n${advance.stderr}`);
+    assert.equal(store.readStory(storyId).phase, 'TEST');
+    assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, 1,
+      'internal TEST gate must reuse the fresh PASS without executing the project command');
+    const preValidateStatus = git(root, ['status', '--porcelain=v1', '--untracked-files=all']);
+    assert.match(preValidateStatus, /process-events\.jsonl/, 'authorized TEST transition must reproduce canonical process-event dirt');
+    assert.match(preValidateStatus, /process-metrics\.json|index\.json/, 'authorized TEST transition must reproduce canonical lifecycle dirt');
+
+    const immediate = runCli(['validate', `--story=${storyId}`, '--json']);
+    assert.equal(immediate.status, 0, `${immediate.stdout}\n${immediate.stderr}`);
+    const output = `${immediate.stdout}\n${immediate.stderr}`;
+    assert.match(output, /"status":"fail"/);
+    assert.match(output, /"failureKind":"infra_failure"/);
+    assert.match(output, /canonical-pass-persistence-failed/);
+    assert.match(output, /routine validation reused; commandExecutions=0/);
+    assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, 1,
+      'the RED is specifically zero-command persistence failure, never a hidden validation rerun');
+    assert.equal(
+      git(root, ['diff', '--', 'source.ts', 'lattice.config.json', 'probe.mjs']),
+      '',
+      'the fixture must not create source/config dirt that could masquerade as the lifecycle metadata failure',
+    );
+    console.log('transition fresh-PASS RED: status=fail failureKind=infra_failure canonical-pass-persistence-failed commandExecutions=0');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+    rmSync(counterPath, { force: true });
+  }
+}
+
 function assertHandlerExecutedThenReused(
   sourceKind: 'configured' | 'fallback' | 'validate-file',
   commandCount = 1,
@@ -381,6 +503,7 @@ function identity(root: string, sourceKind: RoutineValidationSourceKind, command
 }
 
 function main(): void {
+  assertReviewToTestTransitionLeavesExactReuseRed();
   const root = mkdtempSync(join(tmpdir(), 'lattice-validation-reuse-'));
   try {
     writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({ storyDir: '.lattice/story/actives', scanRoot: '.', requirementsDir: 'docs/requirements' }), 'utf8');
