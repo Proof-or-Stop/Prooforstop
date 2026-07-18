@@ -267,7 +267,7 @@
           },
           {
             "id": "retry-identity-semantics-distinguished",
-            "desc": "A new reviewer/dispatch retry creates a distinct signed ReviewRun and new envelope binding, while a provider transport retry within the same recorded attempt preserves the existing usage-ledger attemptId and links every retry observation to that identity without minting a new ReviewRun or double-counting a logical attempt.",
+            "desc": "A new reviewer/dispatch retry creates a distinct signed ReviewRun and envelope binding. A provider retry remains grouped under the same logical usage-ledger ledgerCallId but mints a fresh attemptId for each execution attempt; it does not mint a new ReviewRun merely because of transport/provider retry and does not collapse separate attempts into one identity.",
             "type": "cli",
             "requiredIn": "balanced",
             "priority": "must"
@@ -282,15 +282,15 @@
             "priority": "must"
           },
           {
-            "id": "review-run-restart-invalidates-prior-envelope",
-            "desc": "Starting a replacement ReviewRun for the same lane/HEAD/round makes the prior run/envelope ineligible according to the registered recency rule; delayed completion from the superseded run cannot overwrite or accompany the newer run, while historical artifacts remain readable for audit.",
+            "id": "review-run-restart-preserves-fresh-prior-pass",
+            "desc": "Starting a newer same-lane ReviewRun does not invalidate a non-latest pass merely by ID recency. A coherent pass bound to the older signed run remains valid when round, lane, workspace, material and scope are fresh, including the empty-storyFilesHash strict guard; older open findings remain surfaced and cannot be hidden by the newer pass.",
             "type": "cli",
             "requiredIn": "strict",
             "priority": "must"
           },
           {
             "id": "usage-ledger-retry-terminal-accounting",
-            "desc": "Zero, one and multiple provider retries preserve one stable attemptId and deterministic retry sequencing; partial/failure observations cannot masquerade as final usage, exact duplicate delivery is idempotent, conflicting duplicates fail closed, and the final provider-reported component totals remain attributable to the original logical attempt.",
+            "desc": "Zero, one and multiple provider retries share one ledgerCallId but each execution attempt has a fresh attemptId and monotonic per-attempt record sequence. Partial/failure records cannot masquerade as terminal success, exact duplicate records for one ledgerCallId+attemptId are idempotent, conflicting duplicates fail closed, and all failed/successful attempts remain attributable to the logical call without overwriting one another.",
             "type": "logic",
             "requiredIn": "strict",
             "priority": "must"
@@ -305,8 +305,8 @@
         ],
         "adversarial": [
           {
-            "id": "envelope-replay-new-head-rejected",
-            "desc": "Capture a valid signed envelope/pass, change the authoritative HEAD including metadata-only and material changes, and replay the old evidence; every gate consumer rejects it with the same stable stale-HEAD reason until a new ReviewRun and envelope are created for the current HEAD.",
+            "id": "envelope-replay-freshness-drift-rejected",
+            "desc": "Capture a valid signed envelope/pass, then introduce genuine story-owned material or scope drift and replay it; every gate consumer rejects the stale evidence until a newly fresh binding exists. A headHash-only or unrelated whole-tree change is classified by the canonical freshness reader and is not rejected solely because the commit ID changed; empty storyFilesHash provides no advisory downgrade.",
             "type": "cli",
             "requiredIn": "strict",
             "priority": "must"
@@ -320,7 +320,7 @@
           },
           {
             "id": "envelope-replay-other-reviewrun-rejected",
-            "desc": "At identical Story, HEAD, round and role, substitute an envelope or pass from another signed ReviewRun, lane or restarted run, or change only reviewRunId/hash/signature; verification rejects the mismatch before finding/pass persistence and before aggregate gate counting.",
+            "desc": "Cross-run field substitution is rejected: an envelopeId/payload/pass from run A cannot be relabeled with run B reviewRunId, hash, signature or lane, and mixed fields from two valid runs fail before persistence/counting. A wholly coherent signed non-latest pass from run A is not treated as replay merely by recency when it remains same-round, material-fresh and scope-fresh.",
             "type": "cli",
             "requiredIn": "strict",
             "priority": "must"
