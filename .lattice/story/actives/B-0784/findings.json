@@ -301,6 +301,27 @@
       "resolvedAt": "2026-07-18T02:37:57.942Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0784:F-013",
+      "desc": "F-006 was resolved only partially. The new assertions call checkScopeContract separately for path off/warn/enforce and checkSemanticScope separately for AST off/warn/enforce, but they do not exercise the required independent/cartesian rollout combinations through the configured writer/read production entries. They also do not test a future/changed canonicalizer or parser/artifact version, forward re-enable producing current-version artifacts, or preserve the actual persisted signed artifact bytes (JSON.stringify of an in-memory legacy object is not a store read/write rollback test). CHK-001 happy:2/edge:2, CHK-002 edge:2 and CHK-004 happy:3/edge:0 therefore remain overclaimed. Add a compact table-driven handler/store/buildScopeDiffPack matrix for all path×AST modes plus legacy/current/future versions and byte-preserving rollback/re-enable.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-18T02:40:30.622Z",
+      "reviewRound": "2026-07-18T02:37:22.053Z",
+      "reviewRunId": "B-0784:RR-005",
+      "_hash": "67a700cf0ee0f6bd4ab4969e53be908ecad9bb37074b8d85ba820414e6eb745b",
+      "files": [
+        "packages/main/src/tasks/scope-contract-smoke.ts",
+        "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+        "packages/main/src/handlers/scope-contract.ts",
+        "packages/main/src/core/scope-diff-pack.ts"
+      ],
+      "signatureTag": "missing|ts|resolved-partially-assertions",
+      "signatureTagSource": "auto"
     }
   ]
 }
