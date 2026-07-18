@@ -149,6 +149,21 @@
       "_hash": "c8b95dc620ad6f4012500df46e0dc036178dfbd2c2cafdf9554d5fc39b69adf1",
       "signatureTag": "missing|unknown|dd81-verification-evidence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-dd81:F-008",
+      "desc": "packages/main/src/handlers/review-run.ts:173-184 and packages/main/src/core/review-run.ts:528-542 [HIGH] review-run creation and gate verification both read the package-owned raw template, so they are mutually self-consistent even when the prompt actually rendered/loaded for the reviewer host differs. The standard reviewer launch is separately built by packages/main/src/handlers/story-dispatch.ts:294-331 and Codex loads .lattice-codex/agents/lattice-review-quality.md; neither byte stream/digest is bound into the saved Envelope or checked by the gate. Confirmed on the current worktree after build: package/renderedForCodex SHA-256=f7ec0664... while the actual Codex asset SHA-256=fe57b551... (renderedEqualsActualAsset=false), yet the focused Envelope/ReviewRun/quorum smokes pass because both producer and verifier reread the same package template. Thus a stale or altered host role prompt can mint a pass accepted under an Envelope for different role instructions, and the round-2 fix does not establish mutual consistency among dispatch lane, rendered role prompt, saved Envelope, and returned assembled prompt. Bind the actual host-rendered dispatch input (or a mechanically verified asset/render identity plus dispatch wrapper) before launch, persist its digest/bytes, and make gate verification reject host-render or dispatch drift; add a mutation test that changes the host-rendered asset/dispatch prompt while leaving the package template unchanged.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-18T21:58:25.755Z",
+      "reviewRound": "2026-07-18T21:50:02.147Z",
+      "reviewRunId": "B-dd81:RR-007",
+      "_hash": "75a3dfd450b46f7cb230746e6236d7d47f37b21b97c21dd38eaf64c32be90ad9",
+      "signatureTag": "adversarial|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
