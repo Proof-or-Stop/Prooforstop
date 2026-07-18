@@ -359,7 +359,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-18T22:39:51.705Z",
+      "endTime": "2026-07-18T23:15:38.991Z",
       "verificationIntent": {
         "happy": [
           {
@@ -424,121 +424,121 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
-          "note": "quorum_submit smoke passed 20 checks including exact six-row commit, refusal and all-or-none rollback matrix.",
-          "headHash": "b25fe692c0830d8d9721b666dc2fa3014bd22b14",
-          "materialHash": "4224e1712ac63b6699a3f7c49713d041ec2ccefa985d064b4a2e51e17bef8959",
-          "storyFilesHash": "e3da6ea08864425d485a9e6cd829b642f930d62de812b3e150786cdaa399f9b3",
-          "timestamp": "2026-07-18T22:39:52.166Z"
+          "note": "quorum_submit focused smoke passed 27 checks across production CLI, exact canonical bytes, durable duplicate authority, and all-or-none Buffer rollback.",
+          "headHash": "13fff637fb2adff819ef465d9162a03a9e2317cf",
+          "materialHash": "d0807cfbd0cb8c4dfb774a77c2577fe049606a93a6719dc93a96dad024005bee",
+          "storyFilesHash": "5b2fa070efff18ee7d13c0e58c3d59e176d41c43f5aae1d0b74b065564c7b67f",
+          "timestamp": "2026-07-18T23:15:39.349Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
           "kind": "logic_test",
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Process Fact Contract verified atomic-persistence semantics and gate-consumer projection.",
-          "headHash": "b25fe692c0830d8d9721b666dc2fa3014bd22b14",
-          "materialHash": "4224e1712ac63b6699a3f7c49713d041ec2ccefa985d064b4a2e51e17bef8959",
-          "storyFilesHash": "e3da6ea08864425d485a9e6cd829b642f930d62de812b3e150786cdaa399f9b3",
-          "timestamp": "2026-07-18T22:39:52.602Z"
+          "note": "Process Fact Contract verified atomic-persistence and quorum-owned CLI terminal semantics.",
+          "headHash": "13fff637fb2adff819ef465d9162a03a9e2317cf",
+          "materialHash": "d0807cfbd0cb8c4dfb774a77c2577fe049606a93a6719dc93a96dad024005bee",
+          "storyFilesHash": "5b2fa070efff18ee7d13c0e58c3d59e176d41c43f5aae1d0b74b065564c7b67f",
+          "timestamp": "2026-07-18T23:15:39.679Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
-          "note": "quorum_submit smoke passed 20 checks including exact six-row commit, refusal and all-or-none rollback matrix.",
-          "headHash": "b25fe692c0830d8d9721b666dc2fa3014bd22b14",
-          "materialHash": "4224e1712ac63b6699a3f7c49713d041ec2ccefa985d064b4a2e51e17bef8959",
-          "storyFilesHash": "e3da6ea08864425d485a9e6cd829b642f930d62de812b3e150786cdaa399f9b3",
-          "timestamp": "2026-07-18T22:39:53.071Z"
+          "note": "quorum_submit focused smoke passed 27 checks across production CLI, exact canonical bytes, durable duplicate authority, and all-or-none Buffer rollback.",
+          "headHash": "13fff637fb2adff819ef465d9162a03a9e2317cf",
+          "materialHash": "d0807cfbd0cb8c4dfb774a77c2577fe049606a93a6719dc93a96dad024005bee",
+          "storyFilesHash": "5b2fa070efff18ee7d13c0e58c3d59e176d41c43f5aae1d0b74b065564c7b67f",
+          "timestamp": "2026-07-18T23:15:40.075Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
-          "note": "quorum_submit smoke passed 20 checks including exact six-row commit, refusal and all-or-none rollback matrix.",
-          "headHash": "b25fe692c0830d8d9721b666dc2fa3014bd22b14",
-          "materialHash": "4224e1712ac63b6699a3f7c49713d041ec2ccefa985d064b4a2e51e17bef8959",
-          "storyFilesHash": "e3da6ea08864425d485a9e6cd829b642f930d62de812b3e150786cdaa399f9b3",
-          "timestamp": "2026-07-18T22:39:53.620Z"
+          "note": "quorum_submit focused smoke passed 27 checks across production CLI, exact canonical bytes, durable duplicate authority, and all-or-none Buffer rollback.",
+          "headHash": "13fff637fb2adff819ef465d9162a03a9e2317cf",
+          "materialHash": "d0807cfbd0cb8c4dfb774a77c2577fe049606a93a6719dc93a96dad024005bee",
+          "storyFilesHash": "5b2fa070efff18ee7d13c0e58c3d59e176d41c43f5aae1d0b74b065564c7b67f",
+          "timestamp": "2026-07-18T23:15:40.391Z"
         },
         {
           "intentRef": "CHK-003:edge:2",
           "kind": "logic_test",
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Process Fact Contract verified atomic-persistence semantics and gate-consumer projection.",
-          "headHash": "b25fe692c0830d8d9721b666dc2fa3014bd22b14",
-          "materialHash": "4224e1712ac63b6699a3f7c49713d041ec2ccefa985d064b4a2e51e17bef8959",
-          "storyFilesHash": "e3da6ea08864425d485a9e6cd829b642f930d62de812b3e150786cdaa399f9b3",
-          "timestamp": "2026-07-18T22:39:54.113Z"
+          "note": "Process Fact Contract verified atomic-persistence and quorum-owned CLI terminal semantics.",
+          "headHash": "13fff637fb2adff819ef465d9162a03a9e2317cf",
+          "materialHash": "d0807cfbd0cb8c4dfb774a77c2577fe049606a93a6719dc93a96dad024005bee",
+          "storyFilesHash": "5b2fa070efff18ee7d13c0e58c3d59e176d41c43f5aae1d0b74b065564c7b67f",
+          "timestamp": "2026-07-18T23:15:40.705Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
-          "note": "quorum_submit smoke passed 20 checks including exact six-row commit, refusal and all-or-none rollback matrix.",
-          "headHash": "b25fe692c0830d8d9721b666dc2fa3014bd22b14",
-          "materialHash": "4224e1712ac63b6699a3f7c49713d041ec2ccefa985d064b4a2e51e17bef8959",
-          "storyFilesHash": "e3da6ea08864425d485a9e6cd829b642f930d62de812b3e150786cdaa399f9b3",
-          "timestamp": "2026-07-18T22:39:54.568Z"
+          "note": "quorum_submit focused smoke passed 27 checks across production CLI, exact canonical bytes, durable duplicate authority, and all-or-none Buffer rollback.",
+          "headHash": "13fff637fb2adff819ef465d9162a03a9e2317cf",
+          "materialHash": "d0807cfbd0cb8c4dfb774a77c2577fe049606a93a6719dc93a96dad024005bee",
+          "storyFilesHash": "5b2fa070efff18ee7d13c0e58c3d59e176d41c43f5aae1d0b74b065564c7b67f",
+          "timestamp": "2026-07-18T23:15:41.069Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
-          "note": "quorum_submit smoke passed 20 checks including exact six-row commit, refusal and all-or-none rollback matrix.",
-          "headHash": "b25fe692c0830d8d9721b666dc2fa3014bd22b14",
-          "materialHash": "4224e1712ac63b6699a3f7c49713d041ec2ccefa985d064b4a2e51e17bef8959",
-          "storyFilesHash": "e3da6ea08864425d485a9e6cd829b642f930d62de812b3e150786cdaa399f9b3",
-          "timestamp": "2026-07-18T22:39:55.002Z"
+          "note": "quorum_submit focused smoke passed 27 checks across production CLI, exact canonical bytes, durable duplicate authority, and all-or-none Buffer rollback.",
+          "headHash": "13fff637fb2adff819ef465d9162a03a9e2317cf",
+          "materialHash": "d0807cfbd0cb8c4dfb774a77c2577fe049606a93a6719dc93a96dad024005bee",
+          "storyFilesHash": "5b2fa070efff18ee7d13c0e58c3d59e176d41c43f5aae1d0b74b065564c7b67f",
+          "timestamp": "2026-07-18T23:15:41.385Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
-          "note": "quorum_submit smoke passed 20 checks including exact six-row commit, refusal and all-or-none rollback matrix.",
-          "headHash": "b25fe692c0830d8d9721b666dc2fa3014bd22b14",
-          "materialHash": "4224e1712ac63b6699a3f7c49713d041ec2ccefa985d064b4a2e51e17bef8959",
-          "storyFilesHash": "e3da6ea08864425d485a9e6cd829b642f930d62de812b3e150786cdaa399f9b3",
-          "timestamp": "2026-07-18T22:39:55.519Z"
+          "note": "quorum_submit focused smoke passed 27 checks across production CLI, exact canonical bytes, durable duplicate authority, and all-or-none Buffer rollback.",
+          "headHash": "13fff637fb2adff819ef465d9162a03a9e2317cf",
+          "materialHash": "d0807cfbd0cb8c4dfb774a77c2577fe049606a93a6719dc93a96dad024005bee",
+          "storyFilesHash": "5b2fa070efff18ee7d13c0e58c3d59e176d41c43f5aae1d0b74b065564c7b67f",
+          "timestamp": "2026-07-18T23:15:41.808Z"
         },
         {
           "intentRef": "CHK-003:adversarial:3",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
-          "note": "quorum_submit smoke passed 20 checks including exact six-row commit, refusal and all-or-none rollback matrix.",
-          "headHash": "b25fe692c0830d8d9721b666dc2fa3014bd22b14",
-          "materialHash": "4224e1712ac63b6699a3f7c49713d041ec2ccefa985d064b4a2e51e17bef8959",
-          "storyFilesHash": "e3da6ea08864425d485a9e6cd829b642f930d62de812b3e150786cdaa399f9b3",
-          "timestamp": "2026-07-18T22:39:56.028Z"
+          "note": "quorum_submit focused smoke passed 27 checks across production CLI, exact canonical bytes, durable duplicate authority, and all-or-none Buffer rollback.",
+          "headHash": "13fff637fb2adff819ef465d9162a03a9e2317cf",
+          "materialHash": "d0807cfbd0cb8c4dfb774a77c2577fe049606a93a6719dc93a96dad024005bee",
+          "storyFilesHash": "5b2fa070efff18ee7d13c0e58c3d59e176d41c43f5aae1d0b74b065564c7b67f",
+          "timestamp": "2026-07-18T23:15:42.128Z"
         },
         {
           "intentRef": "CHK-003:adversarial:4",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
-          "note": "quorum_submit smoke passed 20 checks including exact six-row commit, refusal and all-or-none rollback matrix.",
-          "headHash": "b25fe692c0830d8d9721b666dc2fa3014bd22b14",
-          "materialHash": "4224e1712ac63b6699a3f7c49713d041ec2ccefa985d064b4a2e51e17bef8959",
-          "storyFilesHash": "e3da6ea08864425d485a9e6cd829b642f930d62de812b3e150786cdaa399f9b3",
-          "timestamp": "2026-07-18T22:39:56.459Z"
+          "note": "quorum_submit focused smoke passed 27 checks across production CLI, exact canonical bytes, durable duplicate authority, and all-or-none Buffer rollback.",
+          "headHash": "13fff637fb2adff819ef465d9162a03a9e2317cf",
+          "materialHash": "d0807cfbd0cb8c4dfb774a77c2577fe049606a93a6719dc93a96dad024005bee",
+          "storyFilesHash": "5b2fa070efff18ee7d13c0e58c3d59e176d41c43f5aae1d0b74b065564c7b67f",
+          "timestamp": "2026-07-18T23:15:42.442Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
-          "note": "Adversarial integration covers pre-dirty refusal, foreign append, hook rejection and retry, HEAD CAS, and rollback conflict.",
-          "headHash": "b25fe692c0830d8d9721b666dc2fa3014bd22b14",
-          "materialHash": "4224e1712ac63b6699a3f7c49713d041ec2ccefa985d064b4a2e51e17bef8959",
-          "storyFilesHash": "e3da6ea08864425d485a9e6cd829b642f930d62de812b3e150786cdaa399f9b3",
-          "timestamp": "2026-07-18T22:39:56.871Z"
+          "note": "27-check matrix covers full-event tamper, JSON byte ownership, committed duplicate authority, binary Buffer rollback, CLI pre-dirt and validation no-false-PASS.",
+          "headHash": "13fff637fb2adff819ef465d9162a03a9e2317cf",
+          "materialHash": "d0807cfbd0cb8c4dfb774a77c2577fe049606a93a6719dc93a96dad024005bee",
+          "storyFilesHash": "5b2fa070efff18ee7d13c0e58c3d59e176d41c43f5aae1d0b74b065564c7b67f",
+          "timestamp": "2026-07-18T23:15:42.749Z"
         }
       ]
     }
