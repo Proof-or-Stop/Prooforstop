@@ -242,7 +242,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-18T20:33:25.631Z",
-      "endTime": "2026-07-18T20:46:48.147Z",
+      "endTime": "2026-07-18T20:47:14.716Z",
       "userSees": "Calling agent_prompt for a Story returns the canonical full Prompt plus a deterministic content-addressed audit Envelope; caller-built authority fields are rejected, and only a reviewer ReviewRun can sign that envelopeId into gate-consumed evidence.",
       "files": {
         "modify": [
@@ -348,123 +348,134 @@
         {
           "intentRef": "agent-prompt-no-untrusted-handler-bypass",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
-          "note": "Final-head Story 2 contract and shared-predicate logic suite passed.",
-          "headHash": "f2a22addf259462c42109580bea64fe9ef098bf8",
+          "note": "Trusted handler logic and inaccessible untrusted assembly path passed.",
+          "headHash": "ea2e2209da354bbbf9c8cf7841a1b77609965024",
           "materialHash": "2a825b9e12479a7e74df0d0ee1d8cd03e9e3323231863a21e7b6d02cc087f9db",
           "storyFilesHash": "9341d18de526fcbe46aadaaed635198354b9547e61e83467374c988ee4d15c95",
-          "timestamp": "2026-07-18T20:46:48.450Z"
+          "timestamp": "2026-07-18T20:47:15.070Z"
         },
         {
           "intentRef": "agent-prompt-story-full-assembly",
           "kind": "integration_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
-          "note": "Final-head Story 2 CLI/integration, replay, rollback, zero-drift, assurance and quorum suite passed.",
-          "headHash": "f2a22addf259462c42109580bea64fe9ef098bf8",
+          "note": "Story-aware CLI and 16-role zero-drift integration passed.",
+          "headHash": "ea2e2209da354bbbf9c8cf7841a1b77609965024",
           "materialHash": "2a825b9e12479a7e74df0d0ee1d8cd03e9e3323231863a21e7b6d02cc087f9db",
           "storyFilesHash": "9341d18de526fcbe46aadaaed635198354b9547e61e83467374c988ee4d15c95",
-          "timestamp": "2026-07-18T20:46:48.732Z"
+          "timestamp": "2026-07-18T20:47:15.355Z"
         },
         {
           "intentRef": "agent-prompt-role-only-byte-zero-drift",
           "kind": "integration_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
-          "note": "Final-head Story 2 CLI/integration, replay, rollback, zero-drift, assurance and quorum suite passed.",
-          "headHash": "f2a22addf259462c42109580bea64fe9ef098bf8",
+          "note": "Story-aware CLI and 16-role zero-drift integration passed.",
+          "headHash": "ea2e2209da354bbbf9c8cf7841a1b77609965024",
           "materialHash": "2a825b9e12479a7e74df0d0ee1d8cd03e9e3323231863a21e7b6d02cc087f9db",
           "storyFilesHash": "9341d18de526fcbe46aadaaed635198354b9547e61e83467374c988ee4d15c95",
-          "timestamp": "2026-07-18T20:46:49.011Z"
+          "timestamp": "2026-07-18T20:47:15.678Z"
         },
         {
           "intentRef": "agent-prompt-repeatable-json-contract",
           "kind": "integration_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
-          "note": "Final-head Story 2 CLI/integration, replay, rollback, zero-drift, assurance and quorum suite passed.",
-          "headHash": "f2a22addf259462c42109580bea64fe9ef098bf8",
+          "note": "Story-aware CLI and 16-role zero-drift integration passed.",
+          "headHash": "ea2e2209da354bbbf9c8cf7841a1b77609965024",
           "materialHash": "2a825b9e12479a7e74df0d0ee1d8cd03e9e3323231863a21e7b6d02cc087f9db",
           "storyFilesHash": "9341d18de526fcbe46aadaaed635198354b9547e61e83467374c988ee4d15c95",
-          "timestamp": "2026-07-18T20:46:49.290Z"
+          "timestamp": "2026-07-18T20:47:15.959Z"
         },
         {
           "intentRef": "agent-prompt-storyless-legacy-boundary",
           "kind": "integration_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
-          "note": "Final-head Story 2 CLI/integration, replay, rollback, zero-drift, assurance and quorum suite passed.",
-          "headHash": "f2a22addf259462c42109580bea64fe9ef098bf8",
+          "note": "Story-aware CLI and 16-role zero-drift integration passed.",
+          "headHash": "ea2e2209da354bbbf9c8cf7841a1b77609965024",
           "materialHash": "2a825b9e12479a7e74df0d0ee1d8cd03e9e3323231863a21e7b6d02cc087f9db",
           "storyFilesHash": "9341d18de526fcbe46aadaaed635198354b9547e61e83467374c988ee4d15c95",
-          "timestamp": "2026-07-18T20:46:49.604Z"
+          "timestamp": "2026-07-18T20:47:16.265Z"
         },
         {
           "intentRef": "agent-prompt-worktree-authority-resolution",
           "kind": "integration_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
-          "note": "Final-head Story 2 CLI/integration, replay, rollback, zero-drift, assurance and quorum suite passed.",
-          "headHash": "f2a22addf259462c42109580bea64fe9ef098bf8",
+          "note": "Story-aware CLI and 16-role zero-drift integration passed.",
+          "headHash": "ea2e2209da354bbbf9c8cf7841a1b77609965024",
           "materialHash": "2a825b9e12479a7e74df0d0ee1d8cd03e9e3323231863a21e7b6d02cc087f9db",
           "storyFilesHash": "9341d18de526fcbe46aadaaed635198354b9547e61e83467374c988ee4d15c95",
-          "timestamp": "2026-07-18T20:46:49.898Z"
+          "timestamp": "2026-07-18T20:47:16.586Z"
         },
         {
           "intentRef": "agent-prompt-target-cardinality-role-status",
           "kind": "integration_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
-          "note": "Final-head Story 2 CLI/integration, replay, rollback, zero-drift, assurance and quorum suite passed.",
-          "headHash": "f2a22addf259462c42109580bea64fe9ef098bf8",
+          "note": "Story-aware CLI and 16-role zero-drift integration passed.",
+          "headHash": "ea2e2209da354bbbf9c8cf7841a1b77609965024",
           "materialHash": "2a825b9e12479a7e74df0d0ee1d8cd03e9e3323231863a21e7b6d02cc087f9db",
           "storyFilesHash": "9341d18de526fcbe46aadaaed635198354b9547e61e83467374c988ee4d15c95",
-          "timestamp": "2026-07-18T20:46:50.175Z"
+          "timestamp": "2026-07-18T20:47:16.888Z"
         },
         {
           "intentRef": "agent-prompt-no-provider-or-evidence-side-effect",
           "kind": "integration_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
-          "note": "Final-head Story 2 CLI/integration, replay, rollback, zero-drift, assurance and quorum suite passed.",
-          "headHash": "f2a22addf259462c42109580bea64fe9ef098bf8",
+          "note": "Story-aware CLI and 16-role zero-drift integration passed.",
+          "headHash": "ea2e2209da354bbbf9c8cf7841a1b77609965024",
           "materialHash": "2a825b9e12479a7e74df0d0ee1d8cd03e9e3323231863a21e7b6d02cc087f9db",
           "storyFilesHash": "9341d18de526fcbe46aadaaed635198354b9547e61e83467374c988ee4d15c95",
-          "timestamp": "2026-07-18T20:46:50.456Z"
+          "timestamp": "2026-07-18T20:47:17.184Z"
         },
         {
           "intentRef": "agent-prompt-rejects-caller-envelope-fields",
           "kind": "integration_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
-          "note": "Final-head Story 2 CLI/integration, replay, rollback, zero-drift, assurance and quorum suite passed.",
-          "headHash": "f2a22addf259462c42109580bea64fe9ef098bf8",
+          "note": "Story-aware CLI and 16-role zero-drift integration passed.",
+          "headHash": "ea2e2209da354bbbf9c8cf7841a1b77609965024",
           "materialHash": "2a825b9e12479a7e74df0d0ee1d8cd03e9e3323231863a21e7b6d02cc087f9db",
           "storyFilesHash": "9341d18de526fcbe46aadaaed635198354b9547e61e83467374c988ee4d15c95",
-          "timestamp": "2026-07-18T20:46:50.747Z"
+          "timestamp": "2026-07-18T20:47:17.482Z"
         },
         {
           "intentRef": "agent-prompt-rejects-prompt-splicing",
           "kind": "integration_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
-          "note": "Final-head Story 2 CLI/integration, replay, rollback, zero-drift, assurance and quorum suite passed.",
-          "headHash": "f2a22addf259462c42109580bea64fe9ef098bf8",
+          "note": "Story-aware CLI and 16-role zero-drift integration passed.",
+          "headHash": "ea2e2209da354bbbf9c8cf7841a1b77609965024",
           "materialHash": "2a825b9e12479a7e74df0d0ee1d8cd03e9e3323231863a21e7b6d02cc087f9db",
           "storyFilesHash": "9341d18de526fcbe46aadaaed635198354b9547e61e83467374c988ee4d15c95",
-          "timestamp": "2026-07-18T20:46:51.027Z"
+          "timestamp": "2026-07-18T20:47:17.772Z"
         },
         {
           "intentRef": "agent-prompt-role-only-drift-detector-sensitive",
           "kind": "integration_test",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
-          "note": "Final-head Story 2 CLI/integration, replay, rollback, zero-drift, assurance and quorum suite passed.",
-          "headHash": "f2a22addf259462c42109580bea64fe9ef098bf8",
+          "note": "Story-aware CLI and 16-role zero-drift integration passed.",
+          "headHash": "ea2e2209da354bbbf9c8cf7841a1b77609965024",
           "materialHash": "2a825b9e12479a7e74df0d0ee1d8cd03e9e3323231863a21e7b6d02cc087f9db",
           "storyFilesHash": "9341d18de526fcbe46aadaaed635198354b9547e61e83467374c988ee4d15c95",
-          "timestamp": "2026-07-18T20:46:51.332Z"
+          "timestamp": "2026-07-18T20:47:18.055Z"
+        },
+        {
+          "intentRef": "agent-prompt-story-full-assembly",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Direct handler seam proves trusted Story-aware assembly logic independently of CLI rendering.",
+          "headHash": "ea2e2209da354bbbf9c8cf7841a1b77609965024",
+          "materialHash": "2a825b9e12479a7e74df0d0ee1d8cd03e9e3323231863a21e7b6d02cc087f9db",
+          "storyFilesHash": "9341d18de526fcbe46aadaaed635198354b9547e61e83467374c988ee4d15c95",
+          "timestamp": "2026-07-18T20:47:18.375Z"
         }
       ]
     },
