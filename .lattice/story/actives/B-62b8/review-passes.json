@@ -236,6 +236,41 @@
         "scanEscalationReason": null
       },
       "_hash": "39609fc78693d69436754550bde18bc59ddfab0f1830885c35dd94fb342131a5"
+    },
+    {
+      "id": "B-62b8:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Round-5 bounded docs re-attestation PASS for 63c23a3c68. No docs changed. The two-file change makes the existing opaque usage/doctor projection idempotent and expands coverage across text, JSON, alert, and --out surfaces; it does not change the canonical non-disclosure contract or user-facing opaque-id/locator semantics. Exact canonical id plus host-bound locator is required before an input is trusted as already projected, so raw lookalikes still re-hash. Build and usage-burn-alert focused suite passed.",
+      "createdAt": "2026-07-18T00:35:36.834Z",
+      "reviewRound": "2026-07-18T00:33:52.557Z",
+      "reviewRunId": "B-62b8:RR-020",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/host-run-usage.md",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "ca7bd5fa3fa8b0a1e61da208ae526aacb3f1e9902f2a7c738aa871623910c96d"
+      },
+      "readDiagnostics": [],
+      "_hash": "8e03bdf9b5e25e5b357ba82ff3e92e5640d6f7895caed24aaced692cf6232d7d"
     }
   ]
 }
