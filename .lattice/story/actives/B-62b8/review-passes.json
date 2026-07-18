@@ -41,6 +41,41 @@
       },
       "readDiagnostics": [],
       "_hash": "a6e133b33b2bb2fd2d6d56dd36461af90256cf641150cf7bfc8813898781d685"
+    },
+    {
+      "id": "B-62b8:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Bounded round-3 docs review PASS for f3b9f3c13e. The canonical plan now specifies seven days of inactivity, successful same-scope use renews lastUsedAt/expiresAt under the scope lock without token rotation, and only truly idle records are replaced/repaired. owner-session-token-store implements exactly that sliding renewal and scoped cleanup; doctor health semantics remain aligned. Build plus story-owner-lease smoke passed, including active-past-original-TTL stability and truly-idle replacement. No promise drift found.",
+      "createdAt": "2026-07-18T00:14:13.972Z",
+      "reviewRound": "2026-07-18T00:12:18.838Z",
+      "reviewRunId": "B-62b8:RR-012",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "packages/main/src/core/owner-session-token-store.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/story-owner-lease-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "ca7bd5fa3fa8b0a1e61da208ae526aacb3f1e9902f2a7c738aa871623910c96d"
+      },
+      "readDiagnostics": [],
+      "_hash": "d3c18b123dec4aa9803d422836cd6afca374ac03dc222eaa913122b05ef959db"
     }
   ]
 }
