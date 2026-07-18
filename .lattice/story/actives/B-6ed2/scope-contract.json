@@ -1,0 +1,61 @@
+{
+  "storyId": "B-6ed2",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/quorum-submit.ts",
+    "packages/main/src/handlers/verdict.ts",
+    "packages/main/src/core/auto-commit-metadata.ts",
+    "packages/main/src/core/done-prepare-generated-metadata.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/quorum-submit-smoke.ts"
+  ],
+  "protectedFiles": [
+    "package.json",
+    "package-lock.json",
+    "packages/main/package.json",
+    "packages/main/package-lock.json",
+    "lattice.config.json"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/validation-evidence-reuse.ts",
+    "packages/main/src/core/runtime-fact-registry.ts",
+    "packages/main/src/core/candidate-spec-routing.ts",
+    "packages/main/src/handlers/cross-host-review.ts"
+  ],
+  "scopeChangeReason": "Focused B-6ed2 atomic durability fix for quorum-owned process-events only; heap, validation reuse, routing, remote host and package wiring are excluded.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-18T22:21:57.061Z",
+  "updatedAt": "2026-07-18T22:21:57.061Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/handlers/quorum-submit.ts": "packages/main/src/handlers/quorum-submit.ts",
+    "packages/main/src/handlers/verdict.ts": "packages/main/src/handlers/verdict.ts",
+    "packages/main/src/core/auto-commit-metadata.ts": "packages/main/src/core/auto-commit-metadata.ts",
+    "packages/main/src/core/done-prepare-generated-metadata.ts": "packages/main/src/core/done-prepare-generated-metadata.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "docs/requirements/decisions/review-assurance-floor-execution-plan.md": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+    "packages/main/src/tasks/quorum-submit-smoke.ts": "packages/main/src/tasks/quorum-submit-smoke.ts",
+    "package.json": "package.json",
+    "package-lock.json": "package-lock.json",
+    "packages/main/package.json": "packages/main/package.json",
+    "packages/main/package-lock.json": "packages/main/package-lock.json",
+    "lattice.config.json": "lattice.config.json",
+    "packages/main/src/handlers/verifier.ts": "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/validation-evidence-reuse.ts": "packages/main/src/core/validation-evidence-reuse.ts",
+    "packages/main/src/core/runtime-fact-registry.ts": "packages/main/src/core/runtime-fact-registry.ts",
+    "packages/main/src/core/candidate-spec-routing.ts": "packages/main/src/core/candidate-spec-routing.ts",
+    "packages/main/src/handlers/cross-host-review.ts": "packages/main/src/handlers/cross-host-review.ts"
+  }
+}
