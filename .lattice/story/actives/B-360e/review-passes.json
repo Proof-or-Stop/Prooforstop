@@ -241,6 +241,35 @@
       },
       "readDiagnostics": [],
       "_hash": "b9cea6bb1cbde1eefe039dc78326c649a55695b19ddec0cb5483d6bacb1f5866"
+    },
+    {
+      "id": "B-360e:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-7 full story coverage review found no blocker: production collectCurrentPromptState wrapper remains zero-argument, the isolated drift probe still uses the injected source/output helper and proves mutation-fail-restore-pass, all prior regressions pass, and 42/42 intents have fresh passing evidence on storyFilesHash b2fac02.",
+      "createdAt": "2026-07-18T09:46:43.770Z",
+      "reviewRound": "2026-07-18T09:44:03.277Z",
+      "reviewRunId": "B-360e:RR-021",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-360e/background.md",
+          ".lattice/story/actives/B-360e/plan.md",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-360e/checklist.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e86ca051441cd493610c629bb469ae3f8f75f296e175d2c88351688d939fd72b"
     }
   ]
 }
