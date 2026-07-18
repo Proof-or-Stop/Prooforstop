@@ -48,6 +48,25 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-360e:F-004",
+      "desc": "packages/main/src/core/prompt-contracts.ts:127 canonicalJsonStringify enumerates objects with Object.keys(), so unsupported own symbol keys and non-enumerable own fields silently disappear instead of failing closed. A plain object with a=1, one with an own Symbol key whose value is undefined, and one with a non-enumerable own hidden=undefined all serialize to the same {a:1} canonical JSON and produce the same domain-separated digest. That contradicts CHK-001's explicit invariant that unsupported/undefined values cannot disappear or collapse to an admissible digest, and it creates a content-address collision class before PromptEnvelope uses this primitive. Reject non-string/non-enumerable own keys (or otherwise mechanically constrain the accepted object domain) and add mutation probes.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-18T00:11:27.653Z",
+      "reviewRound": "2026-07-18T00:08:34.511Z",
+      "reviewRunId": "B-360e:RR-003",
+      "_hash": "03efa16aacb8cf7a7f09dc3892eb98b665ea10e61241fd3a123a81f8024c5f91",
+      "files": [
+        "packages/main/src/core/prompt-contracts.ts",
+        "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
