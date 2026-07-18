@@ -111,7 +111,7 @@
       "desc": "scripts/verify-proof-or-stop-prompt-baseline.mjs:2291-2409 — MEDIUM: --probe-baseline-drift mutates structuredClone(current) and compares two in-memory snapshots; it never changes one actual assembled Prompt/template, observes the normal verifier fail on bytes/hash, restores the source, and observes PASS. CHK-004 adversarial:2 requires that exact integration/restore path, while its evidence note accurately says only synthetic mutations. Add a non-destructive temp-worktree or injectable collector integration probe that exercises the real collection boundary and proves repository restoration.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-18T00:11:35.475Z",
@@ -122,7 +122,11 @@
         "scripts/verify-proof-or-stop-prompt-baseline.mjs"
       ],
       "signatureTag": "adversarial|mjs|scripts-verify-proof",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 973f9ce95a: verifier copies the real registry to an OS temp directory, collects pristine source/assembled output, mutates a copied prompt, proves normal registry/output bytes-hash comparisons fail, restores in finally, proves pass, and removes temp state; protected repository paths remain unchanged.",
+      "resolvedAt": "2026-07-18T00:16:10.304Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
