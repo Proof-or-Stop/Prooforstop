@@ -516,6 +516,19 @@
           "materialHash": "5def1bd2e5cf1aa993298993ac598030bfb69b83b871ddf7f19ab351088d9c21",
           "storyFilesHash": "36cddfa4983aeb5463bd0ba67d12b1a12701a88263efc25acd8cd87f68975105",
           "timestamp": "2026-07-18T01:00:54.100Z"
+        },
+        {
+          "intentRef": "CHK-002:authority-fingerprint-contract",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Full authority vocabulary guard ran to completion after enumerating all benign-loader fingerprints; exact cli-engine and Codex wrapper pins match current canonical AST, all anchors/arguments and negative controls remain narrow, and the mirrored process-fact contract passes.",
+          "headHash": "dfdf5c43e106b0021448d31c0c3c766fbd605e74",
+          "materialHash": "ecc7c101e97ea12f34fb3f091ea6cad0b29c32766d5d5ac607b13c7df9edafd4",
+          "storyFilesHash": "fde0c9c50326741d3206c4dcfd9bbe37bc79df31d6d1ef0e058924fb44629ad6",
+          "timestamp": "2026-07-18T01:16:49.345Z"
         }
       ]
     },
