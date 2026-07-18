@@ -49,7 +49,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:48-76 [high] FullTaskContext reduces each checklist item to id/title/status/context/userSees and carries only a scope digest. It omits verificationIntent, candidate source/test files, relatedDocs and the bounded candidate/scope facts that the execution plan defines as Full Context. Consequently the assembled review-run prompt cannot expose the acceptance criteria or review surface it claims to bind; the smoke test at packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:29-42 only exercises the same minimal shape and cannot detect the omission. Include the canonical bounded verification intents and candidate file/document/scope context (or an equivalently complete, mechanically resolvable trusted representation) in TaskContext and its digest before calling this full context.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-18T21:28:39.880Z",
@@ -57,7 +57,11 @@
       "reviewRunId": "B-dd81:RR-001",
       "_hash": "d7833dbf9eed1311511f8af8165af926e966759dabd6e3a1c98a8a034281de6f",
       "signatureTag": "missing|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in b4efda425c: FullTaskContext now includes canonical verificationIntent, candidate source/test files, relatedDocs and bounded scope facts, all digest-bound and covered by full-context smoke.",
+      "resolvedAt": "2026-07-18T21:50:30.400Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-dd81:F-004",
