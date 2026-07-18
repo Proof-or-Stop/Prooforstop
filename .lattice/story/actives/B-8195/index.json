@@ -4,7 +4,7 @@
   "title": "Make fresh validation reuse converge across trusted lifecycle metadata writes",
   "description": "RED-confirmed workflow bug: after a fresh routine validation PASS, trusted lifecycle metadata such as the TEST transition process event can leave process-events.jsonl dirty. The next mandatory validate correctly selects zero-command reuse but returns infra_failure canonical-pass-persistence-failed instead of atomically persisting the reused PASS. Fix only canonical same-flow metadata convergence while preserving fail-closed rejection for pre-existing human, external, forged, malformed, or unrelated dirty state.",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "riskSignals": [
     {
@@ -127,6 +127,15 @@
       "user": "Harmonygo",
       "sessionId": "codex-wa-final",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-18T12:43:58.206Z",
+      "branch": "story/B-8195",
+      "user": "Harmonygo",
+      "sessionId": "codex-wa-final",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -134,5 +143,5 @@
     "branch": "story/B-8195",
     "createdAt": "2026-07-18T10:03:21.210Z"
   },
-  "currentReviewRound": "2026-07-18T12:23:57.483Z"
+  "currentReviewRound": "2026-07-18T12:43:58.206Z"
 }
