@@ -43,7 +43,7 @@
       "desc": "packages/main/src/core/auto-commit-metadata.ts:239-247 with packages/main/src/core/done-prepare-generated-metadata.ts:450-460: HIGH — the concurrent HEAD/content mismatch branches call rollbackDonePrepareGeneratedMetadataTransaction, which unconditionally restores capture-time bytes and index entries. If another writer changes one of these canonical paths after verifiedHashes are recorded, detection succeeds but rollback erases that competing write; a concurrent commit touching the path is likewise overwritten in the worktree. This contradicts CHK-002/003 preservation guarantees. Rollback must be compare-and-restore, only undoing bytes still equal to this transaction output; otherwise leave competing bytes untouched and return a classified conflict. Add a deterministic content-race test for this lifecycle wrapper.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-18T10:57:51.765Z",
@@ -51,7 +51,11 @@
       "reviewRunId": "B-8195:RR-001",
       "_hash": "63bc2b2e8a59400f8496eb50dff0a4b4e2130014745e31ff9be6632dcbb3647c",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 94a0085 replaces unconditional rollback with compare-and-restore: only writer-owned verified bytes are restored; divergent worktree bytes and real-index state are preserved and classified. Deterministic lifecycle content/index race cases are included in the focused smoke, which passed.",
+      "resolvedAt": "2026-07-18T11:25:30.890Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8195:F-004",
