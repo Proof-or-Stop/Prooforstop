@@ -277,9 +277,9 @@
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#acceptance",
         "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-18T10:54:18.215Z",
-      "endTime": "2026-07-18T12:23:11.084Z",
+      "endTime": "2026-07-18T12:43:10.621Z",
       "verificationIntent": {
         "happy": [
           {
@@ -477,6 +477,15 @@
       "from": "done",
       "to": "in_progress",
       "reason": "F-010/F-011 require RED coverage for story-branch nested HEAD movement and mid-validation foreign append before revising transaction boundaries."
+    },
+    {
+      "timestamp": "2026-07-18T12:43:10.621Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-010/F-011 REDs converted to GREEN with short exact verifier persistence; main/story branches, foreign append and validation failure semantics verified."
     }
   ]
 }
