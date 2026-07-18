@@ -81,6 +81,26 @@
       ],
       "signatureTag": "adversarial|ts|declaration-binding-uses",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0784:F-005",
+      "desc": "AST protected-anchor enforcement can be bypassed when one unified diff hunk spans more than one declaration. parserBackedAnchor requires one declaration node to enclose the entire hunk range (scope-diff-pack.ts:135-139), but the range includes up to 20 context lines and can span adjacent declarations. It then emits file_scope_no_enclosing_declaration; semantic-scope-gate.ts does not treat that fallback as fail-closed (only parse_error/source_unavailable at lines 140-143), so protectedAnchors are not observed and the gate returns PASS. Repro against 01590a312a: parseUnifiedDiff for scope-path-classifier.ts hunk @@ -69,120 +69,120 @@ yielded current+previous file anchors; checkSemanticScope with protectedAnchors=[canonicalizeScopePath] returned status=pass, violations=[]. Split/attribute changed line ranges to every touched declaration, or make multi-declaration/file fallback fail closed whenever semantic protections exist.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-18T02:14:52.486Z",
+      "reviewRound": "2026-07-18T02:10:28.512Z",
+      "reviewRunId": "B-0784:RR-001",
+      "_hash": "24598337e2a24652cccaa3da36b5f2797f2fa97730c513cd15df2e22c14bc5f5",
+      "files": [
+        "packages/main/src/core/scope-diff-pack.ts",
+        "packages/main/src/core/semantic-scope-gate.ts",
+        "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|protected-anchor-enforcement",
+      "signatureTagSource": "auto"
     }
   ]
 }
