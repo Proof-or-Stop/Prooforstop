@@ -480,6 +480,25 @@
       "resolvedAt": "2026-07-18T10:11:41.151Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-360e:F-023",
+      "desc": "packages/main/src/handlers/validate-concept.ts:350 Mode metadata is checked for pair/count/path consistency but not for legal ordering. A malformed patch can append a fully matching `copy from`/`copy to` pair after the `---/+++`, hunk header, and deletion/addition lines; flush then considers it validCopy and suppresses the already reconstructed old side. Reproducer deleting `hiddenLateCopy()` from source.ts, adding replacement(), then appending matching copy metadata returns symbols=[], diagnostics=[]. The equivalent late rename still reports the deletion, demonstrating a copy-specific bypass. Enforce the Git section state machine: copy/rename metadata must appear before patch side headers/hunks/content, side headers before hunks, and no mode/path metadata after content; late metadata must emit a focused diagnostic and must never set validCopy. Add late-copy/late-rename/late-side-header probes.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-18T10:13:20.737Z",
+      "reviewRound": "2026-07-18T10:11:26.305Z",
+      "reviewRunId": "B-360e:RR-032",
+      "_hash": "b3d69925fc1ca19d5b5d0392de8a1c64f66b8f0bf12e8aac7ed473dfde4dcda6",
+      "files": [
+        "packages/main/src/handlers/validate-concept.ts",
+        "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
