@@ -302,6 +302,47 @@
         "scanEscalationReason": null
       },
       "_hash": "072037b8da9ecf5cd57739ef0d5c1ac438cff5d02d3801b1347c44fb9e3ca417"
+    },
+    {
+      "id": "B-360e:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Round-8 full quality review found no blocker: validate-concept now limits declaration parsing to supported TS/JS/Python source families, assigns correct TSX/JSX/JS/TS script kinds, preserves logical-start shebang parsing without letting JSON/Markdown artifacts create diagnostics, and retains real source deletion detection; all concept, prompt, drift, process-fact, CLI partition and protected no-drift checks pass.",
+      "createdAt": "2026-07-18T09:52:25.623Z",
+      "reviewRound": "2026-07-18T09:50:09.065Z",
+      "reviewRunId": "B-360e:RR-022",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/prompt-measurement.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/handlers/validate-concept.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "9b5677004609af69438b7b43847529de1dd066931e366930a3ba1873dc38cb5f"
     }
   ]
 }
