@@ -442,6 +442,27 @@
         "scanEscalationReason": null
       },
       "_hash": "9d6da2e0cef2d089b40f17b1247768b7ed4deda2f4a35e783f4f32ffe478c17f"
+    },
+    {
+      "id": "B-62b8:RP-018",
+      "agent": "lattice-review-concept",
+      "note": "PASS (bounded 0fc143ac00): this is an exact structural-fingerprint re-attestation, not an authority expansion or runtime behavior change. The commit changes only the cli-engine pinned AST digest and its mirrored process-fact assertion. The source change that caused the digest drift (a2f141b9ec) only imports getSessionIdentity and replaces activity-session logging fields; a bounded diff contains no dynamic import/require/initPath/dashboard change. Blame confirms both legitimate cli-engine dynamic loaders are unchanged since 4edf2925a9. verify-process-fact-contract passes. The vocabulary smoke accepts the new cli-engine pin and proceeds, but separately reports an unapproved bin/lattice-codex.js loader outside this commit/scope; no finding is attributed to 0fc143ac00.",
+      "createdAt": "2026-07-18T01:10:56.865Z",
+      "reviewRound": "2026-07-18T01:08:09.314Z",
+      "reviewRunId": "B-62b8:RR-031",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "06afa9cc031dd38aa781c3ff14f19d6393f124970acf6f5da03f58c0036672db"
     }
   ]
 }
