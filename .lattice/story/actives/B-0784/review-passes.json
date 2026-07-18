@@ -1,0 +1,29 @@
+{
+  "passes": [
+    {
+      "id": "B-0784:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Targeted round-3 review PASS for f1e5eb927b. Verified exact-HEAD legacy genesis rejects committed non-empty -> empty laundering without creating a ledger; canonical empty genesis with no HEAD artifact remains legal. Real git /dev/null whole-file deletion retains old protected declaration critical and blocks. Multi-anchor diagnostics report the actual offending declaration with kind/range/parser/artifact versions. Focused semantic-scope-guard and gap-log smokes passed; no full suite or lifecycle command was run.",
+      "createdAt": "2026-07-18T03:03:21.682Z",
+      "reviewRound": "2026-07-18T03:00:34.659Z",
+      "reviewRunId": "B-0784:RR-007",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/audit-meta-store.ts",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/semantic-scope-gate.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/tasks/gap-log-smoke.ts",
+          "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e1fc54334681b8280115e3eb6fe65e8d7d11378920567638b68984b99541806f"
+    }
+  ]
+}
