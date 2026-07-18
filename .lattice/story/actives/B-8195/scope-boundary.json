@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-8195",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Make canonical same-flow lifecycle metadata and reused validation PASS persist atomically",
+    "Persist the exact TEST-transition-to-validate RED using the real local CLI boundary",
+    "Preserve fail-closed behavior for human, external, forged, malformed, unrelated, concurrent or writer-failure dirt",
+    "Update directly affected process-fact and decision documentation only when gate semantics require it"
+  ],
+  "excluded": [
+    "Candidate routing, host liveness or typed dispatch changes",
+    "General metadata-only dirty bypasses",
+    "Remote host execution, publishing or release readiness",
+    "Validation command, timeout or coverage-policy redesign"
+  ],
+  "confirmedBy": "codex-wa-final",
+  "confirmationNote": "User approved opening #7 after reviewing the RED-confirmed process-events reuse failure and the proposed narrow scope.",
+  "createdAt": "2026-07-18T10:03:09.234Z",
+  "updatedAt": "2026-07-18T10:03:09.234Z",
+  "_hash": "5149d2d76c63f18a1428176215a8a093b5ef21b21c4c749d544cbd87b04a89c4"
+}

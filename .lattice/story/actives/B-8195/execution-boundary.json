@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-8195",
+  "allowedCommands": [
+    "git diff --check",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/done-prepare-auto-closeout-smoke.js",
+    "node packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build",
+    "npm test"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "Lattice CLI",
+    "reviewer agents"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+    "packages/main/src/core/done-prepare-generated-metadata.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+    "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excludedCommands": [
+    "git clean -fd*",
+    "git push *",
+    "git reset --hard*",
+    "npm publish*"
+  ],
+  "excludedTools": [
+    "network publishing",
+    "remote host launch"
+  ],
+  "excludedPaths": [
+    ".git",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "codex-wa-final",
+  "confirmationNote": "Use worktree-local runtime. Focused RED/green first; no broad scans and no repeated full suite. Full npm test is reserved for the final configured DONE-required gate.",
+  "createdAt": "2026-07-18T10:03:10.198Z",
+  "updatedAt": "2026-07-18T10:03:10.198Z",
+  "_hash": "8de8131bb4f7b0e62bf57842c06e0598ee07316f7426fa6b1571d5dff3e27cf0"
+}
