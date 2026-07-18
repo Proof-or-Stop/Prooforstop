@@ -328,7 +328,7 @@
       "desc": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts:335-456 — HIGH: coverage proves construction-time role-policy mutations reject, but never tests post-export mutation of PROMPT_ROLE_CONTRACTS or report-time revalidation. Independent child-process repro shows the outer registry is frozen while rows/nested arrays are mutable; changing one compatibility row to retired yields a 12/2/2 report that verifyPromptMeasurementReport accepts. This leaves CHK-002 exact frozen partition and CHK-003 role-set fail-closed intents uncovered. Add strict-mode mutation probes for rows and nested arrays plus a corrupted-registry/report-consumer probe that must reject, backed by deep freeze and/or consumption-time validation.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-18T00:34:29.393Z",
@@ -341,7 +341,11 @@
         "packages/main/src/core/prompt-measurement.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 0913871be0: generatePromptMeasurementReport validates the exported singleton against current expected role IDs before any consumption. Child probes show semantic digest mutation cannot corrupt the frozen singleton, a corrupted foreign clone is rejected fail-closed, and the generated report remains 12/3/1.",
+      "resolvedAt": "2026-07-18T00:37:18.188Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
