@@ -86,6 +86,27 @@ rejects(() => canonicalJsonStringify(nonEnumerable), /non-enumerable/);
 const accessor = { a: 1 };
 Object.defineProperty(accessor, 'derived', { get: () => 2, enumerable: true });
 rejects(() => canonicalJsonStringify(accessor), /accessor/);
+const symbolArray = [1] as unknown[] & Record<PropertyKey, unknown>;
+symbolArray[Symbol('hidden')] = 2;
+rejects(() => canonicalJsonStringify(symbolArray), /symbol-keyed array field/);
+const extraStringArray = [1] as unknown[] & Record<string, unknown>;
+extraStringArray.hidden = 2;
+rejects(() => canonicalJsonStringify(extraStringArray), /extra array field/);
+const nonEnumerableArray = [1];
+Object.defineProperty(nonEnumerableArray, 'hidden', { value: 2, enumerable: false });
+rejects(() => canonicalJsonStringify(nonEnumerableArray), /extra array field/);
+const accessorArray = [1];
+Object.defineProperty(accessorArray, 'hidden', { get: () => 2, enumerable: true });
+rejects(() => canonicalJsonStringify(accessorArray), /extra array field/);
+const nonEnumerableIndexArray = [1];
+Object.defineProperty(nonEnumerableIndexArray, '0', { value: 1, enumerable: false });
+rejects(() => canonicalJsonStringify(nonEnumerableIndexArray), /non-enumerable array index/);
+const accessorIndexArray = [1];
+Object.defineProperty(accessorIndexArray, '0', { get: () => 1, enumerable: true });
+rejects(() => canonicalJsonStringify(accessorIndexArray), /array accessor field/);
+const malformedIndexArray = [1] as unknown[] & Record<string, unknown>;
+malformedIndexArray['01'] = 2;
+rejects(() => canonicalJsonStringify(malformedIndexArray), /extra array field/);
 
 assert.equal(promptUtf8Bytes('ASCII'), 5);
 assert.equal(promptUtf8Bytes('中'), 3);
@@ -361,6 +382,38 @@ rejects(
       : contract
   ), packageRoleIds),
   /frozen role policy/,
+);
+rejects(
+  () => validatePromptRoleContracts(PROMPT_ROLE_CONTRACTS.map(contract =>
+    contract.roleId === 'lattice-evaluator'
+      ? { ...contract, defaultDispatch: false }
+      : contract
+  ), packageRoleIds),
+  /defaultDispatch differs from the frozen role policy/,
+);
+rejects(
+  () => validatePromptRoleContracts(PROMPT_ROLE_CONTRACTS.map(contract =>
+    contract.roleId === 'lattice-evaluator'
+      ? { ...contract, responsibility: 'Mutated responsibility.' }
+      : contract
+  ), packageRoleIds),
+  /responsibility differs from the frozen role policy/,
+);
+rejects(
+  () => validatePromptRoleContracts(PROMPT_ROLE_CONTRACTS.map(contract =>
+    contract.roleId === 'lattice-evaluator'
+      ? { ...contract, requiredCheckIds: [...contract.requiredCheckIds, 'mutated-check'] }
+      : contract
+  ), packageRoleIds),
+  /requiredCheckIds differs from the frozen role policy/,
+);
+rejects(
+  () => validatePromptRoleContracts(PROMPT_ROLE_CONTRACTS.map(contract =>
+    contract.roleId === 'lattice-evaluator'
+      ? { ...contract, semanticDigest: 'b'.repeat(64) }
+      : contract
+  ), packageRoleIds),
+  /semanticDigest does not match the frozen role policy/,
 );
 rejects(
   () => validatePromptRoleContracts(PROMPT_ROLE_CONTRACTS.map(contract =>

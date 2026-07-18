@@ -273,12 +273,33 @@ export function validatePromptRoleContracts(contracts: readonly unknown[], expec
     const row = byId.get(roleId)!;
     const policy = ROLE_POLICIES[roleId];
     if (!policy) throw new PromptRoleContractRegistryError(`missing frozen role policy "${roleId}"`);
-    if (
-      row.replacementAgentType !== policy.replacementAgentType ||
-      row.migrationHint !== policy.migrationHint
-    ) {
+    const expectedFields: Record<string, unknown> = {
+      status: policy.status,
+      replacementAgentType: policy.replacementAgentType,
+      migrationHint: policy.migrationHint,
+      defaultDispatch: policy.defaultDispatch,
+      responsibility: policy.responsibility,
+      requiredInputIds: policy.requiredInputIds,
+      requiredCheckIds: policy.requiredCheckIds,
+      allowedCommandIds: policy.allowedCommandIds,
+      forbiddenActionIds: policy.forbiddenActionIds,
+      requiredOutputIds: policy.requiredOutputIds,
+      stopConditionCodes: policy.stopConditionCodes,
+    };
+    for (const [field, expected] of Object.entries(expectedFields)) {
+      if (canonicalJsonStringify(row[field as keyof RoleContract] ?? null) !== canonicalJsonStringify(expected ?? null)) {
+        throw new PromptRoleContractRegistryError(
+          `${roleId}.${field} differs from the frozen role policy`,
+        );
+      }
+    }
+    const expectedSemanticDigest = domainSeparatedDigest(
+      'role-contract.semantic.v1',
+      roleSemanticValue(roleId, policy),
+    );
+    if (row.semanticDigest !== expectedSemanticDigest) {
       throw new PromptRoleContractRegistryError(
-        `${roleId} replacementAgentType/migrationHint differs from the frozen role policy`,
+        `${roleId}.semanticDigest does not match the frozen role policy`,
       );
     }
   }

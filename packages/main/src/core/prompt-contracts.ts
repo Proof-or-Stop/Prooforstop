@@ -181,6 +181,29 @@ export function canonicalJsonStringify(value: unknown): string {
             throw new PromptContractValidationError(`${path}[${index}] is sparse`);
           }
         }
+        const expectedKeys = new Set([
+          ...Array.from({ length: candidate.length }, (_, index) => String(index)),
+          'length',
+        ]);
+        for (const key of Reflect.ownKeys(candidate)) {
+          if (typeof key !== 'string') {
+            throw new PromptContractValidationError(`${path} contains an unsupported symbol-keyed array field`);
+          }
+          if (!expectedKeys.has(key)) {
+            throw new PromptContractValidationError(`${path}.${key} is an unsupported extra array field`);
+          }
+          const descriptor = Object.getOwnPropertyDescriptor(candidate, key)!;
+          if (!Object.prototype.hasOwnProperty.call(descriptor, 'value')) {
+            throw new PromptContractValidationError(`${path}.${key} is an unsupported array accessor field`);
+          }
+          if (key === 'length') {
+            if (descriptor.enumerable || descriptor.value !== candidate.length) {
+              throw new PromptContractValidationError(`${path}.length has an invalid array descriptor`);
+            }
+          } else if (!descriptor.enumerable) {
+            throw new PromptContractValidationError(`${path}[${key}] is a non-enumerable array index`);
+          }
+        }
         return `[${candidate.map((item, index) => encode(item, `${path}[${index}]`)).join(',')}]`;
       }
       const prototype = Object.getPrototypeOf(candidate);
