@@ -343,6 +343,37 @@
       },
       "readDiagnostics": [],
       "_hash": "9b5677004609af69438b7b43847529de1dd066931e366930a3ba1873dc38cb5f"
+    },
+    {
+      "id": "B-360e:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-9 full coverage review found no blocking coverage gap: independent TS/JS/Python supported-to-unsupported, unsupported-to-supported, dev-null add/delete, malformed old/new side matrix passes; 42/42 original Prompt intents have fresh PASS evidence on storyFilesHash 506375d; all prior regressions and protected paths pass. Existing F-019/F-020 are separately tracked medium concept-gate portability findings, not blockers to these original intents.",
+      "createdAt": "2026-07-18T09:58:39.948Z",
+      "reviewRound": "2026-07-18T09:55:07.480Z",
+      "reviewRunId": "B-360e:RR-027",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-360e/background.md",
+          ".lattice/story/actives/B-360e/plan.md",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-360e/checklist.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e750ec168e60bdaba3d5821ed81d45a4e82916d70acc3f7ef7fd79950c32e0d3"
     }
   ]
 }
