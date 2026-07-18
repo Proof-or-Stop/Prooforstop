@@ -1,6 +1,6 @@
 {
   "storyId": "B-231d",
-  "checkedAt": "2026-07-18T23:03:11.895Z",
+  "checkedAt": "2026-07-18T23:10:38.480Z",
   "features": [
     {
       "feature": "Derive validation lock identity from a canonical shared root (git common dir / metadata root) so every worktree/host of the same story shares one lock",
@@ -33,15 +33,15 @@
     {
       "feature": "W0.1 pre-existing defect: dev_finish writes phase directly, bypassing runStoryTransition/gates entirely (even logs wrong event type)",
       "covered_by": null,
-      "status": "orphan-suspect",
-      "excluded_by": null,
+      "status": "excluded",
+      "excluded_by": "Owned by sibling story B-d877 (its CHK-001 routes dev_finish/dev_merge through runStoryTransition), per the Workstream-0 table in decisions/repro-first-gate-enforce-execution-plan.md; deliberately out of scope for B-231d (W0.2+W0.4 only). Confirmed against B-d877's checklist.json CHK-001.",
       "source": "decisions:repro-first-gate-enforce-execution-plan.md"
     },
     {
       "feature": "W0.3 pre-existing defect: owner lease is not a mutex for same-owner concurrent commands (non-atomic bypass consumption / review-round minting can double-fire)",
       "covered_by": null,
-      "status": "orphan-suspect",
-      "excluded_by": null,
+      "status": "excluded",
+      "excluded_by": "Owned by sibling story B-d877 (its CHK-002 adds a per-story transition lock serializing same-owner concurrent transitions), per the Workstream-0 table in decisions/repro-first-gate-enforce-execution-plan.md; deliberately out of scope for B-231d (W0.2+W0.4 only). Confirmed against B-d877's checklist.json CHK-002.",
       "source": "decisions:repro-first-gate-enforce-execution-plan.md"
     },
     {
@@ -106,7 +106,6 @@
       "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
       "docs/requirements/decisions/host-neutral-observability-console.md",
       "docs/requirements/decisions/host-overflow.md",
-      "docs/requirements/decisions/language-neutral-gates-execution-plan.md",
       "docs/requirements/decisions/lattice-authority-customer-api-key-access.md",
       "docs/requirements/decisions/lattice-authority-live-integration.md",
       "docs/requirements/decisions/lattice-authority-m1-m16-generated-proof-and-live-e2e.md",
@@ -192,18 +191,18 @@
       "docs/requirements/decisions/verification-context-pack.md",
       "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
     ],
-    "scanEscalationReason": null
+    "scanEscalationReason": "candidate ambiguity + explicit reviewer escalation: this worktree (story/B-231d) is behind main by 2 commits and is currently MISSING docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md on disk (added to main at 23600eb563, after this worktree's branch point). That file is the sole authoritative source for the Workstream-0 table resolving OQ-1/OQ-2 and for classifying W0.1/W0.3 as owned-by-sibling-story. Rather than guess from the local (stale) directory listing, I read its full content directly from `main` via `git show main:docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md` and cross-verified the W0.1/W0.3 ownership claim against sibling story B-d877's checklist.json (CHK-001/CHK-002 wording matches verbatim). All 119 other *.md files physically present in this worktree's docs/requirements/decisions/ were enumerated per the standard glob and triaged by name (2 of the previously-read candidates from the prior round remain in filesReadFully)."
   },
   "summary": {
     "total": 9,
     "covered": 3,
-    "excluded": 3,
+    "excluded": 5,
     "gaps": 1,
-    "orphanSuspect": 2,
+    "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "afda1451dceb8e9f7312df92dd9cda7517ce35b3496d7fa0de737dccc3d73516",
+  "_hash": "dcc356ea839dd56f9524625e8cb8d38e343273423b934dbe8de75d95f6765e38",
   "openQuestions": [
     {
       "id": "OQ-1",
@@ -212,9 +211,7 @@
       "sourcePointers": [
         "packages/main/src/core/story-signed-workspace-resolution.ts",
         "CHK-001"
-      ],
-      "resolution": "Reuse resolveStorySignedWorkspace to resolve the story gitRoot, then derive the SHARED lock root via git rev-parse --git-common-dir from that gitRoot. This is complementary, not a second resolver: resolveStorySignedWorkspace returns a per-worktree gitRoot (different per linked worktree), whereas git-common-dir returns the SAME path for all linked worktrees of one repo (verified: main/.worktrees/B-231d/.worktrees/B-956f all resolve to /Users/jek/Documents/Work/proofbound/.git). The lock must key on the shared common-dir; we keep resolveStorySignedWorkspace as the single gitRoot entry point and add only the common-dir derivation, honoring the reuse-don't-duplicate principle.",
-      "resolvedAt": "2026-07-18T23:05:01.373Z"
+      ]
     },
     {
       "id": "OQ-2",
@@ -222,9 +219,7 @@
       "evidence": "\"excluded\": [\"S1 orchestrator routing\", \"W1 language-neutral classifier\", \"W2 RED evidence subsystem\", \"W3 enforce gate\"]",
       "sourcePointers": [
         "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md"
-      ],
-      "resolution": "The scope-boundary excluded entry 'S1 orchestrator routing' is a PROGRAM-internal cross-reference to sibling story B-d877 (route dev_finish/dev_merge through runStoryTransition), part of the same Workstream-0 pre-existing-defects table in docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md; it is not a decisions/-corpus feature term. This story (B-231d = W0.2 lock + W0.4 digest) deliberately excludes the orchestrator-routing defect (W0.1) and the same-owner mutex (W0.3), which are owned by B-d877; they are orphan-suspect here only because the split is program-level, not corpus-level.",
-      "resolvedAt": "2026-07-18T23:05:02.961Z"
+      ]
     }
   ]
 }

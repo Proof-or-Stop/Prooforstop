@@ -227,6 +227,56 @@
         }
       ],
       "_hash": "e79e17897b73c72edc6b926c4d27f28cf9dc260526623136cb10e079e65b10db"
+    },
+    {
+      "timestamp": "2026-07-18T23:05:04.921Z",
+      "issueCount": 8,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when Derive validation lock identity from a canonical shared root + Digest a repo-relative logical cwd with versioned receipt-envelope migration are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Data Migration/Destructive. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-231d\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: exact canonical-root source: git --git-common-dir vs metadata root"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Record the resolved absolute/physical workspace path separately as non-digested provenance (not folded into the digest itself)\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_orphan_suspect",
+          "severity": "advisory",
+          "message": "scope feature W0.1 pre-existing defect: dev_finish writes phase directly, bypassing runStoryTransition/gates entirely (even logs wrong event type) orphan-suspect: see decisions:repro-first-gate-enforce-execution-plan.md is not covered by any CHK but is not explicitly excluded, please confirm"
+        },
+        {
+          "type": "scope_orphan_suspect",
+          "severity": "advisory",
+          "message": "scope feature W0.3 pre-existing defect: owner lease is not a mutex for same-owner concurrent commands (non-atomic bypass consumption / review-round minting can double-fire) orphan-suspect: see decisions:repro-first-gate-enforce-execution-plan.md is not covered by any CHK but is not explicitly excluded, please confirm"
+        }
+      ],
+      "_hash": "f5333d75fee5e0f81960bec3b806d972cdd7a37e89d3055e2154f606d9f2bb30"
     }
   ]
 }
