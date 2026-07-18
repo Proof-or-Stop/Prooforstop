@@ -28,10 +28,17 @@ import {
   readTrustedProofStoryScopeArtifacts,
 } from './closeout-trust.js';
 import { AGENT_DISPATCH_REGISTRY, resolveRegisteredAgentActor } from './agent-dispatch-registry.js';
-import { verifyPromptEnvelopeIntegrity } from './prompt-envelope.js';
+import {
+  verifyFullPromptAssemblyIntegrity,
+  verifyPromptEnvelopeIntegrity,
+} from './prompt-envelope.js';
+import { domainSeparatedDigest } from './prompt-contracts.js';
+import { BASELINE_RUNTIME_CONTRACT } from './prompt-measurement.js';
+import { readPromptRegistry, readPromptTemplate } from './prompt-registry.js';
 import { loadConfig } from './config.js';
 import {
   isPromptRoleEligibleForReviewEvidence,
+  promptRoleContract,
   resolvePromptEnvelopeRolloutMode,
 } from './prompt-role-contract-registry.js';
 
@@ -489,7 +496,14 @@ export function verifyReviewRun(run: ReviewRun): boolean {
     run.envelopeId,
   );
   return run._hash === expected
-    && (!run.workspaceBinding || verifyReviewRunWorkspaceBinding(run.workspaceBinding, run));
+    && (!run.workspaceBinding || verifyReviewRunWorkspaceBinding(run.workspaceBinding, run))
+    && (
+      run.assembledPrompt === undefined
+      || (
+        Boolean(run.envelopeId)
+        && run.promptHash === domainSeparatedDigest('assembled-prompt.raw-utf8.v1', run.assembledPrompt)
+      )
+    );
 }
 
 export function verifyReviewRunPromptEnvelope(store: StoryStore, run: ReviewRun): { ok: boolean; reason?: string } {
@@ -502,6 +516,32 @@ export function verifyReviewRunPromptEnvelope(store: StoryStore, run: ReviewRun)
   }
   const envelope = matching[0];
   if (!verifyPromptEnvelopeIntegrity(envelope)) return { ok: false, reason: 'Prompt Envelope integrity verification failed' };
+  if (envelope.roleId !== run.lane) {
+    return { ok: false, reason: 'Prompt Envelope roleId does not match the signed ReviewRun lane' };
+  }
+  if (!run.assembledPrompt) {
+    return { ok: false, reason: 'signed ReviewRun is missing the exact assembled prompt bytes' };
+  }
+  if (run.promptHash !== envelope.assembledPromptDigest) {
+    return { ok: false, reason: 'signed ReviewRun promptHash does not match Prompt Envelope assembledPromptDigest' };
+  }
+  const promptEntry = readPromptRegistry().agents.find(entry => entry.agentId === run.lane);
+  if (!promptEntry) return { ok: false, reason: `no canonical prompt registry entry for ReviewRun lane ${run.lane}` };
+  let roleContract;
+  try {
+    roleContract = promptRoleContract(run.lane);
+  } catch {
+    return { ok: false, reason: `no canonical Role Contract for ReviewRun lane ${run.lane}` };
+  }
+  if (!verifyFullPromptAssemblyIntegrity({
+    prompt: run.assembledPrompt,
+    envelope,
+    runtimeContract: BASELINE_RUNTIME_CONTRACT,
+    roleContract,
+    rolePrompt: readPromptTemplate(promptEntry),
+  })) {
+    return { ok: false, reason: 'Prompt Envelope does not match the canonical runtime/role/task assembly bytes' };
+  }
   const fieldsMatch = envelope.dispatchKind === 'review-run'
     && envelope.storyId === run.storyId
     && envelope.reviewRunId === run.reviewRunId

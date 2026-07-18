@@ -45,6 +45,46 @@ export interface FullPromptAssembly {
   envelope: PromptEnvelope;
 }
 
+function renderFullPrompt(
+  runtimeContract: RuntimeContract,
+  roleContract: RoleContract,
+  taskContext: FullTaskContext,
+  environment: KnownExecutionEnvironment,
+  rolePrompt: string,
+): string {
+  return [
+    '## Runtime Contract',
+    runtimeContract.compactText,
+    '## Role Contract',
+    canonicalJsonStringify(roleContract),
+    '## Task Context',
+    canonicalJsonStringify(taskContext),
+    '## Known Execution Environment',
+    canonicalJsonStringify(environment),
+    '## Role Prompt',
+    rolePrompt,
+  ].join('\n\n');
+}
+
+function assertContractRenderCoherence(
+  runtimeContract: RuntimeContract,
+  roleContract: RoleContract,
+  rolePrompt: string,
+): void {
+  const runtimeRenderDigest = domainSeparatedDigest('runtime-contract.render.v1', runtimeContract.compactText);
+  if (runtimeContract.renderDigest !== runtimeRenderDigest) {
+    throw new Error('Runtime Contract renderDigest does not match compactText');
+  }
+  const roleRenderDigest = domainSeparatedDigest('role-contract.render.v1', rolePrompt);
+  if (roleContract.renderDigest !== roleRenderDigest) {
+    throw new Error(`Role Contract renderDigest does not match the canonical prompt bytes for ${roleContract.roleId}`);
+  }
+}
+
+function canonicalStrings(values: readonly string[] | undefined): string[] {
+  return [...new Set((values ?? []).map(value => value.trim()).filter(Boolean))].sort();
+}
+
 export function buildFullTaskContext(args: {
   story: StoryInfo;
   checklist: ChecklistData;
@@ -68,11 +108,63 @@ export function buildFullTaskContext(args: {
         status: item.status,
         ...(item.context?.trim() ? { context: item.context } : {}),
         ...(item.userSees?.trim() ? { userSees: item.userSees } : {}),
+        relatedDocs: canonicalStrings(item.relatedDocs),
+        files: {
+          modify: canonicalStrings(item.files?.modify),
+          create: canonicalStrings(item.files?.create),
+          test: canonicalStrings(item.files?.test),
+        },
+        verificationIntent: Object.fromEntries(
+          (['happy', 'edge', 'adversarial'] as const).map(lane => [
+            lane,
+            (item.verificationIntent?.[lane] ?? []).map((intent, index) => ({
+              id: intent.id?.trim() || `${item.id}:${lane}:${index}`,
+              desc: intent.desc,
+              type: intent.type,
+              ...(intent.requiredIn ? { requiredIn: intent.requiredIn } : {}),
+              ...(intent.priority ? { priority: intent.priority } : {}),
+            })),
+          ]),
+        ) as FullTaskContext['checklist'][number]['verificationIntent'],
       })),
     headHash: args.headHash,
     ...(args.materialHash ? { materialHash: args.materialHash } : {}),
     ...(args.storyFilesHash ? { storyFilesHash: args.storyFilesHash } : {}),
-    ...(args.scopeContract ? { scopeContractDigest: digestScopeContract(args.scopeContract) } : {}),
+    ...(args.scopeContract ? {
+      scopeContractDigest: digestScopeContract(args.scopeContract),
+      scope: {
+        mode: args.scopeContract.mode,
+        allowedModify: canonicalStrings(args.scopeContract.allowedModify),
+        allowedCreate: canonicalStrings(args.scopeContract.allowedCreate),
+        allowedTest: canonicalStrings(args.scopeContract.allowedTest),
+        protectedFiles: canonicalStrings(args.scopeContract.protectedFiles),
+        explicitExcludes: canonicalStrings(args.scopeContract.explicitExcludes),
+        protectedAnchors: canonicalStrings(args.scopeContract.protectedAnchors),
+        fileRules: [...(args.scopeContract.fileRules ?? [])]
+          .map(rule => ({
+            path: rule.path,
+            allowedAnchors: canonicalStrings(rule.allowedAnchors),
+            deniedAnchors: canonicalStrings(rule.deniedAnchors),
+            protectedAnchors: canonicalStrings(rule.protectedAnchors),
+            allowedChangeKinds: canonicalStrings(rule.allowedChangeKinds),
+            intentRefs: canonicalStrings(rule.intentRefs),
+          }))
+          .sort((left, right) => left.path.localeCompare(right.path)),
+        ...(args.scopeContract.pathCanonicalizerVersion ? {
+          pathCanonicalizerVersion: args.scopeContract.pathCanonicalizerVersion,
+        } : {}),
+        ...(args.scopeContract.pathCanonicalizationMode ? {
+          pathCanonicalizationMode: args.scopeContract.pathCanonicalizationMode,
+        } : {}),
+        ...(args.scopeContract.anchorParserVersion ? {
+          anchorParserVersion: args.scopeContract.anchorParserVersion,
+        } : {}),
+        ...(args.scopeContract.anchorArtifactVersion ? {
+          anchorArtifactVersion: args.scopeContract.anchorArtifactVersion,
+        } : {}),
+        ...(args.scopeContract.astAnchorMode ? { astAnchorMode: args.scopeContract.astAnchorMode } : {}),
+      },
+    } : {}),
   };
   validateFullTaskContext(context);
   return context;
@@ -116,6 +208,7 @@ export function assembleFullPromptEnvelope(input: FullPromptAssemblyInput): Full
   if (input.roleContract.status !== 'active') {
     throw new Error(`full Prompt Envelope requires an active role; ${input.roleContract.roleId} is ${input.roleContract.status}`);
   }
+  assertContractRenderCoherence(input.runtimeContract, input.roleContract, input.rolePrompt);
   if (input.dispatchKind === 'review-run') {
     for (const [key, value] of Object.entries({
       reviewRunId: input.reviewRunId,
@@ -126,24 +219,22 @@ export function assembleFullPromptEnvelope(input: FullPromptAssemblyInput): Full
         throw new Error(`review-run Prompt Envelope requires ${key}`);
       }
     }
+    if (input.roleContract.roleId !== input.lane) {
+      throw new Error(
+        `review-run Prompt Envelope role/lane mismatch: ${input.roleContract.roleId} !== ${input.lane}`,
+      );
+    }
   } else if (input.reviewRunId !== undefined || input.reviewRound !== undefined || input.lane !== undefined) {
     throw new Error('story-dispatch Prompt Envelope cannot carry reviewer authority');
   }
 
-  const taskContextJson = canonicalJsonStringify(input.taskContext);
-  const environmentJson = canonicalJsonStringify(environment);
-  const prompt = [
-    '## Runtime Contract',
-    input.runtimeContract.compactText,
-    '## Role Contract',
-    canonicalJsonStringify(input.roleContract),
-    '## Task Context',
-    taskContextJson,
-    '## Known Execution Environment',
-    environmentJson,
-    '## Role Prompt',
+  const prompt = renderFullPrompt(
+    input.runtimeContract,
+    input.roleContract,
+    input.taskContext,
+    environment,
     input.rolePrompt,
-  ].join('\n\n');
+  );
   const envelopeWithoutId: Omit<PromptEnvelope, 'envelopeId'> = {
     schemaVersion: 'proofbound.prompt-envelope.v1',
     roleId: input.roleContract.roleId,
@@ -190,4 +281,67 @@ export function assembleFullPromptEnvelope(input: FullPromptAssemblyInput): Full
   validatePromptEnvelope(envelope);
   if (!verifyPromptEnvelopeIntegrity(envelope)) throw new Error('assembled Prompt Envelope failed integrity verification');
   return { prompt, taskContext: input.taskContext, knownExecutionEnvironment: environment, envelope };
+}
+
+/**
+ * Reconstructs the exact trusted assembly from canonical inputs and rejects any
+ * mismatch between the persisted bytes and the gate-consumed envelope.
+ */
+export function verifyFullPromptAssemblyIntegrity(input: {
+  prompt: string;
+  envelope: PromptEnvelope;
+  runtimeContract: RuntimeContract;
+  roleContract: RoleContract;
+  rolePrompt: string;
+}): boolean {
+  try {
+    assertContractRenderCoherence(input.runtimeContract, input.roleContract, input.rolePrompt);
+    validatePromptEnvelope(input.envelope);
+    const taskMarker = '\n\n## Task Context\n\n';
+    const environmentMarker = '\n\n## Known Execution Environment\n\n';
+    const rolePromptMarker = '\n\n## Role Prompt\n\n';
+    const taskStart = input.prompt.indexOf(taskMarker);
+    const environmentStart = input.prompt.indexOf(environmentMarker, taskStart + taskMarker.length);
+    const rolePromptStart = input.prompt.indexOf(rolePromptMarker, environmentStart + environmentMarker.length);
+    if (taskStart < 0 || environmentStart < 0 || rolePromptStart < 0) return false;
+    const taskJson = input.prompt.slice(taskStart + taskMarker.length, environmentStart);
+    const environmentJson = input.prompt.slice(environmentStart + environmentMarker.length, rolePromptStart);
+    const taskContext = JSON.parse(taskJson) as FullTaskContext;
+    const environment = JSON.parse(environmentJson) as KnownExecutionEnvironment;
+    validateFullTaskContext(taskContext);
+    validateKnownExecutionEnvironment(environment);
+    if (canonicalJsonStringify(taskContext) !== taskJson) return false;
+    if (canonicalJsonStringify(environment) !== environmentJson) return false;
+    const expectedPrompt = renderFullPrompt(
+      input.runtimeContract,
+      input.roleContract,
+      taskContext,
+      environment,
+      input.rolePrompt,
+    );
+    if (input.prompt !== expectedPrompt) return false;
+    const envelope = input.envelope;
+    return envelope.assemblerVersion === PROMPT_ENVELOPE_ASSEMBLER_VERSION
+      && envelope.dispatchProtocolVersion === PROMPT_DISPATCH_PROTOCOL_VERSION
+      && envelope.roleId === input.roleContract.roleId
+      && envelope.runtimeContractVersion === input.runtimeContract.schemaVersion
+      && envelope.runtimeSemanticDigest === input.runtimeContract.semanticDigest
+      && envelope.runtimeRenderDigest === input.runtimeContract.renderDigest
+      && envelope.roleContractVersion === input.roleContract.schemaVersion
+      && envelope.roleSemanticDigest === input.roleContract.semanticDigest
+      && envelope.roleRenderDigest === input.roleContract.renderDigest
+      && envelope.storyId === taskContext.storyId
+      && envelope.headHash === taskContext.headHash
+      && envelope.materialHash === taskContext.materialHash
+      && envelope.storyFilesHash === taskContext.storyFilesHash
+      && envelope.policyHash === taskContext.scopeContractDigest
+      && envelope.contextDigest === domainSeparatedDigest('full-task-context.v1', taskContext)
+      && envelope.knownExecutionEnvironmentDigest === domainSeparatedDigest('known-execution-environment.v1', environment)
+      && envelope.assembledPromptDigest === domainSeparatedDigest('assembled-prompt.raw-utf8.v1', input.prompt)
+      && envelope.bytes === promptUtf8Bytes(input.prompt)
+      && envelope.lines === promptLogicalLines(input.prompt)
+      && envelope.estimatedTokens === estimatePromptTokens(input.prompt);
+  } catch {
+    return false;
+  }
 }

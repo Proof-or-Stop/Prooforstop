@@ -34,17 +34,44 @@ const taskContext: FullTaskContext = {
   description: 'Exercise trusted full-context assembly.',
   phase: 'REVIEW',
   priority: 'high',
-  checklist: [{ id: 'CHK-001', title: 'Assemble', status: 'done' }],
+  checklist: [{
+    id: 'CHK-001',
+    title: 'Assemble',
+    status: 'done',
+    relatedDocs: ['docs/requirements/decisions/prompt-envelope.md'],
+    files: {
+      modify: ['packages/main/src/core/prompt-envelope.ts'],
+      create: [],
+      test: ['packages/main/src/tasks/prompt-full-context-envelope-smoke.ts'],
+    },
+    verificationIntent: {
+      happy: [{ id: 'CHK-001:happy:0', desc: 'Canonical full context is assembled.', type: 'logic', priority: 'must' }],
+      edge: [],
+      adversarial: [{ id: 'CHK-001:adversarial:0', desc: 'Cross-role substitution is rejected.', type: 'logic', priority: 'must' }],
+    },
+  }],
   headHash: 'a'.repeat(40),
   materialHash: 'b'.repeat(64),
   storyFilesHash: 'c'.repeat(64),
   scopeContractDigest: 'd'.repeat(64),
+  scope: {
+    mode: 'enforce',
+    allowedModify: ['packages/main/src/core/prompt-envelope.ts'],
+    allowedCreate: [],
+    allowedTest: ['packages/main/src/tasks/prompt-full-context-envelope-smoke.ts'],
+    protectedFiles: ['docs/requirements/decisions/prompt-envelope.md'],
+    explicitExcludes: [],
+    protectedAnchors: [],
+    fileRules: [],
+    pathCanonicalizationMode: 'enforce',
+    astAnchorMode: 'warn',
+  },
 };
 
 const common = {
   roleContract: role,
   runtimeContract: BASELINE_RUNTIME_CONTRACT,
-  rolePrompt: 'Review independently.',
+  rolePrompt: readPromptTemplate(findRoleEntry(role.roleId)!),
   taskContext,
   dispatchKind: 'review-run' as const,
   reviewRunId: 'B-envelope:RR-001',
@@ -79,7 +106,7 @@ assert.throws(
   PromptContractValidationError,
 );
 assert.throws(
-  () => validateFullTaskContext({ ...taskContext, checklist: [{ id: 'CHK-001', title: 'x', status: 'done' }, { id: 'CHK-001', title: 'y', status: 'done' }] }),
+  () => validateFullTaskContext({ ...taskContext, checklist: [taskContext.checklist[0], { ...taskContext.checklist[0], title: 'duplicate' }] }),
   /duplicate id/,
 );
 assert.throws(
@@ -89,6 +116,22 @@ assert.throws(
     createdAt: '2026-07-18T00:00:01.000Z',
   }),
   /cannot carry reviewer authority/,
+);
+assert.throws(
+  () => assembleFullPromptEnvelope({
+    ...common,
+    lane: 'lattice-review-behavior',
+    createdAt: '2026-07-18T00:00:01.000Z',
+  }),
+  /role\/lane mismatch/,
+);
+assert.throws(
+  () => assembleFullPromptEnvelope({
+    ...common,
+    rolePrompt: readPromptTemplate(findRoleEntry('lattice-review-behavior')!),
+    createdAt: '2026-07-18T00:00:01.000Z',
+  }),
+  /renderDigest does not match/,
 );
 
 assert.equal(resolvePromptEnvelopeRolloutMode(role.roleId, undefined), 'legacy-full-context');
@@ -147,7 +190,20 @@ try {
       phase: 'DEV',
       priority: 'high',
     }),
-    readChecklist: () => ({ items: [{ id: 'CHK-001', title: 'Assemble', status: 'done' }] }),
+    readChecklist: () => ({
+      items: [{
+        id: 'CHK-001',
+        title: 'Assemble',
+        status: 'done',
+        relatedDocs: ['docs/requirements/prompt.md'],
+        files: { modify: ['src/prompt.ts'], create: [], test: ['tests/prompt.ts'] },
+        verificationIntent: {
+          happy: [{ desc: 'Trusted full context is visible.', type: 'logic' }],
+          edge: [],
+          adversarial: [],
+        },
+      }],
+    }),
     readScopeContract: () => null,
     storyDirPath: () => storyDir,
     storyFilePath: (_storyId: string, file: string) => {

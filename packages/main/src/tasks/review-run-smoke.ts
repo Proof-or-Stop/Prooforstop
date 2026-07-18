@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
 import { assembleFullPromptEnvelope } from '../core/prompt-envelope.js';
 import { promptRoleContract } from '../core/prompt-role-contract-registry.js';
+import { readPromptRegistry, readPromptTemplate } from '../core/prompt-registry.js';
 import {
   signReviewRun,
   verifyReviewRun,
@@ -11,10 +12,13 @@ import {
 import { signReviewPass, verifyReviewPass } from '../core/finding-verify.js';
 import type { ReviewPass, ReviewRun } from '../core/types.js';
 
+const qualityPrompt = readPromptTemplate(
+  readPromptRegistry().agents.find(entry => entry.agentId === 'lattice-review-quality')!,
+);
 const envelope = assembleFullPromptEnvelope({
   roleContract: promptRoleContract('lattice-review-quality'),
   runtimeContract: BASELINE_RUNTIME_CONTRACT,
-  rolePrompt: 'Review independently.',
+  rolePrompt: qualityPrompt,
   taskContext: {
     schemaVersion: 'proofbound.full-task-context.v1',
     storyId: 'B-run',
@@ -22,7 +26,18 @@ const envelope = assembleFullPromptEnvelope({
     description: 'Bind reviewer authority to a content-addressed full Prompt Envelope.',
     phase: 'REVIEW',
     priority: 'high',
-    checklist: [{ id: 'CHK-001', title: 'Bind', status: 'done' }],
+    checklist: [{
+      id: 'CHK-001',
+      title: 'Bind',
+      status: 'done',
+      relatedDocs: [],
+      files: { modify: ['src/review.ts'], create: [], test: ['tests/review.ts'] },
+      verificationIntent: {
+        happy: [{ id: 'CHK-001:happy:0', desc: 'Prompt bytes are bound.', type: 'logic' }],
+        edge: [],
+        adversarial: [],
+      },
+    }],
     headHash: 'a'.repeat(40),
     materialHash: 'b'.repeat(64),
     storyFilesHash: 'c'.repeat(64),
@@ -44,8 +59,9 @@ const run: ReviewRun = {
   headHash: 'a'.repeat(40),
   materialHash: 'b'.repeat(64),
   storyFilesHash: 'c'.repeat(64),
-  promptHash: 'd'.repeat(64),
+  promptHash: envelope.envelope.assembledPromptDigest,
   envelopeId: envelope.envelope.envelopeId,
+  assembledPrompt: envelope.prompt,
 };
 run._hash = signReviewRun(
   run.storyId,
@@ -74,6 +90,32 @@ assert.equal(
   } as never, run).ok,
   false,
   'payload tamper is rejected even when the outer ReviewRun remains signed',
+);
+const wrongPromptRun = {
+  ...run,
+  assembledPrompt: run.assembledPrompt!.replace(qualityPrompt, 'attacker-controlled prompt'),
+};
+wrongPromptRun.promptHash = envelope.envelope.assembledPromptDigest;
+wrongPromptRun._hash = signReviewRun(
+  wrongPromptRun.storyId,
+  wrongPromptRun.reviewRunId,
+  wrongPromptRun.agent,
+  wrongPromptRun.lane,
+  wrongPromptRun.reviewRound,
+  wrongPromptRun.startedAt,
+  wrongPromptRun.headHash,
+  wrongPromptRun.materialHash,
+  wrongPromptRun.promptHash,
+  undefined,
+  undefined,
+  wrongPromptRun.storyFilesHash,
+  wrongPromptRun.envelopeId,
+);
+assert.equal(verifyReviewRun(wrongPromptRun), false, 'signed promptHash cannot bless substituted assembled bytes');
+assert.equal(
+  verifyReviewRunPromptEnvelope(store as never, { ...run, lane: 'lattice-review-behavior' }).ok,
+  false,
+  'cross-lane envelope replay is rejected by the shared gate verifier',
 );
 
 const provenance = {
@@ -110,6 +152,7 @@ assert.equal(verifyReviewPass(run.storyId, { ...pass, envelopeId: 'f'.repeat(64)
 
 const legacy: ReviewRun = { ...run };
 delete legacy.envelopeId;
+delete legacy.assembledPrompt;
 legacy._hash = signReviewRun(
   legacy.storyId,
   legacy.reviewRunId,

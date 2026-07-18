@@ -7,7 +7,9 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { canonicalDigest } from '../core/authority-signing.js';
 import { resetConfigCache } from '../core/config.js';
-import { currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { signReviewPass } from '../core/finding-verify.js';
+import { signReviewRun } from '../core/review-run.js';
 import {
   deriveCanonicalHostKeyId,
   deriveHostVerdictBindings,
@@ -16,11 +18,14 @@ import {
   HOST_VERDICT_VALIDATION_DIGEST_SCHEMA,
 } from '../core/host-verdict-bindings.js';
 import { evaluateReviewAssuranceFloor } from '../core/review-assurance-floor.js';
+import { canPassReviewGuard, type StoryMachineContext } from '../core/machine.js';
+import { computePromptEnvelopeId } from '../core/prompt-envelope.js';
+import { PROMPT_ENVELOPE_ROLLOUT_VERSION } from '../core/prompt-role-contract-registry.js';
 import { StoryStore } from '../core/store.js';
 import { listVerdicts, summarizeVerdicts } from '../core/verdicts.js';
 import { createMainRegistry } from '../registry.js';
 import type { HandlerContext } from '../handlers/context.js';
-import type { ChecklistData, StoryInfo } from '../core/types.js';
+import type { ChecklistData, ReviewPass, ReviewRun, StoryInfo } from '../core/types.js';
 
 const STORY_ID = 'B-quorum-smoke';
 const REVIEW_ROUND = '2026-06-22T10:00:00.000Z';
@@ -63,6 +68,10 @@ function writeConfig(root: string): void {
     proofAdmissibility: {
       mode: 'enforce',
       enforcedConsumers: ['REVIEW'],
+    },
+    promptEnvelope: {
+      version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+      roles: Object.fromEntries(REVIEW_LANES.map(lane => [lane, 'full-envelope'])),
     },
   }, null, 2) + '\n');
   resetConfigCache();
@@ -167,10 +176,10 @@ function startRunAndPass(registry: ReturnType<typeof createMainRegistry>, lane: 
   const output = String(start({
     storyId: STORY_ID,
     agent: lane,
-    promptHash: canonicalDigest({ lane, kind: 'quorum-submit-smoke-review-prompt' }),
   }));
   const match = output.match(/Review run (\S+) started/);
   assert.ok(match?.[1], `review_run_start output contains reviewRunId for ${lane}`);
+  assert.match(output, /BEGIN EXACT ASSEMBLED REVIEW PROMPT/, 'review_run_start delivers the exact bound prompt bytes');
   pass({
     storyId: STORY_ID,
     agent: lane,
@@ -317,10 +326,83 @@ try {
     assertQuorumRefuses(registry, store, root, 'absent reviewer pass refusal');
   });
 
+  check('numerically sufficient compatibility/retired-only receipts cannot authorize quorum', () => {
+    const headHash = currentGitHead(root)!;
+    const materialHash = currentMaterialHash(root)!;
+    const storyFilesHash = currentStoryFilesHash(root)!;
+    const aliases = ['implementation-reviewer', 'test-intent', 'lattice-review-channel'];
+    const runs: ReviewRun[] = aliases.map((agent, index) => {
+      const run: ReviewRun = {
+        reviewRunId: `${STORY_ID}:COMPAT-${index + 1}`,
+        storyId: STORY_ID,
+        agent,
+        lane: agent,
+        reviewRound: REVIEW_ROUND,
+        startedAt: `2026-06-22T09:4${index}:00.000Z`,
+        headHash,
+        materialHash,
+        storyFilesHash,
+        promptHash: `compatibility-only-${index}`,
+      };
+      run._hash = signReviewRun(
+        run.storyId, run.reviewRunId, run.agent, run.lane, run.reviewRound,
+        run.startedAt, run.headHash, run.materialHash, run.promptHash,
+        undefined, undefined, run.storyFilesHash,
+      );
+      return run;
+    });
+    const passes: ReviewPass[] = runs.map((run, index) => {
+      const pass: ReviewPass = {
+        id: `${STORY_ID}:COMPAT-RP-${index + 1}`,
+        agent: run.agent,
+        note: 'Compatibility-only receipt must remain non-authoritative.',
+        createdAt: `2026-06-22T09:5${index}:00.000Z`,
+        reviewRound: REVIEW_ROUND,
+        reviewRunId: run.reviewRunId,
+      };
+      pass._hash = signReviewPass(
+        STORY_ID, pass.id, pass.agent, pass.note, pass.createdAt,
+        REVIEW_ROUND, pass.reviewRunId,
+      );
+      return pass;
+    });
+    store.writeReviewRuns(STORY_ID, { runs });
+    store.writeReviewPasses(STORY_ID, { passes });
+    assertQuorumRefuses(registry, store, root, 'compatibility-only quorum refusal');
+    store.writeReviewRuns(STORY_ID, { runs: [] });
+    store.writeReviewPasses(STORY_ID, { passes: [] });
+  });
+
   check('refuses when reviewer passes are stale and writes no verdicts', () => {
     recordReviewerPasses(registry);
     commitMaterialChange(root);
     assertQuorumRefuses(registry, store, root, 'stale reviewer pass refusal');
+  });
+
+  check('machine REVIEW and quorum consume the same full-envelope replay/tamper proof', () => {
+    recordReviewerPasses(registry);
+    const machineContext: StoryMachineContext = {
+      storyId: STORY_ID,
+      store,
+      projectRoot: root,
+      gitCwd: root,
+    };
+    assert.equal(canPassReviewGuard(machineContext), true, 'current canonical full-envelope evidence passes REVIEW');
+    const data = store.readPromptEnvelopes(STORY_ID);
+    const original = data.envelopes[0];
+    assert.ok(original, 'full-envelope reviewer run persists an envelope');
+    const replayed = {
+      ...original,
+      reviewRound: 'replayed-round',
+    };
+    replayed.envelopeId = computePromptEnvelopeId(replayed);
+    store.writePromptEnvelopes(STORY_ID, {
+      envelopes: [replayed, ...data.envelopes.slice(1)],
+    });
+    assert.equal(canPassReviewGuard(machineContext), false, 'machine REVIEW rejects a replayed envelope');
+    assertQuorumRefuses(registry, store, root, 'quorum rejects the same replayed envelope');
+    store.writePromptEnvelopes(STORY_ID, data);
+    assert.equal(canPassReviewGuard(machineContext), true, 'restoring exact envelope bytes restores REVIEW evidence');
   });
 
   let result: any;

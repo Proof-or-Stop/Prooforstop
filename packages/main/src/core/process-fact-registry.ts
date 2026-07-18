@@ -389,7 +389,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'review-runs.json',
     path: 'review-runs.json',
     signed: true,
-    signature: 'signReviewRun/verifyReviewRun; ReviewRun.storyFilesHash, workspaceBinding.bindingHash, and optional Prompt Envelope envelopeId are folded into new review-run signatures and compared to current story signed workspace resolution by REVIEW consumers',
+    signature: 'signReviewRun/verifyReviewRun; ReviewRun.storyFilesHash, workspaceBinding.bindingHash, and optional Prompt Envelope envelopeId are folded into new review-run signatures. In full-envelope mode promptHash equals the exact assembledPrompt domain digest, so the delivered bytes are mechanically bound and compared to canonical runtime/role/task assembly by REVIEW consumers.',
     producerCommand: 'review_run_start',
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
   },
@@ -1120,7 +1120,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/agent-prompt + handlers/review-run',
     consumerGate: 'story-dispatch rows are audit-only; review-run rows are verified through signed ReviewRun envelopeId by REVIEW, assurance-floor, and quorum gates',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.agent_prompt,
-    rationale: 'Content-addressed full Prompt Envelopes are append-only. createdAt is provenance outside the envelopeId digest; story-dispatch cannot carry reviewer authority.',
+    rationale: 'Content-addressed full Prompt Envelopes are append-only. createdAt is provenance outside the envelopeId digest; story-dispatch cannot carry reviewer authority. Review-run envelopes additionally bind roleId to lane and their exact delivered assembledPrompt bytes to the signed ReviewRun promptHash.',
   },
   {
     name: 'artifact:review-runs.json',
@@ -1130,7 +1130,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/review-run',
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.review_run_start,
-    rationale: 'Signed reviewer runs bind current REVIEW findings and passes to a fresh lane-specific boundary, including ReviewRun.storyFilesHash for unrelated main-drift freshness.',
+    rationale: 'Signed reviewer runs bind current REVIEW findings and passes to a fresh lane-specific boundary, including ReviewRun.storyFilesHash for unrelated main-drift freshness and, in full-envelope mode, the exact canonical assembledPrompt bytes delivered by review_run_start.',
   },
   {
     name: 'artifact:findings.json',

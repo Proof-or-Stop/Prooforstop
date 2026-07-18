@@ -6,7 +6,7 @@ import {
   buildReviewRunWorkspaceBinding,
   ensureCurrentReviewRound,
   captureReviewRunSnapshot,
-  resolveReviewPromptHash,
+  hashReviewPrompt,
   resolveReviewRunLane,
   signReviewRun,
 } from '../core/review-run.js';
@@ -74,7 +74,7 @@ function resolveGitTopLevel(gitCwd: string): string | null {
 export function createReviewRunHandlers(ctx: HandlerContext) {
   const { store } = ctx;
   return {
-    review_run_start(args: { storyId: string; agent?: string; lane?: string; prompt?: string; promptHash?: string; reviewedIntentRefs?: string[] }): string {
+    review_run_start(args: { storyId: string; agent?: string; lane?: string; reviewedIntentRefs?: string[] }): string {
       const authority = resolveAgentMutationAuthority({
         command: 'review_run_start',
         payloadActors: [args.agent, args.lane],
@@ -114,7 +114,6 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
       // status.ok === false → fail-open: after this preflight declines to block, proceed to the snapshot.
 
       const lane = resolveReviewRunLane(authority.actor, args.lane);
-      const promptHash = resolveReviewPromptHash(args.prompt, args.promptHash);
       const startedAt = new Date().toISOString();
       // B-9dcb CHK-002: thread the resolved metadataRoot into the snapshot so the
       // storyDir-aware material/story hash exclusion loads lattice.config.json
@@ -171,14 +170,17 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           lane,
           loadConfig(workspace.metadataRoot || ctx.root).promptEnvelope,
         );
+        const promptEntry = readPromptRegistry().agents.find(entry => entry.agentId === lane);
+        if (!promptEntry) throw new Error(`review_run_start: no canonical prompt registry entry for ${lane}`);
+        const canonicalRolePrompt = readPromptTemplate(promptEntry);
+        let promptHash = hashReviewPrompt(canonicalRolePrompt);
         let envelopeId: string | undefined;
+        let assembledPrompt: string | undefined;
         if (rolloutMode === 'full-envelope') {
-          const promptEntry = readPromptRegistry().agents.find(entry => entry.agentId === lane);
-          if (!promptEntry) throw new Error(`review_run_start: no canonical prompt registry entry for ${lane}`);
           const assembly = assembleFullPromptEnvelope({
             roleContract: promptRoleContract(lane),
             runtimeContract: BASELINE_RUNTIME_CONTRACT,
-            rolePrompt: readPromptTemplate(promptEntry),
+            rolePrompt: canonicalRolePrompt,
             taskContext: buildFullTaskContext({
               story,
               checklist: store.readChecklist(args.storyId),
@@ -192,7 +194,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
             reviewRound: story.currentReviewRound!,
             lane,
             createdAt: startedAt,
-            launcherSpec: { promptHash, reviewedIntentRefs: args.reviewedIntentRefs ?? [] },
+            launcherSpec: { reviewedIntentRefs: args.reviewedIntentRefs ?? [] },
           });
           withMkdirLock(store.storyFilePath(args.storyId, 'prompt-envelopes.lock'), () => {
             const envelopeData = store.readPromptEnvelopes(args.storyId);
@@ -212,6 +214,8 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
             }
           }, { label: 'prompt-envelopes metadata' });
           envelopeId = assembly.envelope.envelopeId;
+          assembledPrompt = assembly.prompt;
+          promptHash = assembly.envelope.assembledPromptDigest;
         }
         const run: ReviewRun = {
           reviewRunId,
@@ -225,6 +229,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           ...(storyFilesHash ? { storyFilesHash } : {}),
           promptHash,
           ...(envelopeId ? { envelopeId } : {}),
+          ...(assembledPrompt ? { assembledPrompt } : {}),
           ...(scopeBinding ? { scopeBinding } : {}),
           workspaceBinding,
           _hash: signReviewRun(
@@ -252,6 +257,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           || persisted.scopeBinding?.bindingHash !== scopeBinding?.bindingHash
           || persisted.workspaceBinding?.bindingHash !== workspaceBinding.bindingHash
           || persisted.envelopeId !== envelopeId
+          || persisted.assembledPrompt !== assembledPrompt
         ) {
           throw new Error(`review_run_start: ${reviewRunId} was not durably persisted; refusing to continue`);
         }
@@ -260,7 +266,10 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           : '';
         const storyHashNote = storyFilesHash ? `, story ${storyFilesHash.slice(0, 7)}` : '';
         const envelopeNote = envelopeId ? `, envelope ${envelopeId.slice(0, 7)}` : ', legacy-full-context';
-        return `Review run ${reviewRunId} started for ${lane} (round ${story.currentReviewRound}, head ${headHash.slice(0, 7)}${storyHashNote}${scopeNote}${envelopeNote})`;
+        const summary = `Review run ${reviewRunId} started for ${lane} (round ${story.currentReviewRound}, head ${headHash.slice(0, 7)}${storyHashNote}${scopeNote}${envelopeNote})`;
+        return assembledPrompt
+          ? `${summary}\n\n--- BEGIN EXACT ASSEMBLED REVIEW PROMPT ---\n${assembledPrompt}\n--- END EXACT ASSEMBLED REVIEW PROMPT ---`
+          : summary;
       });
     },
   };

@@ -610,8 +610,6 @@ Behavior:
       'lattice-review-docs',
       'lattice-review-channel',
     ]).optional().describe('Explicit reviewer lane; synonym for agent, provide only one.'),
-    prompt: z.string().optional().describe('Prompt text actually received by the reviewer; promptHash is computed automatically when provided.'),
-    promptHash: z.string().optional().describe('SHA-256 of the reviewer prompt; if prompt is also provided, it must match the actual prompt hash.'),
     reviewedIntentRefs: z.array(z.string()).optional().describe('Scope-protected story: verification intent refs reviewed in this run; included in scope binding, optional.'),
   }},
   { name: 'review_pass_set', description: 'Record a reviewer pass credential (reviewer checked, found no blocking findings)', schema: {

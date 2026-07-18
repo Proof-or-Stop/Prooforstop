@@ -5472,8 +5472,13 @@ const inventory = [
         patterns: ['review_run_start', 'resolveReviewRunLane', 'captureReviewRunSnapshot', 'buildReviewRunWorkspaceBinding', 'workspaceBinding', 'signReviewRun', 'writeReviewRuns', 'Review run'],
       },
       {
-        relPath: 'packages/main/src/cli-engine.ts',
-        patterns: ['review_run_start', 'promptHash: z.string()', 'lane: z.enum'],
+        relPath: 'packages/main/src/cli/command-catalog.ts',
+        patterns: [
+          'review_run_start',
+          'lane: z.enum',
+          'reviewedIntentRefs',
+          { label: 'caller-controlled promptHash removed', absentRegex: /promptHash:\s*z\.string\(\)/ },
+        ],
       },
     ],
   },
