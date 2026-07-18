@@ -400,6 +400,26 @@
         "scanEscalationReason": null
       },
       "_hash": "63284184678e7a6f681fa1b390c08874a0b8306ee6cb199da80ad34325776177"
+    },
+    {
+      "id": "B-62b8:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "Focused coverage PASS for bf9954756c: direct smoke coverage for same-count overload replacement, overload reorder, count decrease, .pyi/.pyw deletion routing, and unsupported metadata; build and focused smoke pass.",
+      "createdAt": "2026-07-18T01:00:36.278Z",
+      "reviewRound": "2026-07-18T00:58:51.193Z",
+      "reviewRunId": "B-62b8:RR-028",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7941fb1d2f99956ff54baad57849820b9e76b43bd618836441d7ed52a1ffac84"
     }
   ]
 }
