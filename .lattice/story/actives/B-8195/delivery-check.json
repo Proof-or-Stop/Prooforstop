@@ -1,0 +1,53 @@
+{
+  "storyId": "B-8195",
+  "checkedAt": "2026-07-18T19:06:44.520Z",
+  "headHash": "46ecd1fca45fee26d92341a80641a211d1365250",
+  "materialHash": "7c00f20486109bf9f9c1f17ee28fd7ed963940412888fc417c8f56120d40cd0a",
+  "storyFilesHash": "2ec94ce651f96cc48e9f0b2ecd2a380d34c306a6a40930c9cbf755500e74c121",
+  "reviewRound": "2026-07-18T12:43:58.206Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+      "promise": "A fresh eligible PASS after REVIEW-to-TEST is persisted and returned as a clean zero-command reused validation without weakening dirty-state admission.",
+      "status": "verified",
+      "verifiedBy": "Fresh local production CLI transcript plus focused integration evidence",
+      "evidence": "live-smoke-transcript exitCode=0 reports provider=lattice-verifier-reused, status=pass, disposition=reused and commandExecutions=0; current TEST evidence is PASS with 20/20 required coverage."
+    },
+    {
+      "docPath": "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+      "promise": "Lifecycle and CLI writers close only their causally generated bounded metadata and fail closed for human/forged dirt, hooks, races and writer failure.",
+      "status": "verified",
+      "verifiedBy": "Focused adversarial matrix and signed review evidence",
+      "evidence": "CHK-002/003 evidence covers direct human and forged rows, HEAD/content races, hook mutation, rollback, main/direct-handler execution and story-branch nested commits; no open high/critical findings remain."
+    },
+    {
+      "docPath": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+      "promise": "B-8195 interposed #7 delivers one-shot routine-validation closeout before host/candidate routing work, without changing DONE-required, routing, dispatch, owner or scope-anchor policy.",
+      "status": "met",
+      "verifiedBy": "Current diff and subsystem boundary review",
+      "evidence": "Diff is limited to routine validation/lifecycle closeout implementation, focused tasks and the two named decision docs; live validate reused in 5.6 seconds with zero project-command executions."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Historical RED is preserved by commit 1f66c4c749 and evidence records status=fail, failureKind=infra_failure, canonical-pass-persistence-failed and commandExecutions=0 before the fix. The live-smoke artifact expected field still quotes this historical CHK-001 RED; that label is not the current product expectation."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "On the current TEST worktree, env NODE_OPTIONS=--max-old-space-size=3072 LATTICE_SESSION_ID=codex-wa-final node bin/lattice.js validate --story=B-8195 --json exited 0 and returned Validation PASS reused (trusted-story-metadata-descendant), disposition=reused, commandExecutions=0."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Fresh live transcript captured 2026-07-18T19:05:20.744Z shows a 5.6-second successful reused validate with 20/20 coverage; signed focused evidence covers repeated/idempotent reuse, local worktree entrypoint, direct-handler/main and story-branch transitions, foreign append, race and rollback cases."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery promises are met. The transcript expected string is a selector artifact pointing at the intentionally preserved pre-fix RED in CHK-001, while its actual command output and the current user-visible promises in CHK-002/003 are green. This mismatch is documented and non-blocking because it does not contradict the executed outcome, but future transcript selection should prefer the current outcome promise."
+  },
+  "_hash": "550a492e48b555a0cbe717e06cf004baa37a0d9d94226c2877efb0a0fb4ceca7"
+}
