@@ -475,9 +475,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-2可信-full-context-装配与-envelope"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-18T20:35:11.250Z",
-      "endTime": null,
+      "endTime": "2026-07-18T20:39:25.239Z",
       "userSees": "A fresh reviewer pass succeeds only with the matching envelope; replay against a new HEAD, round or ReviewRun is rejected, while a provider retry retains its existing usage-ledger attempt ID.",
       "files": {
         "modify": [
@@ -586,7 +586,141 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "review-run-envelope-single-binding",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Signed ReviewRun/ReviewPass envelope binding, tamper/cross-run rejection, legacy compatibility, freshness paths, non-latest-pass semantics, assurance/quorum integration, and provider retry identity tests passed.",
+          "headHash": "560307c5362a4b71010e28b3f449a2c422ac7d2f",
+          "materialHash": "1d6d5cb146dbead6d2b1ebe09aef924ea5731a077406edd51cbb9993db98d41e",
+          "storyFilesHash": "79c2f4d149ecf357af03a4fb3ff51b7f18d2460a7b1b6883dd5020ef4ac004be",
+          "timestamp": "2026-07-18T20:39:25.556Z"
+        },
+        {
+          "intentRef": "review-gates-consume-envelope-proof",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Signed ReviewRun/ReviewPass envelope binding, tamper/cross-run rejection, legacy compatibility, freshness paths, non-latest-pass semantics, assurance/quorum integration, and provider retry identity tests passed.",
+          "headHash": "560307c5362a4b71010e28b3f449a2c422ac7d2f",
+          "materialHash": "1d6d5cb146dbead6d2b1ebe09aef924ea5731a077406edd51cbb9993db98d41e",
+          "storyFilesHash": "79c2f4d149ecf357af03a4fb3ff51b7f18d2460a7b1b6883dd5020ef4ac004be",
+          "timestamp": "2026-07-18T20:39:25.863Z"
+        },
+        {
+          "intentRef": "retry-identity-semantics-distinguished",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Signed ReviewRun/ReviewPass envelope binding, tamper/cross-run rejection, legacy compatibility, freshness paths, non-latest-pass semantics, assurance/quorum integration, and provider retry identity tests passed.",
+          "headHash": "560307c5362a4b71010e28b3f449a2c422ac7d2f",
+          "materialHash": "1d6d5cb146dbead6d2b1ebe09aef924ea5731a077406edd51cbb9993db98d41e",
+          "storyFilesHash": "79c2f4d149ecf357af03a4fb3ff51b7f18d2460a7b1b6883dd5020ef4ac004be",
+          "timestamp": "2026-07-18T20:39:26.212Z"
+        },
+        {
+          "intentRef": "parallel-lane-envelope-isolation",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Signed ReviewRun/ReviewPass envelope binding, tamper/cross-run rejection, legacy compatibility, freshness paths, non-latest-pass semantics, assurance/quorum integration, and provider retry identity tests passed.",
+          "headHash": "560307c5362a4b71010e28b3f449a2c422ac7d2f",
+          "materialHash": "1d6d5cb146dbead6d2b1ebe09aef924ea5731a077406edd51cbb9993db98d41e",
+          "storyFilesHash": "79c2f4d149ecf357af03a4fb3ff51b7f18d2460a7b1b6883dd5020ef4ac004be",
+          "timestamp": "2026-07-18T20:39:26.515Z"
+        },
+        {
+          "intentRef": "review-run-restart-invalidates-prior-envelope",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Signed ReviewRun/ReviewPass envelope binding, tamper/cross-run rejection, legacy compatibility, freshness paths, non-latest-pass semantics, assurance/quorum integration, and provider retry identity tests passed.",
+          "headHash": "560307c5362a4b71010e28b3f449a2c422ac7d2f",
+          "materialHash": "1d6d5cb146dbead6d2b1ebe09aef924ea5731a077406edd51cbb9993db98d41e",
+          "storyFilesHash": "79c2f4d149ecf357af03a4fb3ff51b7f18d2460a7b1b6883dd5020ef4ac004be",
+          "timestamp": "2026-07-18T20:39:26.805Z"
+        },
+        {
+          "intentRef": "usage-ledger-retry-terminal-accounting",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Signed ReviewRun/ReviewPass envelope binding, tamper/cross-run rejection, legacy compatibility, freshness paths, non-latest-pass semantics, assurance/quorum integration, and provider retry identity tests passed.",
+          "headHash": "560307c5362a4b71010e28b3f449a2c422ac7d2f",
+          "materialHash": "1d6d5cb146dbead6d2b1ebe09aef924ea5731a077406edd51cbb9993db98d41e",
+          "storyFilesHash": "79c2f4d149ecf357af03a4fb3ff51b7f18d2460a7b1b6883dd5020ef4ac004be",
+          "timestamp": "2026-07-18T20:39:27.099Z"
+        },
+        {
+          "intentRef": "legacy-pass-round-bounded",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Signed ReviewRun/ReviewPass envelope binding, tamper/cross-run rejection, legacy compatibility, freshness paths, non-latest-pass semantics, assurance/quorum integration, and provider retry identity tests passed.",
+          "headHash": "560307c5362a4b71010e28b3f449a2c422ac7d2f",
+          "materialHash": "1d6d5cb146dbead6d2b1ebe09aef924ea5731a077406edd51cbb9993db98d41e",
+          "storyFilesHash": "79c2f4d149ecf357af03a4fb3ff51b7f18d2460a7b1b6883dd5020ef4ac004be",
+          "timestamp": "2026-07-18T20:39:27.398Z"
+        },
+        {
+          "intentRef": "envelope-replay-new-head-rejected",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Signed ReviewRun/ReviewPass envelope binding, tamper/cross-run rejection, legacy compatibility, freshness paths, non-latest-pass semantics, assurance/quorum integration, and provider retry identity tests passed.",
+          "headHash": "560307c5362a4b71010e28b3f449a2c422ac7d2f",
+          "materialHash": "1d6d5cb146dbead6d2b1ebe09aef924ea5731a077406edd51cbb9993db98d41e",
+          "storyFilesHash": "79c2f4d149ecf357af03a4fb3ff51b7f18d2460a7b1b6883dd5020ef4ac004be",
+          "timestamp": "2026-07-18T20:39:27.729Z"
+        },
+        {
+          "intentRef": "envelope-replay-new-round-rejected",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Signed ReviewRun/ReviewPass envelope binding, tamper/cross-run rejection, legacy compatibility, freshness paths, non-latest-pass semantics, assurance/quorum integration, and provider retry identity tests passed.",
+          "headHash": "560307c5362a4b71010e28b3f449a2c422ac7d2f",
+          "materialHash": "1d6d5cb146dbead6d2b1ebe09aef924ea5731a077406edd51cbb9993db98d41e",
+          "storyFilesHash": "79c2f4d149ecf357af03a4fb3ff51b7f18d2460a7b1b6883dd5020ef4ac004be",
+          "timestamp": "2026-07-18T20:39:28.042Z"
+        },
+        {
+          "intentRef": "envelope-replay-other-reviewrun-rejected",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Signed ReviewRun/ReviewPass envelope binding, tamper/cross-run rejection, legacy compatibility, freshness paths, non-latest-pass semantics, assurance/quorum integration, and provider retry identity tests passed.",
+          "headHash": "560307c5362a4b71010e28b3f449a2c422ac7d2f",
+          "materialHash": "1d6d5cb146dbead6d2b1ebe09aef924ea5731a077406edd51cbb9993db98d41e",
+          "storyFilesHash": "79c2f4d149ecf357af03a4fb3ff51b7f18d2460a7b1b6883dd5020ef4ac004be",
+          "timestamp": "2026-07-18T20:39:28.387Z"
+        },
+        {
+          "intentRef": "signed-wrapper-content-tamper-rejected",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Signed ReviewRun/ReviewPass envelope binding, tamper/cross-run rejection, legacy compatibility, freshness paths, non-latest-pass semantics, assurance/quorum integration, and provider retry identity tests passed.",
+          "headHash": "560307c5362a4b71010e28b3f449a2c422ac7d2f",
+          "materialHash": "1d6d5cb146dbead6d2b1ebe09aef924ea5731a077406edd51cbb9993db98d41e",
+          "storyFilesHash": "79c2f4d149ecf357af03a4fb3ff51b7f18d2460a7b1b6883dd5020ef4ac004be",
+          "timestamp": "2026-07-18T20:39:28.693Z"
+        },
+        {
+          "intentRef": "gate-paths-share-envelope-verifier",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Signed ReviewRun/ReviewPass envelope binding, tamper/cross-run rejection, legacy compatibility, freshness paths, non-latest-pass semantics, assurance/quorum integration, and provider retry identity tests passed.",
+          "headHash": "560307c5362a4b71010e28b3f449a2c422ac7d2f",
+          "materialHash": "1d6d5cb146dbead6d2b1ebe09aef924ea5731a077406edd51cbb9993db98d41e",
+          "storyFilesHash": "79c2f4d149ecf357af03a4fb3ff51b7f18d2460a7b1b6883dd5020ef4ac004be",
+          "timestamp": "2026-07-18T20:39:29.002Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
