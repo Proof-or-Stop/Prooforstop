@@ -644,6 +644,29 @@
         "scanEscalationReason": null
       },
       "_hash": "56f5223b003e325913dd5f367a8785516555222375ad892c6ae7e61188efd516"
+    },
+    {
+      "id": "B-360e:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "Round-16 merge-main concept review passed on current material. Merge semantics preserve implementation declaration continuity while still detecting removed overload signatures, support .pyi/.pyw, retain legacy headerless fragments, keep malformed structured headers fail-closed, and ignore unsupported metadata/docs without hiding mixed-language deletions. Build, concept smoke, independent continuity/overload/pyi/headerless/fail-closed probes, process-fact verifier, Prompt contract measurement smoke, raw validate --concept, and the 16-role Proof-or-Stop baseline verifier all pass. Protected Prompt templates/mirrors and the prior baseline have zero diff. Scope check reports only three explicitly acknowledged, non-blocking merge-main paths with a matching convergence reason. Evidence inspection confirms all 42 checklist evidence refs are fresh at materialHash 30b4630b and storyFilesHash 098739c4; only the prior routine test-evidence is stale after the merge and should be regenerated in TEST.",
+      "createdAt": "2026-07-18T11:58:32.039Z",
+      "reviewRound": "2026-07-18T11:54:47.440Z",
+      "reviewRunId": "B-360e:RR-047",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4a5a3fde6a2675be3f02b6de2f6a1ac8da787d0d0225912f08e3421814e7ad52"
     }
   ]
 }
