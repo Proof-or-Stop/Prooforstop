@@ -57,14 +57,14 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-001:happy:0",
-          "kind": "integration_test",
-          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "kind": "manual_transcript",
+          "command": "git show --stat --oneline 7356ae0c44",
           "result": "pass",
-          "note": "30-check focused quorum_submit smoke PASS: production CLI atomic commit, immediate provisional ownership, pre-write boundary rejection, exact-offset rollback, foreign-byte preservation, and retry/CAS cases all passed.",
-          "headHash": "67b0e2da64e4e7fe637cf32523659c8b70a5cbcc",
+          "note": "Immutable RED commit 7356ae0c44 records the three capture-window and exact-offset rollback regressions before the GREEN implementation.",
+          "headHash": "d96dfe548024370c76b72d33c9805a61b000ac9f",
           "materialHash": "6f82155954c54ffed7e7719f2ada1ba8792fddf02e462bd28ac471489487d348",
           "storyFilesHash": "0d4ec71cb6fc46040b35bc6d3abaa41d88f9d100e8329ae741b28504ff16691f",
-          "timestamp": "2026-07-18T23:34:01.834Z"
+          "timestamp": "2026-07-18T23:34:22.604Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -487,14 +487,14 @@
         },
         {
           "intentRef": "CHK-003:adversarial:1",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
-          "note": "30-check focused quorum_submit smoke PASS: production CLI atomic commit, immediate provisional ownership, pre-write boundary rejection, exact-offset rollback, foreign-byte preservation, and retry/CAS cases all passed.",
-          "headHash": "67b0e2da64e4e7fe637cf32523659c8b70a5cbcc",
+          "note": "30-check smoke directly proves foreign between-row append preservation and exact captured-offset rollback that never searches for or deletes embedded foreign byte copies.",
+          "headHash": "d96dfe548024370c76b72d33c9805a61b000ac9f",
           "materialHash": "6f82155954c54ffed7e7719f2ada1ba8792fddf02e462bd28ac471489487d348",
           "storyFilesHash": "0d4ec71cb6fc46040b35bc6d3abaa41d88f9d100e8329ae741b28504ff16691f",
-          "timestamp": "2026-07-18T23:34:01.834Z"
+          "timestamp": "2026-07-18T23:34:22.604Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
