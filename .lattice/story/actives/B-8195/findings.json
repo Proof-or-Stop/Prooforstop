@@ -208,6 +208,21 @@
       "resolvedAt": "2026-07-18T12:46:13.594Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-8195:F-012",
+      "desc": "scripts/verify-process-fact-contract.mjs:5418-5426 and 5742-5750 — MEDIUM: replacing the executed-writer anchor with the three plain tokens `commitValidationReuseMetadataTransaction`, `reason: validate`, and `closeoutArtifactPaths` weakens the contract because all three already occur in `reusedStoryValidationResult` (verifier.ts:728-735) as well as `persistStoryValidationEvidence` (919-926). Removing the executed-validation transaction would therefore leave both inventory rows green, so the new contract does not actually pin the process-fact change it claims to synchronize. Add a locality/count-sensitive assertion (for example exactly two transaction call sites, or a regex/extracted function-body check binding the call to persistStoryValidationEvidence) while retaining the reuse anchor separately.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-18T20:39:51.131Z",
+      "reviewRound": "2026-07-18T20:38:42.890Z",
+      "reviewRunId": "B-8195:RR-026",
+      "_hash": "ef7c311afbfbde7c45e80870f9ff84fd60c1c03646b15bab5aefe46726c18a8c",
+      "signatureTag": "missing|unknown|scripts-verify-process",
+      "signatureTagSource": "auto"
     }
   ]
 }
