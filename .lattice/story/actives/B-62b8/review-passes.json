@@ -215,6 +215,27 @@
         "scanEscalationReason": null
       },
       "_hash": "9b637ba125d8c6127b99bb6c75a2b3343b161892a7fa01d16089ebfc1648aed9"
+    },
+    {
+      "id": "B-62b8:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-5 bounded F-016 re-review PASS: realistic Codex and Claude sentinels traverse doctor text/JSON, usage_sweep plain/alert text, plain/alert JSON, and a unique create-only --out file whose full bytes are read back; every surface rejects raw ids and retains opaque ids/locators. Row/report/burn projection is deeply idempotent and rejects a sess-like input without the matching host locator. Current build, usage-burn 24 checks, and usage-sweep 19 checks all pass.",
+      "createdAt": "2026-07-18T00:35:26.549Z",
+      "reviewRound": "2026-07-18T00:33:52.557Z",
+      "reviewRunId": "B-62b8:RR-018",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts",
+          "packages/main/src/tasks/usage-sweep-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "39609fc78693d69436754550bde18bc59ddfab0f1830885c35dd94fb342131a5"
     }
   ]
 }
