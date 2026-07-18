@@ -7,36 +7,36 @@
   "drivers": [
     "Remove the observed mandatory manual metadata commit and retry",
     "Preserve canonical PASS receipt integrity and CAS semantics",
-    "Keep the patch narrow enough for focused adversarial review"
+    "Avoid trusting unsigned phase_transition event shape"
   ],
   "options": [
     {
       "name": "A: transition-owned atomic closeout",
       "pros": [
-        "Makes the lifecycle transition finish clean before mandatory validate",
-        "Avoids teaching verifier to adopt pre-existing dirty state"
+        "The transition knows exactly which lifecycle files it generated",
+        "Verifier can retain strict rejection of every pre-existing dirty path",
+        "No new trust format or migration"
       ],
       "cons": [
-        "May couple phase advancement to validation-specific artifacts",
-        "Could alter closeout ordering beyond the observed path"
+        "Adds a canonical metadata commit to TEST transition",
+        "Must prove the commit does not stale review or include unrelated dirt"
       ]
     },
     {
       "name": "B: receipt-bound reuse transaction admission",
       "pros": [
-        "Keeps reuse persistence in the existing isolated CAS writer",
-        "Can atomically include only causally proven generated lifecycle paths"
+        "Keeps persistence in verifier",
+        "Could combine transition and reuse writes"
       ],
       "cons": [
-        "Requires a strong canonical writer/receipt classifier",
-        "A weak event-shape check would create a bypass"
+        "No signed phase_transition receipt exists today",
+        "Adding a proof format would broaden this correction"
       ]
     },
     {
       "name": "C: permit metadata-only dirty paths generically",
       "pros": [
-        "Small implementation",
-        "Makes the observed retry disappear"
+        "Small implementation"
       ],
       "cons": [
         "Unsafe path-only trust",
@@ -44,33 +44,33 @@
       ]
     }
   ],
-  "chosen": "B: receipt-bound reuse transaction admission",
-  "rationale": "The verifier already owns the reused PASS persistence transaction. Extend that transaction only with dirty lifecycle metadata that existing canonical provenance proves belongs to the immediately preceding authorized flow; otherwise refuse exactly as today. If investigation shows no adequate proof primitive, fall back to option A rather than weakening trust.",
+  "chosen": "A: transition-owned atomic closeout",
+  "rationale": "Scope review confirmed phase_transition is an unsigned JSONL append, so verifier cannot distinguish it safely from forged event-shaped dirt. The transition orchestrator is the causal owner and must atomically close only its freshly generated TEST lifecycle files before returning. The verifier remains unchanged and fail-closed for any dirty state present at validate entry.",
   "preMortem": [
     {
-      "scenario": "A forged process event is admitted because it resembles story_advance output.",
-      "trigger": "Admission checks only path, event type or prose.",
-      "consequence": "An external edit is silently committed as trusted metadata.",
-      "mitigation": "Require canonical receipt/causal writer binding and retain the human_confirmation/direct-edit negative controls."
+      "scenario": "The transition commit stages unrelated user changes.",
+      "trigger": "It uses the real index or a broad story-directory glob.",
+      "consequence": "Unrelated content is silently committed.",
+      "mitigation": "Use the isolated immutable metadata writer with an exact generated path allowlist and preserve real-index bytes."
     },
     {
-      "scenario": "The fix hides concurrent or hook-generated changes inside the metadata commit.",
-      "trigger": "Transaction capture occurs after untrusted dirt or does not verify exact index paths and HEAD CAS.",
-      "consequence": "Unrelated changes become part of a validation PASS commit.",
-      "mitigation": "Capture before authorized writes, verify exact managed path set, preserve index bytes, and keep concurrent-HEAD/hook mutation tests."
+      "scenario": "A forged process event becomes trusted by shape.",
+      "trigger": "Implementation checks event type or prose in verifier.",
+      "consequence": "External dirt is adopted into PASS evidence.",
+      "mitigation": "Do not admit pre-existing verifier dirt; trust stays with transition-owned writes only."
     },
     {
-      "scenario": "The RED passes without traversing the production lifecycle boundary.",
-      "trigger": "The test directly calls a helper or manually cleans metadata before reuse.",
-      "consequence": "B-0784 behavior remains broken despite green unit tests.",
-      "mitigation": "Run real local CLI story transition followed immediately by validate and assert a single successful invocation plus a clean tree."
+      "scenario": "TEST transition metadata commit invalidates current review evidence.",
+      "trigger": "Hashes treat canonical lifecycle metadata as story material or lineage rejects the commit.",
+      "consequence": "One retry is replaced by re-review churn.",
+      "mitigation": "Assert trusted-story-metadata-descendant lineage, unchanged storyFilesHash and fresh reviewer receipts after transition."
     },
     {
-      "scenario": "Every TEST transition starts auto-committing arbitrary metadata and invalidates review evidence again.",
-      "trigger": "Writer ordering or hash binding changes too broadly.",
-      "consequence": "The fix trades one retry for repeated review re-attestation.",
-      "mitigation": "Limit committed paths to canonical generated metadata, assert trusted metadata-descendant lineage, and check review/storyFiles hashes remain admissible."
+      "scenario": "Writer/CAS/hook failure leaves partial metadata or reports TEST success.",
+      "trigger": "Transition state is persisted before commit failure is handled atomically.",
+      "consequence": "Story phase and Git evidence diverge.",
+      "mitigation": "Fail transition loudly, restore exact worktree/index state, and cover concurrent HEAD and hook mutation paths."
     }
   ],
-  "timestamp": "2026-07-18T10:17:52.998Z"
+  "timestamp": "2026-07-18T10:28:43.835Z"
 }

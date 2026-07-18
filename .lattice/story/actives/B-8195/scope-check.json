@@ -308,9 +308,13 @@
       "q": "Does B-8195 intentionally supersede the canonical rule that an accepted routine reuse hit does not rewrite test evidence, append an activity fact, auto-commit metadata, or move HEAD? If yes, the canonical routine-validation decision must be updated and added to the file map before DEV.",
       "evidence": "The current decision says: \"An accepted hit ... does not rewrite test-evidence.json, append an activity fact, auto-commit metadata, or move HEAD.\" B-8195 instead requires one atomic transaction that persists lifecycle metadata plus reused PASS and leaves the tree clean.",
       "sourcePointers": [
-        "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md:72",
-        ".lattice/story/actives/B-8195/plan.md:11"
-      ]
+        "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md:70",
+        "packages/main/src/handlers/verifier.ts:706",
+        "packages/main/src/core/auto-commit-metadata.ts:134",
+        "CHK-003"
+      ],
+      "resolution": "The canonical document reflects the original B-914f no-write design but current verifier code already persists and commits reused test evidence, terminal events and closeout receipts. CHK-003 now explicitly updates routine-validation-fresh-pass-reuse.md to the implemented canonical persistence contract and the new transition ordering.",
+      "resolvedAt": "2026-07-18T10:28:45.591Z"
     },
     {
       "id": "OQ-002",
