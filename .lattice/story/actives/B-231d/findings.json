@@ -36,6 +36,21 @@
       ],
       "signatureTag": "missing|ts|adversarial-altering-provenance",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-231d:F-003",
+      "desc": "quality-cleanup: packages/main/src/core/done-required-validation.ts:168,382-386 repoRelativeLogicalCwd() anchors the v2 command-spec digest at each worktree's own physical projectRoot, not the shared git-common-dir root that resolveSharedLockRoot() (validation-execution-lock.ts:142) computes for CHK-001. For a RELATIVE command.cwd (the only case exercised by worktree-portability-smoke.ts, e.g. \".\" or \"packages/main\") this cancels out algebraically and the digest is root-independent as claimed. But for an ABSOLUTE command.cwd (allowed by the config parser at line 289 with no relative-only validation) the digest is NOT root-independent: reproduced with the built dist -- buildDoneRequiredCommandSpecEnvelope(mainRoot,{cwd:\"/opt/shared-tool\",...}).digest !== buildDoneRequiredCommandSpecEnvelope(worktreeRoot, sameCmd).digest for two different worktree roots of the same story. This directly contradicts the story's own decision.json principle (\"Derive shared identity from a canonical root, never a per-worktree root\") and the function's own doc comment (\"the SAME logical value in every worktree/host of the same story\"), and would silently reintroduce the exact cross-worktree false-mismatch bug this story closes, for any doneRequiredCommands entry using an absolute cwd in a consuming project. CHK-002's edge/adversarial verification intents only cover legacy-receipt migration and genuinely-different-commands, not this case, so it is untested. Suggested fix: anchor repoRelativeLogicalCwd at resolveSharedLockRoot(projectRoot) (already exported from validation-execution-lock.ts) instead of projectRoot directly, or validate/reject non-relative doneRequiredCommands cwd at config-normalize time, and add a CHK-002 smoke case for an absolute cwd.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-18T23:55:39.909Z",
+      "reviewRound": "2026-07-18T23:46:16.425Z",
+      "reviewRunId": "B-231d:RR-001",
+      "_hash": "42fb3b11b4b821bbcfe454b17502838496a8b7d03f2ae4fbeda668826a22ec1d",
+      "signatureTag": "edge|unknown|quality-cleanup-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
