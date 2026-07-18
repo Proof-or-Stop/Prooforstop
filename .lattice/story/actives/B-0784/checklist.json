@@ -165,7 +165,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "done_prepare accepts an unchanged official gap_log B-META finding as trusted shared metadata, but forged/direct-edited B-META and unknown .lattice files remain BLOCKED.",
+      "userSees": "The terminal prints: \"shared metadata: B-META-framework-audit/findings.json | writer: gap_log | contentBinding: valid | status: PASS\"; forged input prints \"status: BLOCKED\".",
       "files": {
         "modify": [
           "packages/main/src/core/lifecycle-registry.ts",
