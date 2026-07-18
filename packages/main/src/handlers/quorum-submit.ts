@@ -58,6 +58,7 @@ interface RequiredReviewerPass {
 
 export interface QuorumSubmitTestHooks {
   metadataCommit?: ImmutableMetadataCommitTestHooks;
+  beforeCaptureOwnedVerdict?: (args: { verdictId: string; emittedCount: number; projectRoot: string }) => void;
   afterVerdictWrite?: (args: { verdictId: string; emittedCount: number; projectRoot: string }) => void;
 }
 
@@ -518,6 +519,11 @@ export function createQuorumSubmitHandlers(ctx: HandlerContext, testHooks: Quoru
               provider: verdict.provider,
               sessionId: verdict.sessionId,
               keyId: verdict.keyId,
+            });
+            testHooks.beforeCaptureOwnedVerdict?.({
+              verdictId: verdict.verdictId,
+              emittedCount: emitted.length,
+              projectRoot,
             });
             const owned = captureOwnedVerdictOutput({
               projectRoot: gitCwd,

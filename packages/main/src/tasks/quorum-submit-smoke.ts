@@ -792,6 +792,79 @@ try {
     });
   });
 
+  check('capture-time failure rolls back the just-written event and verdict JSON', () => {
+    withFreshFixture((fixture) => {
+      recordReviewerPasses(fixture.registry);
+      const processEvents = join(fixture.store.storyDirPath(STORY_ID), 'process-events.jsonl');
+      const baseline = readFileSync(processEvents);
+      const handler = createQuorumSubmitHandlers(fixture.ctx, {
+        beforeCaptureOwnedVerdict: () => {
+          throw new Error('deterministic capture-time failure after submitLocalVerdict');
+        },
+      }).quorum_submit;
+      assert.throws(() => handler(quorumArgs()), /capture-time failure/);
+      assert.deepEqual(readFileSync(processEvents), baseline);
+      assert.equal(verdictFileCount(fixture.root), 0);
+    });
+  });
+
+  check('between-row foreign append preserves foreign bytes and rolls back row two', () => {
+    withFreshFixture((fixture) => {
+      recordReviewerPasses(fixture.registry);
+      const processEvents = join(fixture.store.storyDirPath(STORY_ID), 'process-events.jsonl');
+      const baseline = readFileSync(processEvents);
+      const foreign = Buffer.from('{"type":"foreign_between_rows","marker":"keep"}\n');
+      const handler = createQuorumSubmitHandlers(fixture.ctx, {
+        afterVerdictWrite: ({ emittedCount }) => {
+          if (emittedCount === 1) appendFileSync(processEvents, foreign);
+        },
+      }).quorum_submit;
+      assert.throws(() => handler(quorumArgs()), /changed bytes outside its append boundary/);
+      assert.deepEqual(readFileSync(processEvents), Buffer.concat([baseline, foreign]));
+      assert.equal(verdictFileCount(fixture.root), 0);
+    });
+  });
+
+  check('rollback never deletes an owned-row byte sequence embedded inside foreign binary', () => {
+    withFreshFixture((fixture) => {
+      recordReviewerPasses(fixture.registry);
+      const processEvents = join(fixture.store.storyDirPath(STORY_ID), 'process-events.jsonl');
+      const baseline = readFileSync(processEvents);
+      let expected = Buffer.alloc(0);
+      const handler = createQuorumSubmitHandlers(fixture.ctx, {
+        metadataCommit: {
+          afterAddBeforeCommit: () => {
+            const current = readFileSync(processEvents);
+            const firstEnd = current.indexOf(0x0a, baseline.length) + 1;
+            assert.ok(firstEnd > baseline.length);
+            const originalFirst = Buffer.from(current.subarray(baseline.length, firstEnd));
+            const mutatedFirst = Buffer.from(originalFirst);
+            const pass = Buffer.from('"decision":"pass"');
+            const passAt = mutatedFirst.indexOf(pass);
+            assert.ok(passAt >= 0);
+            Buffer.from('"decision":"fail"').copy(mutatedFirst, passAt);
+            const foreign = Buffer.concat([
+              Buffer.from([0xff, 0x00]),
+              originalFirst,
+              Buffer.from([0x00, 0xfe]),
+            ]);
+            expected = Buffer.concat([baseline, mutatedFirst, foreign]);
+            writeFileSync(processEvents, Buffer.concat([
+              baseline,
+              mutatedFirst,
+              current.subarray(firstEnd),
+              foreign,
+            ]));
+          },
+        },
+      }).quorum_submit;
+      assert.throws(() => handler(quorumArgs()), /atomic closeout failed/);
+      assert.ok(expected.length > 0);
+      assert.deepEqual(readFileSync(processEvents), expected);
+      assert.equal(verdictFileCount(fixture.root), 0);
+    });
+  });
+
   check('same-verdictId mutation of a gate-consumed field is refused and rolled back', () => {
     withFreshFixture((fixture) => {
       recordReviewerPasses(fixture.registry);
