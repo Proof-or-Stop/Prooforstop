@@ -283,7 +283,7 @@
       "desc": "packages/main/src/handlers/doctor.ts:153-170,253 and packages/main/src/core/usage-burn-alert.ts:229-230 expose the raw Codex session/thread identifier and a session filename containing that identifier through doctor hostBurnScan. Live repro on current HEAD: `env -u LATTICE_SESSION_ID node bin/lattice-codex.js doctor --format=json` contains the exact current CODEX_THREAD_ID in hostBurnScan.findings[].sessionId and findings[].file, even though ownerSessionIdentity itself is opaque. WHY: CHK-002 and the ratified adapter contract promise raw task/session tokens never appear in doctor output; the sentinel test missed this because its synthetic sentinel was not a real ~/.codex rollout. Redact/hash the burn-scan session identifier and redact the filename component before doctor text/JSON rendering, while retaining enough opaque correlation for burn diagnostics, and add a real-session-shaped fixture proving the raw id is absent from the entire doctor payload.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-18T00:14:53.585Z",
@@ -291,7 +291,11 @@
       "reviewRunId": "B-62b8:RR-009",
       "_hash": "65ed34249ad1773e721d49fbfe85a9335be0fa0e7a83f8162f1bff0b72aaa07b",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by f8e4687440 + d9cd4249a1 + 63c23a3c68: raw native ids and transcript paths are retained only internally pre-projection; all doctor/usage_sweep surfaces expose stable opaque ids/locators, are idempotent, and realistic sentinel serialization is clean. Concept RP-005/RP-010 passes.",
+      "resolvedAt": "2026-07-18T00:36:28.619Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-62b8:F-015",
