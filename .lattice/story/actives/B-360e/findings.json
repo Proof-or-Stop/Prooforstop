@@ -352,7 +352,7 @@
       "desc": "packages/main/src/handlers/validate-concept.ts:125 and :372 Extension filtering uses only the diff header's b/new path (DiffFileSources.file = header[2]), so renaming a supported source file to an unsupported extension hides a real deletion. Reproducer: a diff from a/src/removed.ts to b/docs/removed.md deleting `export function realDeletion()` and adding Markdown prose yields analyzeDeletedSymbols(...) = {symbols:[], diagnostics:[]}. The same bypass applies to JS/Python renamed to JSON/Markdown/text. This violates the round-8 requirement that bounded filtering not hide real TS/JS/Python deletions. Track oldPath and newPath separately, parse each side according to its own supported extension/script kind, and add supported-to-unsupported rename probes; malformed supported old/new sides must remain fail closed.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-18T09:51:49.885Z",
@@ -364,7 +364,11 @@
         "packages/main/src/tasks/concept-gate-scope-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 3fd29d4993: diff reconstruction now retains independent oldPath/newPath including /dev/null and parses each side only according to its own supported language family. Supported-to-unsupported renames remain deletions, additions do not fabricate deletions, path-bound supported renames preserve explicit identity, and malformed supported sides still fail closed.",
+      "resolvedAt": "2026-07-18T09:55:18.880Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-360e:F-018",
