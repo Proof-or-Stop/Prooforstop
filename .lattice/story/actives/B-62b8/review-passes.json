@@ -194,6 +194,27 @@
       },
       "readDiagnostics": [],
       "_hash": "3a5c030745105e1eb2d78995854842311d8dd61e0ded7f3bb003017db1591457"
+    },
+    {
+      "id": "B-62b8:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Round-5 bounded F-015 quality review PASS: strict host-bound projected predicate, deep row/report/burn idempotence, lookalike raw rehash, and all usage-burn outward surfaces verified; 24/24 smoke PASS and no lifecycle command executed.",
+      "createdAt": "2026-07-18T00:35:05.376Z",
+      "reviewRound": "2026-07-18T00:33:52.557Z",
+      "reviewRunId": "B-62b8:RR-017",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9b637ba125d8c6127b99bb6c75a2b3343b161892a7fa01d16089ebfc1648aed9"
     }
   ]
 }
