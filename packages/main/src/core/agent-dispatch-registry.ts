@@ -92,7 +92,6 @@ export const AGENT_DISPATCH_REGISTRY = [
     'lattice-review-quality',
     'lattice-review-behavior',
     'lattice-review-docs',
-    'lattice-review-channel',
   ] as const).map((canonicalName) => ({
     canonicalName,
     aliases: [],

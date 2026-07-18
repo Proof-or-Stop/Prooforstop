@@ -12,6 +12,8 @@ import {
 } from './prompt-registry.js';
 
 export const PROMPT_ROLE_CONTRACT_REGISTRY_VERSION = 'proofbound.prompt-role-contract-registry.v1';
+export const PROMPT_ENVELOPE_ROLLOUT_VERSION = 'proofbound.prompt-envelope-rollout.v1';
+export type PromptEnvelopeRolloutMode = 'legacy-full-context' | 'full-envelope';
 
 interface RolePolicy {
   status: RoleLifecycleStatus;
@@ -332,3 +334,56 @@ function deepFreezeRoleContract(contract: RoleContract): Readonly<RoleContract> 
 export const PROMPT_ROLE_CONTRACTS = Object.freeze(
   buildPromptRoleContracts().map(deepFreezeRoleContract),
 );
+
+const PROMPT_ROLE_CONTRACT_BY_ID = new Map(PROMPT_ROLE_CONTRACTS.map(contract => [contract.roleId, contract]));
+
+export function promptRoleContract(roleId: string): Readonly<RoleContract> {
+  const contract = PROMPT_ROLE_CONTRACT_BY_ID.get(roleId);
+  if (!contract) throw new PromptRoleContractRegistryError(`unknown prompt role "${roleId}"`);
+  return contract;
+}
+
+/** Gate evidence is owned only by active canonical REVIEW lanes, never compatibility/retired prompts. */
+export function isPromptRoleEligibleForReviewEvidence(roleId: string | undefined | null): boolean {
+  if (!roleId) return false;
+  const contract = PROMPT_ROLE_CONTRACT_BY_ID.get(roleId);
+  return contract?.status === 'active'
+    && contract.allowedCommandIds.includes('review_run_start')
+    && contract.allowedCommandIds.includes('review_pass_set');
+}
+
+export function resolvePromptEnvelopeRolloutMode(
+  roleId: string,
+  config: unknown,
+): PromptEnvelopeRolloutMode {
+  const contract = promptRoleContract(roleId);
+  if (config === undefined || config === null) return 'legacy-full-context';
+  if (typeof config !== 'object' || Array.isArray(config) || Object.getPrototypeOf(config) !== Object.prototype) {
+    throw new PromptRoleContractRegistryError('promptEnvelope config must be a plain object');
+  }
+  const record = config as Record<string, unknown>;
+  for (const key of Object.keys(record)) {
+    if (!['version', 'roles'].includes(key)) throw new PromptRoleContractRegistryError(`promptEnvelope.${key} is unknown`);
+  }
+  if (record.version !== PROMPT_ENVELOPE_ROLLOUT_VERSION) {
+    throw new PromptRoleContractRegistryError(`promptEnvelope.version must be ${PROMPT_ENVELOPE_ROLLOUT_VERSION}`);
+  }
+  if (!record.roles || typeof record.roles !== 'object' || Array.isArray(record.roles) || Object.getPrototypeOf(record.roles) !== Object.prototype) {
+    throw new PromptRoleContractRegistryError('promptEnvelope.roles must be a plain object');
+  }
+  const roles = record.roles as Record<string, unknown>;
+  for (const key of Object.keys(roles)) {
+    if (!PROMPT_ROLE_CONTRACT_BY_ID.has(key)) throw new PromptRoleContractRegistryError(`promptEnvelope.roles contains unknown role "${key}"`);
+    if (!['legacy-full-context', 'full-envelope'].includes(roles[key] as string)) {
+      throw new PromptRoleContractRegistryError(`promptEnvelope.roles.${key} has unsupported mode`);
+    }
+    if (roles[key] === 'full-envelope' && promptRoleContract(key).status !== 'active') {
+      throw new PromptRoleContractRegistryError(`${key} is ${promptRoleContract(key).status} and cannot enable full-envelope`);
+    }
+  }
+  if (Object.prototype.hasOwnProperty.call(roles, '__proto__') || Object.prototype.hasOwnProperty.call(roles, 'constructor')) {
+    throw new PromptRoleContractRegistryError('promptEnvelope.roles contains a forbidden prototype key');
+  }
+  const configured = roles[contract.roleId];
+  return configured === undefined ? 'legacy-full-context' : configured as PromptEnvelopeRolloutMode;
+}

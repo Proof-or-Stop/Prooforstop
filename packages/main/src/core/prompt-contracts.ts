@@ -88,6 +88,35 @@ export interface PromptMeasurementRecord {
   providerProcessedInputTokens: PromptInputLayerAvailability;
 }
 
+export interface KnownExecutionEnvironment {
+  schemaVersion: 'proofbound.known-execution-environment.v1';
+  nodeVersion: string;
+  platform: string;
+  architecture: string;
+  cliVersion: string;
+  source: 'trusted-local-runtime';
+}
+
+export interface FullTaskContext {
+  schemaVersion: 'proofbound.full-task-context.v1';
+  storyId: string;
+  title: string;
+  description: string;
+  phase: string;
+  priority: string;
+  checklist: Array<{
+    id: string;
+    title: string;
+    status: string;
+    context?: string;
+    userSees?: string;
+  }>;
+  headHash: string;
+  materialHash?: string;
+  storyFilesHash?: string;
+  scopeContractDigest?: string;
+}
+
 export interface PromptEnvelope {
   schemaVersion: 'proofbound.prompt-envelope.v1';
   envelopeId: string;
@@ -96,6 +125,7 @@ export interface PromptEnvelope {
   dispatchKind: 'story-dispatch' | 'review-run';
   reviewRunId?: string;
   reviewRound?: string;
+  lane?: string;
   createdAt: string;
   headHash: string;
   runtimeContractVersion: string;
@@ -441,7 +471,7 @@ export function validatePromptEnvelope(value: unknown): asserts value is PromptE
     'estimatedTokens', 'tokenEstimatorVersion',
   ];
   const optional = [
-    'reviewRunId', 'reviewRound', 'priorPassRef', 'materialHash', 'storyFilesHash', 'policyHash',
+    'reviewRunId', 'reviewRound', 'lane', 'priorPassRef', 'materialHash', 'storyFilesHash', 'policyHash',
     'freshnessClassification', 'toolPolicyDigest', 'systemInstructionDigest', 'requestedModelId',
   ];
   requireExactKeys(record, required, optional, 'PromptEnvelope');
@@ -456,10 +486,13 @@ export function validatePromptEnvelope(value: unknown): asserts value is PromptE
   if (record.dispatchKind === 'review-run') {
     requireNonblank(record.reviewRunId, 'PromptEnvelope.reviewRunId');
     requireNonblank(record.reviewRound, 'PromptEnvelope.reviewRound');
-  } else if (record.reviewRunId !== undefined || record.reviewRound !== undefined) {
+    requireNonblank(record.lane, 'PromptEnvelope.lane');
+  } else if (record.reviewRunId !== undefined || record.reviewRound !== undefined || record.lane !== undefined) {
     throw new PromptContractValidationError('story-dispatch PromptEnvelope cannot carry review authority');
   }
-  if (record.contextMode === 'incremental') requireNonblank(record.priorPassRef, 'PromptEnvelope.priorPassRef');
+  if (record.contextMode !== 'full' || record.eligibilityDecision !== 'full' || record.priorPassRef !== undefined) {
+    throw new PromptContractValidationError('Story 2 PromptEnvelope supports full context only');
+  }
   const optionalDigests = ['materialHash', 'storyFilesHash', 'policyHash', 'toolPolicyDigest', 'systemInstructionDigest'];
   for (const key of optionalDigests.filter(key => record[key] !== undefined)) {
     requireDigest(record[key], `PromptEnvelope.${key}`);
@@ -467,6 +500,55 @@ export function validatePromptEnvelope(value: unknown): asserts value is PromptE
   const optionalText = ['priorPassRef', 'freshnessClassification', 'requestedModelId'];
   for (const key of optionalText.filter(key => record[key] !== undefined)) {
     requireNonblank(record[key], `PromptEnvelope.${key}`);
+  }
+}
+
+export function validateKnownExecutionEnvironment(value: unknown): asserts value is KnownExecutionEnvironment {
+  const record = asRecord(value, 'KnownExecutionEnvironment');
+  requireExactKeys(
+    record,
+    ['schemaVersion', 'nodeVersion', 'platform', 'architecture', 'cliVersion', 'source'],
+    [],
+    'KnownExecutionEnvironment',
+  );
+  if (record.schemaVersion !== 'proofbound.known-execution-environment.v1') {
+    throw new PromptContractValidationError('KnownExecutionEnvironment.schemaVersion is unsupported');
+  }
+  for (const key of ['nodeVersion', 'platform', 'architecture', 'cliVersion']) {
+    requireNonblank(record[key], `KnownExecutionEnvironment.${key}`);
+  }
+  if (record.source !== 'trusted-local-runtime') {
+    throw new PromptContractValidationError('KnownExecutionEnvironment.source is invalid');
+  }
+}
+
+export function validateFullTaskContext(value: unknown): asserts value is FullTaskContext {
+  const record = asRecord(value, 'FullTaskContext');
+  requireExactKeys(
+    record,
+    ['schemaVersion', 'storyId', 'title', 'description', 'phase', 'priority', 'checklist', 'headHash'],
+    ['materialHash', 'storyFilesHash', 'scopeContractDigest'],
+    'FullTaskContext',
+  );
+  if (record.schemaVersion !== 'proofbound.full-task-context.v1') {
+    throw new PromptContractValidationError('FullTaskContext.schemaVersion is unsupported');
+  }
+  for (const key of ['storyId', 'title', 'description', 'phase', 'priority', 'headHash']) {
+    requireNonblank(record[key], `FullTaskContext.${key}`);
+  }
+  for (const key of ['materialHash', 'storyFilesHash', 'scopeContractDigest']) {
+    if (record[key] !== undefined) requireDigest(record[key], `FullTaskContext.${key}`);
+  }
+  if (!Array.isArray(record.checklist)) throw new PromptContractValidationError('FullTaskContext.checklist must be an array');
+  const seen = new Set<string>();
+  for (const [index, raw] of record.checklist.entries()) {
+    const item = asRecord(raw, `FullTaskContext.checklist[${index}]`);
+    requireExactKeys(item, ['id', 'title', 'status'], ['context', 'userSees'], `FullTaskContext.checklist[${index}]`);
+    for (const key of ['id', 'title', 'status']) requireNonblank(item[key], `FullTaskContext.checklist[${index}].${key}`);
+    if (item.context !== undefined) requireNonblank(item.context, `FullTaskContext.checklist[${index}].context`);
+    if (item.userSees !== undefined) requireNonblank(item.userSees, `FullTaskContext.checklist[${index}].userSees`);
+    if (seen.has(item.id as string)) throw new PromptContractValidationError(`FullTaskContext.checklist contains duplicate id ${item.id}`);
+    seen.add(item.id as string);
   }
 }
 

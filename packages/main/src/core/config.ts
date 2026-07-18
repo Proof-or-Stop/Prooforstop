@@ -82,6 +82,11 @@ export interface LatticeConfig {
   fixturesDir: string;
   storyDir: string;
   requirementsDir: string;
+  /** Per-role trusted full-context rollout. Missing roles remain byte-exact legacy-full-context. */
+  promptEnvelope?: {
+    version?: 'proofbound.prompt-envelope-rollout.v1';
+    roles?: Record<string, 'legacy-full-context' | 'full-envelope'>;
+  };
   candidateSpecRouting?: {
     mode?: 'shadow' | 'warn' | 'enforce';
     candidateBudget?: number;

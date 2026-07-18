@@ -38,7 +38,10 @@ type ReviewLaneForEntry<Entry> = Entry extends {
   ? 'REVIEW' extends Phases[number] ? Lane : never
   : never;
 
-export type ReviewRunLane = ReviewLaneForEntry<(typeof AGENT_DISPATCH_REGISTRY)[number]>;
+/** Includes the retired historical lane at the type boundary; runtime eligibility still rejects it. */
+export type ReviewRunLane =
+  | ReviewLaneForEntry<(typeof AGENT_DISPATCH_REGISTRY)[number]>
+  | 'lattice-review-channel';
 
 /** Stable registry-order projection; the dispatch registry is the sole lane authority. */
 export const REVIEW_RUN_LANES: readonly ReviewRunLane[] = Object.freeze(
