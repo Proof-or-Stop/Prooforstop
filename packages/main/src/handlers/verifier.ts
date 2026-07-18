@@ -836,10 +836,10 @@ function persistStoryValidationEvidence(
     disposition: 'executed',
     ...(identity ? { routineValidationIdentity: identity } : {}),
   });
+  recordValidationTerminal(ctx, storyId, gitCwd, result, identity);
   autoCommitStoryMetadata(ctx.root, storyId, 'validate', {
     closeoutArtifactPaths: ['test-evidence.json'],
   });
-  recordValidationTerminal(ctx, storyId, gitCwd, result, identity);
 }
 
 function externalResult(args: {

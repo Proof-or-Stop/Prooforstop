@@ -113,6 +113,9 @@ All five workstreams must preserve these invariants:
 
 Routine TEST validation fresh-PASS reuse is specified separately in
 [Routine Validation Fresh-PASS Reuse](routine-validation-fresh-pass-reuse.md).
+Its one-shot convergence includes exact writer-owned closeout of TEST-transition
+metadata and the CLI terminal event; it does not permit the verifier to trust
+or sweep canonical-looking dirt found at validate entry.
 
 ### 6.1 Scope
 

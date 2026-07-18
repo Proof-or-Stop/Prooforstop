@@ -8,7 +8,7 @@
  */
 
 import { z, type ZodType } from 'zod';
-import { existsSync } from 'fs';
+import { existsSync, readFileSync, realpathSync } from 'fs';
 import {
   enforceConvergenceBreakerGate,
   bumpGateFailureCount,
@@ -17,7 +17,7 @@ import {
 import { isCanonicalStoryId } from './core/lifecycle-registry.js';
 import { appendActivityLog } from './core/activity-log.js';
 import { inferActivityRole } from './core/activity-role.js';
-import { isAbsolute, join } from 'path';
+import { isAbsolute, join, relative } from 'path';
 import { StoryStore } from './core/store.js';
 import { createMainRegistry, type Registry } from './registry.js';
 import type { HandlerContext } from './handlers/context.js';
@@ -80,6 +80,12 @@ import {
   classifyRuntimeEntrypointAuthority,
   renderRuntimeEntrypointAuthorityFailure,
 } from './core/runtime-environment-checks.js';
+import { resolveGitCwd } from './core/story-signed-workspace-resolution.js';
+import {
+  captureLifecycleMetadataTransaction,
+  commitLifecycleMetadataTransaction,
+} from './core/auto-commit-metadata.js';
+import { rawArtifactDigest } from './core/closeout-trust.js';
 
 export {
   READ_ONLY_COMMANDS,
@@ -1188,6 +1194,28 @@ export async function runCli(opts?: {
     const storyId = storyIdFromArgs(argsObject, activeStory, { command: entry.command, projectRoot: root });
     if (!storyId) return;
     try {
+      const closeCanonicalTerminal = entry.success
+        && (
+          entry.command === 'validate'
+          || (entry.command === 'story_advance' && argsObject.phase === 'TEST')
+        );
+      const terminalGitCwd = closeCanonicalTerminal
+        ? resolveGitCwd({
+          store,
+          storyId,
+          metadataRoot: root,
+          projectRoot: root,
+        })
+        : '';
+      const terminalCapture = closeCanonicalTerminal
+        ? captureLifecycleMetadataTransaction({
+          root: terminalGitCwd,
+          gitCwd: terminalGitCwd,
+          storyId,
+          storyRel: relative(realpathSync(terminalGitCwd), realpathSync(store.storyDirPath(storyId))),
+          kind: 'codex-command-terminal',
+        })
+        : null;
       let phase = activeStory?.phase || '';
       if (!phase) {
         try { phase = store.readStory(storyId).phase; } catch { phase = ''; }
@@ -1207,6 +1235,22 @@ export async function runCli(opts?: {
         result: entry.success ? 'pass' : 'fail',
         ...(entry.error ? { errorSummary: entry.error.slice(0, 300) } : {}),
       });
+      if (terminalCapture) {
+        const verifiedHashes = new Map(terminalCapture.transaction.paths.map((path) => [
+          path,
+          rawArtifactDigest(readFileSync(join(terminalGitCwd, path))),
+        ]));
+        const committed = commitLifecycleMetadataTransaction({
+          root: terminalGitCwd,
+          gitCwd: terminalGitCwd,
+          storyId,
+          capture: terminalCapture,
+          verifiedHashes,
+        });
+        if (!committed.ok) {
+          throw new Error(`Codex command terminal closeout failed: ${committed.reason}`);
+        }
+      }
     } catch (e: unknown) {
       reportHealthIssue('persist:codexProcessEvent', e as Error, {
         command: entry.command,

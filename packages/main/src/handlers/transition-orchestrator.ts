@@ -40,6 +40,8 @@
  */
 
 import { execFileSync } from 'child_process';
+import { readFileSync, realpathSync } from 'fs';
+import { join, relative } from 'path';
 import type { HandlerContext } from './context.js';
 import { collectContext, PHASE_TO_EVENT, assertCwdInWorktree } from './context.js';
 import { createStoryActor, getStateName, canSendStoryEventWithoutSnapshotCan } from '../core/machine.js';
@@ -95,6 +97,12 @@ import {
 import { runWithMainWriteLockContext } from '../core/main-write-lock.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
+import {
+  captureLifecycleMetadataTransaction,
+  commitLifecycleMetadataTransaction,
+  type LifecycleMetadataTransaction,
+} from '../core/auto-commit-metadata.js';
+import { rawArtifactDigest } from '../core/closeout-trust.js';
 
 /** Arguments for one story_advance transition. */
 export interface StoryTransitionArgs {
@@ -649,6 +657,31 @@ async function runStoryTransitionInner(
       store.writeChecklist(args.storyId, checklist);
     }
 
+    // A TEST transition owns only the exact canonical lifecycle files it is
+    // about to generate. Capture them while clean before the first write; the
+    // verifier remains strict and never adopts dirty metadata at validate entry.
+    let testTransitionCapture: LifecycleMetadataTransaction | null = null;
+    let transitionGitCwd = '';
+    if (args.phase === 'TEST') {
+      transitionGitCwd = resolveGitCwd({
+        store,
+        storyId: args.storyId,
+        metadataRoot: ctx.root,
+        projectRoot: ctx.root,
+      });
+      const storyRel = relative(
+        realpathSync(transitionGitCwd),
+        realpathSync(store.storyDirPath(args.storyId)),
+      );
+      testTransitionCapture = captureLifecycleMetadataTransaction({
+        root: transitionGitCwd,
+        gitCwd: transitionGitCwd,
+        storyId: args.storyId,
+        storyRel,
+        kind: 'test-transition',
+      });
+    }
+
     // Persist state
     const now = new Date().toISOString();
     if (args.phase === 'PLAN' && !story.startedAt) {
@@ -665,12 +698,14 @@ async function runStoryTransitionInner(
       story.currentReviewRound = now;
     }
     store.writeStory(args.storyId, story);
-    const transitionGitCwd = resolveGitCwd({
-      store,
-      storyId: args.storyId,
-      metadataRoot: ctx.root,
-      projectRoot: ctx.root,
-    });
+    if (!transitionGitCwd) {
+      transitionGitCwd = resolveGitCwd({
+        store,
+        storyId: args.storyId,
+        metadataRoot: ctx.root,
+        projectRoot: ctx.root,
+      });
+    }
     store.appendProcessEvent(args.storyId, buildPhaseTransitionProcessEvent({
       storyId: args.storyId,
       fromPhase: oldPhase,
@@ -689,12 +724,33 @@ async function runStoryTransitionInner(
       recomputeProcessMetrics(args.storyId, store, ctx.root);
     }
 
+    const testTransitionHashes = testTransitionCapture
+      ? new Map(testTransitionCapture.transaction.paths.map((path) => [
+        path,
+        rawArtifactDigest(readFileSync(join(transitionGitCwd, path))),
+      ]))
+      : null;
+
     // onPhaseChange hook — fires after the new phase is persisted.
     await runPhaseChangeHooks(ctx.root, args.storyId, args, oldPhase, newState);
 
     let metadataCommitReport = '';
     if (args.phase === 'REVIEW') {
       metadataCommitReport = commitReviewMetadata(ctx.root, args.storyId, args.phase);
+    } else if (testTransitionCapture && testTransitionHashes) {
+      const committed = commitLifecycleMetadataTransaction({
+        root: transitionGitCwd,
+        gitCwd: transitionGitCwd,
+        storyId: args.storyId,
+        capture: testTransitionCapture,
+        verifiedHashes: testTransitionHashes,
+      });
+      if (!committed.ok) {
+        throw new Error(`TEST transition canonical metadata closeout failed: ${committed.reason}`);
+      }
+      if (committed.commitSha) {
+        metadataCommitReport = `\n✓ lattice metadata auto-committed: lattice: record ${args.storyId} test-transition metadata (${committed.commitSha.slice(0, 7)})`;
+      }
     }
 
     // CHK-002: collect relatedDocs on PLAN→DEV / DONE.

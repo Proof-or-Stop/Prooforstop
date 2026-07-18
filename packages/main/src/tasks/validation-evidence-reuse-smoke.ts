@@ -122,14 +122,18 @@ function assertReviewToTestTransitionLeavesExactReuseRed(): void {
     assert.match(`${first.stdout}\n${first.stderr}`, /"commandExecutions":1/);
     assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, 1);
 
-    // Establish the deliberately clean command-entry baseline. The regression
-    // begins with the following authorized TEST transition, not with residue
-    // from the command that seeded the reusable PASS.
-    const seededDirty = git(root, ['status', '--porcelain=v1', '--untracked-files=all']);
-    assert.match(seededDirty, /process-events\.jsonl/, 'Codex command telemetry must participate in the production-path fixture');
-    git(root, ['add', '.lattice']);
-    git(root, ['commit', '-m', 'establish clean fresh PASS baseline']);
-    assert.equal(git(root, ['status', '--porcelain=v1', '--untracked-files=all']), '');
+    const canonicalPaths = [
+      `.lattice/story/actives/${storyId}/index.json`,
+      `.lattice/story/actives/${storyId}/process-events.jsonl`,
+      `.lattice/story/actives/${storyId}/process-metrics.json`,
+      `.lattice/story/actives/${storyId}/test-evidence.json`,
+      `.lattice/story/actives/${storyId}/closeout-write-receipts.jsonl`,
+    ];
+    assert.equal(
+      git(root, ['status', '--porcelain=v1', '--', ...canonicalPaths]),
+      '',
+      'the executed PASS and its Codex terminal event must establish a clean reusable baseline without manual commit',
+    );
 
     const advance = runCli(['story_advance', JSON.stringify({ storyId, phase: 'TEST' })]);
     assert.equal(advance.status, 0, `${advance.stdout}\n${advance.stderr}`);
@@ -137,24 +141,75 @@ function assertReviewToTestTransitionLeavesExactReuseRed(): void {
     assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, 1,
       'internal TEST gate must reuse the fresh PASS without executing the project command');
     const preValidateStatus = git(root, ['status', '--porcelain=v1', '--untracked-files=all']);
-    assert.match(preValidateStatus, /process-events\.jsonl/, 'authorized TEST transition must reproduce canonical process-event dirt');
-    assert.match(preValidateStatus, /process-metrics\.json|index\.json/, 'authorized TEST transition must reproduce canonical lifecycle dirt');
+    assert.doesNotMatch(preValidateStatus, /process-events\.jsonl|process-metrics\.json|index\.json/,
+      'authorized TEST transition and its Codex terminal event must close their exact canonical deltas');
 
     const immediate = runCli(['validate', `--story=${storyId}`, '--json']);
     assert.equal(immediate.status, 0, `${immediate.stdout}\n${immediate.stderr}`);
     const output = `${immediate.stdout}\n${immediate.stderr}`;
-    assert.match(output, /"status":"fail"/);
-    assert.match(output, /"failureKind":"infra_failure"/);
-    assert.match(output, /canonical-pass-persistence-failed/);
+    assert.match(output, /"status":"pass"/);
+    assert.match(output, /"disposition":"reused"/);
+    assert.match(output, /"commandExecutions":0/);
+    assert.doesNotMatch(output, /canonical-pass-persistence-failed/);
     assert.match(output, /routine validation reused; commandExecutions=0/);
     assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, 1,
-      'the RED is specifically zero-command persistence failure, never a hidden validation rerun');
+      'the one-shot converged reuse must never hide a validation command rerun');
+    assert.equal(
+      git(root, ['status', '--porcelain=v1', '--', ...canonicalPaths]),
+      '',
+      'successful reused PASS and its Codex terminal event must leave canonical metadata clean',
+    );
+
+    const repeated = runCli(['validate', `--story=${storyId}`, '--json']);
+    assert.equal(repeated.status, 0, `${repeated.stdout}\n${repeated.stderr}`);
+    assert.match(`${repeated.stdout}\n${repeated.stderr}`, /"disposition":"reused"/);
+    assert.match(`${repeated.stdout}\n${repeated.stderr}`, /"commandExecutions":0/);
+    assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, 1,
+      'repeated unchanged validate must remain idempotent and zero-command');
+
+    store.appendProcessEvent(storyId, {
+      type: 'human_confirmation',
+      storyId,
+      phase: 'TEST',
+      command: 'human_confirmation',
+      result: 'pass',
+    });
+    const humanBytes = readFileSync(join(root, canonicalPaths[1]), 'utf8');
+    const rejected = runCli(['validate', `--story=${storyId}`, '--json']);
+    assert.equal(rejected.status, 0, `${rejected.stdout}\n${rejected.stderr}`);
+    assert.match(`${rejected.stdout}\n${rejected.stderr}`, /"status":"fail"/);
+    assert.match(`${rejected.stdout}\n${rejected.stderr}`, /canonical metadata was already dirty/);
+    assert.equal(readFileSync(join(root, canonicalPaths[1]), 'utf8'), humanBytes,
+      'terminal closeout must not append to, commit, or rewrite a pre-existing human-authored managed delta');
+    assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, 1,
+      'pre-existing human metadata must fail closed without executing project commands');
+
+    const committedProcessEvents = git(root, ['show', `HEAD:${canonicalPaths[1]}`]) + '\n';
+    writeFileSync(join(root, canonicalPaths[1]), committedProcessEvents, 'utf8');
+    assert.equal(git(root, ['status', '--porcelain=v1', '--', canonicalPaths[1]]), '');
+    store.appendProcessEvent(storyId, {
+      type: 'codex_cli',
+      source: 'codex',
+      session: 'forged-session',
+      storyId,
+      phase: 'TEST',
+      command: 'validate',
+      entrypoint: 'forged-entrypoint',
+      result: 'pass',
+    });
+    const forgedBytes = readFileSync(join(root, canonicalPaths[1]), 'utf8');
+    const forged = runCli(['validate', `--story=${storyId}`, '--json']);
+    assert.equal(forged.status, 0, `${forged.stdout}\n${forged.stderr}`);
+    assert.match(`${forged.stdout}\n${forged.stderr}`, /canonical metadata was already dirty/);
+    assert.equal(readFileSync(join(root, canonicalPaths[1]), 'utf8'), forgedBytes,
+      'a canonical-looking codex_cli row is untrusted unless this CLI invocation itself appended it');
+    assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, 1);
     assert.equal(
       git(root, ['diff', '--', 'source.ts', 'lattice.config.json', 'probe.mjs']),
       '',
       'the fixture must not create source/config dirt that could masquerade as the lifecycle metadata failure',
     );
-    console.log('transition fresh-PASS RED: status=fail failureKind=infra_failure canonical-pass-persistence-failed commandExecutions=0');
+    console.log('transition fresh-PASS GREEN: status=pass disposition=reused commandExecutions=0; human metadata fail-closed');
   } finally {
     rmSync(root, { recursive: true, force: true });
     rmSync(counterPath, { force: true });
