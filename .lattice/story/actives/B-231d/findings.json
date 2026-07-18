@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-231d:F-001",
+      "desc": "concept-cleanup: absolute-cwd assumption only partially migrated to portable v2 semantics. buildDoneRequiredCommandSpecEnvelope (commandSpec.cwd, CHK-002) now digests a repo-relative logical cwd, but validateRequiredReceiptCoverage (done-required-validation.ts ~L546-551) still compares the top-level DoneRequiredCommandReceipt.cwd field (an absolute physical path recorded at run time, set at line ~640 to result.cwd ?? commandCwd(runTimeProjectRoot, command.cwd)) against normalizedCommandCwd(CURRENT projectRoot, command.cwd). When done-required-evidence.json recorded in one worktree/host is evaluated (evaluateDoneRequiredEvidence, called at DONE-gate time) against a different worktree/host root -- exactly the scenario this story title promises to fix -- this produces a spurious receipt-cwd-mismatch reason and fails DONE evaluation, even though the fixed commandSpec digest would correctly match. Reproduced directly: validateRequiredReceiptCoverage(evidence, rootA, [cmd]) -> [] but validateRequiredReceiptCoverage(evidence, rootB, [cmd]) -> [\"receipt-cwd-mismatch[0]: expected <rootB>, got <rootA>\"] for the identical receipt. The same root-cause pattern also affects isPackagesMainBuild/validateSelfHostBuildProof (same file, ~L414-419), which classifies a receipt as a packages/main build proof by comparing receipt.cwd against rootCwd/packagesMain derived from the CURRENT projectRoot, so cross-root build-proof matching can also silently fail unless the command config sets providesBuildProof. Neither code path is covered by the new worktree-portability-smoke.ts (all its evaluateDoneRequiredEvidence-adjacent checks use a single root; only the nested commandSpec digest and the lock path are exercised cross-root), so this residual absolute-cwd comparison has no regression coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-18T23:51:30.196Z",
+      "reviewRound": "2026-07-18T23:46:16.425Z",
+      "reviewRunId": "B-231d:RR-003",
+      "_hash": "d5716571484d9c19b1d0eea3e8360dca31524c468c201d316a2079ae7e2dadd2",
+      "files": [
+        "packages/main/src/core/done-required-validation.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-absolute",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
