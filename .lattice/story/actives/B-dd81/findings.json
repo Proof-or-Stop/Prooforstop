@@ -69,6 +69,30 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-dd81:F-005",
+      "desc": "Gate-consumer coverage is materially incomplete for 7 must intents. packages/main/src/tasks/review-run-smoke.ts only calls verifyReviewRunPromptEnvelope directly; packages/main/src/tasks/prompt-full-context-envelope-smoke.ts only checks isReviewerAgent/resolveReviewRunLane directly. The submitted suite contains no full-envelope or compatibility/retired-role scenario in review-assurance-floor-smoke.ts, quorum-submit-smoke.ts, or flow-stability-smoke.ts (source search finds none). Therefore REVIEW transition/current receipt, assurance floor and quorum are not exercised with tampered/replayed envelopes or numerically sufficient compatibility-only evidence, and removing one consumer filter would not be caught. This fails review-gates-consume-envelope-proof, replay-new-head/round/run, gate-paths-share-envelope-verifier, compatibility-only-review/assurance/quorum-blocked, all-gate-consumers-share-role-filter and rollback-never-downgrades-gates. Add focused end-to-end/mutation-sensitive fixtures through each real consumer, not registry-string assertions.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-18T21:30:50.911Z",
+      "reviewRound": "2026-07-18T21:26:11.737Z",
+      "reviewRunId": "B-dd81:RR-003",
+      "_hash": "31351772b8d6f7a1d4e56faf79bae6c7751f66b20317724633f328155e6bf498",
+      "files": [
+        "packages/main/src/tasks/review-run-smoke.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+        "packages/main/src/tasks/quorum-submit-smoke.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/handlers/quorum-submit.ts"
+      ],
+      "signatureTag": "missing|ts|gate-consumer-coverage",
+      "signatureTagSource": "auto"
     }
   ]
 }
