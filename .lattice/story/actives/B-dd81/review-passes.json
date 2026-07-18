@@ -147,6 +147,40 @@
         "scanEscalationReason": null
       },
       "_hash": "8df9080db0cc01033981cbefab74ec61629bef3042d250d93ac2c2199100133c"
+    },
+    {
+      "id": "B-dd81:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review confirms F011/F012: Claude and Codex providers map explicitly, Antigravity/agy/fake/unknown/absent fail closed before provenance can be minted, and thin/full selected-host outcomes remain intact across the real dispatch-to-ReviewRun-to-gate chain.",
+      "createdAt": "2026-07-18T23:29:30.906Z",
+      "reviewRound": "2026-07-18T23:23:40.222Z",
+      "reviewRunId": "B-dd81:RR-014",
+      "writerSessionId": "sess-bbc70cb6a16008e97230e79f211800a2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-dd81/background.md",
+          ".lattice/story/actives/B-dd81/plan.md",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-dd81/checklist.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2224490438b2154bd4a918361901f98080b871f5cdb6bba21f4661062cf89871"
     }
   ]
 }
