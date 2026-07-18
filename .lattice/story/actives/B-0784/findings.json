@@ -476,7 +476,7 @@
       "desc": "Real Git file rename with a declaration rename still loses the protected previous declaration. f1e5eb927b captures oldPath for +++ /dev/null, but flush always calls readBaseSource(projectRoot,currentPath). For a detected rename (`--- a/src/old.ts`, `+++ b/src/new.ts`), main:src/new.ts does not exist; oldPath is never passed to the base reader. A real staged 92%-similar rename changing function critical to renamed produced anchors=[{path:src/new.ts,anchor:renamed,previousAnchor:undefined}] and checkSemanticScope with global protectedAnchors=[critical] returned PASS. The claimed rename test only renames a function within the same file. Carry oldPath as the previous-source identity for rename hunks (while currentPath remains the changed path), read main:oldPath, and add a real git mv/staged rename test proving previousAnchor=critical and protected old identity blocks.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-18T03:04:06.591Z",
@@ -489,7 +489,11 @@
         "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|renamed-file-old-anchor-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by ee1329cef8. A real staged git mv from src/old.ts to src/new.ts with critical renamed to renamed now flows oldPath into the base-source lookup, producing current anchor=renamed and previousAnchor=critical; protected critical blocks. The table also covers pure rename without semantic edits, rename+modify, missing rename target, and missing previous/base path with distinct fail-closed diagnostics and Restore/Re-attest remediation. Evidence PASS: npm --prefix packages/main run build; semantic-scope-guard-smoke; git diff --check; scope_contract_check (43 changed files, 0 violations).",
+      "resolvedAt": "2026-07-18T03:08:33.771Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
