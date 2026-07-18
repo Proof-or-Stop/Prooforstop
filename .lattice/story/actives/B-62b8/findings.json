@@ -179,7 +179,7 @@
       "desc": "packages/main/src/core/lattice-dispatch.ts:1682-1684 — HIGH: F-002 remains bypassable because the new deny check uses raw Array.includes while buildRequiredCommandEnv normalizes deny names with trim(). With envAllowlist=[LATTICE_SESSION_ID] and envDenylist=[\" LATTICE_SESSION_ID \"], current dist propagates must-stay-denied; the canonical env builder had already removed it. Normalize the deny set once and reuse it (and add whitespace-deny regression), otherwise deny precedence is inconsistent across the same policy.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-18T00:02:10.933Z",
@@ -187,7 +187,11 @@
       "reviewRunId": "B-62b8:RR-006",
       "_hash": "5e079904e46ccb4e80414c523f53d1ffd80a2246e6be0d18b1435f81f53e1d13",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in f3b9f3c13e: allow/deny names share trim normalization and deny wins. Verified exact and whitespace-padded conflicts both produce absent LATTICE_SESSION_ID; focused smoke covers the padded regression.",
+      "resolvedAt": "2026-07-18T00:14:12.706Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-62b8:F-011",
