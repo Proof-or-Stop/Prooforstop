@@ -316,6 +316,26 @@
         "scanEscalationReason": null
       },
       "_hash": "613e7dc74c7cd1183bb14f38a11099c229db689c25b845b28d503d761d751868"
+    },
+    {
+      "id": "B-62b8:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-6 bounded commit 2f9fe77398 coverage PASS: the focused smoke covers unsupported-only JSON/JSONL/Markdown/manifest diffs, mixed unsupported+real TS deletion, malformed TS and multiline/malformed Python fail-closed, headerless fragment fallback, first-line shebang reconstruction, same-name declaration continuity across signature/export-state edits, and true deletion/rename/cross-file/overload-count removal. Current build and concept-gate-scope smoke pass.",
+      "createdAt": "2026-07-18T00:56:13.062Z",
+      "reviewRound": "2026-07-18T00:53:30.666Z",
+      "reviewRunId": "B-62b8:RR-023",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "681b4331dcd3649fe11a92d66ddd703d71d8c2f0c69128cf9839d76be73f12c1"
     }
   ]
 }
