@@ -180,6 +180,59 @@
           "packages/main/src/tasks/gap-log-smoke.ts",
           "packages/main/src/tasks/closeout-trust-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A B-META framework-audit finding written through official gap_log is classified as trusted shared lifecycle metadata only when its command/process event or receipt provenance is authentic and its digest binds the exact persisted content, path, and relevant story/framework identity.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "An unchanged officially bound gap_log finding does not make an unrelated story dirty or block done_prepare, while the classifier reports the trusted registry class and provenance rule that admitted it.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Official updates create a new content/provenance binding atomically; the prior binding cannot be reused for modified content and ordinary story-owned or runtime metadata keeps its existing classification.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Missing receipt/event, stale head/material/content binding, mismatched digest, wrong command, wrong B-META artifact, wrong story/framework identity, or incomplete write is classified as untrusted/blocking with a distinct actionable reason.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Equivalent serialization rules are explicit: only the canonical digest representation is accepted, and timestamp/order/whitespace changes either reproduce the bound digest by specification or require a new official binding rather than path-based trust.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Legacy official gap_log artifacts without the new binding follow an explicit migration/re-attestation path and never become trusted merely because they live under the B-META path.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Forged receipts/events/signatures, replayed provenance from another finding, digest collision-shaped inputs, path substitution, and copied valid provenance attached to different content are rejected fail-closed.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Direct edits, arbitrary B-META files, non-framework-audit findings, unknown .lattice paths, symlink/path alias tricks, and files merely named like official metadata remain blocking/untrusted.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Diagnostics reveal classifier class, canonical artifact path, expected versus observed content/provenance digest, event/receipt identity and freshness, and the exact remediation command without leaking or treating prose as proof.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
