@@ -1455,6 +1455,136 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
   }
 }
 
+// B-0784 F-020: real staged file renames retain the old path as the
+// previous-source identity. Missing either rename side fails closed with an
+// actionable diagnostic instead of silently dropping the old declaration.
+{
+  const baseSource = [
+    'export function critical() {',
+    '  const one = 1;',
+    '  const two = 2;',
+    '  const three = 3;',
+    '  return one + two + three;',
+    '}',
+    '',
+  ].join('\n');
+  const initRenameRepo = (prefix: string): string => {
+    const root = mkdtempSync(join(tmpdir(), prefix));
+    mkdirSync(join(root, 'src'), { recursive: true });
+    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+      scanRoot: 'src',
+      rootDir: '.',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      scopeProtection: { pathCanonicalization: 'enforce', astAnchors: 'enforce' },
+    }));
+    writeFileSync(join(root, 'src/old.ts'), baseSource);
+    execFileSync('git', ['init', '-b', 'main'], { cwd: root, stdio: 'ignore' });
+    execFileSync('git', ['config', 'user.email', 'rename@example.test'], { cwd: root });
+    execFileSync('git', ['config', 'user.name', 'Rename Smoke'], { cwd: root });
+    execFileSync('git', ['add', '.'], { cwd: root });
+    execFileSync('git', ['commit', '-m', 'base'], { cwd: root, stdio: 'ignore' });
+    return root;
+  };
+
+  const pureRoot = initRenameRepo('lattice-ast-pure-rename-');
+  try {
+    execFileSync('git', ['mv', 'src/old.ts', 'src/new.ts'], { cwd: pureRoot });
+    resetConfigCache();
+    const purePack = buildScopeDiffPack(pureRoot);
+    assert.ok(purePack.changedFiles.includes('src/new.ts'), 'pure rename remains visible to the path gate');
+    assert.equal(purePack.hunks.length, 0, 'pure rename without content changes creates no false semantic edit');
+  } finally {
+    rmSync(pureRoot, { recursive: true, force: true });
+  }
+
+  const modifiedRoot = initRenameRepo('lattice-ast-rename-modify-');
+  try {
+    execFileSync('git', ['mv', 'src/old.ts', 'src/new.ts'], { cwd: modifiedRoot });
+    writeFileSync(join(modifiedRoot, 'src/new.ts'), baseSource.replace('critical', 'renamed'));
+    execFileSync('git', ['add', '-A'], { cwd: modifiedRoot });
+    const stagedRenameDiff = execFileSync(
+      'git',
+      ['diff', '--cached', '--find-renames', '--unified=20'],
+      { cwd: modifiedRoot, encoding: 'utf8' },
+    );
+    assert.match(stagedRenameDiff, /rename from src\/old\.ts/);
+    assert.match(stagedRenameDiff, /rename to src\/new\.ts/);
+
+    resetConfigCache();
+    const renamedPack = buildScopeDiffPack(modifiedRoot);
+    const renamedHunk = renamedPack.hunks.find((hunk) => hunk.path === 'src/new.ts');
+    assert.equal(renamedHunk?.anchor, 'renamed');
+    assert.equal(renamedHunk?.previousAnchor, 'critical', 'git mv reads the base declaration from oldPath');
+    const protectedRename = checkSemanticScope(
+      makeContract({
+        mode: 'enforce',
+        protectedAnchors: ['critical'],
+        anchorParserVersion: SCOPE_ANCHOR_PARSER_VERSION,
+        anchorArtifactVersion: SCOPE_ANCHOR_ARTIFACT_VERSION,
+      }),
+      renamedPack,
+    );
+    assert.equal(protectedRename.status, 'fail');
+    assert.equal(protectedRename.violations[0]?.anchor, 'critical');
+
+    rmSync(join(modifiedRoot, 'src/new.ts'));
+    const missingTarget = parseUnifiedDiff(modifiedRoot, stagedRenameDiff);
+    assert.equal(
+      missingTarget[0]?.parseFallback,
+      'typescript_rename_target_source_unavailable_fail_closed',
+    );
+    const missingTargetGate = checkSemanticScope(
+      makeContract({
+        mode: 'enforce',
+        protectedAnchors: ['unrelated'],
+        anchorParserVersion: SCOPE_ANCHOR_PARSER_VERSION,
+        anchorArtifactVersion: SCOPE_ANCHOR_ARTIFACT_VERSION,
+      }),
+      makePack(missingTarget),
+    );
+    assert.equal(missingTargetGate.status, 'fail');
+    assert.match(missingTargetGate.violations[0]?.detail ?? '', /rename_target_source_unavailable_fail_closed/);
+    assert.match(missingTargetGate.violations[0]?.nextAction ?? '', /Restore both sides/);
+  } finally {
+    rmSync(modifiedRoot, { recursive: true, force: true });
+  }
+
+  const missingPreviousRoot = initRenameRepo('lattice-ast-rename-missing-previous-');
+  try {
+    writeFileSync(join(missingPreviousRoot, 'src/new.ts'), baseSource.replace('critical', 'renamed'));
+    const missingPreviousDiff = [
+      'diff --git a/src/absent.ts b/src/new.ts',
+      'similarity index 92%',
+      'rename from src/absent.ts',
+      'rename to src/new.ts',
+      '--- a/src/absent.ts',
+      '+++ b/src/new.ts',
+      '@@ -1,1 +1,1 @@',
+      '-export function critical() {',
+      '+export function renamed() {',
+    ].join('\n');
+    const missingPrevious = parseUnifiedDiff(missingPreviousRoot, missingPreviousDiff);
+    assert.equal(
+      missingPrevious[0]?.parseFallback,
+      'typescript_rename_previous_source_unavailable_fail_closed',
+    );
+    const missingPreviousGate = checkSemanticScope(
+      makeContract({
+        mode: 'enforce',
+        protectedAnchors: ['unrelated'],
+        anchorParserVersion: SCOPE_ANCHOR_PARSER_VERSION,
+        anchorArtifactVersion: SCOPE_ANCHOR_ARTIFACT_VERSION,
+      }),
+      makePack(missingPrevious),
+    );
+    assert.equal(missingPreviousGate.status, 'fail');
+    assert.match(missingPreviousGate.violations[0]?.detail ?? '', /rename_previous_source_unavailable_fail_closed/);
+  } finally {
+    rmSync(missingPreviousRoot, { recursive: true, force: true });
+  }
+}
+
 // B-0784 F-013: cartesian production-entry rollout matrix plus persisted-byte
 // rollback/re-enable. Every path mode is paired with every AST mode.
 {

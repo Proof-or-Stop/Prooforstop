@@ -274,10 +274,12 @@ export function parseUnifiedDiff(projectRoot: string, diffText: string): ScopeDi
     if (!currentPath || !currentHeader || !currentRange) return;
     const blocks = changedBlocks(currentRange, currentBody);
     const sourcePath = join(projectRoot, currentPath);
+    const previousPath = oldPath || currentPath;
+    const isRename = previousPath !== currentPath;
     const isTsLike = /\.(ts|tsx|js|jsx|mts|mjs|cts|cjs)$/.test(currentPath);
     const isPackageJson = currentPath.endsWith('package.json') || currentPath.endsWith('.json');
     const currentSource = isTsLike && existsSync(sourcePath) ? readFileSync(sourcePath, 'utf8') : undefined;
-    const baseSource = isTsLike ? readBaseSource(projectRoot, currentPath) : undefined;
+    const baseSource = isTsLike ? readBaseSource(projectRoot, previousPath) : undefined;
     for (const [blockIndex, block] of blocks.entries()) {
       let anchors: AstAnchor[] = [];
       let previousAnchors: AstAnchor[] = [];
@@ -290,11 +292,17 @@ export function parseUnifiedDiff(projectRoot: string, diffText: string): ScopeDi
           parseFallback = parsed.parseFallback;
         }
         if (baseSource !== undefined && block.oldLines > 0) {
-          const previous = parserBackedAnchors(baseSource, currentPath, block.oldStart, block.oldLines);
+          const previous = parserBackedAnchors(baseSource, previousPath, block.oldStart, block.oldLines);
           previousAnchors = previous.anchors;
           parseFallback ??= previous.parseFallback;
         }
-        if (currentSource === undefined && previousAnchors.length > 0) parseFallback = 'deleted_source_uses_previous_declaration';
+        if (isRename && currentSource === undefined) {
+          parseFallback = 'typescript_rename_target_source_unavailable_fail_closed';
+        } else if (isRename && baseSource === undefined) {
+          parseFallback = 'typescript_rename_previous_source_unavailable_fail_closed';
+        } else if (currentSource === undefined && previousAnchors.length > 0) {
+          parseFallback = 'deleted_source_uses_previous_declaration';
+        }
         if (anchors.length === 0 && previousAnchors.length === 0 && !parseFallback) parseFallback = 'typescript_source_unavailable_fail_closed';
       } else if (isPackageJson) {
         keyPath = inferPackageKeyPath(block.body);

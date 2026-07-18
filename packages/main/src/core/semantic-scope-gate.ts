@@ -91,6 +91,7 @@ function makeViolation(
   const anchor = offendingAnchor ?? hunkAnchor(hunk);
   const declaration = [...(hunk.anchors ?? []), ...(hunk.previousAnchors ?? [])]
     .find((candidate) => candidate.name === anchor);
+  const extractionFailure = hunk.parseFallback?.endsWith('_fail_closed') ?? false;
   return {
     path: hunk.path,
     rule,
@@ -99,8 +100,12 @@ function makeViolation(
     ...(declaration ? { anchorKind: declaration.kind, anchorRange: declaration.range } : {}),
     ...(hunk.anchorParserVersion ? { anchorParserVersion: hunk.anchorParserVersion } : {}),
     ...(hunk.anchorArtifactVersion ? { anchorArtifactVersion: hunk.anchorArtifactVersion } : {}),
-    detail: `Semantic scope rule ${rule} matched ${anchor ?? '(no declaration)'} in ${hunk.path}.`,
-    nextAction: rule === 'protected_anchor'
+    detail: extractionFailure
+      ? `Semantic anchor extraction failed closed (${hunk.parseFallback}) for ${hunk.path}.`
+      : `Semantic scope rule ${rule} matched ${anchor ?? '(no declaration)'} in ${hunk.path}.`,
+    nextAction: extractionFailure
+      ? 'Restore both sides of the renamed source so previous and current declarations can be parsed, then re-run scope validation. Re-attest the semantic scope only after parsing succeeds.'
+      : rule === 'protected_anchor'
       ? 'Revert the protected declaration change; acknowledgements cannot bypass protected anchors.'
       : 'Re-attest the semantic scope rule or revert the out-of-intent declaration change.',
     hunkDigest: hunk.hunkDigest,
@@ -166,8 +171,7 @@ export function checkSemanticScope(
       hunk.anchorArtifactVersion
       && hunk.anchorArtifactVersion !== SCOPE_ANCHOR_ARTIFACT_VERSION,
     );
-    const parserFailed = hunk.parseFallback === 'typescript_parse_error_fail_closed'
-      || hunk.parseFallback === 'typescript_source_unavailable_fail_closed';
+    const parserFailed = hunk.parseFallback?.endsWith('_fail_closed') ?? false;
     if (parserVersionDrift || artifactVersionDrift) {
       (rolloutWarn ? warnings : violations).push(makeViolation(hunk, 'unmatched_anchor', false));
       continue;
