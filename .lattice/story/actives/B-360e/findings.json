@@ -175,7 +175,7 @@
       "desc": "packages/main/src/core/prompt-role-contract-registry.ts:272 The F-003 repair freezes only replacementAgentType and migrationHint, not the documented lifecycle/default policy. validatePromptRoleContracts still accepts an active canonical role such as lattice-evaluator with defaultDispatch changed from true to false; it also accepts a responsibility mutation while retaining the old semanticDigest. The first case directly violates CHK-004's requirement that defaultDispatch drift from the frozen role policy fail closed and the plan rule that active role/default dispatch remain aligned. Reproducer against the rebuilt module maps lattice-evaluator to {...contract,defaultDispatch:false}; validatePromptRoleContracts returns successfully (active-default-false ACCEPTED). Compare each row's status/defaultDispatch and semantic policy fields or recompute/verify the semantic digest, and add an active-default mutation probe.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-18T00:19:54.075Z",
@@ -187,7 +187,11 @@
         "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 29789e7eeb: validator compares every policy-derived RoleContract field against exact ROLE_POLICIES and recomputes semanticDigest; defaultDispatch, responsibility, policy arrays and digest mutation probes reject.",
+      "resolvedAt": "2026-07-18T00:22:34.200Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-360e:F-010",
