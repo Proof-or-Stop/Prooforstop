@@ -1,6 +1,6 @@
 {
   "storyId": "B-8195",
-  "checkedAt": "2026-07-18T10:26:47.265Z",
+  "checkedAt": "2026-07-18T10:29:50.401Z",
   "features": [
     {
       "feature": "Persist a production-path RED that proves fresh-PASS reuse selects commandExecutions=0 but fails only on lifecycle-generated managed metadata after REVIEW-to-TEST.",
@@ -158,10 +158,17 @@
     },
     {
       "feature": "Update the canonical Routine Validation Fresh-PASS Reuse decision so its persistence and HEAD-movement contract matches the new atomic lifecycle-metadata behavior.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:routine-validation-fresh-pass-reuse.md"
+    },
+    {
+      "feature": "Align CHK-002 verification intent with the chosen transition-owned ordering: the transition atomically closes only its TEST lifecycle metadata, while verifier later persists the reused PASS through its existing separate strict transaction; do not require a nonexistent signed transition receipt.",
       "covered_by": null,
       "status": "gap",
       "excluded_by": null,
-      "source": "decisions:routine-validation-fresh-pass-reuse.md"
+      "source": ".lattice/story/actives/B-8195/checklist.json"
     }
   ],
   "readManifest": {
@@ -293,41 +300,26 @@
     "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
   },
   "summary": {
-    "total": 23,
-    "covered": 17,
+    "total": 24,
+    "covered": 18,
     "excluded": 5,
     "gaps": 1,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "9f705ad4567972aff5da569bb044839ba86819658260c5906b3074b79b9a4fdb",
+  "_hash": "92496f1d64ea236498663e9059f576ff7dd47a83653e93f3e4f06ee0c58aca25",
   "openQuestions": [
     {
-      "id": "OQ-001",
-      "q": "Does B-8195 intentionally supersede the canonical rule that an accepted routine reuse hit does not rewrite test evidence, append an activity fact, auto-commit metadata, or move HEAD? If yes, the canonical routine-validation decision must be updated and added to the file map before DEV.",
-      "evidence": "The current decision says: \"An accepted hit ... does not rewrite test-evidence.json, append an activity fact, auto-commit metadata, or move HEAD.\" B-8195 instead requires one atomic transaction that persists lifecycle metadata plus reused PASS and leaves the tree clean.",
+      "id": "OQ-003",
+      "q": "Should the two CHK-002 happy verification intents be rewritten to match the chosen transition-owned closeout ordering before DEV?",
+      "evidence": "The updated plan says the transition closes exactly its freshly generated TEST metadata and verifier never adopts pre-existing dirt. CHK-002 still requires lifecycle metadata and reused PASS in one transaction and a signed/receipt-bound proof, which belongs to the rejected option B.",
       "sourcePointers": [
-        "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md:70",
-        "packages/main/src/handlers/verifier.ts:706",
-        "packages/main/src/core/auto-commit-metadata.ts:134",
-        "CHK-003"
-      ],
-      "resolution": "The canonical document reflects the original B-914f no-write design but current verifier code already persists and commits reused test evidence, terminal events and closeout receipts. CHK-003 now explicitly updates routine-validation-fresh-pass-reuse.md to the implemented canonical persistence contract and the new transition ordering.",
-      "resolvedAt": "2026-07-18T10:28:45.591Z"
-    },
-    {
-      "id": "OQ-002",
-      "q": "Which existing signed or canonical-writer proof makes a phase_transition/process-metrics delta causally admissible? If none exists, the chosen fallback requires a transition-owned proof producer, but transition-orchestrator or an equivalent writer-receipt module is absent from the checklist file mappings.",
-      "evidence": "The transition currently appends an unsigned phase_transition JSONL row after writing story state; event shape and hashes alone cannot satisfy the plan prohibition on event-shape trust. The decision says to fall back to transition-owned closeout when no adequate proof primitive exists.",
-      "sourcePointers": [
-        "packages/main/src/handlers/transition-orchestrator.ts:674",
-        "packages/main/src/handlers/verifier.ts:690",
-        "packages/main/src/core/auto-commit-metadata.ts:134",
-        "CHK-002"
-      ],
-      "resolution": "Because phase_transition is unsigned, verifier adoption is rejected as unsafe. The chosen design is transition-owned closeout in transition-orchestrator.ts using the existing exact-path isolated metadata writer; verifier keeps rejecting every pre-existing dirty managed path.",
-      "resolvedAt": "2026-07-18T10:28:46.847Z"
+        ".lattice/story/actives/B-8195/plan.md:9",
+        ".lattice/story/actives/B-8195/decision.json",
+        ".lattice/story/actives/B-8195/checklist.json:CHK-002:happy:0",
+        ".lattice/story/actives/B-8195/checklist.json:CHK-002:happy:1"
+      ]
     }
   ]
 }
