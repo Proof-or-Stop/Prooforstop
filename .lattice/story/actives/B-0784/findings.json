@@ -230,7 +230,7 @@
       "desc": "The advertised warn-mode migration/legacy reader is not implemented at consumption. scopeProtection.pathCanonicalization is read only by the write handlers; checkScopeContract has no rollout mode and only rejects a version when a version field exists and differs. Therefore an existing signed v1 contract with source-root-relative core/foo.ts remains byte-legacy in warn mode and fails to match packages/main/src/core/foo.ts instead of dual-reading with a migration diagnostic. Likewise semantic contracts with absent anchorParserVersion/anchorArtifactVersion are silently interpreted by the new parser rather than marked legacy/stale. Implement versioned read normalization/diagnostics keyed by current rollout mode without rewriting signed history, and cover v1 under off/warn/enforce plus rollback.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-18T02:14:56.683Z",
@@ -246,7 +246,11 @@
         "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
       ],
       "signatureTag": "edge|ts|advertised-warn-mode",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "4106eb3531 makes live rollout config govern path and AST readers, with in-memory legacy path canonicalization in warn, explicit re-attestation diagnostics, enforce fail-closed, and independent rollback without artifact rewrite. Focused rollout tests pass.",
+      "resolvedAt": "2026-07-18T02:37:55.767Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0784:F-011",
