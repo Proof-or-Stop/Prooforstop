@@ -85,6 +85,24 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-360e:F-006",
+      "desc": "scripts/verify-proof-or-stop-prompt-baseline.mjs:2291-2409 — MEDIUM: --probe-baseline-drift mutates structuredClone(current) and compares two in-memory snapshots; it never changes one actual assembled Prompt/template, observes the normal verifier fail on bytes/hash, restores the source, and observes PASS. CHK-004 adversarial:2 requires that exact integration/restore path, while its evidence note accurately says only synthetic mutations. Add a non-destructive temp-worktree or injectable collector integration probe that exercises the real collection boundary and proves repository restoration.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-18T00:11:35.475Z",
+      "reviewRound": "2026-07-18T00:08:34.511Z",
+      "reviewRunId": "B-360e:RR-002",
+      "_hash": "97f38c8f8868afc751b71d8a54218cc79a03865c7afad6845cc9573f70d434e8",
+      "files": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|scripts-verify-proof",
+      "signatureTagSource": "auto"
     }
   ]
 }
