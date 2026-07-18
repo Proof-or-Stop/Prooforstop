@@ -141,6 +141,38 @@
       },
       "readDiagnostics": [],
       "_hash": "3fe61c99c7cbf7f7d160e2f8516e8eb3a71ecd1e2edeaac01dbe2ea3882a1f8d"
+    },
+    {
+      "id": "B-360e:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round-6 full concept re-review found no remaining issue. The exported role-contract collection, every row, and all six nested policy arrays are frozen; attempted row, nested-array, digest, and top-level mutations throw and the registry digest remains stable. A structured-clone corruption is rejected by consumption validation, and prompt measurement revalidates the frozen registry against the current exact package role IDs before generating its 16-row report. Proxy, canonical-array, exact policy/digest, honest three-layer availability, no-envelope-authority, read-only command, and zero-prompt-drift guarantees remain intact. Build, focused smoke, process-fact verifier, full baseline, both report modes, and protected no-diff all pass; all findings are resolved.",
+      "createdAt": "2026-07-18T00:39:07.192Z",
+      "reviewRound": "2026-07-18T00:37:05.755Z",
+      "reviewRunId": "B-360e:RR-017",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-360e/background.md",
+          ".lattice/story/actives/B-360e/checklist.json",
+          ".lattice/story/actives/B-360e/plan.md",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/prompt-measurement.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d0f62433218dcc2d9241bc97fd623edb32a53765ec978168b3e645351b84ef14"
     }
   ]
 }
