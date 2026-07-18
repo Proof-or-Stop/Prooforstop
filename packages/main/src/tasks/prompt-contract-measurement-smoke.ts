@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 import {
   PROMPT_CONTRACT_ALGORITHMS,
@@ -602,6 +604,31 @@ for (const phase of ['INIT', 'INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DON
 }
 assert.equal(getProcessFactLevelEntry('prompt_measurement_report')?.level, 'L0');
 assert.equal(MAIN_TOOLS.filter(tool => tool.name === 'prompt_measurement_report').length, 1);
+
+const statusSnapshotDir = mkdtempSync(join(tmpdir(), 'prompt-measurement-read-only-'));
+const beforeStatusPath = join(statusSnapshotDir, 'before');
+const afterStatusPath = join(statusSnapshotDir, 'after');
+try {
+  const gitStatus = () => execFileSync('git', ['status', '--porcelain'], {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+  });
+  writeFileSync(beforeStatusPath, gitStatus(), 'utf8');
+  for (const format of ['text', 'json']) {
+    execFileSync(process.execPath, ['bin/lattice.js', 'prompt_measurement_report', `--format=${format}`], {
+      cwd: process.cwd(),
+      stdio: ['ignore', 'ignore', 'pipe'],
+    });
+  }
+  writeFileSync(afterStatusPath, gitStatus(), 'utf8');
+  assert.equal(
+    readFileSync(afterStatusPath, 'utf8'),
+    readFileSync(beforeStatusPath, 'utf8'),
+    'text and JSON prompt measurement reports must not change repository git status',
+  );
+} finally {
+  rmSync(statusSnapshotDir, { recursive: true, force: true });
+}
 
 const checkedInBaseline = readFileSync(PROMPT_MEASUREMENT_BASELINE_PATH, 'utf8');
 assert.equal(checkedInBaseline, canonicalPromptMeasurementReportJson(reportA));
