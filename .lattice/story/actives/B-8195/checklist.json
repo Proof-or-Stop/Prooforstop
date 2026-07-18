@@ -277,9 +277,9 @@
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#acceptance",
         "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-18T10:54:18.215Z",
-      "endTime": "2026-07-18T10:54:42.170Z",
+      "endTime": "2026-07-18T12:23:11.084Z",
       "verificationIntent": {
         "happy": [
           {
@@ -459,6 +459,15 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Root validation exposed two focused regression contracts that must be updated and verified before B-8195 can return to review."
+    },
+    {
+      "timestamp": "2026-07-18T12:23:11.084Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Root validation regressions fixed; build, heartbeat, validation reuse, vocabulary guard, diff-check and scope gate all pass."
     }
   ]
 }
