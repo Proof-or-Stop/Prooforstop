@@ -593,7 +593,7 @@
       "desc": "packages/main/src/tasks/concept-gate-scope-smoke.ts:496-502 — HIGH: binary coverage only proves unsupported .bin assets remain diagnostic-free; it omits declaration-bearing extensions. Independent repros show a .ts binary replacement, .py binary deletion, and .js binary addition each return symbols=[] and diagnostics=[], allowing prior source declarations to disappear without concept review. Add supported TS/JS/Python binary replace/delete/add plus rename/copy probes and require a focused fail-closed diagnostic whenever either authoritative binary side is a supported source path; keep unsupported binary assets accepted.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-18T10:22:32.367Z",
@@ -605,7 +605,11 @@
         "packages/main/src/handlers/validate-concept.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 3d9cabef8d: unquoted diff headers enumerate every b/ delimiter candidate and resolve only through side-header, rename/copy, null-identity, or exact-symmetry corroboration; unresolved/ambiguous headers fail closed. Binary markers now fail closed for any supported TS/JS/Python authoritative or metadata endpoint, while unsupported binaries remain ignored. Full path-ambiguity and binary add/replace/delete/rename/copy probes pass.",
+      "resolvedAt": "2026-07-18T10:26:39.910Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
