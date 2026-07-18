@@ -702,6 +702,48 @@
         "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
       },
       "_hash": "27cc2c11ad885d42b6e2e95cf8ba663264ae51f116841f1626cfa79c75b9b5df"
+    },
+    {
+      "id": "B-8195:RP-021",
+      "agent": "lattice-review-docs",
+      "note": "Round-8 incremental context contains only scripts/verify-process-fact-contract.mjs. Commit 1c969baa1a strengthens mechanical locality assertions for the already-documented reuse/executed validation transaction writers and adds a mutation self-test that deletes the executed writer to prove contract bite. It changes no runtime code, artifact schema, gate, failure behavior, output, or canonical product promise; no docs update is required.",
+      "createdAt": "2026-07-18T20:49:52.068Z",
+      "reviewRound": "2026-07-18T20:48:38.996Z",
+      "reviewRunId": "B-8195:RR-030",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8195/background.md",
+          ".lattice/story/actives/B-8195/checklist.json",
+          ".lattice/story/actives/B-8195/plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "803f837cf79db7378e444747c997376f619e126fe0375062f23ccd0de0fdd62b"
     }
   ]
 }
