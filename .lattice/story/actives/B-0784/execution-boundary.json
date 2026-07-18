@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-0784",
+  "allowedCommands": [
+    "git diff --check",
+    "git show *",
+    "git status --short",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*done*metadata*smoke.js",
+    "node packages/main/dist/tasks/*scope*smoke.js",
+    "node packages/main/dist/tasks/gap-log-smoke.js",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "git",
+    "lattice",
+    "node",
+    "npm",
+    "rg"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/lifecycle-artifact-scope.md",
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+    "packages/main/src/core/done-prepare-generated-metadata.ts",
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/scope-contract.ts",
+    "packages/main/src/core/scope-diff-pack.ts",
+    "packages/main/src/core/scope-path-classifier.ts",
+    "packages/main/src/core/semantic-scope-gate.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/handlers/gap-log.ts",
+    "packages/main/src/handlers/scope-contract.ts",
+    "packages/main/src/tasks/closeout-trust-smoke.ts",
+    "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+    "packages/main/src/tasks/gap-log-smoke.ts",
+    "packages/main/src/tasks/scope-contract-plan-scope-smoke.ts",
+    "packages/main/src/tasks/scope-contract-smoke.ts",
+    "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excludedCommands": [
+    "git clean *",
+    "git push *",
+    "git reset --hard *",
+    "npm publish *",
+    "omx *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx/**",
+    "packages/main/src/core/candidate-spec-routing.ts",
+    "packages/main/src/core/owner-session*"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Bounded Workstream E implementation. Expand only via reviewer-visible scope extension when a focused test proves a missing direct dependency.",
+  "createdAt": "2026-07-18T01:40:55.508Z",
+  "updatedAt": "2026-07-18T01:40:55.508Z",
+  "_hash": "d049284a832d0cdcbd14c36a973391191dffb8a3fcb5cf16e6fa76c175fa5c11"
+}

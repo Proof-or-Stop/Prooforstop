@@ -3,7 +3,7 @@
     {
       "id": "CHK-001",
       "title": "Canonicalize scope contract paths at write and compare boundaries",
-      "context": "Resolve configured source-root-relative paths such as core/foo.ts to repo-root-relative packages/main/src/core/foo.ts; normalize separators/dot segments, reject absolute/traversal/symlink escapes, preserve exact/subtree semantics, and version legacy read behavior.",
+      "context": "Resolve configured source-root-relative paths such as core/foo.ts to one persisted repo-root-relative packages/main/src/core/foo.ts representation; normalize separators/dot segments, reject absolute/traversal/symlink escapes, preserve exact/subtree semantics, version legacy reads, and ship behind a path-canonicalization rollout flag whose rollback reads prior signed artifacts without rewriting them.",
       "relatedDocs": [
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#10-workstream-e--canonical-scope-paths-and-ast-semantic-anchors"
       ],
@@ -14,7 +14,7 @@
     {
       "id": "CHK-002",
       "title": "Use parser-backed enclosing declarations for semantic anchors",
-      "context": "Replace regex nearestTsAnchor behavior with versioned AST anchors that prefer functions/methods/classes/interfaces/types/top-level intended declarations, never control flow or local const, preserve protected-anchor fail-closed semantics, and make parser-version drift explicit.",
+      "context": "Replace regex nearestTsAnchor behavior with versioned AST anchors that prefer functions/methods/classes/interfaces/types/top-level intended declarations, never control flow or local const, preserve protected-anchor fail-closed semantics, and ship behind an independent AST-anchor rollout flag; parser-version drift must require stale/re-attestation and rollback must not reinterpret or rewrite signed history.",
       "relatedDocs": [
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#103-semantic-anchors"
       ],
@@ -25,7 +25,7 @@
     {
       "id": "CHK-003",
       "title": "Classify official shared B-META gap metadata safely",
-      "context": "Treat command-generated B-META framework-audit findings from official gap_log provenance as shared lifecycle metadata for scope/cleanTree while arbitrary story metadata and unknown .lattice files remain fail-closed.",
+      "context": "Treat B-META framework-audit findings as shared lifecycle metadata only when mechanically bound to official gap_log provenance/content (signed or digest-bound command event/receipt). Missing, stale, mismatched, forged, direct-edited, arbitrary B-META and unknown .lattice files remain fail-closed; classification must not be path-only.",
       "relatedDocs": [
         "docs/requirements/decisions/lifecycle-artifact-scope.md"
       ],
@@ -36,7 +36,7 @@
     {
       "id": "CHK-004",
       "title": "Prove migration diagnostics and adversarial scope behavior",
-      "context": "Add focused tests for source/repo/Windows/dot/traversal/symlink paths; if/for/while/switch/catch/local const/nested functions/methods/classes/top-level anchors; legacy/parser-version staleness; protected/out-of-scope blocking; B-META official versus arbitrary metadata; and original/canonical/anchor/version diagnostics.",
+      "context": "Add focused tests for source/repo/Windows/dot/traversal/symlink paths; independent rollout/rollback combinations; legacy/path/parser version staleness; if/for/while/switch/catch/local const/nested functions/methods/classes/top-level anchors; protected/out-of-scope blocking; B-META valid provenance versus missing/stale/mismatch/forged/direct-edit/unknown negatives; and diagnostics exposing original/canonical/anchor/version/rule.",
       "relatedDocs": [
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#104-acceptance",
         "docs/requirements/decisions/lifecycle-artifact-scope.md#the-three-classifier-outputs"
