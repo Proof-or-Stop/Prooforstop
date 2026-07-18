@@ -282,7 +282,7 @@
             "priority": "must"
           },
           {
-            "id": "review-run-restart-preserves-fresh-prior-pass",
+            "id": "review-run-restart-invalidates-prior-envelope",
             "desc": "Starting a newer same-lane ReviewRun does not invalidate a non-latest pass merely by ID recency. A coherent pass bound to the older signed run remains valid when round, lane, workspace, material and scope are fresh, including the empty-storyFilesHash strict guard; older open findings remain surfaced and cannot be hidden by the newer pass.",
             "type": "cli",
             "requiredIn": "strict",
@@ -305,7 +305,7 @@
         ],
         "adversarial": [
           {
-            "id": "envelope-replay-freshness-drift-rejected",
+            "id": "envelope-replay-new-head-rejected",
             "desc": "Capture a valid signed envelope/pass, then introduce genuine story-owned material or scope drift and replay it; every gate consumer rejects the stale evidence until a newly fresh binding exists. A headHash-only or unrelated whole-tree change is classified by the canonical freshness reader and is not rejected solely because the commit ID changed; empty storyFilesHash provides no advisory downgrade.",
             "type": "cli",
             "requiredIn": "strict",
