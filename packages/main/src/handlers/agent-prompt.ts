@@ -36,6 +36,11 @@ import {
 import { captureReviewRunSnapshot } from '../core/review-run.js';
 import { canonicalJsonStringify } from '../core/prompt-contracts.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
+import {
+  acquireOrRefreshOwnerLease,
+  formatNonOwnerError,
+} from '../core/story-owner-lease.js';
+import { getSessionId } from '../core/owner-session.js';
 
 /**
  * Resolve the registry entry for a role name. Roles are the template basenames
@@ -103,6 +108,19 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
       if (mode === 'legacy-full-context') return rolePrompt;
 
       const storyId = args.storyId.trim();
+      const leaseResult = acquireOrRefreshOwnerLease(ctx.store.storyDirPath(storyId), {
+        command: 'agent_prompt',
+        cwd: process.cwd(),
+      });
+      if (leaseResult.action === 'foreign') {
+        throw new Error(formatNonOwnerError(leaseResult.lease, {
+          storyId,
+          command: 'agent_prompt',
+          ownershipClass: 'storyScopedMutating',
+          currentSessionId: getSessionId(),
+          currentCwd: process.cwd(),
+        }));
+      }
       const story = ctx.store.readStory(storyId);
       const checklist = ctx.store.readChecklist(storyId);
       const snapshot = captureReviewRunSnapshot(ctx.root, { storyId, storyPhase: story.phase }, ctx.root);

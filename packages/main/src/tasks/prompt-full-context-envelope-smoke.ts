@@ -138,6 +138,7 @@ try {
   execFileSync('git', ['add', 'lattice.config.json'], { cwd: tempRoot });
   execFileSync('git', ['commit', '-qm', 'initial'], { cwd: tempRoot });
   const persisted: typeof first.envelope[] = [];
+  const storyDir = join(tempRoot, '.lattice', 'story', 'actives', 'B-envelope');
   const fakeStore = {
     readStory: () => ({
       storyId: 'B-envelope',
@@ -148,10 +149,10 @@ try {
     }),
     readChecklist: () => ({ items: [{ id: 'CHK-001', title: 'Assemble', status: 'done' }] }),
     readScopeContract: () => null,
+    storyDirPath: () => storyDir,
     storyFilePath: (_storyId: string, file: string) => {
-      const dir = join(tempRoot, '.lattice', 'story', 'actives', 'B-envelope');
-      mkdirSync(dir, { recursive: true });
-      return join(dir, file);
+      mkdirSync(storyDir, { recursive: true });
+      return join(storyDir, file);
     },
     readPromptEnvelopes: () => ({ envelopes: persisted }),
     writePromptEnvelopes: (_storyId: string, data: { envelopes: typeof persisted }) => {
