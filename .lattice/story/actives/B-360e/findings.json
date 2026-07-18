@@ -528,7 +528,7 @@
       "desc": "packages/main/src/tasks/concept-gate-scope-smoke.ts:243-372 — HIGH: malformed metadata coverage validates pair/count/path consistency but omits section ordering and /dev/null hunk directionality. Independent repros show (1) matching copy metadata appended after hunk content suppresses a real deletion, (2) --- /dev/null with a removed declaration, and (3) +++ /dev/null with an added declaration all return symbols=[] and diagnostics=[]. Add late copy/rename/side-header probes plus null-old removed/context and null-new added/context probes; enforce metadata→side headers→hunks/content ordering and reject impossible /dev/null content before validCopy or source classification can suppress declarations.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-18T10:14:55.869Z",
@@ -540,7 +540,11 @@
         "packages/main/src/handlers/validate-concept.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 786cf10c8c: explicit per-file diff state enforces metadata, side-header, hunk, and content ordering; invalid late/conflicting metadata never enables copy suppression. Addition/deletion /dev/null direction, header identity, and forbidden content are fail-closed. Focused ordering/direction, valid no-hunk copy/rename, multi-source, and binary behavior probes pass with full validation.",
+      "resolvedAt": "2026-07-18T10:19:00.791Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
