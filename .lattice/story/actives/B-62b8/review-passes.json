@@ -356,6 +356,30 @@
         "scanEscalationReason": null
       },
       "_hash": "0a0034d35a7947d87ac35d69b43673d36e0028d910bfb818a5a03428e92f7eb4"
+    },
+    {
+      "id": "B-62b8:RP-014",
+      "agent": "lattice-review-docs",
+      "note": "Round-7 bounded docs re-attestation PASS for bf9954756c on current material. The change only refines internal concept-gate declaration matching: implementation declarations retain name continuity, bodyless overload signatures pair by normalized signature, and .pyi/.pyw route through the existing Python analyzer. It introduces no CLI/config surface, diagnostic wording, owner-session behavior, or user-facing contract, and targeted docs do not promise parser-extension or overload internals. No docs update is required. Build and concept-gate-scope smoke passed.",
+      "createdAt": "2026-07-18T01:00:05.030Z",
+      "reviewRound": "2026-07-18T00:58:51.193Z",
+      "reviewRunId": "B-62b8:RR-027",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "28b9ba94f558ad43f59fa365638b3d7192ecdbaa3e2bf54d2e7dee2dc939acb2"
     }
   ]
 }
