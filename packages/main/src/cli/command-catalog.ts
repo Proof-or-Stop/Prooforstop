@@ -1285,6 +1285,10 @@ Behavior:
   { name: 'agent_prompt', description: 'Print the canonical Proofbound agent prompt body for a role from the package prompt registry (host-neutral single source; Claude thin-shims fetch from here, Codex resolves the same registry)', schema: {
     role: z.string().min(1).describe('Proofbound agent role name, e.g. lattice-implementer, lattice-review-concept (the template basename without .md)'),
   }},
+  { name: 'prompt_measurement_report', description: 'Report deterministic local prompt bytes, lines, estimated tokens, repetition, and three-layer input availability for all 16 package prompt roles (read-only L0)', schema: {
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+  }},
   { name: 'capability_claim_evaluate', description: 'Evaluate a local capability claim fail-closed from lower-layer suite reports (text/json)', schema: {
     target: z.string().optional().describe('Requested claim target, for example development, engineering, loop-engineering, or production-safety'),
     claimId: z.string().optional().describe('Claim id, for example CLAIM-PRODUCTION-SAFETY'),

@@ -1,8 +1,8 @@
 {
   "schemaVersion": "proofstory.milestone_ledger.v1",
   "storyId": "B-360e",
-  "state": "candidate",
-  "ledgerHash": "sha256:2946e4d7be4e974e3d4c1ac5d14ce6c2fe08f51edde4a6809d802614575d687f",
+  "state": "confirmed",
+  "ledgerHash": "sha256:f3086be95ed7a37aabb343899bf770156f01af77a901dd252c87398fa6e154e9",
   "milestones": [
     {
       "id": "M1",
@@ -15,8 +15,19 @@
       "checklistRefs": [
         "CHK-001"
       ],
-      "verificationIntentRefs": [],
-      "status": "planned"
+      "verificationIntentRefs": [
+        "prompt-contract-schemas-versioned",
+        "prompt-contract-deterministic-algorithms",
+        "prompt-contract-reuses-estimator",
+        "prompt-contract-canonical-order-unicode",
+        "prompt-contract-lf-byte-boundary",
+        "prompt-contract-digest-domains",
+        "prompt-contract-repetition-versioned",
+        "prompt-contract-canonical-fail-closed",
+        "prompt-contract-schema-fail-closed",
+        "prompt-contract-story1-no-envelope"
+      ],
+      "status": "covered"
     },
     {
       "id": "M2",
@@ -30,8 +41,21 @@
       "checklistRefs": [
         "CHK-002"
       ],
-      "verificationIntentRefs": [],
-      "status": "planned"
+      "verificationIntentRefs": [
+        "role-registry-exact-membership",
+        "role-registry-exact-status-partition",
+        "role-registry-authority-and-replacements",
+        "role-registry-order-independent-totality",
+        "role-registry-nonactive-reporting",
+        "role-registry-alias-routing-unchanged",
+        "role-registry-retired-channel-routing-unchanged",
+        "role-registry-duplicate-fails-closed",
+        "role-registry-missing-fails-closed",
+        "role-registry-unknown-fails-closed",
+        "role-registry-invalid-metadata-fails-closed",
+        "role-registry-dispatch-snapshot-unchanged"
+      ],
+      "status": "covered"
     },
     {
       "id": "M3",
@@ -45,8 +69,21 @@
       "checklistRefs": [
         "CHK-003"
       ],
-      "verificationIntentRefs": [],
-      "status": "planned"
+      "verificationIntentRefs": [
+        "CHK-003:happy:text-report",
+        "CHK-003:happy:json-parity",
+        "CHK-003:happy:sidecar-determinism",
+        "CHK-003:edge:metric-boundaries",
+        "CHK-003:edge:independent-availability",
+        "CHK-003:edge:all-phases",
+        "CHK-003:edge:read-only-policy",
+        "CHK-003:adversarial:unavailable-not-zero",
+        "CHK-003:adversarial:no-provider-call",
+        "CHK-003:adversarial:no-writes",
+        "CHK-003:adversarial:role-set-fail-closed",
+        "CHK-003:adversarial:l0-non-authority"
+      ],
+      "status": "covered"
     },
     {
       "id": "M4",
@@ -60,10 +97,24 @@
       "checklistRefs": [
         "CHK-004"
       ],
-      "verificationIntentRefs": [],
-      "status": "planned"
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:happy:1",
+        "CHK-004:edge:0",
+        "CHK-004:edge:1",
+        "CHK-004:edge:2",
+        "CHK-004:adversarial:0",
+        "CHK-004:adversarial:1",
+        "CHK-004:adversarial:2"
+      ],
+      "status": "covered"
     }
   ],
   "createdAt": "2026-07-17T23:42:14.413Z",
-  "updatedAt": "2026-07-17T23:42:14.413Z"
+  "updatedAt": "2026-07-17T23:48:29.824Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260717234829",
+    "acceptedInterpretationHash": "sha256:5eb15476f9da8983ea673ad86951668ccb5259bbe857d6efe85696c973f27a89",
+    "acceptedAt": "2026-07-17T23:48:29.824Z"
+  }
 }

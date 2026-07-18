@@ -1,0 +1,1019 @@
+{
+  "passes": [
+    {
+      "id": "B-360e:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Round-3 full quality re-review found no remaining blocker: F-001/F-002/F-007 root cases reject, dense canonicalization remains deterministic, frozen role policy and semantic digest checks are complete, focused and contract verifiers pass, and protected prompt bytes remain unchanged.",
+      "createdAt": "2026-07-18T00:24:47.589Z",
+      "reviewRound": "2026-07-18T00:22:20.597Z",
+      "reviewRunId": "B-360e:RR-007",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/prompt-measurement.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "4fba6c1920d7c1cb0f07c6795ca790ee3a17d8a0a4b3354d0e82327318df43f1"
+    },
+    {
+      "id": "B-360e:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round-4 full concept re-review found no remaining blocker. The canonical serializer now rejects array subclasses/custom prototypes before any candidate method can run, validates the exact own-key/descriptor domain, and encodes indices through descriptors; adversarial probes confirmed subclass/custom/own map methods were never invoked. The 16-role lifecycle registry rejects exact status/default/policy-field/semantic-digest drift, all three measurement layers retain honest availability semantics, no PromptEnvelope authority is created, both report modes are read-only, all focused/process-fact/baseline verifiers pass, and protected prompt outputs remain byte-identical.",
+      "createdAt": "2026-07-18T00:29:53.807Z",
+      "reviewRound": "2026-07-18T00:27:20.625Z",
+      "reviewRunId": "B-360e:RR-011",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-360e/background.md",
+          ".lattice/story/actives/B-360e/checklist.json",
+          ".lattice/story/actives/B-360e/plan.md",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/prompt-measurement.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "467be5707e7cbf775b7d084b6eb43ca084a4d8f67b816268738cf54403d31d14"
+    },
+    {
+      "id": "B-360e:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round-5 full concept re-review found no remaining issue. util.types.isProxy rejects live object proxies, live array proxies, and revoked proxies before get/getPrototypeOf/ownKeys/getOwnPropertyDescriptor/has traps run; independent probes measured zero trap invocations. Ordinary arrays/objects retain deterministic canonical ordering and domain-separated digest semantics. Prior array prototype/method, exact role policy/digest, three-layer availability, no-envelope-authority, read-only command, and 16-output no-drift guarantees remain intact. Build, focused smoke, process-fact verifier, full baseline verifier, both report modes, and protected prompt no-diff all pass.",
+      "createdAt": "2026-07-18T00:33:56.945Z",
+      "reviewRound": "2026-07-18T00:31:48.438Z",
+      "reviewRunId": "B-360e:RR-014",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-360e/background.md",
+          ".lattice/story/actives/B-360e/checklist.json",
+          ".lattice/story/actives/B-360e/plan.md",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/prompt-measurement.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2e5e126d736ce96e56975870c8ac1e3bca5e6179c11226df5f12537848ff48ff"
+    },
+    {
+      "id": "B-360e:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round-6 full quality re-review found no remaining high/medium correctness defect: deep freeze covers every role row and nested policy array, consumer-time validation rejects corrupted clones before report use, canonical proxy/descriptor boundaries remain fail-closed, exact 12/3/1 reporting and protected prompt bytes remain stable, and all focused verifiers pass.",
+      "createdAt": "2026-07-18T00:39:01.093Z",
+      "reviewRound": "2026-07-18T00:37:05.755Z",
+      "reviewRunId": "B-360e:RR-016",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/prompt-measurement.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "3fe61c99c7cbf7f7d160e2f8516e8eb3a71ecd1e2edeaac01dbe2ea3882a1f8d"
+    },
+    {
+      "id": "B-360e:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round-6 full concept re-review found no remaining issue. The exported role-contract collection, every row, and all six nested policy arrays are frozen; attempted row, nested-array, digest, and top-level mutations throw and the registry digest remains stable. A structured-clone corruption is rejected by consumption validation, and prompt measurement revalidates the frozen registry against the current exact package role IDs before generating its 16-row report. Proxy, canonical-array, exact policy/digest, honest three-layer availability, no-envelope-authority, read-only command, and zero-prompt-drift guarantees remain intact. Build, focused smoke, process-fact verifier, full baseline, both report modes, and protected no-diff all pass; all findings are resolved.",
+      "createdAt": "2026-07-18T00:39:07.192Z",
+      "reviewRound": "2026-07-18T00:37:05.755Z",
+      "reviewRunId": "B-360e:RR-017",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-360e/background.md",
+          ".lattice/story/actives/B-360e/checklist.json",
+          ".lattice/story/actives/B-360e/plan.md",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/prompt-measurement.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d0f62433218dcc2d9241bc97fd623edb32a53765ec978168b3e645351b84ef14"
+    },
+    {
+      "id": "B-360e:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-6 full story coverage review found no remaining blocker: 42/42 must intents have fresh passing evidence on storyFilesHash fe996b1; independent build/smoke, all prior canonical/role-policy/Proxy/registry-mutation regressions, isolated real prompt drift restore probe, baseline verifier, process-fact verifier, and protected-path checks pass.",
+      "createdAt": "2026-07-18T00:39:31.118Z",
+      "reviewRound": "2026-07-18T00:37:05.755Z",
+      "reviewRunId": "B-360e:RR-018",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-360e/background.md",
+          ".lattice/story/actives/B-360e/plan.md",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-360e/checklist.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ba5556893e9c35fc0356f558b1399ee72db392b369dcbddc74e88405d5c290fc"
+    },
+    {
+      "id": "B-360e:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Round-7 full quality review found no blocker: the refactor preserves the no-argument collectCurrentPromptState production symbol and isolates injectable source/collector behavior in the probe helper; all current contract, deep-freeze, canonical fail-closed, measurement, baseline drift, process-fact, CLI and protected-prompt no-drift checks pass.",
+      "createdAt": "2026-07-18T09:45:52.159Z",
+      "reviewRound": "2026-07-18T09:44:03.277Z",
+      "reviewRunId": "B-360e:RR-019",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/prompt-measurement.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "b9cea6bb1cbde1eefe039dc78326c649a55695b19ddec0cb5483d6bacb1f5866"
+    },
+    {
+      "id": "B-360e:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-7 full story coverage review found no blocker: production collectCurrentPromptState wrapper remains zero-argument, the isolated drift probe still uses the injected source/output helper and proves mutation-fail-restore-pass, all prior regressions pass, and 42/42 intents have fresh passing evidence on storyFilesHash b2fac02.",
+      "createdAt": "2026-07-18T09:46:43.770Z",
+      "reviewRound": "2026-07-18T09:44:03.277Z",
+      "reviewRunId": "B-360e:RR-021",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-360e/background.md",
+          ".lattice/story/actives/B-360e/plan.md",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-360e/checklist.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e86ca051441cd493610c629bb469ae3f8f75f296e175d2c88351688d939fd72b"
+    },
+    {
+      "id": "B-360e:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Round-7 full concept re-review found no true deleted concept or blocker. The original exact zero-argument collectCurrentPromptState symbol is present and delegates only to the new injectable collectPromptStateFromSource helper; all production callers still use the zero-argument wrapper, while only the isolated temporary-copy drift probe injects templateDir/output collection/path canonicalization. Full baseline and real mutation→failure→restore→pass verification confirm equivalent production collection and bounded probe semantics. Raw read-only validate --concept exits on declaration-diff parse failure, but its 622 diagnostics are exclusively parser noise from non-TypeScript changed material (381 JSON, 95 JSONL, 142 Markdown, 4 MJS shebang diagnostics), with no deleted-symbol/residual entry and no collectCurrentPromptState residual; the current-round concept pass is therefore the intended adjudication, not a hidden concept deletion. Complete prompt-contract, deep-freeze, Proxy/canonicalization, exact role policy, measurement, no-authority, read-only, and zero-output-drift checks remain green.",
+      "createdAt": "2026-07-18T09:46:52.244Z",
+      "reviewRound": "2026-07-18T09:44:03.277Z",
+      "reviewRunId": "B-360e:RR-020",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-360e/background.md",
+          ".lattice/story/actives/B-360e/checklist.json",
+          ".lattice/story/actives/B-360e/plan.md",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/prompt-measurement.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "072037b8da9ecf5cd57739ef0d5c1ac438cff5d02d3801b1347c44fb9e3ca417"
+    },
+    {
+      "id": "B-360e:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Round-8 full quality review found no blocker: validate-concept now limits declaration parsing to supported TS/JS/Python source families, assigns correct TSX/JSX/JS/TS script kinds, preserves logical-start shebang parsing without letting JSON/Markdown artifacts create diagnostics, and retains real source deletion detection; all concept, prompt, drift, process-fact, CLI partition and protected no-drift checks pass.",
+      "createdAt": "2026-07-18T09:52:25.623Z",
+      "reviewRound": "2026-07-18T09:50:09.065Z",
+      "reviewRunId": "B-360e:RR-022",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/prompt-measurement.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/handlers/validate-concept.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "9b5677004609af69438b7b43847529de1dd066931e366930a3ba1873dc38cb5f"
+    },
+    {
+      "id": "B-360e:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-9 full coverage review found no blocking coverage gap: independent TS/JS/Python supported-to-unsupported, unsupported-to-supported, dev-null add/delete, malformed old/new side matrix passes; 42/42 original Prompt intents have fresh PASS evidence on storyFilesHash 506375d; all prior regressions and protected paths pass. Existing F-019/F-020 are separately tracked medium concept-gate portability findings, not blockers to these original intents.",
+      "createdAt": "2026-07-18T09:58:39.948Z",
+      "reviewRound": "2026-07-18T09:55:07.480Z",
+      "reviewRunId": "B-360e:RR-027",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-360e/background.md",
+          ".lattice/story/actives/B-360e/plan.md",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-360e/checklist.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e750ec168e60bdaba3d5821ed81d45a4e82916d70acc3f7ef7fd79950c32e0d3"
+    },
+    {
+      "id": "B-360e:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Round-10 full quality review found no blocker: Git path tokenization decodes C-quoted UTF-8 octal/control/quote/backslash paths fail-closed, rejects malformed/trailing/invalid-byte tokens without synthetic fallback, preserves /dev/null and independent side identity, treats copy old sides as surviving and rename paths as path-bound, and leaves all prompt contract, measurement, drift and process checks passing.",
+      "createdAt": "2026-07-18T10:07:53.780Z",
+      "reviewRound": "2026-07-18T10:04:57.258Z",
+      "reviewRunId": "B-360e:RR-028",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/prompt-measurement.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/handlers/validate-concept.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "9991862b3271a51b860b62d2f07fddf59837c0fc3b24b985163dba2fbc1ae586"
+    },
+    {
+      "id": "B-360e:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Round-13 full quality review found no blocker: every unquoted b/ delimiter candidate is resolved only by exact side/rename/copy/null/symmetry corroboration, unresolved ambiguity fails closed, delimiter-heavy stress remains bounded in practice, supported declaration-bearing binary changes produce diagnostics, unsupported binaries remain ignored, and all concept/prompt/drift/process/no-drift checks pass.",
+      "createdAt": "2026-07-18T10:28:54.089Z",
+      "reviewRound": "2026-07-18T10:26:24.765Z",
+      "reviewRunId": "B-360e:RR-037",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/prompt-measurement.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/handlers/validate-concept.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "d8e53237e1c2fdfad7d45c52a75df47784a0d69ec1441d031be21dbdbadad228"
+    },
+    {
+      "id": "B-360e:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-13 full coverage review found no blocker: literal-b-slash path ambiguity is resolved or fails closed with corroboration, supported-source binary replace/add/delete/rename/copy all fail closed, unsupported binary assets remain accepted, 42/42 original intents have fresh PASS evidence on storyFilesHash 21e6ed9, and all prior regressions/protected paths pass.",
+      "createdAt": "2026-07-18T10:29:43.755Z",
+      "reviewRound": "2026-07-18T10:26:24.765Z",
+      "reviewRunId": "B-360e:RR-039",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-360e/background.md",
+          ".lattice/story/actives/B-360e/plan.md",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-360e/checklist.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "83ef2b912e08324387a7331f600d3f891988781502ae63461362fb1f086eb356"
+    },
+    {
+      "id": "B-360e:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "Round-13 concept review passed. Build and concept-gate scope smoke pass. Independent probes verify unquoted literal b/ delimiter candidates resolve only through exact same-path symmetry or corroborating side/rename/copy metadata, while unresolved ambiguity fails closed. Supported TS/JS/Python-family binary replace/add/delete/rename/copy, uppercase extension, delimiter-path, and multi-file cases all emit focused fail-closed diagnostics; unsupported binary assets remain diagnostic-free. Raw validate --concept passes on the full Story diff. A malformed Binary-files endpoint mismatch was considered but not elevated because diff --git is the authoritative path and real Git output cannot produce that mismatch; it does not justify optimizing malformed-input handling beyond the current scope.",
+      "createdAt": "2026-07-18T10:31:43.098Z",
+      "reviewRound": "2026-07-18T10:26:24.765Z",
+      "reviewRunId": "B-360e:RR-038",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b6c40483b9b4318a28289769deb1f152bc057054183c76cdcba6ca2827511582"
+    },
+    {
+      "id": "B-360e:RP-016",
+      "agent": "lattice-review-quality",
+      "note": "Round-14 full quality review found no blocker: legacy headerless fragments are isolated to inputs with no authoritative diff header token, empty input stays empty, malformed or mixed full diffs cannot downgrade into fragment parsing, deleted symbols still flow to residual grep, and all concept/prompt/drift/process/protected no-drift checks pass.",
+      "createdAt": "2026-07-18T11:10:43.348Z",
+      "reviewRound": "2026-07-18T11:08:37.150Z",
+      "reviewRunId": "B-360e:RR-040",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/prompt-measurement.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/handlers/validate-concept.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "3ea1ffd0053889806dc7e7f904338db0ac1f4203eb563b5da3dea940bf12eaad"
+    },
+    {
+      "id": "B-360e:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Round-15 concept review passed. Independently verified f959a28ba9 resolves F-029/F-030: 19 structured-token variants, including bare/tab/vertical-whitespace diff headers, orphan side/hunk headers, rename/copy, binary, index, mode and similarity metadata, all produce diagnostics, no fragment-derived symbols, and final checkConcept status=fail. Legacy headerless deletion/addition/context fragments and source text merely containing header-like strings remain diagnostic-free and preserve expected symbol extraction. TypeScript build, concept-gate-scope smoke, and raw full-Story validate --concept all pass; existing delimiter, binary, ordering and parser strictness regressions remain green.",
+      "createdAt": "2026-07-18T11:17:11.640Z",
+      "reviewRound": "2026-07-18T11:14:50.842Z",
+      "reviewRunId": "B-360e:RR-044",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "216c46ed4ad29d4d3dffe4cbad81d22517e16b2f06f9643f13ba841ff9332492"
+    },
+    {
+      "id": "B-360e:RP-018",
+      "agent": "lattice-review-quality",
+      "note": "Round-15 full quality review found no blocker: structured diff controls including bare/tab headers, orphan side/hunk/rename/copy, binary, index, mode and similarity tokens all disable legacy fragment fallback and fail closed, while pure headerless +/-/context and empty inputs remain compatible; all concept, prompt, drift, process, CLI partition and protected output no-drift checks pass.",
+      "createdAt": "2026-07-18T11:17:20.282Z",
+      "reviewRound": "2026-07-18T11:14:50.842Z",
+      "reviewRunId": "B-360e:RR-043",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/prompt-measurement.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/handlers/validate-concept.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "1b244ca1526e3c1cd2bbb6bca61b333adaf7a2f1a8eea7e1b7397c824a2c2e1d"
+    },
+    {
+      "id": "B-360e:RP-019",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-15 test-coverage PASS. Independently verified the F-030 repair: the negative-probe matrix covers bare and tabbed diff headers, orphan side/hunk headers, rename/copy metadata, binary markers, and index/mode/similarity metadata; every malformed structured token fails closed with zero symbols and diagnostics. Valid legacy headerless deletion fragments and empty input remain positive-compatible. Build, gitroot routing, concept-gate scope, prompt measurement, baseline drift/verification, and process-fact contract checks pass; checklist is 4/4 done with 42 fresh passing evidence records bound to storyFilesHash 938bfd5d, protected prompt outputs are unchanged, and no open findings remain.",
+      "createdAt": "2026-07-18T11:18:04.023Z",
+      "reviewRound": "2026-07-18T11:14:50.842Z",
+      "reviewRunId": "B-360e:RR-045",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-360e/background.md",
+          ".lattice/story/actives/B-360e/plan.md",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-360e/checklist.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "56f5223b003e325913dd5f367a8785516555222375ad892c6ae7e61188efd516"
+    },
+    {
+      "id": "B-360e:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "Round-16 merge-main concept review passed on current material. Merge semantics preserve implementation declaration continuity while still detecting removed overload signatures, support .pyi/.pyw, retain legacy headerless fragments, keep malformed structured headers fail-closed, and ignore unsupported metadata/docs without hiding mixed-language deletions. Build, concept smoke, independent continuity/overload/pyi/headerless/fail-closed probes, process-fact verifier, Prompt contract measurement smoke, raw validate --concept, and the 16-role Proof-or-Stop baseline verifier all pass. Protected Prompt templates/mirrors and the prior baseline have zero diff. Scope check reports only three explicitly acknowledged, non-blocking merge-main paths with a matching convergence reason. Evidence inspection confirms all 42 checklist evidence refs are fresh at materialHash 30b4630b and storyFilesHash 098739c4; only the prior routine test-evidence is stale after the merge and should be regenerated in TEST.",
+      "createdAt": "2026-07-18T11:58:32.039Z",
+      "reviewRound": "2026-07-18T11:54:47.440Z",
+      "reviewRunId": "B-360e:RR-047",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4a5a3fde6a2675be3f02b6de2f6a1ac8da787d0d0225912f08e3421814e7ad52"
+    },
+    {
+      "id": "B-360e:RP-021",
+      "agent": "lattice-review-quality",
+      "note": "Round-16 post-main-merge quality review found no blocker: the merge preserves robust structured-diff and headerless-fragment fallback behavior together with main branch declaration continuity, Python .py/.pyi/.pyw, first-hunk shebang, unsupported-metadata filtering, and process-fact updates. Scope warnings are acknowledged, focused build/smoke/baseline/process-contract checks pass, checklist evidence remains bound to the unchanged storyFilesHash, and protected Prompt outputs are byte-identical to main.",
+      "createdAt": "2026-07-18T11:59:19.255Z",
+      "reviewRound": "2026-07-18T11:54:47.440Z",
+      "reviewRunId": "B-360e:RR-046",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/prompt-measurement.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/handlers/validate-concept.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "62c74afa76efd475d18e0e20834b75dadd9676aab70bf9747a4fce4232357ef4"
+    },
+    {
+      "id": "B-360e:RP-022",
+      "agent": "lattice-review-concept",
+      "note": "Round-17 concept review passed. Relative to round 16 there are no product code, decision-doc, Prompt, baseline, or concept-parser changes; the only Story material update is the F-031 evidence replacement for CHK-003:adversarial:no-writes. The exact stored mktemp/trap/status-before-and-after command independently replays successfully without repository snapshot artifacts. Merged concept semantics remain green via concept-gate scope smoke and raw validate --concept; process-fact contract verifies; the 16-role Proof-or-Stop baseline verifies; protected Prompt templates/mirrors and prior baseline remain zero-diff. evidence_inspect reports checklist evidence total=42, fresh=42, stale=0 at materialHash 30b4630b and storyFilesHash 098739c4. The older aggregate test-evidence remains stale after merge and belongs to the normal TEST rerun, not this concept pass.",
+      "createdAt": "2026-07-18T12:06:06.597Z",
+      "reviewRound": "2026-07-18T12:03:30.904Z",
+      "reviewRunId": "B-360e:RR-049",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2245fa2c140b240c337cd1d7e98add7a8545f1c0d57c0df214c7fe9a385fc237"
+    },
+    {
+      "id": "B-360e:RP-023",
+      "agent": "lattice-review-quality",
+      "note": "Round-17 quality review found no blocker. F-031 is fixed by a self-contained repository-external mktemp probe; the exact stored command was replayed successfully and leaves git status byte-identical. All 42 evidence entries pass with complete bindings and one current storyFilesHash. Build, prompt and concept smoke suites, full baseline verification, and process-fact contract pass. Protected Prompt outputs remain byte-identical to main.",
+      "createdAt": "2026-07-18T12:06:55.987Z",
+      "reviewRound": "2026-07-18T12:03:30.904Z",
+      "reviewRunId": "B-360e:RR-052",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/prompt-measurement.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/handlers/validate-concept.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "ffffb3c5e6e611b61f90a0d616ce94ce1f8d656a7116645ccec0ff268a40d97a"
+    },
+    {
+      "id": "B-360e:RP-024",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-17 test-coverage PASS. Replayed the repaired CHK-003:adversarial:no-writes mktemp command in a newly created detached worktree whose initial and final git status were both empty; fresh snapshot files lived outside the repository, required no precreation, were trap-cleaned, and text/JSON prompt reports left status byte-identical. This closes F-031 without a hidden prerequisite. Combined with round-16 independent replay of the unchanged story material, all 42 recorded evidence commands have now been exercised: the prior 41 remained passing and the repaired 42nd passes cleanly. Fresh build, prompt contract/measurement smoke, merged concept-gate smoke (strict structured malformed matrix plus legacy fragment/empty, shebang and mixed-language semantics), baseline mutation probes, exact 16-role baseline, process-fact contract, and protected prompt zero-drift checks all pass. Checklist is 4/4 done with 42/42 passing evidence bound to storyFilesHash 098739c; no open findings remain.",
+      "createdAt": "2026-07-18T12:07:46.644Z",
+      "reviewRound": "2026-07-18T12:03:30.904Z",
+      "reviewRunId": "B-360e:RR-053",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-360e/background.md",
+          ".lattice/story/actives/B-360e/plan.md",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-360e/checklist.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8ad7c791f4aa04debd3bc53d35596834e66bde02818a9bb57a4884549e112b0a"
+    },
+    {
+      "id": "B-360e:RP-025",
+      "agent": "lattice-review-concept",
+      "note": "Fresh stable-HEAD confirmation of round-17 concept review. No non-Story-metadata files changed since RP-022; current storyFilesHash remains 098739c4. Concept gate scope smoke and raw full-diff validate --concept pass again, and the checklist contains exactly 42/42 passing evidence records with one consistent materialHash and storyFilesHash. Round-17 F-031 evidence repair, merged concept semantics, Prompt zero-drift, process verifier, and baseline conclusions therefore remain unchanged; this pass rebinds concept evidence to the current diffPack after parallel reviewer metadata settled.",
+      "createdAt": "2026-07-18T12:08:50.426Z",
+      "reviewRound": "2026-07-18T12:03:30.904Z",
+      "reviewRunId": "B-360e:RR-054",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c37f51c1174c26dd31bc6da021623f23d9bd54362188280b1227cc5ccf92f4d5"
+    },
+    {
+      "id": "B-360e:RP-026",
+      "agent": "lattice-review-concept",
+      "note": "Round-18 concept review passed. baf064ba10 is a minimal test-only change: it adds one real-CLI regression to the existing focused smoke, snapshots git status into an OS temp directory, runs both text and JSON prompt_measurement_report modes with no stdout artifact in the repo, compares before/after status byte-for-byte, and removes the temp directory in finally. No handler, policy, Prompt template, baseline, or concept-parser semantics changed. Build and the expanded prompt smoke pass; independent CLI JSON validates exactly 16 records and honest unavailable provider/dispatch layers; concept smoke and raw concept gate pass; the 16-role Proof-or-Stop baseline and protected Prompt zero-diff checks pass. evidence_inspect reports all 42 checklist refs fresh at current materialHash 74572022; only prior routine test-evidence remains expectedly stale for TEST.",
+      "createdAt": "2026-07-18T12:49:34.900Z",
+      "reviewRound": "2026-07-18T12:46:15.092Z",
+      "reviewRunId": "B-360e:RR-055",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "44ed185ec5f6eb07916db76d9a27078b575d07d5194c3e24b228127e620df71d"
+    },
+    {
+      "id": "B-360e:RP-027",
+      "agent": "lattice-review-quality",
+      "note": "Round-18 quality review found no blocker. Commit baf064ba10 adds a real CLI read-only regression using execFileSync with the current Node executable, OS tmpdir and path joins, and finally cleanup via recursive forced removal. Build and the smoke suite pass with no temporary-directory residue. All 42 evidence entries pass, are fully bound to baf064ba10 and the current storyFilesHash e156668. The full Prompt baseline passes and protected Prompt outputs remain byte-identical to main.",
+      "createdAt": "2026-07-18T12:51:38.398Z",
+      "reviewRound": "2026-07-18T12:46:15.092Z",
+      "reviewRunId": "B-360e:RR-056",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/prompt-measurement.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/handlers/validate-concept.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "7d276f922d345c3a5b71886f099d0c21f6d03d3fbbed444f24e88a88352eb51e"
+    },
+    {
+      "id": "B-360e:RP-028",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-18 test-coverage PASS. Independently exercised baf064ba10 in a detached clean worktree. Control run began and ended with empty git status, passed the focused prompt-contract smoke, and left the dedicated TMPDIR empty. A reviewer-only mutation replaced the temporary worktree CLI with a stub that appended to tracked README.md; the exact same smoke then exited 1 with `text and JSON prompt measurement reports must not change repository git status`, proving the regression detects CLI writes. Its finally cleanup still left TMPDIR empty; the mutated worktree, logs, and temp directory were then fully removed. Current checklist is 4/4 done with 42/42 passing evidence records, no missing commands, and every record bound to storyFilesHash e156668 and evidence head baf064ba10. The F-031 mktemp command is self-contained and externally scoped. Fresh build, prompt measurement smoke, merge-preserving concept smoke, baseline mutation verifier, exact 16-role baseline, and protected prompt zero-drift checks pass; no open findings remain.",
+      "createdAt": "2026-07-18T13:45:49.893Z",
+      "reviewRound": "2026-07-18T12:46:15.092Z",
+      "reviewRunId": "B-360e:RR-057",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-360e/background.md",
+          ".lattice/story/actives/B-360e/plan.md",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-360e/checklist.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "43ef564bdf63f9a88ac53ac5ebfa5f886f338e297bcaebe3a7af391408c79b5b"
+    },
+    {
+      "id": "B-360e:RP-029",
+      "agent": "lattice-review-concept",
+      "note": "Round-19 concept review passed. 45f8d4bba2 is a minimal 19-line test-only sensitivity control in the existing prompt measurement smoke: it snapshots initial git status, creates one unique temporary untracked repository directory and marker, proves the detector observes a status change, removes it in finally, and proves the exact initial status is restored. Outer/inner finally blocks cover cleanup on assertion or CLI failure; no production handler, policy, Prompt, baseline, or concept semantics change. Build and expanded smoke pass, no prompt-measurement-write-probe directory remains, the 16-role Proof-or-Stop baseline and protected Prompt zero-diff checks pass, and evidence_inspect confirms 42/42 checklist refs fresh at current material.",
+      "createdAt": "2026-07-18T18:55:32.435Z",
+      "reviewRound": "2026-07-18T15:22:41.053Z",
+      "reviewRunId": "B-360e:RR-058",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3b33f023e055489c664c8102aba4ecddbf48dc6be2a48246984952d9b0f168b3"
+    },
+    {
+      "id": "B-360e:RP-030",
+      "agent": "lattice-review-quality",
+      "note": "Round-19 quality review found no blocker. Commit 45f8d4bba2 adds a valid detector-sensitivity control: a repository-visible temporary directory changes real git status, nested finally cleanup runs on assertion or command failure, and the original status is restored. The existing real CLI text and JSON no-write regression remains intact. Build and smoke pass with no probe residue. All 42 evidence entries pass and bind to 45f8d4bba2 and storyFilesHash 2f9228f. Full Prompt baseline passes and protected Prompt outputs remain byte-identical to main.",
+      "createdAt": "2026-07-18T18:57:20.850Z",
+      "reviewRound": "2026-07-18T15:22:41.053Z",
+      "reviewRunId": "B-360e:RR-059",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/prompt-measurement.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/handlers/validate-concept.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "fe78241550a782a6a887c7335183b08c4aa083dfbe3dbb8b028809a137a27dba"
+    },
+    {
+      "id": "B-360e:RP-031",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-19 test-coverage PASS. Independently validated 45f8d4bba2 sensitivity in a detached clean worktree. Green control: focused smoke passed from empty git status, restored empty status, and left neither repository-local prompt-measurement-write-probe directories nor TMPDIR residue. Red control: in the temporary built artifact only, redirected the sensitivity directory outside the repository so git status could not observe the injected write; the smoke exited 1 at the exact `git-status snapshot detector must observe a temporary repository write` assertion, and failure-path cleanup still left no probe/TMPDIR residue. The temporary worktree and directories were fully removed. Current checklist remains 4/4 done with 42/42 passing evidence records, all bound to storyFilesHash 2f9228f and evidence head 45f8d4bba2. Fresh build, focused smoke, baseline drift mutation campaign, exact 16-role baseline, and protected prompt zero-drift checks pass; no open findings remain.",
+      "createdAt": "2026-07-18T19:00:03.004Z",
+      "reviewRound": "2026-07-18T15:22:41.053Z",
+      "reviewRunId": "B-360e:RR-060",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-360e/background.md",
+          ".lattice/story/actives/B-360e/plan.md",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-360e/checklist.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4b5e079f5fce30596cb1f0277cced3a5b1710077768e477c9e83264209fb0ce3"
+    }
+  ]
+}

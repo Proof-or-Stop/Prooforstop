@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-dd81",
+  "allowedCommands": [
+    "git diff *",
+    "git log *",
+    "git merge main",
+    "git status *",
+    "node bin/lattice.js *",
+    "node packages/main/*",
+    "node scripts/*",
+    "npm --prefix packages/main run build",
+    "npm test",
+    "rg *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Codex subagents",
+    "Lattice CLI",
+    "shell read/verification commands"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-dd81/**",
+    "docs/requirements/**",
+    "packages/main/src/**",
+    "packages/main/tests/**",
+    "scripts/**"
+  ],
+  "excludedCommands": [
+    "git clean *",
+    "git push *",
+    "git reset --hard *",
+    "omx *"
+  ],
+  "excludedTools": [
+    "OMX",
+    "remote publish"
+  ],
+  "excludedPaths": [
+    ".omx/**"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Only full-context Story 2 implementation and local evidence. No incremental/budget/A-B behavior or remote publishing.",
+  "createdAt": "2026-07-18T19:22:58.948Z",
+  "updatedAt": "2026-07-18T19:22:58.948Z",
+  "_hash": "343eda8f5bfd5070068b28f07096526be44989234bd509f08c748a5bcb357c7d"
+}

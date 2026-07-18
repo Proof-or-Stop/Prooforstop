@@ -5210,6 +5210,35 @@ function assertParentRoadmapTotalityRuntime() {
   }
 }
 
+function assertPromptMeasurementObservationBoundary() {
+  const command = 'prompt_measurement_report';
+  const catalogText = read('packages/main/src/cli/command-catalog.ts');
+  const policyText = read('packages/main/src/core/command-policy.ts');
+  const configText = read('packages/main/src/core/config.ts');
+  const activityText = read('packages/main/src/cli/activity-policy.ts');
+  const levelsText = read('packages/main/src/core/process-fact-levels.ts');
+  const registryText = read('packages/main/src/registry.ts');
+  const handlerText = read('packages/main/src/handlers/prompt-measurement.ts');
+  const verifierText = read('scripts/verify-proof-or-stop-prompt-baseline.mjs');
+
+  assert(catalogText.includes(`name: '${command}'`), `prompt measurement: ${command} missing from command catalog`);
+  assert(
+    policyText.includes(`${command}: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all'`),
+    `prompt measurement: ${command} must remain readOnly and all-phase in command policy`,
+  );
+  assert(configText.includes(`'${command}'`), `prompt measurement: ${command} missing from all-phase tools`);
+  assert(activityText.includes(`'${command}'`), `prompt measurement: ${command} missing from read-only activity policy`);
+  assert(
+    levelsText.includes(`name: '${command}', level: 'L0', category: 'prompt-measurement-read'`),
+    `prompt measurement: ${command} must remain exactly L0 observational`,
+  );
+  assert(registryText.includes('createPromptMeasurementHandlers'), 'prompt measurement: handler factory not wired');
+  assert(!/\b(writeFile|writeFileSync|appendFile|appendFileSync|mkdir|mkdirSync)\b/.test(handlerText), 'prompt measurement: handler must not gain filesystem writes');
+  assert(handlerText.includes('generatePromptMeasurementReport'), 'prompt measurement: handler must use deterministic local generator');
+  assert(verifierText.includes('verifyPromptMeasurementSidecar'), 'prompt measurement: proof-or-stop verifier sidecar check missing');
+  assert(verifierText.includes('PromptMeasurementRecord sidecar verified without refresh authority'), 'prompt measurement: verifier must state non-authoritative no-refresh boundary');
+}
+
 function assertProcessFactCommandInventory() {
   const cliText = read('packages/main/src/cli/command-catalog.ts');
   const configText = read('packages/main/src/core/config.ts');
@@ -5962,6 +5991,7 @@ await assertLifecycleArtifactScopePolicy();
 assertStrengtheningRoadmapGovernanceLedger();
 assertParentRoadmapIntentTotalityPlan();
 assertParentRoadmapTotalityRuntime();
+assertPromptMeasurementObservationBoundary();
 printProcessFactLevelRegistrySummary();
 
 console.log(`Prompt drift scan: ${reviewerPromptCount} reviewer prompt files checked`);
