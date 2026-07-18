@@ -656,6 +656,21 @@
       "resolvedAt": "2026-07-18T11:15:08.862Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-360e:F-031",
+      "desc": ".lattice/story/actives/B-360e/checklist.json CHK-003:adversarial:no-writes — recorded PASS command is not independently reproducible and therefore does not prove the read-only invariant. Exact clean-state replay of `git status --porcelain > before; ...; git status --porcelain > after; cmp before after` returns rc=1: shell redirection creates `before` before the first status (first snapshot contains `?? before`), then creates `after` before the second status (second snapshot additionally contains `?? after`). The evidence note admits an unrecorded precondition that both snapshot files already existed. Replace the command with a self-contained temp-directory/snapshot probe (or explicitly create both ignored temp paths before the first status and clean them safely), then rerun and rebind the evidence. Independent round-16 replay: the other 41/42 recorded commands passed; merged concept smoke also passed structured malformed-token, legacy fragment/empty, shebang, and mixed-language probes, so this finding is isolated to evidence admissibility rather than feature behavior.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-18T12:01:41.607Z",
+      "reviewRound": "2026-07-18T11:54:47.440Z",
+      "reviewRunId": "B-360e:RR-048",
+      "_hash": "f4a38977d787dfa20568f9f694790058857836def58b153e53c4a2935c5e61e7",
+      "signatureTag": "adversarial|unknown|lattice-story-actives",
+      "signatureTagSource": "auto"
     }
   ]
 }
