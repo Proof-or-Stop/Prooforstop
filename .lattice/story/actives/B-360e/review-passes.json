@@ -708,6 +708,29 @@
       },
       "readDiagnostics": [],
       "_hash": "62c74afa76efd475d18e0e20834b75dadd9676aab70bf9747a4fce4232357ef4"
+    },
+    {
+      "id": "B-360e:RP-022",
+      "agent": "lattice-review-concept",
+      "note": "Round-17 concept review passed. Relative to round 16 there are no product code, decision-doc, Prompt, baseline, or concept-parser changes; the only Story material update is the F-031 evidence replacement for CHK-003:adversarial:no-writes. The exact stored mktemp/trap/status-before-and-after command independently replays successfully without repository snapshot artifacts. Merged concept semantics remain green via concept-gate scope smoke and raw validate --concept; process-fact contract verifies; the 16-role Proof-or-Stop baseline verifies; protected Prompt templates/mirrors and prior baseline remain zero-diff. evidence_inspect reports checklist evidence total=42, fresh=42, stale=0 at materialHash 30b4630b and storyFilesHash 098739c4. The older aggregate test-evidence remains stale after merge and belongs to the normal TEST rerun, not this concept pass.",
+      "createdAt": "2026-07-18T12:06:06.597Z",
+      "reviewRound": "2026-07-18T12:03:30.904Z",
+      "reviewRunId": "B-360e:RR-049",
+      "writerSessionId": "sess-61f03d29ed66512b",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2245fa2c140b240c337cd1d7e98add7a8545f1c0d57c0df214c7fe9a385fc237"
     }
   ]
 }
