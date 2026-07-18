@@ -760,6 +760,74 @@ try {
     rmSync(renameRoot, { recursive: true, force: true });
   }
 
+  // B-0784 F-023/F-024/F-026: scope_diff_pack keeps wrapper config authority
+  // separate from the story worktree Git authority.
+  const wrapperRoot = mkdtempSync(join(tmpdir(), 'lattice-scope-wrapper-pack-'));
+  try {
+    const innerRepo = join(wrapperRoot, 'repo');
+    const storyWorktree = join(wrapperRoot, '.worktrees', 'B-wrap');
+    write(wrapperRoot, 'lattice.config.json', JSON.stringify({
+      gitRoot: 'repo',
+      scanRoot: 'src',
+      rootDir: '.',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      scopeProtection: { pathCanonicalization: 'off', astAnchors: 'off' },
+    }));
+    write(innerRepo, 'src/allowed.ts', 'export function allowed() { return 1; }\n');
+    git(innerRepo, ['init', '-b', 'main']);
+    git(innerRepo, ['config', 'user.email', 'wrapper-scope@example.test']);
+    git(innerRepo, ['config', 'user.name', 'Wrapper Scope Smoke']);
+    git(innerRepo, ['add', '.']);
+    git(innerRepo, ['commit', '-m', 'base']);
+    mkdirSync(dirname(storyWorktree), { recursive: true });
+    git(innerRepo, ['worktree', 'add', '-b', 'story/B-wrap', storyWorktree]);
+
+    const wrapperStore = new StoryStore(wrapperRoot);
+    wrapperStore.writeStory('B-wrap', {
+      storyId: 'B-wrap',
+      name: 'wrapper-pack',
+      title: 'Wrapper scope diff pack',
+      description: 'Verify metadata config and story Git authority stay separate.',
+      type: 'feature',
+      phase: 'DEV',
+      priority: 'high',
+      createdAt: new Date().toISOString(),
+      startedAt: new Date().toISOString(),
+      endedAt: null,
+      events: [],
+      worktree: {
+        path: '.worktrees/B-wrap',
+        branch: 'story/B-wrap',
+        createdAt: new Date().toISOString(),
+      },
+    });
+    write(storyWorktree, 'src/allowed.ts', 'export function allowed() { return 2; }\n');
+    write(innerRepo, 'src/root-dirt.ts', 'export const rootDirt = true;\n');
+
+    const wrapperHandlers = createScopeContractHandlers({
+      store: wrapperStore,
+      root: wrapperRoot,
+    } as HandlerContext);
+    const wrapperPack = JSON.parse(wrapperHandlers.scope_diff_pack({ storyId: 'B-wrap', json: true }));
+    assert.deepEqual(wrapperPack.changedFiles, ['src/allowed.ts'], 'scope_diff_pack reads only the bound story worktree');
+    assert.equal(wrapperPack.astAnchorMode, 'off', 'wrapper metadata config controls AST rollout');
+    assert.equal(wrapperPack.hunks[0]?.anchor, undefined);
+    assert.equal(wrapperPack.hunks[0]?.parseFallback, 'ast_anchor_rollout_off_legacy_history_preserved');
+    assert.throws(
+      () => wrapperHandlers.scope_diff_pack({ storyId: 'B-NONEXISTENT', json: true }),
+      /does not exist/,
+      'nonexistent storyId fails closed instead of falling back to another workspace',
+    );
+    assert.throws(
+      () => wrapperHandlers.scope_diff_pack({ json: true }),
+      /storyId is required/,
+      'missing storyId fails closed',
+    );
+  } finally {
+    rmSync(wrapperRoot, { recursive: true, force: true });
+  }
+
   console.log('scope contract smoke passed');
 } finally {
   rmSync(root, { recursive: true, force: true });

@@ -532,6 +532,7 @@ export function filterDonePrepareTrustedMetadataRows(
   root: string,
   rows: string[],
   ignoredPaths: readonly string[] = [],
+  gitCwd = root,
 ): string[] {
   const ignored = new Set(ignoredPaths.map(normalizeRelPath));
   return rows.filter((row) => {
@@ -542,7 +543,7 @@ export function filterDonePrepareTrustedMetadataRows(
     if (paths.every((path) => ignored.has(path))) return false;
     // Shared B-META is not path-whitelisted: only the exact current content
     // with a valid official gap_log binding is non-blocking.
-    if (paths.every((path) => classifySharedLifecycleMetadata(root, path)?.trusted === true)) return false;
+    if (paths.every((path) => classifySharedLifecycleMetadata(root, path, gitCwd)?.trusted === true)) return false;
     return true;
   });
 }
@@ -823,7 +824,12 @@ export function commitDonePrepareGeneratedMetadata(args: {
     beforeCasUpdate?: (oldHead: string, targetRef: string) => void;
   };
 }): DonePrepareGeneratedMetadataCommitResult {
-  const rows = filterDonePrepareTrustedMetadataRows(args.root, gitStatusRowsForDonePrepareGeneratedMetadata(args.gitCwd), args.ignoredPaths);
+  const rows = filterDonePrepareTrustedMetadataRows(
+    args.root,
+    gitStatusRowsForDonePrepareGeneratedMetadata(args.gitCwd),
+    args.ignoredPaths,
+    args.gitCwd,
+  );
   const manifest = buildDonePrepareGeneratedMetadataManifest({
     root: args.root,
     storyId: args.storyId,

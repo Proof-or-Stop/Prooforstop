@@ -337,7 +337,7 @@ function problemRow(
 export function checkScopeContract(
   originalContract: ScopeContractData,
   changedFiles: string[],
-  options: { projectRoot?: string } = {},
+  options: { projectRoot?: string; gitCwd?: string } = {},
 ): ScopeCheckResult {
   let contract = originalContract;
   const violations: ScopeViolation[] = [];

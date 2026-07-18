@@ -23,6 +23,7 @@ import {
   runPrewriteGuardCheck,
   type PrewriteGuardResult,
 } from '../core/prewrite-guard.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 
 // ── Active guard session discovery ──
 
@@ -192,6 +193,9 @@ export function createPrewriteGuardHandlers(ctx: HandlerContext): Record<string,
         }
       }
 
+      const gitCwd = storyId
+        ? resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root })
+        : root;
       const result: PrewriteGuardResult = runPrewriteGuardCheck({
         normalizedPaths,
         contract,
@@ -200,6 +204,7 @@ export function createPrewriteGuardHandlers(ctx: HandlerContext): Record<string,
         resolutionError,
         noDecisionReason,
         projectRoot: root,
+        gitCwd,
       });
 
       if (args.json) return JSON.stringify(result, null, 2);

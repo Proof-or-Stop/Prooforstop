@@ -451,11 +451,14 @@ export function appendGapFinding(
   storyId: string = META_STORY_ID,
   options: { projectRoot?: string } = {},
 ): GapFindingResult {
+  if (storyId !== META_STORY_ID) {
+    throw new Error(`gap_log provenance requires canonical storyId ${META_STORY_ID}; received ${storyId}`);
+  }
   const data = store.readFindings(storyId);
   const gitCwd = options.projectRoot
     ? resolveGitCwd({
       store,
-      storyId,
+      storyId: META_STORY_ID,
       metadataRoot: options.projectRoot,
       projectRoot: options.projectRoot,
     })

@@ -157,6 +157,7 @@ export function evaluatePathAgainstContract(
   normalizedPath: string,
   contract: ScopeContractData,
   projectRoot?: string,
+  gitCwd?: string,
 ): PrewriteViolation | null {
   const allAllowedLists: string[][] = [
     contract.allowedModify,
@@ -165,7 +166,7 @@ export function evaluatePathAgainstContract(
   ];
   const hasAllowedScope = allAllowedLists.some(l => l.length > 0);
 
-  const classification = classifyScopePath(contract, normalizedPath, { projectRoot });
+  const classification = classifyScopePath(contract, normalizedPath, { projectRoot, gitCwd });
   if (classification.allowed) return null;
   if (classification.registryId === 'shared-gap-log-metadata-v1') {
     return { path: normalizedPath, rule: 'out_of_scope' };
@@ -217,6 +218,8 @@ export interface PrewriteGuardInput {
   noDecisionReason?: string;
   /** Project root used by the shared canonical path classifier. */
   projectRoot?: string;
+  /** Resolved Git cwd used only for Git-backed provenance verification. */
+  gitCwd?: string;
 }
 
 /**
@@ -269,7 +272,7 @@ export function runPrewriteGuardCheck(input: PrewriteGuardInput): PrewriteGuardR
 
   const violations: PrewriteViolation[] = [];
   for (const p of normalizedPaths) {
-    const v = evaluatePathAgainstContract(p, contract, input.projectRoot);
+    const v = evaluatePathAgainstContract(p, contract, input.projectRoot, input.gitCwd);
     if (v) violations.push(v);
   }
 

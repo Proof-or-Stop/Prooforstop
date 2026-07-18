@@ -31,7 +31,7 @@ import {
 } from '../core/scope-diff-pack.js';
 import { checkSemanticScope, mergeSemanticScopeResult } from '../core/semantic-scope-gate.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
-import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
+import { resolveStorySignedWorkspace } from '../core/story-signed-workspace-resolution.js';
 import { loadConfig } from '../core/config.js';
 
 type StructuredScopeAcknowledgement = ScopeContractAcknowledgement & {
@@ -68,6 +68,22 @@ function renderAcknowledgementRow(ack: ScopeContractAcknowledgement, index: numb
 export function createScopeContractHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   const { store, root } = ctx;
   const config = loadConfig(root);
+  const resolveScopeGitCwd = (storyId: string): string => {
+    if (!store.storyExists(storyId)) throw new Error(`Story ${storyId} does not exist`);
+    const resolution = resolveStorySignedWorkspace({
+      store,
+      storyId,
+      metadataRoot: root,
+      cwd: root,
+      config,
+    });
+    if (!resolution.resolved || !resolution.authoritativeCwd) {
+      throw new Error(
+        `Story ${storyId} signed workspace is unresolved: ${resolution.unresolvedReason ?? 'no authoritative Git cwd'}`,
+      );
+    }
+    return resolution.authoritativeCwd;
+  };
   const pathMode = config.scopeProtection?.pathCanonicalization ?? 'enforce';
 
   function canonicalPaths(paths: unknown, fieldName: string): {
@@ -228,16 +244,16 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
 
     scope_contract_check(args: { storyId: string; json?: boolean }): string {
       if (!args.storyId) throw new Error('storyId is required');
+      const gitCwd = resolveScopeGitCwd(args.storyId);
       const contract = store.readScopeContract(args.storyId);
       if (!contract) {
         const result = { status: 'skip', summary: 'Scope gate: skip (no contract configured)', mode: null, changedFiles: [], violations: [], warnings: [], acknowledgedPaths: [] };
         if (args.json) return JSON.stringify(result, null, 2);
         return result.summary;
       }
-      const gitCwd = resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root });
-      const diffPack = buildScopeDiffPack(gitCwd);
+      const diffPack = buildScopeDiffPack(root, undefined, gitCwd);
       const result = mergeSemanticScopeResult(
-        checkScopeContract(contract, diffPack.changedFiles, { projectRoot: gitCwd }),
+        checkScopeContract(contract, diffPack.changedFiles, { projectRoot: root, gitCwd }),
         checkSemanticScope(contract, diffPack),
       );
       if (args.json) return JSON.stringify(result, null, 2);
@@ -246,8 +262,8 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
 
     scope_diff_pack(args: { storyId: string; json?: boolean }): string {
       if (!args.storyId) throw new Error('storyId is required');
-      const gitCwd = resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root });
-      const pack = buildScopeDiffPack(gitCwd);
+      const gitCwd = resolveScopeGitCwd(args.storyId);
+      const pack = buildScopeDiffPack(root, undefined, gitCwd);
       if (args.json) return JSON.stringify(pack, null, 2);
       return [
         `Scope diff pack: ${pack.diffPackHash}`,
@@ -451,9 +467,9 @@ export function runScopeGate(
   if (!contract) return null;
   const projectRoot = gitCwd ?? metadataRoot;
   if (gitReader) return checkScopeContract(contract, gitReader(projectRoot), { projectRoot });
-  const diffPack = buildScopeDiffPack(projectRoot);
+  const diffPack = buildScopeDiffPack(metadataRoot, undefined, projectRoot);
   return mergeSemanticScopeResult(
-    checkScopeContract(contract, diffPack.changedFiles, { projectRoot }),
+    checkScopeContract(contract, diffPack.changedFiles, { projectRoot: metadataRoot, gitCwd: projectRoot }),
     checkSemanticScope(contract, diffPack),
   );
 }

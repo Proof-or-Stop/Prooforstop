@@ -23,7 +23,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
-import { META_STORY_ID, appendGapFinding } from '../core/audit-meta-store.js';
+import { META_STORY_ID, appendGapFinding, ensureMetaStory } from '../core/audit-meta-store.js';
 import { createGapLogHandlers } from '../handlers/gap-log.js';
 import type { FindingData, ScopeContractData, ScopeDiffPack } from '../core/types.js';
 import {
@@ -857,6 +857,85 @@ function assertCommandDiscoverable(): void {
   } finally { rmSync(root, { recursive: true, force: true }); }
 }
 
+function assertWrapperRootAuthorityParity(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-gaplog-wrapper-root-'));
+  try {
+    const gitCwd = join(root, 'repo');
+    write(root, 'lattice.config.json', JSON.stringify({
+      gitRoot: 'repo',
+      scanRoot: 'src',
+      rootDir: '.',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      scopeProtection: { pathCanonicalization: 'off', astAnchors: 'off' },
+    }));
+    write(gitCwd, 'README.md', 'wrapper git authority\n');
+    git(gitCwd, ['init', '-b', 'main']);
+    git(gitCwd, ['config', 'user.email', 'wrapper-gap@example.test']);
+    git(gitCwd, ['config', 'user.name', 'Wrapper Gap Smoke']);
+    git(gitCwd, ['add', '.']);
+    git(gitCwd, ['commit', '-m', 'base']);
+    resetConfigCache();
+
+    const store = new StoryStore(root);
+    ensureMetaStory(store);
+    const handlers = createGapLogHandlers({ store, root } as any);
+    const output = handlers.gap_log({
+      category: 'missing',
+      severity: 'medium',
+      evidence: 'wrapper-root official writer and consumers must share configured Git authority',
+      sourceRefs: ['packages/main/src/core/lifecycle-registry.ts:734'],
+    });
+    assert.match(output, /contentBinding: valid/);
+    assert.equal(
+      classifySharedLifecycleMetadata(root, GAP_LOG_ARTIFACT_PATH, gitCwd)?.trusted,
+      true,
+      'official wrapper-root writer is immediately trusted by the shared classifier',
+    );
+    const contract: ScopeContractData = {
+      storyId: 'B-wrapper-consumer',
+      mode: 'enforce',
+      allowedModify: [],
+      allowedCreate: [],
+      allowedTest: [],
+      protectedFiles: [],
+      explicitExcludes: [],
+      acknowledgements: [],
+      pathCanonicalizationMode: 'off',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    assert.equal(
+      checkScopeContract(contract, [GAP_LOG_ARTIFACT_PATH], { projectRoot: root, gitCwd }).status,
+      'pass',
+    );
+    assert.equal(runPrewriteGuardCheck({
+      normalizedPaths: [GAP_LOG_ARTIFACT_PATH],
+      contract,
+      projectRoot: root,
+      gitCwd,
+    }).verdict, 'allow');
+    assert.deepEqual(
+      filterDonePrepareTrustedMetadataRows(root, [` M ${GAP_LOG_ARTIFACT_PATH}`], [], gitCwd),
+      [],
+      'done_prepare consumes the same wrapper-root Git authority',
+    );
+    assert.throws(
+      () => appendGapFinding(store, {
+        category: 'missing',
+        severity: 'low',
+        desc: 'noncanonical provenance identity must be rejected',
+        evidenceState: 'suspected',
+        uncertaintyReason: 'canonical meta story identity is mandatory',
+      }, 'B-META-attacker', { projectRoot: root }),
+      /requires canonical storyId B-META-framework-audit/,
+    );
+    console.log('✓ gap-log-14: wrapper-root writer/classifier/scope/prewrite/done_prepare authority parity');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 (async () => {
   assertMissingRequiredFieldsRejected();
   assertDefaultWriteIsSuspected();
@@ -873,6 +952,7 @@ function assertCommandDiscoverable(): void {
   assertRapidSuccessionAllWritten();
   assertSourceRefsAndFilesMerged();
   assertProvenanceAndConsumerMatrix();
+  assertWrapperRootAuthorityParity();
   assertCommandDiscoverable();
 
   console.log('✓ gap-log smoke passed');

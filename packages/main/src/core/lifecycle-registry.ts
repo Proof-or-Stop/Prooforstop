@@ -734,6 +734,7 @@ export interface SharedLifecycleMetadataClassification {
 export function classifySharedLifecycleMetadata(
   root: string,
   path: string,
+  gitCwd = root,
 ): SharedLifecycleMetadataClassification | null {
   const normalized = normalizeArtifactPath(path);
   if (normalized !== GAP_LOG_ARTIFACT_PATH && normalized !== GAP_LOG_PROVENANCE_LEDGER_PATH) return null;
@@ -780,7 +781,7 @@ export function classifySharedLifecycleMetadata(
       throw new Error('findings symlink escape');
     }
     const data = JSON.parse(readFileSync(findingsReal, 'utf8')) as FindingData;
-    const verification = verifyGapLogArtifactBinding(data, GAP_LOG_ARTIFACT_PATH, root, root);
+    const verification = verifyGapLogArtifactBinding(data, GAP_LOG_ARTIFACT_PATH, root, gitCwd);
     return {
       trusted: verification.trusted,
       path: normalized,

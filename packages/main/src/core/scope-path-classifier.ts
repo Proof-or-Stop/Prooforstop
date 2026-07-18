@@ -308,7 +308,7 @@ export function classifyScopePath(
     'storyId' | 'allowedModify' | 'allowedCreate' | 'allowedTest' | 'protectedFiles' | 'explicitExcludes'
   >,
   path: string,
-  options: { projectRoot?: string } = {},
+  options: { projectRoot?: string; gitCwd?: string } = {},
 ): ScopePathClassification {
   const normalizedPath = normalizeScopePath(path);
   const malformedProtected = contract.protectedFiles.find(isMalformedScopeGlob);
@@ -339,7 +339,7 @@ export function classifyScopePath(
   }
 
   const shared = options.projectRoot
-    ? classifySharedLifecycleMetadata(options.projectRoot, normalizedPath)
+    ? classifySharedLifecycleMetadata(options.projectRoot, normalizedPath, options.gitCwd ?? options.projectRoot)
     : null;
   if (shared?.trusted) {
     return classification({

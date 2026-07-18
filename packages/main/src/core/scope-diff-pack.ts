@@ -494,12 +494,16 @@ function readUnifiedDiff(gitCwd: string): string {
   return parts.join('\n');
 }
 
-export function buildScopeDiffPack(projectRoot: string, now = new Date().toISOString()): ScopeDiffPack {
-  const astMode = loadConfig(projectRoot).scopeProtection?.astAnchors ?? 'enforce';
+export function buildScopeDiffPack(
+  metadataRoot: string,
+  now = new Date().toISOString(),
+  gitCwd = metadataRoot,
+): ScopeDiffPack {
+  const astMode = loadConfig(metadataRoot).scopeProtection?.astAnchors ?? 'enforce';
   const packWithoutHash = {
-    changedFiles: readChangedFiles(projectRoot),
+    changedFiles: readChangedFiles(gitCwd),
     hunks: astMode === 'off'
-      ? parseUnifiedDiff(projectRoot, readUnifiedDiff(projectRoot)).map((hunk) => ({
+      ? parseUnifiedDiff(gitCwd, readUnifiedDiff(gitCwd)).map((hunk) => ({
         ...hunk,
         anchor: undefined,
         anchors: undefined,
@@ -513,7 +517,7 @@ export function buildScopeDiffPack(projectRoot: string, now = new Date().toISOSt
         anchorArtifactVersion: undefined,
         parseFallback: 'ast_anchor_rollout_off_legacy_history_preserved',
       }))
-      : parseUnifiedDiff(projectRoot, readUnifiedDiff(projectRoot)),
+      : parseUnifiedDiff(gitCwd, readUnifiedDiff(gitCwd)),
     generatedAt: now,
     ...(astMode !== 'off' ? {
       anchorParserVersion: SCOPE_ANCHOR_PARSER_VERSION,
