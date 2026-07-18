@@ -574,7 +574,7 @@
       "desc": "scope_diff_pack remains non-authoritative and can inspect the wrong semantics because 514b1654bb conflates Git cwd with metadata/config root and does not validate story identity. Repro 1: `node bin/lattice.js scope_diff_pack --storyId=B-NONEXISTENT --json` succeeds and returns the current B-0784 diff instead of rejecting the absent story; resolveGitCwd swallows store.readStory failure and falls back to projectRoot. Repro 2: in a wrapper root whose lattice.config sets gitRoot=repo and scopeProtection.astAnchors=off, a real B-wrap story resolves Git reads to repo, but scope_diff_pack passes repo to buildScopeDiffPack; loadConfig(repo) misses the wrapper config and output was configuredAst=off, observedAst=enforce with AST anchors emitted. This can silently reinterpret signed rollout/path policy and bind review context to an arbitrary/fallback workspace. Separate metadataRoot/configRoot from gitCwd in buildScopeDiffPack/check consumers, call store.readStory(args.storyId) before resolution, and propagate unresolved signed-workspace errors rather than returning a different workspace. Add wrapper-root and nonexistent/cross-story tests.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-18T03:58:08.781Z",
@@ -587,7 +587,11 @@
         "packages/main/src/core/scope-diff-pack.ts"
       ],
       "signatureTag": "adversarial|ts|git-cwd-config-root-conflation",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Commit 671e9d77fe validates story existence and separates metadata/config root from story-keyed gitCwd; wrapper astAnchors=off and linked-worktree diff authority are asserted by scope-contract smoke.",
+      "resolvedAt": "2026-07-18T04:07:03.129Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0784:F-025",
