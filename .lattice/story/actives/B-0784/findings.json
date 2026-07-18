@@ -307,7 +307,7 @@
       "desc": "F-006 was resolved only partially. The new assertions call checkScopeContract separately for path off/warn/enforce and checkSemanticScope separately for AST off/warn/enforce, but they do not exercise the required independent/cartesian rollout combinations through the configured writer/read production entries. They also do not test a future/changed canonicalizer or parser/artifact version, forward re-enable producing current-version artifacts, or preserve the actual persisted signed artifact bytes (JSON.stringify of an in-memory legacy object is not a store read/write rollback test). CHK-001 happy:2/edge:2, CHK-002 edge:2 and CHK-004 happy:3/edge:0 therefore remain overclaimed. Add a compact table-driven handler/store/buildScopeDiffPack matrix for all path×AST modes plus legacy/current/future versions and byte-preserving rollback/re-enable.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-18T02:40:30.622Z",
@@ -321,7 +321,11 @@
         "packages/main/src/core/scope-diff-pack.ts"
       ],
       "signatureTag": "missing|ts|resolved-partially-assertions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by f1e5eb927b. packages/main/src/tasks/semantic-scope-guard-smoke.ts now runs the complete production-entry 3x3 path-mode x AST-mode table through scope_contract_set/store/buildScopeDiffPack/scope_contract_check/prewrite/guard/semantic enforcement, plus future-version warn/enforce rows and real persisted artifact-byte rollback/re-enable assertions. Verified PASS with build + semantic-scope-guard-smoke.",
+      "resolvedAt": "2026-07-18T03:01:17.002Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0784:F-014",
