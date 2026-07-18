@@ -227,10 +227,25 @@ function assertCleanQuorumBaseline(gitCwd: string): void {
   }
 }
 
+interface OwnedQuorumEventRecord {
+  start: number;
+  end: number;
+  bytes: Buffer;
+}
+
+function expectedOwnedProcessBytes(
+  capture: LifecycleMetadataTransaction,
+  eventRecords: readonly OwnedQuorumEventRecord[],
+): Buffer {
+  const state = capture.transaction.states[0];
+  if (!state) throw new Error('quorum transaction lost process-events baseline');
+  return Buffer.concat([state.worktreeContent ?? Buffer.alloc(0), ...eventRecords.map(record => record.bytes)]);
+}
+
 function assertExactQuorumAppend(args: {
   projectRoot: string;
   capture: LifecycleMetadataTransaction;
-  eventRows: readonly Buffer[];
+  eventRecords: readonly OwnedQuorumEventRecord[];
 }): void {
   const state = args.capture.transaction.states[0];
   if (!state || args.capture.transaction.states.length !== 1) {
@@ -241,9 +256,9 @@ function assertExactQuorumAppend(args: {
   if (current.length < baseline.length || !current.subarray(0, baseline.length).equals(baseline)) {
     throw new Error('canonical process-events bytes changed before the quorum batch could be verified');
   }
-  const expected = Buffer.concat([baseline, ...args.eventRows]);
+  const expected = expectedOwnedProcessBytes(args.capture, args.eventRecords);
   if (!current.equals(expected)) {
-    throw new Error(`quorum transaction did not retain the exact canonical host_verdict bytes for its ${args.eventRows.length} generated rows`);
+    throw new Error(`quorum transaction changed bytes outside its append boundary or did not retain the exact canonical host_verdict bytes for its ${args.eventRecords.length} generated rows`);
   }
 }
 
@@ -279,7 +294,7 @@ function rollbackQuorumOutputs(args: {
   projectRoot: string;
   capture: LifecycleMetadataTransaction;
   storyId: string;
-  eventRows: readonly Buffer[];
+  eventRecords: readonly OwnedQuorumEventRecord[];
   verdictFiles: ReadonlyMap<string, Buffer>;
 }): { ok: boolean; reason?: string } {
   const state = args.capture.transaction.states[0];
@@ -293,27 +308,28 @@ function rollbackQuorumOutputs(args: {
     return { ok: false, reason: `${state.path}: pre-quorum bytes changed; concurrent bytes preserved` };
   }
   const baselineConflict = !current.subarray(0, baseline.length).equals(baseline);
-  const preservedPrefix = baselineConflict ? current.subarray(0, baseline.length) : baseline;
-
-  const suffix = current.subarray(baseline.length);
   const spans: Array<{ start: number; end: number }> = [];
   const missingRows: number[] = [];
-  for (const [index, row] of args.eventRows.entries()) {
-    const start = suffix.indexOf(row);
-    if (start < 0) missingRows.push(index);
-    else spans.push({ start, end: start + row.length });
+  for (const [index, record] of args.eventRecords.entries()) {
+    const startsAtRecordBoundary = record.start === baseline.length || current[record.start - 1] === 0x0a;
+    const exactAtCapturedOffset = record.start >= baseline.length
+      && record.end <= current.length
+      && current.subarray(record.start, record.end).equals(record.bytes);
+    const endsAtRecordBoundary = record.bytes.at(-1) === 0x0a;
+    if (!startsAtRecordBoundary || !exactAtCapturedOffset || !endsAtRecordBoundary) missingRows.push(index);
+    else spans.push({ start: record.start, end: record.end });
   }
   spans.sort((left, right) => left.start - right.start);
   const overlap = spans.some((span, index) => index > 0 && span.start < spans[index - 1].end);
   if (overlap) return { ok: false, reason: `${state.path}: owned byte spans overlap; concurrent bytes preserved` };
   if (spans.length > 0) {
-    const kept: Buffer[] = [preservedPrefix];
+    const kept: Buffer[] = [];
     let cursor = 0;
     for (const span of spans) {
-      kept.push(suffix.subarray(cursor, span.start));
+      kept.push(current.subarray(cursor, span.start));
       cursor = span.end;
     }
-    kept.push(suffix.subarray(cursor));
+    kept.push(current.subarray(cursor));
     const restored = Buffer.concat(kept);
     writeFileSync(processEventsPath, restored);
   }
@@ -341,11 +357,9 @@ function rollbackQuorumOutputs(args: {
     : { ok: true };
 }
 
-function captureOwnedVerdictOutput(args: {
-  projectRoot: string;
-  storyId: string;
-  capture: LifecycleMetadataTransaction;
-  priorRows: readonly Buffer[];
+function validateOwnedVerdictOutput(args: {
+  eventRow: Buffer;
+  verdictBytes: Buffer;
   verdict: {
     verdictId: string;
     runId: string;
@@ -359,16 +373,8 @@ function captureOwnedVerdictOutput(args: {
     validationDigest?: string;
     promptDigest?: string;
   };
-}): { eventRow: Buffer; verdictBytes: Buffer } {
-  const state = args.capture.transaction.states[0];
-  if (!state) throw new Error('quorum transaction lost process-events baseline');
-  const baseline = state.worktreeContent ?? Buffer.alloc(0);
-  const before = Buffer.concat([baseline, ...args.priorRows]);
-  const current = readFileSync(join(args.projectRoot, state.path));
-  if (current.length <= before.length || !current.subarray(0, before.length).equals(before)) {
-    throw new Error('quorum verdict writer changed bytes outside its append boundary');
-  }
-  const eventRow = current.subarray(before.length);
+}): void {
+  const eventRow = args.eventRow;
   if (eventRow[eventRow.length - 1] !== 0x0a || eventRow.subarray(0, -1).includes(0x0a)) {
     throw new Error('quorum verdict writer must append exactly one newline-terminated event row');
   }
@@ -398,8 +404,10 @@ function captureOwnedVerdictOutput(args: {
   ) {
     throw new Error('quorum verdict writer did not emit its full canonical host_verdict envelope');
   }
-  const verdictPath = join(args.projectRoot, LATTICE_DIR, 'autopilot-verdicts', args.storyId, `${args.verdict.verdictId}.json`);
-  return { eventRow: Buffer.from(eventRow), verdictBytes: readFileSync(verdictPath) };
+  const canonicalVerdictBytes = Buffer.from(`${JSON.stringify(args.verdict, null, 2)}\n`);
+  if (!args.verdictBytes.equals(canonicalVerdictBytes)) {
+    throw new Error('quorum verdict writer did not retain the exact canonical verdict JSON bytes');
+  }
 }
 
 export function createQuorumSubmitHandlers(ctx: HandlerContext, testHooks: QuorumSubmitTestHooks = {}) {
@@ -491,13 +499,19 @@ export function createQuorumSubmitHandlers(ctx: HandlerContext, testHooks: Quoru
       });
       const emitted = [];
       const runIds: string[] = [];
-      const ownedEventRows: Buffer[] = [];
+      const ownedEventRecords: OwnedQuorumEventRecord[] = [];
       const ownedVerdictFiles = new Map<string, Buffer>();
       try {
         for (let round = 1; round <= rounds; round += 1) {
           const runId = `${storyId}-q-r${round}`;
           runIds.push(runId);
           for (const host of [hostA, hostB]) {
+            assertExactQuorumAppend({
+              projectRoot: gitCwd,
+              capture: transaction,
+              eventRecords: ownedEventRecords,
+            });
+            const eventStart = expectedOwnedProcessBytes(transaction, ownedEventRecords).length;
             const verdict = submitLocalVerdict(ctx, 'local', {
               storyId,
               runId,
@@ -520,20 +534,44 @@ export function createQuorumSubmitHandlers(ctx: HandlerContext, testHooks: Quoru
               sessionId: verdict.sessionId,
               keyId: verdict.keyId,
             });
+            const canonicalVerdictBytes = Buffer.from(`${JSON.stringify(verdict, null, 2)}\n`);
+            ownedVerdictFiles.set(verdict.verdictId, canonicalVerdictBytes);
+            const state = transaction.transaction.states[0];
+            if (!state) throw new Error('quorum transaction lost process-events ownership while capturing a verdict');
+            const processEventsPath = join(gitCwd, state.path);
+            const currentProcessBytes = readFileSync(processEventsPath);
+            const expectedPrefix = expectedOwnedProcessBytes(transaction, ownedEventRecords);
+            if (
+              eventStart !== expectedPrefix.length
+              || currentProcessBytes.length <= eventStart
+              || !currentProcessBytes.subarray(0, eventStart).equals(expectedPrefix)
+            ) {
+              throw new Error('quorum transaction changed bytes outside its append boundary while capturing a verdict');
+            }
+            const eventEnd = currentProcessBytes.indexOf(0x0a, eventStart) + 1;
+            if (eventEnd <= eventStart) {
+              throw new Error('quorum verdict writer did not append a newline-terminated event row');
+            }
+            const eventRow = Buffer.from(currentProcessBytes.subarray(eventStart, eventEnd));
+            ownedEventRecords.push({ start: eventStart, end: eventEnd, bytes: eventRow });
+            const verdictPath = join(
+              gitCwd,
+              LATTICE_DIR,
+              'autopilot-verdicts',
+              storyId,
+              `${verdict.verdictId}.json`,
+            );
+            const verdictBytes = readFileSync(verdictPath);
             testHooks.beforeCaptureOwnedVerdict?.({
               verdictId: verdict.verdictId,
               emittedCount: emitted.length,
               projectRoot,
             });
-            const owned = captureOwnedVerdictOutput({
-              projectRoot: gitCwd,
-              storyId,
-              capture: transaction,
-              priorRows: ownedEventRows,
+            validateOwnedVerdictOutput({
+              eventRow,
+              verdictBytes,
               verdict,
             });
-            ownedEventRows.push(owned.eventRow);
-            ownedVerdictFiles.set(verdict.verdictId, owned.verdictBytes);
             testHooks.afterVerdictWrite?.({
               verdictId: verdict.verdictId,
               emittedCount: emitted.length,
@@ -552,7 +590,7 @@ export function createQuorumSubmitHandlers(ctx: HandlerContext, testHooks: Quoru
         assertExactQuorumAppend({
           projectRoot: gitCwd,
           capture: transaction,
-          eventRows: ownedEventRows,
+          eventRecords: ownedEventRecords,
         });
         const hashes = readLifecycleMetadataOutputHashes({ root: gitCwd, capture: transaction });
         if (!hashes.ok) throw new Error(hashes.reason);
@@ -596,7 +634,7 @@ export function createQuorumSubmitHandlers(ctx: HandlerContext, testHooks: Quoru
           projectRoot: gitCwd,
           capture: transaction,
           storyId,
-          eventRows: ownedEventRows,
+          eventRecords: ownedEventRecords,
           verdictFiles: ownedVerdictFiles,
         });
         const message = error instanceof Error ? error.message : String(error);
