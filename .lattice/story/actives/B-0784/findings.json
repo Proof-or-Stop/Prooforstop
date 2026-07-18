@@ -101,6 +101,29 @@
       ],
       "signatureTag": "adversarial|ts|protected-anchor-enforcement",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0784:F-006",
+      "desc": "Required rollout/migration coverage is recorded PASS but is not exercised. CHK-001 happy:2/edge:2, CHK-002 edge:2, and CHK-004 happy:3/edge:0 require independent path/AST off-warn-enforce combinations, legacy signed artifact rollback without rewrite, forward re-enable, and missing/legacy/current/future version outcomes. The focused tests contain only one explicit config combination (astAnchors=enforce, pathCanonicalization=off) and never assert the writer/read/gate behavior for the remaining combinations or version drift. Add a table-driven production-entry matrix that snapshots signed artifact bytes across rollback, proves the two flags are independent, and asserts exact accept/stale/re-attest outcomes before marking those intents PASS.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-18T02:14:53.806Z",
+      "reviewRound": "2026-07-18T02:10:28.512Z",
+      "reviewRunId": "B-0784:RR-003",
+      "_hash": "528a9e5510fa7611a1dd5f52647573e9682700e79ba2d372eae4ca8316c9dd80",
+      "files": [
+        "packages/main/src/tasks/scope-contract-smoke.ts",
+        "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+        "packages/main/src/handlers/scope-contract.ts",
+        "packages/main/src/core/scope-contract.ts",
+        "packages/main/src/core/scope-diff-pack.ts",
+        "packages/main/src/core/semantic-scope-gate.ts"
+      ],
+      "signatureTag": "missing|ts|required-rollout-migration",
+      "signatureTagSource": "auto"
     }
   ]
 }
