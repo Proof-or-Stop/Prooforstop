@@ -504,6 +504,29 @@
         "scanEscalationReason": null
       },
       "_hash": "c84cdd1e3f4393d985bf1f9a148673d1ca76e939472d4ab5d71a1349b4136d85"
+    },
+    {
+      "id": "B-62b8:RP-021",
+      "agent": "lattice-review-docs",
+      "note": "Round-9 final bounded docs re-attestation PASS for 1a802b23fc. The commit only updates the exact bin/lattice-codex.js benign-loader source fingerprint in the executable guard and its mirrored process-fact contract assertion. It neither widens the loader exemption nor changes wrapper/runtime behavior, CLI/config/output semantics, or any documented promise. No docs update is required. Build and retired-authority vocabulary guard passed on current material.",
+      "createdAt": "2026-07-18T01:16:25.490Z",
+      "reviewRound": "2026-07-18T01:14:08.901Z",
+      "reviewRunId": "B-62b8:RR-040",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "bin/lattice-codex.js",
+          "docs/CLI.md",
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9cdf7c845a050c8e79e235f84a4685cdad0cec440b86f84a051a7a666945a61c"
     }
   ]
 }
