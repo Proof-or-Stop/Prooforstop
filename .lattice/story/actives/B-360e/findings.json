@@ -29,6 +29,25 @@
       "_hash": "f2482b28ce19be80f2f86ba92d6e16ef86998ad5f2ab05485d9ceffcb4b004ee",
       "signatureTag": "adversarial|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-360e:F-003",
+      "desc": "packages/main/src/core/prompt-role-contract-registry.ts:249 The supposedly frozen lifecycle registry does not fail closed on replacement drift. validatePromptRoleContracts checks membership, the 12/3/1 partition, retired-channel/default status, and compatibility status, but never verifies the accepted exact mappings (test-intent/test-case-reviewer -> verification-intent and implementation-reviewer -> quality+behavior guidance). Reproducer against the built module: clone PROMPT_ROLE_CONTRACTS, change test-intent.replacementAgentType to lattice-review-quality, then call validatePromptRoleContracts(...); it returns successfully (ACCEPTED_INVALID_REPLACEMENT). This directly violates CHK-004's requirement that replacement metadata violating frozen policy be rejected and would let a semantically different compatibility migration target retain an admissible registry shape.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-18T00:11:19.017Z",
+      "reviewRound": "2026-07-18T00:08:34.511Z",
+      "reviewRunId": "B-360e:RR-003",
+      "_hash": "d5edef2b7d804959bd4f292352fea4666d9679fcfab9979648fdea01f953266e",
+      "files": [
+        "packages/main/src/core/prompt-role-contract-registry.ts",
+        "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
