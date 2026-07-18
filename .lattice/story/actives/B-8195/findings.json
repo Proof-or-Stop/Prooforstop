@@ -107,7 +107,7 @@
       "desc": "packages/main/src/core/auto-commit-metadata.ts:234-253 — MEDIUM: `commitLifecycleMetadataTransaction` promises rollback on every commit/concurrency failure, but the HEAD read and managed-file digest reads execute outside its try/catch. A git read failure or filesystem race throws past `rollback`, leaving the transition/terminal bytes dirty and bypassing the function's classified `{ok:false}` contract. Enclose all post-write verification in the rollback guard and add a deterministic injected read/CAS failure test for this lifecycle-specific writer.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-18T10:59:33.692Z",
@@ -115,7 +115,11 @@
       "reviewRunId": "B-8195:RR-002",
       "_hash": "008b1a5c321a7bb93d32892d89d15c2dd336e44b0d3d92efab8dd80c19ca7086",
       "signatureTag": "edge|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 94a0085b13: all post-write HEAD/digest/immutable-commit verification is inside commitLifecycleMetadataTransaction's try/catch (lines 287-328); readLifecycleMetadataOutputHashes classifies filesystem reads, and compare-and-restore preserves concurrent bytes/index state. Focused transaction tests cover writer failure, content race, HEAD CAS, and read failure.",
+      "resolvedAt": "2026-07-18T11:24:57.652Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8195:F-008",
