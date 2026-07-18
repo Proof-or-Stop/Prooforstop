@@ -527,6 +527,26 @@
         "scanEscalationReason": null
       },
       "_hash": "9cdf7c845a050c8e79e235f84a4685cdad0cec440b86f84a051a7a666945a61c"
+    },
+    {
+      "id": "B-62b8:RP-022",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final bounded coverage PASS for 1a802b23fc: full retired-authority vocabulary guard runs to completion, process-fact contract passes, registered fingerprint cardinality and exact-once checks remain, and loader relocation/path/nested/replacement negative controls remain intact.",
+      "createdAt": "2026-07-18T01:16:28.861Z",
+      "reviewRound": "2026-07-18T01:14:08.901Z",
+      "reviewRunId": "B-62b8:RR-041",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b58ef5c69852990fb64951e4cd56a8a062f9f7f12582ca3fb2ccec83ada8428a"
     }
   ]
 }
