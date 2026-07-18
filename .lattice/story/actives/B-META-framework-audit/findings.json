@@ -15,6 +15,24 @@
       "files": [
         "packages/main/src/handlers/delivery-check.ts"
       ]
+    },
+    {
+      "id": "B-META-framework-audit:F-002",
+      "desc": "verification-intent dispatch prompt says Define adversarial acceptance intent only, so all four B-62b8 intent agents populated only adversarial; story_review simultaneously blocks unless happy, edge, and adversarial are all non-empty, deterministically forcing an avoidable second PLAN pass.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "manually logged framework gap; not yet mechanically reproduced or confirmed",
+      "agent": "lattice-gap-log",
+      "createdAt": "2026-07-17T23:01:48.900Z",
+      "reviewRound": "",
+      "_hash": "3a418d022cf1882bb33dcfa2f4f8666d844e5c9082713b57f6825a8053c10245",
+      "gapFingerprint": "89bfeb2f889a3b40ebf7e519cad221874ed72a3ef3945c108a3a45774cc4c546",
+      "files": [
+        "packages/main/src/core/story-dispatch.ts",
+        "packages/main/src/handlers/story-review.ts"
+      ]
     }
   ]
 }
