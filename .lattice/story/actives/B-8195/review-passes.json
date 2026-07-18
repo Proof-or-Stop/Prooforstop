@@ -41,6 +41,44 @@
         "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
       },
       "_hash": "51e62a6a41557dc65869d55929c236e0cbe223f3ba05e78a5c9efc653cbb8fde"
+    },
+    {
+      "id": "B-8195:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted round-2 coverage review confirms F-008 is fixed: all 20 must intents now have substantive direct or regression assertions, including real transition-to-validate zero-command reuse, exact lifecycle path sets, rollback/CAS/content races, both hook caller boundaries, forged/human dirt and repeated idempotence. Focused smoke passed.",
+      "createdAt": "2026-07-18T11:25:36.724Z",
+      "reviewRound": "2026-07-18T11:21:09.447Z",
+      "reviewRunId": "B-8195:RR-007",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "0548df7421e21de1cb4bef40a25fd241da4bf005e89bb5328643a341629e30dc"
     }
   ]
 }
