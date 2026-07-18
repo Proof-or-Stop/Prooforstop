@@ -43,7 +43,7 @@
       "desc": "packages/main/src/core/owner-session-adapters.ts:26-31,63-68 and 130-138 never consume the real Codex task signal CODEX_THREAD_ID and there is no direct Codex wrapper/adapter injection path for LATTICE_OWNER_SESSION_ADAPTER_TASK plus AGENT. In this live Codex task, the environment has CODEX_THREAD_ID but none of CODEX_SESSION_ID/OPENAI_SESSION_ID/TERM_SESSION_ID/LATTICE_AGENT; `env -u LATTICE_SESSION_ID node bin/lattice.js session_brief` therefore reports `[derived-ppid]`. WHY: the shipped path still requires the same manual LATTICE_SESSION_ID workaround and does not solve cross-shell self-lock for the ordinary Codex owner task, despite CHK-001/002 claiming supported adapter stability. Add a validated direct-host bridge that maps the actual durable Codex task signal plus a policy-distinct main/agent role into the canonical composite, with child-shell propagation and a real CLI regression proving two PPIDs keep one id while another task/role differs.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-17T23:30:49.144Z",
@@ -51,7 +51,11 @@
       "reviewRunId": "B-62b8:RR-001",
       "_hash": "c2e469810830cb398a196cded8c2ede05006912976be2df0ff51c47d21effd3c",
       "signatureTag": "missing|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by a2f141b9ec: CODEX_THREAD_ID is consumed by the shared adapter resolver, direct native task defaults to main role, nested parent processes converge, roles isolate, and raw thread id is not serialized. Round-5 concept pass reconfirmed live wrapper behavior.",
+      "resolvedAt": "2026-07-18T00:36:22.072Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-62b8:F-004",
