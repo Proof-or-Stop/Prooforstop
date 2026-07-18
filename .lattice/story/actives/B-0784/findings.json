@@ -54,7 +54,7 @@
       "desc": "The policy truth sources were not synchronized with the shipped shared-metadata gate. lifecycle-artifact-scope.md still states there are only three classifier outputs and does not specify the exact B-META path, official gap_log whole-artifact binding, fail-closed mismatch/forgery/copy/symlink behavior, or that scope and done_prepare share this classifier. workflow-convergence-failure-remediation-execution-plan.md also lacks the shipped repo-relative-v1 / TypeScript AST version and independent rollout contract. Update those two canonical decision docs minimally so operational policy matches the new L4 process fact and code.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-18T02:14:26.706Z",
@@ -68,7 +68,11 @@
         "packages/main/src/core/process-fact-levels.ts"
       ],
       "signatureTag": "doc-code-drift|md|policy-truth-sources",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "4106eb3531 synchronizes lifecycle-artifact-scope.md and workflow-convergence-failure-remediation-execution-plan.md with shipped canonicalization, AST, rollout, and B-META provenance behavior.",
+      "resolvedAt": "2026-07-18T02:37:48.259Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0784:F-004",
