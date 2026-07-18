@@ -395,8 +395,8 @@
       "_hash": "10b1f211b18bd5d098db46c0213c3ca9596ba83933f28ecde777a8dcd2d6e3c3",
       "signatureTag": "missing|unknown|packages-main-tasks",
       "signatureTagSource": "auto",
-      "resolvedReason": "Fixed by 1a802b23fc: enumerated all registered benign non-literal loader fingerprints; bootstrap-runner already matched, and only the story-modified bin/lattice-codex.js exact canonical AST fingerprint was repinned while its main anchor, exact pathToFileURL argument, sibling path, and negative controls remained unchanged. Full vocabulary guard and process-fact contract PASS.",
-      "resolvedAt": "2026-07-18T01:14:21.696Z",
+      "resolvedReason": "Fixed in 1a802b23fc: bin/lattice-codex.js exact canonical AST hash independently recomputes to 4df693798fca7584fd2666249134120b891d6336ff433768891b5ed6483da1b8 and is mirrored in the process-fact contract. All six benign loaders match their finite fingerprints; bootstrap remains unchanged. Full retired-authority guard and process-fact contract PASS.",
+      "resolvedAt": "2026-07-18T01:16:04.498Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
