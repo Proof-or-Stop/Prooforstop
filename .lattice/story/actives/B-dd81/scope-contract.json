@@ -64,9 +64,26 @@
   ],
   "explicitExcludes": [],
   "scopeChangeReason": "Expand only to resolve verified F-006/F-008: add proof-admissibility.ts so host-verdict is modeled as the actual signed REVIEW/review-pass proof surface instead of an incorrect handoff-pack alias; retain host-render/dispatch binding and adapter identity changes. No incremental, A/B, budget or release scope.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Required by verified F-011/F-012: normalize supported codex-cli and claude-cli provider aliases explicitly while preserving antigravity/fake/unknown identities so full-envelope dispatch can fail closed instead of silently aliasing them to Codex.",
+      "timestamp": "2026-07-18T23:22:39.966Z",
+      "paths": [
+        "packages/main/src/core/owner-session-adapters.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/owner-session-adapters.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "8dffb0df69d568a2969f95b417d04b7a5bcc00ce",
+      "materialHash": "88a102b9ce0f246898640c21c8719f7cae8355eef6c171d55d64eec0169df820"
+    }
+  ],
   "createdAt": "2026-07-18T20:25:02.600Z",
-  "updatedAt": "2026-07-18T22:11:22.629Z",
+  "updatedAt": "2026-07-18T23:22:39.966Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -122,6 +139,7 @@
     ".lattice-codex/agents/lattice-review-docs.md": ".lattice-codex/agents/lattice-review-docs.md",
     "packages/main/src/tasks/codex-registry-mode-smoke.ts": "packages/main/src/tasks/codex-registry-mode-smoke.ts",
     "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts",
-    "packages/main/src/core/proof-admissibility.ts": "packages/main/src/core/proof-admissibility.ts"
+    "packages/main/src/core/proof-admissibility.ts": "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/core/owner-session-adapters.ts": "packages/main/src/core/owner-session-adapters.ts"
   }
 }
