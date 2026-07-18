@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-d877",
+  "checkedAt": "2026-07-18T13:57:02.690Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "e330b0c496a4ab4b3227e4a5eb2f111efb724de9186ce7051c49ca3c4901a7ac",
+  "executionBoundaryHash": "174a287a42ef48563e40d1ca8ca2c2e1c76c7d399ffdd53689b3e28c2ef09ded",
+  "freshnessHash": "6e370302d1c651394e66651dd6d73d06f572372e39f6977e9c95dcd56c6807ad",
+  "effectiveExcludedKeywords": [
+    "Any change to what runStoryTransition gates already enforce",
+    "Authority",
+    "customerKeyRef",
+    "Language-neutral classifier (W1)",
+    "Layer4",
+    "RED evidence subsystem (W2)",
+    "repair UX",
+    "The new DEV->REVIEW evidence gate (W3)",
+    "validation lock root / digest cwd (S2)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any change to what runStoryTransition gates already enforce",
+      "source": "scopeBoundary.excluded",
+      "text": "Any change to what runStoryTransition gates already enforce",
+      "excluded": true
+    },
+    {
+      "keyword": "Language-neutral classifier (W1)",
+      "source": "scopeBoundary.excluded",
+      "text": "Language-neutral classifier (W1)",
+      "excluded": true
+    },
+    {
+      "keyword": "RED evidence subsystem (W2)",
+      "source": "scopeBoundary.excluded",
+      "text": "RED evidence subsystem (W2)",
+      "excluded": true
+    },
+    {
+      "keyword": "The new DEV->REVIEW evidence gate (W3)",
+      "source": "scopeBoundary.excluded",
+      "text": "The new DEV->REVIEW evidence gate (W3)",
+      "excluded": true
+    },
+    {
+      "keyword": "validation lock root / digest cwd (S2)",
+      "source": "scopeBoundary.excluded",
+      "text": "validation lock root / digest cwd (S2)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "dc340752d5539ad4d4ea62f476736845ef51d9a49a40389bc8960bf79a0873fb"
+}
