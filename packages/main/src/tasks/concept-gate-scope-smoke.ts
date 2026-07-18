@@ -501,6 +501,92 @@ const validBinaryDiff = analyzeDeletedSymbols([
 assert.deepEqual(validBinaryDiff.symbols, []);
 assert.deepEqual(validBinaryDiff.diagnostics, [], 'binary diff behavior remains non-textual and diagnostic-free');
 
+const samePathWithDelimiter = analyzeDeletedSymbols([
+  'diff --git a/src/left b/segment.ts b/src/left b/segment.ts',
+  'similarity index 100%',
+].join('\n'));
+assert.deepEqual(samePathWithDelimiter.symbols, []);
+assert.deepEqual(samePathWithDelimiter.diagnostics, [], 'exact same-path symmetry resolves literal b/ delimiters without guessing');
+
+const hunkCorroboratedDelimiter = analyzeDeletedSymbols([
+  'diff --git a/src/left b/segment.ts b/src/left b/segment.ts',
+  '--- a/src/left b/segment.ts',
+  '+++ b/src/left b/segment.ts',
+  '@@ -1 +1 @@',
+  '-export function delimiterPathBody() { return true; }',
+  '+export function delimiterPathBody() { return false; }',
+].join('\n'));
+assert.deepEqual(hunkCorroboratedDelimiter.symbols, []);
+assert.deepEqual(hunkCorroboratedDelimiter.diagnostics, [], 'side headers resolve same-path literal b/ delimiters');
+
+for (const kind of ['rename', 'copy'] as const) {
+  const metadataCorroboratedDelimiter = analyzeDeletedSymbols([
+    'diff --git a/src/old b/segment.ts b/src/new b/segment.ts',
+    `${kind} from src/old b/segment.ts`,
+    `${kind} to src/new b/segment.ts`,
+  ].join('\n'));
+  assert.deepEqual(metadataCorroboratedDelimiter.symbols, []);
+  assert.deepEqual(metadataCorroboratedDelimiter.diagnostics, [], `${kind} metadata resolves literal b/ delimiters and spaces`);
+}
+
+const ambiguousUnquotedHeader = analyzeDeletedSymbols(
+  'diff --git a/src/one b/two.ts b/src/three b/four.ts',
+);
+assert.ok(
+  ambiguousUnquotedHeader.diagnostics.some(diagnostic => /unquoted diff header path is unresolved after corroboration/.test(diagnostic)),
+  'an uncorroborated multi-candidate header fails closed instead of choosing first or last',
+);
+
+for (const [name, diff] of [
+  [
+    'supported replacement',
+    [
+      'diff --git a/src/runtime.ts b/src/runtime.ts',
+      'Binary files a/src/runtime.ts and b/src/runtime.ts differ',
+    ].join('\n'),
+  ],
+  [
+    'supported addition with null',
+    [
+      'diff --git a/src/added.js b/src/added.js',
+      'new file mode 100644',
+      'Binary files /dev/null and b/src/added.js differ',
+    ].join('\n'),
+  ],
+  [
+    'supported deletion with null',
+    [
+      'diff --git a/src/deleted.py b/src/deleted.py',
+      'deleted file mode 100644',
+      'Binary files a/src/deleted.py and /dev/null differ',
+    ].join('\n'),
+  ],
+  [
+    'supported rename',
+    [
+      'diff --git a/src/old.ts b/src/new.ts',
+      'rename from src/old.ts',
+      'rename to src/new.ts',
+      'Binary files a/src/old.ts and b/src/new.ts differ',
+    ].join('\n'),
+  ],
+  [
+    'supported copy',
+    [
+      'diff --git a/src/base.mjs b/src/copy.mjs',
+      'copy from src/base.mjs',
+      'copy to src/copy.mjs',
+      'GIT binary patch',
+    ].join('\n'),
+  ],
+] as const) {
+  const analysis = analyzeDeletedSymbols(diff);
+  assert.ok(
+    analysis.diagnostics.some(diagnostic => /binary diff touches supported declaration-bearing source path/.test(diagnostic)),
+    `${name} must fail closed instead of hiding declarations in binary content`,
+  );
+}
+
 for (const [oldToken, newToken, symbol] of [
   ['"a/src/\\303\\251.ts"', '"b/src/\\303\\251.ts"', 'unicodeQuotedDeletion'],
   ['"a/src/tab\\tname.ts"', '"b/src/tab\\tname.ts"', 'tabQuotedDeletion'],

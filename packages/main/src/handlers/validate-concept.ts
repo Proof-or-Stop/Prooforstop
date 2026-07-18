@@ -147,6 +147,11 @@ interface ParsedGitPath {
   end: number;
 }
 
+interface DiffPathCandidate {
+  oldPath: string;
+  newPath: string;
+}
+
 function parseQuotedGitPath(input: string, start = 0): ParsedGitPath {
   if (input[start] !== '"') throw new Error('expected opening quote');
   const bytes: number[] = [];
@@ -209,7 +214,7 @@ function stripGitSidePrefix(path: string, prefix: 'a/' | 'b/'): string {
   return path.slice(prefix.length);
 }
 
-function parseDiffGitPaths(input: string): { oldPath: string; newPath: string } {
+function parseDiffGitPaths(input: string): DiffPathCandidate[] {
   if (input.startsWith('"')) {
     const oldToken = parseQuotedGitPath(input);
     let cursor = oldToken.end;
@@ -219,17 +224,25 @@ function parseDiffGitPaths(input: string): { oldPath: string; newPath: string } 
       ? parseQuotedGitPath(input, cursor)
       : { value: input.slice(cursor), end: input.length };
     if (input.slice(newToken.end).trim() !== '') throw new Error('diff path pair has trailing content');
-    return {
+    return [{
       oldPath: stripGitSidePrefix(oldToken.value, 'a/'),
       newPath: stripGitSidePrefix(newToken.value, 'b/'),
-    };
+    }];
   }
-  const separator = input.indexOf(' b/');
-  if (!input.startsWith('a/') || separator < 0) throw new Error('diff path pair is malformed');
-  return {
-    oldPath: input.slice(2, separator),
-    newPath: input.slice(separator + 3),
-  };
+  if (!input.startsWith('a/')) throw new Error('diff path pair is malformed');
+  const candidates: DiffPathCandidate[] = [];
+  let cursor = 0;
+  while (true) {
+    const separator = input.indexOf(' b/', cursor);
+    if (separator < 0) break;
+    candidates.push({
+      oldPath: input.slice(2, separator),
+      newPath: input.slice(separator + 3),
+    });
+    cursor = separator + 1;
+  }
+  if (candidates.length === 0) throw new Error('diff path pair has no syntactically possible b/ delimiter');
+  return candidates;
 }
 
 function diffFileSources(diff: string): DiffFileSources[] {
@@ -238,6 +251,7 @@ function diffFileSources(diff: string): DiffFileSources[] {
   let current: {
     oldPath: string;
     newPath: string;
+    headerCandidates: DiffPathCandidate[];
     oldSourcePath: string;
     newSourcePath: string;
     oldLines: string[];
@@ -259,6 +273,45 @@ function diffFileSources(diff: string): DiffFileSources[] {
   const flush = () => {
     if (!current) return;
     const metadataDiagnostics: string[] = [];
+    const oldSide = current.oldSideHeaders.at(-1);
+    const newSide = current.newSideHeaders.at(-1);
+    const metadataOld = [...current.renameFrom, ...current.copyFrom];
+    const metadataNew = [...current.renameTo, ...current.copyTo];
+    if (
+      (oldSide === '/dev/null' || newSide === '/dev/null')
+      && !current.headerCandidates.some(candidate => candidate.oldPath === candidate.newPath)
+    ) {
+      metadataDiagnostics.push('/dev/null patch header identities must describe the same path');
+    }
+    const hasCorroboration = oldSide !== undefined
+      || newSide !== undefined
+      || metadataOld.length > 0
+      || metadataNew.length > 0;
+    let authorityCandidates = current.headerCandidates.filter(candidate => {
+      if (oldSide !== undefined && oldSide !== '/dev/null' && candidate.oldPath !== oldSide) return false;
+      if (newSide !== undefined && newSide !== '/dev/null' && candidate.newPath !== newSide) return false;
+      if (metadataOld.some(path => path !== candidate.oldPath)) return false;
+      if (metadataNew.some(path => path !== candidate.newPath)) return false;
+      if (
+        (oldSide === '/dev/null' || newSide === '/dev/null')
+        && candidate.oldPath !== candidate.newPath
+      ) return false;
+      return true;
+    });
+    if (!hasCorroboration && current.headerCandidates.length > 1) {
+      authorityCandidates = authorityCandidates.filter(candidate => candidate.oldPath === candidate.newPath);
+    }
+    if (authorityCandidates.length === 1) {
+      current.oldPath = authorityCandidates[0]!.oldPath;
+      current.newPath = authorityCandidates[0]!.newPath;
+      if (current.oldSideHeaders.length === 0) current.oldSourcePath = current.oldPath;
+      if (current.newSideHeaders.length === 0) current.newSourcePath = current.newPath;
+    } else {
+      metadataDiagnostics.push(
+        `unquoted diff header path is ${authorityCandidates.length === 0 ? 'unresolved' : 'ambiguous'} after corroboration (${authorityCandidates.length} candidate(s))`,
+      );
+      current.metadataMalformed = true;
+    }
     const hasRename = current.renameFrom.length > 0 || current.renameTo.length > 0;
     const hasCopy = current.copyFrom.length > 0 || current.copyTo.length > 0;
     if (hasRename && hasCopy) {
@@ -283,6 +336,12 @@ function diffFileSources(diff: string): DiffFileSources[] {
     };
     if (hasRename) validateMetadataPair('rename', current.renameFrom, current.renameTo);
     if (hasCopy) validateMetadataPair('copy', current.copyFrom, current.copyTo);
+    if (oldSide !== undefined && oldSide !== '/dev/null' && oldSide !== current.oldPath) {
+      metadataDiagnostics.push(`--- path ${oldSide} does not match authoritative old path ${current.oldPath}`);
+    }
+    if (newSide !== undefined && newSide !== '/dev/null' && newSide !== current.newPath) {
+      metadataDiagnostics.push(`+++ path ${newSide} does not match authoritative new path ${current.newPath}`);
+    }
     if (current.oldSideHeaders.length !== current.newSideHeaders.length) {
       metadataDiagnostics.push('patch side headers must contain a complete ---/+++ pair');
     }
@@ -325,6 +384,25 @@ function diffFileSources(diff: string): DiffFileSources[] {
     if (current.newSourcePath === '/dev/null' && current.addedContentCount > 0) {
       metadataDiagnostics.push('deletion patch cannot contain added content');
     }
+    if (current.phase === 'binary') {
+      const binaryEndpoints = new Set([
+        current.oldPath,
+        current.newPath,
+        current.oldSourcePath,
+        current.newSourcePath,
+        ...current.renameFrom,
+        ...current.renameTo,
+        ...current.copyFrom,
+        ...current.copyTo,
+      ]);
+      const supportedBinaryPaths = [...binaryEndpoints]
+        .filter(path => path !== '/dev/null' && isSupportedDeclarationPath(path));
+      if (supportedBinaryPaths.length > 0) {
+        metadataDiagnostics.push(
+          `binary diff touches supported declaration-bearing source path(s): ${supportedBinaryPaths.join(', ')}`,
+        );
+      }
+    }
     diagnostics.push(...metadataDiagnostics.map(message => `diff metadata: ${message}`));
     const validCopy = hasCopy
       && !hasRename
@@ -342,11 +420,13 @@ function diffFileSources(diff: string): DiffFileSources[] {
     if (line.startsWith('diff --git ')) {
       flush();
       try {
-        const paths = parseDiffGitPaths(line.slice('diff --git '.length));
+        const headerCandidates = parseDiffGitPaths(line.slice('diff --git '.length));
         current = {
-          ...paths,
-          oldSourcePath: paths.oldPath,
-          newSourcePath: paths.newPath,
+          oldPath: '',
+          newPath: '',
+          headerCandidates,
+          oldSourcePath: '/dev/null',
+          newSourcePath: '/dev/null',
           oldLines: [],
           newLines: [],
           oldSideHeaders: [],
@@ -397,12 +477,7 @@ function diffFileSources(diff: string): DiffFileSources[] {
         }
         const path = stripGitSidePrefix(parseSingleGitPath(line.slice(4)), 'a/');
         current.oldSideHeaders.push(path);
-        if (path !== '/dev/null' && path !== current.oldPath) {
-          diagnostics.push(`diff path: --- path ${path} does not match authoritative old path ${current.oldPath}`);
-          current.metadataMalformed = true;
-        } else {
-          current.oldSourcePath = path;
-        }
+        current.oldSourcePath = path;
         current.phase = 'old-side';
       } else if (line.startsWith('+++ ')) {
         if (current.phase !== 'old-side' || current.sawPatchContent || current.newSideHeaders.length > 0) {
@@ -412,12 +487,7 @@ function diffFileSources(diff: string): DiffFileSources[] {
         }
         const path = stripGitSidePrefix(parseSingleGitPath(line.slice(4)), 'b/');
         current.newSideHeaders.push(path);
-        if (path !== '/dev/null' && path !== current.newPath) {
-          diagnostics.push(`diff path: +++ path ${path} does not match authoritative new path ${current.newPath}`);
-          current.metadataMalformed = true;
-        } else {
-          current.newSourcePath = path;
-        }
+        current.newSourcePath = path;
         current.phase = 'side-pair';
       } else if (line.startsWith('rename from ')) {
         if (current.phase !== 'metadata' || current.sawPatchContent) {
@@ -532,6 +602,12 @@ function declarationName(node: ts.NamedDeclaration, source: ts.SourceFile): stri
 const TYPESCRIPT_DECLARATION_EXTENSION = /\.(?:ts|tsx|mts|cts)$/i;
 const JAVASCRIPT_DECLARATION_EXTENSION = /\.(?:js|jsx|mjs|cjs)$/i;
 const PYTHON_DECLARATION_EXTENSION = /\.py$/i;
+
+function isSupportedDeclarationPath(path: string): boolean {
+  return TYPESCRIPT_DECLARATION_EXTENSION.test(path)
+    || JAVASCRIPT_DECLARATION_EXTENSION.test(path)
+    || PYTHON_DECLARATION_EXTENSION.test(path);
+}
 
 function scriptKindForDeclarationFile(file: string): ts.ScriptKind {
   if (/\.tsx$/i.test(file)) return ts.ScriptKind.TSX;
