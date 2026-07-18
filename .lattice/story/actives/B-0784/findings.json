@@ -624,7 +624,7 @@
       "desc": "BUG-001 incremental review: scope_diff_pack resolves the correct story Git cwd, but passes that inner gitCwd as the sole buildScopeDiffPack(projectRoot) argument. buildScopeDiffPack also calls loadConfig(projectRoot), and runScopeGate/checkScopeContract similarly use the resolved Git cwd as the config/canonicalization root. In a wrapper-root layout where lattice.config.json lives at metadataRoot and gitRoot is a nested repo, the configured scope policy is silently ignored. Focused runtime repro: wrapper config astAnchors=off, buildScopeDiffPack(innerRepo) observed astAnchorMode=enforce with one AST hunk. Separate metadataRoot/configRoot from gitCwd: load config and canonicalize against metadataRoot while routing only Git reads/current files to the resolved signed workspace, then add a wrapper-root scope_diff_pack/gate regression test.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-18T03:58:39.459Z",
@@ -636,7 +636,11 @@
         "packages/main/src/handlers/scope-contract.ts"
       ],
       "signatureTag": "edge|ts|incremental-review-scope",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 671e9d77fe separates metadataRoot configuration/canonicalization from gitCwd diff and source reads across the scope gate call chain; wrapper config regression is asserted.",
+      "resolvedAt": "2026-07-18T04:07:05.291Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
