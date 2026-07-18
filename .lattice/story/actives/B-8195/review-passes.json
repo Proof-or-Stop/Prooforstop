@@ -826,6 +826,29 @@
         "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
       },
       "_hash": "aa1aa81f304feabef2cbafe24ea5d8f46cec4a9146bc0d3a7c4b999f795d642f"
+    },
+    {
+      "id": "B-8195:RP-025",
+      "agent": "lattice-review-quality",
+      "note": "Post-main-merge incremental review passed. The independent prompt-measurement observation assertion is additive and does not alter the validation writer contract. F-012 remains protected by exact two-call enforcement, function-local reuse/executed assertions, and mutation bite. Commit 1ea395a206 precisely expects validate-stage canonical persistence failure, pre-commit error propagation, no PASS, unchanged HEAD, full index/worktree rollback for bounded metadata, and no validation reuse claim.",
+      "createdAt": "2026-07-18T21:38:55.627Z",
+      "reviewRound": "2026-07-18T21:37:54.145Z",
+      "reviewRunId": "B-8195:RR-033",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "6cf593ce289659fab53f4597ff01c55608ff8ec52584d0905f635777dace1ed2"
     }
   ]
 }
