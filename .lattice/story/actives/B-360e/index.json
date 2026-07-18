@@ -4,7 +4,7 @@
   "title": "Story 1: establish role-prompt contracts and a no-output-drift measurement baseline",
   "description": "Implement Story 1 of the accepted role-prompt modularization plan: add versioned Runtime Contract, Role Contract, Prompt Envelope, and PromptMeasurementRecord structures; mechanically freeze the 16-role lifecycle matrix; and expose reproducible prompt-cost measurements while preserving every existing agent_prompt output byte-for-byte. This Story records measurement sidecars only and must not create Story-bound Prompt Envelopes or change dispatch behavior.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DEV",
   "priority": "high",
   "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
   "keywords": [
@@ -335,6 +335,15 @@
       "phase": "TEST",
       "action": "advance",
       "timestamp": "2026-07-18T11:28:25.517Z",
+      "branch": "story/B-360e",
+      "user": "Harmonygo",
+      "sessionId": "sess-61f03d29ed66512b",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-18T11:46:57.885Z",
       "branch": "story/B-360e",
       "user": "Harmonygo",
       "sessionId": "sess-61f03d29ed66512b",
