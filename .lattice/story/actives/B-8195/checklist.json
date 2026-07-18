@@ -124,7 +124,8 @@
       "title": "Verify one-shot convergence and fail-closed security boundaries",
       "context": "The real TEST transition followed by mandatory validate must return PASS, disposition reused and commandExecutions=0 in one invocation with a clean tree. Human confirmation, forged event, malformed receipt, unrelated dirty source/config, concurrent HEAD change and writer failure must remain rejected or roll back safely.",
       "relatedDocs": [
-        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#acceptance"
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#acceptance",
+        "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
       ],
       "status": "pending",
       "startTime": null,
@@ -185,7 +186,8 @@
           "packages/main/src/core/process-fact-levels.ts",
           "packages/main/src/core/process-fact-registry.ts",
           "scripts/verify-process-fact-contract.mjs",
-          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
         ],
         "create": [],
         "test": [
