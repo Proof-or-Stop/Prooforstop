@@ -90,6 +90,66 @@
           }
         ]
       }
+    },
+    {
+      "id": "CHK-003",
+      "title": "Record the resolved physical workspace path as non-digested provenance",
+      "context": "When the command-spec digest switches to a repo-relative logical cwd (CHK-002), the resolved absolute/physical workspace path must still be recorded in the envelope as a separate, NON-digested provenance field, so operators can see where a command actually ran without the physical path affecting cross-host digest equality.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-231d/background.md"
+      ],
+      "userSees": "The command-spec envelope carries the resolved physical cwd as a provenance field that is NOT part of the digest; two roots produce the same digest but each records its own physical provenance.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/done-required-validation.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-portability-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:happy:0",
+            "desc": "the command-spec envelope records the resolved physical cwd as a provenance field that is excluded from the digest.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:edge:0",
+            "desc": "two different physical roots yield the same digest but different provenance values.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:adversarial:0",
+            "desc": "altering only the provenance field does not change the digest; altering the logical cwd does.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-18T23:19:45.461Z",
+      "phase": "PLAN",
+      "itemId": "CHK-003",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Scope reviewer correctly flagged the decision.json-affirmed provenance principle as an in-scope feature with no covering checklist title; add it explicitly.",
+      "addedTitle": "Record the resolved physical workspace path as non-digested provenance",
+      "addedContext": "When the command-spec digest switches to a repo-relative logical cwd (CHK-002), the resolved absolute/physical workspace path must still be recorded in the envelope as a separate, NON-digested provenance field, so operators can see where a command actually ran without the physical path affecting cross-host digest equality."
     }
   ]
 }
