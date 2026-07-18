@@ -69,7 +69,7 @@
       "desc": "packages/main/src/cli-engine.ts:1238-1253,1382-1398 — HIGH: the new Codex terminal transaction is committed before `postCommand` hooks run. A configured postCommand hook can append/mutate process-events.jsonl after the exact-path commit, so story_advance TEST still returns success with canonical metadata dirty and the immediately following validate repeats the canonical-pass-persistence-failed loop. This violates CHK-002 adversarial:1 / CHK-003 adversarial:2. Run hooks before the terminal capture/write/commit, or include their completion inside a final exact-delta boundary and add a production-path postCommand mutation regression.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-18T10:59:27.078Z",
@@ -77,7 +77,11 @@
       "reviewRunId": "B-8195:RR-002",
       "_hash": "8a78c611e50e4976dd6b87929c6359fbb77f9ae2c7f8c4e576741aa8ce594832",
       "signatureTag": "adversarial|unknown|packages-main-engine",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 94a0085b13: cli-engine.ts now completes postCommand hooks before capturing/appending/committing the canonical terminal row (lines 1410-1455). The production-path postCommand mutation regression asserts nonzero outcome, preserves foreign bytes, and never prints PASS; focused validation-evidence-reuse smoke passed this scenario.",
+      "resolvedAt": "2026-07-18T11:24:52.280Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8195:F-006",
