@@ -127,6 +127,7 @@ interface DiffFileSources {
   newPath: string;
   oldSource: string;
   newSource: string;
+  copy: boolean;
 }
 
 interface DeclarationIdentity {
@@ -139,9 +140,109 @@ interface DeletedSymbolAnalysis {
   diagnostics: string[];
 }
 
+const DIFF_SOURCE_DIAGNOSTICS = new WeakMap<DiffFileSources[], string[]>();
+
+interface ParsedGitPath {
+  value: string;
+  end: number;
+}
+
+function parseQuotedGitPath(input: string, start = 0): ParsedGitPath {
+  if (input[start] !== '"') throw new Error('expected opening quote');
+  const bytes: number[] = [];
+  for (let index = start + 1; index < input.length; index += 1) {
+    const character = input[index]!;
+    if (character === '"') {
+      let value: string;
+      try {
+        value = new TextDecoder('utf-8', { fatal: true }).decode(Uint8Array.from(bytes));
+      } catch {
+        throw new Error('quoted path contains invalid UTF-8 bytes');
+      }
+      return { value, end: index + 1 };
+    }
+    if (character !== '\\') {
+      const codePoint = input.codePointAt(index)!;
+      bytes.push(...Buffer.from(String.fromCodePoint(codePoint), 'utf8'));
+      if (codePoint > 0xffff) index += 1;
+      continue;
+    }
+    const escaped = input[index + 1];
+    if (escaped === undefined) throw new Error('quoted path ends with an escape');
+    if (/[0-7]/.test(escaped)) {
+      const octal = input.slice(index + 1).match(/^[0-7]{1,3}/)?.[0] ?? '';
+      const value = Number.parseInt(octal, 8);
+      if (value > 0xff) throw new Error(`quoted path octal escape is outside one byte: \\${octal}`);
+      bytes.push(value);
+      index += octal.length;
+      continue;
+    }
+    const standardEscapes: Record<string, number> = {
+      a: 7,
+      b: 8,
+      t: 9,
+      n: 10,
+      v: 11,
+      f: 12,
+      r: 13,
+      '"': 34,
+      '\\': 92,
+    };
+    const decoded = standardEscapes[escaped];
+    if (decoded === undefined) throw new Error(`quoted path contains unsupported escape \\${escaped}`);
+    bytes.push(decoded);
+    index += 1;
+  }
+  throw new Error('quoted path is missing its closing quote');
+}
+
+function parseSingleGitPath(input: string): string {
+  if (!input.startsWith('"')) return input;
+  const parsed = parseQuotedGitPath(input);
+  if (input.slice(parsed.end).trim() !== '') throw new Error('quoted path has trailing content');
+  return parsed.value;
+}
+
+function stripGitSidePrefix(path: string, prefix: 'a/' | 'b/'): string {
+  if (path === '/dev/null') return path;
+  if (!path.startsWith(prefix)) throw new Error(`path must start with ${prefix}`);
+  return path.slice(prefix.length);
+}
+
+function parseDiffGitPaths(input: string): { oldPath: string; newPath: string } {
+  if (input.startsWith('"')) {
+    const oldToken = parseQuotedGitPath(input);
+    let cursor = oldToken.end;
+    if (input[cursor] !== ' ') throw new Error('quoted diff path pair is missing a separator');
+    while (input[cursor] === ' ') cursor += 1;
+    const newToken = input[cursor] === '"'
+      ? parseQuotedGitPath(input, cursor)
+      : { value: input.slice(cursor), end: input.length };
+    if (input.slice(newToken.end).trim() !== '') throw new Error('diff path pair has trailing content');
+    return {
+      oldPath: stripGitSidePrefix(oldToken.value, 'a/'),
+      newPath: stripGitSidePrefix(newToken.value, 'b/'),
+    };
+  }
+  const separator = input.indexOf(' b/');
+  if (!input.startsWith('a/') || separator < 0) throw new Error('diff path pair is malformed');
+  return {
+    oldPath: input.slice(2, separator),
+    newPath: input.slice(separator + 3),
+  };
+}
+
 function diffFileSources(diff: string): DiffFileSources[] {
   const files: DiffFileSources[] = [];
-  let current: { oldPath: string; newPath: string; oldLines: string[]; newLines: string[] } | null = null;
+  const diagnostics: string[] = [];
+  let current: {
+    oldPath: string;
+    newPath: string;
+    oldLines: string[];
+    newLines: string[];
+    copy: boolean;
+  } | null = null;
+  let invalidSection = false;
   const flush = () => {
     if (!current) return;
     files.push({
@@ -149,47 +250,69 @@ function diffFileSources(diff: string): DiffFileSources[] {
       newPath: current.newPath,
       oldSource: current.oldLines.join('\n'),
       newSource: current.newLines.join('\n'),
+      copy: current.copy,
     });
   };
   for (const line of diff.split('\n')) {
-    const header = /^diff --git a\/(.+?) b\/(.+)$/.exec(line);
-    if (header) {
+    if (line.startsWith('diff --git ')) {
       flush();
-      current = {
-        oldPath: header[1]!,
-        newPath: header[2]!,
-        oldLines: [],
-        newLines: [],
-      };
+      try {
+        const paths = parseDiffGitPaths(line.slice('diff --git '.length));
+        current = { ...paths, oldLines: [], newLines: [], copy: false };
+        invalidSection = false;
+      } catch (error) {
+        diagnostics.push(`diff path: ${error instanceof Error ? error.message : String(error)}`);
+        current = null;
+        invalidSection = true;
+      }
       continue;
     }
     if (!current) {
+      if (invalidSection) continue;
       current = {
         oldPath: '__fragment__.ts',
         newPath: '__fragment__.ts',
         oldLines: [],
         newLines: [],
+        copy: false,
       };
     }
-    if (line.startsWith('@@')) {
-      current.oldLines.push('');
-      current.newLines.push('');
-    } else if (/^--- (?:a\/|\/dev\/null)/.test(line)) {
-      current.oldPath = line.slice(4).replace(/^a\//, '');
-    } else if (/^\+\+\+ (?:b\/|\/dev\/null)/.test(line)) {
-      current.newPath = line.slice(4).replace(/^b\//, '');
-    } else if (line.startsWith('\\ No newline')) {
-      continue;
-    } else if (line.startsWith('-')) {
-      current.oldLines.push(line.slice(1));
-    } else if (line.startsWith('+')) {
-      current.newLines.push(line.slice(1));
-    } else if (line.startsWith(' ')) {
-      current.oldLines.push(line.slice(1));
-      current.newLines.push(line.slice(1));
+    try {
+      if (line.startsWith('@@')) {
+        current.oldLines.push('');
+        current.newLines.push('');
+      } else if (line.startsWith('--- ')) {
+        current.oldPath = stripGitSidePrefix(parseSingleGitPath(line.slice(4)), 'a/');
+      } else if (line.startsWith('+++ ')) {
+        current.newPath = stripGitSidePrefix(parseSingleGitPath(line.slice(4)), 'b/');
+      } else if (line.startsWith('rename from ')) {
+        current.oldPath = parseSingleGitPath(line.slice('rename from '.length));
+      } else if (line.startsWith('rename to ')) {
+        current.newPath = parseSingleGitPath(line.slice('rename to '.length));
+      } else if (line.startsWith('copy from ')) {
+        current.oldPath = parseSingleGitPath(line.slice('copy from '.length));
+        current.copy = true;
+      } else if (line.startsWith('copy to ')) {
+        current.newPath = parseSingleGitPath(line.slice('copy to '.length));
+        current.copy = true;
+      } else if (line.startsWith('\\ No newline')) {
+        continue;
+      } else if (line.startsWith('-')) {
+        current.oldLines.push(line.slice(1));
+      } else if (line.startsWith('+')) {
+        current.newLines.push(line.slice(1));
+      } else if (line.startsWith(' ')) {
+        current.oldLines.push(line.slice(1));
+        current.newLines.push(line.slice(1));
+      }
+    } catch (error) {
+      diagnostics.push(`diff path: ${error instanceof Error ? error.message : String(error)}`);
+      invalidSection = true;
+      current = null;
     }
   }
   flush();
+  DIFF_SOURCE_DIAGNOSTICS.set(files, diagnostics);
   return files;
 }
 
@@ -388,8 +511,9 @@ function collectPythonDeclarations(file: string, sourceText: string): { declarat
 export function analyzeDeletedSymbols(diff: string): DeletedSymbolAnalysis {
   const removed = new Map<string, DeclarationIdentity[]>();
   const added = new Map<string, number>();
-  const diagnostics: string[] = [];
-  for (const file of diffFileSources(diff)) {
+  const reconstructed = diffFileSources(diff);
+  const diagnostics: string[] = [...(DIFF_SOURCE_DIAGNOSTICS.get(reconstructed) ?? [])];
+  for (const file of reconstructed) {
     const collectSide = (path: string, source: string) => {
       if (PYTHON_DECLARATION_EXTENSION.test(path)) {
         return collectPythonDeclarations(path, source);
@@ -402,7 +526,9 @@ export function analyzeDeletedSymbols(diff: string): DeletedSymbolAnalysis {
       }
       return { declarations: [], diagnostics: [] };
     };
-    const oldSide = collectSide(file.oldPath, file.oldSource);
+    const oldSide = file.copy
+      ? { declarations: [], diagnostics: [] }
+      : collectSide(file.oldPath, file.oldSource);
     const newSide = collectSide(file.newPath, file.newSource);
     diagnostics.push(...oldSide.diagnostics, ...newSide.diagnostics);
     for (const declaration of oldSide.declarations) {

@@ -33,6 +33,25 @@ function devNullDiff(path: string, side: 'addition' | 'deletion', source: string
   ].join('\n');
 }
 
+function metadataDiff(
+  kind: 'copy' | 'rename',
+  oldPath: string,
+  newPath: string,
+  oldSource: string,
+  newSource: string,
+): string {
+  return [
+    `diff --git a/${oldPath} b/${newPath}`,
+    `${kind} from ${oldPath}`,
+    `${kind} to ${newPath}`,
+    `--- a/${oldPath}`,
+    `+++ b/${newPath}`,
+    '@@ -1 +1 @@',
+    ...oldSource.split('\n').map((line) => `-${line}`),
+    ...newSource.split('\n').map((line) => `+${line}`),
+  ].join('\n');
+}
+
 const deletedExport = fileDiff(
   'src/old.ts',
   'export function audit_resources() { return true; }',
@@ -185,6 +204,75 @@ assert.deepEqual(
   analyzeDeletedSymbols(devNullDiff('src/added.ts', 'addition', 'export function addedFileSymbol() { return true; }')).symbols,
   [],
   'a supported file addition through /dev/null is not a deletion',
+);
+
+const pureCopy = [
+  'diff --git a/src/original.ts b/src/copied.ts',
+  'similarity index 100%',
+  'copy from src/original.ts',
+  'copy to src/copied.ts',
+  '@@ -1 +1 @@',
+  ' export function survivingOriginal() { return true; }',
+].join('\n');
+assert.deepEqual(scanDeletedSymbols(pureCopy), [], 'a pure copy is an addition while the original declaration survives');
+
+const quotedMetadataCopy = [
+  'diff --git "a/src/original\\tfile.ts" "b/src/copied\\tfile.ts"',
+  'copy from "src/original\\tfile.ts"',
+  'copy to "src/copied\\tfile.ts"',
+  '@@ -1 +1 @@',
+  ' export function survivingQuotedCopySource() { return true; }',
+].join('\n');
+assert.deepEqual(scanDeletedSymbols(quotedMetadataCopy), [], 'C-quoted copy metadata paths retain copy-as-addition semantics');
+
+const modifiedCopy = metadataDiff(
+  'copy',
+  'src/original.ts',
+  'src/modified-copy.ts',
+  'export function survivingOriginal() { return true; }',
+  'export function copiedVariant() { return false; }',
+);
+assert.deepEqual(scanDeletedSymbols(modifiedCopy), [], 'a modified copy never feeds its old side into removed declarations');
+
+const metadataRename = metadataDiff(
+  'rename',
+  'src/metadata-old.ts',
+  'src/metadata-new.ts',
+  'export function renamedByMetadata() { return true; }',
+  'export function renamedByMetadata() { return true; }',
+);
+assert.deepEqual(scanDeletedSymbols(metadataRename), ['renamedByMetadata'], 'rename metadata retains path-bound deletion semantics');
+
+for (const [oldToken, newToken, symbol] of [
+  ['"a/src/\\303\\251.ts"', '"b/src/\\303\\251.ts"', 'unicodeQuotedDeletion'],
+  ['"a/src/tab\\tname.ts"', '"b/src/tab\\tname.ts"', 'tabQuotedDeletion'],
+  ['"a/src/line\\nname.ts"', '"b/src/line\\nname.ts"', 'newlineQuotedDeletion'],
+  ['"a/src/quote\\"name.ts"', '"b/src/quote\\"name.ts"', 'quoteQuotedDeletion'],
+  ['"a/src/back\\\\slash.ts"', '"b/src/back\\\\slash.ts"', 'backslashQuotedDeletion'],
+  ['a/src/space name.ts', 'b/src/space name.ts', 'spacePathDeletion'],
+] as const) {
+  const quotedPathDeletion = [
+    `diff --git ${oldToken} ${newToken}`,
+    `--- ${oldToken}`,
+    '+++ /dev/null',
+    `-export function ${symbol}() { return true; }`,
+  ].join('\n');
+  const analysis = analyzeDeletedSymbols(quotedPathDeletion);
+  assert.deepEqual(analysis.symbols, [symbol], `quoted/special path deletion remains visible for ${symbol}`);
+  assert.deepEqual(analysis.diagnostics, []);
+}
+
+const malformedQuotedPath = [
+  'diff --git "a/src/broken.ts" "b/src/broken.ts',
+  '--- "a/src/broken.ts"',
+  '+++ /dev/null',
+  '-export function mustNotUseFragmentFallback() { return true; }',
+].join('\n');
+const malformedQuotedPathAnalysis = analyzeDeletedSymbols(malformedQuotedPath);
+assert.deepEqual(malformedQuotedPathAnalysis.symbols, [], 'malformed path quoting cannot fall back to a synthetic TypeScript fragment');
+assert.ok(
+  malformedQuotedPathAnalysis.diagnostics.some((diagnostic) => /diff path:.*closing quote/.test(diagnostic)),
+  'malformed Git path quoting fails closed with a focused diagnostic',
 );
 
 const shebangMjs = [
