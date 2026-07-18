@@ -116,6 +116,29 @@
         "scanEscalationReason": null
       },
       "_hash": "3c4f1f131b5de9b689e8feb8cef2faa8758d034b9d1410b491237ce1e4180daf"
+    },
+    {
+      "id": "B-0784:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "PASS: incremental review of 1572a6e170/F-021/F-022. Independent real-git pure rename matrix retained old+new paths; dual-allowed passed, old protected/excluded and target excluded/unknown blocked. Identity-only hunk retained current+previous critical and protected anchor blocked. Rename+modify/missing-side focused smoke passed; copy and rename-chain ambiguity failed closed; generic parse/source guidance remained non-rename-specific. Build, scope-contract-smoke, semantic-scope-guard-smoke, and diff-check passed. No full suite or owner lifecycle run.",
+      "createdAt": "2026-07-18T03:18:24.739Z",
+      "reviewRound": "2026-07-18T03:15:34.899Z",
+      "reviewRunId": "B-0784:RR-015",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/scope-contract.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/semantic-scope-gate.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts",
+          "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "57d1c27eb468a14d7f54c88caaa308223b31a882a194d225eaca59c01ba6e087"
     }
   ]
 }
