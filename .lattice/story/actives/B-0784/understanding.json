@@ -1,0 +1,34 @@
+{
+  "task": "Canonicalize scope path identities, replace regex anchors with versioned TypeScript AST declarations, and narrowly trust official B-META gap metadata.",
+  "outcome": "When a user runs scope checks, equivalent source-relative and repo-relative paths produce PASS with diagnostics showing original and canonical paths; function-body edits report the enclosing declaration rather than if/local const; official gap_log metadata no longer blocks done_prepare, while forged or unknown metadata still reports BLOCKED.",
+  "facts": [
+    "Workstream E/C6 requires one explicit repo-root-relative path base and independent path/AST rollout flags.",
+    "Current scope_contract_init_from_plan copies checklist file strings without source-root canonicalization.",
+    "Current scope-diff-pack nearestTsAnchor is regex-based and can select control flow/local variables.",
+    "Current lifecycle classifier is storyId-scoped and therefore excludes B-META shared gap_log output from safe metadata.",
+    "B-62b8 reproduced B-META findings.json blocking done_prepare cleanTree."
+  ],
+  "constraints": [
+    "Keep traversal, absolute-path, symlink escape, protected anchor, unknown .lattice, and direct untrusted story writes fail-closed.",
+    "Do not rewrite existing signed artifacts; versioned readers and explicit stale/re-attestation are required.",
+    "Path and AST rollout/rollback must be independent.",
+    "B-META trust must be mechanically provenance/content bound, never path-only.",
+    "Use bounded focused tests and local Lattice entrypoint; no broad corpus scans or OMX."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/scope-contract.ts",
+    "packages/main/src/core/scope-contract.ts",
+    "packages/main/src/core/scope-path-classifier.ts",
+    "packages/main/src/core/scope-diff-pack.ts",
+    "packages/main/src/core/semantic-scope-gate.ts",
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/core/done-prepare-generated-metadata.ts",
+    "packages/main/src/handlers/gap-log.ts",
+    "packages/main/src/tasks/scope-contract-smoke.ts",
+    "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+    "packages/main/src/tasks/gap-log-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "timestamp": "2026-07-18T01:42:36.216Z"
+}

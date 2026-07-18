@@ -9,7 +9,21 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Scope diagnostics show input=core/foo.ts canonical=packages/main/src/core/foo.ts and PASS for equivalent declared/git paths.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/core/scope-contract.ts",
+          "packages/main/src/core/scope-path-classifier.ts",
+          "packages/main/src/core/types.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/scope-contract-smoke.ts",
+          "packages/main/src/tasks/scope-contract-plan-scope-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-002",
