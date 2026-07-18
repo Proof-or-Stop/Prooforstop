@@ -54,6 +54,8 @@ import {
   type BurnAlertThresholds,
 } from '../core/usage-burn-alert.js';
 import {
+  buildSweepReport,
+  projectSweepReportForOutput,
   projectSweepSessionRowForOutput,
   sweepCodexSessions,
   type SweepSessionRow,
@@ -552,11 +554,55 @@ async function main(): Promise<void> {
           alert: true,
           json: true,
         });
-        const serialized = `${text}\n${JSON.stringify(json)}\n${JSON.stringify(sweepJson)}\n${JSON.stringify(sweepAlert)}`;
+        const sweepText = await sweepHandlers.usage_sweep({
+          since: '20d',
+          codexSessionsDir: nativeSentinelCodexDir,
+          claudeProjectsDir: nativeSentinelClaudeDir,
+        });
+        const sweepAlertText = await sweepHandlers.usage_sweep({
+          since: '20d',
+          codexSessionsDir: nativeSentinelCodexDir,
+          claudeProjectsDir: nativeSentinelClaudeDir,
+          alert: true,
+        }) as UsageSweepAlertResult;
+        const outRelative = `reports/native-redaction-${process.pid}.json`;
+        await sweepHandlers.usage_sweep({
+          since: '20d',
+          codexSessionsDir: nativeSentinelCodexDir,
+          claudeProjectsDir: nativeSentinelClaudeDir,
+          out: outRelative,
+          json: true,
+        });
+        const outBytes = readFileSync(join(ctx.root, outRelative), 'utf8');
+        const outwardSurfaces = {
+          doctorText: text,
+          doctorJson: JSON.stringify(json),
+          sweepJson: JSON.stringify(sweepJson),
+          sweepAlertJson: JSON.stringify(sweepAlert),
+          sweepText: String(sweepText),
+          sweepAlertText: String(sweepAlertText.output),
+          sweepOutFile: outBytes,
+        };
+        for (const [surface, output] of Object.entries(outwardSurfaces)) {
+          assert.equal(output.includes(codexNativeSentinel), false, `${surface} omits the raw Codex native id`);
+          assert.equal(output.includes(claudeNativeSentinel), false, `${surface} omits the raw Claude native id`);
+        }
+        const serialized = Object.values(outwardSurfaces).join('\n');
         assert.equal(serialized.includes(codexNativeSentinel), false, 'Codex native thread id is absent from doctor text and JSON');
         assert.equal(serialized.includes(claudeNativeSentinel), false, 'Claude native session id is absent from doctor text and JSON');
         assert.ok(serialized.includes(expectedCodexId), 'doctor retains the canonical opaque Codex owner-session identity');
         assert.ok(serialized.includes(expectedClaudeId), 'doctor retains a useful opaque Claude finding identity');
+        assert.ok(outwardSurfaces.sweepText.includes(expectedCodexId.slice(0, 8)), 'plain text retains a bounded opaque Codex id');
+        assert.ok(outwardSurfaces.sweepText.includes(expectedClaudeId.slice(0, 8)), 'plain text retains a bounded opaque Claude id');
+        for (const [surface, output] of [
+          ['alert text', outwardSurfaces.sweepAlertText],
+          ['out file', outwardSurfaces.sweepOutFile],
+        ]) {
+          assert.ok(output.includes(expectedCodexId), `${surface} retains the opaque Codex id`);
+          assert.ok(output.includes(expectedClaudeId), `${surface} retains the opaque Claude id`);
+          assert.ok(output.includes(`<codex-transcript>/${expectedCodexId}.jsonl`), `${surface} retains the opaque Codex locator`);
+          assert.ok(output.includes(`<claude-transcript>/${expectedClaudeId}.jsonl`), `${surface} retains the opaque Claude locator`);
+        }
         const findings = (json as any).hostBurnScan.findings;
         assert.ok(findings.every((finding: any) => /^sess-[a-f0-9]{32}$/.test(finding.sessionId)), 'every outward finding id is opaque');
         assert.ok(findings.every((finding: any) => /^<(?:codex|claude)-transcript>\/sess-[a-f0-9]{32}\.jsonl$/.test(finding.file)), 'every outward transcript locator is opaque');
@@ -603,6 +649,42 @@ async function main(): Promise<void> {
     );
     const burnSerialized = `${JSON.stringify(projectedBurn)}\n${renderHostBurnScan(projectedBurn, { disabled: false }).join('\n')}`;
     assert.equal(burnSerialized.includes(codexNativeSentinel), false, 'Burn finding JSON/text redacts a tainted originLabel and timestamp fields');
+  });
+
+  await checkAsync('outward projection: row, report, and burn evaluation are deeply idempotent', () => {
+    const raw = row({
+      host: 'codex',
+      sessionId: codexNativeSentinel,
+      file: `/native/${codexNativeSentinel}.jsonl`,
+      cwd: `/cwd/${codexNativeSentinel}`,
+      originator: `origin/${codexNativeSentinel}`,
+      usage: codexUsage(250_000_000),
+    });
+    const rowOnce = projectSweepSessionRowForOutput(raw, root);
+    const rowTwice = projectSweepSessionRowForOutput(rowOnce, root);
+    assert.deepEqual(rowTwice, rowOnce, 'row projection is deep-equal on a second pass');
+    assert.equal(rowTwice.sessionId, rowOnce.sessionId, 'row projection preserves the exact opaque id');
+
+    const reportOnce = projectSweepReportForOutput(buildSweepReport([raw]), root);
+    const reportTwice = projectSweepReportForOutput(reportOnce, root);
+    assert.deepEqual(reportTwice, reportOnce, 'report projection is deep-equal on a second pass');
+
+    const burnRaw = evaluateBurnAlerts([raw], {
+      nowMs: NOW,
+      thresholds: T,
+      fileSizeOf: () => 0,
+    });
+    const burnOnce = projectBurnAlertEvaluationForOutput(burnRaw, root);
+    const burnTwice = projectBurnAlertEvaluationForOutput(burnOnce, root);
+    assert.deepEqual(burnTwice, burnOnce, 'burn projection is deep-equal on a second pass');
+
+    const lookalike = row({
+      host: 'codex',
+      sessionId: 'sess-0123456789abcdef0123456789abcdef',
+      file: '/raw/user-controlled.jsonl',
+    });
+    const projectedLookalike = projectSweepSessionRowForOutput(lookalike, root);
+    assert.notEqual(projectedLookalike.sessionId, lookalike.sessionId, 'exact-looking user input without the host-bound locator is not trusted as projected');
   });
 
   await checkAsync('doctor: clean stores print the ✓ line; RECENT_HOURS=0 prints disabled and skips scanning', async () => {

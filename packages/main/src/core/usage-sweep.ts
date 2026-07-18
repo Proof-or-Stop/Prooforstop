@@ -92,6 +92,13 @@ function ownerSessionProvider(host: SweepHost): 'codex' | 'claude-code' {
   return host === 'codex' ? 'codex' : 'claude-code';
 }
 
+const OPAQUE_OWNER_SESSION_ID_RE = /^sess-[a-f0-9]{32}$/;
+
+function isProjectedSweepSessionRow(row: SweepSessionRow): boolean {
+  return OPAQUE_OWNER_SESSION_ID_RE.test(row.sessionId)
+    && row.file === `<${row.host}-transcript>/${row.sessionId}.jsonl`;
+}
+
 function redactNativeSessionMaterial<T extends string | null>(
   value: T,
   nativeSessionId: string,
@@ -110,6 +117,10 @@ export function projectSweepSessionRowForOutput(
   row: SweepSessionRow,
   projectRoot: string,
 ): SweepSessionRow {
+  // Idempotence requires the whole projection contract, not a loose `sess-`
+  // prefix. A raw user value that merely resembles an owner id is re-hashed
+  // unless its exact canonical id and host-bound locator already agree.
+  if (isProjectedSweepSessionRow(row)) return row;
   const opaqueSessionId = deriveAdapterOwnerSessionId(
     projectRoot,
     ownerSessionProvider(row.host),
