@@ -110,10 +110,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
           "note": "Final rerun at cc80555 validates DispatchUsageObservation optional provider fields plus complete-accounting equality.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.858Z"
         },
         {
           "intentRef": "prompt-contract-deterministic-algorithms",
@@ -121,10 +121,10 @@
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
           "note": "Stateful array Proxy cannot influence canonical bytes because it is rejected before any trap; deterministic normal object/array fixtures remain stable.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.858Z"
         },
         {
           "intentRef": "prompt-contract-reuses-estimator",
@@ -132,10 +132,10 @@
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
           "note": "Final-material empty/ASCII/CJK/emoji estimates match usage-ledger estimator v1.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.858Z"
         },
         {
           "intentRef": "prompt-contract-canonical-order-unicode",
@@ -143,10 +143,10 @@
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
           "note": "Final-material key-order and Unicode fixtures pass.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.858Z"
         },
         {
           "intentRef": "prompt-contract-lf-byte-boundary",
@@ -154,10 +154,10 @@
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
           "note": "Final-material LF/raw-byte boundaries pass.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.858Z"
         },
         {
           "intentRef": "prompt-contract-digest-domains",
@@ -165,10 +165,10 @@
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
           "note": "Final-material digest purpose/version mutations remain distinct.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.858Z"
         },
         {
           "intentRef": "prompt-contract-repetition-versioned",
@@ -176,10 +176,10 @@
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
           "note": "Final-material repetition fixtures and bounds pass.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.858Z"
         },
         {
           "intentRef": "prompt-contract-canonical-fail-closed",
@@ -187,10 +187,10 @@
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
           "note": "Node util.types.isProxy rejects plain-object, array and revoked Proxies before Array.isArray/prototype/ownKeys/descriptor traversal; instrumented traps remain at zero and normal plain inputs are unchanged.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.858Z"
         },
         {
           "intentRef": "prompt-contract-schema-fail-closed",
@@ -198,10 +198,10 @@
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
           "note": "Every required key of all four schemas is deleted in table-driven probes; all reject. Every optional PromptEnvelope digest rejects malformed values.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.858Z"
         },
         {
           "intentRef": "prompt-contract-story1-no-envelope",
@@ -209,10 +209,10 @@
           "command": "rg -n \"PromptEnvelope\" packages/main/src --glob \"!core/prompt-contracts.ts\" --glob \"!tasks/prompt-contract-measurement-smoke.ts\"",
           "result": "pass",
           "note": "Final tree contains no PromptEnvelope producer/persistence/gate integration.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.858Z"
         }
       ]
     },
@@ -340,10 +340,10 @@
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
           "note": "Final-material exact 16-role package membership passes.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.858Z"
         },
         {
           "intentRef": "role-registry-exact-status-partition",
@@ -351,10 +351,10 @@
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
           "note": "Final-material 12/3/1 partition passes.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.858Z"
         },
         {
           "intentRef": "role-registry-authority-and-replacements",
@@ -362,10 +362,10 @@
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
           "note": "Final-material authority and replacement assertions pass.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.858Z"
         },
         {
           "intentRef": "role-registry-order-independent-totality",
@@ -373,10 +373,10 @@
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
           "note": "Final-material totality and order-independent membership pass.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.858Z"
         },
         {
           "intentRef": "role-registry-nonactive-reporting",
@@ -384,10 +384,10 @@
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
           "note": "Final-material nonactive rows remain visible/non-default.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.858Z"
         },
         {
           "intentRef": "role-registry-alias-routing-unchanged",
@@ -395,10 +395,10 @@
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
           "note": "Final-material aliases and product INIT authority unchanged.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.858Z"
         },
         {
           "intentRef": "role-registry-retired-channel-routing-unchanged",
@@ -406,10 +406,10 @@
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
           "note": "Final-material descriptive retirement leaves current dispatch unchanged.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.859Z"
         },
         {
           "intentRef": "role-registry-duplicate-fails-closed",
@@ -417,10 +417,10 @@
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
           "note": "Final-material duplicate probe rejects.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.859Z"
         },
         {
           "intentRef": "role-registry-missing-fails-closed",
@@ -428,10 +428,10 @@
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
           "note": "Final-material missing-role probes reject.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.859Z"
         },
         {
           "intentRef": "role-registry-unknown-fails-closed",
@@ -439,10 +439,10 @@
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
           "note": "Final-material unknown-role probes reject.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.859Z"
         },
         {
           "intentRef": "role-registry-invalid-metadata-fails-closed",
@@ -451,10 +451,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
           "note": "The exported registry is deeply frozen at the collection, row, and nested-array levels. A child process verifies strict-mode status and nested-array mutations throw or leave values unchanged, and a corrupted foreign clone is rejected by validatePromptRoleContracts.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.859Z"
         },
         {
           "intentRef": "role-registry-dispatch-snapshot-unchanged",
@@ -462,10 +462,10 @@
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
           "note": "Final-material AGENT_DISPATCH_REGISTRY before/after snapshot remains identical.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.859Z"
         }
       ]
     },
@@ -603,10 +603,10 @@
           "command": "node bin/lattice.js prompt_measurement_report --format=text",
           "result": "pass",
           "note": "Final-material text report exposes 16 roles, aggregate metrics, algorithms and three layers.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.859Z"
         },
         {
           "intentRef": "CHK-003:happy:json-parity",
@@ -614,10 +614,10 @@
           "command": "node bin/lattice.js prompt_measurement_report --format=json",
           "result": "pass",
           "note": "Final-material JSON report has deterministic parity.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.859Z"
         },
         {
           "intentRef": "CHK-003:happy:sidecar-determinism",
@@ -625,10 +625,10 @@
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
           "note": "Final-material canonical sidecar equals regenerated 16-record report.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.859Z"
         },
         {
           "intentRef": "CHK-003:edge:metric-boundaries",
@@ -636,10 +636,10 @@
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
           "note": "Final-material metric boundaries pass.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.859Z"
         },
         {
           "intentRef": "CHK-003:edge:independent-availability",
@@ -647,10 +647,10 @@
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
           "note": "Provider components retain optional independent representation, while complete reported accounting is mechanically consistent.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.859Z"
         },
         {
           "intentRef": "CHK-003:edge:all-phases",
@@ -658,10 +658,10 @@
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
           "note": "Final-material all-phase policy assertions pass.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.859Z"
         },
         {
           "intentRef": "CHK-003:edge:read-only-policy",
@@ -669,10 +669,10 @@
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Final-material read-only all-phase L0 wiring passes.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.859Z"
         },
         {
           "intentRef": "CHK-003:adversarial:unavailable-not-zero",
@@ -680,10 +680,10 @@
           "command": "node bin/lattice.js prompt_measurement_report --format=json",
           "result": "pass",
           "note": "Final-material unknown/provider layers explicitly unavailable with reasons.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.859Z"
         },
         {
           "intentRef": "CHK-003:adversarial:no-provider-call",
@@ -691,10 +691,10 @@
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
           "note": "Final-material local-only generator succeeds without provider/launcher seams.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.859Z"
         },
         {
           "intentRef": "CHK-003:adversarial:no-writes",
@@ -702,10 +702,10 @@
           "command": "git status --porcelain > before; node bin/lattice.js prompt_measurement_report --format=text >/dev/null; node bin/lattice.js prompt_measurement_report --format=json >/dev/null; git status --porcelain > after; cmp before after",
           "result": "pass",
           "note": "Final-material CLI text/json probes leave porcelain snapshot unchanged.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.859Z"
         },
         {
           "intentRef": "CHK-003:adversarial:role-set-fail-closed",
@@ -714,10 +714,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
           "note": "Report generation revalidates PROMPT_ROLE_CONTRACTS against current prompt registry IDs before consumption. Child-process semantic-digest mutation cannot alter the singleton, foreign corruption fails closed, and the report remains 12 active / 3 legacy / 1 retired.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.859Z"
         },
         {
           "intentRef": "CHK-003:adversarial:l0-non-authority",
@@ -725,10 +725,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Final-material process-fact verifier preserves L0 no-gate boundary.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.859Z"
         }
       ]
     },
@@ -816,10 +816,10 @@
           "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
           "note": "Read-only verifier proves all 16 pre-Story agent_prompt bytes/hashes unchanged and sidecar current at commit bf6a386b4c.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.859Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
@@ -827,10 +827,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Build and focused verifier suite pass; repeated measurement serialization is byte-identical.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.859Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -838,10 +838,10 @@
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
           "note": "Exact 16-role lifecycle boundary rows and current alias/dispatch behavior are asserted.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.859Z"
         },
         {
           "intentRef": "CHK-004:edge:1",
@@ -849,10 +849,10 @@
           "command": "git diff --exit-code main -- packages/main/templates/agents .claude/agents .lattice-codex/agents docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
           "result": "pass",
           "note": "All protected prompt templates, both mirrors, and existing proof-or-stop baseline have empty diffs.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.859Z"
         },
         {
           "intentRef": "CHK-004:edge:2",
@@ -860,10 +860,10 @@
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
           "note": "Final boundary smoke includes equal complete provider accounting PASS and partial optional provider observation PASS.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.859Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -872,10 +872,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Deep-freeze and consumption-time validation probes pass while canonical prompts and baseline stay untouched; aggregate role partition remains 12/3/1 and corrupted cloned contracts are rejected.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.859Z"
         },
         {
           "intentRef": "CHK-004:adversarial:1",
@@ -883,10 +883,10 @@
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
           "note": "Plain/stateful-array/revoked Proxy mutations fail closed without trap invocation; normal prompt baseline remains unchanged.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.859Z"
         },
         {
           "intentRef": "CHK-004:adversarial:2",
@@ -894,10 +894,10 @@
           "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-baseline-drift",
           "result": "pass",
           "note": "Verifier copies real prompt sources to OS temp, proves pristine PASS, mutates copied source/assembled output and observes normal registry/output bytes-hash failures, restores in finally, proves PASS, removes temp state, and leaves protected repository paths unchanged.",
-          "headHash": "ac1598ea58b6a5faa4c5fb5d1ff64e46ca7feb39",
-          "materialHash": "667e660355b85c7b2450d1b980b0facdcb723a0650a1dc7b2b3572d878b967bc",
-          "storyFilesHash": "e61486923a4161d043b35f0d8eaf4c5069d7fa1292361aae03ae07aa12ca0ebe",
-          "timestamp": "2026-07-18T11:08:23.831Z"
+          "headHash": "f959a28ba98bbf2e7c68c33a88bc119d425032ce",
+          "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
+          "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
+          "timestamp": "2026-07-18T11:14:43.859Z"
         }
       ]
     }
